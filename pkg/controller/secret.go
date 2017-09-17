@@ -63,6 +63,7 @@ func (c *VaultController) syncSecretToVault(key string) error {
 		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
+
 	if !exists {
 		// Below we will warm up our cache with a Secret, so that we will see a delete for one secret
 		fmt.Printf("Secret %s does not exist anymore\n", key)

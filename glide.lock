@@ -1,13 +1,19 @@
-hash: 8a0bf6c7f33d381985a7db88fd3800225f0b8f50761e62457eda2697977dddd8
-updated: 2017-09-16T20:30:45.337697174-07:00
+hash: 46e763300b42078b1bd086e29aaf0111e80858e80570a36220d27f6a8cbdb5b8
+updated: 2017-09-17T05:41:31.896605739-07:00
 imports:
 - name: github.com/appscode/go
   version: d1fbd14e5c6e78557c12f6d2c9c282b3c0d0c612
   subpackages:
   - context
+  - crypto/rand
   - log
   - runtime
+  - types
   - version
+- name: github.com/appscode/kutil
+  version: f0662dec0a6dc707e1427b31c2e25b6a4d0ac2c4
+  subpackages:
+  - core/v1
 - name: github.com/appscode/log
   version: 68e0e42e42c01371f3950571fc87c2298a51dd8f
   subpackages:
@@ -70,6 +76,10 @@ imports:
   version: 83588e72410abfbe4df460eeb6f30841ae47d4c4
 - name: github.com/hashicorp/go-rootcerts
   version: 6bb64b370b90e7ef1fa532be9e591a81c3493e00
+- name: github.com/hashicorp/go-version
+  version: ac737305c16432f4c660c6fc68cdcda4b5a0b5ae
+  repo: https://github.com/appscode/go-version.git
+  vcs: git
 - name: github.com/hashicorp/golang-lru
   version: a0d98a5f288019575c6d1f4bb1573fef2d1fcdc4
   subpackages:

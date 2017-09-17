@@ -9,5 +9,11 @@ import:
   version: 1fd2e63a9a370677308a42f24fd40c86438afddf
 - package: k8s.io/client-go
   version: v4.0.0
+- package: github.com/appscode/kutil
+  version: release-4.0
 - package: github.com/hashicorp/vault
   version: v0.8.2
+- package: github.com/hashicorp/go-version
+  repo: https://github.com/appscode/go-version.git
+  vcs: git
+  version: master

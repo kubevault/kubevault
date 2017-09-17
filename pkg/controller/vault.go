@@ -1,9 +1,23 @@
 package controller
 
 import (
+	"time"
+
 	"github.com/appscode/go/log"
 	"github.com/hashicorp/vault/api"
 )
+
+type AppRole struct {
+	BindSecretID    bool          `json:"bind_secret_id"`
+	BoundCidrList   []string      `json:"bound_cidr_list"`
+	Period          time.Duration `json:"period"`
+	Policies        []string      `json:"policies"`
+	SecretIDNumUses int           `json:"secret_id_num_uses"`
+	SecretIDTTL     time.Duration `json:"secret_id_ttl"`
+	TokenMaxTTL     time.Duration `json:"token_max_ttl"`
+	TokenNumUses    int           `json:"token_num_uses"`
+	TokenTTL        time.Duration `json:"token_ttl"`
+}
 
 func (c *VaultController) mountSecretBackend() error {
 	// list enabled auth mechanism
