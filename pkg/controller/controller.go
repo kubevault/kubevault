@@ -2,9 +2,11 @@ package controller
 
 import (
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
+	stringz "github.com/appscode/go/strings"
 	"github.com/appscode/steward/pkg/eventer"
 	"github.com/golang/glog"
 	"github.com/hashicorp/vault/api"
@@ -187,6 +189,14 @@ func (c *VaultController) initVault() (err error) {
 	if err != nil {
 		return
 	}
+	c.vaultClient.SetWrappingLookupFunc(func(operation, path string) string {
+		if (operation == "PUT" || operation == "POST") &&
+			(path == "sys/wrapping/wrap" || path == "auth/approle/login") {
+			return stringz.Val(os.Getenv(api.EnvVaultWrapTTL), api.DefaultWrappingTTL)
+		}
+		return ""
+	})
+
 	err = c.mountSecretBackend()
 	if err != nil {
 		return

@@ -35,6 +35,12 @@ spec:
         - run
         - --v=3
         image: appscode/steward:canary
+        imagePullPolicy: Always
+        env:
+          - name: VAULT_ADDR
+            value: http://vault-server:8200
+          - name: VAULT_TOKEN
+            value: 3e4a5ba1-kube-422b-d1db-844979cab098
         ports:
         - containerPort: 56790
           name: http
