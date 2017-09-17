@@ -8,43 +8,43 @@ import (
 	"k8s.io/client-go/pkg/api/v1"
 )
 
-func (vc *VaultController) runServiceAccountWatcher() {
-	for vc.processNextServiceAccount() {
+func (c *VaultController) runServiceAccountWatcher() {
+	for c.processNextServiceAccount() {
 	}
 }
 
-func (vc *VaultController) processNextServiceAccount() bool {
+func (c *VaultController) processNextServiceAccount() bool {
 	// Wait until there is a new item in the working queue
-	key, quit := vc.saQueue.Get()
+	key, quit := c.saQueue.Get()
 	if quit {
 		return false
 	}
 	// Tell the queue that we are done with processing this key. This unblocks the key for other workers
 	// This allows safe parallel processing because two serviceAccounts with the same key are never processed in
 	// parallel.
-	defer vc.saQueue.Done(key)
+	defer c.saQueue.Done(key)
 
 	// Invoke the method containing the business logic
-	err := vc.syncSAToStdout(key.(string))
+	err := c.syncSAToStdout(key.(string))
 	if err == nil {
 		// Forget about the #AddRateLimited history of the key on every successful synchronization.
 		// This ensures that future processing of updates for this key is not delayed because of
 		// an outdated error history.
-		vc.saQueue.Forget(key)
+		c.saQueue.Forget(key)
 		return true
 	}
 
 	// This controller retries 5 times if something goes wrong. After that, it stops trying.
-	if vc.saQueue.NumRequeues(key) < vc.options.MaxNumRequeues {
+	if c.saQueue.NumRequeues(key) < c.options.MaxNumRequeues {
 		glog.Infof("Error syncing serviceAccount %v: %v", key, err)
 
 		// Re-enqueue the key rate limited. Based on the rate limiter on the
 		// queue and the re-enqueue history, the key will be processed later again.
-		vc.saQueue.AddRateLimited(key)
+		c.saQueue.AddRateLimited(key)
 		return true
 	}
 
-	vc.saQueue.Forget(key)
+	c.saQueue.Forget(key)
 	// Report to an external entity that, even after several retries, we could not successfully process this key
 	runtime.HandleError(err)
 	glog.Infof("Dropping serviceAccount %q out of the queue: %v", key, err)
@@ -54,8 +54,8 @@ func (vc *VaultController) processNextServiceAccount() bool {
 // syncToStdout is the business logic of the controller. In this controller it simply prints
 // information about the serviceAccount to stdout. In case an error happened, it has to simply return the error.
 // The retry logic should not be part of the business logic.
-func (vc *VaultController) syncSAToStdout(key string) error {
-	obj, exists, err := vc.saIndexer.GetByKey(key)
+func (c *VaultController) syncSAToStdout(key string) error {
+	obj, exists, err := c.saIndexer.GetByKey(key)
 	if err != nil {
 		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err

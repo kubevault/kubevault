@@ -1,6 +1,9 @@
 package controller
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 type Options struct {
 	ClusterName    string
@@ -9,4 +12,12 @@ type Options struct {
 	CACertFile     string
 	ResyncPeriod   time.Duration
 	MaxNumRequeues int
+}
+
+func (opt Options) SecretBackend() string {
+	return strings.ToLower(opt.ClusterName) + "-secrets/"
+}
+
+func (opt Options) AuthBackend() string {
+	return strings.ToLower(opt.ClusterName) + "-service-accounts/"
 }
