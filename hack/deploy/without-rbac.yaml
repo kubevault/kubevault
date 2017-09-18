@@ -13,7 +13,12 @@ initializers:
         apiVersions:
           - "*"
         resources:
+          - daemonsets
           - deployments
+          - jobs
+          - replicasets
+          - replicationcontrollers
+          - statefulsets
 ---
 apiVersion: apps/v1beta1
 kind: Deployment

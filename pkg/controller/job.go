@@ -5,54 +5,54 @@ import (
 
 	"github.com/appscode/go/log"
 	stringz "github.com/appscode/go/strings"
-	appsu "github.com/appscode/kutil/apps/v1beta1"
+	batchu "github.com/appscode/kutil/batch/v1"
 	v1u "github.com/appscode/kutil/core/v1"
 	"github.com/golang/glog"
 	"github.com/hashicorp/vault/api"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/pkg/api/v1"
-	apps "k8s.io/client-go/pkg/apis/apps/v1beta1"
+	batch "k8s.io/client-go/pkg/apis/batch/v1"
 )
 
-func (c *VaultController) runDeploymentWatcher() {
-	for c.processNextDeployment() {
+func (c *VaultController) runJobWatcher() {
+	for c.processNextJob() {
 	}
 }
 
-func (c *VaultController) processNextDeployment() bool {
+func (c *VaultController) processNextJob() bool {
 	// Wait until there is a new item in the working queue
-	key, quit := c.dpQueue.Get()
+	key, quit := c.jQueue.Get()
 	if quit {
 		return false
 	}
 	// Tell the queue that we are done with processing this key. This unblocks the key for other workers
 	// This allows safe parallel processing because two deployments with the same key are never processed in
 	// parallel.
-	defer c.dpQueue.Done(key)
+	defer c.jQueue.Done(key)
 
 	// Invoke the method containing the business logic
-	err := c.runDeploymentInitializer(key.(string))
+	err := c.runJobInitializer(key.(string))
 	if err == nil {
 		// Forget about the #AddRateLimited history of the key on every successful synchronization.
 		// This ensures that future processing of updates for this key is not delayed because of
 		// an outdated error history.
-		c.dpQueue.Forget(key)
+		c.jQueue.Forget(key)
 		return true
 	}
-	log.Errorln("Failed to process Deployment %v. Reason: %s", key, err)
+	log.Errorln("Failed to process Job %v. Reason: %s", key, err)
 
 	// This controller retries 5 times if something goes wrong. After that, it stops trying.
-	if c.dpQueue.NumRequeues(key) < c.options.MaxNumRequeues {
+	if c.jQueue.NumRequeues(key) < c.options.MaxNumRequeues {
 		glog.Infof("Error syncing deployment %v: %v", key, err)
 
 		// Re-enqueue the key rate limited. Based on the rate limiter on the
 		// queue and the re-enqueue history, the key will be processed later again.
-		c.dpQueue.AddRateLimited(key)
+		c.jQueue.AddRateLimited(key)
 		return true
 	}
 
-	c.dpQueue.Forget(key)
+	c.jQueue.Forget(key)
 	// Report to an external entity that, even after several retries, we could not successfully process this key
 	runtime.HandleError(err)
 	glog.Infof("Dropping deployment %q out of the queue: %v", key, err)
@@ -62,24 +62,24 @@ func (c *VaultController) processNextDeployment() bool {
 // syncToStdout is the business logic of the controller. In this controller it simply prints
 // information about the deployment to stdout. In case an error happened, it has to simply return the error.
 // The retry logic should not be part of the business logic.
-func (c *VaultController) runDeploymentInitializer(key string) error {
-	obj, exists, err := c.dpIndexer.GetByKey(key)
+func (c *VaultController) runJobInitializer(key string) error {
+	obj, exists, err := c.jIndexer.GetByKey(key)
 	if err != nil {
 		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
 
 	if !exists {
-		// Below we will warm up our cache with a Deployment, so that we will see a delete for one d
-		fmt.Printf("Deployment %s does not exist anymore\n", key)
+		// Below we will warm up our cache with a Job, so that we will see a delete for one d
+		fmt.Printf("Job %s does not exist anymore\n", key)
 	} else {
-		dp := obj.(*apps.Deployment)
-		fmt.Printf("Sync/Add/Update for Deployment %s\n", dp.GetName())
+		dp := obj.(*batch.Job)
+		fmt.Printf("Sync/Add/Update for Job %s\n", dp.GetName())
 
 		if dp.DeletionTimestamp != nil {
 			if v1u.HasFinalizer(dp.ObjectMeta, "finalizer.kubernetes.io/vault") ||
 				v1u.HasFinalizer(dp.ObjectMeta, "initializer.kubernetes.io/vault") {
-				dp, err = appsu.PatchDeployment(c.k8sClient, dp, func(in *apps.Deployment) *apps.Deployment {
+				dp, err = batchu.PatchJob(c.k8sClient, dp, func(in *batch.Job) *batch.Job {
 					in.ObjectMeta = v1u.RemoveFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 					return in
 				})
@@ -105,7 +105,7 @@ func (c *VaultController) runDeploymentInitializer(key string) error {
 					}
 				}
 
-				dp, err = appsu.PatchDeployment(c.k8sClient, dp, func(in *apps.Deployment) *apps.Deployment {
+				dp, err = batchu.PatchJob(c.k8sClient, dp, func(in *batch.Job) *batch.Job {
 					in.ObjectMeta = v1u.RemoveNextInitializer(in.ObjectMeta)
 					in.ObjectMeta = v1u.AddFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 
