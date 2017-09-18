@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"sync"
 	"time"
 
@@ -182,6 +183,8 @@ func (c *VaultController) initSecretWatcher() {
 	}, cache.Indexers{})
 }
 
+var approleLoginPathRegex = regexp.MustCompile(`auth/.+/login`)
+
 func (c *VaultController) initVault() (err error) {
 	// TODO: unseal vault
 
@@ -191,7 +194,7 @@ func (c *VaultController) initVault() (err error) {
 	}
 	c.vaultClient.SetWrappingLookupFunc(func(operation, path string) string {
 		if (operation == "PUT" || operation == "POST") &&
-			(path == "sys/wrapping/wrap" || path == "auth/approle/login") {
+			(path == "sys/wrapping/wrap" || approleLoginPathRegex.MatchString(path)) {
 			return stringz.Val(os.Getenv(api.EnvVaultWrapTTL), api.DefaultWrappingTTL)
 		}
 		return ""

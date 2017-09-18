@@ -26,6 +26,8 @@ spec:
   replicas: 1
   template:
     metadata:
+      initializers:
+        pending: []
       labels:
         app: vault-operator
     spec:
@@ -45,14 +47,6 @@ spec:
         - containerPort: 56790
           name: http
           protocol: TCP
-        volumeMounts:
-          - mountPath: /etc/kubernetes
-            name: cloudconfig
-            readOnly: true
-      volumes:
-        - hostPath:
-            path: /etc/kubernetes
-          name: cloudconfig
 ---
 apiVersion: v1
 kind: Service
