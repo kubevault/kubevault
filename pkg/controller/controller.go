@@ -2,12 +2,10 @@ package controller
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"sync"
 	"time"
 
-	stringz "github.com/appscode/go/strings"
 	"github.com/appscode/steward/pkg/eventer"
 	"github.com/golang/glog"
 	"github.com/hashicorp/vault/api"
@@ -18,6 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api/v1"
+	apps "k8s.io/client-go/pkg/apis/apps/v1beta1"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
@@ -29,10 +28,6 @@ type VaultController struct {
 
 	vaultClient *api.Client
 
-	podQueue    workqueue.RateLimitingInterface
-	podIndexer  cache.Indexer
-	podInformer cache.Controller
-
 	saQueue    workqueue.RateLimitingInterface
 	saIndexer  cache.Indexer
 	saInformer cache.Controller
@@ -40,6 +35,10 @@ type VaultController struct {
 	sQueue    workqueue.RateLimitingInterface
 	sIndexer  cache.Indexer
 	sInformer cache.Controller
+
+	dQueue    workqueue.RateLimitingInterface
+	dIndexer  cache.Indexer
+	dInformer cache.Controller
 
 	recorder record.EventRecorder
 	sync.Mutex
@@ -51,54 +50,39 @@ func New(client kubernetes.Interface, opt Options) *VaultController {
 		options:   opt,
 		recorder:  eventer.NewEventRecorder(client, "vault-controller"),
 	}
-	vc.initPodWatcher()
+	vc.initVault()
 	vc.initServiceAccountWatcher()
 	vc.initSecretWatcher()
-	vc.initVault()
+	vc.initDeploymentWatcher()
 	return vc
 }
 
-func (c *VaultController) initPodWatcher() {
-	lw := &cache.ListWatch{
-		ListFunc: func(options metav1.ListOptions) (rt.Object, error) {
-			options.IncludeUninitialized = true
-			return c.k8sClient.CoreV1().Pods(v1.NamespaceAll).List(options)
-		},
-		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
-			options.IncludeUninitialized = true
-			return c.k8sClient.CoreV1().Pods(v1.NamespaceAll).Watch(options)
-		},
+var approleLoginPathRegex = regexp.MustCompile(`auth/.+/login`)
+
+func (c *VaultController) initVault() (err error) {
+	// TODO: unseal vault
+
+	c.vaultClient, err = api.NewClient(api.DefaultConfig())
+	if err != nil {
+		return
 	}
+	//c.vaultClient.SetWrappingLookupFunc(func(operation, path string) string {
+	//	if (operation == "PUT" || operation == "POST") &&
+	//		(path == "sys/wrapping/wrap" || approleLoginPathRegex.MatchString(path)) {
+	//		return stringz.Val(os.Getenv(api.EnvVaultWrapTTL), api.DefaultWrappingTTL)
+	//	}
+	//	return ""
+	//})
 
-	// create the workqueue
-	c.podQueue = workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "pod")
-
-	// Bind the workqueue to a cache with the help of an informer. This way we make sure that
-	// whenever the cache is updated, the pod key is added to the workqueue.
-	// Note that when we finally process the item from the workqueue, we might see a newer version
-	// of the Pod than the version which was responsible for triggering the update.
-	c.podIndexer, c.podInformer = cache.NewIndexerInformer(lw, &v1.Pod{}, c.options.ResyncPeriod, cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			key, err := cache.MetaNamespaceKeyFunc(obj)
-			if err == nil {
-				c.podQueue.Add(key)
-			}
-		},
-		UpdateFunc: func(old interface{}, new interface{}) {
-			key, err := cache.MetaNamespaceKeyFunc(new)
-			if err == nil {
-				c.podQueue.Add(key)
-			}
-		},
-		DeleteFunc: func(obj interface{}) {
-			// IndexerInformer uses a delta queue, therefore for deletes we have to use this
-			// key function.
-			key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(obj)
-			if err == nil {
-				c.podQueue.Add(key)
-			}
-		},
-	}, cache.Indexers{})
+	err = c.mountSecretBackend()
+	if err != nil {
+		return
+	}
+	err = c.mountAuthBackend()
+	if err != nil {
+		return
+	}
+	return
 }
 
 func (c *VaultController) initServiceAccountWatcher() {
@@ -183,52 +167,63 @@ func (c *VaultController) initSecretWatcher() {
 	}, cache.Indexers{})
 }
 
-var approleLoginPathRegex = regexp.MustCompile(`auth/.+/login`)
-
-func (c *VaultController) initVault() (err error) {
-	// TODO: unseal vault
-
-	c.vaultClient, err = api.NewClient(api.DefaultConfig())
-	if err != nil {
-		return
+func (c *VaultController) initDeploymentWatcher() {
+	lw := &cache.ListWatch{
+		ListFunc: func(options metav1.ListOptions) (rt.Object, error) {
+			options.IncludeUninitialized = true
+			return c.k8sClient.AppsV1beta1().Deployments(v1.NamespaceAll).List(options)
+		},
+		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
+			options.IncludeUninitialized = true
+			return c.k8sClient.AppsV1beta1().Deployments(v1.NamespaceAll).Watch(options)
+		},
 	}
-	c.vaultClient.SetWrappingLookupFunc(func(operation, path string) string {
-		if (operation == "PUT" || operation == "POST") &&
-			(path == "sys/wrapping/wrap" || approleLoginPathRegex.MatchString(path)) {
-			return stringz.Val(os.Getenv(api.EnvVaultWrapTTL), api.DefaultWrappingTTL)
-		}
-		return ""
-	})
 
-	err = c.mountSecretBackend()
-	if err != nil {
-		return
-	}
-	err = c.mountAuthBackend()
-	if err != nil {
-		return
-	}
-	return
+	// create the workqueue
+	c.dQueue = workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "pod")
+
+	// Bind the workqueue to a cache with the help of an informer. This way we make sure that
+	// whenever the cache is updated, the pod key is added to the workqueue.
+	// Note that when we finally process the item from the workqueue, we might see a newer version
+	// of the Deployment than the version which was responsible for triggering the update.
+	c.dIndexer, c.dInformer = cache.NewIndexerInformer(lw, &apps.Deployment{}, c.options.ResyncPeriod, cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			key, err := cache.MetaNamespaceKeyFunc(obj)
+			if err == nil {
+				c.dQueue.Add(key)
+			}
+		},
+		UpdateFunc: func(old interface{}, new interface{}) {
+			key, err := cache.MetaNamespaceKeyFunc(new)
+			if err == nil {
+				c.dQueue.Add(key)
+			}
+		},
+		DeleteFunc: func(obj interface{}) {
+			// IndexerInformer uses a delta queue, therefore for deletes we have to use this
+			// key function.
+			key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(obj)
+			if err == nil {
+				c.dQueue.Add(key)
+			}
+		},
+	}, cache.Indexers{})
 }
 
 func (c *VaultController) Run(threadiness int, stopCh chan struct{}) {
 	defer runtime.HandleCrash()
 
 	// Let the workers stop when we are done
-	defer c.podQueue.ShutDown()
 	defer c.saQueue.ShutDown()
 	defer c.sQueue.ShutDown()
+	defer c.dQueue.ShutDown()
 	glog.Info("Starting Vault controller")
 
-	go c.podInformer.Run(stopCh)
 	go c.saInformer.Run(stopCh)
 	go c.sInformer.Run(stopCh)
+	go c.dInformer.Run(stopCh)
 
 	// Wait for all involved caches to be synced, before processing items from the queue is started
-	if !cache.WaitForCacheSync(stopCh, c.podInformer.HasSynced) {
-		runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
-		return
-	}
 	if !cache.WaitForCacheSync(stopCh, c.saInformer.HasSynced) {
 		runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
 		return
@@ -237,11 +232,15 @@ func (c *VaultController) Run(threadiness int, stopCh chan struct{}) {
 		runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
 		return
 	}
+	if !cache.WaitForCacheSync(stopCh, c.dInformer.HasSynced) {
+		runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
+		return
+	}
 
 	for i := 0; i < threadiness; i++ {
-		go wait.Until(c.runPodWatcher, time.Second, stopCh)
 		go wait.Until(c.runServiceAccountWatcher, time.Second, stopCh)
 		go wait.Until(c.runSecretWatcher, time.Second, stopCh)
+		go wait.Until(c.runDeploymentWatcher, time.Second, stopCh)
 	}
 
 	<-stopCh
