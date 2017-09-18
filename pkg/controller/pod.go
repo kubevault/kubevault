@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"path"
 	"strconv"
@@ -161,21 +162,31 @@ func (c *VaultController) runPodInitializer(key string) error {
 				}
 				roleID := vr.Data["role_id"]
 
-				vr, err = c.vaultClient.Logical().Write(path.Join("auth", c.options.AuthBackend(), "role", roleName, "secret-id"), map[string]interface{}{
-					"metadata": map[string]string{
-						"host_ip":   pod.Status.HostIP,
-						"namespace": pod.Namespace,
-						"pod_ip":    pod.Status.PodIP,
-						"pod_name":  pod.Name,
-						"pod_uid":   string(pod.UID),
-					},
+				mdSecret, err := json.Marshal(map[string]string{
+					"pod_name":  pod.Name,
+					"pod_uid":   string(pod.UID),
+					"namespace": pod.Namespace,
+					//"host_ip":   pod.Status.HostIP,
+					//"pod_ip":    pod.Status.PodIP,
 				})
+				if err != nil {
+					return err
+				}
+				vr, err = c.vaultClient.Logical().Write(path.Join("auth", c.options.AuthBackend(), "role", roleName, "secret-id"), map[string]interface{}{
+					"metadata": string(mdSecret),
+				})
+				if err != nil {
+					return err
+				}
 				secretID := vr.Data["secret_id"]
 
 				vr, err = c.vaultClient.Logical().Write(path.Join("auth", c.options.AuthBackend(), "login"), map[string]interface{}{
 					"role_id":   roleID,
 					"secret_id": secretID,
 				})
+				if err != nil {
+					return err
+				}
 				if vr.WrapInfo == nil {
 					return fmt.Errorf("missing wrapped token for role %s", roleName)
 				}
@@ -288,4 +299,9 @@ func (c *VaultController) runPodInitializer(key string) error {
 		}
 	}
 	return nil
+}
+
+func tj(v interface{}) string {
+	cb, _ := json.MarshalIndent(v, "", "  ")
+	return string(cb)
 }
