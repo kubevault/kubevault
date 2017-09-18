@@ -9,19 +9,21 @@ initializers:
       # apiGroups, apiVersion, resources all support wildcard "*".
       # "*" cannot be mixed with non-wildcard.
       - apiGroups:
-          - ""
+          - "*"
         apiVersions:
-          - v1
+          - "*"
         resources:
-          - pods
+          - deployments
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  labels:
-    app: vault-operator
   name: vault-operator
   namespace: vault
+  labels:
+    app: vault-operator
+  initializers:
+    pending: []
 spec:
   replicas: 1
   template:

@@ -5,7 +5,10 @@ import (
 	"path"
 	"time"
 
+	"github.com/appscode/go/log"
+	v1u "github.com/appscode/kutil/core/v1"
 	"github.com/golang/glog"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/tools/cache"
@@ -36,6 +39,7 @@ func (c *VaultController) processNextSecret() bool {
 		c.sQueue.Forget(key)
 		return true
 	}
+	log.Errorln("Failed to process Secret %v. Reason: %s", key, err)
 
 	// This controller retries 5 times if something goes wrong. After that, it stops trying.
 	if c.sQueue.NumRequeues(key) < c.options.MaxNumRequeues {
@@ -77,25 +81,75 @@ func (c *VaultController) syncSecretToVault(key string) error {
 		secret := obj.(*v1.Secret)
 		fmt.Printf("Sync/Add/Update for Secret %s\n", secret.GetName())
 
-		data := map[string]interface{}{}
-		for k, v := range secret.Data {
-			data[k] = string(v)
+		if secret.DeletionTimestamp != nil {
+			if v1u.HasFinalizer(secret.ObjectMeta, "finalizer.kubernetes.io/vault") {
+				saName, saNameFound := GetString(secret.Annotations, "kubernetes.io/service-account.name")
+				saUID, saUIDFound := GetString(secret.Annotations, "kubernetes.io/service-account.uid")
+				if saNameFound && saUIDFound {
+					err := c.vaultClient.Auth().Token().RevokeAccessor(string(secret.Data["VAULT_TOKEN_ACCESSOR"]))
+					if err != nil {
+						log.Errorln(err)
+					}
+					log.Infof("Revoked token accessor %s", string(secret.Data["VAULT_TOKEN_ACCESSOR"]))
+
+					// create new secret for rolename if s/a still exists
+					sa, err := c.k8sClient.CoreV1().ServiceAccounts(secret.Namespace).Get(saName, metav1.GetOptions{})
+					if err == nil && string(sa.UID) == saUID {
+						newSecret, err := c.createVaultToken(sa)
+						if err != nil {
+							return err
+						}
+
+						_, err = v1u.CreateOrPatchServiceAccount(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: sa.Name}, func(in *v1.ServiceAccount) *v1.ServiceAccount {
+							if in.Annotations == nil {
+								in.Annotations = map[string]string{}
+							}
+							in.Annotations["vaultproject.io/secret.name"] = newSecret.Name
+							return in
+						})
+						if err != nil {
+							return err
+						}
+					} else {
+						log.Errorln(err)
+					}
+				}
+				v1u.PatchSecret(c.k8sClient, secret, func(in *v1.Secret) *v1.Secret {
+					in.ObjectMeta = v1u.RemoveFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
+					return in
+				})
+
+			}
+			return nil
 		}
-		data["m:uid"] = secret.ObjectMeta.UID
-		data["m:resourceVersion"] = secret.ObjectMeta.ResourceVersion
-		data["m:generation"] = secret.ObjectMeta.Generation
-		data["m:creationTimestamp"] = secret.ObjectMeta.CreationTimestamp.UTC().Format(time.RFC3339)
-		if secret.ObjectMeta.DeletionTimestamp != nil {
-			data["m:deletionTimestamp"] = secret.ObjectMeta.DeletionTimestamp.UTC().Format(time.RFC3339)
+
+		if _, found := GetString(secret.Annotations, "vaultproject.io/origin"); !found {
+			data := map[string]interface{}{}
+			for k, v := range secret.Data {
+				data[k] = string(v)
+			}
+			data["m:uid"] = secret.ObjectMeta.UID
+			data["m:resourceVersion"] = secret.ObjectMeta.ResourceVersion
+			data["m:generation"] = secret.ObjectMeta.Generation
+			data["m:creationTimestamp"] = secret.ObjectMeta.CreationTimestamp.UTC().Format(time.RFC3339)
+			if secret.ObjectMeta.DeletionTimestamp != nil {
+				data["m:deletionTimestamp"] = secret.ObjectMeta.DeletionTimestamp.UTC().Format(time.RFC3339)
+			}
+			for k, v := range secret.ObjectMeta.Labels {
+				data["l:"+k] = v
+			}
+			for k, v := range secret.ObjectMeta.Annotations {
+				data["a:"+k] = v
+			}
+			_, err = c.vaultClient.Logical().Write(path.Join(c.options.SecretBackend(), secret.Namespace, secret.Name), data)
+			return err
+		} else {
+			_, err = v1u.PatchSecret(c.k8sClient, secret, func(in *v1.Secret) *v1.Secret {
+				in.ObjectMeta = v1u.AddFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
+				return in
+			})
+			return err
 		}
-		for k, v := range secret.ObjectMeta.Labels {
-			data["l:"+k] = v
-		}
-		for k, v := range secret.ObjectMeta.Annotations {
-			data["a:"+k] = v
-		}
-		_, err = c.vaultClient.Logical().Write(path.Join(c.options.SecretBackend(), secret.Namespace, secret.Name), data)
-		return err
 	}
 	return nil
 }

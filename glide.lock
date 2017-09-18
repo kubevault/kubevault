@@ -1,5 +1,5 @@
 hash: 46e763300b42078b1bd086e29aaf0111e80858e80570a36220d27f6a8cbdb5b8
-updated: 2017-09-17T17:45:44.587104617-07:00
+updated: 2017-09-18T14:52:50.471698749-07:00
 imports:
 - name: github.com/appscode/go
   version: d1fbd14e5c6e78557c12f6d2c9c282b3c0d0c612
@@ -12,8 +12,9 @@ imports:
   - types
   - version
 - name: github.com/appscode/kutil
-  version: bd4e7435a6a9e754602d196a71852675bb5c6b2a
+  version: 7dbeb23e008c913538a2a92dc007596bc1047350
   subpackages:
+  - apps/v1beta1
   - core/v1
 - name: github.com/appscode/log
   version: 68e0e42e42c01371f3950571fc87c2298a51dd8f
@@ -174,7 +175,7 @@ imports:
 - name: gopkg.in/inf.v0
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
 - name: gopkg.in/yaml.v2
-  version: 53feefa2559fb8dfa8d81baad31be332c97d6c77
+  version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
 - name: k8s.io/apimachinery
   version: 1fd2e63a9a370677308a42f24fd40c86438afddf
   subpackages:
