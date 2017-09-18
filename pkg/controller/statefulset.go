@@ -15,44 +15,44 @@ import (
 	apps "k8s.io/client-go/pkg/apis/apps/v1beta1"
 )
 
-func (c *VaultController) runDeploymentWatcher() {
-	for c.processNextDeployment() {
+func (c *VaultController) runStatefulSetWatcher() {
+	for c.processNextStatefulSet() {
 	}
 }
 
-func (c *VaultController) processNextDeployment() bool {
+func (c *VaultController) processNextStatefulSet() bool {
 	// Wait until there is a new item in the working queue
-	key, quit := c.dpQueue.Get()
+	key, quit := c.ssQueue.Get()
 	if quit {
 		return false
 	}
 	// Tell the queue that we are done with processing this key. This unblocks the key for other workers
 	// This allows safe parallel processing because two deployments with the same key are never processed in
 	// parallel.
-	defer c.dpQueue.Done(key)
+	defer c.ssQueue.Done(key)
 
 	// Invoke the method containing the business logic
-	err := c.runDeploymentInitializer(key.(string))
+	err := c.runStatefulSetInitializer(key.(string))
 	if err == nil {
 		// Forget about the #AddRateLimited history of the key on every successful synchronization.
 		// This ensures that future processing of updates for this key is not delayed because of
 		// an outdated error history.
-		c.dpQueue.Forget(key)
+		c.ssQueue.Forget(key)
 		return true
 	}
-	log.Errorln("Failed to process Deployment %v. Reason: %s", key, err)
+	log.Errorln("Failed to process StatefulSet %v. Reason: %s", key, err)
 
 	// This controller retries 5 times if something goes wrong. After that, it stops trying.
-	if c.dpQueue.NumRequeues(key) < c.options.MaxNumRequeues {
+	if c.ssQueue.NumRequeues(key) < c.options.MaxNumRequeues {
 		glog.Infof("Error syncing deployment %v: %v", key, err)
 
 		// Re-enqueue the key rate limited. Based on the rate limiter on the
 		// queue and the re-enqueue history, the key will be processed later again.
-		c.dpQueue.AddRateLimited(key)
+		c.ssQueue.AddRateLimited(key)
 		return true
 	}
 
-	c.dpQueue.Forget(key)
+	c.ssQueue.Forget(key)
 	// Report to an external entity that, even after several retries, we could not successfully process this key
 	runtime.HandleError(err)
 	glog.Infof("Dropping deployment %q out of the queue: %v", key, err)
@@ -62,24 +62,24 @@ func (c *VaultController) processNextDeployment() bool {
 // syncToStdout is the business logic of the controller. In this controller it simply prints
 // information about the deployment to stdout. In case an error happened, it has to simply return the error.
 // The retry logic should not be part of the business logic.
-func (c *VaultController) runDeploymentInitializer(key string) error {
-	obj, exists, err := c.dpIndexer.GetByKey(key)
+func (c *VaultController) runStatefulSetInitializer(key string) error {
+	obj, exists, err := c.ssIndexer.GetByKey(key)
 	if err != nil {
 		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
 
 	if !exists {
-		// Below we will warm up our cache with a Deployment, so that we will see a delete for one d
-		fmt.Printf("Deployment %s does not exist anymore\n", key)
+		// Below we will warm up our cache with a StatefulSet, so that we will see a delete for one d
+		fmt.Printf("StatefulSet %s does not exist anymore\n", key)
 	} else {
-		dp := obj.(*apps.Deployment)
-		fmt.Printf("Sync/Add/Update for Deployment %s\n", dp.GetName())
+		dp := obj.(*apps.StatefulSet)
+		fmt.Printf("Sync/Add/Update for StatefulSet %s\n", dp.GetName())
 
 		if dp.DeletionTimestamp != nil {
 			if v1u.HasFinalizer(dp.ObjectMeta, "finalizer.kubernetes.io/vault") ||
 				v1u.HasFinalizer(dp.ObjectMeta, "initializer.kubernetes.io/vault") {
-				dp, err = appsu.PatchDeployment(c.k8sClient, dp, func(in *apps.Deployment) *apps.Deployment {
+				dp, err = appsu.PatchStatefulSet(c.k8sClient, dp, func(in *apps.StatefulSet) *apps.StatefulSet {
 					in.ObjectMeta = v1u.RemoveFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 					return in
 				})
@@ -105,7 +105,7 @@ func (c *VaultController) runDeploymentInitializer(key string) error {
 					}
 				}
 
-				dp, err = appsu.PatchDeployment(c.k8sClient, dp, func(in *apps.Deployment) *apps.Deployment {
+				dp, err = appsu.PatchStatefulSet(c.k8sClient, dp, func(in *apps.StatefulSet) *apps.StatefulSet {
 					in.ObjectMeta = v1u.RemoveNextInitializer(in.ObjectMeta)
 					in.ObjectMeta = v1u.AddFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 
