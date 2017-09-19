@@ -14,10 +14,15 @@ steward run [flags]
 ### Options
 
 ```
-  -h, --help                     help for run
-      --kubeconfig string        Path to kubeconfig file with authorization information (the master location is set by the master flag).
-      --master string            The address of the Kubernetes API server (overrides any value in kubeconfig)
-      --resync-period duration   If non-zero, will re-list this often. Otherwise, re-list will be delayed aslong as possible (until the upstream source closes the watch or times out. (default 5m0s)
+      --ca-cert-file string           File containing CA certificate used by Vault server.
+      --cluster-name string           Name of Kubernetes cluster used to create backends (default "kubernetes")
+  -h, --help                          help for run
+      --kubeconfig string             Path to kubeconfig file with authorization information (the master location is set by the master flag).
+      --master string                 The address of the Kubernetes API server (overrides any value in kubeconfig)
+      --resync-period duration        If non-zero, will re-list this often. Otherwise, re-list will be delayed aslong as possible (until the upstream source closes the watch or times out. (default 5m0s)
+      --token-renew-period duration   Interval between consecutive attempts at renewing vault tokens. (default 1h0m0s)
+      --vault-address string          Address of Vault server
+      --vault-token string            Vault token used by operator.
 ```
 
 ### Options inherited from parent commands
