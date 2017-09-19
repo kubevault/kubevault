@@ -6,12 +6,13 @@ import (
 )
 
 type Options struct {
-	ClusterName    string
-	VaultAddress   string
-	VaultToken     string
-	CACertFile     string
-	ResyncPeriod   time.Duration
-	MaxNumRequeues int
+	ClusterName      string
+	VaultAddress     string
+	VaultToken       string
+	CACertFile       string
+	ResyncPeriod     time.Duration
+	TokenRenewPeriod time.Duration
+	MaxNumRequeues   int
 }
 
 func (opt Options) SecretBackend() string {

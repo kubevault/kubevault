@@ -15,7 +15,7 @@ import (
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/runtime"
-	"k8s.io/client-go/pkg/api/v1"
+	apiv1 "k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/tools/cache"
 )
 
@@ -88,7 +88,7 @@ func (c *VaultController) syncServiceAccountToVault(key string) error {
 			return err
 		}
 	} else {
-		sa := obj.(*v1.ServiceAccount)
+		sa := obj.(*apiv1.ServiceAccount)
 		fmt.Printf("Sync/Add/Update for ServiceAccount %s\n", sa.GetName())
 
 		p := path.Join("auth", c.options.AuthBackend(), "role", c.roleName(sa))
@@ -148,7 +148,7 @@ func (c *VaultController) syncServiceAccountToVault(key string) error {
 				return err
 			}
 
-			_, err = v1u.CreateOrPatchServiceAccount(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: sa.Name}, func(in *v1.ServiceAccount) *v1.ServiceAccount {
+			_, err = v1u.CreateOrPatchServiceAccount(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: sa.Name}, func(in *apiv1.ServiceAccount) *apiv1.ServiceAccount {
 				if in.Annotations == nil {
 					in.Annotations = map[string]string{}
 				}
@@ -163,11 +163,11 @@ func (c *VaultController) syncServiceAccountToVault(key string) error {
 	return nil
 }
 
-func (c *VaultController) roleName(sa *v1.ServiceAccount) string {
+func (c *VaultController) roleName(sa *apiv1.ServiceAccount) string {
 	return sa.Namespace + "." + sa.Name
 }
 
-func (c *VaultController) createVaultToken(sa *v1.ServiceAccount) (*v1.Secret, error) {
+func (c *VaultController) createVaultToken(sa *apiv1.ServiceAccount) (*apiv1.Secret, error) {
 	var caCert []byte
 	var err error
 	if c.options.CACertFile != "" {
@@ -220,7 +220,7 @@ func (c *VaultController) createVaultToken(sa *v1.ServiceAccount) (*v1.Secret, e
 
 	// auto generate name
 	secretName := sa.Name + "-vault-" + rand.Characters(5)
-	return v1u.CreateOrPatchSecret(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: secretName}, func(in *v1.Secret) *v1.Secret {
+	return v1u.CreateOrPatchSecret(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: secretName}, func(in *apiv1.Secret) *apiv1.Secret {
 		if in.Annotations == nil {
 			in.Annotations = map[string]string{}
 		}
@@ -257,7 +257,7 @@ func (c *VaultController) createVaultToken(sa *v1.ServiceAccount) (*v1.Secret, e
 			in.OwnerReferences = append(in.OwnerReferences, metav1.OwnerReference{})
 			fi = len(in.OwnerReferences) - 1
 		}
-		in.OwnerReferences[fi].APIVersion = v1.SchemeGroupVersion.String()
+		in.OwnerReferences[fi].APIVersion = apiv1.SchemeGroupVersion.String()
 		in.OwnerReferences[fi].Kind = "ServiceAccount"
 		in.OwnerReferences[fi].Name = sa.Name
 		in.OwnerReferences[fi].UID = sa.UID
