@@ -1,11 +1,13 @@
 #!/bin/bash
 
-set -o errexit
-set -o nounset
-set -o pipefail
+set -x
+set -eou pipefail
 
-pushd "$(go env GOPATH)/src/github.com/appscode/steward"
-rm -rf dist
+GOPATH=$(go env GOPATH)
+REPO_ROOT="$GOPATH/src/github.com/appscode/steward"
+rm -rf $REPO_ROOT/dist
+
 APPSCODE_ENV=prod ./hack/docker/setup.sh
 APPSCODE_ENV=prod ./hack/docker/setup.sh release
-popd
+
+rm $REPO_ROOT/dist/.tag

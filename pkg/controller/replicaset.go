@@ -9,10 +9,10 @@ import (
 	extu "github.com/appscode/kutil/extensions/v1beta1"
 	"github.com/golang/glog"
 	"github.com/hashicorp/vault/api"
+	apiv1 "k8s.io/api/core/v1"
+	extensions "k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/runtime"
-	apiv1 "k8s.io/client-go/pkg/api/v1"
-	extensions "k8s.io/client-go/pkg/apis/extensions/v1beta1"
 )
 
 func (c *VaultController) runReplicaSetWatcher() {
