@@ -9,7 +9,7 @@ import (
 	extu "github.com/appscode/kutil/extensions/v1beta1"
 	"github.com/golang/glog"
 	"github.com/hashicorp/vault/api"
-	apiv1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	extensions "k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/runtime"
@@ -95,7 +95,7 @@ func (c *VaultController) runDaemonSetInitializer(key string) error {
 					return err
 				}
 
-				var vaultSecret *apiv1.Secret
+				var vaultSecret *core.Secret
 				if secretName, found := GetString(sa.Annotations, "vaultproject.io/secret.name"); !found {
 					return fmt.Errorf("missing vault secret annotation for service account %s", serviceAccountName)
 				} else {
@@ -109,9 +109,9 @@ func (c *VaultController) runDaemonSetInitializer(key string) error {
 					in.ObjectMeta = v1u.RemoveNextInitializer(in.ObjectMeta)
 					in.ObjectMeta = v1u.AddFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 
-					volSrc := apiv1.SecretVolumeSource{
+					volSrc := core.SecretVolumeSource{
 						SecretName: vaultSecret.Name,
-						Items: []apiv1.KeyToPath{
+						Items: []core.KeyToPath{
 							{
 								Key:  api.EnvVaultAddress,
 								Path: "vault-addr",
@@ -141,24 +141,24 @@ func (c *VaultController) runDaemonSetInitializer(key string) error {
 						// DefaultMode
 					}
 					if _, found := vaultSecret.Data[api.EnvVaultCACert]; found {
-						volSrc.Items = append(volSrc.Items, apiv1.KeyToPath{
+						volSrc.Items = append(volSrc.Items, core.KeyToPath{
 							Key:  api.EnvVaultCACert,
 							Path: "ca.crt",
 							// Mode:
 						})
 					}
-					in.Spec.Template.Spec.Volumes = v1u.UpsertVolume(in.Spec.Template.Spec.Volumes, apiv1.Volume{
+					in.Spec.Template.Spec.Volumes = v1u.UpsertVolume(in.Spec.Template.Spec.Volumes, core.Volume{
 						Name: vaultSecret.Name,
-						VolumeSource: apiv1.VolumeSource{
+						VolumeSource: core.VolumeSource{
 							Secret: &volSrc,
 						},
 					})
 					for ci, c := range in.Spec.Template.Spec.Containers {
-						c.Env = v1u.UpsertEnvVar(c.Env, apiv1.EnvVar{
+						c.Env = v1u.UpsertEnvVar(c.Env, core.EnvVar{
 							Name: api.EnvVaultAddress,
-							ValueFrom: &apiv1.EnvVarSource{
-								SecretKeyRef: &apiv1.SecretKeySelector{
-									LocalObjectReference: apiv1.LocalObjectReference{
+							ValueFrom: &core.EnvVarSource{
+								SecretKeyRef: &core.SecretKeySelector{
+									LocalObjectReference: core.LocalObjectReference{
 										Name: vaultSecret.Name,
 									},
 									Key: api.EnvVaultAddress,
@@ -166,14 +166,14 @@ func (c *VaultController) runDaemonSetInitializer(key string) error {
 							},
 						})
 						if _, found := vaultSecret.Data[api.EnvVaultCACert]; found {
-							c.Env = v1u.UpsertEnvVar(c.Env, apiv1.EnvVar{
+							c.Env = v1u.UpsertEnvVar(c.Env, core.EnvVar{
 								Name:  api.EnvVaultCAPath,
 								Value: "/var/run/secrets/vaultproject.io/approle/ca.crt",
 							})
 						}
 						in.Spec.Template.Spec.Containers[ci].Env = c.Env
 
-						in.Spec.Template.Spec.Containers[ci].VolumeMounts = v1u.UpsertVolumeMount(c.VolumeMounts, apiv1.VolumeMount{
+						in.Spec.Template.Spec.Containers[ci].VolumeMounts = v1u.UpsertVolumeMount(c.VolumeMounts, core.VolumeMount{
 							Name:      vaultSecret.Name,
 							MountPath: "/var/run/secrets/vaultproject.io/approle",
 							ReadOnly:  true,

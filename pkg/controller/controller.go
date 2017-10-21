@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/vault/api"
 	apps "k8s.io/api/apps/v1beta1"
 	batch "k8s.io/api/batch/v1"
-	apiv1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	extensions "k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	rt "k8s.io/apimachinery/pkg/runtime"
@@ -116,10 +116,10 @@ func (c *VaultController) initVault() (err error) {
 func (c *VaultController) initServiceAccountWatcher() {
 	lw := &cache.ListWatch{
 		ListFunc: func(options metav1.ListOptions) (rt.Object, error) {
-			return c.k8sClient.CoreV1().ServiceAccounts(apiv1.NamespaceAll).List(options)
+			return c.k8sClient.CoreV1().ServiceAccounts(core.NamespaceAll).List(options)
 		},
 		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
-			return c.k8sClient.CoreV1().ServiceAccounts(apiv1.NamespaceAll).Watch(options)
+			return c.k8sClient.CoreV1().ServiceAccounts(core.NamespaceAll).Watch(options)
 		},
 	}
 
@@ -130,7 +130,7 @@ func (c *VaultController) initServiceAccountWatcher() {
 	// whenever the cache is updated, the pod key is added to the workqueue.
 	// Note that when we finally process the item from the workqueue, we might see a newer version
 	// of the ServiceAccount than the version which was responsible for triggering the update.
-	c.saIndexer, c.saInformer = cache.NewIndexerInformer(lw, &apiv1.ServiceAccount{}, c.options.ResyncPeriod, cache.ResourceEventHandlerFuncs{
+	c.saIndexer, c.saInformer = cache.NewIndexerInformer(lw, &core.ServiceAccount{}, c.options.ResyncPeriod, cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			key, err := cache.MetaNamespaceKeyFunc(obj)
 			if err == nil {
@@ -157,10 +157,10 @@ func (c *VaultController) initServiceAccountWatcher() {
 func (c *VaultController) initSecretWatcher() {
 	lw := &cache.ListWatch{
 		ListFunc: func(options metav1.ListOptions) (rt.Object, error) {
-			return c.k8sClient.CoreV1().Secrets(apiv1.NamespaceAll).List(options)
+			return c.k8sClient.CoreV1().Secrets(core.NamespaceAll).List(options)
 		},
 		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
-			return c.k8sClient.CoreV1().Secrets(apiv1.NamespaceAll).Watch(options)
+			return c.k8sClient.CoreV1().Secrets(core.NamespaceAll).Watch(options)
 		},
 	}
 
@@ -171,7 +171,7 @@ func (c *VaultController) initSecretWatcher() {
 	// whenever the cache is updated, the pod key is added to the workqueue.
 	// Note that when we finally process the item from the workqueue, we might see a newer version
 	// of the Secret than the version which was responsible for triggering the update.
-	c.sIndexer, c.sInformer = cache.NewIndexerInformer(lw, &apiv1.Secret{}, c.options.ResyncPeriod, cache.ResourceEventHandlerFuncs{
+	c.sIndexer, c.sInformer = cache.NewIndexerInformer(lw, &core.Secret{}, c.options.ResyncPeriod, cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			key, err := cache.MetaNamespaceKeyFunc(obj)
 			if err == nil {
@@ -199,11 +199,11 @@ func (c *VaultController) initDaemonSetWatcher() {
 	lw := &cache.ListWatch{
 		ListFunc: func(options metav1.ListOptions) (rt.Object, error) {
 			options.IncludeUninitialized = true
-			return c.k8sClient.ExtensionsV1beta1().DaemonSets(apiv1.NamespaceAll).List(options)
+			return c.k8sClient.ExtensionsV1beta1().DaemonSets(core.NamespaceAll).List(options)
 		},
 		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
 			options.IncludeUninitialized = true
-			return c.k8sClient.ExtensionsV1beta1().DaemonSets(apiv1.NamespaceAll).Watch(options)
+			return c.k8sClient.ExtensionsV1beta1().DaemonSets(core.NamespaceAll).Watch(options)
 		},
 	}
 
@@ -242,11 +242,11 @@ func (c *VaultController) initDeploymentWatcher() {
 	lw := &cache.ListWatch{
 		ListFunc: func(options metav1.ListOptions) (rt.Object, error) {
 			options.IncludeUninitialized = true
-			return c.k8sClient.AppsV1beta1().Deployments(apiv1.NamespaceAll).List(options)
+			return c.k8sClient.AppsV1beta1().Deployments(core.NamespaceAll).List(options)
 		},
 		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
 			options.IncludeUninitialized = true
-			return c.k8sClient.AppsV1beta1().Deployments(apiv1.NamespaceAll).Watch(options)
+			return c.k8sClient.AppsV1beta1().Deployments(core.NamespaceAll).Watch(options)
 		},
 	}
 
@@ -285,11 +285,11 @@ func (c *VaultController) initJobWatcher() {
 	lw := &cache.ListWatch{
 		ListFunc: func(options metav1.ListOptions) (rt.Object, error) {
 			options.IncludeUninitialized = true
-			return c.k8sClient.BatchV1().Jobs(apiv1.NamespaceAll).List(options)
+			return c.k8sClient.BatchV1().Jobs(core.NamespaceAll).List(options)
 		},
 		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
 			options.IncludeUninitialized = true
-			return c.k8sClient.BatchV1().Jobs(apiv1.NamespaceAll).Watch(options)
+			return c.k8sClient.BatchV1().Jobs(core.NamespaceAll).Watch(options)
 		},
 	}
 
@@ -328,11 +328,11 @@ func (c *VaultController) initRCWatcher() {
 	lw := &cache.ListWatch{
 		ListFunc: func(options metav1.ListOptions) (rt.Object, error) {
 			options.IncludeUninitialized = true
-			return c.k8sClient.CoreV1().ReplicationControllers(apiv1.NamespaceAll).List(options)
+			return c.k8sClient.CoreV1().ReplicationControllers(core.NamespaceAll).List(options)
 		},
 		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
 			options.IncludeUninitialized = true
-			return c.k8sClient.CoreV1().ReplicationControllers(apiv1.NamespaceAll).Watch(options)
+			return c.k8sClient.CoreV1().ReplicationControllers(core.NamespaceAll).Watch(options)
 		},
 	}
 
@@ -343,7 +343,7 @@ func (c *VaultController) initRCWatcher() {
 	// whenever the cache is updated, the pod key is added to the workqueue.
 	// Note that when we finally process the item from the workqueue, we might see a newer version
 	// of the ReplicationController than the version which was responsible for triggering the update.
-	c.rcIndexer, c.rcInformer = cache.NewIndexerInformer(lw, &apiv1.ReplicationController{}, c.options.ResyncPeriod, cache.ResourceEventHandlerFuncs{
+	c.rcIndexer, c.rcInformer = cache.NewIndexerInformer(lw, &core.ReplicationController{}, c.options.ResyncPeriod, cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			key, err := cache.MetaNamespaceKeyFunc(obj)
 			if err == nil {
@@ -371,11 +371,11 @@ func (c *VaultController) initReplicaSetWatcher() {
 	lw := &cache.ListWatch{
 		ListFunc: func(options metav1.ListOptions) (rt.Object, error) {
 			options.IncludeUninitialized = true
-			return c.k8sClient.ExtensionsV1beta1().ReplicaSets(apiv1.NamespaceAll).List(options)
+			return c.k8sClient.ExtensionsV1beta1().ReplicaSets(core.NamespaceAll).List(options)
 		},
 		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
 			options.IncludeUninitialized = true
-			return c.k8sClient.ExtensionsV1beta1().ReplicaSets(apiv1.NamespaceAll).Watch(options)
+			return c.k8sClient.ExtensionsV1beta1().ReplicaSets(core.NamespaceAll).Watch(options)
 		},
 	}
 
@@ -414,11 +414,11 @@ func (c *VaultController) initStatefulSetWatcher() {
 	lw := &cache.ListWatch{
 		ListFunc: func(options metav1.ListOptions) (rt.Object, error) {
 			options.IncludeUninitialized = true
-			return c.k8sClient.AppsV1beta1().StatefulSets(apiv1.NamespaceAll).List(options)
+			return c.k8sClient.AppsV1beta1().StatefulSets(core.NamespaceAll).List(options)
 		},
 		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
 			options.IncludeUninitialized = true
-			return c.k8sClient.AppsV1beta1().StatefulSets(apiv1.NamespaceAll).Watch(options)
+			return c.k8sClient.AppsV1beta1().StatefulSets(core.NamespaceAll).Watch(options)
 		},
 	}
 

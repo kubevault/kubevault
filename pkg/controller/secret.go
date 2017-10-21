@@ -8,7 +8,7 @@ import (
 	"github.com/appscode/go/log"
 	v1u "github.com/appscode/kutil/core/v1"
 	"github.com/golang/glog"
-	apiv1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/tools/cache"
@@ -78,7 +78,7 @@ func (c *VaultController) syncSecretToVault(key string) error {
 		}
 		c.vaultClient.Logical().Delete(path.Join(c.options.SecretBackend(), namespace, name))
 	} else {
-		secret := obj.(*apiv1.Secret)
+		secret := obj.(*core.Secret)
 		fmt.Printf("Sync/Add/Update for Secret %s\n", secret.GetName())
 
 		if secret.DeletionTimestamp != nil {
@@ -100,7 +100,7 @@ func (c *VaultController) syncSecretToVault(key string) error {
 							return err
 						}
 
-						_, err = v1u.CreateOrPatchServiceAccount(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: sa.Name}, func(in *apiv1.ServiceAccount) *apiv1.ServiceAccount {
+						_, err = v1u.CreateOrPatchServiceAccount(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: sa.Name}, func(in *core.ServiceAccount) *core.ServiceAccount {
 							if in.Annotations == nil {
 								in.Annotations = map[string]string{}
 							}
@@ -114,7 +114,7 @@ func (c *VaultController) syncSecretToVault(key string) error {
 						log.Errorln(err)
 					}
 				}
-				v1u.PatchSecret(c.k8sClient, secret, func(in *apiv1.Secret) *apiv1.Secret {
+				v1u.PatchSecret(c.k8sClient, secret, func(in *core.Secret) *core.Secret {
 					in.ObjectMeta = v1u.RemoveFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 					return in
 				})
@@ -144,7 +144,7 @@ func (c *VaultController) syncSecretToVault(key string) error {
 			_, err = c.vaultClient.Logical().Write(path.Join(c.options.SecretBackend(), secret.Namespace, secret.Name), data)
 			return err
 		} else {
-			_, err = v1u.PatchSecret(c.k8sClient, secret, func(in *apiv1.Secret) *apiv1.Secret {
+			_, err = v1u.PatchSecret(c.k8sClient, secret, func(in *core.Secret) *core.Secret {
 				in.ObjectMeta = v1u.AddFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 				return in
 			})

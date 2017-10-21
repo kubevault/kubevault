@@ -8,7 +8,7 @@ import (
 	v1u "github.com/appscode/kutil/core/v1"
 	"github.com/golang/glog"
 	"github.com/hashicorp/vault/api"
-	apiv1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/runtime"
 )
@@ -71,13 +71,13 @@ func (c *VaultController) runRCInitializer(key string) error {
 		// Below we will warm up our cache with a ReplicationController, so that we will see a delete for one d
 		fmt.Printf("ReplicationController %s does not exist anymore\n", key)
 	} else {
-		dp := obj.(*apiv1.ReplicationController)
+		dp := obj.(*core.ReplicationController)
 		fmt.Printf("Sync/Add/Update for ReplicationController %s\n", dp.GetName())
 
 		if dp.DeletionTimestamp != nil {
 			if v1u.HasFinalizer(dp.ObjectMeta, "finalizer.kubernetes.io/vault") ||
 				v1u.HasFinalizer(dp.ObjectMeta, "initializer.kubernetes.io/vault") {
-				dp, err = v1u.PatchRC(c.k8sClient, dp, func(in *apiv1.ReplicationController) *apiv1.ReplicationController {
+				dp, err = v1u.PatchRC(c.k8sClient, dp, func(in *core.ReplicationController) *core.ReplicationController {
 					in.ObjectMeta = v1u.RemoveFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 					return in
 				})
@@ -93,7 +93,7 @@ func (c *VaultController) runRCInitializer(key string) error {
 					return err
 				}
 
-				var vaultSecret *apiv1.Secret
+				var vaultSecret *core.Secret
 				if secretName, found := GetString(sa.Annotations, "vaultproject.io/secret.name"); !found {
 					return fmt.Errorf("missing vault secret annotation for service account %s", serviceAccountName)
 				} else {
@@ -103,13 +103,13 @@ func (c *VaultController) runRCInitializer(key string) error {
 					}
 				}
 
-				dp, err = v1u.PatchRC(c.k8sClient, dp, func(in *apiv1.ReplicationController) *apiv1.ReplicationController {
+				dp, err = v1u.PatchRC(c.k8sClient, dp, func(in *core.ReplicationController) *core.ReplicationController {
 					in.ObjectMeta = v1u.RemoveNextInitializer(in.ObjectMeta)
 					in.ObjectMeta = v1u.AddFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 
-					volSrc := apiv1.SecretVolumeSource{
+					volSrc := core.SecretVolumeSource{
 						SecretName: vaultSecret.Name,
-						Items: []apiv1.KeyToPath{
+						Items: []core.KeyToPath{
 							{
 								Key:  api.EnvVaultAddress,
 								Path: "vault-addr",
@@ -139,24 +139,24 @@ func (c *VaultController) runRCInitializer(key string) error {
 						// DefaultMode
 					}
 					if _, found := vaultSecret.Data[api.EnvVaultCACert]; found {
-						volSrc.Items = append(volSrc.Items, apiv1.KeyToPath{
+						volSrc.Items = append(volSrc.Items, core.KeyToPath{
 							Key:  api.EnvVaultCACert,
 							Path: "ca.crt",
 							// Mode:
 						})
 					}
-					in.Spec.Template.Spec.Volumes = v1u.UpsertVolume(in.Spec.Template.Spec.Volumes, apiv1.Volume{
+					in.Spec.Template.Spec.Volumes = v1u.UpsertVolume(in.Spec.Template.Spec.Volumes, core.Volume{
 						Name: vaultSecret.Name,
-						VolumeSource: apiv1.VolumeSource{
+						VolumeSource: core.VolumeSource{
 							Secret: &volSrc,
 						},
 					})
 					for ci, c := range in.Spec.Template.Spec.Containers {
-						c.Env = v1u.UpsertEnvVar(c.Env, apiv1.EnvVar{
+						c.Env = v1u.UpsertEnvVar(c.Env, core.EnvVar{
 							Name: api.EnvVaultAddress,
-							ValueFrom: &apiv1.EnvVarSource{
-								SecretKeyRef: &apiv1.SecretKeySelector{
-									LocalObjectReference: apiv1.LocalObjectReference{
+							ValueFrom: &core.EnvVarSource{
+								SecretKeyRef: &core.SecretKeySelector{
+									LocalObjectReference: core.LocalObjectReference{
 										Name: vaultSecret.Name,
 									},
 									Key: api.EnvVaultAddress,
@@ -164,14 +164,14 @@ func (c *VaultController) runRCInitializer(key string) error {
 							},
 						})
 						if _, found := vaultSecret.Data[api.EnvVaultCACert]; found {
-							c.Env = v1u.UpsertEnvVar(c.Env, apiv1.EnvVar{
+							c.Env = v1u.UpsertEnvVar(c.Env, core.EnvVar{
 								Name:  api.EnvVaultCAPath,
 								Value: "/var/run/secrets/vaultproject.io/approle/ca.crt",
 							})
 						}
 						in.Spec.Template.Spec.Containers[ci].Env = c.Env
 
-						in.Spec.Template.Spec.Containers[ci].VolumeMounts = v1u.UpsertVolumeMount(c.VolumeMounts, apiv1.VolumeMount{
+						in.Spec.Template.Spec.Containers[ci].VolumeMounts = v1u.UpsertVolumeMount(c.VolumeMounts, core.VolumeMount{
 							Name:      vaultSecret.Name,
 							MountPath: "/var/run/secrets/vaultproject.io/approle",
 							ReadOnly:  true,

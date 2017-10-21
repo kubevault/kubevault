@@ -7,7 +7,7 @@ import (
 	"github.com/appscode/go/log"
 	v1u "github.com/appscode/kutil/core/v1"
 	"github.com/hashicorp/vault/api"
-	apiv1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/runtime"
 )
@@ -65,7 +65,7 @@ func (c *VaultController) mountAuthBackend() error {
 func (c *VaultController) renewTokens() {
 	defer runtime.HandleCrash()
 	for range c.renewer.C {
-		list, err := c.k8sClient.CoreV1().Secrets(apiv1.NamespaceAll).List(metav1.ListOptions{})
+		list, err := c.k8sClient.CoreV1().Secrets(core.NamespaceAll).List(metav1.ListOptions{})
 		if err != nil {
 			continue
 		}
@@ -80,7 +80,7 @@ func (c *VaultController) renewTokens() {
 						log.Errorln(err)
 					}
 
-					_, err = v1u.PatchSecret(c.k8sClient, &secret, func(in *apiv1.Secret) *apiv1.Secret {
+					_, err = v1u.PatchSecret(c.k8sClient, &secret, func(in *core.Secret) *core.Secret {
 						if in.Data == nil {
 							in.Data = map[string][]byte{}
 						}
