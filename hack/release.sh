@@ -5,9 +5,12 @@ set -eou pipefail
 
 GOPATH=$(go env GOPATH)
 REPO_ROOT="$GOPATH/src/github.com/appscode/steward"
-rm -rf $REPO_ROOT/dist
 
+pushd $REPO_ROOT
+
+rm -rf dist
 APPSCODE_ENV=prod ./hack/docker/setup.sh
 APPSCODE_ENV=prod ./hack/docker/setup.sh release
+rm dist/.tag
 
-rm $REPO_ROOT/dist/.tag
+popd
