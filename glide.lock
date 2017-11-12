@@ -1,8 +1,8 @@
 hash: c8461710156e5e459e3fbca25d072f7a0517c732b0d4ce98f70d9547e92d74a2
-updated: 2017-10-20T15:41:48.253014854-07:00
+updated: 2017-11-12T00:13:42.707966879-08:00
 imports:
 - name: github.com/appscode/go
-  version: c01120782e8b487d1c86ab4299241edfe36a3ca2
+  version: 6c0d0eba230ad31f74a18b44beee6f865b01bdec
   subpackages:
   - context
   - crypto/rand
@@ -13,7 +13,7 @@ imports:
   - types
   - version
 - name: github.com/appscode/kutil
-  version: 6bc797dda352c4f8dfad7f0599574bba35724d12
+  version: 4b4f67973f42bf9a5355c6b4c2d00040833d4143
   subpackages:
   - apps/v1beta1
   - batch/v1
@@ -51,7 +51,7 @@ imports:
   - proto
   - sortkeys
 - name: github.com/golang/glog
-  version: 44145f04b68cf362d9c4df2182967c2275eaefed
+  version: 23def4e6c14b4da8ac2ed8007337bc5eb5007998
 - name: github.com/golang/groupcache
   version: 02826c3e79038b59d737d3b1c0a1d937f71a4433
   subpackages:
@@ -153,7 +153,7 @@ imports:
 - name: github.com/shurcooL/sanitized_anchor_name
   version: 10ef21a441db47d8b13ebcc5fd2310f636973c77
 - name: github.com/spf13/cobra
-  version: 7b2c5ac9fc04fc5efafb60700713d4fa609b777b
+  version: 2da4a54c5ceefcee7ca5dd0eea1e18a3b6366489
   subpackages:
   - doc
 - name: github.com/spf13/pflag
@@ -221,7 +221,7 @@ imports:
   - storage/v1
   - storage/v1beta1
 - name: k8s.io/apiextensions-apiserver
-  version: 89b2a556a65053a90552eaed26f810df4a266367
+  version: 5bc0d8f05a92b3a09bcf1a9db442a29c0b7a514d
   subpackages:
   - pkg/apis/apiextensions
   - pkg/apis/apiextensions/v1beta1
