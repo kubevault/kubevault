@@ -1,0 +1,3 @@
+To verify that Steward has started, run:
+
+  kubectl --namespace={{ .Release.Namespace }} get deployments -l "release={{ .Release.Name }}, app={{ template "steward.name" . }}"

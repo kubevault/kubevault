@@ -1,0 +1,12 @@
+apiVersion: v1
+description: 'Steward by AppsCode - Backup your Kubernetes Volumes'
+name: steward
+version: 0.1.0
+appVersion: 0.4.1
+home: https://github.com/appscode/steward
+icon: https://cdn.appscode.com/images/icon/steward.png
+sources:
+  - https://github.com/appscode/steward
+maintainers:
+  - name: appscode
+    email: support@appscode.com

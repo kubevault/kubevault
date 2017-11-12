@@ -33,8 +33,6 @@ spec:
   replicas: 1
   template:
     metadata:
-      initializers:
-        pending: []
       labels:
         app: vault-operator
     spec:
