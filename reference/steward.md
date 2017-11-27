@@ -1,3 +1,19 @@
+---
+title: Steward
+menu:
+  product_steward_0.1.0-alpha.0:
+    identifier: steward
+    name: Steward
+    parent: reference
+    weight: 0
+
+product_name: steward
+left_menu: product_steward_0.1.0-alpha.0
+section_menu_id: reference
+aliases:
+  - products/steward/0.1.0-alpha.0/reference/
+
+---
 ## steward
 
 Steward by AppsCode - HashiCorp Vault Operator for Kubernetes
@@ -22,6 +38,6 @@ Steward by AppsCode - HashiCorp Vault Operator for Kubernetes
 ```
 
 ### SEE ALSO
-* [steward run](steward_run.md)	 - Run operator
-* [steward version](steward_version.md)	 - Prints binary version number.
+* [steward run](/docs/reference/steward_run.md)	 - Run operator
+* [steward version](/docs/reference/steward_version.md)	 - Prints binary version number.
 

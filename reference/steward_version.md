@@ -1,3 +1,14 @@
+---
+title: Steward Version
+menu:
+  product_steward_0.1.0-alpha.0:
+    identifier: steward-version
+    name: Steward Version
+    parent: reference
+product_name: steward
+left_menu: product_steward_0.1.0-alpha.0
+section_menu_id: reference
+---
 ## steward version
 
 Prints binary version number.
@@ -31,5 +42,5 @@ steward version [flags]
 ```
 
 ### SEE ALSO
-* [steward](steward.md)	 - Steward by AppsCode - HashiCorp Vault Operator for Kubernetes
+* [steward](/docs/reference/steward.md)	 - Steward by AppsCode - HashiCorp Vault Operator for Kubernetes
 
