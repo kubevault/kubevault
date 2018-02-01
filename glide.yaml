@@ -1,20 +1,24 @@
 package: github.com/appscode/steward
 import:
 - package: github.com/appscode/go
+  version: master
+- package: github.com/appscode/kutil
+  version: release-6.0
+- package: github.com/golang/glog
+- package: github.com/hashicorp/go-version
+  repo: https://github.com/appscode/go-version.git
+  version: master
+  vcs: git
+- package: github.com/hashicorp/vault
+  version: v0.9.3
+- package: github.com/jpillora/go-ogle-analytics
 - package: github.com/spf13/cobra
+  version: master
 - package: github.com/spf13/pflag
   version: v1.0.0
 - package: k8s.io/api
-  version: fe29995db37613b9c5b2a647544cf627bfa8d299
+  version: kubernetes-1.9.0
 - package: k8s.io/apimachinery
-  version: 019ae5ada31de202164b118aee88ee2d14075c31
+  version: kubernetes-1.9.0
 - package: k8s.io/client-go
-  version: v5.0.0
-- package: github.com/appscode/kutil
-  version: release-5.0
-- package: github.com/hashicorp/vault
-  version: v0.8.3
-- package: github.com/hashicorp/go-version
-  repo: https://github.com/appscode/go-version.git
-  vcs: git
-  version: master
+  version: v6.0.0

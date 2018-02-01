@@ -5,8 +5,8 @@ import (
 
 	"github.com/appscode/go/log"
 	stringz "github.com/appscode/go/strings"
-	v1u "github.com/appscode/kutil/core/v1"
-	extu "github.com/appscode/kutil/extensions/v1beta1"
+	core_util "github.com/appscode/kutil/core/v1"
+	ext_util "github.com/appscode/kutil/extensions/v1beta1"
 	"github.com/golang/glog"
 	"github.com/hashicorp/vault/api"
 	core "k8s.io/api/core/v1"
@@ -77,10 +77,10 @@ func (c *VaultController) runReplicaSetInitializer(key string) error {
 		fmt.Printf("Sync/Add/Update for ReplicaSet %s\n", d.GetName())
 
 		if d.DeletionTimestamp != nil {
-			if v1u.HasFinalizer(d.ObjectMeta, "finalizer.kubernetes.io/vault") ||
-				v1u.HasFinalizer(d.ObjectMeta, "initializer.kubernetes.io/vault") {
-				d, err = extu.PatchReplicaSet(c.k8sClient, d, func(in *extensions.ReplicaSet) *extensions.ReplicaSet {
-					in.ObjectMeta = v1u.RemoveFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
+			if core_util.HasFinalizer(d.ObjectMeta, "finalizer.kubernetes.io/vault") ||
+				core_util.HasFinalizer(d.ObjectMeta, "initializer.kubernetes.io/vault") {
+				d, _, err = ext_util.PatchReplicaSet(c.k8sClient, d, func(in *extensions.ReplicaSet) *extensions.ReplicaSet {
+					in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 					return in
 				})
 				return err
@@ -105,9 +105,9 @@ func (c *VaultController) runReplicaSetInitializer(key string) error {
 					}
 				}
 
-				d, err = extu.PatchReplicaSet(c.k8sClient, d, func(in *extensions.ReplicaSet) *extensions.ReplicaSet {
-					in.ObjectMeta = v1u.RemoveNextInitializer(in.ObjectMeta)
-					in.ObjectMeta = v1u.AddFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
+				d, _, err = ext_util.PatchReplicaSet(c.k8sClient, d, func(in *extensions.ReplicaSet) *extensions.ReplicaSet {
+					in.ObjectMeta = core_util.RemoveNextInitializer(in.ObjectMeta)
+					in.ObjectMeta = core_util.AddFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 
 					volSrc := core.SecretVolumeSource{
 						SecretName: vaultSecret.Name,
@@ -147,14 +147,14 @@ func (c *VaultController) runReplicaSetInitializer(key string) error {
 							// Mode:
 						})
 					}
-					in.Spec.Template.Spec.Volumes = v1u.UpsertVolume(in.Spec.Template.Spec.Volumes, core.Volume{
+					in.Spec.Template.Spec.Volumes = core_util.UpsertVolume(in.Spec.Template.Spec.Volumes, core.Volume{
 						Name: vaultSecret.Name,
 						VolumeSource: core.VolumeSource{
 							Secret: &volSrc,
 						},
 					})
 					for ci, c := range in.Spec.Template.Spec.Containers {
-						c.Env = v1u.UpsertEnvVar(c.Env, core.EnvVar{
+						c.Env = core_util.UpsertEnvVars(c.Env, core.EnvVar{
 							Name: api.EnvVaultAddress,
 							ValueFrom: &core.EnvVarSource{
 								SecretKeyRef: &core.SecretKeySelector{
@@ -166,14 +166,14 @@ func (c *VaultController) runReplicaSetInitializer(key string) error {
 							},
 						})
 						if _, found := vaultSecret.Data[api.EnvVaultCACert]; found {
-							c.Env = v1u.UpsertEnvVar(c.Env, core.EnvVar{
+							c.Env = core_util.UpsertEnvVars(c.Env, core.EnvVar{
 								Name:  api.EnvVaultCAPath,
 								Value: "/var/run/secrets/vaultproject.io/approle/ca.crt",
 							})
 						}
 						in.Spec.Template.Spec.Containers[ci].Env = c.Env
 
-						in.Spec.Template.Spec.Containers[ci].VolumeMounts = v1u.UpsertVolumeMount(c.VolumeMounts, core.VolumeMount{
+						in.Spec.Template.Spec.Containers[ci].VolumeMounts = core_util.UpsertVolumeMount(c.VolumeMounts, core.VolumeMount{
 							Name:      vaultSecret.Name,
 							MountPath: "/var/run/secrets/vaultproject.io/approle",
 							ReadOnly:  true,
