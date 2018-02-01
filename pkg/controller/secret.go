@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/appscode/go/log"
-	v1u "github.com/appscode/kutil/core/v1"
+	core_util "github.com/appscode/kutil/core/v1"
 	"github.com/golang/glog"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -82,7 +82,7 @@ func (c *VaultController) syncSecretToVault(key string) error {
 		fmt.Printf("Sync/Add/Update for Secret %s\n", secret.GetName())
 
 		if secret.DeletionTimestamp != nil {
-			if v1u.HasFinalizer(secret.ObjectMeta, "finalizer.kubernetes.io/vault") {
+			if core_util.HasFinalizer(secret.ObjectMeta, "finalizer.kubernetes.io/vault") {
 				saName, saNameFound := GetString(secret.Annotations, "kubernetes.io/service-account.name")
 				saUID, saUIDFound := GetString(secret.Annotations, "kubernetes.io/service-account.uid")
 				if saNameFound && saUIDFound {
@@ -100,7 +100,7 @@ func (c *VaultController) syncSecretToVault(key string) error {
 							return err
 						}
 
-						_, err = v1u.CreateOrPatchServiceAccount(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: sa.Name}, func(in *core.ServiceAccount) *core.ServiceAccount {
+						_, _, err = core_util.CreateOrPatchServiceAccount(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: sa.Name}, func(in *core.ServiceAccount) *core.ServiceAccount {
 							if in.Annotations == nil {
 								in.Annotations = map[string]string{}
 							}
@@ -114,8 +114,8 @@ func (c *VaultController) syncSecretToVault(key string) error {
 						log.Errorln(err)
 					}
 				}
-				v1u.PatchSecret(c.k8sClient, secret, func(in *core.Secret) *core.Secret {
-					in.ObjectMeta = v1u.RemoveFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
+				core_util.PatchSecret(c.k8sClient, secret, func(in *core.Secret) *core.Secret {
+					in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 					return in
 				})
 
@@ -144,8 +144,8 @@ func (c *VaultController) syncSecretToVault(key string) error {
 			_, err = c.vaultClient.Logical().Write(path.Join(c.options.SecretBackend(), secret.Namespace, secret.Name), data)
 			return err
 		} else {
-			_, err = v1u.PatchSecret(c.k8sClient, secret, func(in *core.Secret) *core.Secret {
-				in.ObjectMeta = v1u.AddFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
+			_, _, err = core_util.PatchSecret(c.k8sClient, secret, func(in *core.Secret) *core.Secret {
+				in.ObjectMeta = core_util.AddFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 				return in
 			})
 			return err

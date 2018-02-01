@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/appscode/go/log"
-	v1u "github.com/appscode/kutil/core/v1"
+	core_util "github.com/appscode/kutil/core/v1"
 	"github.com/hashicorp/vault/api"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -80,7 +80,7 @@ func (c *VaultController) renewTokens() {
 						log.Errorln(err)
 					}
 
-					_, err = v1u.PatchSecret(c.k8sClient, &secret, func(in *core.Secret) *core.Secret {
+					_, _, err = core_util.PatchSecret(c.k8sClient, &secret, func(in *core.Secret) *core.Secret {
 						if in.Data == nil {
 							in.Data = map[string][]byte{}
 						}

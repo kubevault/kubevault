@@ -9,7 +9,7 @@ import (
 
 	"github.com/appscode/go/crypto/rand"
 	"github.com/appscode/go/log"
-	v1u "github.com/appscode/kutil/core/v1"
+	core_util "github.com/appscode/kutil/core/v1"
 	"github.com/golang/glog"
 	"github.com/hashicorp/vault/api"
 	core "k8s.io/api/core/v1"
@@ -148,7 +148,7 @@ func (c *VaultController) syncServiceAccountToVault(key string) error {
 				return err
 			}
 
-			_, err = v1u.CreateOrPatchServiceAccount(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: sa.Name}, func(in *core.ServiceAccount) *core.ServiceAccount {
+			_, _, err = core_util.CreateOrPatchServiceAccount(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: sa.Name}, func(in *core.ServiceAccount) *core.ServiceAccount {
 				if in.Annotations == nil {
 					in.Annotations = map[string]string{}
 				}
@@ -220,7 +220,7 @@ func (c *VaultController) createVaultToken(sa *core.ServiceAccount) (*core.Secre
 
 	// auto generate name
 	secretName := sa.Name + "-vault-" + rand.Characters(5)
-	return v1u.CreateOrPatchSecret(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: secretName}, func(in *core.Secret) *core.Secret {
+	out, _, err := core_util.CreateOrPatchSecret(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: secretName}, func(in *core.Secret) *core.Secret {
 		if in.Annotations == nil {
 			in.Annotations = map[string]string{}
 		}
@@ -264,6 +264,7 @@ func (c *VaultController) createVaultToken(sa *core.ServiceAccount) (*core.Secre
 
 		return in
 	})
+	return out, err
 }
 
 func GetString(m map[string]string, k string) (string, bool) {
