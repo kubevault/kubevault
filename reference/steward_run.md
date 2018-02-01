@@ -15,7 +15,6 @@ Run operator
 
 ### Synopsis
 
-
 Run operator
 
 ```
@@ -50,5 +49,6 @@ steward run [flags]
 ```
 
 ### SEE ALSO
+
 * [steward](/docs/reference/steward.md)	 - Steward by AppsCode - HashiCorp Vault Operator for Kubernetes
 
