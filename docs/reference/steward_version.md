@@ -15,7 +15,6 @@ Prints binary version number.
 
 ### Synopsis
 
-
 Prints binary version number.
 
 ```
@@ -42,5 +41,6 @@ steward version [flags]
 ```
 
 ### SEE ALSO
+
 * [steward](/docs/reference/steward.md)	 - Steward by AppsCode - HashiCorp Vault Operator for Kubernetes
 

@@ -20,7 +20,6 @@ Steward by AppsCode - HashiCorp Vault Operator for Kubernetes
 
 ### Synopsis
 
-
 Steward by AppsCode - HashiCorp Vault Operator for Kubernetes
 
 ### Options
@@ -38,6 +37,7 @@ Steward by AppsCode - HashiCorp Vault Operator for Kubernetes
 ```
 
 ### SEE ALSO
+
 * [steward run](/docs/reference/steward_run.md)	 - Run operator
 * [steward version](/docs/reference/steward_version.md)	 - Prints binary version number.
 

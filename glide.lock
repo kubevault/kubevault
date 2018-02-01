@@ -1,11 +1,13 @@
 hash: 98e437aa6af1da1f83fc4cf506c17cb90889d358a52437823334f1f4249c34be
-updated: 2018-02-01T00:26:31.918805639-08:00
+updated: 2018-02-01T00:54:02.144975668-08:00
 imports:
 - name: github.com/appscode/go
   version: 437df2b94ce2ea60464ff580c10462fbeb3e8f52
   subpackages:
+  - analytics
   - context
   - crypto/rand
+  - homedir
   - log
   - log/golog
   - runtime
@@ -20,6 +22,7 @@ imports:
   - core/v1
   - extensions/v1beta1
   - meta
+  - tools/analytics
 - name: github.com/appscode/mergo
   version: e3000cb3d28c72b837601cac94debd91032d19fe
 - name: github.com/cpuguy83/go-md2man
