@@ -17,7 +17,7 @@ import (
 func (c *VaultController) initStatefulSetWatcher() {
 	c.ssInformer = c.informerFactory.Apps().V1beta1().StatefulSets().Informer()
 	c.ssQueue = queue.New("StatefulSet", c.options.MaxNumRequeues, c.options.NumThreads, c.runStatefulSetInitializer)
-	c.ssInformer.AddEventHandler(queue.DefaultEventHandler(c.ssQueue.GetQueue()))
+	c.ssInformer.AddEventHandler(queue.NewUpsertHandler(c.ssQueue.GetQueue()))
 	// c.ssLister = c.informerFactory.Apps().V1beta1().StatefulSets().Lister()
 }
 

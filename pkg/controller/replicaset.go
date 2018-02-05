@@ -17,7 +17,7 @@ import (
 func (c *VaultController) initReplicaSetWatcher() {
 	c.rsInformer = c.informerFactory.Extensions().V1beta1().ReplicaSets().Informer()
 	c.rsQueue = queue.New("ReplicaSet", c.options.MaxNumRequeues, c.options.NumThreads, c.runReplicaSetInitializer)
-	c.rsInformer.AddEventHandler(queue.DefaultEventHandler(c.rsQueue.GetQueue()))
+	c.rsInformer.AddEventHandler(queue.NewUpsertHandler(c.rsQueue.GetQueue()))
 	// c.rsLister = c.informerFactory.Extensions().V1beta1().ReplicaSets().Lister()
 }
 

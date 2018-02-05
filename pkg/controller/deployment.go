@@ -17,7 +17,7 @@ import (
 func (c *VaultController) initDeploymentWatcher() {
 	c.dpInformer = c.informerFactory.Apps().V1beta1().Deployments().Informer()
 	c.dpQueue = queue.New("Deployment", c.options.MaxNumRequeues, c.options.NumThreads, c.runDeploymentInitializer)
-	c.dpInformer.AddEventHandler(queue.DefaultEventHandler(c.dpQueue.GetQueue()))
+	c.dpInformer.AddEventHandler(queue.NewUpsertHandler(c.dpQueue.GetQueue()))
 	// c.dpLister = c.kubeInformerFactory.Apps().V1beta1().Deployments().Lister()
 }
 

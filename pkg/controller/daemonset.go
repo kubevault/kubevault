@@ -17,7 +17,7 @@ import (
 func (c *VaultController) initDaemonSetWatcher() {
 	c.dsInformer = c.informerFactory.Extensions().V1beta1().DaemonSets().Informer()
 	c.dsQueue = queue.New("DaemonSet", c.options.MaxNumRequeues, c.options.NumThreads, c.runDaemonSetInitializer)
-	c.dsInformer.AddEventHandler(queue.DefaultEventHandler(c.dsQueue.GetQueue()))
+	c.dsInformer.AddEventHandler(queue.NewUpsertHandler(c.dsQueue.GetQueue()))
 	// c.dsLister = c.kubeInformerFactory.Extensions().V1beta1().DaemonSets().Lister()
 }
 

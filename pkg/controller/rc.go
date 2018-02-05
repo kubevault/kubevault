@@ -15,7 +15,7 @@ import (
 func (c *VaultController) initRCWatcher() {
 	c.rcInformer = c.informerFactory.Core().V1().ReplicationControllers().Informer()
 	c.rcQueue = queue.New("ReplicationController", c.options.MaxNumRequeues, c.options.NumThreads, c.runRCInitializer)
-	c.rcInformer.AddEventHandler(queue.DefaultEventHandler(c.rcQueue.GetQueue()))
+	c.rcInformer.AddEventHandler(queue.NewUpsertHandler(c.rcQueue.GetQueue()))
 	// c.rcLister = c.informerFactory.Core().V1().ReplicationControllers().Lister()
 }
 

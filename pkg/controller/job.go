@@ -17,7 +17,7 @@ import (
 func (c *VaultController) initJobWatcher() {
 	c.jobInformer = c.informerFactory.Batch().V1().Jobs().Informer()
 	c.jobQueue = queue.New("Job", c.options.MaxNumRequeues, c.options.NumThreads, c.runJobInitializer)
-	c.jobInformer.AddEventHandler(queue.DefaultEventHandler(c.jobQueue.GetQueue()))
+	c.jobInformer.AddEventHandler(queue.NewUpsertHandler(c.jobQueue.GetQueue()))
 	// c.jobLister = c.informerFactory.Batch().V1().Jobs().Lister()
 }
 
