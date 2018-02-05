@@ -8,9 +8,10 @@ REPO_ROOT="$GOPATH/src/github.com/appscode/steward"
 
 pushd $REPO_ROOT
 
+export APPSCODE_ENV=prod
 rm -rf dist
-APPSCODE_ENV=prod ./hack/docker/setup.sh
-APPSCODE_ENV=prod ./hack/docker/setup.sh release
-rm dist/.tag
+./hack/docker/setup.sh
+./hack/docker/setup.sh release
+rm -rf dist/.tag
 
 popd
