@@ -24,6 +24,7 @@ var (
 		ResyncPeriod:     5 * time.Minute,
 		TokenRenewPeriod: 60 * time.Minute,
 		MaxNumRequeues:   5,
+		NumThreads:       2,
 	}
 	// support unseal using secrets
 )
@@ -69,7 +70,7 @@ func run() {
 	// Now let's start the controller
 	stop := make(chan struct{})
 	defer close(stop)
-	go controller.Run(1, stop)
+	go controller.Run(stop)
 
 	// Wait forever
 	select {}

@@ -13,6 +13,7 @@ type Options struct {
 	ResyncPeriod     time.Duration
 	TokenRenewPeriod time.Duration
 	MaxNumRequeues   int
+	NumThreads       int
 }
 
 func (opt Options) SecretBackend() string {
