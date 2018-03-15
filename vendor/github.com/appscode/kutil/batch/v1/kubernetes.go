@@ -1,13 +1,15 @@
 package v1
 
 import (
-	"errors"
-
 	"github.com/appscode/kutil/meta"
+	"github.com/json-iterator/go"
+	"github.com/pkg/errors"
 	batch "k8s.io/api/batch/v1"
 	"k8s.io/apimachinery/pkg/conversion"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func GetGroupVersionKind(v interface{}) schema.GroupVersionKind {
 	return batch.SchemeGroupVersion.WithKind(meta.GetKind(v))
