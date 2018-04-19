@@ -24,7 +24,7 @@ If you have a question about Steward or having problem using it, you can contact
 If you have found a bug with Steward or want to request for new features, please [file an issue](https://github.com/appscode/Pack/issues/new). 
 
 ## Contribution Flow
-If you fix a bug or developed a new feature, feel free to submit a PR. In either case, please file a [Github issue]((https://github.com/appscode/steward/issues/new)) first, so that we can have a discussion on it. This is a rough outline of what a contributor's workflow looks like:
+If you fix a bug or developed a new feature, feel free to submit a PR. In either case, please file a [Github issue]((https://github.com/soter/vault-operator/issues/new)) first, so that we can have a discussion on it. This is a rough outline of what a contributor's workflow looks like:
 
 - Create a topic branch from where you want to base your work (usually master).
 - Make commits of logical units.

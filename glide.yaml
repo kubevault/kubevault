@@ -1,4 +1,4 @@
-package: github.com/appscode/steward
+package: github.com/soter/vault-operator
 import:
 - package: github.com/appscode/go
   version: master

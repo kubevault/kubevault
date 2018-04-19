@@ -1,4 +1,4 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/appscode/steward)](https://goreportcard.com/report/github.com/appscode/steward)
+[![Go Report Card](https://goreportcard.com/badge/github.com/soter/vault-operator)](https://goreportcard.com/report/github.com/soter/vault-operator)
 [![Build Status](https://travis-ci.org/appscode/steward.svg?branch=master)](https://travis-ci.org/appscode/steward)
 [![codecov](https://codecov.io/gh/appscode/steward/branch/master/graph/badge.svg)](https://codecov.io/gh/appscode/steward)
 [![Docker Pulls](https://img.shields.io/docker/pulls/appscode/steward.svg)](https://hub.docker.com/r/appscode/steward/)

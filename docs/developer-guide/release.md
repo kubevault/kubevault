@@ -7,7 +7,7 @@ The following steps must be done from a Linux x64 bit machine.
 - Push all the changes to remote repo.
 - Build and push steward docker image:
 ```console
-$ cd ~/go/src/github.com/appscode/steward
+$ cd ~/go/src/github.com/soter/vault-operator
 ./hack/release.sh
 ```
 
