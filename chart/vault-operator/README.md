@@ -1,14 +1,17 @@
-# Steward
-[Steward by AppsCode](https://github.com/appscode/steward) - HashiCorp Vault Operator for Kubernetes
+# Vault Operator
+[Vault Operator by AppsCode](https://github.com/soter/vault-operator) - HashiCorp Vault Operator for Kubernetes
+
 ## TL;DR;
 
 ```console
-$ helm install stable/steward
+$ helm repo add appscode https://charts.appscode.com/stable/
+$ helm repo update
+$ helm install stable/vault-operator
 ```
 
 ## Introduction
 
-This chart bootstraps a [HashiCorp Vault controller](https://github.com/appscode/steward) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
+This chart bootstraps a [HashiCorp Vault controller](https://github.com/soter/vault-operator) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
 ## Prerequisites
 
@@ -17,9 +20,9 @@ This chart bootstraps a [HashiCorp Vault controller](https://github.com/appscode
 ## Installing the Chart
 To install the chart with the release name `my-release`:
 ```console
-$ helm install stable/steward --name my-release
+$ helm install stable/vault-operator --name my-release
 ```
-The command deploys Steward operator on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
+The command deploys Vault operator on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
 
 > **Tip**: List all releases using `helm list`
 
@@ -35,13 +38,13 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ## Configuration
 
-The following tables lists the configurable parameters of the Steward chart and their default values.
+The following tables lists the configurable parameters of the Vault Operator chart and their default values.
 
 
 | Parameter                 | Description                                                         | Default            |
 | --------------------------| --------------------------------------------------------------------| ------------------ |
-| `replicaCount`            | Number of steward operator replicas to create (only 1 is supported) | `1`                |
-| `operator.image`          | operator container image                                            | `appscode/steward` |
+| `replicaCount`            | Number of vault-operator operator replicas to create (only 1 is supported) | `1`                |
+| `operator.image`          | operator container image                                            | `appscode/vault-operator` |
 | `operator.tag`            | operator container image tag                                        | `0.4.1`            |
 | `imagePullSecrets`        | Specify image pull secrets                                          | `nil` (does not add image pull secrets to deployed pods) |
 | `imagePullPolicy`         | Image pull policy                                                   | `IfNotPresent`     |
@@ -55,14 +58,14 @@ The following tables lists the configurable parameters of the Steward chart and 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example:
 
 ```console
-$ helm install --name my-release --set image.tag=v0.2.1 stable/steward
+$ helm install --name my-release --set image.tag=v0.2.1 stable/vault-operator
 ```
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while
 installing the chart. For example:
 
 ```console
-$ helm install --name my-release --values values.yaml stable/steward
+$ helm install --name my-release --values values.yaml stable/vault-operator
 ```
 
 ## RBAC
@@ -83,5 +86,5 @@ If the output contains "beta", you may install the chart with RBAC enabled (see 
 To enable the creation of RBAC resources (On clusters with RBAC). Do the following:
 
 ```console
-$ helm install --name my-release stable/steward --set rbac.create=true
+$ helm install --name my-release stable/vault-operator --set rbac.create=true
 ```

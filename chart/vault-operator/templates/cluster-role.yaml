@@ -1,11 +1,11 @@
 {{ if .Values.rbac.create }}
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ template "steward.fullname" . }}
+  name: {{ template "vault-operator.fullname" . }}
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app: "{{ template "steward.name" . }}"
+    app: "{{ template "vault-operator.name" . }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
 rules:
@@ -15,7 +15,7 @@ rules:
   - thirdpartyresources
   verbs: ["get", "create"]
 - apiGroups:
-  - steward.appscode.com
+  - vault-operator.appscode.com
   resources:
   - restics
   verbs: ["*"]

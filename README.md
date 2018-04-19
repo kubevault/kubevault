@@ -4,7 +4,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/appscode/steward.svg)](https://hub.docker.com/r/appscode/steward/)
 [![Slack](https://slack.appscode.com/badge.svg)](https://slack.appscode.com)
 [![Twitter](https://img.shields.io/twitter/follow/appscodehq.svg?style=social&logo=twitter&label=Follow)](https://twitter.com/intent/follow?screen_name=AppsCodeHQ)
-# steward
+
+# Vault Operator
 HashiCorp Vault Operator for Kubernetes
 
 ## Requirements

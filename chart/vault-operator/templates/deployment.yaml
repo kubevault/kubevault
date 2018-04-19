@@ -1,10 +1,10 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "steward.fullname" . }}
+  name: {{ template "vault-operator.fullname" . }}
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app: "{{ template "steward.name" . }}"
+    app: "{{ template "vault-operator.name" . }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
   initializers:
@@ -14,14 +14,14 @@ spec:
   template:
     metadata:
       labels:
-        app: "{{ template "steward.name" . }}"
+        app: "{{ template "vault-operator.name" . }}"
         release: "{{ .Release.Name }}"
 {{- if and .Values.criticalAddon (eq .Release.Namespace "kube-system") }}
       annotations:
         scheduler.alpha.kubernetes.io/critical-pod: ''
 {{- end }}
     spec:
-      serviceAccountName: {{ if .Values.rbac.create }}{{ template "steward.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
+      serviceAccountName: {{ if .Values.rbac.create }}{{ template "vault-operator.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
       containers:
       - args:
         - run
