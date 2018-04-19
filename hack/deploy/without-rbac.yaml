@@ -41,7 +41,7 @@ spec:
         args:
         - run
         - --v=3
-        image: appscode/steward:canary
+        image: soter/vault-operator:canary
         imagePullPolicy: Always
         env:
           - name: VAULT_ADDR
