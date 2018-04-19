@@ -4,9 +4,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/appscode/steward/pkg/controller"
 	"github.com/golang/glog"
 	"github.com/hashicorp/vault/api"
+	"github.com/soter/vault-operator/pkg/controller"
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"

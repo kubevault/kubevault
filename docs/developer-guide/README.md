@@ -16,8 +16,8 @@ development environment, please follow [these instructions](https://golang.org/d
 #### Download Source
 
 ```console
-$ go get github.com/appscode/steward
-$ cd $(go env GOPATH)/src/github.com/appscode/steward
+$ go get github.com/soter/vault-operator
+$ cd $(go env GOPATH)/src/github.com/soter/vault-operator
 ```
 
 #### Install Dev tools

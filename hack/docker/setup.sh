@@ -8,7 +8,7 @@ GOPATH=$(go env GOPATH)
 SRC=$GOPATH/src
 BIN=$GOPATH/bin
 ROOT=$GOPATH
-REPO_ROOT=$GOPATH/src/github.com/appscode/steward
+REPO_ROOT=$GOPATH/src/github.com/soter/vault-operator
 
 source "$REPO_ROOT/hack/libbuild/common/lib.sh"
 source "$REPO_ROOT/hack/libbuild/common/public_image.sh"
@@ -16,20 +16,20 @@ source "$REPO_ROOT/hack/libbuild/common/public_image.sh"
 APPSCODE_ENV=${APPSCODE_ENV:-dev}
 IMG=steward
 
-DIST=$GOPATH/src/github.com/appscode/steward/dist
+DIST=$GOPATH/src/github.com/soter/vault-operator/dist
 mkdir -p $DIST
 if [ -f "$DIST/.tag" ]; then
 	export $(cat $DIST/.tag | xargs)
 fi
 
 clean() {
-    pushd $GOPATH/src/github.com/appscode/steward/hack/docker
+    pushd $GOPATH/src/github.com/soter/vault-operator/hack/docker
     rm steward Dockerfile
     popd
 }
 
 build_binary() {
-    pushd $GOPATH/src/github.com/appscode/steward
+    pushd $GOPATH/src/github.com/soter/vault-operator
     ./hack/builddeps.sh
     ./hack/make.py build
     detect_tag $DIST/.tag
@@ -37,7 +37,7 @@ build_binary() {
 }
 
 build_docker() {
-    pushd $GOPATH/src/github.com/appscode/steward/hack/docker
+    pushd $GOPATH/src/github.com/soter/vault-operator/hack/docker
     cp $DIST/steward/steward-alpine-amd64 steward
     chmod 755 steward
 

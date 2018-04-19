@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/appscode/kutil/tools/queue"
-	"github.com/appscode/steward/pkg/eventer"
 	"github.com/golang/glog"
 	"github.com/hashicorp/vault/api"
+	"github.com/soter/vault-operator/pkg/eventer"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/runtime"
