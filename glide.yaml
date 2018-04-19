@@ -2,23 +2,37 @@ package: github.com/soter/vault-operator
 import:
 - package: github.com/appscode/go
   version: master
-- package: github.com/appscode/kutil
-  version: release-6.0
 - package: github.com/golang/glog
 - package: github.com/hashicorp/go-version
   repo: https://github.com/appscode/go-version.git
   version: master
   vcs: git
 - package: github.com/hashicorp/vault
-  version: v0.9.3
+  version: v0.10.0
 - package: github.com/jpillora/go-ogle-analytics
 - package: github.com/spf13/cobra
   version: master
 - package: github.com/spf13/pflag
-  version: v1.0.0
+  version: master
 - package: k8s.io/api
+  version: kubernetes-1.9.0
+- package: k8s.io/apiextensions-apiserver
   version: kubernetes-1.9.0
 - package: k8s.io/apimachinery
   version: kubernetes-1.9.0
+- package: k8s.io/apiserver
+  version: kubernetes-1.9.0
 - package: k8s.io/client-go
   version: v6.0.0
+- package: k8s.io/kubernetes
+  version: v1.9.0
+- package: github.com/prometheus/common
+  version: 3233b24a36715a2fe36d162260457857a56d672d
+- package: github.com/sirupsen/logrus
+  version: v1.0.3
+- package: github.com/cpuguy83/go-md2man
+  version: v1.0.4
+- package: github.com/appscode/kutil
+  version: release-6.0
+- package: github.com/appscode/kubernetes-webhook-util
+  version: release-6.0

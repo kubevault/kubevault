@@ -37,10 +37,10 @@ import time
 import yaml
 from os.path import expandvars, join, dirname
 
-libbuild.REPO_ROOT = expandvars('$GOPATH') + '/src/github.com/soter/vault-operator'
+libbuild.REPO_ROOT = libbuild.GOPATH + '/src/github.com/soter/vault-operator'
 BUILD_METADATA = libbuild.metadata(libbuild.REPO_ROOT)
 libbuild.BIN_MATRIX = {
-    'steward': {
+    'vault-operator': {
         'type': 'go',
         'go_version': True,
         'release': True,
@@ -51,7 +51,7 @@ libbuild.BIN_MATRIX = {
     }
 }
 if libbuild.ENV not in ['prod']:
-    libbuild.BIN_MATRIX['steward']['distro'] = {
+    libbuild.BIN_MATRIX['vault-operator']['distro'] = {
         'alpine': ['amd64']
     }
 libbuild.BUCKET_MATRIX = {
@@ -82,9 +82,9 @@ def version():
 
 
 def fmt():
-    libbuild.ungroup_go_imports('*.go', 'pkg')
-    die(call('goimports -w *.go pkg'))
-    call('gofmt -s -w *.go pkg')
+    libbuild.ungroup_go_imports('*.go', 'apis', 'client', 'pkg')
+    die(call('goimports -w *.go apis client pkg'))
+    call('gofmt -s -w *.go apis client pkg')
 
 
 def vet():
@@ -96,7 +96,7 @@ def lint():
 
 
 def gen():
-    call('go vet ./...')
+    pass
 
 
 def build_cmd(name):
@@ -147,9 +147,9 @@ def push(name=None):
 
 
 def update_registry():
-    vf = libbuild.REPO_ROOT + '/dist/steward/versions.json'
+    vf = libbuild.REPO_ROOT + '/dist/vault-operator/versions.json'
     bucket = libbuild.BUCKET_MATRIX.get(libbuild.ENV, libbuild.BUCKET_MATRIX['dev'])
-    call('gsutil cp {0}/binaries/steward/versions.json {1}'.format(bucket, vf))
+    call('gsutil cp {0}/binaries/vault-operator/versions.json {1}'.format(bucket, vf))
     vj = {}
     if os.path.isfile(vf):
         vj = libbuild.read_json(vf)
@@ -158,13 +158,13 @@ def update_registry():
         'release_date': int(time.time())
     }
     libbuild.write_json(vj, vf)
-    call("gsutil cp {1} {0}/binaries/steward/versions.json".format(bucket, vf))
-    call('gsutil acl ch -u AllUsers:R -r {0}/binaries/steward/versions.json'.format(bucket))
+    call("gsutil cp {1} {0}/binaries/vault-operator/versions.json".format(bucket, vf))
+    call('gsutil acl ch -u AllUsers:R -r {0}/binaries/vault-operator/versions.json'.format(bucket))
 
-    lf = libbuild.REPO_ROOT + '/dist/steward/latest.txt'
+    lf = libbuild.REPO_ROOT + '/dist/vault-operator/latest.txt'
     libbuild.write_file(lf, BUILD_METADATA['version'])
-    call("gsutil cp {1} {0}/binaries/steward/latest.txt".format(bucket, lf))
-    call('gsutil acl ch -u AllUsers:R -r {0}/binaries/steward/latest.txt'.format(bucket))
+    call("gsutil cp {1} {0}/binaries/vault-operator/latest.txt".format(bucket, lf))
+    call('gsutil acl ch -u AllUsers:R -r {0}/binaries/vault-operator/latest.txt'.format(bucket))
 
 
 def install():
