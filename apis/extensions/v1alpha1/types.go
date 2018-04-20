@@ -32,10 +32,10 @@ const (
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type Secret struct {
-	metav1.TypeMeta     `json:",inline,omitempty"`
-	metav1.ObjectMeta   `json:"metadata,omitempty"`
-	Data map[string][]byte `json:"data,omitempty" protobuf:"bytes,2,rep,name=data"`
-	Status SecretStatus `json:"status,omitempty"`
+	metav1.TypeMeta   `json:",inline,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+	Data              map[string][]byte `json:"data,omitempty" protobuf:"bytes,2,rep,name=data"`
+	Status            SecretStatus      `json:"status,omitempty"`
 }
 
 type SecretStatus struct {

@@ -21,10 +21,11 @@ limitations under the License.
 package v1alpha1
 
 import (
+	unsafe "unsafe"
+
 	extensions "github.com/soter/vault-operator/apis/extensions"
 	conversion "k8s.io/apimachinery/pkg/conversion"
 	runtime "k8s.io/apimachinery/pkg/runtime"
-	unsafe "unsafe"
 )
 
 func init() {
