@@ -25,13 +25,18 @@ spec:
         - run
         - --v=3
         - --rbac=${VAULT_OPERATOR_ENABLE_RBAC}
-        - --docker-registry=${VAULT_OPERATOR_DOCKER_REGISTRY}
         - --secure-port=8443
         - --audit-log-path=-
         - --tls-cert-file=/var/serving-cert/tls.crt
         - --tls-private-key-file=/var/serving-cert/tls.key
         - --enable-analytics=${VAULT_OPERATOR_ENABLE_ANALYTICS}
         image: ${VAULT_OPERATOR_DOCKER_REGISTRY}/vault-operator:canary
+        imagePullPolicy: Always
+        env:
+          - name: VAULT_ADDR
+            value: http://vault-server:8200
+          - name: VAULT_TOKEN
+            value: 3e4a5ba1-kube-422b-d1db-844979cab098
         ports:
         - containerPort: 8443
         volumeMounts:
@@ -77,12 +82,6 @@ spec:
   - name: admission
     port: 443
     targetPort: 8443
-  - name: pushgateway
-    port: 56789
-    targetPort: 56789
-  - name: ops
-    port: 56790
-    targetPort: 56790
   selector:
     app: vault-operator
 ---
