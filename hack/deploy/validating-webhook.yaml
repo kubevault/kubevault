@@ -1,0 +1,25 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: admission.vault.soter.ac
+  labels:
+    app: vault-operator
+webhooks:
+- name: restic.admission.vault.soter.ac
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/admission.vault.soter.ac/v1alpha1/vaultservers
+    caBundle: ${KUBE_CA}
+  rules:
+  - operations:
+    - CREATE
+    - UPDATE
+    apiGroups:
+    - vault.soter.ac
+    apiVersions:
+    - "*"
+    resources:
+    - vaultservers
+  failurePolicy: Fail
