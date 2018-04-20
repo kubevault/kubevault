@@ -26,8 +26,8 @@ type FakeExtensionsV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeExtensionsV1alpha1) Secrets(namespace string) v1alpha1.SecretInterface {
-	return &FakeSecrets{c, namespace}
+func (c *FakeExtensionsV1alpha1) VaultSecrets(namespace string) v1alpha1.VaultSecretInterface {
+	return &FakeVaultSecrets{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

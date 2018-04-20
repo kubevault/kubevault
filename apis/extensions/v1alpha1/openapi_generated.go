@@ -29,7 +29,7 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/soter/vault-operator/apis/extensions/v1alpha1.Secret": {
+		"github.com/soter/vault-operator/apis/extensions/v1alpha1.VaultSecret": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -67,16 +67,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"status": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/soter/vault-operator/apis/extensions/v1alpha1.SecretStatus"),
+								Ref: ref("github.com/soter/vault-operator/apis/extensions/v1alpha1.VaultSecretStatus"),
 							},
 						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/soter/vault-operator/apis/extensions/v1alpha1.SecretStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+				"github.com/soter/vault-operator/apis/extensions/v1alpha1.VaultSecretStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 		},
-		"github.com/soter/vault-operator/apis/extensions/v1alpha1.SecretList": {
+		"github.com/soter/vault-operator/apis/extensions/v1alpha1.VaultSecretList": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -105,7 +105,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Items: &spec.SchemaOrArray{
 									Schema: &spec.Schema{
 										SchemaProps: spec.SchemaProps{
-											Ref: ref("github.com/soter/vault-operator/apis/extensions/v1alpha1.Secret"),
+											Ref: ref("github.com/soter/vault-operator/apis/extensions/v1alpha1.VaultSecret"),
 										},
 									},
 								},
@@ -115,9 +115,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 				},
 			},
 			Dependencies: []string{
-				"github.com/soter/vault-operator/apis/extensions/v1alpha1.Secret", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+				"github.com/soter/vault-operator/apis/extensions/v1alpha1.VaultSecret", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 		},
-		"github.com/soter/vault-operator/apis/extensions/v1alpha1.SecretStatus": {
+		"github.com/soter/vault-operator/apis/extensions/v1alpha1.VaultSecretStatus": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{

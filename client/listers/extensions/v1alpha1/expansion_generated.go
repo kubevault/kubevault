@@ -18,10 +18,10 @@ limitations under the License.
 
 package v1alpha1
 
-// SecretListerExpansion allows custom methods to be added to
-// SecretLister.
-type SecretListerExpansion interface{}
+// VaultSecretListerExpansion allows custom methods to be added to
+// VaultSecretLister.
+type VaultSecretListerExpansion interface{}
 
-// SecretNamespaceListerExpansion allows custom methods to be added to
-// SecretNamespaceLister.
-type SecretNamespaceListerExpansion interface{}
+// VaultSecretNamespaceListerExpansion allows custom methods to be added to
+// VaultSecretNamespaceLister.
+type VaultSecretNamespaceListerExpansion interface{}
