@@ -29,7 +29,7 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/soter/vault-operator/apis/vault/v1alpha1.Restic": {
+		"github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServer": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -54,16 +54,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"spec": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/soter/vault-operator/apis/vault/v1alpha1.ResticSpec"),
+								Ref: ref("github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServerSpec"),
 							},
 						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/soter/vault-operator/apis/vault/v1alpha1.ResticSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+				"github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServerSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 		},
-		"github.com/soter/vault-operator/apis/vault/v1alpha1.ResticList": {
+		"github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServerList": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -92,7 +92,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Items: &spec.SchemaOrArray{
 									Schema: &spec.Schema{
 										SchemaProps: spec.SchemaProps{
-											Ref: ref("github.com/soter/vault-operator/apis/vault/v1alpha1.Restic"),
+											Ref: ref("github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServer"),
 										},
 									},
 								},
@@ -102,9 +102,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 				},
 			},
 			Dependencies: []string{
-				"github.com/soter/vault-operator/apis/vault/v1alpha1.Restic", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+				"github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServer", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 		},
-		"github.com/soter/vault-operator/apis/vault/v1alpha1.ResticSpec": {
+		"github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServerSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -140,7 +140,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"paused": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Indicates that the Restic is paused from taking backup. Default value is 'false'",
+								Description: "Indicates that the VaultServer is paused from taking backup. Default value is 'false'",
 								Type:        []string{"boolean"},
 								Format:      "",
 							},

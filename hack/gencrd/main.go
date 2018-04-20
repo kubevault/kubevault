@@ -33,9 +33,7 @@ func generateCRDDefinitions() {
 	defer f.Close()
 
 	crds := []*crd_api.CustomResourceDefinition{
-		stashv1alpha1.Restic{}.CustomResourceDefinition(),
-		stashv1alpha1.Recovery{}.CustomResourceDefinition(),
-		stashv1alpha1.Repository{}.CustomResourceDefinition(),
+		stashv1alpha1.VaultServer{}.CustomResourceDefinition(),
 	}
 	for _, crd := range crds {
 		crdutils.MarshallCrd(f, crd, "yaml")
@@ -74,12 +72,10 @@ func generateSwaggerJson() {
 			repov1alpha1.GetOpenAPIDefinitions,
 		},
 		Resources: []schema.GroupVersionResource{
-			stashv1alpha1.SchemeGroupVersion.WithResource(stashv1alpha1.ResourcePluralRestic),
-			stashv1alpha1.SchemeGroupVersion.WithResource(stashv1alpha1.ResourcePluralRepository),
-			stashv1alpha1.SchemeGroupVersion.WithResource(stashv1alpha1.ResourcePluralRecovery),
+			stashv1alpha1.SchemeGroupVersion.WithResource(stashv1alpha1.ResourcePluralVaultServer),
 		},
 		RDResources: []schema.GroupVersionResource{
-			repov1alpha1.SchemeGroupVersion.WithResource(repov1alpha1.ResourcePluralSnapshot),
+			repov1alpha1.SchemeGroupVersion.WithResource(repov1alpha1.ResourcePluralSecret),
 		},
 	})
 	if err != nil {

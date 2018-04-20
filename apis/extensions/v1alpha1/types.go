@@ -21,23 +21,24 @@ import (
 )
 
 const (
-	ResourceKindSnapshot     = "Snapshot"
-	ResourcePluralSnapshot   = "snapshots"
-	ResourceSingularSnapshot = "snapshot"
+	ResourceKindSecret     = "Secret"
+	ResourcePluralSecret   = "secrets"
+	ResourceSingularSecret = "secret"
 )
 
 // +genclient
-// +genclient:skipVerbs=create,update,patch,deleteCollection,watch
+// +genclient:skipVerbs=watch
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type Snapshot struct {
-	metav1.TypeMeta   `json:",inline,omitempty"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Status            SnapshotStatus `json:"status,omitempty"`
+type Secret struct {
+	metav1.TypeMeta     `json:",inline,omitempty"`
+	metav1.ObjectMeta   `json:"metadata,omitempty"`
+	Data map[string][]byte `json:"data,omitempty" protobuf:"bytes,2,rep,name=data"`
+	Status SecretStatus `json:"status,omitempty"`
 }
 
-type SnapshotStatus struct {
+type SecretStatus struct {
 	Tree     string   `json:"tree"`
 	Paths    []string `json:"paths"`
 	Hostname string   `json:"hostname"`
@@ -49,8 +50,8 @@ type SnapshotStatus struct {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type SnapshotList struct {
+type SecretList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Snapshot `json:"items,omitempty"`
+	Items           []Secret `json:"items,omitempty"`
 }

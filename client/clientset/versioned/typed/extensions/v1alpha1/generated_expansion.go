@@ -16,4 +16,4 @@ limitations under the License.
 
 package v1alpha1
 
-type SnapshotExpansion interface{}
+type SecretExpansion interface{}

@@ -19,8 +19,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	time "time"
-
 	vault_v1alpha1 "github.com/soter/vault-operator/apis/vault/v1alpha1"
 	versioned "github.com/soter/vault-operator/client/clientset/versioned"
 	internalinterfaces "github.com/soter/vault-operator/client/informers/externalversions/internalinterfaces"
@@ -29,61 +27,62 @@ import (
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
+	time "time"
 )
 
-// ResticInformer provides access to a shared informer and lister for
-// Restics.
-type ResticInformer interface {
+// VaultServerInformer provides access to a shared informer and lister for
+// VaultServers.
+type VaultServerInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.ResticLister
+	Lister() v1alpha1.VaultServerLister
 }
 
-type resticInformer struct {
+type vaultServerInformer struct {
 	factory          internalinterfaces.SharedInformerFactory
 	tweakListOptions internalinterfaces.TweakListOptionsFunc
 	namespace        string
 }
 
-// NewResticInformer constructs a new informer for Restic type.
+// NewVaultServerInformer constructs a new informer for VaultServer type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewResticInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
-	return NewFilteredResticInformer(client, namespace, resyncPeriod, indexers, nil)
+func NewVaultServerInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
+	return NewFilteredVaultServerInformer(client, namespace, resyncPeriod, indexers, nil)
 }
 
-// NewFilteredResticInformer constructs a new informer for Restic type.
+// NewFilteredVaultServerInformer constructs a new informer for VaultServer type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewFilteredResticInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
+func NewFilteredVaultServerInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
 	return cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options v1.ListOptions) (runtime.Object, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.VaultV1alpha1().Restics(namespace).List(options)
+				return client.VaultV1alpha1().VaultServers(namespace).List(options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.VaultV1alpha1().Restics(namespace).Watch(options)
+				return client.VaultV1alpha1().VaultServers(namespace).Watch(options)
 			},
 		},
-		&vault_v1alpha1.Restic{},
+		&vault_v1alpha1.VaultServer{},
 		resyncPeriod,
 		indexers,
 	)
 }
 
-func (f *resticInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-	return NewFilteredResticInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
+func (f *vaultServerInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
+	return NewFilteredVaultServerInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
 }
 
-func (f *resticInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&vault_v1alpha1.Restic{}, f.defaultInformer)
+func (f *vaultServerInformer) Informer() cache.SharedIndexInformer {
+	return f.factory.InformerFor(&vault_v1alpha1.VaultServer{}, f.defaultInformer)
 }
 
-func (f *resticInformer) Lister() v1alpha1.ResticLister {
-	return v1alpha1.NewResticLister(f.Informer().GetIndexer())
+func (f *vaultServerInformer) Lister() v1alpha1.VaultServerLister {
+	return v1alpha1.NewVaultServerLister(f.Informer().GetIndexer())
 }

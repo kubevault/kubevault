@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	ResourceKindRestic     = "Restic"
-	ResourceSingularRestic = "restic"
-	ResourcePluralRestic   = "restics"
+	ResourceKindVaultServer     = "VaultServer"
+	ResourceSingularVaultServer = "vaultserver"
+	ResourcePluralVaultServer   = "vaultservers"
 )
 
 // +genclient
@@ -16,20 +16,20 @@ const (
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type Restic struct {
+type VaultServer struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              ResticSpec `json:"spec,omitempty"`
+	Spec              VaultServerSpec `json:"spec,omitempty"`
 }
 
-type ResticSpec struct {
+type VaultServerSpec struct {
 	Selector metav1.LabelSelector `json:"selector,omitempty"`
 	Schedule string               `json:"schedule,omitempty"`
 	// Pod volumes to mount into the sidecar container's filesystem.
 	VolumeMounts []core.VolumeMount `json:"volumeMounts,omitempty"`
 	// Compute Resources required by the sidecar container.
 	Resources core.ResourceRequirements `json:"resources,omitempty"`
-	//Indicates that the Restic is paused from taking backup. Default value is 'false'
+	//Indicates that the VaultServer is paused from taking backup. Default value is 'false'
 	// +optional
 	Paused bool `json:"paused,omitempty"`
 	// ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec.
@@ -42,8 +42,8 @@ type ResticSpec struct {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type ResticList struct {
+type VaultServerList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Restic `json:"items,omitempty"`
+	Items           []VaultServer `json:"items,omitempty"`
 }

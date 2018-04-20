@@ -18,10 +18,10 @@ limitations under the License.
 
 package v1alpha1
 
-// ResticListerExpansion allows custom methods to be added to
-// ResticLister.
-type ResticListerExpansion interface{}
+// VaultServerListerExpansion allows custom methods to be added to
+// VaultServerLister.
+type VaultServerListerExpansion interface{}
 
-// ResticNamespaceListerExpansion allows custom methods to be added to
-// ResticNamespaceLister.
-type ResticNamespaceListerExpansion interface{}
+// VaultServerNamespaceListerExpansion allows custom methods to be added to
+// VaultServerNamespaceLister.
+type VaultServerNamespaceListerExpansion interface{}

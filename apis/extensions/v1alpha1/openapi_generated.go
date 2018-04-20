@@ -29,7 +29,7 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/soter/vault-operator/apis/extensions/v1alpha1.Snapshot": {
+		"github.com/soter/vault-operator/apis/extensions/v1alpha1.Secret": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -52,18 +52,31 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 							},
 						},
+						"data": {
+							SchemaProps: spec.SchemaProps{
+								Type: []string{"object"},
+								AdditionalProperties: &spec.SchemaOrBool{
+									Schema: &spec.Schema{
+										SchemaProps: spec.SchemaProps{
+											Type:   []string{"string"},
+											Format: "byte",
+										},
+									},
+								},
+							},
+						},
 						"status": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/soter/vault-operator/apis/extensions/v1alpha1.SnapshotStatus"),
+								Ref: ref("github.com/soter/vault-operator/apis/extensions/v1alpha1.SecretStatus"),
 							},
 						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/soter/vault-operator/apis/extensions/v1alpha1.SnapshotStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+				"github.com/soter/vault-operator/apis/extensions/v1alpha1.SecretStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 		},
-		"github.com/soter/vault-operator/apis/extensions/v1alpha1.SnapshotList": {
+		"github.com/soter/vault-operator/apis/extensions/v1alpha1.SecretList": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -92,7 +105,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Items: &spec.SchemaOrArray{
 									Schema: &spec.Schema{
 										SchemaProps: spec.SchemaProps{
-											Ref: ref("github.com/soter/vault-operator/apis/extensions/v1alpha1.Snapshot"),
+											Ref: ref("github.com/soter/vault-operator/apis/extensions/v1alpha1.Secret"),
 										},
 									},
 								},
@@ -102,9 +115,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 				},
 			},
 			Dependencies: []string{
-				"github.com/soter/vault-operator/apis/extensions/v1alpha1.Snapshot", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+				"github.com/soter/vault-operator/apis/extensions/v1alpha1.Secret", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 		},
-		"github.com/soter/vault-operator/apis/extensions/v1alpha1.SnapshotStatus": {
+		"github.com/soter/vault-operator/apis/extensions/v1alpha1.SecretStatus": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{

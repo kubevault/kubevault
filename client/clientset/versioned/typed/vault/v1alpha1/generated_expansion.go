@@ -16,4 +16,4 @@ limitations under the License.
 
 package v1alpha1
 
-type ResticExpansion interface{}
+type VaultServerExpansion interface{}
