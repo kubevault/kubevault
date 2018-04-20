@@ -24,14 +24,14 @@ import (
 // +genclient:skipVerbs=watch
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type Secret struct {
+type VaultSecret struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta
 	Data   map[string][]byte
-	Status SecretStatus
+	Status VaultSecretStatus
 }
 
-type SecretStatus struct {
+type VaultSecretStatus struct {
 	Tree     string
 	Paths    []string
 	Hostname string
@@ -43,8 +43,8 @@ type SecretStatus struct {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type SecretList struct {
+type VaultSecretList struct {
 	metav1.TypeMeta
 	metav1.ListMeta
-	Items []Secret
+	Items []VaultSecret
 }

@@ -21,9 +21,9 @@ import (
 )
 
 const (
-	ResourceKindSecret     = "Secret"
-	ResourcePluralSecret   = "secrets"
-	ResourceSingularSecret = "secret"
+	ResourceKindVaultSecret     = "VaultSecret"
+	ResourcePluralVaultSecret   = "vaultsecrets"
+	ResourceSingularVaultSecret = "vaultsecret"
 )
 
 // +genclient
@@ -31,14 +31,14 @@ const (
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type Secret struct {
+type VaultSecret struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Data              map[string][]byte `json:"data,omitempty" protobuf:"bytes,2,rep,name=data"`
-	Status            SecretStatus      `json:"status,omitempty"`
+	Data              map[string][]byte `json:"data,omitempty"`
+	Status            VaultSecretStatus `json:"status,omitempty"`
 }
 
-type SecretStatus struct {
+type VaultSecretStatus struct {
 	Tree     string   `json:"tree"`
 	Paths    []string `json:"paths"`
 	Hostname string   `json:"hostname"`
@@ -50,8 +50,8 @@ type SecretStatus struct {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type SecretList struct {
+type VaultSecretList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Secret `json:"items,omitempty"`
+	Items           []VaultSecret `json:"items,omitempty"`
 }

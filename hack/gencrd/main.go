@@ -75,7 +75,7 @@ func generateSwaggerJson() {
 			stashv1alpha1.SchemeGroupVersion.WithResource(stashv1alpha1.ResourcePluralVaultServer),
 		},
 		RDResources: []schema.GroupVersionResource{
-			repov1alpha1.SchemeGroupVersion.WithResource(repov1alpha1.ResourcePluralSecret),
+			repov1alpha1.SchemeGroupVersion.WithResource(repov1alpha1.ResourcePluralVaultSecret),
 		},
 	})
 	if err != nil {

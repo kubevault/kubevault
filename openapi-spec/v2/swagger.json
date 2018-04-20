@@ -104,9 +104,9 @@
         }
       }
     },
-    "/apis/extensions.vault.soter.ac/v1alpha1/namespaces/{namespace}/secrets": {
+    "/apis/extensions.vault.soter.ac/v1alpha1/namespaces/{namespace}/vaultsecrets": {
       "get": {
-        "description": "list objects of kind Secret",
+        "description": "list objects of kind VaultSecret",
         "consumes": [
           "*/*"
         ],
@@ -123,12 +123,12 @@
         "tags": [
           "extensionsVaultSoterAc_v1alpha1"
         ],
-        "operationId": "listExtensionsVaultSoterAcV1alpha1NamespacedSecret",
+        "operationId": "listExtensionsVaultSoterAcV1alpha1NamespacedVaultSecret",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.soter.vault-operator.apis.extensions.v1alpha1.SecretList"
+              "$ref": "#/definitions/com.github.soter.vault-operator.apis.extensions.v1alpha1.VaultSecretList"
             }
           }
         },
@@ -136,7 +136,7 @@
         "x-kubernetes-group-version-kind": {
           "group": "extensions.vault.soter.ac",
           "version": "v1alpha1",
-          "kind": "Secret"
+          "kind": "VaultSecret"
         }
       },
       "parameters": [
@@ -213,9 +213,9 @@
         }
       ]
     },
-    "/apis/extensions.vault.soter.ac/v1alpha1/namespaces/{namespace}/secrets/{name}": {
+    "/apis/extensions.vault.soter.ac/v1alpha1/namespaces/{namespace}/vaultsecrets/{name}": {
       "get": {
-        "description": "read the specified Secret",
+        "description": "read the specified VaultSecret",
         "consumes": [
           "*/*"
         ],
@@ -230,12 +230,12 @@
         "tags": [
           "extensionsVaultSoterAc_v1alpha1"
         ],
-        "operationId": "readExtensionsVaultSoterAcV1alpha1NamespacedSecret",
+        "operationId": "readExtensionsVaultSoterAcV1alpha1NamespacedVaultSecret",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.soter.vault-operator.apis.extensions.v1alpha1.Secret"
+              "$ref": "#/definitions/com.github.soter.vault-operator.apis.extensions.v1alpha1.VaultSecret"
             }
           }
         },
@@ -243,11 +243,11 @@
         "x-kubernetes-group-version-kind": {
           "group": "extensions.vault.soter.ac",
           "version": "v1alpha1",
-          "kind": "Secret"
+          "kind": "VaultSecret"
         }
       },
       "delete": {
-        "description": "delete a Secret",
+        "description": "delete a VaultSecret",
         "consumes": [
           "*/*"
         ],
@@ -262,7 +262,7 @@
         "tags": [
           "extensionsVaultSoterAc_v1alpha1"
         ],
-        "operationId": "deleteExtensionsVaultSoterAcV1alpha1NamespacedSecret",
+        "operationId": "deleteExtensionsVaultSoterAcV1alpha1NamespacedVaultSecret",
         "responses": {
           "200": {
             "description": "OK",
@@ -275,14 +275,14 @@
         "x-kubernetes-group-version-kind": {
           "group": "extensions.vault.soter.ac",
           "version": "v1alpha1",
-          "kind": "Secret"
+          "kind": "VaultSecret"
         }
       },
       "parameters": [
         {
           "uniqueItems": true,
           "type": "string",
-          "description": "name of the Secret",
+          "description": "name of the VaultSecret",
           "name": "name",
           "in": "path",
           "required": true
@@ -304,9 +304,9 @@
         }
       ]
     },
-    "/apis/extensions.vault.soter.ac/v1alpha1/secrets": {
+    "/apis/extensions.vault.soter.ac/v1alpha1/vaultsecrets": {
       "get": {
-        "description": "list objects of kind Secret",
+        "description": "list objects of kind VaultSecret",
         "consumes": [
           "*/*"
         ],
@@ -323,12 +323,12 @@
         "tags": [
           "extensionsVaultSoterAc_v1alpha1"
         ],
-        "operationId": "listExtensionsVaultSoterAcV1alpha1SecretForAllNamespaces",
+        "operationId": "listExtensionsVaultSoterAcV1alpha1VaultSecretForAllNamespaces",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.soter.vault-operator.apis.extensions.v1alpha1.SecretList"
+              "$ref": "#/definitions/com.github.soter.vault-operator.apis.extensions.v1alpha1.VaultSecretList"
             }
           }
         },
@@ -336,7 +336,7 @@
         "x-kubernetes-group-version-kind": {
           "group": "extensions.vault.soter.ac",
           "version": "v1alpha1",
-          "kind": "Secret"
+          "kind": "VaultSecret"
         }
       },
       "parameters": [
@@ -1364,7 +1364,7 @@
     }
   },
   "definitions": {
-    "com.github.soter.vault-operator.apis.extensions.v1alpha1.Secret": {
+    "com.github.soter.vault-operator.apis.extensions.v1alpha1.VaultSecret": {
       "properties": {
         "apiVersion": {
           "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
@@ -1385,18 +1385,18 @@
           "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta"
         },
         "status": {
-          "$ref": "#/definitions/com.github.soter.vault-operator.apis.extensions.v1alpha1.SecretStatus"
+          "$ref": "#/definitions/com.github.soter.vault-operator.apis.extensions.v1alpha1.VaultSecretStatus"
         }
       },
       "x-kubernetes-group-version-kind": [
         {
           "group": "extensions.vault.soter.ac",
           "version": "v1alpha1",
-          "kind": "Secret"
+          "kind": "VaultSecret"
         }
       ]
     },
-    "com.github.soter.vault-operator.apis.extensions.v1alpha1.SecretList": {
+    "com.github.soter.vault-operator.apis.extensions.v1alpha1.VaultSecretList": {
       "properties": {
         "apiVersion": {
           "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
@@ -1405,7 +1405,7 @@
         "items": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/com.github.soter.vault-operator.apis.extensions.v1alpha1.Secret"
+            "$ref": "#/definitions/com.github.soter.vault-operator.apis.extensions.v1alpha1.VaultSecret"
           }
         },
         "kind": {
@@ -1420,11 +1420,11 @@
         {
           "group": "extensions.vault.soter.ac",
           "version": "v1alpha1",
-          "kind": "SecretList"
+          "kind": "VaultSecretList"
         }
       ]
     },
-    "com.github.soter.vault-operator.apis.extensions.v1alpha1.SecretStatus": {
+    "com.github.soter.vault-operator.apis.extensions.v1alpha1.VaultSecretStatus": {
       "required": [
         "tree",
         "paths",
