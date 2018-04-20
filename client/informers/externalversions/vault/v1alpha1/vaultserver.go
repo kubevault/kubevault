@@ -19,6 +19,8 @@ limitations under the License.
 package v1alpha1
 
 import (
+	time "time"
+
 	vault_v1alpha1 "github.com/soter/vault-operator/apis/vault/v1alpha1"
 	versioned "github.com/soter/vault-operator/client/clientset/versioned"
 	internalinterfaces "github.com/soter/vault-operator/client/informers/externalversions/internalinterfaces"
@@ -27,7 +29,6 @@ import (
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
-	time "time"
 )
 
 // VaultServerInformer provides access to a shared informer and lister for

@@ -1,37 +1,33 @@
 ---
-title: Steward Version
+title: Vault-Operator
 menu:
   product_steward_0.1.0-alpha.0:
-    identifier: steward-version
-    name: Steward Version
+    identifier: vault-operator
+    name: Vault-Operator
     parent: reference
+    weight: 0
+
 product_name: steward
 left_menu: product_steward_0.1.0-alpha.0
 section_menu_id: reference
----
-## steward version
+aliases:
+  - products/steward/0.1.0-alpha.0/reference/
 
-Prints binary version number.
+---
+## vault-operator
+
+Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
 
 ### Synopsis
 
-Prints binary version number.
-
-```
-steward version [flags]
-```
+Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
 
 ### Options
 
 ```
-  -h, --help   help for version
-```
-
-### Options inherited from parent commands
-
-```
       --alsologtostderr                  log to standard error as well as files
-      --analytics                        Send analytical events to Google Guard (default true)
+      --enable-analytics                 Send analytical events to Google Analytics (default true)
+  -h, --help                             help for vault-operator
       --log_backtrace_at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
       --log_dir string                   If non-empty, write log files in this directory
       --logtostderr                      log to standard error instead of files
@@ -42,5 +38,6 @@ steward version [flags]
 
 ### SEE ALSO
 
-* [steward](/docs/reference/steward.md)	 - Steward by AppsCode - HashiCorp Vault Operator for Kubernetes
+* [vault-operator run](/docs/reference/vault-operator_run.md)	 - Run operator
+* [vault-operator version](/docs/reference/vault-operator_version.md)	 - Prints binary version number.
 

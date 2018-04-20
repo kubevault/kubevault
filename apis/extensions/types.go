@@ -27,7 +27,7 @@ import (
 type Secret struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta
-	Data map[string][]byte
+	Data   map[string][]byte
 	Status SecretStatus
 }
 
