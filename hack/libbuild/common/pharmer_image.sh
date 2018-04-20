@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOCKER_REGISTRY=${DOCKER_REGISTRY:-pharmer}
+export DOCKER_REGISTRY=${DOCKER_REGISTRY:-pharmer}
 source $(dirname "${BASH_SOURCE}")/lib.sh
 
 # override this one if you need to change push & pull
