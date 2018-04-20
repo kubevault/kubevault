@@ -20,7 +20,6 @@ package externalversions
 
 import (
 	"fmt"
-
 	v1alpha1 "github.com/soter/vault-operator/apis/vault/v1alpha1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
@@ -53,8 +52,8 @@ func (f *genericInformer) Lister() cache.GenericLister {
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
 	// Group=vault.soter.ac, Version=v1alpha1
-	case v1alpha1.SchemeGroupVersion.WithResource("restics"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Vault().V1alpha1().Restics().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("vaultservers"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Vault().V1alpha1().VaultServers().Informer()}, nil
 
 	}
 

@@ -18,10 +18,10 @@ limitations under the License.
 
 package v1alpha1
 
-// SnapshotListerExpansion allows custom methods to be added to
-// SnapshotLister.
-type SnapshotListerExpansion interface{}
+// SecretListerExpansion allows custom methods to be added to
+// SecretLister.
+type SecretListerExpansion interface{}
 
-// SnapshotNamespaceListerExpansion allows custom methods to be added to
-// SnapshotNamespaceLister.
-type SnapshotNamespaceListerExpansion interface{}
+// SecretNamespaceListerExpansion allows custom methods to be added to
+// SecretNamespaceLister.
+type SecretNamespaceListerExpansion interface{}

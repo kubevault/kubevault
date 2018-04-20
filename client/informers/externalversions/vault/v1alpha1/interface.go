@@ -24,8 +24,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// Restics returns a ResticInformer.
-	Restics() ResticInformer
+	// VaultServers returns a VaultServerInformer.
+	VaultServers() VaultServerInformer
 }
 
 type version struct {
@@ -39,7 +39,7 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// Restics returns a ResticInformer.
-func (v *version) Restics() ResticInformer {
-	return &resticInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// VaultServers returns a VaultServerInformer.
+func (v *version) VaultServers() VaultServerInformer {
+	return &vaultServerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

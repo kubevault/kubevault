@@ -29,6 +29,18 @@ func (in *Secret) DeepCopyInto(out *Secret) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
 	in.ObjectMeta.DeepCopyInto(&out.ObjectMeta)
+	if in.Data != nil {
+		in, out := &in.Data, &out.Data
+		*out = make(map[string][]byte, len(*in))
+		for key, val := range *in {
+			if val == nil {
+				(*out)[key] = nil
+			} else {
+				(*out)[key] = make([]byte, len(val))
+				copy((*out)[key], val)
+			}
+		}
+	}
 	in.Status.DeepCopyInto(&out.Status)
 	return
 }

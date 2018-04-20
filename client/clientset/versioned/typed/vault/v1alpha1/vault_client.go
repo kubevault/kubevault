@@ -25,7 +25,7 @@ import (
 
 type VaultV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	ResticsGetter
+	VaultServersGetter
 }
 
 // VaultV1alpha1Client is used to interact with features provided by the vault.soter.ac group.
@@ -33,8 +33,8 @@ type VaultV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *VaultV1alpha1Client) Restics(namespace string) ResticInterface {
-	return newRestics(c, namespace)
+func (c *VaultV1alpha1Client) VaultServers(namespace string) VaultServerInterface {
+	return newVaultServers(c, namespace)
 }
 
 // NewForConfig creates a new VaultV1alpha1Client for the given config.

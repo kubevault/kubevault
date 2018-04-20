@@ -25,7 +25,7 @@ import (
 
 type ExtensionsV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	SnapshotsGetter
+	SecretsGetter
 }
 
 // ExtensionsV1alpha1Client is used to interact with features provided by the extensions.vault.soter.ac group.
@@ -33,8 +33,8 @@ type ExtensionsV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *ExtensionsV1alpha1Client) Snapshots(namespace string) SnapshotInterface {
-	return newSnapshots(c, namespace)
+func (c *ExtensionsV1alpha1Client) Secrets(namespace string) SecretInterface {
+	return newSecrets(c, namespace)
 }
 
 // NewForConfig creates a new ExtensionsV1alpha1Client for the given config.

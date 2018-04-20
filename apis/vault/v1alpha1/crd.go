@@ -5,19 +5,19 @@ import (
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
 
-func (c Restic) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+func (c VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crdutils.NewCustomResourceDefinition(crdutils.Config{
 		Group:         SchemeGroupVersion.Group,
 		Version:       SchemeGroupVersion.Version,
-		Plural:        ResourcePluralRestic,
-		Singular:      ResourceSingularRestic,
-		Kind:          ResourceKindRestic,
-		ShortNames:    []string{"rst"},
+		Plural:        ResourcePluralVaultServer,
+		Singular:      ResourceSingularVaultServer,
+		Kind:          ResourceKindVaultServer,
+		ShortNames:    []string{"vs"},
 		ResourceScope: string(apiextensions.NamespaceScoped),
 		Labels: crdutils.Labels{
-			LabelsMap: map[string]string{"app": "stash"},
+			LabelsMap: map[string]string{"app": "vault-operator"},
 		},
-		SpecDefinitionName:    "github.com/soter/vault-operator/apis/vault/v1alpha1.Restic",
+		SpecDefinitionName:    "github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServer",
 		EnableValidation:      true,
 		GetOpenAPIDefinitions: GetOpenAPIDefinitions,
 	})
