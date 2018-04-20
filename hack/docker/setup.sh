@@ -11,10 +11,10 @@ ROOT=$GOPATH
 REPO_ROOT=$GOPATH/src/github.com/soter/vault-operator
 
 source "$REPO_ROOT/hack/libbuild/common/lib.sh"
-source "$REPO_ROOT/hack/libbuild/common/public_image.sh"
+source "$REPO_ROOT/hack/libbuild/common/soter_image.sh"
 
 APPSCODE_ENV=${APPSCODE_ENV:-dev}
-IMG=steward
+IMG=vault-operator
 
 DIST=$GOPATH/src/github.com/soter/vault-operator/dist
 mkdir -p $DIST
@@ -24,7 +24,7 @@ fi
 
 clean() {
     pushd $GOPATH/src/github.com/soter/vault-operator/hack/docker
-    rm steward Dockerfile
+    rm vault-operator Dockerfile
     popd
 }
 
@@ -38,8 +38,8 @@ build_binary() {
 
 build_docker() {
     pushd $GOPATH/src/github.com/soter/vault-operator/hack/docker
-    cp $DIST/steward/steward-alpine-amd64 steward
-    chmod 755 steward
+    cp $DIST/vault-operator/vault-operator-alpine-amd64 vault-operator
+    chmod 755 vault-operator
 
     cat >Dockerfile <<EOL
 FROM alpine
@@ -47,15 +47,15 @@ FROM alpine
 RUN set -x \
   && apk add --update --no-cache ca-certificates
 
-COPY steward /usr/bin/steward
+COPY vault-operator /usr/bin/vault-operator
 
 USER nobody:nobody
-ENTRYPOINT ["steward"]
+ENTRYPOINT ["vault-operator"]
 EOL
-    local cmd="docker build -t appscode/$IMG:$TAG ."
+    local cmd="docker build -t $DOCKER_REGISTRY/$IMG:$TAG ."
     echo $cmd; $cmd
 
-    rm steward Dockerfile
+    rm vault-operator Dockerfile
     popd
 }
 
