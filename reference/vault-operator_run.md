@@ -1,15 +1,15 @@
 ---
-title: Steward Run
+title: Vault-Operator Run
 menu:
   product_steward_0.1.0-alpha.0:
-    identifier: steward-run
-    name: Steward Run
+    identifier: vault-operator-run
+    name: Vault-Operator Run
     parent: reference
 product_name: steward
 left_menu: product_steward_0.1.0-alpha.0
 section_menu_id: reference
 ---
-## steward run
+## vault-operator run
 
 Run operator
 
@@ -18,7 +18,7 @@ Run operator
 Run operator
 
 ```
-steward run [flags]
+vault-operator run [flags]
 ```
 
 ### Options
@@ -39,7 +39,7 @@ steward run [flags]
 
 ```
       --alsologtostderr                  log to standard error as well as files
-      --analytics                        Send analytical events to Google Guard (default true)
+      --enable-analytics                 Send analytical events to Google Analytics (default true)
       --log_backtrace_at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
       --log_dir string                   If non-empty, write log files in this directory
       --logtostderr                      log to standard error instead of files
@@ -50,5 +50,5 @@ steward run [flags]
 
 ### SEE ALSO
 
-* [steward](/docs/reference/steward.md)	 - Steward by AppsCode - HashiCorp Vault Operator for Kubernetes
+* [vault-operator](/docs/reference/vault-operator.md)	 - Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
 
