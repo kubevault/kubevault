@@ -68,7 +68,7 @@ KUBE_APISERVER_VERSION=$(kubectl version -o=json | $ONESSL jsonpath '{.serverVer
 $ONESSL semver --check='<1.9.0' $KUBE_APISERVER_VERSION || { export VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK=true; export VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK=true; }
 
 show_help() {
-    echo "vault-operator.sh - install vault-operator operator"
+    echo "vault-operator.sh - install Vault operator"
     echo " "
     echo "vault-operator.sh [options]"
     echo " "
@@ -76,14 +76,14 @@ show_help() {
     echo "-h, --help                         show brief help"
     echo "-n, --namespace=NAMESPACE          specify namespace (default: kube-system)"
     echo "    --rbac                         create RBAC roles and bindings (default: true)"
-    echo "    --docker-registry              docker registry used to pull vault-operator images (default: appscode)"
-    echo "    --image-pull-secret            name of secret used to pull vault-operator operator images"
-    echo "    --run-on-master                run vault-operator operator on master"
-    echo "    --enable-validating-webhook    enable/disable validating webhooks for Stash CRDs"
-    echo "    --enable-mutating-webhook      enable/disable mutating webhooks for Kubernetes workloads"
+    echo "    --docker-registry              docker registry used to pull Vault operator images (default: appscode)"
+    echo "    --image-pull-secret            name of secret used to pull Vault operator images"
+    echo "    --run-on-master                run Vault operator on master"
+    echo "    --enable-validating-webhook    enable/disable validating webhooks for Vault operator"
+    echo "    --enable-mutating-webhook      enable/disable mutating webhooks for Vault operator"
     echo "    --enable-analytics             send usage events to Google Analytics (default: true)"
-    echo "    --uninstall                    uninstall vault-operator"
-    echo "    --purge                        purges vault-operator crd objects and crds"
+    echo "    --uninstall                    uninstall Vault operator"
+    echo "    --purge                        purges Vault operator crd objects and crds"
 }
 
 while test $# -gt 0; do
@@ -179,7 +179,7 @@ if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
     kubectl delete rolebindings -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
     kubectl delete role -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
 
-    echo "waiting for vault-operator operator pod to stop running"
+    echo "waiting for Vault operator pod to stop running"
     for (( ; ; )); do
        pods=($(kubectl get pods --all-namespaces -l app=vault-operator -o jsonpath='{range .items[*]}{.metadata.name} {end}'))
        total=${#pods[*]}
@@ -215,7 +215,7 @@ if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
     fi
 
     echo
-    echo "Successfully uninstalled Stash!"
+    echo "Successfully uninstalled Vault operator!"
     exit 0
 fi
 
@@ -260,16 +260,16 @@ if [ "$VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK" = true ]; then
 fi
 
 echo
-echo "waiting until vault-operator operator deployment is ready"
-$ONESSL wait-until-ready deployment vault-operator --namespace $VAULT_OPERATOR_NAMESPACE || { echo "Stash operator deployment failed to be ready"; exit 1; }
+echo "waiting until Vault operator deployment is ready"
+$ONESSL wait-until-ready deployment vault-operator --namespace $VAULT_OPERATOR_NAMESPACE || { echo "Vault operator deployment failed to be ready"; exit 1; }
 
-echo "waiting until vault-operator apiservice is available"
-$ONESSL wait-until-ready apiservice v1alpha1.admission.vault.soter.ac || { echo "Stash apiservice failed to be ready"; exit 1; }
+echo "waiting until Vault operator apiservice is available"
+$ONESSL wait-until-ready apiservice v1alpha1.admission.vault.soter.ac || { echo "Vault operator apiservice failed to be ready"; exit 1; }
 
-echo "waiting until vault-operator crds are ready"
+echo "waiting until Vault operator crds are ready"
 for crd in "${crds[@]}"; do
     $ONESSL wait-until-ready crd ${crd}.vault.soter.ac || { echo "$crd crd failed to be ready"; exit 1; }
 done
 
 echo
-echo "Successfully installed Stash!"
+echo "Successfully installed Vault operator!"

@@ -3,24 +3,28 @@ package cmds
 import (
 	"flag"
 	"log"
+	"os"
 	"strings"
 
+	"github.com/appscode/go/log/golog"
 	v "github.com/appscode/go/version"
 	"github.com/appscode/kutil/tools/analytics"
 	"github.com/jpillora/go-ogle-analytics"
+	"github.com/soter/vault-operator/client/clientset/versioned/scheme"
+	"github.com/soter/vault-operator/pkg/controller"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	genericapiserver "k8s.io/apiserver/pkg/server"
+	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/kubernetes/pkg/api/legacyscheme"
 )
 
 const (
 	gaTrackingCode = "UA-62096468-20"
 )
 
-func NewRootCmd(version string) *cobra.Command {
-	var (
-		enableAnalytics = true
-	)
-	cmd := &cobra.Command{
+func NewRootCmd() *cobra.Command {
+	var rootCmd = &cobra.Command{
 		Use:               "vault-operator [command]",
 		Short:             `Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes`,
 		DisableAutoGenTag: true,
@@ -28,21 +32,27 @@ func NewRootCmd(version string) *cobra.Command {
 			c.Flags().VisitAll(func(flag *pflag.Flag) {
 				log.Printf("FLAG: --%s=%q", flag.Name, flag.Value)
 			})
-			if enableAnalytics && gaTrackingCode != "" {
+			if controller.EnableAnalytics && gaTrackingCode != "" {
 				if client, err := ga.NewClient(gaTrackingCode); err == nil {
-					client.ClientID(analytics.ClientID())
+					controller.AnalyticsClientID = analytics.ClientID()
+					client.ClientID(controller.AnalyticsClientID)
 					parts := strings.Split(c.CommandPath(), " ")
-					client.Send(ga.NewEvent(parts[0], strings.Join(parts[1:], "/")).Label(version))
+					client.Send(ga.NewEvent(parts[0], strings.Join(parts[1:], "/")).Label(v.Version.Version))
 				}
 			}
+			scheme.AddToScheme(clientsetscheme.Scheme)
+			scheme.AddToScheme(legacyscheme.Scheme)
+			controller.LoggerOptions = golog.ParseFlags(c.Flags())
 		},
 	}
-	cmd.PersistentFlags().AddGoFlagSet(flag.CommandLine)
+	rootCmd.PersistentFlags().AddGoFlagSet(flag.CommandLine)
 	// ref: https://github.com/kubernetes/kubernetes/issues/17162#issuecomment-225596212
 	flag.CommandLine.Parse([]string{})
-	cmd.PersistentFlags().BoolVar(&enableAnalytics, "enable-analytics", enableAnalytics, "Send analytical events to Google Analytics")
+	rootCmd.PersistentFlags().BoolVar(&controller.EnableAnalytics, "enable-analytics", controller.EnableAnalytics, "Send analytical events to Google Analytics")
 
-	cmd.AddCommand(NewCmdRun())
-	cmd.AddCommand(v.NewCmdVersion())
-	return cmd
+	rootCmd.AddCommand(v.NewCmdVersion())
+	stopCh := genericapiserver.SetupSignalHandler()
+	rootCmd.AddCommand(NewCmdRun(os.Stdout, os.Stderr, stopCh))
+
+	return rootCmd
 }
