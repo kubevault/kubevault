@@ -17,7 +17,7 @@ import (
 )
 
 func (c *VaultController) initSecretWatcher() {
-	c.sInformer = c.informerFactory.InformerFor(&core.Secret{}, func(client kubernetes.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
+	c.sInformer = c.kubeInformerFactory.InformerFor(&core.Secret{}, func(client kubernetes.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
 		return core_informers.NewFilteredSecretInformer(
 			client,
 			core.NamespaceAll,
@@ -26,7 +26,7 @@ func (c *VaultController) initSecretWatcher() {
 			nil,
 		)
 	})
-	c.sQueue = queue.New("Secret", c.options.MaxNumRequeues, c.options.NumThreads, c.syncSecretToVault)
+	c.sQueue = queue.New("Secret", c.MaxNumRequeues, c.NumThreads, c.syncSecretToVault)
 	c.sInformer.AddEventHandler(queue.DefaultEventHandler(c.sQueue.GetQueue()))
 	// c.sLister = c.informerFactory.Apps().V1beta1().StatefulSets().Lister()
 }
@@ -46,7 +46,7 @@ func (c *VaultController) syncSecretToVault(key string) error {
 		if err != nil {
 			return err
 		}
-		c.vaultClient.Logical().Delete(path.Join(c.options.SecretBackend(), namespace, name))
+		c.vaultClient.Logical().Delete(path.Join(c.SecretBackend(), namespace, name))
 	} else {
 		secret := obj.(*core.Secret)
 		fmt.Printf("Sync/Add/Update for Secret %s\n", secret.GetName())
@@ -63,14 +63,14 @@ func (c *VaultController) syncSecretToVault(key string) error {
 					log.Infof("Revoked token accessor %s", string(secret.Data["VAULT_TOKEN_ACCESSOR"]))
 
 					// create new secret for rolename if s/a still exists
-					sa, err := c.k8sClient.CoreV1().ServiceAccounts(secret.Namespace).Get(saName, metav1.GetOptions{})
+					sa, err := c.kubeClient.CoreV1().ServiceAccounts(secret.Namespace).Get(saName, metav1.GetOptions{})
 					if err == nil && string(sa.UID) == saUID {
 						newSecret, err := c.createVaultToken(sa)
 						if err != nil {
 							return err
 						}
 
-						_, _, err = core_util.CreateOrPatchServiceAccount(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: sa.Name}, func(in *core.ServiceAccount) *core.ServiceAccount {
+						_, _, err = core_util.CreateOrPatchServiceAccount(c.kubeClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: sa.Name}, func(in *core.ServiceAccount) *core.ServiceAccount {
 							if in.Annotations == nil {
 								in.Annotations = map[string]string{}
 							}
@@ -84,7 +84,7 @@ func (c *VaultController) syncSecretToVault(key string) error {
 						log.Errorln(err)
 					}
 				}
-				core_util.PatchSecret(c.k8sClient, secret, func(in *core.Secret) *core.Secret {
+				core_util.PatchSecret(c.kubeClient, secret, func(in *core.Secret) *core.Secret {
 					in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 					return in
 				})
@@ -111,10 +111,10 @@ func (c *VaultController) syncSecretToVault(key string) error {
 			for k, v := range secret.ObjectMeta.Annotations {
 				data["a:"+k] = v
 			}
-			_, err = c.vaultClient.Logical().Write(path.Join(c.options.SecretBackend(), secret.Namespace, secret.Name), data)
+			_, err = c.vaultClient.Logical().Write(path.Join(c.SecretBackend(), secret.Namespace, secret.Name), data)
 			return err
 		} else {
-			_, _, err = core_util.PatchSecret(c.k8sClient, secret, func(in *core.Secret) *core.Secret {
+			_, _, err = core_util.PatchSecret(c.kubeClient, secret, func(in *core.Secret) *core.Secret {
 				in.ObjectMeta = core_util.AddFinalizer(in.ObjectMeta, "finalizer.kubernetes.io/vault")
 				return in
 			})

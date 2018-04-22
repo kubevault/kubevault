@@ -97,3 +97,39 @@ webhooks:
     resources:
     - replicasets
   failurePolicy: Fail
+- name: job.admission.vault.soter.ac
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/admission.vault.soter.ac/v1alpha1/jobs
+    caBundle: ${KUBE_CA}
+  rules:
+  - operations:
+    - CREATE
+    - UPDATE
+    apiGroups:
+    - batch
+    apiVersions:
+    - "*"
+    resources:
+    - jobs
+  failurePolicy: Fail
+- name: cronjob.admission.vault.soter.ac
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/admission.vault.soter.ac/v1alpha1/cronjobs
+    caBundle: ${KUBE_CA}
+  rules:
+  - operations:
+    - CREATE
+    - UPDATE
+    apiGroups:
+    - batch
+    apiVersions:
+    - "*"
+    resources:
+    - cronjobs
+  failurePolicy: Fail

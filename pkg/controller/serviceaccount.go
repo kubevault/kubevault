@@ -22,7 +22,7 @@ import (
 )
 
 func (c *VaultController) initServiceAccountWatcher() {
-	c.saInformer = c.informerFactory.InformerFor(&core.ServiceAccount{}, func(client kubernetes.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
+	c.saInformer = c.kubeInformerFactory.InformerFor(&core.ServiceAccount{}, func(client kubernetes.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
 		return core_informers.NewFilteredServiceAccountInformer(
 			client,
 			core.NamespaceAll,
@@ -31,7 +31,7 @@ func (c *VaultController) initServiceAccountWatcher() {
 			nil,
 		)
 	})
-	c.saQueue = queue.New("ServiceAccount", c.options.MaxNumRequeues, c.options.NumThreads, c.syncServiceAccountToVault)
+	c.saQueue = queue.New("ServiceAccount", c.MaxNumRequeues, c.NumThreads, c.syncServiceAccountToVault)
 	c.saInformer.AddEventHandler(queue.DefaultEventHandler(c.saQueue.GetQueue()))
 	// c.saLister = c.informerFactory.Apps().V1beta1().StatefulSets().Lister()
 }
@@ -52,7 +52,7 @@ func (c *VaultController) syncServiceAccountToVault(key string) error {
 			return err
 		}
 		roleName := namespace + "." + name
-		p := path.Join("auth", c.options.AuthBackend(), "role", roleName)
+		p := path.Join("auth", c.AuthBackend(), "role", roleName)
 		_, err = c.vaultClient.Logical().Delete(p)
 		if err != nil {
 			return err
@@ -61,7 +61,7 @@ func (c *VaultController) syncServiceAccountToVault(key string) error {
 		sa := obj.(*core.ServiceAccount)
 		fmt.Printf("Sync/Add/Update for ServiceAccount %s\n", sa.GetName())
 
-		p := path.Join("auth", c.options.AuthBackend(), "role", c.roleName(sa))
+		p := path.Join("auth", c.AuthBackend(), "role", c.roleName(sa))
 		resp, err := c.vaultClient.Logical().Read(p)
 		if err != nil {
 			return err
@@ -107,7 +107,7 @@ func (c *VaultController) syncServiceAccountToVault(key string) error {
 
 		secretName, annotated := GetString(sa.Annotations, "vaultproject.io/secret.name")
 		if annotated {
-			_, err = c.k8sClient.CoreV1().Secrets(sa.Namespace).Get(secretName, metav1.GetOptions{})
+			_, err = c.kubeClient.CoreV1().Secrets(sa.Namespace).Get(secretName, metav1.GetOptions{})
 			if kerr.IsNotFound(err) {
 				annotated = false
 			}
@@ -118,7 +118,7 @@ func (c *VaultController) syncServiceAccountToVault(key string) error {
 				return err
 			}
 
-			_, _, err = core_util.CreateOrPatchServiceAccount(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: sa.Name}, func(in *core.ServiceAccount) *core.ServiceAccount {
+			_, _, err = core_util.CreateOrPatchServiceAccount(c.kubeClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: sa.Name}, func(in *core.ServiceAccount) *core.ServiceAccount {
 				if in.Annotations == nil {
 					in.Annotations = map[string]string{}
 				}
@@ -140,14 +140,14 @@ func (c *VaultController) roleName(sa *core.ServiceAccount) string {
 func (c *VaultController) createVaultToken(sa *core.ServiceAccount) (*core.Secret, error) {
 	var caCert []byte
 	var err error
-	if c.options.CACertFile != "" {
-		caCert, err = ioutil.ReadFile(c.options.CACertFile)
+	if c.CACertFile != "" {
+		caCert, err = ioutil.ReadFile(c.CACertFile)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	vr, err := c.vaultClient.Logical().Read(path.Join("auth", c.options.AuthBackend(), "role", c.roleName(sa), "role-id"))
+	vr, err := c.vaultClient.Logical().Read(path.Join("auth", c.AuthBackend(), "role", c.roleName(sa), "role-id"))
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func (c *VaultController) createVaultToken(sa *core.ServiceAccount) (*core.Secre
 	if err != nil {
 		return nil, err
 	}
-	vr, err = c.vaultClient.Logical().Write(path.Join("auth", c.options.AuthBackend(), "role", c.roleName(sa), "secret-id"), map[string]interface{}{
+	vr, err = c.vaultClient.Logical().Write(path.Join("auth", c.AuthBackend(), "role", c.roleName(sa), "secret-id"), map[string]interface{}{
 		"metadata": string(mdSecret),
 	})
 	if err != nil {
@@ -170,7 +170,7 @@ func (c *VaultController) createVaultToken(sa *core.ServiceAccount) (*core.Secre
 	}
 	secretID := vr.Data["secret_id"]
 
-	vr, err = c.vaultClient.Logical().Write(path.Join("auth", c.options.AuthBackend(), "login"), map[string]interface{}{
+	vr, err = c.vaultClient.Logical().Write(path.Join("auth", c.AuthBackend(), "login"), map[string]interface{}{
 		"role_id":   roleID,
 		"secret_id": secretID,
 	})
@@ -181,7 +181,7 @@ func (c *VaultController) createVaultToken(sa *core.ServiceAccount) (*core.Secre
 		return nil, fmt.Errorf("missing token for role %s", c.roleName(sa))
 	}
 
-	_, err = c.vaultClient.Logical().Write(path.Join("auth", c.options.AuthBackend(), "role", c.roleName(sa), "secret-id", "destroy"), map[string]interface{}{
+	_, err = c.vaultClient.Logical().Write(path.Join("auth", c.AuthBackend(), "role", c.roleName(sa), "secret-id", "destroy"), map[string]interface{}{
 		"secret_id": secretID,
 	})
 	if err != nil {
@@ -190,7 +190,7 @@ func (c *VaultController) createVaultToken(sa *core.ServiceAccount) (*core.Secre
 
 	// auto generate name
 	secretName := sa.Name + "-vault-" + rand.Characters(5)
-	out, _, err := core_util.CreateOrPatchSecret(c.k8sClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: secretName}, func(in *core.Secret) *core.Secret {
+	out, _, err := core_util.CreateOrPatchSecret(c.kubeClient, metav1.ObjectMeta{Namespace: sa.Namespace, Name: secretName}, func(in *core.Secret) *core.Secret {
 		if in.Annotations == nil {
 			in.Annotations = map[string]string{}
 		}
@@ -207,7 +207,7 @@ func (c *VaultController) createVaultToken(sa *core.ServiceAccount) (*core.Secre
 		if in.Data == nil {
 			in.Data = map[string][]byte{}
 		}
-		in.Data[api.EnvVaultAddress] = []byte(c.options.VaultAddress)
+		in.Data[api.EnvVaultAddress] = []byte(c.VaultAddress)
 		if caCert != nil {
 			in.Data[api.EnvVaultCACert] = caCert
 		}

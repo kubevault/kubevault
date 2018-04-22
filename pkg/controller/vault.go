@@ -31,14 +31,14 @@ func (c *VaultController) mountSecretBackend() error {
 		return err
 	}
 	for name, mnt := range mounts {
-		if mnt.Type == "generic" && name == c.options.SecretBackend() {
+		if mnt.Type == "generic" && name == c.SecretBackend() {
 			log.Infof("Found secret backend %s of type %s!", name, mnt.Type)
 			return nil
 		}
 	}
 
-	log.Infof("Enabling secret backend %s of type %s!", c.options.SecretBackend(), "generic")
-	return c.vaultClient.Sys().Mount(c.options.SecretBackend(), &api.MountInput{
+	log.Infof("Enabling secret backend %s of type %s!", c.SecretBackend(), "generic")
+	return c.vaultClient.Sys().Mount(c.SecretBackend(), &api.MountInput{
 		Type: "generic",
 	})
 }
@@ -50,14 +50,14 @@ func (c *VaultController) mountAuthBackend() error {
 		return err
 	}
 	for name, mnt := range mounts {
-		if mnt.Type == "approle" && name == c.options.AuthBackend() {
+		if mnt.Type == "approle" && name == c.AuthBackend() {
 			log.Infof("Found auth backend %s of type %s!", name, mnt.Type)
 			return nil
 		}
 	}
 
-	log.Infof("Enabling auth backend %s of type %s!", c.options.AuthBackend(), "approle")
-	return c.vaultClient.Sys().EnableAuthWithOptions(c.options.AuthBackend(), &api.EnableAuthOptions{
+	log.Infof("Enabling auth backend %s of type %s!", c.AuthBackend(), "approle")
+	return c.vaultClient.Sys().EnableAuthWithOptions(c.AuthBackend(), &api.EnableAuthOptions{
 		Type: "approle",
 	})
 }
@@ -65,7 +65,7 @@ func (c *VaultController) mountAuthBackend() error {
 func (c *VaultController) renewTokens() {
 	defer runtime.HandleCrash()
 	for range c.renewer.C {
-		list, err := c.k8sClient.CoreV1().Secrets(core.NamespaceAll).List(metav1.ListOptions{})
+		list, err := c.kubeClient.CoreV1().Secrets(core.NamespaceAll).List(metav1.ListOptions{})
 		if err != nil {
 			continue
 		}
@@ -80,7 +80,7 @@ func (c *VaultController) renewTokens() {
 						log.Errorln(err)
 					}
 
-					_, _, err = core_util.PatchSecret(c.k8sClient, &secret, func(in *core.Secret) *core.Secret {
+					_, _, err = core_util.PatchSecret(c.kubeClient, &secret, func(in *core.Secret) *core.Secret {
 						if in.Data == nil {
 							in.Data = map[string][]byte{}
 						}

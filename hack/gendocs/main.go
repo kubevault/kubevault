@@ -55,7 +55,7 @@ aliases:
 
 // ref: https://github.com/spf13/cobra/blob/master/doc/md_docs.md
 func main() {
-	rootCmd := cmds.NewRootCmd("")
+	rootCmd := cmds.NewRootCmd()
 	dir := runtime.GOPath() + "/src/github.com/soter/vault-operator/docs/reference"
 	fmt.Printf("Generating cli markdown tree in: %v\n", dir)
 	err := os.RemoveAll(dir)

@@ -2,15 +2,18 @@ package controller
 
 import (
 	"fmt"
-	"sync"
 	"time"
 
+	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
 	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
-	"github.com/hashicorp/vault/api"
-	"github.com/soter/vault-operator/pkg/eventer"
-	core "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	vaultapi "github.com/hashicorp/vault/api"
+	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
+	cs "github.com/soter/vault-operator/client/clientset/versioned"
+	vaultinformers "github.com/soter/vault-operator/client/informers/externalversions"
+	vault_listers "github.com/soter/vault-operator/client/listers/vault/v1alpha1"
+	crd_api "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
@@ -19,11 +22,17 @@ import (
 )
 
 type VaultController struct {
-	k8sClient       kubernetes.Interface
-	informerFactory informers.SharedInformerFactory
-	options         Options
+	config
 
-	vaultClient *api.Client
+	kubeClient kubernetes.Interface
+	extClient  cs.Interface
+	crdClient  crd_cs.ApiextensionsV1beta1Interface
+	recorder   record.EventRecorder
+
+	kubeInformerFactory informers.SharedInformerFactory
+	extInformerFactory  vaultinformers.SharedInformerFactory
+
+	vaultClient *vaultapi.Client
 	renewer     *time.Ticker
 
 	saQueue    *queue.Worker
@@ -32,56 +41,24 @@ type VaultController struct {
 	sQueue    *queue.Worker
 	sInformer cache.SharedIndexInformer
 
-	dpQueue    *queue.Worker
-	dpInformer cache.SharedIndexInformer
-
-	dsQueue    *queue.Worker
-	dsInformer cache.SharedIndexInformer
-
-	jobQueue    *queue.Worker
-	jobInformer cache.SharedIndexInformer
-
-	rcQueue    *queue.Worker
-	rcInformer cache.SharedIndexInformer
-
-	rsQueue    *queue.Worker
-	rsInformer cache.SharedIndexInformer
-
-	ssQueue    *queue.Worker
-	ssInformer cache.SharedIndexInformer
-
-	recorder record.EventRecorder
-	sync.Mutex
+	vsQueue    *queue.Worker
+	vsInformer cache.SharedIndexInformer
+	vsLister   vault_listers.VaultServerLister
 }
 
-func New(client kubernetes.Interface, opt Options) *VaultController {
-	tweakListOptions := func(opt *metav1.ListOptions) {
-		opt.IncludeUninitialized = true
+func (c *VaultController) ensureCustomResourceDefinitions() error {
+	crds := []*crd_api.CustomResourceDefinition{
+		api.VaultServer{}.CustomResourceDefinition(),
 	}
-	vc := &VaultController{
-		k8sClient:       client,
-		informerFactory: informers.NewFilteredSharedInformerFactory(client, opt.ResyncPeriod, core.NamespaceAll, tweakListOptions),
-		options:         opt,
-		recorder:        eventer.NewEventRecorder(client, "vault-controller"),
-	}
-	vc.initVault()
-	vc.initServiceAccountWatcher()
-	vc.initSecretWatcher()
-	vc.initDaemonSetWatcher()
-	vc.initDeploymentWatcher()
-	vc.initJobWatcher()
-	vc.initRCWatcher()
-	vc.initReplicaSetWatcher()
-	vc.initStatefulSetWatcher()
-	return vc
+	return crdutils.RegisterCRDs(c.crdClient, crds)
 }
 
 func (c *VaultController) initVault() (err error) {
 	// TODO: unseal vault
 
-	c.renewer = time.NewTicker(c.options.TokenRenewPeriod)
+	c.renewer = time.NewTicker(c.TokenRenewPeriod)
 
-	c.vaultClient, err = api.NewClient(api.DefaultConfig())
+	c.vaultClient, err = vaultapi.NewClient(vaultapi.DefaultConfig())
 	if err != nil {
 		return
 	}
@@ -105,16 +82,23 @@ func (c *VaultController) initVault() (err error) {
 	return
 }
 
-func (c *VaultController) Run(stopCh chan struct{}) {
+func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	defer runtime.HandleCrash()
 
 	defer c.renewer.Stop()
 
 	glog.Info("Starting Vault controller")
-	c.informerFactory.Start(stopCh)
+	c.kubeInformerFactory.Start(stopCh)
+	c.extInformerFactory.Start(stopCh)
 
 	// Wait for all involved caches to be synced, before processing items from the queue is started
-	for _, v := range c.informerFactory.WaitForCacheSync(stopCh) {
+	for _, v := range c.kubeInformerFactory.WaitForCacheSync(stopCh) {
+		if !v {
+			runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
+			return
+		}
+	}
+	for _, v := range c.extInformerFactory.WaitForCacheSync(stopCh) {
 		if !v {
 			runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
 			return
@@ -123,15 +107,9 @@ func (c *VaultController) Run(stopCh chan struct{}) {
 
 	c.saQueue.Run(stopCh)
 	c.sQueue.Run(stopCh)
-	c.dsQueue.Run(stopCh)
-	c.dpQueue.Run(stopCh)
-	c.jobQueue.Run(stopCh)
-	c.rcQueue.Run(stopCh)
-	c.rsQueue.Run(stopCh)
-	c.ssQueue.Run(stopCh)
 
 	go c.renewTokens()
 
 	<-stopCh
-	glog.Info("Stopping Vault controller")
+	glog.Info("Stopping Vault operator")
 }
