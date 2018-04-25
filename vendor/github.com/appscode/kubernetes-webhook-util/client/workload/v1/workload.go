@@ -283,7 +283,12 @@ func (c *workloads) Get(obj runtime.Object, options metav1.GetOptions) (*v1.Work
 }
 
 func (c *workloads) Patch(cur *v1.Workload, transform WorkloadTransformerFunc) (*v1.Workload, kutil.VerbType, error) {
-	return c.PatchObject(cur, transform(cur.DeepCopy()))
+	mod := transform(cur.DeepCopy())
+	err := ApplyWorkload(mod.Object, mod)
+	if err != nil {
+		return nil, kutil.VerbUnchanged, err
+	}
+	return c.PatchObject(cur, mod)
 }
 
 func (c *workloads) PatchObject(cur, mod *v1.Workload) (*v1.Workload, kutil.VerbType, error) {
