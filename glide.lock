@@ -1,5 +1,5 @@
 hash: ff309a010fb8f88fdb6c5d45697a79d2816e9d8c13d3665d218d7bfcc9c9c156
-updated: 2018-04-24T22:22:24.435047747-07:00
+updated: 2018-04-24T23:34:02.242107081-07:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -24,7 +24,7 @@ imports:
 - name: github.com/appscode/jsonpatch
   version: 58a38a46ddb591a543c6b1003213353e29331c5a
 - name: github.com/appscode/kubernetes-webhook-util
-  version: 2ffc62818750e25957fae95b38838332f7d1cbbf
+  version: 74e0e73f4f2c09fa26557f2dea3338a48120b1f7
   subpackages:
   - admission
   - admission/v1beta1
