@@ -22,6 +22,11 @@ type Workload struct {
 
 // WorkloadSpec is the specification of a workload.
 type WorkloadSpec struct {
+	// Number of desired pods. This is a pointer to distinguish between explicit
+	// zero and not specified. Defaults to 1.
+	// +optional
+	Replicas *int32 `json:"replicas,omitempty"`
+
 	// A label query over pods that are managed by the daemon set.
 	// Must match in order to be controlled.
 	// It must match the pod template's labels.
