@@ -1459,7 +1459,40 @@
         }
       }
     },
+    "com.github.soter.vault-operator.apis.vault.v1alpha1.PodPolicy": {
+      "description": "PodPolicy defines the policy for pods owned by vault operator.",
+      "properties": {
+        "resources": {
+          "description": "Resources is the resource requirements for the containers.",
+          "$ref": "#/definitions/io.k8s.api.core.v1.ResourceRequirements"
+        }
+      }
+    },
+    "com.github.soter.vault-operator.apis.vault.v1alpha1.StaticTLS": {
+      "properties": {
+        "clientSecret": {
+          "description": "ClientSecret is the secret containing the CA certificate that will be used to verify the above server certificate The ca secret should contain one file: vault-client-ca.crt",
+          "type": "string"
+        },
+        "serverSecret": {
+          "description": "ServerSecret is the secret containing TLS certs used by each vault node for the communication between the vault server and its clients. The server secret should contain two files: server.crt and server.key The server.crt file should only contain the server certificate. It should not be concatenated with the optional ca certificate as allowed by https://www.vaultproject.io/docs/configuration/listener/tcp.html#tls_cert_file The server certificate must allow the following wildcard domains: localhost *.\u003cnamespace\u003e.pod \u003cvault-cluster-name\u003e.\u003cnamespace\u003e.svc",
+          "type": "string"
+        }
+      }
+    },
+    "com.github.soter.vault-operator.apis.vault.v1alpha1.TLSPolicy": {
+      "description": "TLSPolicy defines the TLS policy of the vault nodes",
+      "properties": {
+        "static": {
+          "description": "StaticTLS enables user to use static x509 certificates and keys, by putting them into Kubernetes secrets, and specifying them here. If this is not set, operator will auto-gen TLS assets and secrets.",
+          "$ref": "#/definitions/com.github.soter.vault-operator.apis.vault.v1alpha1.StaticTLS"
+        }
+      }
+    },
     "com.github.soter.vault-operator.apis.vault.v1alpha1.VaultServer": {
+      "required": [
+        "status"
+      ],
       "properties": {
         "apiVersion": {
           "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
@@ -1474,6 +1507,9 @@
         },
         "spec": {
           "$ref": "#/definitions/com.github.soter.vault-operator.apis.vault.v1alpha1.VaultServerSpec"
+        },
+        "status": {
+          "$ref": "#/definitions/com.github.soter.vault-operator.apis.vault.v1alpha1.VaultServerStatus"
         }
       },
       "x-kubernetes-group-version-kind": [
@@ -1513,43 +1549,100 @@
       ]
     },
     "com.github.soter.vault-operator.apis.vault.v1alpha1.VaultServerSpec": {
+      "required": [
+        "baseImage",
+        "version",
+        "configMapName"
+      ],
       "properties": {
-        "imagePullSecrets": {
-          "description": "ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec. If specified, these secrets will be passed to individual puller implementations for them to use. For example, in the case of docker, only DockerConfig type secrets are honored. More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/io.k8s.api.core.v1.LocalObjectReference"
-          }
+        "TLS": {
+          "description": "TLS policy of vault nodes",
+          "$ref": "#/definitions/com.github.soter.vault-operator.apis.vault.v1alpha1.TLSPolicy"
         },
-        "paused": {
-          "description": "Indicates that the VaultServer is paused from taking backup. Default value is 'false'",
-          "type": "boolean"
-        },
-        "resources": {
-          "description": "Compute Resources required by the sidecar container.",
-          "$ref": "#/definitions/io.k8s.api.core.v1.ResourceRequirements"
-        },
-        "schedule": {
+        "baseImage": {
+          "description": "Base image to use for a Vault deployment.",
           "type": "string"
         },
-        "selector": {
-          "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector"
+        "configMapName": {
+          "description": "Name of the ConfigMap for Vault's configuration If this is empty, operator will create a default config for Vault. If this is not empty, operator will create a new config overwriting the \"storage\", \"listener\" sections in orignal config.",
+          "type": "string"
         },
-        "volumeMounts": {
-          "description": "Pod volumes to mount into the sidecar container's filesystem.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/io.k8s.api.core.v1.VolumeMount"
-          }
+        "nodes": {
+          "description": "Number of nodes to deploy for a Vault deployment. Default: 1.",
+          "type": "integer",
+          "format": "int32"
+        },
+        "pod": {
+          "description": "Pod defines the policy for pods owned by vault operator. This field cannot be updated once the CR is created.",
+          "$ref": "#/definitions/com.github.soter.vault-operator.apis.vault.v1alpha1.PodPolicy"
+        },
+        "version": {
+          "description": "Version of Vault to be deployed.",
+          "type": "string"
         }
       }
     },
-    "io.k8s.api.core.v1.LocalObjectReference": {
-      "description": "LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.",
+    "com.github.soter.vault-operator.apis.vault.v1alpha1.VaultServerStatus": {
+      "required": [
+        "phase",
+        "initialized",
+        "vaultStatus"
+      ],
       "properties": {
-        "name": {
-          "description": "Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names",
+        "clientPort": {
+          "description": "ClientPort is the port for vault client to access. It's the same on client LB service and vault nodes.",
+          "type": "integer",
+          "format": "int32"
+        },
+        "initialized": {
+          "description": "Initialized indicates if the Vault service is initialized.",
+          "type": "boolean"
+        },
+        "phase": {
+          "description": "Phase indicates the state this Vault cluster jumps in. Phase goes as one way as below:\n  Initial -\u003e Running",
           "type": "string"
+        },
+        "serviceName": {
+          "description": "ServiceName is the LB service for accessing vault nodes.",
+          "type": "string"
+        },
+        "updatedNodes": {
+          "description": "PodNames of updated Vault nodes. Updated means the Vault container image version matches the spec's version.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "vaultStatus": {
+          "description": "VaultStatus is the set of Vault node specific statuses: Active, Standby, and Sealed",
+          "$ref": "#/definitions/com.github.soter.vault-operator.apis.vault.v1alpha1.VaultStatus"
+        }
+      }
+    },
+    "com.github.soter.vault-operator.apis.vault.v1alpha1.VaultStatus": {
+      "required": [
+        "active",
+        "standby",
+        "sealed"
+      ],
+      "properties": {
+        "active": {
+          "description": "PodName of the active Vault node. Active node is unsealed. Only active node can serve requests. Vault service only points to the active node.",
+          "type": "string"
+        },
+        "sealed": {
+          "description": "PodNames of Sealed Vault nodes. Sealed nodes MUST be manually unsealed to become standby or leader.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "standby": {
+          "description": "PodNames of the standby Vault nodes. Standby nodes are unsealed. Standby nodes do not process requests, and instead redirect to the active Vault.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -1569,35 +1662,6 @@
           "additionalProperties": {
             "$ref": "#/definitions/io.k8s.apimachinery.pkg.api.resource.Quantity"
           }
-        }
-      }
-    },
-    "io.k8s.api.core.v1.VolumeMount": {
-      "description": "VolumeMount describes a mounting of a Volume within a container.",
-      "required": [
-        "name",
-        "mountPath"
-      ],
-      "properties": {
-        "mountPath": {
-          "description": "Path within the container at which the volume should be mounted.  Must not contain ':'.",
-          "type": "string"
-        },
-        "mountPropagation": {
-          "description": "mountPropagation determines how mounts are propagated from the host to container and the other way around. When not set, MountPropagationHostToContainer is used. This field is alpha in 1.8 and can be reworked or removed in a future release.",
-          "type": "string"
-        },
-        "name": {
-          "description": "This must match the Name of a Volume.",
-          "type": "string"
-        },
-        "readOnly": {
-          "description": "Mounted read-only if true, read-write otherwise (false or unspecified). Defaults to false.",
-          "type": "boolean"
-        },
-        "subPath": {
-          "description": "Path within the volume from which the container's volume should be mounted. Defaults to \"\" (volume's root).",
-          "type": "string"
         }
       }
     },
@@ -1867,51 +1931,6 @@
         "result": {
           "description": "If result is set with the Failure field, the object will be persisted to storage and then deleted, ensuring that other clients can observe the deletion.",
           "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Status"
-        }
-      }
-    },
-    "io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector": {
-      "description": "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all objects. A null label selector matches no objects.",
-      "properties": {
-        "matchExpressions": {
-          "description": "matchExpressions is a list of label selector requirements. The requirements are ANDed.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelectorRequirement"
-          }
-        },
-        "matchLabels": {
-          "description": "matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is \"key\", the operator is \"In\", and the values array contains only \"value\". The requirements are ANDed.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelectorRequirement": {
-      "description": "A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.",
-      "required": [
-        "key",
-        "operator"
-      ],
-      "properties": {
-        "key": {
-          "description": "key is the label key that the selector applies to.",
-          "type": "string",
-          "x-kubernetes-patch-merge-key": "key",
-          "x-kubernetes-patch-strategy": "merge"
-        },
-        "operator": {
-          "description": "operator represents a key's relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.",
-          "type": "string"
-        },
-        "values": {
-          "description": "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         }
       }
     },

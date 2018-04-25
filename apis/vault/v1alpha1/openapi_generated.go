@@ -29,6 +29,63 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
+		"github.com/soter/vault-operator/apis/vault/v1alpha1.PodPolicy": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "PodPolicy defines the policy for pods owned by vault operator.",
+					Properties: map[string]spec.Schema{
+						"resources": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Resources is the resource requirements for the containers.",
+								Ref:         ref("k8s.io/api/core/v1.ResourceRequirements"),
+							},
+						},
+					},
+				},
+			},
+			Dependencies: []string{
+				"k8s.io/api/core/v1.ResourceRequirements"},
+		},
+		"github.com/soter/vault-operator/apis/vault/v1alpha1.StaticTLS": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Properties: map[string]spec.Schema{
+						"serverSecret": {
+							SchemaProps: spec.SchemaProps{
+								Description: "ServerSecret is the secret containing TLS certs used by each vault node for the communication between the vault server and its clients. The server secret should contain two files: server.crt and server.key The server.crt file should only contain the server certificate. It should not be concatenated with the optional ca certificate as allowed by https://www.vaultproject.io/docs/configuration/listener/tcp.html#tls_cert_file The server certificate must allow the following wildcard domains: localhost *.<namespace>.pod <vault-cluster-name>.<namespace>.svc",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"clientSecret": {
+							SchemaProps: spec.SchemaProps{
+								Description: "ClientSecret is the secret containing the CA certificate that will be used to verify the above server certificate The ca secret should contain one file: vault-client-ca.crt",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+					},
+				},
+			},
+			Dependencies: []string{},
+		},
+		"github.com/soter/vault-operator/apis/vault/v1alpha1.TLSPolicy": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "TLSPolicy defines the TLS policy of the vault nodes",
+					Properties: map[string]spec.Schema{
+						"static": {
+							SchemaProps: spec.SchemaProps{
+								Description: "StaticTLS enables user to use static x509 certificates and keys, by putting them into Kubernetes secrets, and specifying them here. If this is not set, operator will auto-gen TLS assets and secrets.",
+								Ref:         ref("github.com/soter/vault-operator/apis/vault/v1alpha1.StaticTLS"),
+							},
+						},
+					},
+				},
+			},
+			Dependencies: []string{
+				"github.com/soter/vault-operator/apis/vault/v1alpha1.StaticTLS"},
+		},
 		"github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServer": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
@@ -57,11 +114,17 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref: ref("github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServerSpec"),
 							},
 						},
+						"status": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServerStatus"),
+							},
+						},
 					},
+					Required: []string{"status"},
 				},
 			},
 			Dependencies: []string{
-				"github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServerSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+				"github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServerSpec", "github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServerStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 		},
 		"github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServerList": {
 			Schema: spec.Schema{
@@ -108,61 +171,156 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
-						"selector": {
+						"nodes": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector"),
+								Description: "Number of nodes to deploy for a Vault deployment. Default: 1.",
+								Type:        []string{"integer"},
+								Format:      "int32",
 							},
 						},
-						"schedule": {
+						"baseImage": {
 							SchemaProps: spec.SchemaProps{
-								Type:   []string{"string"},
-								Format: "",
+								Description: "Base image to use for a Vault deployment.",
+								Type:        []string{"string"},
+								Format:      "",
 							},
 						},
-						"volumeMounts": {
+						"version": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Pod volumes to mount into the sidecar container's filesystem.",
-								Type:        []string{"array"},
-								Items: &spec.SchemaOrArray{
-									Schema: &spec.Schema{
-										SchemaProps: spec.SchemaProps{
-											Ref: ref("k8s.io/api/core/v1.VolumeMount"),
-										},
-									},
-								},
+								Description: "Version of Vault to be deployed.",
+								Type:        []string{"string"},
+								Format:      "",
 							},
 						},
-						"resources": {
+						"pod": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Compute Resources required by the sidecar container.",
-								Ref:         ref("k8s.io/api/core/v1.ResourceRequirements"),
+								Description: "Pod defines the policy for pods owned by vault operator. This field cannot be updated once the CR is created.",
+								Ref:         ref("github.com/soter/vault-operator/apis/vault/v1alpha1.PodPolicy"),
 							},
 						},
-						"paused": {
+						"configMapName": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Indicates that the VaultServer is paused from taking backup. Default value is 'false'",
+								Description: "Name of the ConfigMap for Vault's configuration If this is empty, operator will create a default config for Vault. If this is not empty, operator will create a new config overwriting the \"storage\", \"listener\" sections in orignal config.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"TLS": {
+							SchemaProps: spec.SchemaProps{
+								Description: "TLS policy of vault nodes",
+								Ref:         ref("github.com/soter/vault-operator/apis/vault/v1alpha1.TLSPolicy"),
+							},
+						},
+					},
+					Required: []string{"baseImage", "version", "configMapName"},
+				},
+			},
+			Dependencies: []string{
+				"github.com/soter/vault-operator/apis/vault/v1alpha1.PodPolicy", "github.com/soter/vault-operator/apis/vault/v1alpha1.TLSPolicy"},
+		},
+		"github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServerStatus": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Properties: map[string]spec.Schema{
+						"phase": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Phase indicates the state this Vault cluster jumps in. Phase goes as one way as below:\n  Initial -> Running",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"initialized": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Initialized indicates if the Vault service is initialized.",
 								Type:        []string{"boolean"},
 								Format:      "",
 							},
 						},
-						"imagePullSecrets": {
+						"serviceName": {
 							SchemaProps: spec.SchemaProps{
-								Description: "ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec. If specified, these secrets will be passed to individual puller implementations for them to use. For example, in the case of docker, only DockerConfig type secrets are honored. More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod",
+								Description: "ServiceName is the LB service for accessing vault nodes.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"clientPort": {
+							SchemaProps: spec.SchemaProps{
+								Description: "ClientPort is the port for vault client to access. It's the same on client LB service and vault nodes.",
+								Type:        []string{"integer"},
+								Format:      "int32",
+							},
+						},
+						"vaultStatus": {
+							SchemaProps: spec.SchemaProps{
+								Description: "VaultStatus is the set of Vault node specific statuses: Active, Standby, and Sealed",
+								Ref:         ref("github.com/soter/vault-operator/apis/vault/v1alpha1.VaultStatus"),
+							},
+						},
+						"updatedNodes": {
+							SchemaProps: spec.SchemaProps{
+								Description: "PodNames of updated Vault nodes. Updated means the Vault container image version matches the spec's version.",
 								Type:        []string{"array"},
 								Items: &spec.SchemaOrArray{
 									Schema: &spec.Schema{
 										SchemaProps: spec.SchemaProps{
-											Ref: ref("k8s.io/api/core/v1.LocalObjectReference"),
+											Type:   []string{"string"},
+											Format: "",
 										},
 									},
 								},
 							},
 						},
 					},
+					Required: []string{"phase", "initialized", "vaultStatus"},
 				},
 			},
 			Dependencies: []string{
-				"k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.VolumeMount", "k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector"},
+				"github.com/soter/vault-operator/apis/vault/v1alpha1.VaultStatus"},
+		},
+		"github.com/soter/vault-operator/apis/vault/v1alpha1.VaultStatus": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Properties: map[string]spec.Schema{
+						"active": {
+							SchemaProps: spec.SchemaProps{
+								Description: "PodName of the active Vault node. Active node is unsealed. Only active node can serve requests. Vault service only points to the active node.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"standby": {
+							SchemaProps: spec.SchemaProps{
+								Description: "PodNames of the standby Vault nodes. Standby nodes are unsealed. Standby nodes do not process requests, and instead redirect to the active Vault.",
+								Type:        []string{"array"},
+								Items: &spec.SchemaOrArray{
+									Schema: &spec.Schema{
+										SchemaProps: spec.SchemaProps{
+											Type:   []string{"string"},
+											Format: "",
+										},
+									},
+								},
+							},
+						},
+						"sealed": {
+							SchemaProps: spec.SchemaProps{
+								Description: "PodNames of Sealed Vault nodes. Sealed nodes MUST be manually unsealed to become standby or leader.",
+								Type:        []string{"array"},
+								Items: &spec.SchemaOrArray{
+									Schema: &spec.Schema{
+										SchemaProps: spec.SchemaProps{
+											Type:   []string{"string"},
+											Format: "",
+										},
+									},
+								},
+							},
+						},
+					},
+					Required: []string{"active", "standby", "sealed"},
+				},
+			},
+			Dependencies: []string{},
 		},
 		"k8s.io/api/core/v1.AWSElasticBlockStoreVolumeSource": {
 			Schema: spec.Schema{

@@ -26,8 +26,8 @@ const (
 type VaultServer struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              VaultServerSpec `json:"spec,omitempty"`
-	Status 	VaultServerStatus `json:"status",omitempty`
+	Spec              VaultServerSpec   `json:"spec,omitempty"`
+	Status            VaultServerStatus `json:"status",omitempty`
 }
 
 type VaultServerSpec struct {
@@ -102,13 +102,11 @@ type VaultStatus struct {
 	Sealed []string `json:"sealed"`
 }
 
-
 // PodPolicy defines the policy for pods owned by vault operator.
 type PodPolicy struct {
 	// Resources is the resource requirements for the containers.
 	Resources core.ResourceRequirements `json:"resources,omitempty"`
 }
-
 
 // TLSPolicy defines the TLS policy of the vault nodes
 type TLSPolicy struct {
