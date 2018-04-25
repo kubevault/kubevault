@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	stringz "github.com/appscode/go/strings"
-	"github.com/appscode/kubernetes-webhook-util/workload/v1"
+	wapi "github.com/appscode/kubernetes-webhook-util/apis/workload/v1"
 	core_util "github.com/appscode/kutil/core/v1"
 	"github.com/hashicorp/vault/api"
 	core "k8s.io/api/core/v1"
@@ -15,7 +15,7 @@ const (
 	finalizerName = "vault"
 )
 
-func (c *VaultController) mutateWorkload(w *v1.Workload) error {
+func (c *VaultController) mutateWorkload(w *wapi.Workload) error {
 	fmt.Printf("Sync/Add/Update for Deployment %s\n", w.GetName())
 
 	w.Object = nil
