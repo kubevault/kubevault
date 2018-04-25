@@ -301,113 +301,118 @@ spec:
               type: string
         spec:
           properties:
-            imagePullSecrets:
-              description: 'ImagePullSecrets is an optional list of references to
-                secrets in the same namespace to use for pulling any of the images
-                used by this PodSpec. If specified, these secrets will be passed to
-                individual puller implementations for them to use. For example, in
-                the case of docker, only DockerConfig type secrets are honored. More
-                info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod'
-              items:
-                description: LocalObjectReference contains enough information to let
-                  you locate the referenced object inside the same namespace.
-                properties:
-                  name:
-                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
-                    type: string
-              type: array
-            paused:
-              description: Indicates that the VaultServer is paused from taking backup.
-                Default value is 'false'
-              type: boolean
-            resources:
-              description: ResourceRequirements describes the compute resource requirements.
+            TLS:
+              description: TLSPolicy defines the TLS policy of the vault nodes
               properties:
-                limits:
-                  description: 'Limits describes the maximum amount of compute resources
-                    allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
-                  type: object
-                requests:
-                  description: 'Requests describes the minimum amount of compute resources
-                    required. If Requests is omitted for a container, it defaults
-                    to Limits if that is explicitly specified, otherwise to an implementation-defined
-                    value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
-                  type: object
-            schedule:
+                static:
+                  properties:
+                    clientSecret:
+                      description: 'ClientSecret is the secret containing the CA certificate
+                        that will be used to verify the above server certificate The
+                        ca secret should contain one file: vault-client-ca.crt'
+                      type: string
+                    serverSecret:
+                      description: 'ServerSecret is the secret containing TLS certs
+                        used by each vault node for the communication between the
+                        vault server and its clients. The server secret should contain
+                        two files: server.crt and server.key The server.crt file should
+                        only contain the server certificate. It should not be concatenated
+                        with the optional ca certificate as allowed by https://www.vaultproject.io/docs/configuration/listener/tcp.html#tls_cert_file
+                        The server certificate must allow the following wildcard domains:
+                        localhost *.<namespace>.pod <vault-cluster-name>.<namespace>.svc'
+                      type: string
+            baseImage:
+              description: Base image to use for a Vault deployment.
               type: string
-            selector:
-              description: A label selector is a label query over a set of resources.
-                The result of matchLabels and matchExpressions are ANDed. An empty
-                label selector matches all objects. A null label selector matches
-                no objects.
+            configMapName:
+              description: Name of the ConfigMap for Vault's configuration If this
+                is empty, operator will create a default config for Vault. If this
+                is not empty, operator will create a new config overwriting the "storage",
+                "listener" sections in orignal config.
+              type: string
+            nodes:
+              description: 'Number of nodes to deploy for a Vault deployment. Default:
+                1.'
+              format: int32
+              type: integer
+            pod:
+              description: PodPolicy defines the policy for pods owned by vault operator.
               properties:
-                matchExpressions:
-                  description: matchExpressions is a list of label selector requirements.
-                    The requirements are ANDed.
-                  items:
-                    description: A label selector requirement is a selector that contains
-                      values, a key, and an operator that relates the key and values.
-                    properties:
-                      key:
-                        description: key is the label key that the selector applies
-                          to.
-                        type: string
-                      operator:
-                        description: operator represents a key's relationship to a
-                          set of values. Valid operators are In, NotIn, Exists and
-                          DoesNotExist.
-                        type: string
-                      values:
-                        description: values is an array of string values. If the operator
-                          is In or NotIn, the values array must be non-empty. If the
-                          operator is Exists or DoesNotExist, the values array must
-                          be empty. This array is replaced during a strategic merge
-                          patch.
-                        items:
-                          type: string
-                        type: array
-                    required:
-                    - key
-                    - operator
-                  type: array
-                matchLabels:
-                  description: matchLabels is a map of {key,value} pairs. A single
-                    {key,value} in the matchLabels map is equivalent to an element
-                    of matchExpressions, whose key field is "key", the operator is
-                    "In", and the values array contains only "value". The requirements
-                    are ANDed.
-                  type: object
-            volumeMounts:
-              description: Pod volumes to mount into the sidecar container's filesystem.
+                resources:
+                  description: ResourceRequirements describes the compute resource
+                    requirements.
+                  properties:
+                    limits:
+                      description: 'Limits describes the maximum amount of compute
+                        resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                    requests:
+                      description: 'Requests describes the minimum amount of compute
+                        resources required. If Requests is omitted for a container,
+                        it defaults to Limits if that is explicitly specified, otherwise
+                        to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+            version:
+              description: Version of Vault to be deployed.
+              type: string
+          required:
+          - baseImage
+          - version
+          - configMapName
+        status:
+          properties:
+            clientPort:
+              description: ClientPort is the port for vault client to access. It's
+                the same on client LB service and vault nodes.
+              format: int32
+              type: integer
+            initialized:
+              description: Initialized indicates if the Vault service is initialized.
+              type: boolean
+            phase:
+              description: |-
+                Phase indicates the state this Vault cluster jumps in. Phase goes as one way as below:
+                  Initial -> Running
+              type: string
+            serviceName:
+              description: ServiceName is the LB service for accessing vault nodes.
+              type: string
+            updatedNodes:
+              description: PodNames of updated Vault nodes. Updated means the Vault
+                container image version matches the spec's version.
               items:
-                description: VolumeMount describes a mounting of a Volume within a
-                  container.
-                properties:
-                  mountPath:
-                    description: Path within the container at which the volume should
-                      be mounted.  Must not contain ':'.
-                    type: string
-                  mountPropagation:
-                    description: mountPropagation determines how mounts are propagated
-                      from the host to container and the other way around. When not
-                      set, MountPropagationHostToContainer is used. This field is
-                      alpha in 1.8 and can be reworked or removed in a future release.
-                    type: string
-                  name:
-                    description: This must match the Name of a Volume.
-                    type: string
-                  readOnly:
-                    description: Mounted read-only if true, read-write otherwise (false
-                      or unspecified). Defaults to false.
-                    type: boolean
-                  subPath:
-                    description: Path within the volume from which the container's
-                      volume should be mounted. Defaults to "" (volume's root).
-                    type: string
-                required:
-                - name
-                - mountPath
+                type: string
               type: array
+            vaultStatus:
+              properties:
+                active:
+                  description: PodName of the active Vault node. Active node is unsealed.
+                    Only active node can serve requests. Vault service only points
+                    to the active node.
+                  type: string
+                sealed:
+                  description: PodNames of Sealed Vault nodes. Sealed nodes MUST be
+                    manually unsealed to become standby or leader.
+                  items:
+                    type: string
+                  type: array
+                standby:
+                  description: PodNames of the standby Vault nodes. Standby nodes
+                    are unsealed. Standby nodes do not process requests, and instead
+                    redirect to the active Vault.
+                  items:
+                    type: string
+                  type: array
+              required:
+              - active
+              - standby
+              - sealed
+          required:
+          - phase
+          - initialized
+          - vaultStatus
+      required:
+      - status
   version: v1alpha1
 status:
   acceptedNames:
