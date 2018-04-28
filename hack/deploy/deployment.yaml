@@ -21,6 +21,8 @@ spec:
       imagePullSecrets: [${VAULT_OPERATOR_IMAGE_PULL_SECRET}]
       containers:
       - name: operator
+        image: ${VAULT_OPERATOR_DOCKER_REGISTRY}/vault-operator:${VAULT_OPERATOR_SERVER_TAG}
+        imagePullPolicy: ${VAULT_OPERATOR_IMAGE_PULL_POLICY}
         args:
         - run
         - --v=3
@@ -30,8 +32,6 @@ spec:
         - --tls-cert-file=/var/serving-cert/tls.crt
         - --tls-private-key-file=/var/serving-cert/tls.key
         - --enable-analytics=${VAULT_OPERATOR_ENABLE_ANALYTICS}
-        image: ${VAULT_OPERATOR_DOCKER_REGISTRY}/vault-operator:canary
-        imagePullPolicy: Always
         env:
           - name: VAULT_ADDR
             value: http://vault-server:8200

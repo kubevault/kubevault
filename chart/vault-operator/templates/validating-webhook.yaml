@@ -9,12 +9,12 @@ metadata:
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
 webhooks:
-- name: restic.admission.vault.soter.ac
+- name: vaultserver.admission.vault.soter.ac
   clientConfig:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/admission.vault.soter.ac/v1alpha1/restics
+      path: /apis/admission.vault.soter.ac/v1alpha1/vaultservers
     caBundle: {{ b64enc .Values.apiserver.ca }}
   rules:
   - operations:
