@@ -61,19 +61,19 @@ else
     # ref: https://stackoverflow.com/a/27776822/244009
     case "$(uname -s)" in
         Darwin)
-            curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.1.0/onessl-darwin-amd64
+            curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.3.0/onessl-darwin-amd64
             chmod +x onessl
             export ONESSL=./onessl
             ;;
 
         Linux)
-            curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.1.0/onessl-linux-amd64
+            curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.3.0/onessl-linux-amd64
             chmod +x onessl
             export ONESSL=./onessl
             ;;
 
         CYGWIN*|MINGW32*|MSYS*)
-            curl -fsSL -o onessl.exe https://github.com/kubepack/onessl/releases/download/0.1.0/onessl-windows-amd64.exe
+            curl -fsSL -o onessl.exe https://github.com/kubepack/onessl/releases/download/0.3.0/onessl-windows-amd64.exe
             chmod +x onessl.exe
             export ONESSL=./onessl.exe
             ;;
@@ -210,6 +210,34 @@ while test $# -gt 0; do
 done
 
 if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
+    # https://github.com/kubernetes/kubernetes/issues/60538
+    if [ "$VAULT_OPERATOR_PURGE" -eq 1 ]; then
+        for crd in "${crds[@]}"; do
+            pairs=($(kubectl get ${crd}.vault.soter.ac --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name} {.metadata.namespace} {end}' || true))
+            total=${#pairs[*]}
+
+            # save objects
+            if [ $total -gt 0 ]; then
+                echo "dumping ${crd} objects into ${crd}.yaml"
+                kubectl get ${crd}.vault.soter.ac --all-namespaces -o yaml > ${crd}.yaml
+            fi
+
+            for (( i=0; i<$total; i+=2 )); do
+                name=${pairs[$i]}
+                namespace=${pairs[$i + 1]}
+                # delete crd object
+                echo "deleting ${crd} $namespace/$name"
+                kubectl delete ${crd}.vault.soter.ac $name -n $namespace
+            done
+
+            # delete crd
+            kubectl delete crd ${crd}.vault.soter.ac || true
+        done
+
+        echo "waiting 5 seconds ..."
+        sleep 5;
+    fi
+
     # delete webhooks and apiservices
     kubectl delete validatingwebhookconfiguration -l app=vault-operator || true
     kubectl delete mutatingwebhookconfiguration -l app=vault-operator || true
@@ -235,31 +263,6 @@ if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
        sleep 2
     done
 
-    # https://github.com/kubernetes/kubernetes/issues/60538
-    if [ "$VAULT_OPERATOR_PURGE" -eq 1 ]; then
-        for crd in "${crds[@]}"; do
-            pairs=($(kubectl get ${crd}.vault.soter.ac --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name} {.metadata.namespace} {end}' || true))
-            total=${#pairs[*]}
-
-            # save objects
-            if [ $total -gt 0 ]; then
-                echo "dumping ${crd} objects into ${crd}.yaml"
-                kubectl get ${crd}.vault.soter.ac --all-namespaces -o yaml > ${crd}.yaml
-            fi
-
-            for (( i=0; i<$total; i+=2 )); do
-                name=${pairs[$i]}
-                namespace=${pairs[$i + 1]}
-                # delete crd object
-                echo "deleting ${crd} $namespace/$name"
-                kubectl delete ${crd}.vault.soter.ac $name -n $namespace
-            done
-
-            # delete crd
-            kubectl delete crd ${crd}.vault.soter.ac || true
-        done
-    fi
-
     echo
     echo "Successfully uninstalled Vault operator!"
     exit 0
@@ -268,6 +271,12 @@ fi
 echo "checking whether extended apiserver feature is enabled"
 $ONESSL has-keys configmap --namespace=kube-system --keys=requestheader-client-ca-file extension-apiserver-authentication || { echo "Set --requestheader-client-ca-file flag on Kubernetes apiserver"; exit 1; }
 echo ""
+
+export KUBE_CA=
+if [ "$PACKSERVER_ENABLE_VALIDATING_WEBHOOK" = true ] || [ "$PACKSERVER_ENABLE_MUTATING_WEBHOOK" = true ]; then
+    $ONESSL get kube-ca >/dev/null 2>&1 || { echo "Admission webhooks can't be used when kube apiserver is accesible without verifying its TLS certificate (insecure-skip-tls-verify : true)."; echo; exit 1; }
+    export KUBE_CA=$($ONESSL get kube-ca | $ONESSL base64)
+fi
 
 env | sort | grep VAULT_OPERATOR*
 echo ""
@@ -280,7 +289,6 @@ $ONESSL create server-cert server --domains=vault-operator.$VAULT_OPERATOR_NAMES
 export SERVICE_SERVING_CERT_CA=$(cat ca.crt | $ONESSL base64)
 export TLS_SERVING_CERT=$(cat server.crt | $ONESSL base64)
 export TLS_SERVING_KEY=$(cat server.key | $ONESSL base64)
-export KUBE_CA=$($ONESSL get kube-ca | $ONESSL base64)
 
 ${SCRIPT_LOCATION}hack/deploy/deployment.yaml | $ONESSL envsubst | kubectl apply -f -
 
@@ -320,4 +328,4 @@ for crd in "${crds[@]}"; do
 done
 
 echo
-echo "Successfully installed Vault operator!"
+echo "Successfully installed Vault operator in $PACKSERVER_NAMESPACE namespace!"
