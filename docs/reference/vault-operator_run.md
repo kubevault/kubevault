@@ -1,12 +1,12 @@
 ---
 title: Vault-Operator Run
 menu:
-  product_steward_0.1.0-alpha.0:
+  product_vault-operator_0.1.0:
     identifier: vault-operator-run
     name: Vault-Operator Run
     parent: reference
-product_name: steward
-left_menu: product_steward_0.1.0-alpha.0
+product_name: vault-operator
+left_menu: product_vault-operator_0.1.0
 section_menu_id: reference
 ---
 ## vault-operator run
@@ -24,7 +24,6 @@ vault-operator run [flags]
 ### Options
 
 ```
-      --admission-control-config-file string                    File with admission control configuration.
       --audit-log-batch-buffer-size int                         The size of the buffer to store events before batching and writing. Only used in batch mode. (default 10000)
       --audit-log-batch-max-size int                            The maximum size of a batch. Only used in batch mode. (default 400)
       --audit-log-batch-max-wait duration                       The amount of time to wait before force writing the batch that hadn't reached the max size. Only used in batch mode. (default 30s)
@@ -66,14 +65,11 @@ vault-operator run [flags]
       --cert-dir string                                         The directory where the TLS certs are located. If --tls-cert-file and --tls-private-key-file are provided, this flag will be ignored. (default "apiserver.local.config/certificates")
       --client-ca-file string                                   If set, any request presenting a client certificate signed by one of the authorities in the client-ca-file is authenticated with an identity corresponding to the CommonName of the client certificate.
       --contention-profiling                                    Enable lock contention profiling, if profiling is enabled
-      --disable-admission-plugins strings                       admission plugins that should be disabled although they are in the default enabled plugins list. Comma-delimited list of admission plugins: Initializers, MutatingAdmissionWebhook, NamespaceLifecycle, ValidatingAdmissionWebhook. The order of plugins in this flag does not matter.
-      --docker-registry string                                  Docker image registry for sidecar, init-container, check-job, recovery-job and kubectl-job (default "soter")
-      --enable-admission-plugins strings                        admission plugins that should be enabled in addition to default enabled ones. Comma-delimited list of admission plugins: Initializers, MutatingAdmissionWebhook, NamespaceLifecycle, ValidatingAdmissionWebhook. The order of plugins in this flag does not matter.
+      --docker-registry string                                  Docker image registry for sidecar, init-container, check-job, recovery-job and kubectl-job (default "kubevault")
       --enable-status-subresource                               If true, uses sub resource for Voyager crds.
       --enable-swagger-ui                                       Enables swagger ui on the apiserver at /swagger-ui
   -h, --help                                                    help for run
       --http2-max-streams-per-connection int                    The limit that the server gives to clients for the maximum number of streams in an HTTP/2 connection. Zero means to use golang's default. (default 1000)
-      --image-tag string                                        Image tag for sidecar, init-container, check-job and recovery-job (default "canary")
       --kubeconfig string                                       kubeconfig file pointing at the 'core' kubernetes server.
       --profiling                                               Enable profiling via web interface host:port/debug/pprof/ (default true)
       --qps float                                               The maximum QPS to the master from this client (default 100)
