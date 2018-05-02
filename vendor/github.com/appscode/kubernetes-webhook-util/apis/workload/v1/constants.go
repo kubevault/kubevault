@@ -5,21 +5,39 @@ import (
 	"strings"
 )
 
-type WorkloadKind string
-
 const (
-	KindPod                   WorkloadKind = "Pod"
-	KindDeployment            WorkloadKind = "Deployment"
-	KindReplicaSet            WorkloadKind = "ReplicaSet"
-	KindReplicationController WorkloadKind = "ReplicationController"
-	KindStatefulSet           WorkloadKind = "StatefulSet"
-	KindDaemonSet             WorkloadKind = "DaemonSet"
-	KindJob                   WorkloadKind = "Job"
-	KindCronJob               WorkloadKind = "CronJob"
-	KindDeploymentConfig      WorkloadKind = "DeploymentConfig"
+	KindPod                   = "Pod"
+	KindDeployment            = "Deployment"
+	KindReplicaSet            = "ReplicaSet"
+	KindReplicationController = "ReplicationController"
+	KindStatefulSet           = "StatefulSet"
+	KindDaemonSet             = "DaemonSet"
+	KindJob                   = "Job"
+	KindCronJob               = "CronJob"
+	KindDeploymentConfig      = "DeploymentConfig"
+
+	ResourcePods                   = "pods"
+	ResourceDeployments            = "deployments"
+	ResourceReplicaSets            = "replicasets"
+	ResourceReplicationControllers = "replicationsontrollers"
+	ResourceStatefulSets           = "statefulsets"
+	ResourceDaemonSets             = "daemonsets"
+	ResourceJobs                   = "jobs"
+	ResourceCronJobs               = "cronjobs"
+	ResourceDeploymentConfigs      = "deploymentconfigs"
+
+	ResourcePod                   = "pod"
+	ResourceDeployment            = "deployment"
+	ResourceReplicaSet            = "replicaset"
+	ResourceReplicationController = "replicationsontroller"
+	ResourceStatefulSet           = "statefulset"
+	ResourceDaemonSet             = "daemonset"
+	ResourceJob                   = "job"
+	ResourceCronJob               = "cronjob"
+	ResourceDeploymentConfig      = "deploymentconfig"
 )
 
-func Canonicalize(kind string) (WorkloadKind, error) {
+func Canonicalize(kind string) (string, error) {
 	switch strings.ToLower(kind) {
 	case "deployments", "deployment", "deploy":
 		return KindDeployment, nil
