@@ -1,5 +1,5 @@
-hash: 610ffcef1f3a06cf115318281968e62bb003868f060b00472a87af364f5bcd2e
-updated: 2018-05-03T11:03:45.373473462-07:00
+hash: ac6830939ed5c0ce639ea7ed61f474712c7aa8322b43c40eac460774d5754589
+updated: 2018-05-03T11:16:11.338575015-07:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -17,7 +17,9 @@ imports:
   - homedir
   - log
   - log/golog
+  - net
   - runtime
+  - sets
   - strings
   - types
   - version
@@ -43,6 +45,8 @@ imports:
   - meta
   - openapi
   - tools/analytics
+  - tools/certstore
+  - tools/clientcmd
   - tools/queue
 - name: github.com/appscode/mergo
   version: e3000cb3d28c72b837601cac94debd91032d19fe
@@ -161,6 +165,10 @@ imports:
   subpackages:
   - digestset
   - reference
+- name: github.com/docker/spdystream
+  version: 449fdfce4d962303d702fec724ef0ad181c92528
+  subpackages:
+  - spdy
 - name: github.com/elazarl/go-bindata-assetfs
   version: 3dcc96556217539f50599357fb481ac0dc7439b9
 - name: github.com/emicklei/go-restful
@@ -350,6 +358,10 @@ imports:
   version: 10ef21a441db47d8b13ebcc5fd2310f636973c77
 - name: github.com/sirupsen/logrus
   version: f006c2ac4710855cf0f916dd6b77acf6b048dc6e
+- name: github.com/spf13/afero
+  version: 63644898a8da0bc22138abf860edaf5277b6102e
+  subpackages:
+  - mem
 - name: github.com/spf13/cobra
   version: ef82de70bb3f60c65fb8eebacbb2d122ef517385
   subpackages:
@@ -539,6 +551,8 @@ imports:
   - pkg/util/diff
   - pkg/util/errors
   - pkg/util/framer
+  - pkg/util/httpstream
+  - pkg/util/httpstream/spdy
   - pkg/util/intstr
   - pkg/util/json
   - pkg/util/mergepatch
@@ -556,6 +570,7 @@ imports:
   - pkg/version
   - pkg/watch
   - third_party/forked/golang/json
+  - third_party/forked/golang/netutil
   - third_party/forked/golang/reflect
 - name: k8s.io/apiserver
   version: 5ae41ac86efd753e2ba012f097b83a914b268236
@@ -766,9 +781,11 @@ imports:
   - tools/clientcmd/api/v1
   - tools/metrics
   - tools/pager
+  - tools/portforward
   - tools/record
   - tools/reference
   - transport
+  - transport/spdy
   - util/buffer
   - util/cert
   - util/flowcontrol
