@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -17,12 +18,18 @@ import (
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 )
 
 type VaultController struct {
 	config
+	restConfig *rest.Config
+
+	// ctxCancels stores vault clusters' contexts that are used to
+	// cancel their goroutines when they are deleted
+	ctxCancels map[string]context.CancelFunc
 
 	kubeClient kubernetes.Interface
 	extClient  cs.Interface
@@ -85,19 +92,19 @@ func (c *VaultController) initVault() (err error) {
 func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	defer runtime.HandleCrash()
 
-	defer c.renewer.Stop()
+	// defer c.renewer.Stop()
 
 	glog.Info("Starting Vault controller")
-	c.kubeInformerFactory.Start(stopCh)
+	// c.kubeInformerFactory.Start(stopCh)
 	c.extInformerFactory.Start(stopCh)
 
 	// Wait for all involved caches to be synced, before processing items from the queue is started
-	for _, v := range c.kubeInformerFactory.WaitForCacheSync(stopCh) {
-		if !v {
-			runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
-			return
-		}
-	}
+	//for _, v := range c.kubeInformerFactory.WaitForCacheSync(stopCh) {
+	//	if !v {
+	//		runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
+	//		return
+	//	}
+	//}
 	for _, v := range c.extInformerFactory.WaitForCacheSync(stopCh) {
 		if !v {
 			runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
@@ -105,10 +112,11 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 		}
 	}
 
-	c.saQueue.Run(stopCh)
-	c.sQueue.Run(stopCh)
+	// c.saQueue.Run(stopCh)
+	// c.sQueue.Run(stopCh)
+	c.vsQueue.Run(stopCh)
 
-	go c.renewTokens()
+	//go c.renewTokens()
 
 	<-stopCh
 	glog.Info("Stopping Vault operator")

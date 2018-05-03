@@ -122,7 +122,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 							},
 						},
 					},
-					Required: []string{"status"},
+					// Required: []string{"status"},
 				},
 			},
 			Dependencies: []string{
@@ -214,7 +214,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 							},
 						},
 					},
-					Required: []string{"baseImage", "version", "configMapName"},
+					Required: []string{"baseImage", "version"},
 				},
 			},
 			Dependencies: []string{

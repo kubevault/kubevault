@@ -9,6 +9,11 @@ const (
 	ResourceKindVaultServer     = "VaultServer"
 	ResourceSingularVaultServer = "vaultserver"
 	ResourcePluralVaultServer   = "vaultservers"
+
+	// vault base image
+	defaultBaseImage = "quay.io/coreos/vault"
+	// version format is "<upstream-version>-<our-version>"
+	defaultVersion = "0.9.1-0"
 )
 
 type ClusterPhase string
@@ -132,4 +137,40 @@ type StaticTLS struct {
 	// that will be used to verify the above server certificate
 	// The ca secret should contain one file: vault-client-ca.crt
 	ClientSecret string `json:"clientSecret,omitempty"`
+}
+
+// SetDefaults sets the default vaules for the vault spec and returns true if the spec was changed
+func (v *VaultServer) SetDefaults() bool {
+	changed := false
+	vs := &v.Spec
+	if vs.Nodes == 0 {
+		vs.Nodes = 1
+		changed = true
+	}
+	if len(vs.BaseImage) == 0 {
+		vs.BaseImage = defaultBaseImage
+		changed = true
+	}
+	if len(vs.Version) == 0 {
+		vs.Version = defaultVersion
+		changed = true
+	}
+	/*if vs.TLS == nil {
+		vs.TLS = &TLSPolicy{Static: &StaticTLS{
+			ServerSecret: DefaultVaultServerTLSSecretName(v.Name),
+			ClientSecret: DefaultVaultClientTLSSecretName(v.Name),
+		}}
+		changed = true
+	}*/
+	return changed
+}
+
+// DefaultVaultClientTLSSecretName returns the name of the default vault client TLS secret
+func DefaultVaultClientTLSSecretName(vaultName string) string {
+	return vaultName + "-default-vault-client-tls"
+}
+
+// DefaultVaultServerTLSSecretName returns the name of the default vault server TLS secret
+func DefaultVaultServerTLSSecretName(vaultName string) string {
+	return vaultName + "-default-vault-server-tls"
 }
