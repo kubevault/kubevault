@@ -8,6 +8,7 @@ import (
 	"time"
 
 	kutilmeta "github.com/appscode/kutil/meta"
+	"github.com/appscode/kutil/tools/portforward"
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
@@ -16,6 +17,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -108,44 +110,10 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 			continue
 		}
 
-		// podAddr contains pod access url
-		// PodDNSName is reachable if operator running in cluster mode
-		podAddr := util.PodDNSName(p)
-		podPort := "8200"
-
-		isPortForwardUsed := false
-		portFwd := &util.PortForwardOptions{}
-
-		if !kutilmeta.PossiblyInCluster() {
-			// if not incluster mode, use port forwarding to access pod
-
-			portFwd = util.NewPortForwardOptions(c.kubeClient.CoreV1().RESTClient(), c.restConfig, p.Namespace, p.Name, 8200)
-
-			err = portFwd.ForwardPort()
-			if err != nil {
-				glog.Errorf("vault status monitor: port forward failed for pod %d. reason: %v", p.Name, err)
-				continue
-			}
-
-			podAddr = "localhost"
-			podPort = strconv.Itoa(portFwd.Local)
-			isPortForwardUsed = true
-		}
-
-		vaultClient, err := util.NewVaultClient(podAddr, podPort, tlsConfig)
-		if err != nil {
-			glog.Errorf("vault status monitor: failed to update vault replica status: failed creating client for the vault pod (%s/%s): %v", namespace, p.GetName(), err)
+		hr, err := c.getVaultStatus(&p, tlsConfig)
+		if err!=nil {
+			glog.Error("vault status monitor:",err)
 			continue
-		}
-
-		hr, err := vaultClient.Sys().Health()
-		if err != nil {
-			glog.Errorf("vault status monitor: failed to update vault replica status: failed requesting health info for the vault pod (%s/%s): %v", namespace, p.GetName(), err)
-			continue
-		}
-
-		if isPortForwardUsed {
-			portFwd.Stop()
 		}
 
 		changed = true
@@ -192,4 +160,39 @@ func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespa
 	// TODO: Patch
 	_, err = c.extClient.VaultV1alpha1().VaultServers(namespace).Update(vault)
 	return vault, err
+}
+
+func (c *VaultController) getVaultStatus(p *corev1.Pod, tlsConfig *vaultapi.TLSConfig) (*vaultapi.HealthResponse, error) {
+	// podAddr contains pod access url
+	// PodDNSName is reachable if operator running in cluster mode
+	podAddr := util.PodDNSName(*p)
+	// vault server pod use port 8200
+	podPort := "8200"
+
+	if !kutilmeta.PossiblyInCluster() {
+		// if not incluster mode, use port forwarding to access pod
+
+		portFwd := portforward.NewTunnel(c.kubeClient.CoreV1().RESTClient(), c.restConfig, p.GetNamespace(), p.GetName(), 8200)
+		defer portFwd.Close()
+
+		err := portFwd.ForwardPort()
+		if err != nil {
+			return nil,errors.Wrapf(err,"failed to get vault pod status: port forward failed for pod (%s/%s).", p.GetNamespace(),p.GetName())
+		}
+
+		podAddr = "localhost"
+		podPort = strconv.Itoa(portFwd.Local)
+	}
+
+	vaultClient, err := util.NewVaultClient(podAddr, podPort, tlsConfig)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get vault pod status: failed creating client for the vault pod (%s/%s).", p.GetNamespace(), p.GetName())
+	}
+
+	hr, err := vaultClient.Sys().Health()
+	if err != nil {
+		return nil, errors.Wrapf(err,"failed to get vault pod status: failed requesting health info for the vault pod (%s/%s).", p.GetNamespace(), p.GetName())
+	}
+
+	return hr, nil
 }

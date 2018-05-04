@@ -92,12 +92,16 @@ func (c *VaultController) initVault() (err error) {
 func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	defer runtime.HandleCrash()
 
+	// TODO : uncomment later
 	// defer c.renewer.Stop()
 
 	glog.Info("Starting Vault controller")
+
+	// TODO : uncomment later
 	// c.kubeInformerFactory.Start(stopCh)
 	c.extInformerFactory.Start(stopCh)
 
+	// TODO : uncomment later
 	// Wait for all involved caches to be synced, before processing items from the queue is started
 	//for _, v := range c.kubeInformerFactory.WaitForCacheSync(stopCh) {
 	//	if !v {
@@ -112,10 +116,12 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 		}
 	}
 
+	// TODO : uncomment later
 	// c.saQueue.Run(stopCh)
 	// c.sQueue.Run(stopCh)
 	c.vsQueue.Run(stopCh)
 
+	// TODO : uncomment later
 	//go c.renewTokens()
 
 	<-stopCh
