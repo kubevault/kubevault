@@ -100,6 +100,18 @@ func (c *FakeVaultServers) Update(vaultServer *v1alpha1.VaultServer) (result *v1
 	return obj.(*v1alpha1.VaultServer), err
 }
 
+// UpdateStatus was generated because the type contains a Status member.
+// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
+func (c *FakeVaultServers) UpdateStatus(vaultServer *v1alpha1.VaultServer) (*v1alpha1.VaultServer, error) {
+	obj, err := c.Fake.
+		Invokes(testing.NewUpdateSubresourceAction(vaultserversResource, "status", c.ns, vaultServer), &v1alpha1.VaultServer{})
+
+	if obj == nil {
+		return nil, err
+	}
+	return obj.(*v1alpha1.VaultServer), err
+}
+
 // Delete takes name of the vaultServer and deletes it. Returns an error if one occurs.
 func (c *FakeVaultServers) Delete(name string, options *v1.DeleteOptions) error {
 	_, err := c.Fake.
