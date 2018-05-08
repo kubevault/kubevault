@@ -16,7 +16,7 @@ func VaultServiceURL(name, namespace string, port int) string {
 
 // ConfigMapNameForVault returns the configMap name for vault
 func ConfigMapNameForVault(v *api.VaultServer) string {
-	return v.Name + "-vault-config-copy"
+	return v.Name + "-vault-config"
 }
 
 // LabelsForVault returns the labels for selecting the resources

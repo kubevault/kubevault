@@ -51,13 +51,14 @@ type VaultServerSpec struct {
 	Pod *PodPolicy `json:"pod,omitempty"`
 
 	// Name of the ConfigMap for Vault's configuration
-	// If this is empty, operator will create a default config for Vault.
-	// If this is not empty, operator will create a new config overwriting
-	// the "storage", "listener" sections in orignal config.
+	// In this configMap contain extra config for vault
 	ConfigMapName string `json:"configMapName"`
 
 	// TLS policy of vault nodes
 	TLS *TLSPolicy `json:"TLS,omitempty"`
+
+	// backend storage configuration for vault
+	BackendStorage BackendStorageSpec `json:"backendStorage"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -139,7 +140,48 @@ type StaticTLS struct {
 	ClientSecret string `json:"clientSecret,omitempty"`
 }
 
-// SetDefaults sets the default vaules for the vault spec and returns true if the spec was changed
+// TODO : set defaults and validation
+// BackendStorageSpec defines storage backend configuration of vault
+type BackendStorageSpec struct {
+	Inmem *InmemSpec `json:"inmem,omitempty"`
+	Etcd  *EtcdSpec  `json:"etcd,omitempty"`
+}
+
+// ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html
+type InmemSpec struct{}
+
+// TODO : set defaults and validation
+// vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html
+//
+// EtcdSpec defines configuration to set up etcd as backend storage in vault
+type EtcdSpec struct {
+	// Specifies the addresses of the etcd instances
+	Address string `json:"address"`
+
+	// Specifies the version of the API to communicate with etcd
+	EtcdApi string `json:"etcdApi,omitempty"`
+
+	// Specifies if high availability should be enabled
+	HAEnable bool `json:"haEnable,omitempty"`
+
+	// Specifies the path in etcd where vault data will be stored
+	Path string `json:"path,omitempty"`
+
+	// Specifies whether to sync list of available etcd services on startup
+	Sync bool `json:"sync,omitempty"`
+
+	// Specifies the domain name to query for SRV records describing cluster endpoints
+	DiscoverySrv string `json:"discoverySrv,omitempty"`
+
+	// Specifies the secret name that contain username and password to use when authenticating with the etcd server
+	CredentialSecretName string `json:"credentialSecretName,omitempty"`
+
+	// Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication
+	TLSSecretName string `json:"tlsSecretName,omitempty"`
+}
+
+// TODO : use webhook?
+// SetDefaults sets the default values for the vault spec and returns true if the spec was changed
 func (v *VaultServer) SetDefaults() bool {
 	changed := false
 	vs := &v.Spec
@@ -163,14 +205,4 @@ func (v *VaultServer) SetDefaults() bool {
 		changed = true
 	}*/
 	return changed
-}
-
-// DefaultVaultClientTLSSecretName returns the name of the default vault client TLS secret
-func DefaultVaultClientTLSSecretName(vaultName string) string {
-	return vaultName + "-default-vault-client-tls"
-}
-
-// DefaultVaultServerTLSSecretName returns the name of the default vault server TLS secret
-func DefaultVaultServerTLSSecretName(vaultName string) string {
-	return vaultName + "-default-vault-server-tls"
 }

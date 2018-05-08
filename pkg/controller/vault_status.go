@@ -11,13 +11,13 @@ import (
 	"github.com/appscode/kutil/tools/portforward"
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
+	"github.com/pkg/errors"
 	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
 	"github.com/soter/vault-operator/pkg/util"
 	"github.com/spf13/afero"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -111,8 +111,8 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 		}
 
 		hr, err := c.getVaultStatus(&p, tlsConfig)
-		if err!=nil {
-			glog.Error("vault status monitor:",err)
+		if err != nil {
+			glog.Error("vault status monitor:", err)
 			continue
 		}
 
@@ -177,7 +177,7 @@ func (c *VaultController) getVaultStatus(p *corev1.Pod, tlsConfig *vaultapi.TLSC
 
 		err := portFwd.ForwardPort()
 		if err != nil {
-			return nil,errors.Wrapf(err,"failed to get vault pod status: port forward failed for pod (%s/%s).", p.GetNamespace(),p.GetName())
+			return nil, errors.Wrapf(err, "failed to get vault pod status: port forward failed for pod (%s/%s).", p.GetNamespace(), p.GetName())
 		}
 
 		podAddr = "localhost"
@@ -191,7 +191,7 @@ func (c *VaultController) getVaultStatus(p *corev1.Pod, tlsConfig *vaultapi.TLSC
 
 	hr, err := vaultClient.Sys().Health()
 	if err != nil {
-		return nil, errors.Wrapf(err,"failed to get vault pod status: failed requesting health info for the vault pod (%s/%s).", p.GetNamespace(), p.GetName())
+		return nil, errors.Wrapf(err, "failed to get vault pod status: failed requesting health info for the vault pod (%s/%s).", p.GetNamespace(), p.GetName())
 	}
 
 	return hr, nil

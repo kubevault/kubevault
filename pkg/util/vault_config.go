@@ -1,20 +1,20 @@
 package util
 
 import (
-	"bytes"
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	corev1 "k8s.io/api/core/v1"
+	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
 )
 
 const (
-	// VaultConfigPath is the path that vault pod uses to read config from
-	VaultConfigPath = "/run/vault/config/vault.hcl"
+	// VaultConfigFile is the file that vault pod uses to read config from
+	VaultConfigFile = "/etc/vault/config/vault.hcl"
 
-	// VaultTLSAssetDir is the dir where vault's server TLS and etcd TLS assets sits
-	VaultTLSAssetDir = "/run/vault/tls/"
+	// VaultTLSAssetDir is the dir where vault's server TLS sits
+	VaultTLSAssetDir = "/etc/vault/tls/"
 
 	// ServerTLSCertName is the filename of the vault server cert
 	ServerTLSCertName = "server.crt"
@@ -23,6 +23,7 @@ const (
 	ServerTLSKeyName = "server.key"
 
 	// TLS related file name for etcd
+	EtcdTLSAssetDir    = "/etc/vault/storage/etcd/tls/"
 	EtcdClientCaName   = "etcd-client-ca.crt"
 	EtcdClientCertName = "etcd-client.crt"
 	EtcdClientKeyName  = "etcd-client.key"
@@ -30,22 +31,20 @@ const (
 
 var listenerFmt = `
 listener "tcp" {
-  address     = "0.0.0.0:8200"
+  address = "0.0.0.0:8200"
   cluster_address = "0.0.0.0:8201"
   tls_cert_file = "%s"
   tls_key_file  = "%s"
 }
 `
+var inmenStorage = `
+storage "inmem" {
+}
+`
 
 var etcdStorageFmt = `
 storage "etcd" {
-  address = "%s"
-  etcd_api = "v3"
-  ha_enabled = "true"
-  tls_ca_file = "%s"
-  tls_cert_file = "%s"
-  tls_key_file = "%s"
-  sync = "false"
+%s
 }
 `
 
@@ -55,48 +54,64 @@ func NewConfigWithDefaultParams() string {
 	return fmt.Sprintf(listenerFmt, filepath.Join(VaultTLSAssetDir, ServerTLSCertName), filepath.Join(VaultTLSAssetDir, ServerTLSKeyName))
 }
 
-// AppenListenerInConfig will append tcp listener in given config
-func AppendListenerInConfig(data string) string {
-	buf := bytes.NewBufferString(data)
-
-	// TODO : telemetry
-	/*buf.WriteString(`
-	telemetry {
-		statsd_address = "localhost:9125"
-	}
-	`)*/
-
-	listenerSection := fmt.Sprintf(listenerFmt,
+// ListenerConfig creates tcp listener config
+func GetListenerConfig() string {
+	listenerCfg := fmt.Sprintf(listenerFmt,
 		filepath.Join(VaultTLSAssetDir, ServerTLSCertName),
 		filepath.Join(VaultTLSAssetDir, ServerTLSKeyName))
-	buf.WriteString(listenerSection)
 
-	return buf.String()
+	return listenerCfg
 }
 
-// NewConfigWithEtcd returns the new config data combining
-// original config and new etcd storage section.
-func NewConfigWithEtcd(data, etcdURL string) string {
-	storageSection := fmt.Sprintf(etcdStorageFmt, etcdURL, filepath.Join(VaultTLSAssetDir, EtcdClientCaName),
-		filepath.Join(VaultTLSAssetDir, EtcdClientCertName), filepath.Join(VaultTLSAssetDir, EtcdClientKeyName))
-	data = fmt.Sprintf("%s%s", data, storageSection)
-	return data
+// GetStorageConfig creates storage config from BackendStorage Spec
+func GetStorageConfig(s *api.BackendStorageSpec) (string, error) {
+	if s.Inmem != nil {
+		return inmenStorage, nil
+	} else if s.Etcd != nil {
+		return GetEtcdConfig(s.Etcd)
+	}
+	return "", nil
 }
 
-func NewConfigFormConfigMap(data string, s *corev1.ConfigMap) string {
-	storageSection := fmt.Sprintf(`
-storage "%s" {`, s.Data["name"])
-
-	for k, v := range s.Data {
-		if k != "name" {
-			storageSection = storageSection + fmt.Sprintf(`
-%s = "%s"`, k, v)
-		}
+// vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html
+//
+// Note:
+// - Secret `TLSSecretName` mounted in `EtcdTLSAssetDir`
+// - Secret `CredentialSecret` will be used as environment variable
+//
+// GetEtcdConfig creates etcd storage config from EtcdSpec
+func GetEtcdConfig(s *api.EtcdSpec) (string, error) {
+	params := []string{}
+	if s.Address != "" {
+		params = append(params, fmt.Sprintf(`address = "%s"`, s.Address))
+	}
+	if s.EtcdApi != "" {
+		params = append(params, fmt.Sprintf(`etcd_api = "%s"`, s.EtcdApi))
+	}
+	if s.Path != "" {
+		params = append(params, fmt.Sprintf(`path = "%s"`, s.Path))
+	}
+	if s.DiscoverySrv != "" {
+		params = append(params, fmt.Sprintf(`discovery_srv = "%s"`, s.DiscoverySrv))
+	}
+	if s.HAEnable {
+		params = append(params, fmt.Sprintf(`ha_enable = "true"`))
+	} else {
+		params = append(params, fmt.Sprintf(`ha_enable = "false"`))
+	}
+	if s.Sync {
+		params = append(params, fmt.Sprintf(`sync = "true"`))
+	} else {
+		params = append(params, fmt.Sprintf(`sync = "false"`))
+	}
+	if s.TLSSecretName != "" {
+		params = append(params, fmt.Sprintf(`tls-ca-file = "%s"`, filepath.Join(EtcdTLSAssetDir, EtcdClientCaName)),
+			fmt.Sprintf(`tls-cert-file = "%s"`, filepath.Join(EtcdTLSAssetDir, EtcdClientCertName)),
+			fmt.Sprintf(`tls-key-file = "%s"`, filepath.Join(EtcdTLSAssetDir, EtcdClientKeyName)))
 	}
 
-	storageSection += "\n}"
-	data = fmt.Sprintf("%s%s", data, storageSection)
-	return data
+	storageCfg := fmt.Sprintf(etcdStorageFmt, strings.Join(params, "\n"))
+	return storageCfg, nil
 }
 
 func NewVaultClient(hostname string, port string, tlsConfig *vaultapi.TLSConfig) (*vaultapi.Client, error) {

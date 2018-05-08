@@ -1,0 +1,13 @@
+apiVersion: "vault.soter.ac/v1alpha1"
+kind: "VaultServer"
+metadata:
+  name: "example"
+spec:
+  nodes: 1
+  version: "0.9.1-0"
+  baseImage: "quay.io/coreos/vault"
+  backendStorage:
+    etcd:
+      address: "http://192.168.99.100:32379"
+      etcdApi: "v3"
+

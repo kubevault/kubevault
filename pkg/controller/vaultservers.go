@@ -9,6 +9,7 @@ import (
 	"github.com/appscode/kubernetes-webhook-util/admission"
 	hooks "github.com/appscode/kubernetes-webhook-util/admission/v1beta1"
 	webhook "github.com/appscode/kubernetes-webhook-util/admission/v1beta1/generic"
+	kutilappsv1beta1 "github.com/appscode/kutil/apps/v1beta1"
 	"github.com/appscode/kutil/tools/certstore"
 	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
@@ -66,6 +67,8 @@ func (c *VaultController) NewVaultServerWebhook() hooks.AdmissionHook {
 func (c *VaultController) initVaultServerWatcher() {
 	c.vsInformer = c.extInformerFactory.Vault().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New("VaultServer", c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
+
+	// TODO : Write custom event handler?
 	c.vsInformer.AddEventHandler(queue.DefaultEventHandler(c.vsQueue.GetQueue()))
 	c.vsLister = c.extInformerFactory.Vault().V1alpha1().VaultServers().Lister()
 }
@@ -101,7 +104,7 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 		glog.Infof("Sync/Add/Update for VaultServer %s\n", vault.GetName())
 		// glog.Infoln(vault.Name, vault.Namespace)
 
-		// TODO : use initializer or validation/mutating webhook
+		// TODO : initializer or validation/mutating webhook
 		changed := vault.SetDefaults()
 		if changed {
 			// TODO : patch
@@ -147,7 +150,7 @@ func (c *VaultController) reconcileVault(v *api.VaultServer) error {
 			return errors.Wrap(err, "vault deploy error")
 		}
 	} else if err != nil {
-		return errors.Wrap(err, "unable to get deployments")
+		return errors.Wrap(err, "get deployments error")
 	} else {
 		// meet specifications
 
@@ -174,7 +177,7 @@ func (c *VaultController) reconcileVault(v *api.VaultServer) error {
 	return nil
 }
 
-// DeployVault deploys a vault service.
+// DeployVault deploys a vault server.
 // DeployVault is a multi-steps process. It creates the deployment, the service and
 // other related Kubernetes objects for Vault. Any intermediate step can fail.
 //
@@ -207,7 +210,25 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 		util.ApplyPodResourcePolicy(&podTempl.Spec, v.Spec.Pod)
 	}
 
-	configVaultServerTLS(&podTempl, v)
+	configureVaultServerTLS(&podTempl)
+
+	configureVaultStorage(v, &podTempl)
+
+	err := c.createVaultDeployment(v, &podTempl)
+	if err != nil {
+		return err
+	}
+
+	err = c.createVaultService(v)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// createVaultDeployment creates deployment for vault
+func (c *VaultController) createVaultDeployment(v *api.VaultServer, p *corev1.PodTemplateSpec) error {
+	selector := util.LabelsForVault(v.GetName())
 
 	d := &appsv1beta1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -217,7 +238,7 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 		Spec: appsv1beta1.DeploymentSpec{
 			Replicas: &v.Spec.Nodes,
 			Selector: &metav1.LabelSelector{MatchLabels: selector},
-			Template: podTempl,
+			Template: *p,
 			Strategy: appsv1beta1.DeploymentStrategy{
 				Type: appsv1beta1.RollingUpdateDeploymentStrategyType,
 				RollingUpdate: &appsv1beta1.RollingUpdateDeployment{
@@ -233,6 +254,12 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 	if err != nil && !k8serrors.IsAlreadyExists(err) {
 		return errors.Wrap(err, "unable to create deployments for vault")
 	}
+	return nil
+}
+
+// createVaultService creates service for vault
+func (c *VaultController) createVaultService(v *api.VaultServer) error {
+	selector := util.LabelsForVault(v.GetName())
 
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -257,7 +284,7 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 	}
 
 	util.AddOwnerRefToObject(svc, util.AsOwner(v))
-	_, err = c.kubeClient.CoreV1().Services(v.Namespace).Create(svc)
+	_, err := c.kubeClient.CoreV1().Services(v.Namespace).Create(svc)
 	if err != nil && !k8serrors.IsAlreadyExists(err) {
 		return errors.Wrap(err, "failed to create vault service")
 	}
@@ -314,11 +341,11 @@ func (c *VaultController) syncUpgrade(v *api.VaultServer, d *appsv1beta1.Deploym
 func (c *VaultController) UpgradeDeployment(v *api.VaultServer, d *appsv1beta1.Deployment) error {
 	mu := intstr.FromInt(int(v.Spec.Nodes - 1))
 
-	d.Spec.Strategy.RollingUpdate.MaxUnavailable = &mu
-	d.Spec.Template.Spec.Containers[0].Image = util.VaultImage(v)
-
-	// TODO : Patch
-	_, err := c.kubeClient.AppsV1beta1().Deployments(d.Namespace).Update(d)
+	_, _, err := kutilappsv1beta1.CreateOrPatchDeployment(c.kubeClient, d.ObjectMeta, func(deployment *appsv1beta1.Deployment) *appsv1beta1.Deployment {
+		deployment.Spec.Strategy.RollingUpdate.MaxUnavailable = &mu
+		deployment.Spec.Template.Spec.Containers[0].Image = util.VaultImage(v)
+		return deployment
+	})
 	if err != nil {
 		return errors.Wrapf(err, "failed to upgrade deployment to (%s)", util.VaultImage(v))
 	}
@@ -386,32 +413,27 @@ func (c *VaultController) prepareVaultTLSSecrets(v *api.VaultServer) error {
 	return nil
 }
 
-// prepareConfig applies our section into Vault config file.
-// - If given user configmap, appends into user provided vault config
-//   and creates another configmap "${vaultName}-vault-config-copy" for it.
-// - Otherwise, creates a new configmap "${vaultName}-vault-config-copy" with our section.
+// prepareConfig will do:
+// - Create listener config
+// - Append extra user given config from configMap if user provided it
+// - Create backend storage config from backendStorageSpec
+// - Create a ConfigMap "${vaultName}-vault-config" containing configuration
 func (c *VaultController) prepareConfig(v *api.VaultServer) error {
-	var cfgData string
+	cfgData := util.GetListenerConfig()
 
 	if len(v.Spec.ConfigMapName) != 0 {
 		cm, err := c.kubeClient.CoreV1().ConfigMaps(v.Namespace).Get(v.Spec.ConfigMapName, metav1.GetOptions{})
 		if err != nil {
-			return errors.Wrapf(err, "get configmap (%s) failed: %v", v.Spec.ConfigMapName)
+			return errors.Wrapf(err, "get configmap (%s) failed", v.Spec.ConfigMapName)
 		}
-		cfgData = cm.Data[filepath.Base(util.VaultConfigPath)]
+		cfgData = fmt.Sprintf("%s\n%s", cfgData, cm.Data[filepath.Base(util.VaultConfigFile)])
 	}
 
-	cfgData = util.AppendListenerInConfig(cfgData)
-
-	storageConfig, err := c.kubeClient.CoreV1().ConfigMaps(v.Namespace).Get(VaultStorageConfigMapName, metav1.GetOptions{})
+	storageCfg, err := util.GetStorageConfig(&v.Spec.BackendStorage)
 	if err != nil {
-		return errors.Wrap(err, "failed to get vault storage configmap")
+		return errors.Wrap(err, "create vault storage config failed")
 	}
-
-	cfgData = util.NewConfigFormConfigMap(cfgData, storageConfig)
-
-	// if etcd is created by vault operator use this
-	// cfgData = util.NewConfigWithEtcd(cfgData, util.EtcdURLForVault(vr.Name))
+	cfgData = fmt.Sprintf("%s\n%s", cfgData, storageCfg)
 
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -419,16 +441,14 @@ func (c *VaultController) prepareConfig(v *api.VaultServer) error {
 			Labels: util.LabelsForVault(v.Name),
 		},
 		Data: map[string]string{
-			filepath.Base(util.VaultConfigPath): cfgData,
+			filepath.Base(util.VaultConfigFile): cfgData,
 		},
 	}
-
-	glog.Infoln("vault configMap for configuration: ", cm)
 
 	util.AddOwnerRefToObject(cm, util.AsOwner(v))
 	_, err = c.kubeClient.CoreV1().ConfigMaps(v.Namespace).Create(cm)
 	if err != nil && !k8serrors.IsAlreadyExists(err) {
-		return errors.Wrapf(err, "create new configmap (%s) failed: %v", cm.Name)
+		return errors.Wrapf(err, "create new configmap (%s) failed", cm.Name)
 	}
 
 	return nil
@@ -441,7 +461,7 @@ func vaultContainer(v *api.VaultServer) corev1.Container {
 		Command: []string{
 			"/bin/vault",
 			"server",
-			"-config=" + util.VaultConfigPath,
+			"-config=" + util.VaultConfigFile,
 		},
 		Env: []corev1.EnvVar{
 			{
@@ -455,7 +475,7 @@ func vaultContainer(v *api.VaultServer) corev1.Container {
 		},
 		VolumeMounts: []corev1.VolumeMount{{
 			Name:      VaultConfigVolumeName,
-			MountPath: filepath.Dir(util.VaultConfigPath),
+			MountPath: filepath.Dir(util.VaultConfigFile),
 		}},
 		SecurityContext: &corev1.SecurityContext{
 			Capabilities: &corev1.Capabilities{
@@ -504,20 +524,16 @@ func vaultContainer(v *api.VaultServer) corev1.Container {
 	}
 }
 
-// configVaultServerTLS mounts the volume containing the vault server TLS assets for the vault pod
-func configVaultServerTLS(pt *corev1.PodTemplateSpec, v *api.VaultServer) {
-	secretName := VaultTlsSecretName
-	/*if v.Spec.TLS.Static.ServerSecret != "" {
-		secretName = v.Spec.TLS.Static.ServerSecret
-	}*/
-
+// TODO : Use user provided certificates
+// configureVaultServerTLS mounts the volume containing the vault server TLS assets for the vault pod
+func configureVaultServerTLS(pt *corev1.PodTemplateSpec) {
 	vaultTLSAssetVolume := "vault-tls-secret"
 
 	pt.Spec.Volumes = append(pt.Spec.Volumes, corev1.Volume{
 		Name: vaultTLSAssetVolume,
 		VolumeSource: corev1.VolumeSource{
 			Secret: &corev1.SecretVolumeSource{
-				SecretName: secretName,
+				SecretName: VaultTlsSecretName,
 			},
 		},
 	})
