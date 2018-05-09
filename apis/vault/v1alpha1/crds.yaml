@@ -321,14 +321,54 @@ spec:
                         The server certificate must allow the following wildcard domains:
                         localhost *.<namespace>.pod <vault-cluster-name>.<namespace>.svc'
                       type: string
+            backendStorage:
+              description: BackendStorageSpec defines storage backend configuration
+                of vault
+              properties:
+                etcd:
+                  description: |-
+                    vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html
+
+                    EtcdSpec defines configuration to set up etcd as backend storage in vault
+                  properties:
+                    address:
+                      description: Specifies the addresses of the etcd instances
+                      type: string
+                    credentialSecretName:
+                      description: Specifies the secret name that contain username
+                        and password to use when authenticating with the etcd server
+                      type: string
+                    discoverySrv:
+                      description: Specifies the domain name to query for SRV records
+                        describing cluster endpoints
+                      type: string
+                    etcdApi:
+                      description: Specifies the version of the API to communicate
+                        with etcd
+                      type: string
+                    haEnable:
+                      description: Specifies if high availability should be enabled
+                      type: boolean
+                    path:
+                      description: Specifies the path in etcd where vault data will
+                        be stored
+                      type: string
+                    sync:
+                      description: Specifies whether to sync list of available etcd
+                        services on startup
+                      type: boolean
+                    tlsSecretName:
+                      description: Specifies the secret name that contains tls_ca_file,
+                        tls_cert_file and tls_key_file for etcd communication
+                      type: string
+                inmem:
+                  description: 'ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html'
             baseImage:
               description: Base image to use for a Vault deployment.
               type: string
             configMapName:
-              description: Name of the ConfigMap for Vault's configuration If this
-                is empty, operator will create a default config for Vault. If this
-                is not empty, operator will create a new config overwriting the "storage",
-                "listener" sections in orignal config.
+              description: Name of the ConfigMap for Vault's configuration In this
+                configMap contain extra config for vault
               type: string
             nodes:
               description: 'Number of nodes to deploy for a Vault deployment. Default:
@@ -358,7 +398,7 @@ spec:
           required:
           - baseImage
           - version
-          - configMapName
+          - backendStorage
         status:
           properties:
             clientPort:
@@ -403,16 +443,6 @@ spec:
                   items:
                     type: string
                   type: array
-              required:
-              - active
-              - standby
-              - sealed
-          required:
-          - phase
-          - initialized
-          - vaultStatus
-      required:
-      - status
   version: v1alpha1
 status:
   acceptedNames:

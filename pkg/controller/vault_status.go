@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"path/filepath"
-	"reflect"
 	"strconv"
 	"time"
 
@@ -13,6 +12,7 @@ import (
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
+	patchutil "github.com/soter/vault-operator/client/clientset/versioned/typed/vault/v1alpha1/util"
 	"github.com/soter/vault-operator/pkg/util"
 	"github.com/spf13/afero"
 	corev1 "k8s.io/api/core/v1"
@@ -45,7 +45,7 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.Vau
 
 	for {
 		// Do not wait to update Phase ASAP.
-		latest, err := c.updateVaultCRStatus(ctx, v.GetName(), v.GetNamespace(), s)
+		latest, err := c.updateVaultCRStatus(ctx, v.GetName(), v.GetNamespace(), &s)
 		if err != nil {
 			glog.Errorf("vault status monitor: failed updating the status for the vault service: %s (%v)", v.GetName(), err)
 		}
@@ -55,7 +55,7 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.Vau
 
 		select {
 		case err := <-ctx.Done():
-			glog.Infoln("vault status monitor: stop monitoring vault (%s), reason: %v", v.GetName(), err)
+			glog.Infof("vault status monitor: stop monitoring vault (%s/%s), reason: %v\n", v.GetNamespace(), v.GetName(), err)
 			return
 		case <-time.After(10 * time.Second):
 		}
@@ -97,6 +97,7 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 		return
 	}
 
+	activeNode := ""
 	sealNodes := []string{}
 	standByNodes := []string{}
 	updated := []string{}
@@ -123,7 +124,7 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 		}
 
 		if hr.Initialized && !hr.Sealed && !hr.Standby {
-			s.VaultStatus.Active = p.GetName()
+			activeNode = p.GetName()
 		}
 		if hr.Initialized && !hr.Sealed && hr.Standby {
 			standByNodes = append(standByNodes, p.GetName())
@@ -140,6 +141,7 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 		return
 	}
 
+	s.VaultStatus.Active = activeNode
 	s.VaultStatus.Standby = standByNodes
 	s.VaultStatus.Sealed = sealNodes
 	s.Initialized = initiated
@@ -147,18 +149,17 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 }
 
 // updateVaultCRStatus updates the status field of the Vault CR.
-func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespace string, status api.VaultServerStatus) (*api.VaultServer, error) {
+func (c *VaultController) updateVaultCRStatus(ctx1 context.Context, name, namespace string, status *api.VaultServerStatus) (*api.VaultServer, error) {
 	vault, err := c.extClient.VaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
-	if reflect.DeepEqual(vault.Status, status) {
-		return vault, nil
-	}
-	vault.Status = status
 
-	// TODO: Patch
-	_, err = c.extClient.VaultV1alpha1().VaultServers(namespace).Update(vault)
+	// TODO : flag for useSubresource?
+	vault, err = patchutil.UpdateVaultServerStatus(c.extClient.VaultV1alpha1(), vault, func(s *api.VaultServerStatus) *api.VaultServerStatus {
+		s = status
+		return s
+	})
 	return vault, err
 }
 

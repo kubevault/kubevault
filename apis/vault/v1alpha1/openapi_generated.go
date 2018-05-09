@@ -31,6 +31,102 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
+		"github.com/soter/vault-operator/apis/vault/v1alpha1.BackendStorageSpec": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "BackendStorageSpec defines storage backend configuration of vault",
+					Properties: map[string]spec.Schema{
+						"inmem": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/soter/vault-operator/apis/vault/v1alpha1.InmemSpec"),
+							},
+						},
+						"etcd": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/soter/vault-operator/apis/vault/v1alpha1.EtcdSpec"),
+							},
+						},
+					},
+				},
+			},
+			Dependencies: []string{
+				"github.com/soter/vault-operator/apis/vault/v1alpha1.EtcdSpec", "github.com/soter/vault-operator/apis/vault/v1alpha1.InmemSpec"},
+		},
+		"github.com/soter/vault-operator/apis/vault/v1alpha1.EtcdSpec": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html\n\nEtcdSpec defines configuration to set up etcd as backend storage in vault",
+					Properties: map[string]spec.Schema{
+						"address": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the addresses of the etcd instances",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"etcdApi": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the version of the API to communicate with etcd",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"haEnable": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies if high availability should be enabled",
+								Type:        []string{"boolean"},
+								Format:      "",
+							},
+						},
+						"path": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the path in etcd where vault data will be stored",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"sync": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies whether to sync list of available etcd services on startup",
+								Type:        []string{"boolean"},
+								Format:      "",
+							},
+						},
+						"discoverySrv": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the domain name to query for SRV records describing cluster endpoints",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"credentialSecretName": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the secret name that contain username and password to use when authenticating with the etcd server",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"tlsSecretName": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+					},
+				},
+			},
+			Dependencies: []string{},
+		},
+		"github.com/soter/vault-operator/apis/vault/v1alpha1.InmemSpec": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
+					Properties:  map[string]spec.Schema{},
+				},
+			},
+			Dependencies: []string{},
+		},
 		"github.com/soter/vault-operator/apis/vault/v1alpha1.PodPolicy": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
@@ -122,7 +218,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 							},
 						},
 					},
-					// Required: []string{"status"},
 				},
 			},
 			Dependencies: []string{
@@ -202,7 +297,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"configMapName": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Name of the ConfigMap for Vault's configuration If this is empty, operator will create a default config for Vault. If this is not empty, operator will create a new config overwriting the \"storage\", \"listener\" sections in orignal config.",
+								Description: "Name of the ConfigMap for Vault's configuration In this configMap contain extra config for vault",
 								Type:        []string{"string"},
 								Format:      "",
 							},
@@ -213,12 +308,18 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref:         ref("github.com/soter/vault-operator/apis/vault/v1alpha1.TLSPolicy"),
 							},
 						},
+						"backendStorage": {
+							SchemaProps: spec.SchemaProps{
+								Description: "backend storage configuration for vault",
+								Ref:         ref("github.com/soter/vault-operator/apis/vault/v1alpha1.BackendStorageSpec"),
+							},
+						},
 					},
-					Required: []string{"baseImage", "version"},
+					Required: []string{"baseImage", "version", "backendStorage"},
 				},
 			},
 			Dependencies: []string{
-				"github.com/soter/vault-operator/apis/vault/v1alpha1.PodPolicy", "github.com/soter/vault-operator/apis/vault/v1alpha1.TLSPolicy"},
+				"github.com/soter/vault-operator/apis/vault/v1alpha1.BackendStorageSpec", "github.com/soter/vault-operator/apis/vault/v1alpha1.PodPolicy", "github.com/soter/vault-operator/apis/vault/v1alpha1.TLSPolicy"},
 		},
 		"github.com/soter/vault-operator/apis/vault/v1alpha1.VaultServerStatus": {
 			Schema: spec.Schema{
@@ -273,7 +374,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 							},
 						},
 					},
-					Required: []string{"phase", "initialized", "vaultStatus"},
 				},
 			},
 			Dependencies: []string{
@@ -319,7 +419,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 							},
 						},
 					},
-					Required: []string{"active", "standby", "sealed"},
 				},
 			},
 			Dependencies: []string{},

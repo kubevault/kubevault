@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 
 	"github.com/appscode/kutil"
-	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
-	cs "github.com/soter/vault-operator/client/clientset/versioned/typed/vault/v1alpha1"
 	"github.com/evanphx/json-patch"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
+	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
+	cs "github.com/soter/vault-operator/client/clientset/versioned/typed/vault/v1alpha1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"

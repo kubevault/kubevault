@@ -16,6 +16,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/soter/vault-operator/apis/vault"
 	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
+	"github.com/soter/vault-operator/client/clientset/versioned/scheme"
+	patchutil "github.com/soter/vault-operator/client/clientset/versioned/typed/vault/v1alpha1/util"
 	"github.com/soter/vault-operator/pkg/util"
 	"github.com/spf13/afero"
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
@@ -26,20 +28,20 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/tools/reference"
 	"k8s.io/client-go/util/cert"
 )
 
 const (
-	EnvVaultAddr              = "VAULT_API_ADDR"
-	EnvVaultClusterAddr       = "VAULT_CLUSTER_ADDR"
-	VaultPort                 = 8200
-	VaultClusterPort          = 8201
-	VaultConfigVolumeName     = "vault-config"
-	VaultTlsSecretName        = "vault-tls-secret"
-	VaultStorageConfigMapName = "vault-storage-config"
-	CaCertName                = "ca.crt"
-	ServerCertName            = "server.crt"
-	ServerkeyName             = "server.key"
+	EnvVaultAddr          = "VAULT_API_ADDR"
+	EnvVaultClusterAddr   = "VAULT_CLUSTER_ADDR"
+	VaultPort             = 8200
+	VaultClusterPort      = 8201
+	VaultConfigVolumeName = "vault-config"
+	VaultTlsSecretName    = "vault-tls-secret"
+	CaCertName            = "ca.crt"
+	ServerCertName        = "server.crt"
+	ServerkeyName         = "server.key"
 )
 
 func (c *VaultController) NewVaultServerWebhook() hooks.AdmissionHook {
@@ -97,20 +99,21 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 			delete(c.ctxCancels, name)
 		}
 
-		// fmt.Println(namespace, name)
 	} else {
 		vault := obj.(*api.VaultServer)
 
-		glog.Infof("Sync/Add/Update for VaultServer %s\n", vault.GetName())
+		glog.Infof("Sync/Add/Update for VaultServer %s/%s\n", vault.GetNamespace(), vault.GetName())
 		// glog.Infoln(vault.Name, vault.Namespace)
 
 		// TODO : initializer or validation/mutating webhook
 		changed := vault.SetDefaults()
 		if changed {
-			// TODO : patch
-			vault, err = c.extClient.VaultV1alpha1().VaultServers(vault.Namespace).Update(vault)
+			_, _, err = patchutil.CreateOrPatchVaultServer(c.extClient.VaultV1alpha1(), vault.ObjectMeta, func(v *api.VaultServer) *api.VaultServer {
+				v.SetDefaults()
+				return v
+			})
 			if err != nil {
-				return errors.Wrap(err, "unable to update vaultServer")
+				return errors.Wrap(err, "unable to patch vaultServer")
 			}
 		}
 
@@ -123,34 +126,84 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 }
 
 // reconcileVault reconciles the vault cluster's state to the spec specified by v
-// by preparing the TLS secrets, deploying the etcd and vault cluster,
+// by preparing the TLS secrets, deploying vault cluster,
 // and finally updating the vault deployment if needed.
 func (c *VaultController) reconcileVault(v *api.VaultServer) error {
-
-	/*if v.Status.Phase == api.ClusterPhaseInitial {
-		// deploy backend storage
-	}*/
-
 	d, err := c.kubeClient.AppsV1beta1().Deployments(v.Namespace).Get(v.Name, metav1.GetOptions{})
 	if k8serrors.IsNotFound(err) {
 		//deploy vault
 
 		err = c.prepareVaultTLSSecrets(v)
 		if err != nil {
+			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
+				c.recorder.Eventf(
+					ref,
+					corev1.EventTypeWarning,
+					"prepare vault tls failed",
+					err.Error(),
+				)
+			}
 			return errors.Wrap(err, "prepare vault tls secret error")
+		} else {
+			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
+				c.recorder.Eventf(
+					ref,
+					corev1.EventTypeNormal,
+					"vault tls secret created",
+					fmt.Sprintf("vault tls secret '%s' created successfully", VaultTlsSecretName),
+				)
+			}
 		}
 
 		err = c.prepareConfig(v)
 		if err != nil {
+			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
+				c.recorder.Eventf(
+					ref,
+					corev1.EventTypeWarning,
+					"vault configuration failed",
+					err.Error(),
+				)
+			}
 			return errors.Wrap(err, "prepare vault config error")
+
+		} else {
+			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
+				c.recorder.Eventf(
+					ref,
+					corev1.EventTypeNormal,
+					"vault configuration created",
+					fmt.Sprintf("configMap '%s' for vault configuration created successfully", util.ConfigMapNameForVault(v)),
+				)
+			}
 		}
 
 		err = c.DeployVault(v)
 		if err != nil {
+			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
+				c.recorder.Eventf(
+					ref,
+					corev1.EventTypeWarning,
+					"vault deploy failed",
+					err.Error(),
+				)
+			}
 			return errors.Wrap(err, "vault deploy error")
+
+		} else {
+			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
+				c.recorder.Eventf(
+					ref,
+					corev1.EventTypeNormal,
+					"deployment created successfully",
+					fmt.Sprintf("deployment '%s' for vaultServer created successfully", v.GetName()),
+				)
+			}
 		}
+
 	} else if err != nil {
 		return errors.Wrap(err, "get deployments error")
+
 	} else {
 		// meet specifications
 
@@ -164,6 +217,14 @@ func (c *VaultController) reconcileVault(v *api.VaultServer) error {
 
 		err = c.syncUpgrade(v, d)
 		if err != nil {
+			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
+				c.recorder.Eventf(
+					ref,
+					corev1.EventTypeWarning,
+					"sync between vaultServer and deployments failed",
+					err.Error(),
+				)
+			}
 			return errors.Wrap(err, "sync vaultServer and deployments error")
 		}
 	}

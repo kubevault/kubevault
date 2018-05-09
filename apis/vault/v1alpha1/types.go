@@ -24,7 +24,6 @@ const (
 )
 
 // +genclient
-// +genclient:skipVerbs=updateStatus
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
@@ -32,7 +31,7 @@ type VaultServer struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 	Spec              VaultServerSpec   `json:"spec,omitempty"`
-	Status            VaultServerStatus `json:"status",omitempty`
+	Status            VaultServerStatus `json:"status,omitempty"`
 }
 
 type VaultServerSpec struct {
@@ -52,7 +51,7 @@ type VaultServerSpec struct {
 
 	// Name of the ConfigMap for Vault's configuration
 	// In this configMap contain extra config for vault
-	ConfigMapName string `json:"configMapName"`
+	ConfigMapName string `json:"configMapName,omitempty"`
 
 	// TLS policy of vault nodes
 	TLS *TLSPolicy `json:"TLS,omitempty"`
@@ -73,10 +72,10 @@ type VaultServerStatus struct {
 	// Phase indicates the state this Vault cluster jumps in.
 	// Phase goes as one way as below:
 	//   Initial -> Running
-	Phase ClusterPhase `json:"phase"`
+	Phase ClusterPhase `json:"phase,omitempty"`
 
 	// Initialized indicates if the Vault service is initialized.
-	Initialized bool `json:"initialized"`
+	Initialized bool `json:"initialized,omitempty"`
 
 	// ServiceName is the LB service for accessing vault nodes.
 	ServiceName string `json:"serviceName,omitempty"`
@@ -86,7 +85,7 @@ type VaultServerStatus struct {
 	ClientPort int `json:"clientPort,omitempty"`
 
 	// VaultStatus is the set of Vault node specific statuses: Active, Standby, and Sealed
-	VaultStatus VaultStatus `json:"vaultStatus"`
+	VaultStatus VaultStatus `json:"vaultStatus,omitempty"`
 
 	// PodNames of updated Vault nodes. Updated means the Vault container image version
 	// matches the spec's version.
@@ -97,15 +96,15 @@ type VaultStatus struct {
 	// PodName of the active Vault node. Active node is unsealed.
 	// Only active node can serve requests.
 	// Vault service only points to the active node.
-	Active string `json:"active"`
+	Active string `json:"active,omitempty"`
 
 	// PodNames of the standby Vault nodes. Standby nodes are unsealed.
 	// Standby nodes do not process requests, and instead redirect to the active Vault.
-	Standby []string `json:"standby"`
+	Standby []string `json:"standby,omitempty"`
 
 	// PodNames of Sealed Vault nodes. Sealed nodes MUST be manually unsealed to
 	// become standby or leader.
-	Sealed []string `json:"sealed"`
+	Sealed []string `json:"sealed,omitempty"`
 }
 
 // PodPolicy defines the policy for pods owned by vault operator.
@@ -156,7 +155,7 @@ type InmemSpec struct{}
 // EtcdSpec defines configuration to set up etcd as backend storage in vault
 type EtcdSpec struct {
 	// Specifies the addresses of the etcd instances
-	Address string `json:"address"`
+	Address string `json:"address,omitempty"`
 
 	// Specifies the version of the API to communicate with etcd
 	EtcdApi string `json:"etcdApi,omitempty"`
