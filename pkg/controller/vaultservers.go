@@ -70,8 +70,16 @@ func (c *VaultController) initVaultServerWatcher() {
 	c.vsInformer = c.extInformerFactory.Vault().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New("VaultServer", c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
 
-	// TODO : Write custom event handler?
-	c.vsInformer.AddEventHandler(queue.DefaultEventHandler(c.vsQueue.GetQueue()))
+	c.vsInformer.AddEventHandler(queue.NewEventHandler(c.vsQueue.GetQueue(), func(oldObj, newObj interface{}) bool {
+		oldV := oldObj.(*api.VaultServer)
+		newV := newObj.(*api.VaultServer)
+
+		// TODO : watch for specific Spec field?
+		if reflect.DeepEqual(oldV.Spec, newV.Spec) {
+			return false
+		}
+		return true
+	}))
 	c.vsLister = c.extInformerFactory.Vault().V1alpha1().VaultServers().Lister()
 }
 
@@ -106,6 +114,7 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 		// glog.Infoln(vault.Name, vault.Namespace)
 
 		// TODO : initializer or validation/mutating webhook
+		// will be deprecated
 		changed := vault.SetDefaults()
 		if changed {
 			_, _, err = patchutil.CreateOrPatchVaultServer(c.extClient.VaultV1alpha1(), vault.ObjectMeta, func(v *api.VaultServer) *api.VaultServer {
