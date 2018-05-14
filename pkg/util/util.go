@@ -62,3 +62,8 @@ func ApplyPodResourcePolicy(s *corev1.PodSpec, p *api.PodPolicy) {
 func VaultImage(v *api.VaultServer) string {
 	return fmt.Sprintf("%s:%s", v.Spec.BaseImage, v.Spec.Version)
 }
+
+// image format: baseImageName:tag
+func RemoveImageTag(im string) string {
+	return strings.Split(im, ":")[0]
+}

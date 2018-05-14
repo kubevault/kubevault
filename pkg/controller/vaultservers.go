@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/afero"
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	corev1 "k8s.io/api/core/v1"
-	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -70,16 +70,8 @@ func (c *VaultController) initVaultServerWatcher() {
 	c.vsInformer = c.extInformerFactory.Vault().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New("VaultServer", c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
 
-	c.vsInformer.AddEventHandler(queue.NewEventHandler(c.vsQueue.GetQueue(), func(oldObj, newObj interface{}) bool {
-		oldV := oldObj.(*api.VaultServer)
-		newV := newObj.(*api.VaultServer)
-
-		// TODO : watch for specific Spec field?
-		if reflect.DeepEqual(oldV.Spec, newV.Spec) {
-			return false
-		}
-		return true
-	}))
+	// TODO: Add a custom event handler
+	c.vsInformer.AddEventHandler(queue.DefaultEventHandler(c.vsQueue.GetQueue()))
 	c.vsLister = c.extInformerFactory.Vault().V1alpha1().VaultServers().Lister()
 }
 
@@ -139,7 +131,7 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 // and finally updating the vault deployment if needed.
 func (c *VaultController) reconcileVault(v *api.VaultServer) error {
 	d, err := c.kubeClient.AppsV1beta1().Deployments(v.Namespace).Get(v.Name, metav1.GetOptions{})
-	if k8serrors.IsNotFound(err) {
+	if kerrors.IsNotFound(err) {
 		//deploy vault
 
 		err = c.prepareVaultTLSSecrets(v)
@@ -210,17 +202,39 @@ func (c *VaultController) reconcileVault(v *api.VaultServer) error {
 			}
 		}
 
-	} else if err != nil {
-		return errors.Wrap(err, "get deployments error")
+	} else if err == nil {
+		// if deployment is created for vaultserver, then sync specifications
+		// else give an error
 
-	} else {
-		// meet specifications
+		// use image to determine whether this deployment is for vaultserver
+		if util.RemoveImageTag(d.Spec.Template.Spec.Containers[0].Image) != v.Spec.BaseImage {
+			fmt.Println(util.RemoveImageTag(d.Spec.Template.Spec.Containers[0].Name),v.Spec.BaseImage)
+			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
+				c.recorder.Eventf(
+					ref,
+					corev1.EventTypeWarning,
+					"deployment exists",
+					fmt.Sprintf("deployment with same name of vaultserver '%s' already exists", v.GetName()),
+				)
+			}
+
+			return errors.Errorf("deployment with same name of vaultserver '%s' already exists", v.GetName())
+		}
 
 		if *d.Spec.Replicas != v.Spec.Nodes {
 			d.Spec.Replicas = &(v.Spec.Nodes)
 			_, err = c.kubeClient.AppsV1beta1().Deployments(v.Namespace).Update(d)
 			if err != nil {
-				return fmt.Errorf("failed to update size of deployment (%s): %v", d.Name, err)
+				if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
+					c.recorder.Eventf(
+						ref,
+						corev1.EventTypeWarning,
+						"deployment update failed",
+						err.Error(),
+					)
+				}
+
+				return errors.Wrapf(err, "failed to update size of deployment '%s'", d.Name)
 			}
 		}
 
@@ -236,6 +250,8 @@ func (c *VaultController) reconcileVault(v *api.VaultServer) error {
 			}
 			return errors.Wrap(err, "sync vaultServer and deployments error")
 		}
+	} else {
+		return errors.Wrap(err, "get deployments error")
 	}
 
 	if _, ok := c.ctxCancels[v.Name]; !ok {
@@ -254,6 +270,11 @@ func (c *VaultController) reconcileVault(v *api.VaultServer) error {
 // DeployVault is idempotent. If an object already exists, this function will ignore creating
 // it and return no error. It is safe to retry on this function.
 func (c *VaultController) DeployVault(v *api.VaultServer) error {
+	_, err := c.kubeClient.AppsV1beta1().Deployments(v.Namespace).Get(v.Name, metav1.GetOptions{})
+	if !kerrors.IsNotFound(err) {
+		glog.Infof("deployment '%s' already exists", v.Name)
+		return nil
+	}
 	selector := util.LabelsForVault(v.GetName())
 
 	podTempl := corev1.PodTemplateSpec{
@@ -284,7 +305,7 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 
 	configureVaultStorage(v, &podTempl)
 
-	err := c.createVaultDeployment(v, &podTempl)
+	err = c.createVaultDeployment(v, &podTempl)
 	if err != nil {
 		return err
 	}
@@ -321,7 +342,7 @@ func (c *VaultController) createVaultDeployment(v *api.VaultServer, p *corev1.Po
 
 	util.AddOwnerRefToObject(d, util.AsOwner(v))
 	_, err := c.kubeClient.AppsV1beta1().Deployments(v.Namespace).Create(d)
-	if err != nil && !k8serrors.IsAlreadyExists(err) {
+	if err != nil {
 		return errors.Wrap(err, "unable to create deployments for vault")
 	}
 	return nil
@@ -355,7 +376,7 @@ func (c *VaultController) createVaultService(v *api.VaultServer) error {
 
 	util.AddOwnerRefToObject(svc, util.AsOwner(v))
 	_, err := c.kubeClient.CoreV1().Services(v.Namespace).Create(svc)
-	if err != nil && !k8serrors.IsAlreadyExists(err) {
+	if err != nil {
 		return errors.Wrap(err, "failed to create vault service")
 	}
 	return nil
@@ -397,7 +418,7 @@ func (c *VaultController) syncUpgrade(v *api.VaultServer, d *appsv1beta1.Deploym
 		// If it failed for some reason, kubelet will send SIGKILL after default grace period (30s) eventually.
 		// It take longer but the the lock will get released eventually on failure case.
 		err := c.kubeClient.CoreV1().Pods(v.Namespace).Delete(v.Status.VaultStatus.Active, nil)
-		if err != nil && !k8serrors.IsNotFound(err) {
+		if err != nil && !kerrors.IsNotFound(err) {
 			return errors.Wrapf(err, "step down: failed to delete active Vault pod (%s): %v", v.Status.VaultStatus.Active)
 		}
 	}
@@ -411,7 +432,7 @@ func (c *VaultController) syncUpgrade(v *api.VaultServer, d *appsv1beta1.Deploym
 func (c *VaultController) UpgradeDeployment(v *api.VaultServer, d *appsv1beta1.Deployment) error {
 	mu := intstr.FromInt(int(v.Spec.Nodes - 1))
 
-	_, _, err := kutilappsv1beta1.CreateOrPatchDeployment(c.kubeClient, d.ObjectMeta, func(deployment *appsv1beta1.Deployment) *appsv1beta1.Deployment {
+	d, _, err := kutilappsv1beta1.CreateOrPatchDeployment(c.kubeClient, d.ObjectMeta, func(deployment *appsv1beta1.Deployment) *appsv1beta1.Deployment {
 		deployment.Spec.Strategy.RollingUpdate.MaxUnavailable = &mu
 		deployment.Spec.Template.Spec.Containers[0].Image = util.VaultImage(v)
 		return deployment
@@ -430,10 +451,10 @@ func (c *VaultController) UpgradeDeployment(v *api.VaultServer, d *appsv1beta1.D
 // currently used self signed certificate
 func (c *VaultController) prepareVaultTLSSecrets(v *api.VaultServer) error {
 	_, err := c.kubeClient.CoreV1().Secrets(v.Namespace).Get(VaultTlsSecretName, metav1.GetOptions{})
-	if k8serrors.IsAlreadyExists(err) {
-		glog.Infoln(VaultTlsSecretName + " already exist")
+	if !kerrors.IsNotFound(err) {
+		glog.Infof("secret '%s' already exists", VaultTlsSecretName)
 		return nil
-	} else if !k8serrors.IsNotFound(err) {
+	} else if !kerrors.IsNotFound(err) {
 		return errors.Wrap(err, "vault secret get error")
 	}
 
@@ -489,6 +510,11 @@ func (c *VaultController) prepareVaultTLSSecrets(v *api.VaultServer) error {
 // - Create backend storage config from backendStorageSpec
 // - Create a ConfigMap "${vaultName}-vault-config" containing configuration
 func (c *VaultController) prepareConfig(v *api.VaultServer) error {
+	_, err:= c.kubeClient.CoreV1().ConfigMaps(v.Namespace).Get(util.ConfigMapNameForVault(v), metav1.GetOptions{})
+	if !kerrors.IsNotFound(err) {
+		glog.Infof("ConfigMap '%s' already exists", util.ConfigMapNameForVault(v))
+		return nil
+	}
 	cfgData := util.GetListenerConfig()
 
 	if len(v.Spec.ConfigMapName) != 0 {
@@ -517,7 +543,7 @@ func (c *VaultController) prepareConfig(v *api.VaultServer) error {
 
 	util.AddOwnerRefToObject(cm, util.AsOwner(v))
 	_, err = c.kubeClient.CoreV1().ConfigMaps(v.Namespace).Create(cm)
-	if err != nil && !k8serrors.IsAlreadyExists(err) {
+	if err != nil {
 		return errors.Wrapf(err, "create new configmap (%s) failed", cm.Name)
 	}
 
