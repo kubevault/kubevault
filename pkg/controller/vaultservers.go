@@ -208,7 +208,7 @@ func (c *VaultController) reconcileVault(v *api.VaultServer) error {
 
 		// use image to determine whether this deployment is for vaultserver
 		if util.RemoveImageTag(d.Spec.Template.Spec.Containers[0].Image) != v.Spec.BaseImage {
-			fmt.Println(util.RemoveImageTag(d.Spec.Template.Spec.Containers[0].Name),v.Spec.BaseImage)
+			fmt.Println(util.RemoveImageTag(d.Spec.Template.Spec.Containers[0].Name), v.Spec.BaseImage)
 			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
 				c.recorder.Eventf(
 					ref,
@@ -510,7 +510,7 @@ func (c *VaultController) prepareVaultTLSSecrets(v *api.VaultServer) error {
 // - Create backend storage config from backendStorageSpec
 // - Create a ConfigMap "${vaultName}-vault-config" containing configuration
 func (c *VaultController) prepareConfig(v *api.VaultServer) error {
-	_, err:= c.kubeClient.CoreV1().ConfigMaps(v.Namespace).Get(util.ConfigMapNameForVault(v), metav1.GetOptions{})
+	_, err := c.kubeClient.CoreV1().ConfigMaps(v.Namespace).Get(util.ConfigMapNameForVault(v), metav1.GetOptions{})
 	if !kerrors.IsNotFound(err) {
 		glog.Infof("ConfigMap '%s' already exists", util.ConfigMapNameForVault(v))
 		return nil
