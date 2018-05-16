@@ -11,9 +11,9 @@ const (
 	ResourcePluralVaultServer   = "vaultservers"
 
 	// vault base image
-	defaultBaseImage = "quay.io/coreos/vault"
+	defaultBaseImage = "vault"
 	// version format is "<upstream-version>-<our-version>"
-	defaultVersion = "0.9.1-0"
+	defaultVersion = "0.10.0"
 )
 
 type ClusterPhase string
