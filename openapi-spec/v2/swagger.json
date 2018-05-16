@@ -1490,6 +1490,57 @@
         }
       }
     },
+    "com.github.soter.vault-operator.apis.vault.v1alpha1.BackendStorageSpec": {
+      "description": "BackendStorageSpec defines storage backend configuration of vault",
+      "properties": {
+        "etcd": {
+          "$ref": "#/definitions/com.github.soter.vault-operator.apis.vault.v1alpha1.EtcdSpec"
+        },
+        "inmem": {
+          "$ref": "#/definitions/com.github.soter.vault-operator.apis.vault.v1alpha1.InmemSpec"
+        }
+      }
+    },
+    "com.github.soter.vault-operator.apis.vault.v1alpha1.EtcdSpec": {
+      "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html\n\nEtcdSpec defines configuration to set up etcd as backend storage in vault",
+      "properties": {
+        "address": {
+          "description": "Specifies the addresses of the etcd instances",
+          "type": "string"
+        },
+        "credentialSecretName": {
+          "description": "Specifies the secret name that contain username and password to use when authenticating with the etcd server",
+          "type": "string"
+        },
+        "discoverySrv": {
+          "description": "Specifies the domain name to query for SRV records describing cluster endpoints",
+          "type": "string"
+        },
+        "etcdApi": {
+          "description": "Specifies the version of the API to communicate with etcd",
+          "type": "string"
+        },
+        "haEnable": {
+          "description": "Specifies if high availability should be enabled",
+          "type": "boolean"
+        },
+        "path": {
+          "description": "Specifies the path in etcd where vault data will be stored",
+          "type": "string"
+        },
+        "sync": {
+          "description": "Specifies whether to sync list of available etcd services on startup",
+          "type": "boolean"
+        },
+        "tlsSecretName": {
+          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication",
+          "type": "string"
+        }
+      }
+    },
+    "com.github.soter.vault-operator.apis.vault.v1alpha1.InmemSpec": {
+      "description": "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html"
+    },
     "com.github.soter.vault-operator.apis.vault.v1alpha1.PodPolicy": {
       "description": "PodPolicy defines the policy for pods owned by vault operator.",
       "properties": {
@@ -1521,9 +1572,6 @@
       }
     },
     "com.github.soter.vault-operator.apis.vault.v1alpha1.VaultServer": {
-      "required": [
-        "status"
-      ],
       "properties": {
         "apiVersion": {
           "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
@@ -1583,19 +1631,23 @@
       "required": [
         "baseImage",
         "version",
-        "configMapName"
+        "backendStorage"
       ],
       "properties": {
         "TLS": {
           "description": "TLS policy of vault nodes",
           "$ref": "#/definitions/com.github.soter.vault-operator.apis.vault.v1alpha1.TLSPolicy"
         },
+        "backendStorage": {
+          "description": "backend storage configuration for vault",
+          "$ref": "#/definitions/com.github.soter.vault-operator.apis.vault.v1alpha1.BackendStorageSpec"
+        },
         "baseImage": {
           "description": "Base image to use for a Vault deployment.",
           "type": "string"
         },
         "configMapName": {
-          "description": "Name of the ConfigMap for Vault's configuration If this is empty, operator will create a default config for Vault. If this is not empty, operator will create a new config overwriting the \"storage\", \"listener\" sections in orignal config.",
+          "description": "Name of the ConfigMap for Vault's configuration In this configMap contain extra config for vault",
           "type": "string"
         },
         "nodes": {
@@ -1614,11 +1666,6 @@
       }
     },
     "com.github.soter.vault-operator.apis.vault.v1alpha1.VaultServerStatus": {
-      "required": [
-        "phase",
-        "initialized",
-        "vaultStatus"
-      ],
       "properties": {
         "clientPort": {
           "description": "ClientPort is the port for vault client to access. It's the same on client LB service and vault nodes.",
@@ -1651,11 +1698,6 @@
       }
     },
     "com.github.soter.vault-operator.apis.vault.v1alpha1.VaultStatus": {
-      "required": [
-        "active",
-        "standby",
-        "sealed"
-      ],
       "properties": {
         "active": {
           "description": "PodName of the active Vault node. Active node is unsealed. Only active node can serve requests. Vault service only points to the active node.",

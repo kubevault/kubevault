@@ -21,7 +21,7 @@ func CreateOrPatchVaultServer(c cs.VaultV1alpha1Interface, meta metav1.ObjectMet
 		glog.V(3).Infof("Creating VaultServer %s/%s.", meta.Namespace, meta.Name)
 		out, err := c.VaultServers(meta.Namespace).Create(transform(&api.VaultServer{
 			TypeMeta: metav1.TypeMeta{
-				Kind:       "VaultServer",
+				Kind:       api.ResourceKindVaultServer,
 				APIVersion: api.SchemeGroupVersion.String(),
 			},
 			ObjectMeta: meta,

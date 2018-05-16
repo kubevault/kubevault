@@ -10,6 +10,8 @@ import:
 - package: github.com/hashicorp/vault
   version: v0.10.0
 - package: github.com/jpillora/go-ogle-analytics
+- package: github.com/spf13/afero
+  version: master
 - package: github.com/spf13/cobra
   version: master
 - package: github.com/spf13/pflag
@@ -27,6 +29,8 @@ import:
   version: v7.0.0
 - package: k8s.io/kubernetes
   version: v1.10.0
+- package: k8s.io/kube-aggregator
+  version: kubernetes-1.10.0
 - package: k8s.io/kube-openapi
   version: master
 - package: github.com/openshift/api

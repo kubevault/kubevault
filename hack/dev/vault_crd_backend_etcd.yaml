@@ -1,0 +1,12 @@
+apiVersion: "vault.soter.ac/v1alpha1"
+kind: "VaultServer"
+metadata:
+  name: "example"
+spec:
+  nodes: 3
+  version: "0.10.0"
+  baseImage: "vault"
+  backendStorage:
+    etcd:
+      address: "http://example-etcd-cluster-client-service.default.svc:2379"
+      etcdApi: "v3"

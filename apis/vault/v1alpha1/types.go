@@ -6,9 +6,14 @@ import (
 )
 
 const (
-	ResourceKindVaultServer     = "VaultServer"
-	ResourceSingularVaultServer = "vaultserver"
-	ResourcePluralVaultServer   = "vaultservers"
+	ResourceKindVaultServer = "VaultServer"
+	ResourceVaultServer     = "vaultserver"
+	ResourceVaultServers    = "vaultservers"
+
+	// vault base image
+	defaultBaseImage = "vault"
+	// version format is "<upstream-version>-<our-version>"
+	defaultVersion = "0.10.0"
 )
 
 type ClusterPhase string
@@ -26,7 +31,7 @@ type VaultServer struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 	Spec              VaultServerSpec   `json:"spec,omitempty"`
-	Status            VaultServerStatus `json:"status",omitempty`
+	Status            VaultServerStatus `json:"status,omitempty"`
 }
 
 type VaultServerSpec struct {
@@ -45,13 +50,14 @@ type VaultServerSpec struct {
 	Pod *PodPolicy `json:"pod,omitempty"`
 
 	// Name of the ConfigMap for Vault's configuration
-	// If this is empty, operator will create a default config for Vault.
-	// If this is not empty, operator will create a new config overwriting
-	// the "storage", "listener" sections in orignal config.
-	ConfigMapName string `json:"configMapName"`
+	// In this configMap contain extra config for vault
+	ConfigMapName string `json:"configMapName,omitempty"`
 
 	// TLS policy of vault nodes
 	TLS *TLSPolicy `json:"TLS,omitempty"`
+
+	// backend storage configuration for vault
+	BackendStorage BackendStorageSpec `json:"backendStorage"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -66,10 +72,10 @@ type VaultServerStatus struct {
 	// Phase indicates the state this Vault cluster jumps in.
 	// Phase goes as one way as below:
 	//   Initial -> Running
-	Phase ClusterPhase `json:"phase"`
+	Phase ClusterPhase `json:"phase,omitempty"`
 
 	// Initialized indicates if the Vault service is initialized.
-	Initialized bool `json:"initialized"`
+	Initialized bool `json:"initialized,omitempty"`
 
 	// ServiceName is the LB service for accessing vault nodes.
 	ServiceName string `json:"serviceName,omitempty"`
@@ -79,7 +85,7 @@ type VaultServerStatus struct {
 	ClientPort int `json:"clientPort,omitempty"`
 
 	// VaultStatus is the set of Vault node specific statuses: Active, Standby, and Sealed
-	VaultStatus VaultStatus `json:"vaultStatus"`
+	VaultStatus VaultStatus `json:"vaultStatus,omitempty"`
 
 	// PodNames of updated Vault nodes. Updated means the Vault container image version
 	// matches the spec's version.
@@ -90,15 +96,15 @@ type VaultStatus struct {
 	// PodName of the active Vault node. Active node is unsealed.
 	// Only active node can serve requests.
 	// Vault service only points to the active node.
-	Active string `json:"active"`
+	Active string `json:"active,omitempty"`
 
 	// PodNames of the standby Vault nodes. Standby nodes are unsealed.
 	// Standby nodes do not process requests, and instead redirect to the active Vault.
-	Standby []string `json:"standby"`
+	Standby []string `json:"standby,omitempty"`
 
 	// PodNames of Sealed Vault nodes. Sealed nodes MUST be manually unsealed to
 	// become standby or leader.
-	Sealed []string `json:"sealed"`
+	Sealed []string `json:"sealed,omitempty"`
 }
 
 // PodPolicy defines the policy for pods owned by vault operator.
@@ -131,4 +137,71 @@ type StaticTLS struct {
 	// that will be used to verify the above server certificate
 	// The ca secret should contain one file: vault-client-ca.crt
 	ClientSecret string `json:"clientSecret,omitempty"`
+}
+
+// TODO : set defaults and validation
+// BackendStorageSpec defines storage backend configuration of vault
+type BackendStorageSpec struct {
+	Inmem *InmemSpec `json:"inmem,omitempty"`
+	Etcd  *EtcdSpec  `json:"etcd,omitempty"`
+}
+
+// ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html
+type InmemSpec struct{}
+
+// TODO : set defaults and validation
+// vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html
+//
+// EtcdSpec defines configuration to set up etcd as backend storage in vault
+type EtcdSpec struct {
+	// Specifies the addresses of the etcd instances
+	Address string `json:"address,omitempty"`
+
+	// Specifies the version of the API to communicate with etcd
+	EtcdApi string `json:"etcdApi,omitempty"`
+
+	// Specifies if high availability should be enabled
+	HAEnable bool `json:"haEnable,omitempty"`
+
+	// Specifies the path in etcd where vault data will be stored
+	Path string `json:"path,omitempty"`
+
+	// Specifies whether to sync list of available etcd services on startup
+	Sync bool `json:"sync,omitempty"`
+
+	// Specifies the domain name to query for SRV records describing cluster endpoints
+	DiscoverySrv string `json:"discoverySrv,omitempty"`
+
+	// Specifies the secret name that contain username and password to use when authenticating with the etcd server
+	CredentialSecretName string `json:"credentialSecretName,omitempty"`
+
+	// Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication
+	TLSSecretName string `json:"tlsSecretName,omitempty"`
+}
+
+// TODO : use webhook?
+// SetDefaults sets the default values for the vault spec and returns true if the spec was changed
+func (v *VaultServer) SetDefaults() bool {
+	changed := false
+	vs := &v.Spec
+	if vs.Nodes == 0 {
+		vs.Nodes = 1
+		changed = true
+	}
+	if len(vs.BaseImage) == 0 {
+		vs.BaseImage = defaultBaseImage
+		changed = true
+	}
+	if len(vs.Version) == 0 {
+		vs.Version = defaultVersion
+		changed = true
+	}
+	/*if vs.TLS == nil {
+		vs.TLS = &TLSPolicy{Static: &StaticTLS{
+			ServerSecret: DefaultVaultServerTLSSecretName(v.Name),
+			ClientSecret: DefaultVaultClientTLSSecretName(v.Name),
+		}}
+		changed = true
+	}*/
+	return changed
 }

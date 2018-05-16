@@ -1,12 +1,13 @@
 package controller
 
 import (
+	"context"
 	"strings"
 	"time"
 
 	"github.com/appscode/go/log/golog"
 	cs "github.com/soter/vault-operator/client/clientset/versioned"
-	stashinformers "github.com/soter/vault-operator/client/informers/externalversions"
+	vaultinformers "github.com/soter/vault-operator/client/informers/externalversions"
 	"github.com/soter/vault-operator/pkg/eventer"
 	core "k8s.io/api/core/v1"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
@@ -67,21 +68,24 @@ func (c *Config) New() (*VaultController, error) {
 	}
 	ctrl := &VaultController{
 		config:              c.config,
+		restConfig:          c.ClientConfig,
+		ctxCancels:          make(map[string]context.CancelFunc),
 		kubeClient:          c.KubeClient,
 		extClient:           c.ExtClient,
 		crdClient:           c.CRDClient,
 		kubeInformerFactory: informers.NewFilteredSharedInformerFactory(c.KubeClient, c.ResyncPeriod, core.NamespaceAll, tweakListOptions),
-		extInformerFactory:  stashinformers.NewSharedInformerFactory(c.ExtClient, c.ResyncPeriod),
-		recorder:            eventer.NewEventRecorder(c.KubeClient, "stash-controller"),
+		extInformerFactory:  vaultinformers.NewSharedInformerFactory(c.ExtClient, c.ResyncPeriod),
+		recorder:            eventer.NewEventRecorder(c.KubeClient, "vault-controller"),
 	}
 
 	if err := ctrl.ensureCustomResourceDefinitions(); err != nil {
 		return nil, err
 	}
 
-	ctrl.initVault()
-	ctrl.initServiceAccountWatcher()
-	ctrl.initSecretWatcher()
+	// ctrl.initVault()
+	// ctrl.initServiceAccountWatcher()
+	// ctrl.initSecretWatcher()
+	ctrl.initVaultServerWatcher()
 
 	return ctrl, nil
 }
