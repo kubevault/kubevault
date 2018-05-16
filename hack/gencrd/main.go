@@ -72,7 +72,7 @@ func generateSwaggerJson() {
 			repov1alpha1.GetOpenAPIDefinitions,
 		},
 		Resources: []schema.GroupVersionResource{
-			stashv1alpha1.SchemeGroupVersion.WithResource(stashv1alpha1.ResourcePluralVaultServer),
+			stashv1alpha1.SchemeGroupVersion.WithResource(stashv1alpha1.ResourceVaultServers),
 		},
 		RDResources: []schema.GroupVersionResource{
 			repov1alpha1.SchemeGroupVersion.WithResource(repov1alpha1.ResourcePluralVaultSecret),

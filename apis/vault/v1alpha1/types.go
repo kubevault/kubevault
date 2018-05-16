@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	ResourceKindVaultServer     = "VaultServer"
-	ResourceSingularVaultServer = "vaultserver"
-	ResourcePluralVaultServer   = "vaultservers"
+	ResourceKindVaultServer = "VaultServer"
+	ResourceVaultServer     = "vaultserver"
+	ResourceVaultServers    = "vaultservers"
 
 	// vault base image
 	defaultBaseImage = "vault"

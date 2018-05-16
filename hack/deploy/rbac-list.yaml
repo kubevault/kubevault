@@ -12,11 +12,11 @@ rules:
   verbs:
   - "*"
 - apiGroups:
-  - extensions
+  - admissionregistration.k8s.io
   resources:
-  - thirdpartyresources
-  verbs:
-  - "*"
+  - mutatingwebhookconfigurations
+  - validatingwebhookconfigurations
+  verbs: ["get","list"]
 - apiGroups:
   - vault.soter.ac
   resources: ["*"]

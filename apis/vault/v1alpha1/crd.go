@@ -9,8 +9,8 @@ func (c VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDef
 	return crdutils.NewCustomResourceDefinition(crdutils.Config{
 		Group:         SchemeGroupVersion.Group,
 		Version:       SchemeGroupVersion.Version,
-		Plural:        ResourcePluralVaultServer,
-		Singular:      ResourceSingularVaultServer,
+		Plural:        ResourceVaultServers,
+		Singular:      ResourceVaultServer,
 		Kind:          ResourceKindVaultServer,
 		ShortNames:    []string{"vs"},
 		ResourceScope: string(apiextensions.NamespaceScoped),

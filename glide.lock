@@ -1,5 +1,5 @@
-hash: ac6830939ed5c0ce639ea7ed61f474712c7aa8322b43c40eac460774d5754589
-updated: 2018-05-16T00:17:32.168089779-07:00
+hash: b6fbde023e36e9c6d9983761af29d69cf0f8cca3cf06a1ef0324d8f53b4c8af3
+updated: 2018-05-16T01:07:14.840293552-07:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -603,7 +603,8 @@ imports:
   - third_party/forked/golang/netutil
   - third_party/forked/golang/reflect
 - name: k8s.io/apiserver
-  version: 5ae41ac86efd753e2ba012f097b83a914b268236
+  version: 6fdedd7050e542dd8c23fdababac0237aedd7f9e
+  repo: https://github.com/tamalsaha/apiserver.git
   subpackages:
   - pkg/admission
   - pkg/admission/configuration
@@ -856,7 +857,7 @@ imports:
   - util/retry
   - util/workqueue
 - name: k8s.io/kube-aggregator
-  version: ""
+  version: adfe041e31889bef412f2105d246e549f824ca92
   subpackages:
   - pkg/apis/apiregistration
   - pkg/apis/apiregistration/v1
