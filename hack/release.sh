@@ -10,8 +10,8 @@ pushd $REPO_ROOT
 
 export APPSCODE_ENV=prod
 rm -rf dist
-./hack/docker/setup.sh
-./hack/docker/setup.sh release
+./hack/docker/make.sh
+./hack/docker/make.sh release
 rm -rf dist/.tag
 
 popd
