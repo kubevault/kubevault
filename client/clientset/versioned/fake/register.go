@@ -1,5 +1,5 @@
 /*
-Copyright 2018 The Vault Operator Authors.
+Copyright 2018 The Kube Vault Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 package fake
 
 import (
-	extensionsv1alpha1 "github.com/soter/vault-operator/apis/extensions/v1alpha1"
-	vaultv1alpha1 "github.com/soter/vault-operator/apis/vault/v1alpha1"
+	corev1alpha1 "github.com/kube-vault/operator/apis/core/v1alpha1"
+	extensionsv1alpha1 "github.com/kube-vault/operator/apis/extensions/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -51,6 +51,6 @@ func init() {
 // After this, RawExtensions in Kubernetes types will serialize kube-aggregator types
 // correctly.
 func AddToScheme(scheme *runtime.Scheme) {
+	corev1alpha1.AddToScheme(scheme)
 	extensionsv1alpha1.AddToScheme(scheme)
-	vaultv1alpha1.AddToScheme(scheme)
 }

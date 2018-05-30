@@ -1,5 +1,5 @@
 /*
-Copyright 2018 The Vault Operator Authors.
+Copyright 2018 The Kube Vault Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ package versioned
 
 import (
 	glog "github.com/golang/glog"
-	extensionsv1alpha1 "github.com/soter/vault-operator/client/clientset/versioned/typed/extensions/v1alpha1"
-	vaultv1alpha1 "github.com/soter/vault-operator/client/clientset/versioned/typed/vault/v1alpha1"
+	corev1alpha1 "github.com/kube-vault/operator/client/clientset/versioned/typed/core/v1alpha1"
+	extensionsv1alpha1 "github.com/kube-vault/operator/client/clientset/versioned/typed/extensions/v1alpha1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
@@ -29,20 +29,31 @@ import (
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
+	CoreV1alpha1() corev1alpha1.CoreV1alpha1Interface
+	// Deprecated: please explicitly pick a version if possible.
+	Core() corev1alpha1.CoreV1alpha1Interface
 	ExtensionsV1alpha1() extensionsv1alpha1.ExtensionsV1alpha1Interface
 	// Deprecated: please explicitly pick a version if possible.
 	Extensions() extensionsv1alpha1.ExtensionsV1alpha1Interface
-	VaultV1alpha1() vaultv1alpha1.VaultV1alpha1Interface
-	// Deprecated: please explicitly pick a version if possible.
-	Vault() vaultv1alpha1.VaultV1alpha1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
+	coreV1alpha1       *corev1alpha1.CoreV1alpha1Client
 	extensionsV1alpha1 *extensionsv1alpha1.ExtensionsV1alpha1Client
-	vaultV1alpha1      *vaultv1alpha1.VaultV1alpha1Client
+}
+
+// CoreV1alpha1 retrieves the CoreV1alpha1Client
+func (c *Clientset) CoreV1alpha1() corev1alpha1.CoreV1alpha1Interface {
+	return c.coreV1alpha1
+}
+
+// Deprecated: Core retrieves the default version of CoreClient.
+// Please explicitly pick a version.
+func (c *Clientset) Core() corev1alpha1.CoreV1alpha1Interface {
+	return c.coreV1alpha1
 }
 
 // ExtensionsV1alpha1 retrieves the ExtensionsV1alpha1Client
@@ -54,17 +65,6 @@ func (c *Clientset) ExtensionsV1alpha1() extensionsv1alpha1.ExtensionsV1alpha1In
 // Please explicitly pick a version.
 func (c *Clientset) Extensions() extensionsv1alpha1.ExtensionsV1alpha1Interface {
 	return c.extensionsV1alpha1
-}
-
-// VaultV1alpha1 retrieves the VaultV1alpha1Client
-func (c *Clientset) VaultV1alpha1() vaultv1alpha1.VaultV1alpha1Interface {
-	return c.vaultV1alpha1
-}
-
-// Deprecated: Vault retrieves the default version of VaultClient.
-// Please explicitly pick a version.
-func (c *Clientset) Vault() vaultv1alpha1.VaultV1alpha1Interface {
-	return c.vaultV1alpha1
 }
 
 // Discovery retrieves the DiscoveryClient
@@ -83,11 +83,11 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	}
 	var cs Clientset
 	var err error
-	cs.extensionsV1alpha1, err = extensionsv1alpha1.NewForConfig(&configShallowCopy)
+	cs.coreV1alpha1, err = corev1alpha1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
-	cs.vaultV1alpha1, err = vaultv1alpha1.NewForConfig(&configShallowCopy)
+	cs.extensionsV1alpha1, err = extensionsv1alpha1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +104,8 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
+	cs.coreV1alpha1 = corev1alpha1.NewForConfigOrDie(c)
 	cs.extensionsV1alpha1 = extensionsv1alpha1.NewForConfigOrDie(c)
-	cs.vaultV1alpha1 = vaultv1alpha1.NewForConfigOrDie(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
 	return &cs
@@ -114,8 +114,8 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
+	cs.coreV1alpha1 = corev1alpha1.New(c)
 	cs.extensionsV1alpha1 = extensionsv1alpha1.New(c)
-	cs.vaultV1alpha1 = vaultv1alpha1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
 	return &cs

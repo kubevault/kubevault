@@ -17,8 +17,8 @@ limitations under the License.
 package install
 
 import (
-	"github.com/soter/vault-operator/apis/extensions"
-	"github.com/soter/vault-operator/apis/extensions/v1alpha1"
+	"github.com/kube-vault/operator/apis/extensions"
+	"github.com/kube-vault/operator/apis/extensions/v1alpha1"
 	"k8s.io/apimachinery/pkg/apimachinery/announced"
 	"k8s.io/apimachinery/pkg/apimachinery/registered"
 	"k8s.io/apimachinery/pkg/runtime"

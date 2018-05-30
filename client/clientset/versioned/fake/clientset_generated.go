@@ -1,5 +1,5 @@
 /*
-Copyright 2018 The Vault Operator Authors.
+Copyright 2018 The Kube Vault Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ limitations under the License.
 package fake
 
 import (
-	clientset "github.com/soter/vault-operator/client/clientset/versioned"
-	extensionsv1alpha1 "github.com/soter/vault-operator/client/clientset/versioned/typed/extensions/v1alpha1"
-	fakeextensionsv1alpha1 "github.com/soter/vault-operator/client/clientset/versioned/typed/extensions/v1alpha1/fake"
-	vaultv1alpha1 "github.com/soter/vault-operator/client/clientset/versioned/typed/vault/v1alpha1"
-	fakevaultv1alpha1 "github.com/soter/vault-operator/client/clientset/versioned/typed/vault/v1alpha1/fake"
+	clientset "github.com/kube-vault/operator/client/clientset/versioned"
+	corev1alpha1 "github.com/kube-vault/operator/client/clientset/versioned/typed/core/v1alpha1"
+	fakecorev1alpha1 "github.com/kube-vault/operator/client/clientset/versioned/typed/core/v1alpha1/fake"
+	extensionsv1alpha1 "github.com/kube-vault/operator/client/clientset/versioned/typed/extensions/v1alpha1"
+	fakeextensionsv1alpha1 "github.com/kube-vault/operator/client/clientset/versioned/typed/extensions/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -72,6 +72,16 @@ func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 
 var _ clientset.Interface = &Clientset{}
 
+// CoreV1alpha1 retrieves the CoreV1alpha1Client
+func (c *Clientset) CoreV1alpha1() corev1alpha1.CoreV1alpha1Interface {
+	return &fakecorev1alpha1.FakeCoreV1alpha1{Fake: &c.Fake}
+}
+
+// Core retrieves the CoreV1alpha1Client
+func (c *Clientset) Core() corev1alpha1.CoreV1alpha1Interface {
+	return &fakecorev1alpha1.FakeCoreV1alpha1{Fake: &c.Fake}
+}
+
 // ExtensionsV1alpha1 retrieves the ExtensionsV1alpha1Client
 func (c *Clientset) ExtensionsV1alpha1() extensionsv1alpha1.ExtensionsV1alpha1Interface {
 	return &fakeextensionsv1alpha1.FakeExtensionsV1alpha1{Fake: &c.Fake}
@@ -80,14 +90,4 @@ func (c *Clientset) ExtensionsV1alpha1() extensionsv1alpha1.ExtensionsV1alpha1In
 // Extensions retrieves the ExtensionsV1alpha1Client
 func (c *Clientset) Extensions() extensionsv1alpha1.ExtensionsV1alpha1Interface {
 	return &fakeextensionsv1alpha1.FakeExtensionsV1alpha1{Fake: &c.Fake}
-}
-
-// VaultV1alpha1 retrieves the VaultV1alpha1Client
-func (c *Clientset) VaultV1alpha1() vaultv1alpha1.VaultV1alpha1Interface {
-	return &fakevaultv1alpha1.FakeVaultV1alpha1{Fake: &c.Fake}
-}
-
-// Vault retrieves the VaultV1alpha1Client
-func (c *Clientset) Vault() vaultv1alpha1.VaultV1alpha1Interface {
-	return &fakevaultv1alpha1.FakeVaultV1alpha1{Fake: &c.Fake}
 }

@@ -1,4 +1,4 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/soter/vault-operator)](https://goreportcard.com/report/github.com/soter/vault-operator)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kube-vault/operator)](https://goreportcard.com/report/github.com/kube-vault/operator)
 [![Build Status](https://travis-ci.org/soter/vault-operator.svg?branch=master)](https://travis-ci.org/soter/vault-operator)
 [![codecov](https://codecov.io/gh/soter/vault-operator/branch/master/graph/badge.svg)](https://codecov.io/gh/soter/vault-operator)
 [![Docker Pulls](https://img.shields.io/docker/pulls/soter/vault-operator.svg)](https://hub.docker.com/r/soter/vault-operator/)

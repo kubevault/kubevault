@@ -10,10 +10,10 @@ import (
 	"github.com/appscode/kutil/tools/portforward"
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
+	api "github.com/kube-vault/operator/apis/core/v1alpha1"
+	patchutil "github.com/kube-vault/operator/client/clientset/versioned/typed/core/v1alpha1/util"
+	"github.com/kube-vault/operator/pkg/util"
 	"github.com/pkg/errors"
-	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
-	patchutil "github.com/soter/vault-operator/client/clientset/versioned/typed/vault/v1alpha1/util"
-	"github.com/soter/vault-operator/pkg/util"
 	"github.com/spf13/afero"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -150,13 +150,13 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 
 // updateVaultCRStatus updates the status field of the Vault CR.
 func (c *VaultController) updateVaultCRStatus(ctx1 context.Context, name, namespace string, status *api.VaultServerStatus) (*api.VaultServer, error) {
-	vault, err := c.extClient.VaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
+	vault, err := c.extClient.CoreV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 
 	// TODO : flag for useSubresource?
-	vault, err = patchutil.UpdateVaultServerStatus(c.extClient.VaultV1alpha1(), vault, func(s *api.VaultServerStatus) *api.VaultServerStatus {
+	vault, err = patchutil.UpdateVaultServerStatus(c.extClient.CoreV1alpha1(), vault, func(s *api.VaultServerStatus) *api.VaultServerStatus {
 		s = status
 		return s
 	})

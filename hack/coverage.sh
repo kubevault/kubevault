@@ -2,7 +2,7 @@
 set -eou pipefail
 
 GOPATH=$(go env GOPATH)
-REPO_ROOT="$GOPATH/src/github.com/soter/vault-operator"
+REPO_ROOT="$GOPATH/src/github.com/kube-vault/operator"
 
 pushd $REPO_ROOT
 

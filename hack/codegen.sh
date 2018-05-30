@@ -3,11 +3,11 @@
 set -x
 
 GOPATH=$(go env GOPATH)
-PACKAGE_NAME=github.com/soter/vault-operator
+PACKAGE_NAME=github.com/kube-vault/operator
 REPO_ROOT="$GOPATH/src/$PACKAGE_NAME"
 DOCKER_REPO_ROOT="/go/src/$PACKAGE_NAME"
 DOCKER_CODEGEN_PKG="/go/src/k8s.io/code-generator"
-apiGroups=(vault/v1alpha1 extensions/v1alpha1)
+apiGroups=(core/v1alpha1 extensions/v1alpha1)
 
 pushd $REPO_ROOT
 
@@ -16,9 +16,9 @@ docker run --rm -ti -u $(id -u):$(id -g) \
   -v "$REPO_ROOT":"$DOCKER_REPO_ROOT" \
   -w "$DOCKER_REPO_ROOT" \
   appscode/gengo:release-1.10 "$DOCKER_CODEGEN_PKG"/generate-internal-groups.sh "deepcopy,defaulter,conversion" \
-  github.com/soter/vault-operator/client \
-  github.com/soter/vault-operator/apis \
-  github.com/soter/vault-operator/apis \
+  github.com/kube-vault/operator/client \
+  github.com/kube-vault/operator/apis \
+  github.com/kube-vault/operator/apis \
   extensions:v1alpha1 \
   --go-header-file "$DOCKER_REPO_ROOT/hack/gengo/boilerplate.go.txt"
 
@@ -27,9 +27,9 @@ docker run --rm -ti -u $(id -u):$(id -g) \
   -v "$REPO_ROOT":"$DOCKER_REPO_ROOT" \
   -w "$DOCKER_REPO_ROOT" \
   appscode/gengo:release-1.10 "$DOCKER_CODEGEN_PKG"/generate-groups.sh all \
-  github.com/soter/vault-operator/client \
-  github.com/soter/vault-operator/apis \
-  "vault:v1alpha1 extensions:v1alpha1" \
+  github.com/kube-vault/operator/client \
+  github.com/kube-vault/operator/apis \
+  "core:v1alpha1 extensions:v1alpha1" \
   --go-header-file "$DOCKER_REPO_ROOT/hack/gengo/boilerplate.go.txt"
 
 # Generate openapi

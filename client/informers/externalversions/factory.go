@@ -1,5 +1,5 @@
 /*
-Copyright 2018 The Vault Operator Authors.
+Copyright 2018 The Kube Vault Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "github.com/soter/vault-operator/client/clientset/versioned"
-	internalinterfaces "github.com/soter/vault-operator/client/informers/externalversions/internalinterfaces"
-	vault "github.com/soter/vault-operator/client/informers/externalversions/vault"
+	versioned "github.com/kube-vault/operator/client/clientset/versioned"
+	core "github.com/kube-vault/operator/client/informers/externalversions/core"
+	internalinterfaces "github.com/kube-vault/operator/client/informers/externalversions/internalinterfaces"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -123,9 +123,9 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	Vault() vault.Interface
+	Core() core.Interface
 }
 
-func (f *sharedInformerFactory) Vault() vault.Interface {
-	return vault.New(f, f.namespace, f.tweakListOptions)
+func (f *sharedInformerFactory) Core() core.Interface {
+	return core.New(f, f.namespace, f.tweakListOptions)
 }

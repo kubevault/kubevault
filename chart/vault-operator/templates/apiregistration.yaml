@@ -6,14 +6,14 @@
 apiVersion: apiregistration.k8s.io/v1beta1
 kind: APIService
 metadata:
-  name: v1alpha1.admission.vault.soter.ac
+  name: v1alpha1.admission.core.kube-vault.com
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     app: "{{ template "vault-operator.name" . }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
 spec:
-  group: admission.vault.soter.ac
+  group: admission.core.kube-vault.com
   version: v1alpha1
   service:
     namespace: {{ .Release.Namespace }}
@@ -25,14 +25,14 @@ spec:
 apiVersion: apiregistration.k8s.io/v1beta1
 kind: APIService
 metadata:
-  name: v1alpha1.extensions.vault.soter.ac
+  name: v1alpha1.extensions.kube-vault.com
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     app: "{{ template "vault-operator.name" . }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
 spec:
-  group: extensions.vault.soter.ac
+  group: extensions.kube-vault.com
   version: v1alpha1
   service:
     namespace: {{ .Release.Namespace }}

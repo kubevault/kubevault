@@ -18,5 +18,5 @@ limitations under the License.
 // +k8s:deepcopy-gen=package
 
 // Package api is the internal version of the API.
-// +groupName=extensions.vault.soter.ac
+// +groupName=extensions.kube-vault.com
 package extensions

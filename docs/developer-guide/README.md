@@ -16,8 +16,8 @@ development environment, please follow [these instructions](https://golang.org/d
 #### Download Source
 
 ```console
-$ go get github.com/soter/vault-operator
-$ cd $(go env GOPATH)/src/github.com/soter/vault-operator
+$ go get github.com/kube-vault/operator
+$ cd $(go env GOPATH)/src/github.com/kube-vault/operator
 ```
 
 #### Install Dev tools
