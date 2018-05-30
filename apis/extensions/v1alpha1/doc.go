@@ -15,10 +15,10 @@ limitations under the License.
 */
 
 // +k8s:deepcopy-gen=package
-// +k8s:conversion-gen=github.com/soter/vault-operator/apis/extensions
+// +k8s:conversion-gen=github.com/kube-vault/operator/apis/extensions
 // +k8s:openapi-gen=true
 // +k8s:defaulter-gen=TypeMeta
 
 // Package v1alpha1 is the v1alpha1 version of the API.
-// +groupName=extensions.vault.soter.ac
+// +groupName=extensions.kube-vault.com
 package v1alpha1

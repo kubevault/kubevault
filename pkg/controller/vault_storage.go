@@ -1,8 +1,8 @@
 package controller
 
 import (
-	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
-	"github.com/soter/vault-operator/pkg/util"
+	api "github.com/kube-vault/operator/apis/core/v1alpha1"
+	"github.com/kube-vault/operator/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 )
 

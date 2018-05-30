@@ -5,7 +5,7 @@
 # - ???
 # - Profit
 
-pushd $GOPATH/src/github.com/soter/vault-operator
+pushd $GOPATH/src/github.com/kube-vault/operator
 
 glide up -v
 glide vc --use-lock-file --only-code --no-tests

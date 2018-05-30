@@ -5,16 +5,16 @@ import (
 	"io"
 	"net"
 
-	"github.com/soter/vault-operator/apis/extensions/v1alpha1"
-	"github.com/soter/vault-operator/pkg/controller"
-	"github.com/soter/vault-operator/pkg/server"
+	"github.com/kube-vault/operator/apis/extensions/v1alpha1"
+	"github.com/kube-vault/operator/pkg/controller"
+	"github.com/kube-vault/operator/pkg/server"
 	"github.com/spf13/pflag"
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 )
 
-const defaultEtcdPathPrefix = "/registry/vault.soter.ac"
+const defaultEtcdPathPrefix = "/registry/core.kube-vault.com"
 
 type StashOptions struct {
 	RecommendedOptions *genericoptions.RecommendedOptions
@@ -65,14 +65,14 @@ func (o StashOptions) Config() (*server.StashConfig, error) {
 	serverConfig.OpenAPIConfig.Info.Version = v1alpha1.SchemeGroupVersion.Version
 	serverConfig.OpenAPIConfig.IgnorePrefixes = []string{
 		"/swaggerapi",
-		"/apis/admission.vault.soter.ac/v1alpha1/vaultservers",
-		"/apis/admission.vault.soter.ac/v1alpha1/deployments",
-		"/apis/admission.vault.soter.ac/v1alpha1/daemonsets",
-		"/apis/admission.vault.soter.ac/v1alpha1/statefulsets",
-		"/apis/admission.vault.soter.ac/v1alpha1/replicationcontrollers",
-		"/apis/admission.vault.soter.ac/v1alpha1/replicasets",
-		"/apis/admission.vault.soter.ac/v1alpha1/jobs",
-		"/apis/admission.vault.soter.ac/v1alpha1/cronjobs",
+		"/apis/admission.core.kube-vault.com/v1alpha1/vaultservers",
+		"/apis/admission.core.kube-vault.com/v1alpha1/deployments",
+		"/apis/admission.core.kube-vault.com/v1alpha1/daemonsets",
+		"/apis/admission.core.kube-vault.com/v1alpha1/statefulsets",
+		"/apis/admission.core.kube-vault.com/v1alpha1/replicationcontrollers",
+		"/apis/admission.core.kube-vault.com/v1alpha1/replicasets",
+		"/apis/admission.core.kube-vault.com/v1alpha1/jobs",
+		"/apis/admission.core.kube-vault.com/v1alpha1/cronjobs",
 	}
 
 	extraConfig := controller.NewConfig(serverConfig.ClientConfig)

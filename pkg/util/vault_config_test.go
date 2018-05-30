@@ -3,7 +3,7 @@ package util
 import (
 	"testing"
 
-	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
+	api "github.com/kube-vault/operator/apis/core/v1alpha1"
 	"github.com/stretchr/testify/assert"
 )
 

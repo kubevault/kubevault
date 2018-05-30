@@ -6,11 +6,11 @@ import (
 
 	logs "github.com/appscode/go/log/golog"
 	"github.com/appscode/kutil/tools/clientcmd"
+	"github.com/kube-vault/operator/pkg/controller"
+	"github.com/kube-vault/operator/test/e2e/framework"
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
-	"github.com/soter/vault-operator/pkg/controller"
-	"github.com/soter/vault-operator/test/e2e/framework"
 )
 
 const (
@@ -38,7 +38,6 @@ var _ = BeforeSuite(func() {
 	ctrlConfig.MaxNumRequeues = 5
 	ctrlConfig.NumThreads = 1
 	ctrlConfig.ResyncPeriod = 10 * time.Second
-
 
 	err = options.ApplyTo(ctrlConfig)
 	Expect(err).NotTo(HaveOccurred())

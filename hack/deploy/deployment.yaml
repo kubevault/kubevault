@@ -89,12 +89,12 @@ spec:
 apiVersion: apiregistration.k8s.io/v1beta1
 kind: APIService
 metadata:
-  name: v1alpha1.admission.vault.soter.ac
+  name: v1alpha1.admission.core.kube-vault.com
   labels:
     app: vault-operator
 spec:
   caBundle: ${SERVICE_SERVING_CERT_CA}
-  group: admission.vault.soter.ac
+  group: admission.core.kube-vault.com
   groupPriorityMinimum: 1000
   versionPriority: 15
   service:
@@ -106,12 +106,12 @@ spec:
 apiVersion: apiregistration.k8s.io/v1beta1
 kind: APIService
 metadata:
-  name: v1alpha1.extensions.vault.soter.ac
+  name: v1alpha1.extensions.kube-vault.com
   labels:
     app: vault-operator
 spec:
   caBundle: ${SERVICE_SERVING_CERT_CA}
-  group: extensions.vault.soter.ac
+  group: extensions.kube-vault.com
   groupPriorityMinimum: 1000
   versionPriority: 15
   service:

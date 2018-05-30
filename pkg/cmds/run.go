@@ -5,7 +5,7 @@ import (
 
 	"github.com/appscode/go/log"
 	v "github.com/appscode/go/version"
-	"github.com/soter/vault-operator/pkg/cmds/server"
+	"github.com/kube-vault/operator/pkg/cmds/server"
 	"github.com/spf13/cobra"
 )
 

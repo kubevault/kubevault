@@ -2,26 +2,26 @@
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: ValidatingWebhookConfiguration
 metadata:
-  name: admission.vault.soter.ac
+  name: admission.core.kube-vault.com
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     app: "{{ template "vault-operator.name" . }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
 webhooks:
-- name: vaultserver.admission.vault.soter.ac
+- name: vaultserver.admission.core.kube-vault.com
   clientConfig:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/admission.vault.soter.ac/v1alpha1/vaultservers
+      path: /apis/admission.core.kube-vault.com/v1alpha1/vaultservers
     caBundle: {{ b64enc .Values.apiserver.ca }}
   rules:
   - operations:
     - CREATE
     - UPDATE
     apiGroups:
-    - vault.soter.ac
+    - core.kube-vault.com
     apiVersions:
     - "*"
     resources:

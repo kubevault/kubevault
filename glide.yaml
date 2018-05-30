@@ -1,4 +1,4 @@
-package: github.com/soter/vault-operator
+package: github.com/kube-vault/operator
 import:
 - package: github.com/appscode/go
   version: master

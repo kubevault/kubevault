@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
+	api "github.com/kube-vault/operator/apis/core/v1alpha1"
 )
 
 const (

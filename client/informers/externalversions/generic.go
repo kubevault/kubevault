@@ -1,5 +1,5 @@
 /*
-Copyright 2018 The Vault Operator Authors.
+Copyright 2018 The Kube Vault Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package externalversions
 import (
 	"fmt"
 
-	v1alpha1 "github.com/soter/vault-operator/apis/vault/v1alpha1"
+	v1alpha1 "github.com/kube-vault/operator/apis/core/v1alpha1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -52,9 +52,9 @@ func (f *genericInformer) Lister() cache.GenericLister {
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
-	// Group=vault.soter.ac, Version=v1alpha1
+	// Group=core.kube-vault.com, Version=v1alpha1
 	case v1alpha1.SchemeGroupVersion.WithResource("vaultservers"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Vault().V1alpha1().VaultServers().Informer()}, nil
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Core().V1alpha1().VaultServers().Informer()}, nil
 
 	}
 

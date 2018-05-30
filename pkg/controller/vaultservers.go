@@ -13,12 +13,12 @@ import (
 	"github.com/appscode/kutil/tools/certstore"
 	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
+	"github.com/kube-vault/operator/apis/core"
+	api "github.com/kube-vault/operator/apis/core/v1alpha1"
+	"github.com/kube-vault/operator/client/clientset/versioned/scheme"
+	patchutil "github.com/kube-vault/operator/client/clientset/versioned/typed/core/v1alpha1/util"
+	"github.com/kube-vault/operator/pkg/util"
 	"github.com/pkg/errors"
-	"github.com/soter/vault-operator/apis/vault"
-	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
-	"github.com/soter/vault-operator/client/clientset/versioned/scheme"
-	patchutil "github.com/soter/vault-operator/client/clientset/versioned/typed/vault/v1alpha1/util"
-	"github.com/soter/vault-operator/pkg/util"
 	"github.com/spf13/afero"
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	corev1 "k8s.io/api/core/v1"
@@ -47,12 +47,12 @@ const (
 func (c *VaultController) NewVaultServerWebhook() hooks.AdmissionHook {
 	return webhook.NewGenericWebhook(
 		schema.GroupVersionResource{
-			Group:    "admission.vault.soter.ac",
+			Group:    "admission.core.kube-vault.com",
 			Version:  "v1alpha1",
 			Resource: "vaultservers",
 		},
 		"vaultserver",
-		[]string{vault.GroupName},
+		[]string{core.GroupName},
 		api.SchemeGroupVersion.WithKind("VaultServer"),
 		nil,
 		&admission.ResourceHandlerFuncs{
@@ -67,12 +67,12 @@ func (c *VaultController) NewVaultServerWebhook() hooks.AdmissionHook {
 }
 
 func (c *VaultController) initVaultServerWatcher() {
-	c.vsInformer = c.extInformerFactory.Vault().V1alpha1().VaultServers().Informer()
+	c.vsInformer = c.extInformerFactory.Core().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New("VaultServer", c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
 
 	// TODO: Add a custom event handler
 	c.vsInformer.AddEventHandler(queue.DefaultEventHandler(c.vsQueue.GetQueue()))
-	c.vsLister = c.extInformerFactory.Vault().V1alpha1().VaultServers().Lister()
+	c.vsLister = c.extInformerFactory.Core().V1alpha1().VaultServers().Lister()
 }
 
 // runVaultSeverInjector gets the vault server object indexed by the key from cache
@@ -109,7 +109,7 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 		// will be deprecated
 		changed := vault.SetDefaults()
 		if changed {
-			_, _, err = patchutil.CreateOrPatchVaultServer(c.extClient.VaultV1alpha1(), vault.ObjectMeta, func(v *api.VaultServer) *api.VaultServer {
+			_, _, err = patchutil.CreateOrPatchVaultServer(c.extClient.CoreV1alpha1(), vault.ObjectMeta, func(v *api.VaultServer) *api.VaultServer {
 				v.SetDefaults()
 				return v
 			})

@@ -1,11 +1,10 @@
 package framework
 
-
 import (
 	"github.com/appscode/go/crypto/rand"
+	api "github.com/kube-vault/operator/apis/core/v1alpha1"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
 )
 
 const (
@@ -23,9 +22,9 @@ func (f *Invocation) VaultServer(node int32, bs api.BackendStorageSpec) *api.Vau
 			},
 		},
 		Spec: api.VaultServerSpec{
-			Nodes:     node,
-			BaseImage: vaultImage,
-			Version:   vaultImageVersion,
+			Nodes:          node,
+			BaseImage:      vaultImage,
+			Version:        vaultImageVersion,
 			BackendStorage: bs,
 		},
 	}

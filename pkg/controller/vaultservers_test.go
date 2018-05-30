@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"testing"
 
-	api "github.com/soter/vault-operator/apis/vault/v1alpha1"
-	"github.com/soter/vault-operator/pkg/util"
+	api "github.com/kube-vault/operator/apis/core/v1alpha1"
+	"github.com/kube-vault/operator/pkg/util"
 	"github.com/stretchr/testify/assert"
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	corev1 "k8s.io/api/core/v1"

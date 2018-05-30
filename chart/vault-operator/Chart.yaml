@@ -3,10 +3,10 @@ description: 'Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernet
 name: vault-operator
 version: 0.1.0
 appVersion: 0.4.1
-home: https://github.com/soter/vault-operator
+home: https://github.com/kube-vault/operator
 icon: https://cdn.appscode.com/images/icon/vault-operator.png
 sources:
-  - https://github.com/soter/vault-operator
+  - https://github.com/kube-vault/operator
 maintainers:
   - name: appscode
     email: support@appscode.com
