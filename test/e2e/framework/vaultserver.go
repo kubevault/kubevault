@@ -31,24 +31,24 @@ func (f *Invocation) VaultServer(node int32, bs api.BackendStorageSpec) *api.Vau
 }
 
 func (f *Framework) CreateVaultServer(obj *api.VaultServer) (*api.VaultServer, error) {
-	return f.VaultServerClient.VaultV1alpha1().VaultServers(obj.Namespace).Create(obj)
+	return f.VaultServerClient.CoreV1alpha1().VaultServers(obj.Namespace).Create(obj)
 }
 
 func (f *Framework) GetVaultServer(obj *api.VaultServer) (*api.VaultServer, error) {
-	return f.VaultServerClient.VaultV1alpha1().VaultServers(obj.Namespace).Get(obj.Name, metav1.GetOptions{})
+	return f.VaultServerClient.CoreV1alpha1().VaultServers(obj.Namespace).Get(obj.Name, metav1.GetOptions{})
 }
 
 func (f *Framework) UpdateVaultServer(obj *api.VaultServer) (*api.VaultServer, error) {
-	return f.VaultServerClient.VaultV1alpha1().VaultServers(obj.Namespace).Update(obj)
+	return f.VaultServerClient.CoreV1alpha1().VaultServers(obj.Namespace).Update(obj)
 }
 
 func (f *Framework) DeleteVaultServer(meta metav1.ObjectMeta) error {
-	return f.VaultServerClient.VaultV1alpha1().VaultServers(meta.Namespace).Delete(meta.Name, deleteInBackground())
+	return f.VaultServerClient.CoreV1alpha1().VaultServers(meta.Namespace).Delete(meta.Name, deleteInBackground())
 }
 
 func (f *Framework) EventuallyVaultServer(meta metav1.ObjectMeta) GomegaAsyncAssertion {
 	return Eventually(func() *api.VaultServer {
-		obj, err := f.VaultServerClient.VaultV1alpha1().VaultServers(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+		obj, err := f.VaultServerClient.CoreV1alpha1().VaultServers(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 		return obj
 	})

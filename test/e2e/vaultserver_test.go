@@ -112,14 +112,14 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultServerCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault server (%s/%s) to create", namespace, name))
 			Eventually(func() bool {
-				_, err := f.VaultServerClient.VaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.VaultServerClient.CoreV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue())
 		}
 		checkForVaultServerDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault server (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
-				_, err := f.VaultServerClient.VaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.VaultServerClient.CoreV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue())
 		}
@@ -213,7 +213,7 @@ var _ = Describe("VaultServer", func() {
 
 			It("should keep the number of pods same as specification, after deleting some pods", func() {
 				Eventually(func() bool {
-					vs, err = f.VaultServerClient.VaultV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
+					vs, err = f.VaultServerClient.CoreV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
 					if kerrors.IsNotFound(err) {
 						return false
 					} else {
@@ -262,7 +262,7 @@ var _ = Describe("VaultServer", func() {
 
 			It("status should contain 3 updated pods and 3 sealed pods", func() {
 				Eventually(func() bool {
-					vs, err = f.VaultServerClient.VaultV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
+					vs, err = f.VaultServerClient.CoreV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
 					if kerrors.IsNotFound(err) {
 						return false
 					} else {
