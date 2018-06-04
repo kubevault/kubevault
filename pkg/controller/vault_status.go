@@ -12,7 +12,7 @@ import (
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kube-vault/operator/apis/core/v1alpha1"
 	patchutil "github.com/kube-vault/operator/client/clientset/versioned/typed/core/v1alpha1/util"
-	"github.com/kube-vault/operator/pkg/util"
+	"github.com/kube-vault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	corev1 "k8s.io/api/core/v1"

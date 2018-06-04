@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	api "github.com/kube-vault/operator/apis/core/v1alpha1"
-	"github.com/kube-vault/operator/pkg/util"
+	"github.com/kube-vault/operator/pkg/vault/util"
 	"github.com/stretchr/testify/assert"
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	corev1 "k8s.io/api/core/v1"
@@ -17,6 +17,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/tools/record"
+	"github.com/kube-vault/operator/pkg/vault/storage"
 )
 
 const (
@@ -26,13 +27,16 @@ const (
 	vaultTestUID       = "vault-test-1204"
 )
 
-func getConfigData(t *testing.T, extraConfig string, storage *api.BackendStorageSpec) string {
+func getConfigData(t *testing.T, extraConfig string, strg *api.BackendStorageSpec) string {
 	cfg := util.GetListenerConfig()
 	if len(extraConfig) != 0 {
 		cfg = fmt.Sprintf("%s\n%s", cfg, extraConfig)
 	}
 
-	storageCfg, err := util.GetStorageConfig(storage)
+	strgSrv, err := storage.NewStorage(strg)
+	assert.Nil(t,err)
+
+	storageCfg, err := strgSrv.GetStorageConfig()
 	if err != nil {
 		t.Fatal("create vault storage config failed", err)
 	}
@@ -435,7 +439,11 @@ func TestDeployVault(t *testing.T) {
 			"vault deploy successful",
 			&api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(1),
-				Spec:       api.VaultServerSpec{},
+				Spec:       api.VaultServerSpec{
+					BackendStorage: api.BackendStorageSpec{
+						Inmem: &api.InmemSpec{},
+					},
+				},
 			},
 			false,
 			nil,

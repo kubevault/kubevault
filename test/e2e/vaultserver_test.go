@@ -9,7 +9,7 @@ import (
 
 	api "github.com/kube-vault/operator/apis/core/v1alpha1"
 	"github.com/kube-vault/operator/pkg/controller"
-	"github.com/kube-vault/operator/pkg/util"
+	"github.com/kube-vault/operator/pkg/vault/util"
 	"github.com/kube-vault/operator/test/e2e/framework"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

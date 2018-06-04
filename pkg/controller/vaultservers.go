@@ -17,7 +17,7 @@ import (
 	api "github.com/kube-vault/operator/apis/core/v1alpha1"
 	"github.com/kube-vault/operator/client/clientset/versioned/scheme"
 	patchutil "github.com/kube-vault/operator/client/clientset/versioned/typed/core/v1alpha1/util"
-	"github.com/kube-vault/operator/pkg/util"
+	"github.com/kube-vault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
@@ -30,6 +30,7 @@ import (
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/reference"
 	"k8s.io/client-go/util/cert"
+	"github.com/kube-vault/operator/pkg/vault/storage"
 )
 
 const (
@@ -303,7 +304,14 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 
 	configureVaultServerTLS(&podTempl)
 
-	configureVaultStorage(v, &podTempl)
+	storageSrv, err := storage.NewStorage(&v.Spec.BackendStorage)
+	if err!=nil {
+		return errors.Wrap(err, "failed to create storage service for vault backend service")
+	}
+	err = storageSrv.Apply(&podTempl)
+	if err!=nil {
+		return errors.Wrap(err, "failed to apply changes in pod template")
+	}
 
 	err = c.createVaultDeployment(v, &podTempl)
 	if err != nil {
@@ -525,7 +533,12 @@ func (c *VaultController) prepareConfig(v *api.VaultServer) error {
 		cfgData = fmt.Sprintf("%s\n%s", cfgData, cm.Data[filepath.Base(util.VaultConfigFile)])
 	}
 
-	storageCfg, err := util.GetStorageConfig(&v.Spec.BackendStorage)
+	storageSrv, err := storage.NewStorage(&v.Spec.BackendStorage)
+	if err!=nil {
+		return errors.Wrap(err, "failed to create storage service for vault backend service")
+	}
+
+	storageCfg, err := storageSrv.GetStorageConfig()
 	if err != nil {
 		return errors.Wrap(err, "create vault storage config failed")
 	}
