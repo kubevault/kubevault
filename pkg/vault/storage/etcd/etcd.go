@@ -87,7 +87,6 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 	return nil
 }
 
-
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html
 //
 // Note:

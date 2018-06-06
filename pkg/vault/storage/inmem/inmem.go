@@ -14,7 +14,7 @@ type Options struct {
 	api.InmemSpec
 }
 
-func NewOptions(s api.InmemSpec) (*Options,error) {
+func NewOptions(s api.InmemSpec) (*Options, error) {
 	return &Options{
 		s,
 	}, nil
@@ -26,5 +26,5 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 
 // GetStorageConfig will create storage config for inmem backend
 func (o *Options) GetStorageConfig() (string, error) {
-		return inmenStorage,nil
+	return inmenStorage, nil
 }
