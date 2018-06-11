@@ -3,7 +3,6 @@ package unsealer
 import (
 	"fmt"
 	"path/filepath"
-
 	"time"
 
 	api "github.com/kube-vault/operator/apis/core/v1alpha1"

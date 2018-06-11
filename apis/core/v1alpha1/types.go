@@ -1,9 +1,10 @@
 package v1alpha1
 
 import (
+	"time"
+
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"time"
 )
 
 const (
@@ -46,9 +47,9 @@ type VaultServerSpec struct {
 	// Version of Vault to be deployed.
 	Version string `json:"version"`
 
-	// Pod defines the policy for pods owned by vault operator.
+	// PodPolicy defines the policy for pods owned by vault operator.
 	// This field cannot be updated once the CR is created.
-	Pod *PodPolicy `json:"pod,omitempty"`
+	PodPolicy *PodPolicy `json:"podPolicy,omitempty"`
 
 	// Name of the ConfigMap for Vault's configuration
 	// In this configMap contain extra config for vault
@@ -106,9 +107,12 @@ type VaultStatus struct {
 	// Standby nodes do not process requests, and instead redirect to the active Vault.
 	Standby []string `json:"standby,omitempty"`
 
-	// PodNames of Sealed Vault nodes. Sealed nodes MUST be manually unsealed to
+	// PodNames of Sealed Vault nodes. Sealed nodes MUST be unsealed to
 	// become standby or leader.
 	Sealed []string `json:"sealed,omitempty"`
+
+	// PodNames of Unsealed Vault nodes.
+	Unsealed []string `json:"unsealed,omitempty"`
 }
 
 // PodPolicy defines the policy for pods owned by vault operator.
@@ -146,12 +150,10 @@ type StaticTLS struct {
 // TODO : set defaults and validation
 // BackendStorageSpec defines storage backend configuration of vault
 type BackendStorageSpec struct {
-	Inmem *InmemSpec `json:"inmem,omitempty"`
-	Etcd  *EtcdSpec  `json:"etcd,omitempty"`
+	// ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html
+	Inmem bool      `json:"inmem,omitempty"`
+	Etcd  *EtcdSpec `json:"etcd,omitempty"`
 }
-
-// ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html
-type InmemSpec struct{}
 
 // TODO : set defaults and validation
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html

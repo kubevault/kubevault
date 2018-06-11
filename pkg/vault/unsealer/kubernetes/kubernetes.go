@@ -37,20 +37,20 @@ func (o *Options) Apply(cont *corev1.Container) error {
 }
 
 // GetRBAC returns required rbac roles
-func (o *Options) GetRBAC(namespace string,lable map[string]string) []rbac.Role {
+func (o *Options) GetRBAC(namespace string, lable map[string]string) []rbac.Role {
 	var roles []rbac.Role
 
 	role := rbac.Role{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "vault-unsealer-kubernetes-secret-access",
+			Name:      "vault-unsealer-kubernetes-secret-access",
 			Namespace: namespace,
-			Labels:lable,
+			Labels:    lable,
 		},
 		Rules: []rbac.PolicyRule{
 			{
 				APIGroups: []string{corev1.GroupName},
 				Resources: []string{"secrets"},
-				Verbs: []string{"create","get","update","patch"},
+				Verbs:     []string{"create", "get", "update", "patch"},
 			},
 		},
 	}

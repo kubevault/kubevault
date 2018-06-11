@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
-	rbac "k8s.io/api/rbac/v1"
+
 	"github.com/appscode/kubernetes-webhook-util/admission"
 	hooks "github.com/appscode/kubernetes-webhook-util/admission/v1beta1"
 	webhook "github.com/appscode/kubernetes-webhook-util/admission/v1beta1/generic"
@@ -24,6 +24,7 @@ import (
 	"github.com/spf13/afero"
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	corev1 "k8s.io/api/core/v1"
+	rbac "k8s.io/api/rbac/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -279,7 +280,7 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 	}
 
 	saName, err := c.createVaultServiceAccount(v)
-	if err!=nil {
+	if err != nil {
 		return err
 	}
 
@@ -287,12 +288,12 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 
 	podTempl := corev1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   v.GetName(),
-			Labels: selector,
+			Name:      v.GetName(),
+			Labels:    selector,
 			Namespace: v.GetNamespace(),
 		},
 		Spec: corev1.PodSpec{
-			Containers: []corev1.Container{vaultContainer(v)},
+			Containers:         []corev1.Container{vaultContainer(v)},
 			ServiceAccountName: saName,
 			Volumes: []corev1.Volume{{
 				Name: VaultConfigVolumeName,
@@ -307,8 +308,9 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 		},
 	}
 
-	if v.Spec.Pod != nil {
-		util.ApplyPodResourcePolicy(&podTempl.Spec, v.Spec.Pod)
+	// Add pod resource policy
+	if v.Spec.PodPolicy != nil {
+		util.ApplyPodResourcePolicy(&podTempl.Spec, v.Spec.PodPolicy)
 	}
 
 	configureVaultServerTLS(&podTempl)
@@ -336,7 +338,7 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 
 		//create role and role binding
 		err = c.createRoleAndRoleBinding(v, rbacRoles, saName)
-		if err!=nil {
+		if err != nil {
 			return err
 		}
 	}
@@ -558,45 +560,45 @@ func (c *VaultController) createVaultDeployment(v *api.VaultServer, p *corev1.Po
 	return nil
 }
 
-func (c *VaultController) createVaultServiceAccount(v *api.VaultServer) (string,error) {
+func (c *VaultController) createVaultServiceAccount(v *api.VaultServer) (string, error) {
 	selector := util.LabelsForVault(v.GetName())
 
-	sa:= &corev1.ServiceAccount{
+	sa := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      v.GetName(),
 			Namespace: v.GetNamespace(),
-			Labels: selector,
+			Labels:    selector,
 		},
 	}
 
 	util.AddOwnerRefToObject(sa, util.AsOwner(v))
 	_, err := c.kubeClient.CoreV1().ServiceAccounts(v.GetNamespace()).Create(sa)
-	if err!=nil {
+	if err != nil {
 		return "", errors.Wrap(err, "failed to create service account")
 	}
 
 	return sa.GetName(), nil
 }
 
-func (c *VaultController) createRoleAndRoleBinding(v *api.VaultServer,roles []rbac.Role,saName string) error {
+func (c *VaultController) createRoleAndRoleBinding(v *api.VaultServer, roles []rbac.Role, saName string) error {
 	selector := util.LabelsForVault(v.GetName())
 
 	for _, role := range roles {
 		roleBind := &rbac.RoleBinding{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: role.GetName(),
+				Name:      role.GetName(),
 				Namespace: v.GetNamespace(),
-				Labels: selector,
+				Labels:    selector,
 			},
 			RoleRef: rbac.RoleRef{
 				APIGroup: rbac.GroupName,
-				Kind: "Role",
-				Name: role.GetName(),
+				Kind:     "Role",
+				Name:     role.GetName(),
 			},
 			Subjects: []rbac.Subject{
 				{
-					Kind:rbac.ServiceAccountKind,
-					Name: saName,
+					Kind:      rbac.ServiceAccountKind,
+					Name:      saName,
 					Namespace: v.GetNamespace(),
 				},
 			},
@@ -604,14 +606,14 @@ func (c *VaultController) createRoleAndRoleBinding(v *api.VaultServer,roles []rb
 
 		util.AddOwnerRefToObject(role.GetObjectMeta(), util.AsOwner(v))
 		_, err := c.kubeClient.RbacV1().Roles(role.GetNamespace()).Create(&role)
-		if err!=nil {
+		if err != nil {
 			return errors.Wrapf(err, "failed to create rbac role(%s)", role.GetName())
 		}
 
 		util.AddOwnerRefToObject(roleBind.GetObjectMeta(), util.AsOwner(v))
 		_, err = c.kubeClient.RbacV1().RoleBindings(roleBind.GetNamespace()).Create(roleBind)
-		if err!=nil {
-			return errors.Wrapf(err, "failed to create rbac role binding(%s)",roleBind.GetName())
+		if err != nil {
+			return errors.Wrapf(err, "failed to create rbac role binding(%s)", roleBind.GetName())
 		}
 	}
 

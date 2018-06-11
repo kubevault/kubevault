@@ -363,6 +363,7 @@ spec:
                       type: string
                 inmem:
                   description: 'ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html'
+                  type: boolean
             baseImage:
               description: Base image to use for a Vault deployment.
               type: string
@@ -375,7 +376,7 @@ spec:
                 1.'
               format: int32
               type: integer
-            pod:
+            podPolicy:
               description: PodPolicy defines the policy for pods owned by vault operator.
               properties:
                 resources:
@@ -473,7 +474,7 @@ spec:
                   type: string
                 sealed:
                   description: PodNames of Sealed Vault nodes. Sealed nodes MUST be
-                    manually unsealed to become standby or leader.
+                    unsealed to become standby or leader.
                   items:
                     type: string
                   type: array
@@ -481,6 +482,11 @@ spec:
                   description: PodNames of the standby Vault nodes. Standby nodes
                     are unsealed. Standby nodes do not process requests, and instead
                     redirect to the active Vault.
+                  items:
+                    type: string
+                  type: array
+                unsealed:
+                  description: PodNames of Unsealed Vault nodes.
                   items:
                     type: string
                   type: array

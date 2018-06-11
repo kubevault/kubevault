@@ -5,6 +5,7 @@ import (
 
 	api "github.com/kube-vault/operator/apis/core/v1alpha1"
 	"github.com/stretchr/testify/assert"
+	"fmt"
 )
 
 func TestGetEtcdConfig(t *testing.T) {
@@ -39,9 +40,9 @@ path = "path/"
 discovery_srv = "etcd.com"
 ha_enable = "false"
 sync = "false"
-tls-ca-file = "/etc/vault/storage/etcd/tls/etcd-client-ca.crt"
-tls-cert-file = "/etc/vault/storage/etcd/tls/etcd-client.crt"
-tls-key-file = "/etc/vault/storage/etcd/tls/etcd-client.key"
+tls_ca_file = "/etc/vault/storage/etcd/tls/etcd-ca.crt"
+tls_cert_file = "/etc/vault/storage/etcd/tls/etcd-client.crt"
+tls_key_file = "/etc/vault/storage/etcd/tls/etcd-client.key"
 }
 `
 
@@ -69,7 +70,10 @@ tls-key-file = "/etc/vault/storage/etcd/tls/etcd-client.key"
 
 			config, err := etcd.GetStorageConfig()
 			assert.Nil(t, err)
-			assert.Equal(t, test.expectedOutput, config)
+			if !assert.Equal(t, test.expectedOutput, config) {
+				fmt.Println("expected:", test.expectedOutput)
+				fmt.Println("got:", config)
+			}
 		})
 	}
 }

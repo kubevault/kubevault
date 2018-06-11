@@ -63,7 +63,7 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.Vau
 		if tlsConfig == nil {
 			se, err := c.kubeClient.CoreV1().Secrets(v.Namespace).Get(VaultTlsSecretName, metav1.GetOptions{})
 			if err != nil {
-				glog.Fatalf("vault status monitor: failed get secret `%v`", VaultTlsSecretName)
+				glog.Errorf("vault status monitor: failed get secret `%v`", VaultTlsSecretName)
 			}
 
 			caFile := filepath.Join(caFileDir, CaCertName)
@@ -99,6 +99,7 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 
 	activeNode := ""
 	sealNodes := []string{}
+	unsealNodes := []string{}
 	standByNodes := []string{}
 	updated := []string{}
 	initiated := false
@@ -131,6 +132,8 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 		}
 		if hr.Sealed {
 			sealNodes = append(sealNodes, p.GetName())
+		} else {
+			unsealNodes = append(unsealNodes, p.GetName())
 		}
 		if hr.Initialized {
 			initiated = true
@@ -144,6 +147,7 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 	s.VaultStatus.Active = activeNode
 	s.VaultStatus.Standby = standByNodes
 	s.VaultStatus.Sealed = sealNodes
+	s.VaultStatus.Unsealed = unsealNodes
 	s.Initialized = initiated
 	s.UpdatedNodes = updated
 }

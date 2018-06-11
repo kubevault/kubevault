@@ -26,7 +26,7 @@ const (
 var _ = Describe("VaultServer", func() {
 	var (
 		f  *framework.Invocation
-		vs *api.VaultServer
+		// vs *api.VaultServer
 	)
 
 	BeforeEach(func() {
@@ -38,7 +38,7 @@ var _ = Describe("VaultServer", func() {
 
 	var (
 		backendInmem = api.BackendStorageSpec{
-			Inmem: &api.InmemSpec{},
+			Inmem: true,
 		}
 	)
 
@@ -62,8 +62,20 @@ var _ = Describe("VaultServer", func() {
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue())
 		}
-		checkForVaultTLSSecretDeleted = func(name, namespace string) {
-			By(fmt.Sprintf("Waiting for vault tls secret (%s/%s) to delete", namespace, name))
+
+		checkForSecretCreated = func(name, namespace string) {
+			By(fmt.Sprintf("Waiting for vault tls secret (%s/%s) to create", namespace, name))
+			Eventually(func() bool {
+				_, err := f.KubeClient.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
+				if err == nil {
+					return true
+				}
+				return false
+			}, timeOut, pollingInterval).Should(BeTrue())
+		}
+
+		checkForSecretDeleted = func(name, namespace string) {
+			By(fmt.Sprintf("Waiting for secret (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
 				_, err := f.KubeClient.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
@@ -91,7 +103,7 @@ var _ = Describe("VaultServer", func() {
 			}, timeOut, pollingInterval).Should(BeTrue())
 		}
 
-		checkForVaultDeploymentCreatedOrUpdated = func(name, namespace string) {
+		checkForVaultDeploymentCreatedOrUpdated = func(name, namespace string, vs *api.VaultServer) {
 			By(fmt.Sprintf("Waiting for vault deployment (%s/%s) to create/update", namespace, name))
 			Eventually(func() bool {
 				d, err := f.KubeClient.AppsV1beta1().Deployments(namespace).Get(name, metav1.GetOptions{})
@@ -124,7 +136,7 @@ var _ = Describe("VaultServer", func() {
 			}, timeOut, pollingInterval).Should(BeTrue())
 		}
 
-		shouldCreateVaultServer = func() {
+		shouldCreateVaultServer = func(vs *api.VaultServer) {
 			By("Creating vault server")
 			_, err := f.CreateVaultServer(vs)
 			Expect(err).NotTo(HaveOccurred())
@@ -132,10 +144,10 @@ var _ = Describe("VaultServer", func() {
 			checkForVaultServerCreated(vs.Name, vs.Namespace)
 			checkForVaultTLSSecretCreated(controller.VaultTlsSecretName, vs.Namespace)
 			checkForVaultConfigMapCreated(util.ConfigMapNameForVault(vs), vs.Namespace)
-			checkForVaultDeploymentCreatedOrUpdated(vs.Name, vs.Namespace)
+			checkForVaultDeploymentCreatedOrUpdated(vs.Name, vs.Namespace, vs)
 		}
 
-		shouldUpdateVaultServerReplica = func(replicas int32) {
+		shouldUpdateVaultServerReplica = func(replicas int32, vs *api.VaultServer) {
 			By("Getting current vault server")
 			vs, err := f.GetVaultServer(vs)
 			Expect(err).NotTo(HaveOccurred())
@@ -145,49 +157,74 @@ var _ = Describe("VaultServer", func() {
 			_, err = f.UpdateVaultServer(vs)
 			Expect(err).NotTo(HaveOccurred())
 
-			checkForVaultDeploymentCreatedOrUpdated(vs.Name, vs.Namespace)
+			checkForVaultDeploymentCreatedOrUpdated(vs.Name, vs.Namespace, vs)
+		}
+
+		checkForVaultIsUnsealed = func(vs *api.VaultServer) {
+			By("Checking whether vault is unsealed")
+			Eventually(func() bool {
+				v, err := f.VaultServerClient.CoreV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
+				if err == nil {
+					if len(v.Status.VaultStatus.Unsealed) == int(vs.Spec.Nodes) {
+						By(fmt.Sprintf("Unseal-pods: %v", v.Status.VaultStatus.Unsealed))
+						return true
+					}
+				}
+				return false
+			}, timeOut, pollingInterval).Should(BeTrue())
 		}
 	)
 
 	Describe("Creating vault server for", func() {
 		Context("inmem backend", func() {
+			var (
+				vs *api.VaultServer
+			)
+
 			BeforeEach(func() {
 				vs = f.VaultServer(3, backendInmem)
 			})
+
 			AfterEach(func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForVaultTLSSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
 				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
-			It("should create vault server", shouldCreateVaultServer)
+			It("should create vault server", func() {
+				shouldCreateVaultServer(vs)
+			})
 		})
 	})
 
 	Describe("Updating vault server replica for", func() {
 		Context("inmem backend", func() {
+			var (
+				vs *api.VaultServer
+			)
+
 			BeforeEach(func() {
 				vs = f.VaultServer(3, backendInmem)
-				shouldCreateVaultServer()
+				shouldCreateVaultServer(vs)
 			})
 			AfterEach(func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForVaultTLSSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
 				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
 			It("should update replica number to 1", func() {
-				shouldUpdateVaultServerReplica(1)
+				shouldUpdateVaultServerReplica(1,vs)
 			})
 
 			It("should update replica number to 5", func() {
-				shouldUpdateVaultServerReplica(4)
+				shouldUpdateVaultServerReplica(4,vs)
 			})
 		})
 	})
@@ -196,17 +233,18 @@ var _ = Describe("VaultServer", func() {
 		Context("using inmem as backend", func() {
 			var (
 				err error
+				vs *api.VaultServer
 			)
 
 			BeforeEach(func() {
 				vs = f.VaultServer(3, backendInmem)
-				shouldCreateVaultServer()
+				shouldCreateVaultServer(vs)
 			})
 			AfterEach(func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForVaultTLSSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
 				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
@@ -245,17 +283,18 @@ var _ = Describe("VaultServer", func() {
 		Context("using inmem as backend", func() {
 			var (
 				err error
+				vs *api.VaultServer
 			)
 
 			BeforeEach(func() {
 				vs = f.VaultServer(3, backendInmem)
-				shouldCreateVaultServer()
+				shouldCreateVaultServer(vs)
 			})
 			AfterEach(func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForVaultTLSSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
 				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
@@ -271,6 +310,82 @@ var _ = Describe("VaultServer", func() {
 							len(vs.Status.VaultStatus.Sealed) == 3
 					}
 				}, timeOut, pollingInterval).Should(BeTrue())
+			})
+		})
+	})
+
+	Describe("Vault unsealer using kubernetes secret", func() {
+		var (
+			vs *api.VaultServer
+			unseal *api.UnsealerSpec
+		)
+
+		const (
+			secretName = "test-vault-keys"
+		)
+
+		BeforeEach(func() {
+			unseal = &api.UnsealerSpec{
+				SecretShares: 4,
+				SecretThreshold: 2,
+				InsecureTLS: true,
+				Mode: api.ModeSpec{
+					KubernetesSecret: &api.KubernetesSecretSpec{
+						SecretName: secretName,
+					},
+				},
+			}
+		})
+
+		AfterEach(func() {
+			f.DeleteVaultServer(vs.ObjectMeta)
+			err :=f.DeleteSecret(secretName, vs.Namespace)
+			Expect(err).NotTo(HaveOccurred())
+
+			checkForVaultServerDeleted(vs.Name, vs.Namespace)
+			checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+			checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+			checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+		})
+
+		Context("using inmem backend", func() {
+			BeforeEach(func() {
+				vs = f.VaultServerWithUnsealer(1, backendInmem, *unseal)
+			})
+
+			It("vault should be unsealed", func() {
+				shouldCreateVaultServer(vs)
+
+				checkForSecretCreated(secretName, vs.Namespace)
+				checkForVaultIsUnsealed(vs)
+			})
+		})
+
+		Context("using etcd backend", func() {
+			BeforeEach(func() {
+				url, err := f.DeployEtcd()
+				Expect(err).NotTo(HaveOccurred())
+
+				etcd := api.BackendStorageSpec{
+					Etcd: &api.EtcdSpec{
+						EtcdApi: "v3",
+						Address: url,
+					},
+				}
+
+				vs = f.VaultServerWithUnsealer(1, etcd, *unseal)
+			})
+
+			AfterEach(func() {
+				err := f.DeleteEtcd()
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("vault should be unsealed", func() {
+				shouldCreateVaultServer(vs)
+
+				checkForSecretCreated(secretName, vs.Namespace)
+				checkForVaultIsUnsealed(vs)
 			})
 		})
 	})

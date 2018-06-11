@@ -13,7 +13,7 @@ import (
 const (
 	// TLS related file name for etcd
 	EtcdTLSAssetDir    = "/etc/vault/storage/etcd/tls/"
-	EtcdClientCaName   = "etcd-client-ca.crt"
+	EtcdClientCaName   = "etcd-ca.crt"
 	EtcdClientCertName = "etcd-client.crt"
 	EtcdClientKeyName  = "etcd-client.key"
 )
@@ -53,6 +53,7 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 		pt.Spec.Containers[0].VolumeMounts = append(pt.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
 			Name:      etcdTLSAssetVolume,
 			MountPath: util.EtcdTLSAssetDir,
+			ReadOnly: true,
 		})
 	}
 
@@ -119,9 +120,9 @@ func (o *Options) GetStorageConfig() (string, error) {
 		params = append(params, fmt.Sprintf(`sync = "false"`))
 	}
 	if o.TLSSecretName != "" {
-		params = append(params, fmt.Sprintf(`tls-ca-file = "%s"`, filepath.Join(EtcdTLSAssetDir, EtcdClientCaName)),
-			fmt.Sprintf(`tls-cert-file = "%s"`, filepath.Join(EtcdTLSAssetDir, EtcdClientCertName)),
-			fmt.Sprintf(`tls-key-file = "%s"`, filepath.Join(EtcdTLSAssetDir, EtcdClientKeyName)))
+		params = append(params, fmt.Sprintf(`tls_ca_file = "%s"`, filepath.Join(EtcdTLSAssetDir, EtcdClientCaName)),
+			fmt.Sprintf(`tls_cert_file = "%s"`, filepath.Join(EtcdTLSAssetDir, EtcdClientCertName)),
+			fmt.Sprintf(`tls_key_file = "%s"`, filepath.Join(EtcdTLSAssetDir, EtcdClientKeyName)))
 	}
 
 	storageCfg := fmt.Sprintf(etcdStorageFmt, strings.Join(params, "\n"))

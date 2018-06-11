@@ -38,7 +38,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 					Properties: map[string]spec.Schema{
 						"inmem": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.InmemSpec"),
+								Description: "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
+								Type:        []string{"boolean"},
+								Format:      "",
 							},
 						},
 						"etcd": {
@@ -50,7 +52,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kube-vault/operator/apis/core/v1alpha1.InmemSpec"},
+				"github.com/kube-vault/operator/apis/core/v1alpha1.EtcdSpec"},
 		},
 		"github.com/kube-vault/operator/apis/core/v1alpha1.EtcdSpec": {
 			Schema: spec.Schema{
@@ -114,15 +116,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 							},
 						},
 					},
-				},
-			},
-			Dependencies: []string{},
-		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.InmemSpec": {
-			Schema: spec.Schema{
-				SchemaProps: spec.SchemaProps{
-					Description: "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
-					Properties:  map[string]spec.Schema{},
 				},
 			},
 			Dependencies: []string{},
@@ -388,9 +381,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Format:      "",
 							},
 						},
-						"pod": {
+						"podPolicy": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Pod defines the policy for pods owned by vault operator. This field cannot be updated once the CR is created.",
+								Description: "PodPolicy defines the policy for pods owned by vault operator. This field cannot be updated once the CR is created.",
 								Ref:         ref("github.com/kube-vault/operator/apis/core/v1alpha1.PodPolicy"),
 							},
 						},
@@ -511,7 +504,21 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"sealed": {
 							SchemaProps: spec.SchemaProps{
-								Description: "PodNames of Sealed Vault nodes. Sealed nodes MUST be manually unsealed to become standby or leader.",
+								Description: "PodNames of Sealed Vault nodes. Sealed nodes MUST be unsealed to become standby or leader.",
+								Type:        []string{"array"},
+								Items: &spec.SchemaOrArray{
+									Schema: &spec.Schema{
+										SchemaProps: spec.SchemaProps{
+											Type:   []string{"string"},
+											Format: "",
+										},
+									},
+								},
+							},
+						},
+						"unsealed": {
+							SchemaProps: spec.SchemaProps{
+								Description: "PodNames of Unsealed Vault nodes.",
 								Type:        []string{"array"},
 								Items: &spec.SchemaOrArray{
 									Schema: &spec.Schema{

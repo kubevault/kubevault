@@ -162,7 +162,7 @@ func deleteService(t *testing.T, client kubernetes.Interface, s *corev1.Service)
 func TestPrepareConfig(t *testing.T) {
 	var (
 		backendInmem = api.BackendStorageSpec{
-			Inmem: &api.InmemSpec{},
+			Inmem: true,
 		}
 
 		backendEtcd = api.BackendStorageSpec{
@@ -374,7 +374,7 @@ func TestReconcileVault(t *testing.T) {
 				Spec: api.VaultServerSpec{
 					Nodes: vaultTestNodes,
 					BackendStorage: api.BackendStorageSpec{
-						Inmem: &api.InmemSpec{},
+						Inmem: true,
 					},
 				},
 			},
@@ -389,7 +389,7 @@ func TestReconcileVault(t *testing.T) {
 					Nodes:     vaultTestNodes,
 					BaseImage: "vault",
 					BackendStorage: api.BackendStorageSpec{
-						Inmem: &api.InmemSpec{},
+						Inmem: true,
 					},
 				},
 			},
@@ -440,7 +440,7 @@ func TestDeployVault(t *testing.T) {
 				ObjectMeta: getVaultObjectMeta(1),
 				Spec: api.VaultServerSpec{
 					BackendStorage: api.BackendStorageSpec{
-						Inmem: &api.InmemSpec{},
+						Inmem: true,
 					},
 				},
 			},

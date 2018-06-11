@@ -30,6 +30,7 @@ hack/configs/.env
 **/dist
 .vscode/
 test/e2e/report.xml
+test/e2e/junit.xml
 apiserver.local.config/
 .markdownlint.json
 coverage.txt

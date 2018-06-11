@@ -14,8 +14,8 @@ type Storage interface {
 }
 
 func NewStorage(s *api.BackendStorageSpec) (Storage, error) {
-	if s.Inmem != nil {
-		return inmem.NewOptions(*s.Inmem)
+	if s.Inmem {
+		return inmem.NewOptions()
 	} else if s.Etcd != nil {
 		return etcd.NewOptions(*s.Etcd)
 	} else {
