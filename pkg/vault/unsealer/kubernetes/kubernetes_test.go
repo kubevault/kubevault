@@ -20,7 +20,7 @@ func TestOptions_Apply(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	err = opts.Apply(&cont)
+	err = opts.Apply(nil, &cont)
 	assert.Nil(t, err)
 
 	assert.Equal(t, expected, cont.Args)

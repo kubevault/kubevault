@@ -315,32 +315,16 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 
 	configureVaultServerTLS(&podTempl)
 
-	storageSrv, err := storage.NewStorage(&v.Spec.BackendStorage)
+	// configure for vault backend storage
+	err = c.configureForVaultBackendStorage(v, &podTempl)
 	if err != nil {
-		return errors.Wrap(err, "failed to create storage service for vault backend service")
-	}
-	// add environment variable, volume mount, etc for storage if required
-	err = storageSrv.Apply(&podTempl)
-	if err != nil {
-		return errors.Wrap(err, "failed to apply changes in pod template")
+		return errors.Wrap(err, "failed to configure for vault backend storage")
 	}
 
-	if v.Spec.Unsealer != nil {
-		// add vault unsealer as sidecar
-		unseal, err := unsealer.NewUnsealer(v.Spec.Unsealer)
-		err = unseal.AddContainer(&podTempl)
-		if err != nil {
-			return errors.Wrap(err, "failed to add unsealer container")
-		}
-
-		// get rbac roles
-		rbacRoles := unseal.GetRBAC(v.GetNamespace(), selector)
-
-		//create role and role binding
-		err = c.createRoleAndRoleBinding(v, rbacRoles, saName)
-		if err != nil {
-			return err
-		}
+	// configure for vault unsealer
+	err = c.configureForVaultUnsealer(v, &podTempl, saName)
+	if err != nil {
+		return errors.Wrap(err, "failed to configure for vault unsealer")
 	}
 
 	err = c.createVaultDeployment(v, &podTempl)
@@ -393,7 +377,7 @@ func (c *VaultController) syncUpgrade(v *api.VaultServer, d *appsv1beta1.Deploym
 		// It take longer but the the lock will get released eventually on failure case.
 		err := c.kubeClient.CoreV1().Pods(v.Namespace).Delete(v.Status.VaultStatus.Active, nil)
 		if err != nil && !kerrors.IsNotFound(err) {
-			return errors.Wrapf(err, "step down: failed to delete active Vault pod (%s): %v", v.Status.VaultStatus.Active)
+			return errors.Wrapf(err, "step down: failed to delete active Vault pod (%s)", v.Status.VaultStatus.Active)
 		}
 	}
 
@@ -529,6 +513,73 @@ func (c *VaultController) prepareConfig(v *api.VaultServer) error {
 	return nil
 }
 
+// configureForVaultBackendStorage will do:
+//	- Add env variable
+//  - Add volume mount
+//	- Create secret
+//  - Mount secret
+func (c *VaultController) configureForVaultBackendStorage(v *api.VaultServer, podTempl *corev1.PodTemplateSpec) error {
+	storageSrv, err := storage.NewStorage(&v.Spec.BackendStorage)
+	if err != nil {
+		return errors.Wrap(err, "failed to create storage service for vault backend service")
+	}
+
+	// add environment variable, volume mount, etc for storage if required
+	err = storageSrv.Apply(podTempl)
+	if err != nil {
+		return errors.Wrap(err, "failed to apply changes in pod template")
+	}
+
+	// create necessary secrets for storage backend
+	secrets, err := storageSrv.GetSecrets(v.GetNamespace())
+	if err != nil {
+		return errors.Wrap(err, "failed to get secrets for storage")
+	}
+	err = c.createSecret(v, secrets)
+	if err != nil {
+		return errors.Wrap(err, "failed to create secrets for storage")
+	}
+
+	return nil
+}
+
+// configureForVaultUnsealer will do:
+// 	- Add unsealer container
+// 	- Create rbac role and rolebinding
+//  - Create secrets
+func (c *VaultController) configureForVaultUnsealer(v *api.VaultServer, podTempl *corev1.PodTemplateSpec, saName string) error {
+	if v.Spec.Unsealer == nil {
+		return nil
+	}
+
+	// add vault unsealer as sidecar
+	unseal, err := unsealer.NewUnsealer(v.Spec.Unsealer)
+	err = unseal.AddContainer(podTempl)
+	if err != nil {
+		return errors.Wrap(err, "failed to add unsealer container")
+	}
+
+	// get rbac roles
+	rbacRoles := unseal.GetRBAC(v.GetNamespace())
+	err = c.createRoleAndRoleBinding(v, rbacRoles, saName)
+	if err != nil {
+		return err
+	}
+
+	// get secrets
+	secrets, err := unseal.GetSecrets(v.GetNamespace())
+	if err != nil {
+		return errors.Wrap(err, "failed to get usealer secrets")
+	}
+
+	err = c.createSecret(v, secrets)
+	if err != nil {
+		return errors.Wrap(err, "failed to create secrets for unsealer")
+	}
+
+	return nil
+}
+
 // createVaultDeployment creates deployment for vault
 func (c *VaultController) createVaultDeployment(v *api.VaultServer, p *corev1.PodTemplateSpec) error {
 	selector := util.LabelsForVault(v.GetName())
@@ -560,6 +611,9 @@ func (c *VaultController) createVaultDeployment(v *api.VaultServer, p *corev1.Po
 	return nil
 }
 
+// createVaultServiceAccount create service account
+// if service account of same name and namespace already exists then
+// operator will give a warning log, not an error
 func (c *VaultController) createVaultServiceAccount(v *api.VaultServer) (string, error) {
 	selector := util.LabelsForVault(v.GetName())
 
@@ -573,17 +627,25 @@ func (c *VaultController) createVaultServiceAccount(v *api.VaultServer) (string,
 
 	util.AddOwnerRefToObject(sa, util.AsOwner(v))
 	_, err := c.kubeClient.CoreV1().ServiceAccounts(v.GetNamespace()).Create(sa)
-	if err != nil {
+	if kerrors.IsAlreadyExists(err) {
+		glog.Infof("service account (%s/%s) already exists\n", v.Namespace, sa.Name)
+		return sa.GetName(), nil
+	} else if err != nil {
 		return "", errors.Wrap(err, "failed to create service account")
 	}
 
 	return sa.GetName(), nil
 }
 
+// createRoleAndRoleBinding creates rbac role and rolebinding
+// if role or rolebinding of same name and namespace already exists then
+// operator will give a warning log, not an error
 func (c *VaultController) createRoleAndRoleBinding(v *api.VaultServer, roles []rbac.Role, saName string) error {
 	selector := util.LabelsForVault(v.GetName())
 
 	for _, role := range roles {
+		role.SetLabels(selector)
+
 		roleBind := &rbac.RoleBinding{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      role.GetName(),
@@ -606,13 +668,17 @@ func (c *VaultController) createRoleAndRoleBinding(v *api.VaultServer, roles []r
 
 		util.AddOwnerRefToObject(role.GetObjectMeta(), util.AsOwner(v))
 		_, err := c.kubeClient.RbacV1().Roles(role.GetNamespace()).Create(&role)
-		if err != nil {
+		if kerrors.IsAlreadyExists(err) {
+			glog.Warningf("rbac role (%s/%s) already exists\n", v.Namespace, role.Name)
+		} else if err != nil {
 			return errors.Wrapf(err, "failed to create rbac role(%s)", role.GetName())
 		}
 
 		util.AddOwnerRefToObject(roleBind.GetObjectMeta(), util.AsOwner(v))
 		_, err = c.kubeClient.RbacV1().RoleBindings(roleBind.GetNamespace()).Create(roleBind)
-		if err != nil {
+		if kerrors.IsAlreadyExists(err) {
+			glog.Warningf("role binding (%s/%s) already exists\n", v.Namespace, roleBind.Name)
+		} else if err != nil {
 			return errors.Wrapf(err, "failed to create rbac role binding(%s)", roleBind.GetName())
 		}
 	}
@@ -620,7 +686,31 @@ func (c *VaultController) createRoleAndRoleBinding(v *api.VaultServer, roles []r
 	return nil
 }
 
+// create secret creates kubernetes secret
+// if secret of same name and namespace already exists then
+// operator will give a warning log, not an error
+func (c *VaultController) createSecret(v *api.VaultServer, secrets []corev1.Secret, errMsg ...string) error {
+	selector := util.LabelsForVault(v.GetName())
+
+	for _, sr := range secrets {
+		sr.SetLabels(selector)
+
+		util.AddOwnerRefToObject(sr.GetObjectMeta(), util.AsOwner(v))
+
+		_, err := c.kubeClient.CoreV1().Secrets(v.GetNamespace()).Create(&sr)
+		if kerrors.IsAlreadyExists(err) {
+			glog.Warningf("secret(%s/%s) already exists", sr.GetNamespace(), sr.GetName())
+		} else if err != nil {
+			return errors.Wrapf(err, "%s : failed to create secret(%s/%s)", errMsg, v.GetNamespace(), sr.GetName())
+		}
+	}
+
+	return nil
+}
+
 // createVaultService creates service for vault
+// if service of same name and namespace already exists then
+// operator will give a warning log, not an error
 func (c *VaultController) createVaultService(v *api.VaultServer) error {
 	selector := util.LabelsForVault(v.GetName())
 
@@ -648,7 +738,10 @@ func (c *VaultController) createVaultService(v *api.VaultServer) error {
 
 	util.AddOwnerRefToObject(svc, util.AsOwner(v))
 	_, err := c.kubeClient.CoreV1().Services(v.Namespace).Create(svc)
-	if err != nil {
+	if kerrors.IsAlreadyExists(err) {
+		glog.Warningf("service (%s/%s) already exists\n", v.Namespace, svc.Name)
+		return nil
+	} else if err != nil {
 		return errors.Wrap(err, "failed to create vault service")
 	}
 	return nil

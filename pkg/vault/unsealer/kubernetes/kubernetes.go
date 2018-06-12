@@ -23,7 +23,7 @@ func NewOptions(s api.KubernetesSecretSpec) (*Options, error) {
 	}, nil
 }
 
-func (o *Options) Apply(cont *corev1.Container) error {
+func (o *Options) Apply(pt *corev1.PodTemplateSpec, cont *corev1.Container) error {
 	var args []string
 
 	args = append(args, fmt.Sprintf("--mode=%s", ModeKubernetesSecret))
@@ -37,14 +37,13 @@ func (o *Options) Apply(cont *corev1.Container) error {
 }
 
 // GetRBAC returns required rbac roles
-func (o *Options) GetRBAC(namespace string, lable map[string]string) []rbac.Role {
+func (o *Options) GetRBAC(namespace string) []rbac.Role {
 	var roles []rbac.Role
 
 	role := rbac.Role{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "vault-unsealer-kubernetes-secret-access",
 			Namespace: namespace,
-			Labels:    lable,
 		},
 		Rules: []rbac.PolicyRule{
 			{
@@ -58,4 +57,8 @@ func (o *Options) GetRBAC(namespace string, lable map[string]string) []rbac.Role
 	roles = append(roles, role)
 
 	return roles
+}
+
+func (o *Options) GetSecrets(namespace string) ([]corev1.Secret, error) {
+	return nil, nil
 }

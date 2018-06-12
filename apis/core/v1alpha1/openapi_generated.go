@@ -48,11 +48,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.EtcdSpec"),
 							},
 						},
+						"gcs": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.GcsSpec"),
+							},
+						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/core/v1alpha1.EtcdSpec"},
+				"github.com/kube-vault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kube-vault/operator/apis/core/v1alpha1.GcsSpec"},
 		},
 		"github.com/kube-vault/operator/apis/core/v1alpha1.EtcdSpec": {
 			Schema: spec.Schema{
@@ -120,6 +125,105 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			},
 			Dependencies: []string{},
 		},
+		"github.com/kube-vault/operator/apis/core/v1alpha1.GcsSpec": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html\n\nGcsSpec defines configuration to set up Google Cloud Storage as backend storage in vault",
+					Properties: map[string]spec.Schema{
+						"bucket": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the name of the bucket to use for storage.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"chunkSize": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the maximum size (in kilobytes) to send in a single request. If set to 0, it will attempt to send the whole object at once, but will not retry any failures.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"maxParallet": {
+							SchemaProps: spec.SchemaProps{
+								Description: "\n Specifies the maximum number of parallel operations to take place.",
+								Type:        []string{"integer"},
+								Format:      "int32",
+							},
+						},
+						"haEnabled": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies if high availability mode is enabled.",
+								Type:        []string{"boolean"},
+								Format:      "",
+							},
+						},
+						"credentialPath": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Google application credential path",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+					},
+					Required: []string{"bucket"},
+				},
+			},
+			Dependencies: []string{},
+		},
+		"github.com/kube-vault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "GoogleKmsGcsSpec contain the fields that required to unseal vault",
+					Properties: map[string]spec.Schema{
+						"kmsCryptoKey": {
+							SchemaProps: spec.SchemaProps{
+								Description: "The name of the Google Cloud KMS crypto key to use",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"kmsKeyRing": {
+							SchemaProps: spec.SchemaProps{
+								Description: "The name of the Google Cloud KMS key ring to use",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"kmsLocation": {
+							SchemaProps: spec.SchemaProps{
+								Description: "The Google Cloud KMS location to use (eg. 'global', 'europe-west1')",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"kmsProject": {
+							SchemaProps: spec.SchemaProps{
+								Description: "The Google Cloud KMS project to use",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"bucket": {
+							SchemaProps: spec.SchemaProps{
+								Description: "The name of the Google Cloud Storage bucket to store values in",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"credentialPath": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Google application credential path",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+					},
+					Required: []string{"kmsCryptoKey", "kmsKeyRing", "kmsLocation", "kmsProject", "bucket"},
+				},
+			},
+			Dependencies: []string{},
+		},
 		"github.com/kube-vault/operator/apis/core/v1alpha1.KubernetesSecretSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
@@ -147,11 +251,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.KubernetesSecretSpec"),
 							},
 						},
+						"googleKmsGcs": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec"),
+							},
+						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/core/v1alpha1.KubernetesSecretSpec"},
+				"github.com/kube-vault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec", "github.com/kube-vault/operator/apis/core/v1alpha1.KubernetesSecretSpec"},
 		},
 		"github.com/kube-vault/operator/apis/core/v1alpha1.PodPolicy": {
 			Schema: spec.Schema{

@@ -16,6 +16,7 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"os"
 )
 
 const (
@@ -95,6 +96,7 @@ var _ = Describe("VaultServer", func() {
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue())
 		}
+
 		checkForVaultConfigMapDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault configMap (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
@@ -113,6 +115,7 @@ var _ = Describe("VaultServer", func() {
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue())
 		}
+
 		checkForVaultDeploymentDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault deployment (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
@@ -128,6 +131,7 @@ var _ = Describe("VaultServer", func() {
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue())
 		}
+
 		checkForVaultServerDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault server (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
@@ -176,17 +180,79 @@ var _ = Describe("VaultServer", func() {
 	)
 
 	Describe("Creating vault server for", func() {
-		Context("inmem backend", func() {
-			var (
-				vs *api.VaultServer
-			)
+		var (
+			vs *api.VaultServer
+		)
 
+		Context("inmem backend", func() {
 			BeforeEach(func() {
 				vs = f.VaultServer(3, backendInmem)
 			})
 
 			AfterEach(func() {
-				f.DeleteVaultServer(vs.ObjectMeta)
+				err := f.DeleteVaultServer(vs.ObjectMeta)
+				Expect(err).NotTo(HaveOccurred())
+
+				checkForVaultServerDeleted(vs.Name, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+			})
+
+			It("should create vault server", func() {
+				shouldCreateVaultServer(vs)
+			})
+		})
+
+		Context("etcd backend", func() {
+
+			BeforeEach(func() {
+				url, err := f.DeployEtcd()
+				Expect(err).NotTo(HaveOccurred())
+
+				etcd := api.BackendStorageSpec{
+					Etcd: &api.EtcdSpec{
+						EtcdApi: "v3",
+						Address: url,
+					},
+				}
+
+				vs = f.VaultServer(3, etcd)
+			})
+
+			AfterEach(func() {
+				err := f.DeleteEtcd()
+				Expect(err).NotTo(HaveOccurred())
+
+				err = f.DeleteVaultServer(vs.ObjectMeta)
+				Expect(err).NotTo(HaveOccurred())
+
+				checkForVaultServerDeleted(vs.Name, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+			})
+
+			It("should create vault server", func() {
+				shouldCreateVaultServer(vs)
+			})
+		})
+
+		Context("gcs backend", func() {
+			BeforeEach(func() {
+				gcs := api.BackendStorageSpec{
+					Gcs: &api.GcsSpec{
+						Bucket: "vault-test-bucket",
+						CredentialPath: os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+					},
+				}
+
+				vs = f.VaultServer(3, gcs)
+			})
+
+			AfterEach(func() {
+				err := f.DeleteVaultServer(vs.ObjectMeta)
+				Expect(err).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
 				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
@@ -385,6 +451,57 @@ var _ = Describe("VaultServer", func() {
 				shouldCreateVaultServer(vs)
 
 				checkForSecretCreated(secretName, vs.Namespace)
+				checkForVaultIsUnsealed(vs)
+			})
+		})
+	})
+
+	Describe("unsealing using google kms gcs", func() {
+		var (
+			vs *api.VaultServer
+		)
+
+		Context("using gcs backend", func() {
+			BeforeEach(func() {
+				gcs := api.BackendStorageSpec{
+					Gcs: &api.GcsSpec{
+						Bucket: "vault-test-bucket",
+						CredentialPath: os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+					},
+				}
+
+				unsealer := api.UnsealerSpec{
+					SecretShares: 4,
+					SecretThreshold: 2,
+					InsecureTLS: true,
+					Mode: api.ModeSpec{
+						GoogleKmsGcs: &api.GoogleKmsGcsSpec{
+							Bucket: "vault-test-bucket",
+							CredentialPath: os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+							KmsCryptoKey: "vault-init",
+							KmsKeyRing: "vault-key-ring",
+							KmsLocation: "global",
+							KmsProject: "tigerworks-kube",
+						},
+					},
+				}
+
+				vs = f.VaultServerWithUnsealer(1, gcs, unsealer)
+			})
+
+			AfterEach(func() {
+				err := f.DeleteVaultServer(vs.ObjectMeta)
+				Expect(err).NotTo(HaveOccurred())
+
+				checkForVaultServerDeleted(vs.Name, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+			})
+
+			It("should create vault server", func() {
+				shouldCreateVaultServer(vs)
+
 				checkForVaultIsUnsealed(vs)
 			})
 		})

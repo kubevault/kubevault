@@ -122,7 +122,7 @@ BackendStorage Spec contains the information for vault storage backend. Vault op
         name: vault-etcd-credential
       ```
     
-    - **tlsSecretName**(string): Specifies the secret name that contains ca cert, client cert and client key for etcd communication.For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#tls_ca_file).
+    - **tlsSecretName** (string): Specifies the secret name that contains ca cert, client cert and client key for etcd communication.For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#tls_ca_file).
   
       ```yaml
       backendStorage:
@@ -135,13 +135,28 @@ BackendStorage Spec contains the information for vault storage backend. Vault op
       ```yaml
       apiVersion: v1
       data:
-        etcd-ca.crt: <ca crt>
+        etcd-ca.crt: <ca_crt>
         etcd-client.crt: <client-crt>
         etcd-client.key: <client-key>
       kind: Secret
       metadata:
         name: vault-etcd-tls
       ```
+- **gcs** (GcsSpec): Contain the informations to use gcs as backen storage in vault. Vault documention about gcs storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html)
+  ```yaml
+  backendStorage:
+    gcs:
+      Bucket: <bucket_name>
+      chunkSize: <chunk_size>
+      maxParallel: <max_parallet>
+      haEnabled: <true/false>
+  ```
+  **GcsSpec** has following fields:
+    - **bucket** (string): Specifies the name of the bucket to use for storage.
+    - **chunkSize** (string) : Specifies the maximum size (in kilobytes) to send in a single request. If set to 0, it will attempt to send the whole object at once, but will not retry any failures.
+    - **maParallel** (int): Specifies the maximum number of parallel operations to take place.
+    - **haEnabled** (bool) : Specifies if high availability mode is enabled.
+
 ### Unsealer Spec
 Vault operator use [kube-vault/unsealer](https://github.com/kube-vault/unsealer) to unseal vault. Unsealer spec contains the informations that used in unsealer to unseal vault.
 
@@ -189,12 +204,33 @@ spec:
     ```yaml
     spec:
       unsealer:
+        ...
         mode:
           kubernetesSecret:
             secretName: <secret_name>
     ```
     kubernetesSecret contains following fields:
       - **secretName** (string): Unsealer will create secret of this name.
+  - **googleKmsGcs** : Unseal key and root token are stored in google cloud bucket and they are encrypted using google cryptographic keys.
+    ```yaml
+    spec:
+      unsealer:
+        ...
+        mode:
+          googleKmsGcs:
+            bucket: <bucket_name>
+            kmsProject: <project_name>
+            kmsLocation: <location>
+            kmsKeyRing: <key_ring_name>
+            kmsCryptoKey: <crypto_key_name>
+    ```
+
+    googleKmsGcs has following fields:
+    - **bucket** (string): Specifies the name of the bucket to store keys in.
+    - **kmsProject** (string): Specifies the name of the projects under which key ring is created.
+    - **kmsLocation** (string): Specifies the location of the key ring. 
+    - **kmsKeyRing** (string): Specifies the name of the key ring.
+    - **kmsCryptoKey** (string): Specifies the name of the crypto key.
 
 ## VaultServer Status
 

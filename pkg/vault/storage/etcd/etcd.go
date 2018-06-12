@@ -53,7 +53,7 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 		pt.Spec.Containers[0].VolumeMounts = append(pt.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
 			Name:      etcdTLSAssetVolume,
 			MountPath: util.EtcdTLSAssetDir,
-			ReadOnly: true,
+			ReadOnly:  true,
 		})
 	}
 
@@ -86,6 +86,10 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 	}
 
 	return nil
+}
+
+func (o *Options) GetSecrets(namespace string) ([]corev1.Secret, error) {
+	return nil, nil
 }
 
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html
