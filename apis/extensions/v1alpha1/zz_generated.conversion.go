@@ -23,7 +23,7 @@ package v1alpha1
 import (
 	unsafe "unsafe"
 
-	extensions "github.com/kube-vault/operator/apis/extensions"
+	extensions "github.com/kubevault/operator/apis/extensions"
 	conversion "k8s.io/apimachinery/pkg/conversion"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )

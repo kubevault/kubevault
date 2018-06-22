@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/appscode/go/log/golog"
-	cs "github.com/kube-vault/operator/client/clientset/versioned"
-	vaultinformers "github.com/kube-vault/operator/client/informers/externalversions"
-	"github.com/kube-vault/operator/pkg/eventer"
+	cs "github.com/kubevault/operator/client/clientset/versioned"
+	vaultinformers "github.com/kubevault/operator/client/informers/externalversions"
+	"github.com/kubevault/operator/pkg/eventer"
 	core "k8s.io/api/core/v1"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

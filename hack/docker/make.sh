@@ -8,7 +8,7 @@ GOPATH=$(go env GOPATH)
 SRC=$GOPATH/src
 BIN=$GOPATH/bin
 ROOT=$GOPATH
-REPO_ROOT=$GOPATH/src/github.com/kube-vault/operator
+REPO_ROOT=$GOPATH/src/github.com/kubevault/operator
 
 source "$REPO_ROOT/hack/libbuild/common/lib.sh"
 source "$REPO_ROOT/hack/libbuild/common/kubevault_image.sh"
@@ -16,20 +16,20 @@ source "$REPO_ROOT/hack/libbuild/common/kubevault_image.sh"
 APPSCODE_ENV=${APPSCODE_ENV:-dev}
 IMG=operator
 
-DIST=$GOPATH/src/github.com/kube-vault/operator/dist
+DIST=$GOPATH/src/github.com/kubevault/operator/dist
 mkdir -p $DIST
 if [ -f "$DIST/.tag" ]; then
 	export $(cat $DIST/.tag | xargs)
 fi
 
 clean() {
-    pushd $GOPATH/src/github.com/kube-vault/operator/hack/docker
+    pushd $GOPATH/src/github.com/kubevault/operator/hack/docker
     rm vault-operator Dockerfile
     popd
 }
 
 build_binary() {
-    pushd $GOPATH/src/github.com/kube-vault/operator
+    pushd $GOPATH/src/github.com/kubevault/operator
     ./hack/builddeps.sh
     ./hack/make.py build
     detect_tag $DIST/.tag
@@ -37,7 +37,7 @@ build_binary() {
 }
 
 build_docker() {
-    pushd $GOPATH/src/github.com/kube-vault/operator/hack/docker
+    pushd $GOPATH/src/github.com/kubevault/operator/hack/docker
     cp $DIST/vault-operator/vault-operator-alpine-amd64 vault-operator
     chmod 755 vault-operator
 

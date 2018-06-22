@@ -37,7 +37,7 @@ import time
 import yaml
 from os.path import expandvars, join, dirname
 
-libbuild.REPO_ROOT = libbuild.GOPATH + '/src/github.com/kube-vault/operator'
+libbuild.REPO_ROOT = libbuild.GOPATH + '/src/github.com/kubevault/operator'
 BUILD_METADATA = libbuild.metadata(libbuild.REPO_ROOT)
 libbuild.BIN_MATRIX = {
     'vault-operator': {

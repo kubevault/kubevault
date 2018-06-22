@@ -5,7 +5,7 @@ import (
 
 	"github.com/appscode/go/crypto/rand"
 	"github.com/appscode/kutil/tools/certstore"
-	cs "github.com/kube-vault/operator/client/clientset/versioned"
+	cs "github.com/kubevault/operator/client/clientset/versioned"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/afero"
 	"k8s.io/client-go/kubernetes"

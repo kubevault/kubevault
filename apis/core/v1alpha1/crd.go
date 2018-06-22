@@ -34,7 +34,7 @@ func (c VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDef
 		Labels: crdutils.Labels{
 			LabelsMap: map[string]string{"app": "vault-operator"},
 		},
-		SpecDefinitionName:    "github.com/kube-vault/operator/apis/core/v1alpha1.VaultServer",
+		SpecDefinitionName:    "github.com/kubevault/operator/apis/core/v1alpha1.VaultServer",
 		EnableValidation:      true,
 		GetOpenAPIDefinitions: GetOpenAPIDefinitions,
 	}, setNameSchema)

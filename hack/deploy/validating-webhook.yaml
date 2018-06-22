@@ -1,23 +1,23 @@
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: ValidatingWebhookConfiguration
 metadata:
-  name: admission.core.kube-vault.com
+  name: admission.core.kubevault.com
   labels:
     app: vault-operator
 webhooks:
-- name: restic.admission.core.kube-vault.com
+- name: restic.admission.core.kubevault.com
   clientConfig:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/admission.core.kube-vault.com/v1alpha1/vaultservers
+      path: /apis/admission.core.kubevault.com/v1alpha1/vaultservers
     caBundle: ${KUBE_CA}
   rules:
   - operations:
     - CREATE
     - UPDATE
     apiGroups:
-    - core.kube-vault.com
+    - core.kubevault.com
     apiVersions:
     - "*"
     resources:

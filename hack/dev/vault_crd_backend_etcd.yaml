@@ -1,4 +1,4 @@
-apiVersion: "core.kube-vault.com/v1alpha1"
+apiVersion: "core.kubevault.com/v1alpha1"
 kind: "VaultServer"
 metadata:
   name: "example"

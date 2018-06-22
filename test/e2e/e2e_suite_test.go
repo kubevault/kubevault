@@ -6,8 +6,8 @@ import (
 
 	logs "github.com/appscode/go/log/golog"
 	"github.com/appscode/kutil/tools/clientcmd"
-	"github.com/kube-vault/operator/pkg/controller"
-	"github.com/kube-vault/operator/test/e2e/framework"
+	"github.com/kubevault/operator/pkg/controller"
+	"github.com/kubevault/operator/test/e2e/framework"
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"

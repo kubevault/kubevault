@@ -1,5 +1,5 @@
 # Vault Operator
-[Vault Operator by AppsCode](https://github.com/kube-vault/operator) - HashiCorp Vault Operator for Kubernetes
+[Vault Operator by AppsCode](https://github.com/kubevault/operator) - HashiCorp Vault Operator for Kubernetes
 
 ## TL;DR;
 
@@ -11,7 +11,7 @@ $ helm install appscode/vault-operator
 
 ## Introduction
 
-This chart bootstraps a [HashiCorp Vault controller](https://github.com/kube-vault/operator) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
+This chart bootstraps a [HashiCorp Vault controller](https://github.com/kubevault/operator) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
 ## Prerequisites
 

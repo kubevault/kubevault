@@ -17,8 +17,8 @@ limitations under the License.
 package install
 
 import (
-	"github.com/kube-vault/operator/apis/core"
-	"github.com/kube-vault/operator/apis/core/v1alpha1"
+	"github.com/kubevault/operator/apis/core"
+	"github.com/kubevault/operator/apis/core/v1alpha1"
 	"k8s.io/apimachinery/pkg/apimachinery/announced"
 	"k8s.io/apimachinery/pkg/apimachinery/registered"
 	"k8s.io/apimachinery/pkg/runtime"

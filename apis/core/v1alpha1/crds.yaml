@@ -5,9 +5,9 @@ metadata:
   creationTimestamp: null
   labels:
     app: vault-operator
-  name: vaultservers.core.kube-vault.com
+  name: vaultservers.core.kubevault.com
 spec:
-  group: core.kube-vault.com
+  group: core.kubevault.com
   names:
     kind: VaultServer
     plural: vaultservers

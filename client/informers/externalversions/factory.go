@@ -23,9 +23,9 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "github.com/kube-vault/operator/client/clientset/versioned"
-	core "github.com/kube-vault/operator/client/informers/externalversions/core"
-	internalinterfaces "github.com/kube-vault/operator/client/informers/externalversions/internalinterfaces"
+	versioned "github.com/kubevault/operator/client/clientset/versioned"
+	core "github.com/kubevault/operator/client/informers/externalversions/core"
+	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

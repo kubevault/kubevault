@@ -19,8 +19,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/kube-vault/operator/apis/extensions/v1alpha1"
-	"github.com/kube-vault/operator/client/clientset/versioned/scheme"
+	v1alpha1 "github.com/kubevault/operator/apis/extensions/v1alpha1"
+	"github.com/kubevault/operator/client/clientset/versioned/scheme"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	rest "k8s.io/client-go/rest"
 )
@@ -30,7 +30,7 @@ type ExtensionsV1alpha1Interface interface {
 	VaultSecretsGetter
 }
 
-// ExtensionsV1alpha1Client is used to interact with features provided by the extensions.kube-vault.com group.
+// ExtensionsV1alpha1Client is used to interact with features provided by the extensions.kubevault.com group.
 type ExtensionsV1alpha1Client struct {
 	restClient rest.Interface
 }
