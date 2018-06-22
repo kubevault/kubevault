@@ -12,7 +12,7 @@ import (
 func (c *VaultController) NewStatefulSetWebhook() hooks.AdmissionHook {
 	return webhook.NewWorkloadWebhook(
 		schema.GroupVersionResource{
-			Group:    "admission.core.kubevault.com",
+			Group:    "admission.kubevault.com",
 			Version:  "v1alpha1",
 			Resource: "statefulsets",
 		},

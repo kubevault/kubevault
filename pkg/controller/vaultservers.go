@@ -50,7 +50,7 @@ const (
 func (c *VaultController) NewVaultServerWebhook() hooks.AdmissionHook {
 	return webhook.NewGenericWebhook(
 		schema.GroupVersionResource{
-			Group:    "admission.core.kubevault.com",
+			Group:    "admission.kubevault.com",
 			Version:  "v1alpha1",
 			Resource: "vaultservers",
 		},

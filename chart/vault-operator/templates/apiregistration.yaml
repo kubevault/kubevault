@@ -6,14 +6,14 @@
 apiVersion: apiregistration.k8s.io/v1beta1
 kind: APIService
 metadata:
-  name: v1alpha1.admission.core.kubevault.com
+  name: v1alpha1.admission.kubevault.com
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     app: "{{ template "vault-operator.name" . }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
 spec:
-  group: admission.core.kubevault.com
+  group: admission.kubevault.com
   version: v1alpha1
   service:
     namespace: {{ .Release.Namespace }}
