@@ -1,10 +1,11 @@
-package util
+package etcd
 
 import (
 	"testing"
 
 	api "github.com/kube-vault/operator/apis/core/v1alpha1"
 	"github.com/stretchr/testify/assert"
+	"fmt"
 )
 
 func TestGetEtcdConfig(t *testing.T) {
@@ -39,9 +40,9 @@ path = "path/"
 discovery_srv = "etcd.com"
 ha_enable = "false"
 sync = "false"
-tls-ca-file = "/etc/vault/storage/etcd/tls/etcd-client-ca.crt"
-tls-cert-file = "/etc/vault/storage/etcd/tls/etcd-client.crt"
-tls-key-file = "/etc/vault/storage/etcd/tls/etcd-client.key"
+tls_ca_file = "/etc/vault/storage/etcd/tls/etcd-ca.crt"
+tls_cert_file = "/etc/vault/storage/etcd/tls/etcd-client.crt"
+tls_key_file = "/etc/vault/storage/etcd/tls/etcd-client.key"
 }
 `
 
@@ -64,21 +65,15 @@ tls-key-file = "/etc/vault/storage/etcd/tls/etcd-client.key"
 
 	for _, test := range testaData {
 		t.Run(test.testName, func(t *testing.T) {
-			config, err := GetEtcdConfig(test.etcdSpec)
+			etcd, err := NewOptions(*test.etcdSpec)
 			assert.Nil(t, err)
-			assert.Equal(t, test.expectedOutput, config)
+
+			config, err := etcd.GetStorageConfig()
+			assert.Nil(t, err)
+			if !assert.Equal(t, test.expectedOutput, config) {
+				fmt.Println("expected:", test.expectedOutput)
+				fmt.Println("got:", config)
+			}
 		})
 	}
-}
-
-func TestGetListenerConfig(t *testing.T) {
-	expectedOutput := `
-listener "tcp" {
-  address = "0.0.0.0:8200"
-  cluster_address = "0.0.0.0:8201"
-  tls_cert_file = "/etc/vault/tls/server.crt"
-  tls_key_file  = "/etc/vault/tls/server.key"
-}
-`
-	assert.Equal(t, expectedOutput, GetListenerConfig())
 }

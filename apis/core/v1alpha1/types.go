@@ -1,6 +1,8 @@
 package v1alpha1
 
 import (
+	"time"
+
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -45,9 +47,9 @@ type VaultServerSpec struct {
 	// Version of Vault to be deployed.
 	Version string `json:"version"`
 
-	// Pod defines the policy for pods owned by vault operator.
+	// PodPolicy defines the policy for pods owned by vault operator.
 	// This field cannot be updated once the CR is created.
-	Pod *PodPolicy `json:"pod,omitempty"`
+	PodPolicy *PodPolicy `json:"podPolicy,omitempty"`
 
 	// Name of the ConfigMap for Vault's configuration
 	// In this configMap contain extra config for vault
@@ -58,6 +60,9 @@ type VaultServerSpec struct {
 
 	// backend storage configuration for vault
 	BackendStorage BackendStorageSpec `json:"backendStorage"`
+
+	// unseal configuration for vault
+	Unsealer *UnsealerSpec `json:"unsealer,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -102,9 +107,12 @@ type VaultStatus struct {
 	// Standby nodes do not process requests, and instead redirect to the active Vault.
 	Standby []string `json:"standby,omitempty"`
 
-	// PodNames of Sealed Vault nodes. Sealed nodes MUST be manually unsealed to
+	// PodNames of Sealed Vault nodes. Sealed nodes MUST be unsealed to
 	// become standby or leader.
 	Sealed []string `json:"sealed,omitempty"`
+
+	// PodNames of Unsealed Vault nodes.
+	Unsealed []string `json:"unsealed,omitempty"`
 }
 
 // PodPolicy defines the policy for pods owned by vault operator.
@@ -142,12 +150,10 @@ type StaticTLS struct {
 // TODO : set defaults and validation
 // BackendStorageSpec defines storage backend configuration of vault
 type BackendStorageSpec struct {
-	Inmem *InmemSpec `json:"inmem,omitempty"`
-	Etcd  *EtcdSpec  `json:"etcd,omitempty"`
+	// ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html
+	Inmem bool      `json:"inmem,omitempty"`
+	Etcd  *EtcdSpec `json:"etcd,omitempty"`
 }
-
-// ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html
-type InmemSpec struct{}
 
 // TODO : set defaults and validation
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html
@@ -179,6 +185,43 @@ type EtcdSpec struct {
 	TLSSecretName string `json:"tlsSecretName,omitempty"`
 }
 
+// UnsealerSpec contain the configuration for auto vault initialize/unseal
+type UnsealerSpec struct {
+	// Total count of secret shares that exist
+	SecretShares int `json:"secretShares,omitempty"`
+
+	// Minimum required secret shares to unseal
+	SecretThreshold int `json:"secretThreshold,omitempty"`
+
+	// How often to attempt to unseal the vault instance
+	RetryPeriodSeconds time.Duration `json:"retryPeriodSeconds,omitempty"`
+
+	// overwrite existing unseal keys and root tokens, possibly dangerous!
+	OverwriteExisting bool `json:"overwriteExisting,omitempty"`
+
+	// To skip tls verification when communicating with vault server
+	InsecureTLS bool `json:"insecureTLS,omitempty"`
+
+	// Secret name containing self signed ca cert of vault
+	VaultCASecret string `json:"vaultCASecret,omitempty"`
+
+	// should the root token be stored in the key store (default true)
+	StoreRootToken bool `json:"storeRootToken,omitempty"`
+
+	// mode contains unseal mechanism
+	Mode ModeSpec `json:"mode,omitempty"`
+}
+
+// ModeSPpec contain unseal mechanism
+type ModeSpec struct {
+	KubernetesSecret *KubernetesSecretSpec `json:"kubernetesSecret,omitempty"`
+}
+
+// KubernetesSecretSpec contain the fields that required to unseal using kubernetes secret
+type KubernetesSecretSpec struct {
+	SecretName string `json:"secretName"`
+}
+
 // TODO : use webhook?
 // SetDefaults sets the default values for the vault spec and returns true if the spec was changed
 func (v *VaultServer) SetDefaults() bool {
@@ -196,12 +239,5 @@ func (v *VaultServer) SetDefaults() bool {
 		vs.Version = defaultVersion
 		changed = true
 	}
-	/*if vs.TLS == nil {
-		vs.TLS = &TLSPolicy{Static: &StaticTLS{
-			ServerSecret: DefaultVaultServerTLSSecretName(v.Name),
-			ClientSecret: DefaultVaultClientTLSSecretName(v.Name),
-		}}
-		changed = true
-	}*/
 	return changed
 }

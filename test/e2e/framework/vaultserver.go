@@ -30,6 +30,13 @@ func (f *Invocation) VaultServer(node int32, bs api.BackendStorageSpec) *api.Vau
 	}
 }
 
+func (f *Invocation) VaultServerWithUnsealer(node int32, bs api.BackendStorageSpec, us api.UnsealerSpec) *api.VaultServer {
+	vs := f.VaultServer(node, bs)
+	vs.Spec.Unsealer = &us
+
+	return vs
+}
+
 func (f *Framework) CreateVaultServer(obj *api.VaultServer) (*api.VaultServer, error) {
 	return f.VaultServerClient.CoreV1alpha1().VaultServers(obj.Namespace).Create(obj)
 }

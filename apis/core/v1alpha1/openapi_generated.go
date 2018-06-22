@@ -38,7 +38,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 					Properties: map[string]spec.Schema{
 						"inmem": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.InmemSpec"),
+								Description: "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
+								Type:        []string{"boolean"},
+								Format:      "",
 							},
 						},
 						"etcd": {
@@ -50,7 +52,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kube-vault/operator/apis/core/v1alpha1.InmemSpec"},
+				"github.com/kube-vault/operator/apis/core/v1alpha1.EtcdSpec"},
 		},
 		"github.com/kube-vault/operator/apis/core/v1alpha1.EtcdSpec": {
 			Schema: spec.Schema{
@@ -118,14 +120,38 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			},
 			Dependencies: []string{},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.InmemSpec": {
+		"github.com/kube-vault/operator/apis/core/v1alpha1.KubernetesSecretSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
-					Description: "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
-					Properties:  map[string]spec.Schema{},
+					Description: "KubernetesSecretSpec contain the fields that required to unseal using kubernetes secret",
+					Properties: map[string]spec.Schema{
+						"secretName": {
+							SchemaProps: spec.SchemaProps{
+								Type:   []string{"string"},
+								Format: "",
+							},
+						},
+					},
+					Required: []string{"secretName"},
 				},
 			},
 			Dependencies: []string{},
+		},
+		"github.com/kube-vault/operator/apis/core/v1alpha1.ModeSpec": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "ModeSPpec contain unseal mechanism",
+					Properties: map[string]spec.Schema{
+						"kubernetesSecret": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.KubernetesSecretSpec"),
+							},
+						},
+					},
+				},
+			},
+			Dependencies: []string{
+				"github.com/kube-vault/operator/apis/core/v1alpha1.KubernetesSecretSpec"},
 		},
 		"github.com/kube-vault/operator/apis/core/v1alpha1.PodPolicy": {
 			Schema: spec.Schema{
@@ -183,6 +209,72 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			},
 			Dependencies: []string{
 				"github.com/kube-vault/operator/apis/core/v1alpha1.StaticTLS"},
+		},
+		"github.com/kube-vault/operator/apis/core/v1alpha1.UnsealerSpec": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "UnsealerSpec contain the configuration for auto vault initialize/unseal",
+					Properties: map[string]spec.Schema{
+						"secretShares": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Total count of secret shares that exist",
+								Type:        []string{"integer"},
+								Format:      "int32",
+							},
+						},
+						"secretThreshold": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Minimum required secret shares to unseal",
+								Type:        []string{"integer"},
+								Format:      "int32",
+							},
+						},
+						"retryPeriodSeconds": {
+							SchemaProps: spec.SchemaProps{
+								Description: "How often to attempt to unseal the vault instance",
+								Type:        []string{"integer"},
+								Format:      "int64",
+							},
+						},
+						"overwriteExisting": {
+							SchemaProps: spec.SchemaProps{
+								Description: "overwrite existing unseal keys and root tokens, possibly dangerous!",
+								Type:        []string{"boolean"},
+								Format:      "",
+							},
+						},
+						"insecureTLS": {
+							SchemaProps: spec.SchemaProps{
+								Description: "To skip tls verification when communicating with vault server",
+								Type:        []string{"boolean"},
+								Format:      "",
+							},
+						},
+						"vaultCASecret": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Secret name containing self signed ca cert of vault",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"storeRootToken": {
+							SchemaProps: spec.SchemaProps{
+								Description: "should the root token be stored in the key store (default true)",
+								Type:        []string{"boolean"},
+								Format:      "",
+							},
+						},
+						"mode": {
+							SchemaProps: spec.SchemaProps{
+								Description: "mode contains unseal mechanism",
+								Ref:         ref("github.com/kube-vault/operator/apis/core/v1alpha1.ModeSpec"),
+							},
+						},
+					},
+				},
+			},
+			Dependencies: []string{
+				"github.com/kube-vault/operator/apis/core/v1alpha1.ModeSpec"},
 		},
 		"github.com/kube-vault/operator/apis/core/v1alpha1.VaultServer": {
 			Schema: spec.Schema{
@@ -289,9 +381,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Format:      "",
 							},
 						},
-						"pod": {
+						"podPolicy": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Pod defines the policy for pods owned by vault operator. This field cannot be updated once the CR is created.",
+								Description: "PodPolicy defines the policy for pods owned by vault operator. This field cannot be updated once the CR is created.",
 								Ref:         ref("github.com/kube-vault/operator/apis/core/v1alpha1.PodPolicy"),
 							},
 						},
@@ -314,12 +406,18 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref:         ref("github.com/kube-vault/operator/apis/core/v1alpha1.BackendStorageSpec"),
 							},
 						},
+						"unsealer": {
+							SchemaProps: spec.SchemaProps{
+								Description: "unseal configuration for vault",
+								Ref:         ref("github.com/kube-vault/operator/apis/core/v1alpha1.UnsealerSpec"),
+							},
+						},
 					},
 					Required: []string{"baseImage", "version", "backendStorage"},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/core/v1alpha1.BackendStorageSpec", "github.com/kube-vault/operator/apis/core/v1alpha1.PodPolicy", "github.com/kube-vault/operator/apis/core/v1alpha1.TLSPolicy"},
+				"github.com/kube-vault/operator/apis/core/v1alpha1.BackendStorageSpec", "github.com/kube-vault/operator/apis/core/v1alpha1.PodPolicy", "github.com/kube-vault/operator/apis/core/v1alpha1.TLSPolicy", "github.com/kube-vault/operator/apis/core/v1alpha1.UnsealerSpec"},
 		},
 		"github.com/kube-vault/operator/apis/core/v1alpha1.VaultServerStatus": {
 			Schema: spec.Schema{
@@ -406,7 +504,21 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"sealed": {
 							SchemaProps: spec.SchemaProps{
-								Description: "PodNames of Sealed Vault nodes. Sealed nodes MUST be manually unsealed to become standby or leader.",
+								Description: "PodNames of Sealed Vault nodes. Sealed nodes MUST be unsealed to become standby or leader.",
+								Type:        []string{"array"},
+								Items: &spec.SchemaOrArray{
+									Schema: &spec.Schema{
+										SchemaProps: spec.SchemaProps{
+											Type:   []string{"string"},
+											Format: "",
+										},
+									},
+								},
+							},
+						},
+						"unsealed": {
+							SchemaProps: spec.SchemaProps{
+								Description: "PodNames of Unsealed Vault nodes.",
 								Type:        []string{"array"},
 								Items: &spec.SchemaOrArray{
 									Schema: &spec.Schema{

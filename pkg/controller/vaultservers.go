@@ -17,11 +17,14 @@ import (
 	api "github.com/kube-vault/operator/apis/core/v1alpha1"
 	"github.com/kube-vault/operator/client/clientset/versioned/scheme"
 	patchutil "github.com/kube-vault/operator/client/clientset/versioned/typed/core/v1alpha1/util"
-	"github.com/kube-vault/operator/pkg/util"
+	"github.com/kube-vault/operator/pkg/vault/storage"
+	"github.com/kube-vault/operator/pkg/vault/unsealer"
+	"github.com/kube-vault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	corev1 "k8s.io/api/core/v1"
+	rbac "k8s.io/api/rbac/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -264,7 +267,7 @@ func (c *VaultController) reconcileVault(v *api.VaultServer) error {
 }
 
 // DeployVault deploys a vault server.
-// DeployVault is a multi-steps process. It creates the deployment, the service and
+// DeployVault is a multi-steps process. It creates the deployment, the service, service account and
 // other related Kubernetes objects for Vault. Any intermediate step can fail.
 //
 // DeployVault is idempotent. If an object already exists, this function will ignore creating
@@ -275,15 +278,23 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 		glog.Infof("deployment '%s' already exists", v.Name)
 		return nil
 	}
+
+	saName, err := c.createVaultServiceAccount(v)
+	if err != nil {
+		return err
+	}
+
 	selector := util.LabelsForVault(v.GetName())
 
 	podTempl := corev1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   v.GetName(),
-			Labels: selector,
+			Name:      v.GetName(),
+			Labels:    selector,
+			Namespace: v.GetNamespace(),
 		},
 		Spec: corev1.PodSpec{
-			Containers: []corev1.Container{vaultContainer(v)},
+			Containers:         []corev1.Container{vaultContainer(v)},
+			ServiceAccountName: saName,
 			Volumes: []corev1.Volume{{
 				Name: VaultConfigVolumeName,
 				VolumeSource: corev1.VolumeSource{
@@ -297,13 +308,40 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 		},
 	}
 
-	if v.Spec.Pod != nil {
-		util.ApplyPodResourcePolicy(&podTempl.Spec, v.Spec.Pod)
+	// Add pod resource policy
+	if v.Spec.PodPolicy != nil {
+		util.ApplyPodResourcePolicy(&podTempl.Spec, v.Spec.PodPolicy)
 	}
 
 	configureVaultServerTLS(&podTempl)
 
-	configureVaultStorage(v, &podTempl)
+	storageSrv, err := storage.NewStorage(&v.Spec.BackendStorage)
+	if err != nil {
+		return errors.Wrap(err, "failed to create storage service for vault backend service")
+	}
+	// add environment variable, volume mount, etc for storage if required
+	err = storageSrv.Apply(&podTempl)
+	if err != nil {
+		return errors.Wrap(err, "failed to apply changes in pod template")
+	}
+
+	if v.Spec.Unsealer != nil {
+		// add vault unsealer as sidecar
+		unseal, err := unsealer.NewUnsealer(v.Spec.Unsealer)
+		err = unseal.AddContainer(&podTempl)
+		if err != nil {
+			return errors.Wrap(err, "failed to add unsealer container")
+		}
+
+		// get rbac roles
+		rbacRoles := unseal.GetRBAC(v.GetNamespace(), selector)
+
+		//create role and role binding
+		err = c.createRoleAndRoleBinding(v, rbacRoles, saName)
+		if err != nil {
+			return err
+		}
+	}
 
 	err = c.createVaultDeployment(v, &podTempl)
 	if err != nil {
@@ -314,71 +352,7 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 	if err != nil {
 		return err
 	}
-	return nil
-}
 
-// createVaultDeployment creates deployment for vault
-func (c *VaultController) createVaultDeployment(v *api.VaultServer, p *corev1.PodTemplateSpec) error {
-	selector := util.LabelsForVault(v.GetName())
-
-	d := &appsv1beta1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:   v.GetName(),
-			Labels: selector,
-		},
-		Spec: appsv1beta1.DeploymentSpec{
-			Replicas: &v.Spec.Nodes,
-			Selector: &metav1.LabelSelector{MatchLabels: selector},
-			Template: *p,
-			Strategy: appsv1beta1.DeploymentStrategy{
-				Type: appsv1beta1.RollingUpdateDeploymentStrategyType,
-				RollingUpdate: &appsv1beta1.RollingUpdateDeployment{
-					MaxUnavailable: func(a intstr.IntOrString) *intstr.IntOrString { return &a }(intstr.FromInt(1)),
-					MaxSurge:       func(a intstr.IntOrString) *intstr.IntOrString { return &a }(intstr.FromInt(1)),
-				},
-			},
-		},
-	}
-
-	util.AddOwnerRefToObject(d, util.AsOwner(v))
-	_, err := c.kubeClient.AppsV1beta1().Deployments(v.Namespace).Create(d)
-	if err != nil {
-		return errors.Wrap(err, "unable to create deployments for vault")
-	}
-	return nil
-}
-
-// createVaultService creates service for vault
-func (c *VaultController) createVaultService(v *api.VaultServer) error {
-	selector := util.LabelsForVault(v.GetName())
-
-	svc := &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:   v.Name,
-			Labels: selector,
-		},
-		Spec: corev1.ServiceSpec{
-			Selector: selector,
-			Ports: []corev1.ServicePort{
-				{
-					Name:     "vault-port",
-					Protocol: corev1.ProtocolTCP,
-					Port:     VaultPort,
-				},
-				{
-					Name:     "cluster-port",
-					Protocol: corev1.ProtocolTCP,
-					Port:     VaultClusterPort,
-				},
-			},
-		},
-	}
-
-	util.AddOwnerRefToObject(svc, util.AsOwner(v))
-	_, err := c.kubeClient.CoreV1().Services(v.Namespace).Create(svc)
-	if err != nil {
-		return errors.Wrap(err, "failed to create vault service")
-	}
 	return nil
 }
 
@@ -525,7 +499,12 @@ func (c *VaultController) prepareConfig(v *api.VaultServer) error {
 		cfgData = fmt.Sprintf("%s\n%s", cfgData, cm.Data[filepath.Base(util.VaultConfigFile)])
 	}
 
-	storageCfg, err := util.GetStorageConfig(&v.Spec.BackendStorage)
+	storageSrv, err := storage.NewStorage(&v.Spec.BackendStorage)
+	if err != nil {
+		return errors.Wrap(err, "failed to create storage service for vault backend service")
+	}
+
+	storageCfg, err := storageSrv.GetStorageConfig()
 	if err != nil {
 		return errors.Wrap(err, "create vault storage config failed")
 	}
@@ -547,6 +526,131 @@ func (c *VaultController) prepareConfig(v *api.VaultServer) error {
 		return errors.Wrapf(err, "create new configmap (%s) failed", cm.Name)
 	}
 
+	return nil
+}
+
+// createVaultDeployment creates deployment for vault
+func (c *VaultController) createVaultDeployment(v *api.VaultServer, p *corev1.PodTemplateSpec) error {
+	selector := util.LabelsForVault(v.GetName())
+
+	d := &appsv1beta1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   v.GetName(),
+			Labels: selector,
+		},
+		Spec: appsv1beta1.DeploymentSpec{
+			Replicas: &v.Spec.Nodes,
+			Selector: &metav1.LabelSelector{MatchLabels: selector},
+			Template: *p,
+			Strategy: appsv1beta1.DeploymentStrategy{
+				Type: appsv1beta1.RollingUpdateDeploymentStrategyType,
+				RollingUpdate: &appsv1beta1.RollingUpdateDeployment{
+					MaxUnavailable: func(a intstr.IntOrString) *intstr.IntOrString { return &a }(intstr.FromInt(1)),
+					MaxSurge:       func(a intstr.IntOrString) *intstr.IntOrString { return &a }(intstr.FromInt(1)),
+				},
+			},
+		},
+	}
+
+	util.AddOwnerRefToObject(d, util.AsOwner(v))
+	_, err := c.kubeClient.AppsV1beta1().Deployments(v.Namespace).Create(d)
+	if err != nil {
+		return errors.Wrap(err, "unable to create deployments for vault")
+	}
+	return nil
+}
+
+func (c *VaultController) createVaultServiceAccount(v *api.VaultServer) (string, error) {
+	selector := util.LabelsForVault(v.GetName())
+
+	sa := &corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      v.GetName(),
+			Namespace: v.GetNamespace(),
+			Labels:    selector,
+		},
+	}
+
+	util.AddOwnerRefToObject(sa, util.AsOwner(v))
+	_, err := c.kubeClient.CoreV1().ServiceAccounts(v.GetNamespace()).Create(sa)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create service account")
+	}
+
+	return sa.GetName(), nil
+}
+
+func (c *VaultController) createRoleAndRoleBinding(v *api.VaultServer, roles []rbac.Role, saName string) error {
+	selector := util.LabelsForVault(v.GetName())
+
+	for _, role := range roles {
+		roleBind := &rbac.RoleBinding{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      role.GetName(),
+				Namespace: v.GetNamespace(),
+				Labels:    selector,
+			},
+			RoleRef: rbac.RoleRef{
+				APIGroup: rbac.GroupName,
+				Kind:     "Role",
+				Name:     role.GetName(),
+			},
+			Subjects: []rbac.Subject{
+				{
+					Kind:      rbac.ServiceAccountKind,
+					Name:      saName,
+					Namespace: v.GetNamespace(),
+				},
+			},
+		}
+
+		util.AddOwnerRefToObject(role.GetObjectMeta(), util.AsOwner(v))
+		_, err := c.kubeClient.RbacV1().Roles(role.GetNamespace()).Create(&role)
+		if err != nil {
+			return errors.Wrapf(err, "failed to create rbac role(%s)", role.GetName())
+		}
+
+		util.AddOwnerRefToObject(roleBind.GetObjectMeta(), util.AsOwner(v))
+		_, err = c.kubeClient.RbacV1().RoleBindings(roleBind.GetNamespace()).Create(roleBind)
+		if err != nil {
+			return errors.Wrapf(err, "failed to create rbac role binding(%s)", roleBind.GetName())
+		}
+	}
+
+	return nil
+}
+
+// createVaultService creates service for vault
+func (c *VaultController) createVaultService(v *api.VaultServer) error {
+	selector := util.LabelsForVault(v.GetName())
+
+	svc := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   v.Name,
+			Labels: selector,
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: selector,
+			Ports: []corev1.ServicePort{
+				{
+					Name:     "vault-port",
+					Protocol: corev1.ProtocolTCP,
+					Port:     VaultPort,
+				},
+				{
+					Name:     "cluster-port",
+					Protocol: corev1.ProtocolTCP,
+					Port:     VaultClusterPort,
+				},
+			},
+		},
+	}
+
+	util.AddOwnerRefToObject(svc, util.AsOwner(v))
+	_, err := c.kubeClient.CoreV1().Services(v.Namespace).Create(svc)
+	if err != nil {
+		return errors.Wrap(err, "failed to create vault service")
+	}
 	return nil
 }
 
@@ -587,23 +691,6 @@ func vaultContainer(v *api.VaultServer) corev1.Container {
 			Name:          "cluster-port",
 			ContainerPort: int32(VaultClusterPort),
 		}},
-		LivenessProbe: &corev1.Probe{
-			Handler: corev1.Handler{
-				Exec: &corev1.ExecAction{
-					Command: []string{
-						"curl",
-						"--connect-timeout", "5",
-						"--max-time", "10",
-						"-k", "-s",
-						fmt.Sprintf("https://localhost:%d/v1/sys/health", VaultPort),
-					},
-				},
-			},
-			InitialDelaySeconds: 10,
-			TimeoutSeconds:      10,
-			PeriodSeconds:       60,
-			FailureThreshold:    3,
-		},
 		ReadinessProbe: &corev1.Probe{
 			Handler: corev1.Handler{
 				HTTPGet: &corev1.HTTPGetAction{
@@ -615,7 +702,7 @@ func vaultContainer(v *api.VaultServer) corev1.Container {
 			InitialDelaySeconds: 10,
 			TimeoutSeconds:      10,
 			PeriodSeconds:       10,
-			FailureThreshold:    3,
+			FailureThreshold:    5,
 		},
 	}
 }

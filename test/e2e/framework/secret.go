@@ -12,8 +12,20 @@ func (f *Framework) CreateSecret(obj core.Secret) error {
 	return err
 }
 
-func (f *Framework) DeleteSecret(meta metav1.ObjectMeta) error {
-	return f.KubeClient.CoreV1().Secrets(meta.Namespace).Delete(meta.Name, deleteInForeground())
+func (f *Framework) CreateSecretWithData(name,namespace string,data map[string][]byte) error {
+	sr := core.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:name,
+			Namespace:namespace,
+		},
+		Data: data,
+	}
+	err := f.CreateSecret(sr)
+	return err
+}
+
+func (f *Framework) DeleteSecret(name, namespace string) error {
+	return f.KubeClient.CoreV1().Secrets(namespace).Delete(name, deleteInForeground())
 }
 
 func (f *Framework) EventuallySecret(name, namespace string) GomegaAsyncAssertion {
