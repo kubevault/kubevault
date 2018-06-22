@@ -2,37 +2,50 @@ package: github.com/kube-vault/operator
 import:
 - package: github.com/appscode/go
   version: master
+- package: github.com/evanphx/json-patch
+  version: v3.0.0
+- package: github.com/go-openapi/spec
 - package: github.com/golang/glog
 - package: github.com/hashicorp/go-version
   repo: https://github.com/appscode/go-version.git
   version: master
   vcs: git
 - package: github.com/hashicorp/vault
-  version: v0.10.0
+  version: v0.10.3
 - package: github.com/jpillora/go-ogle-analytics
+- package: github.com/onsi/gomega
+  version: v1.4.0
+- package: github.com/pkg/errors
+  version: v0.8.0
 - package: github.com/spf13/afero
-  version: master
+  version: v1.1.1
 - package: github.com/spf13/cobra
-  version: master
+  version: v0.0.3
 - package: github.com/spf13/pflag
-  version: master
+  version: v1.0.1
 - package: k8s.io/api
   version: kubernetes-1.10.0
 - package: k8s.io/apiextensions-apiserver
   version: kubernetes-1.10.0
 - package: k8s.io/apimachinery
-  version: kubernetes-1.10.0
+  repo: https://github.com/pharmer/apimachinery.git
+  vcs: git
+  version: release-1.10
 - package: k8s.io/apiserver
   repo: https://github.com/tamalsaha/apiserver.git
   version: k-1.10
 - package: k8s.io/client-go
   version: v7.0.0
-- package: k8s.io/kubernetes
-  version: v1.10.0
 - package: k8s.io/kube-aggregator
   version: kubernetes-1.10.0
 - package: k8s.io/kube-openapi
   version: master
+- package: k8s.io/kubernetes
+  version: v1.10.0
+- package: github.com/appscode/kutil
+  version: release-7.0
+- package: github.com/appscode/kubernetes-webhook-util
+  version: release-7.0
 - package: github.com/openshift/api
   version: 09a4e3d50f1aae6613b1b86941ffb8bded21e674
 - package: github.com/openshift/client-go
@@ -43,13 +56,8 @@ import:
   version: release-3.10
 - package: github.com/mailru/easyjson
   version: 2f5df55504ebc322e4d52d34df6a1f5b503bf26d
-- package: github.com/prometheus/common
-  version: 3233b24a36715a2fe36d162260457857a56d672d
-- package: github.com/sirupsen/logrus
-  version: v1.0.3
-- package: github.com/cpuguy83/go-md2man
-  version: v1.0.4
-- package: github.com/appscode/kutil
-  version: release-7.0
-- package: github.com/appscode/kubernetes-webhook-util
-  version: release-7.0
+testImport:
+- package: github.com/onsi/ginkgo
+  version: v1.5.0
+- package: github.com/stretchr/testify
+  version: v1.2.2
