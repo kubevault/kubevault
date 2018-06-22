@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "github.com/kube-vault/operator/apis/extensions/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/apis/extensions/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -33,9 +33,9 @@ type FakeVaultSecrets struct {
 	ns   string
 }
 
-var vaultsecretsResource = schema.GroupVersionResource{Group: "extensions.kube-vault.com", Version: "v1alpha1", Resource: "vaultsecrets"}
+var vaultsecretsResource = schema.GroupVersionResource{Group: "extensions.kubevault.com", Version: "v1alpha1", Resource: "vaultsecrets"}
 
-var vaultsecretsKind = schema.GroupVersionKind{Group: "extensions.kube-vault.com", Version: "v1alpha1", Kind: "VaultSecret"}
+var vaultsecretsKind = schema.GroupVersionKind{Group: "extensions.kubevault.com", Version: "v1alpha1", Kind: "VaultSecret"}
 
 // Get takes name of the vaultSecret, and returns the corresponding vaultSecret object, and an error if there is any.
 func (c *FakeVaultSecrets) Get(name string, options v1.GetOptions) (result *v1alpha1.VaultSecret, err error) {

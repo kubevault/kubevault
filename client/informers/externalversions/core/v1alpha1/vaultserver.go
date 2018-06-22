@@ -21,10 +21,10 @@ package v1alpha1
 import (
 	time "time"
 
-	core_v1alpha1 "github.com/kube-vault/operator/apis/core/v1alpha1"
-	versioned "github.com/kube-vault/operator/client/clientset/versioned"
-	internalinterfaces "github.com/kube-vault/operator/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/kube-vault/operator/client/listers/core/v1alpha1"
+	core_v1alpha1 "github.com/kubevault/operator/apis/core/v1alpha1"
+	versioned "github.com/kubevault/operator/client/clientset/versioned"
+	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
+	v1alpha1 "github.com/kubevault/operator/client/listers/core/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"

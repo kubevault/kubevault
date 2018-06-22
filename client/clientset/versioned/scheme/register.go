@@ -19,8 +19,8 @@ limitations under the License.
 package scheme
 
 import (
-	corev1alpha1 "github.com/kube-vault/operator/apis/core/v1alpha1"
-	extensionsv1alpha1 "github.com/kube-vault/operator/apis/extensions/v1alpha1"
+	corev1alpha1 "github.com/kubevault/operator/apis/core/v1alpha1"
+	extensionsv1alpha1 "github.com/kubevault/operator/apis/extensions/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

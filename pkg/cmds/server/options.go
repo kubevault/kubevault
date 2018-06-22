@@ -6,9 +6,9 @@ import (
 
 	stringz "github.com/appscode/go/strings"
 	v "github.com/appscode/go/version"
-	cs "github.com/kube-vault/operator/client/clientset/versioned"
-	"github.com/kube-vault/operator/pkg/controller"
-	"github.com/kube-vault/operator/pkg/docker"
+	cs "github.com/kubevault/operator/client/clientset/versioned"
+	"github.com/kubevault/operator/pkg/controller"
+	"github.com/kubevault/operator/pkg/docker"
 	"github.com/spf13/pflag"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	"k8s.io/client-go/kubernetes"

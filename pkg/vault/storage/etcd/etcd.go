@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	api "github.com/kube-vault/operator/apis/core/v1alpha1"
-	"github.com/kube-vault/operator/pkg/vault/util"
+	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	"github.com/kubevault/operator/pkg/vault/util"
 	corev1 "k8s.io/api/core/v1"
 )
 

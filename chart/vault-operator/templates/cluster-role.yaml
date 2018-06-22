@@ -22,7 +22,7 @@ rules:
   - validatingwebhookconfigurations
   verbs: ["get","list"]
 - apiGroups:
-  - core.kube-vault.com
+  - core.kubevault.com
   resources: ["*"]
   verbs: ["*"]
 - apiGroups:

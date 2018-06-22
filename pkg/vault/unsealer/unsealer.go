@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"time"
 
-	api "github.com/kube-vault/operator/apis/core/v1alpha1"
-	"github.com/kube-vault/operator/pkg/vault/unsealer/google"
-	"github.com/kube-vault/operator/pkg/vault/unsealer/kubernetes"
+	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	"github.com/kubevault/operator/pkg/vault/unsealer/google"
+	"github.com/kubevault/operator/pkg/vault/unsealer/kubernetes"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"

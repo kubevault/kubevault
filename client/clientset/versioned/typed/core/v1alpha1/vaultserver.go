@@ -19,8 +19,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/kube-vault/operator/apis/core/v1alpha1"
-	scheme "github.com/kube-vault/operator/client/clientset/versioned/scheme"
+	v1alpha1 "github.com/kubevault/operator/apis/core/v1alpha1"
+	scheme "github.com/kubevault/operator/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"

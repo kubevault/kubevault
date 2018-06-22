@@ -12,7 +12,7 @@ import (
 func (c *VaultController) NewCronJobWebhook() hooks.AdmissionHook {
 	return webhook.NewWorkloadWebhook(
 		schema.GroupVersionResource{
-			Group:    "admission.core.kube-vault.com",
+			Group:    "admission.core.kubevault.com",
 			Version:  "v1alpha1",
 			Resource: "cronjobs",
 		},

@@ -213,13 +213,13 @@ if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
     # https://github.com/kubernetes/kubernetes/issues/60538
     if [ "$VAULT_OPERATOR_PURGE" -eq 1 ]; then
         for crd in "${crds[@]}"; do
-            pairs=($(kubectl get ${crd}.core.kube-vault.com --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name} {.metadata.namespace} {end}' || true))
+            pairs=($(kubectl get ${crd}.core.kubevault.com --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name} {.metadata.namespace} {end}' || true))
             total=${#pairs[*]}
 
             # save objects
             if [ $total -gt 0 ]; then
                 echo "dumping ${crd} objects into ${crd}.yaml"
-                kubectl get ${crd}.core.kube-vault.com --all-namespaces -o yaml > ${crd}.yaml
+                kubectl get ${crd}.core.kubevault.com --all-namespaces -o yaml > ${crd}.yaml
             fi
 
             for (( i=0; i<$total; i+=2 )); do
@@ -227,11 +227,11 @@ if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
                 namespace=${pairs[$i + 1]}
                 # delete crd object
                 echo "deleting ${crd} $namespace/$name"
-                kubectl delete ${crd}.core.kube-vault.com $name -n $namespace
+                kubectl delete ${crd}.core.kubevault.com $name -n $namespace
             done
 
             # delete crd
-            kubectl delete crd ${crd}.core.kube-vault.com || true
+            kubectl delete crd ${crd}.core.kubevault.com || true
         done
 
         echo "waiting 5 seconds ..."
@@ -319,12 +319,12 @@ $ONESSL wait-until-ready deployment vault-operator --namespace $VAULT_OPERATOR_N
 
 echo "waiting until Vault operator apiservice is available"
 for api in "${apiServices[@]}"; do
-    $ONESSL wait-until-ready apiservice ${api}.core.kube-vault.com || { echo "Vault operator apiservice $api failed to be ready"; exit 1; }
+    $ONESSL wait-until-ready apiservice ${api}.core.kubevault.com || { echo "Vault operator apiservice $api failed to be ready"; exit 1; }
 done
 
 echo "waiting until Vault operator crds are ready"
 for crd in "${crds[@]}"; do
-    $ONESSL wait-until-ready crd ${crd}.core.kube-vault.com || { echo "$crd crd failed to be ready"; exit 1; }
+    $ONESSL wait-until-ready crd ${crd}.core.kubevault.com || { echo "$crd crd failed to be ready"; exit 1; }
 done
 
 echo

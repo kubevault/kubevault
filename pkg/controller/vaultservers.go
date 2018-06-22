@@ -13,13 +13,13 @@ import (
 	"github.com/appscode/kutil/tools/certstore"
 	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
-	"github.com/kube-vault/operator/apis/core"
-	api "github.com/kube-vault/operator/apis/core/v1alpha1"
-	"github.com/kube-vault/operator/client/clientset/versioned/scheme"
-	patchutil "github.com/kube-vault/operator/client/clientset/versioned/typed/core/v1alpha1/util"
-	"github.com/kube-vault/operator/pkg/vault/storage"
-	"github.com/kube-vault/operator/pkg/vault/unsealer"
-	"github.com/kube-vault/operator/pkg/vault/util"
+	"github.com/kubevault/operator/apis/core"
+	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	"github.com/kubevault/operator/client/clientset/versioned/scheme"
+	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/core/v1alpha1/util"
+	"github.com/kubevault/operator/pkg/vault/storage"
+	"github.com/kubevault/operator/pkg/vault/unsealer"
+	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
@@ -50,7 +50,7 @@ const (
 func (c *VaultController) NewVaultServerWebhook() hooks.AdmissionHook {
 	return webhook.NewGenericWebhook(
 		schema.GroupVersionResource{
-			Group:    "admission.core.kube-vault.com",
+			Group:    "admission.core.kubevault.com",
 			Version:  "v1alpha1",
 			Resource: "vaultservers",
 		},

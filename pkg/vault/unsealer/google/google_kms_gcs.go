@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	api "github.com/kube-vault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/core/v1alpha1"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"

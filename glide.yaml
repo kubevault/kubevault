@@ -1,4 +1,4 @@
-package: github.com/kube-vault/operator
+package: github.com/kubevault/operator
 import:
 - package: github.com/appscode/go
   version: master

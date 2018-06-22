@@ -3,8 +3,8 @@ package vaultsecret
 import (
 	"fmt"
 
-	api "github.com/kube-vault/operator/apis/extensions/v1alpha1"
-	"github.com/kube-vault/operator/client/clientset/versioned"
+	api "github.com/kubevault/operator/apis/extensions/v1alpha1"
+	"github.com/kubevault/operator/client/clientset/versioned"
 	"github.com/pkg/errors"
 	metainternalversion "k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

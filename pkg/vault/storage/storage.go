@@ -1,10 +1,10 @@
 package storage
 
 import (
-	api "github.com/kube-vault/operator/apis/core/v1alpha1"
-	"github.com/kube-vault/operator/pkg/vault/storage/etcd"
-	"github.com/kube-vault/operator/pkg/vault/storage/gcs"
-	"github.com/kube-vault/operator/pkg/vault/storage/inmem"
+	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	"github.com/kubevault/operator/pkg/vault/storage/etcd"
+	"github.com/kubevault/operator/pkg/vault/storage/gcs"
+	"github.com/kubevault/operator/pkg/vault/storage/inmem"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 )

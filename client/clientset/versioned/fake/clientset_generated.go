@@ -19,11 +19,11 @@ limitations under the License.
 package fake
 
 import (
-	clientset "github.com/kube-vault/operator/client/clientset/versioned"
-	corev1alpha1 "github.com/kube-vault/operator/client/clientset/versioned/typed/core/v1alpha1"
-	fakecorev1alpha1 "github.com/kube-vault/operator/client/clientset/versioned/typed/core/v1alpha1/fake"
-	extensionsv1alpha1 "github.com/kube-vault/operator/client/clientset/versioned/typed/extensions/v1alpha1"
-	fakeextensionsv1alpha1 "github.com/kube-vault/operator/client/clientset/versioned/typed/extensions/v1alpha1/fake"
+	clientset "github.com/kubevault/operator/client/clientset/versioned"
+	corev1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/core/v1alpha1"
+	fakecorev1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/core/v1alpha1/fake"
+	extensionsv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/extensions/v1alpha1"
+	fakeextensionsv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/extensions/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"

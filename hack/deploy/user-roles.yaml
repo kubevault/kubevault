@@ -7,7 +7,7 @@ metadata:
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
 rules:
 - apiGroups:
-  - core.kube-vault.com
+  - core.kubevault.com
   resources:
   - vaultservers
   verbs:
@@ -28,7 +28,7 @@ metadata:
     rbac.authorization.k8s.io/aggregate-to-view: "true"
 rules:
 - apiGroups:
-  - core.kube-vault.com
+  - core.kubevault.com
   resources:
   - vaultservers
   verbs:

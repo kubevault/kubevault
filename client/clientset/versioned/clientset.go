@@ -20,8 +20,8 @@ package versioned
 
 import (
 	glog "github.com/golang/glog"
-	corev1alpha1 "github.com/kube-vault/operator/client/clientset/versioned/typed/core/v1alpha1"
-	extensionsv1alpha1 "github.com/kube-vault/operator/client/clientset/versioned/typed/extensions/v1alpha1"
+	corev1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/core/v1alpha1"
+	extensionsv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/extensions/v1alpha1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"

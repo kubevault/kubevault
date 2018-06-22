@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "github.com/kube-vault/operator/apis/core/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/apis/core/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -34,9 +34,9 @@ type FakeVaultServers struct {
 	ns   string
 }
 
-var vaultserversResource = schema.GroupVersionResource{Group: "core.kube-vault.com", Version: "v1alpha1", Resource: "vaultservers"}
+var vaultserversResource = schema.GroupVersionResource{Group: "core.kubevault.com", Version: "v1alpha1", Resource: "vaultservers"}
 
-var vaultserversKind = schema.GroupVersionKind{Group: "core.kube-vault.com", Version: "v1alpha1", Kind: "VaultServer"}
+var vaultserversKind = schema.GroupVersionKind{Group: "core.kubevault.com", Version: "v1alpha1", Kind: "VaultServer"}
 
 // Get takes name of the vaultServer, and returns the corresponding vaultServer object, and an error if there is any.
 func (c *FakeVaultServers) Get(name string, options v1.GetOptions) (result *v1alpha1.VaultServer, err error) {

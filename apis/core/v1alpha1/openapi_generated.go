@@ -31,7 +31,7 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/kube-vault/operator/apis/core/v1alpha1.BackendStorageSpec": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.BackendStorageSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Description: "BackendStorageSpec defines storage backend configuration of vault",
@@ -45,21 +45,21 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"etcd": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.EtcdSpec"),
+								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec"),
 							},
 						},
 						"gcs": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.GcsSpec"),
+								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec"),
 							},
 						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kube-vault/operator/apis/core/v1alpha1.GcsSpec"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec"},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.EtcdSpec": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html\n\nEtcdSpec defines configuration to set up etcd as backend storage in vault",
@@ -125,7 +125,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			},
 			Dependencies: []string{},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.GcsSpec": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html\n\nGcsSpec defines configuration to set up Google Cloud Storage as backend storage in vault",
@@ -171,7 +171,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			},
 			Dependencies: []string{},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Description: "GoogleKmsGcsSpec contain the fields that required to unseal vault",
@@ -224,7 +224,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			},
 			Dependencies: []string{},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.KubernetesSecretSpec": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.KubernetesSecretSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Description: "KubernetesSecretSpec contain the fields that required to unseal using kubernetes secret",
@@ -241,28 +241,28 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			},
 			Dependencies: []string{},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.ModeSpec": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.ModeSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Description: "ModeSPpec contain unseal mechanism",
 					Properties: map[string]spec.Schema{
 						"kubernetesSecret": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.KubernetesSecretSpec"),
+								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.KubernetesSecretSpec"),
 							},
 						},
 						"googleKmsGcs": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec"),
+								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec"),
 							},
 						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec", "github.com/kube-vault/operator/apis/core/v1alpha1.KubernetesSecretSpec"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.KubernetesSecretSpec"},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.PodPolicy": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.PodPolicy": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Description: "PodPolicy defines the policy for pods owned by vault operator.",
@@ -279,7 +279,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			Dependencies: []string{
 				"k8s.io/api/core/v1.ResourceRequirements"},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.StaticTLS": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.StaticTLS": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -302,7 +302,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			},
 			Dependencies: []string{},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.TLSPolicy": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.TLSPolicy": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Description: "TLSPolicy defines the TLS policy of the vault nodes",
@@ -310,16 +310,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						"static": {
 							SchemaProps: spec.SchemaProps{
 								Description: "StaticTLS enables user to use static x509 certificates and keys, by putting them into Kubernetes secrets, and specifying them here. If this is not set, operator will auto-gen TLS assets and secrets.",
-								Ref:         ref("github.com/kube-vault/operator/apis/core/v1alpha1.StaticTLS"),
+								Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.StaticTLS"),
 							},
 						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/core/v1alpha1.StaticTLS"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.StaticTLS"},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.UnsealerSpec": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.UnsealerSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Description: "UnsealerSpec contain the configuration for auto vault initialize/unseal",
@@ -376,16 +376,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						"mode": {
 							SchemaProps: spec.SchemaProps{
 								Description: "mode contains unseal mechanism",
-								Ref:         ref("github.com/kube-vault/operator/apis/core/v1alpha1.ModeSpec"),
+								Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.ModeSpec"),
 							},
 						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/core/v1alpha1.ModeSpec"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.ModeSpec"},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.VaultServer": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServer": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -410,21 +410,21 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"spec": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.VaultServerSpec"),
+								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.VaultServerSpec"),
 							},
 						},
 						"status": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.VaultServerStatus"),
+								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.VaultServerStatus"),
 							},
 						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/core/v1alpha1.VaultServerSpec", "github.com/kube-vault/operator/apis/core/v1alpha1.VaultServerStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerSpec", "github.com/kubevault/operator/apis/core/v1alpha1.VaultServerStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.VaultServerList": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerList": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -453,7 +453,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Items: &spec.SchemaOrArray{
 									Schema: &spec.Schema{
 										SchemaProps: spec.SchemaProps{
-											Ref: ref("github.com/kube-vault/operator/apis/core/v1alpha1.VaultServer"),
+											Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.VaultServer"),
 										},
 									},
 								},
@@ -463,9 +463,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/core/v1alpha1.VaultServer", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.VaultServer", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.VaultServerSpec": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -493,7 +493,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						"podPolicy": {
 							SchemaProps: spec.SchemaProps{
 								Description: "PodPolicy defines the policy for pods owned by vault operator. This field cannot be updated once the CR is created.",
-								Ref:         ref("github.com/kube-vault/operator/apis/core/v1alpha1.PodPolicy"),
+								Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.PodPolicy"),
 							},
 						},
 						"configMapName": {
@@ -506,19 +506,19 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						"TLS": {
 							SchemaProps: spec.SchemaProps{
 								Description: "TLS policy of vault nodes",
-								Ref:         ref("github.com/kube-vault/operator/apis/core/v1alpha1.TLSPolicy"),
+								Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.TLSPolicy"),
 							},
 						},
 						"backendStorage": {
 							SchemaProps: spec.SchemaProps{
 								Description: "backend storage configuration for vault",
-								Ref:         ref("github.com/kube-vault/operator/apis/core/v1alpha1.BackendStorageSpec"),
+								Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.BackendStorageSpec"),
 							},
 						},
 						"unsealer": {
 							SchemaProps: spec.SchemaProps{
 								Description: "unseal configuration for vault",
-								Ref:         ref("github.com/kube-vault/operator/apis/core/v1alpha1.UnsealerSpec"),
+								Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.UnsealerSpec"),
 							},
 						},
 					},
@@ -526,9 +526,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/core/v1alpha1.BackendStorageSpec", "github.com/kube-vault/operator/apis/core/v1alpha1.PodPolicy", "github.com/kube-vault/operator/apis/core/v1alpha1.TLSPolicy", "github.com/kube-vault/operator/apis/core/v1alpha1.UnsealerSpec"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.BackendStorageSpec", "github.com/kubevault/operator/apis/core/v1alpha1.PodPolicy", "github.com/kubevault/operator/apis/core/v1alpha1.TLSPolicy", "github.com/kubevault/operator/apis/core/v1alpha1.UnsealerSpec"},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.VaultServerStatus": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerStatus": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -563,7 +563,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						"vaultStatus": {
 							SchemaProps: spec.SchemaProps{
 								Description: "VaultStatus is the set of Vault node specific statuses: Active, Standby, and Sealed",
-								Ref:         ref("github.com/kube-vault/operator/apis/core/v1alpha1.VaultStatus"),
+								Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.VaultStatus"),
 							},
 						},
 						"updatedNodes": {
@@ -584,9 +584,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/core/v1alpha1.VaultStatus"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.VaultStatus"},
 		},
-		"github.com/kube-vault/operator/apis/core/v1alpha1.VaultStatus": {
+		"github.com/kubevault/operator/apis/core/v1alpha1.VaultStatus": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{

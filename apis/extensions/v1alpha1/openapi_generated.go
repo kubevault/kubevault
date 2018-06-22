@@ -31,7 +31,7 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/kube-vault/operator/apis/extensions/v1alpha1.VaultSecret": {
+		"github.com/kubevault/operator/apis/extensions/v1alpha1.VaultSecret": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -69,16 +69,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"status": {
 							SchemaProps: spec.SchemaProps{
-								Ref: ref("github.com/kube-vault/operator/apis/extensions/v1alpha1.VaultSecretStatus"),
+								Ref: ref("github.com/kubevault/operator/apis/extensions/v1alpha1.VaultSecretStatus"),
 							},
 						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/extensions/v1alpha1.VaultSecretStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+				"github.com/kubevault/operator/apis/extensions/v1alpha1.VaultSecretStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 		},
-		"github.com/kube-vault/operator/apis/extensions/v1alpha1.VaultSecretList": {
+		"github.com/kubevault/operator/apis/extensions/v1alpha1.VaultSecretList": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{
@@ -107,7 +107,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Items: &spec.SchemaOrArray{
 									Schema: &spec.Schema{
 										SchemaProps: spec.SchemaProps{
-											Ref: ref("github.com/kube-vault/operator/apis/extensions/v1alpha1.VaultSecret"),
+											Ref: ref("github.com/kubevault/operator/apis/extensions/v1alpha1.VaultSecret"),
 										},
 									},
 								},
@@ -117,9 +117,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 				},
 			},
 			Dependencies: []string{
-				"github.com/kube-vault/operator/apis/extensions/v1alpha1.VaultSecret", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+				"github.com/kubevault/operator/apis/extensions/v1alpha1.VaultSecret", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 		},
-		"github.com/kube-vault/operator/apis/extensions/v1alpha1.VaultSecretStatus": {
+		"github.com/kubevault/operator/apis/extensions/v1alpha1.VaultSecretStatus": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
 					Properties: map[string]spec.Schema{

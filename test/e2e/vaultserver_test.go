@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"math/rand"
 
-	api "github.com/kube-vault/operator/apis/core/v1alpha1"
-	"github.com/kube-vault/operator/pkg/controller"
-	"github.com/kube-vault/operator/pkg/vault/util"
-	"github.com/kube-vault/operator/test/e2e/framework"
+	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	"github.com/kubevault/operator/pkg/controller"
+	"github.com/kubevault/operator/pkg/vault/util"
+	"github.com/kubevault/operator/test/e2e/framework"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -26,7 +26,7 @@ const (
 
 var _ = Describe("VaultServer", func() {
 	var (
-		f  *framework.Invocation
+		f *framework.Invocation
 		// vs *api.VaultServer
 	)
 
@@ -286,11 +286,11 @@ var _ = Describe("VaultServer", func() {
 			})
 
 			It("should update replica number to 1", func() {
-				shouldUpdateVaultServerReplica(1,vs)
+				shouldUpdateVaultServerReplica(1, vs)
 			})
 
 			It("should update replica number to 5", func() {
-				shouldUpdateVaultServerReplica(4,vs)
+				shouldUpdateVaultServerReplica(4, vs)
 			})
 		})
 	})
@@ -299,7 +299,7 @@ var _ = Describe("VaultServer", func() {
 		Context("using inmem as backend", func() {
 			var (
 				err error
-				vs *api.VaultServer
+				vs  *api.VaultServer
 			)
 
 			BeforeEach(func() {
@@ -349,7 +349,7 @@ var _ = Describe("VaultServer", func() {
 		Context("using inmem as backend", func() {
 			var (
 				err error
-				vs *api.VaultServer
+				vs  *api.VaultServer
 			)
 
 			BeforeEach(func() {
@@ -382,7 +382,7 @@ var _ = Describe("VaultServer", func() {
 
 	Describe("Vault unsealer using kubernetes secret", func() {
 		var (
-			vs *api.VaultServer
+			vs     *api.VaultServer
 			unseal *api.UnsealerSpec
 		)
 
@@ -392,9 +392,9 @@ var _ = Describe("VaultServer", func() {
 
 		BeforeEach(func() {
 			unseal = &api.UnsealerSpec{
-				SecretShares: 4,
+				SecretShares:    4,
 				SecretThreshold: 2,
-				InsecureTLS: true,
+				InsecureTLS:     true,
 				Mode: api.ModeSpec{
 					KubernetesSecret: &api.KubernetesSecretSpec{
 						SecretName: secretName,
@@ -405,7 +405,7 @@ var _ = Describe("VaultServer", func() {
 
 		AfterEach(func() {
 			f.DeleteVaultServer(vs.ObjectMeta)
-			err :=f.DeleteSecret(secretName, vs.Namespace)
+			err := f.DeleteSecret(secretName, vs.Namespace)
 			Expect(err).NotTo(HaveOccurred())
 
 			checkForVaultServerDeleted(vs.Name, vs.Namespace)
@@ -465,23 +465,23 @@ var _ = Describe("VaultServer", func() {
 			BeforeEach(func() {
 				gcs := api.BackendStorageSpec{
 					Gcs: &api.GcsSpec{
-						Bucket: "vault-test-bucket",
+						Bucket:         "vault-test-bucket",
 						CredentialPath: os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"),
 					},
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares: 4,
+					SecretShares:    4,
 					SecretThreshold: 2,
-					InsecureTLS: true,
+					InsecureTLS:     true,
 					Mode: api.ModeSpec{
 						GoogleKmsGcs: &api.GoogleKmsGcsSpec{
-							Bucket: "vault-test-bucket",
+							Bucket:         "vault-test-bucket",
 							CredentialPath: os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"),
-							KmsCryptoKey: "vault-init",
-							KmsKeyRing: "vault-key-ring",
-							KmsLocation: "global",
-							KmsProject: "tigerworks-kube",
+							KmsCryptoKey:   "vault-init",
+							KmsKeyRing:     "vault-key-ring",
+							KmsLocation:    "global",
+							KmsProject:     "tigerworks-kube",
 						},
 					},
 				}

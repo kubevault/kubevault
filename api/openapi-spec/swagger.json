@@ -44,7 +44,7 @@
         }
       }
     },
-    "/apis/core.kube-vault.com/": {
+    "/apis/core.kubevault.com/": {
       "get": {
         "description": "get information of a group",
         "consumes": [
@@ -61,9 +61,9 @@
           "https"
         ],
         "tags": [
-          "coreKubeVaultCom"
+          "coreKubevaultCom"
         ],
-        "operationId": "getCoreKubeVaultComAPIGroup",
+        "operationId": "getCoreKubevaultComAPIGroup",
         "responses": {
           "200": {
             "description": "OK",
@@ -74,7 +74,7 @@
         }
       }
     },
-    "/apis/core.kube-vault.com/v1alpha1/": {
+    "/apis/core.kubevault.com/v1alpha1/": {
       "get": {
         "description": "get available resources",
         "consumes": [
@@ -91,9 +91,9 @@
           "https"
         ],
         "tags": [
-          "coreKubeVaultCom_v1alpha1"
+          "coreKubevaultCom_v1alpha1"
         ],
-        "operationId": "getCoreKubeVaultComV1alpha1APIResources",
+        "operationId": "getCoreKubevaultComV1alpha1APIResources",
         "responses": {
           "200": {
             "description": "OK",
@@ -104,7 +104,7 @@
         }
       }
     },
-    "/apis/core.kube-vault.com/v1alpha1/namespaces/{namespace}/vaultservers": {
+    "/apis/core.kubevault.com/v1alpha1/namespaces/{namespace}/vaultservers": {
       "get": {
         "description": "list or watch objects of kind VaultServer",
         "consumes": [
@@ -121,9 +121,9 @@
           "https"
         ],
         "tags": [
-          "coreKubeVaultCom_v1alpha1"
+          "coreKubevaultCom_v1alpha1"
         ],
-        "operationId": "listCoreKubeVaultComV1alpha1NamespacedVaultServer",
+        "operationId": "listCoreKubevaultComV1alpha1NamespacedVaultServer",
         "parameters": [
           {
             "uniqueItems": true,
@@ -186,13 +186,13 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServerList"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServerList"
             }
           }
         },
         "x-kubernetes-action": "list",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -211,16 +211,16 @@
           "https"
         ],
         "tags": [
-          "coreKubeVaultCom_v1alpha1"
+          "coreKubevaultCom_v1alpha1"
         ],
-        "operationId": "createCoreKubeVaultComV1alpha1NamespacedVaultServer",
+        "operationId": "createCoreKubevaultComV1alpha1NamespacedVaultServer",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
             }
           }
         ],
@@ -228,25 +228,25 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
             }
           },
           "201": {
             "description": "Created",
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
             }
           },
           "202": {
             "description": "Accepted",
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
             }
           }
         },
         "x-kubernetes-action": "post",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -265,9 +265,9 @@
           "https"
         ],
         "tags": [
-          "coreKubeVaultCom_v1alpha1"
+          "coreKubevaultCom_v1alpha1"
         ],
-        "operationId": "deleteCoreKubeVaultComV1alpha1CollectionNamespacedVaultServer",
+        "operationId": "deleteCoreKubevaultComV1alpha1CollectionNamespacedVaultServer",
         "parameters": [
           {
             "uniqueItems": true,
@@ -336,7 +336,7 @@
         },
         "x-kubernetes-action": "deletecollection",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -359,7 +359,7 @@
         }
       ]
     },
-    "/apis/core.kube-vault.com/v1alpha1/namespaces/{namespace}/vaultservers/{name}": {
+    "/apis/core.kubevault.com/v1alpha1/namespaces/{namespace}/vaultservers/{name}": {
       "get": {
         "description": "read the specified VaultServer",
         "consumes": [
@@ -374,20 +374,20 @@
           "https"
         ],
         "tags": [
-          "coreKubeVaultCom_v1alpha1"
+          "coreKubevaultCom_v1alpha1"
         ],
-        "operationId": "readCoreKubeVaultComV1alpha1NamespacedVaultServer",
+        "operationId": "readCoreKubevaultComV1alpha1NamespacedVaultServer",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
             }
           }
         },
         "x-kubernetes-action": "get",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -406,16 +406,16 @@
           "https"
         ],
         "tags": [
-          "coreKubeVaultCom_v1alpha1"
+          "coreKubevaultCom_v1alpha1"
         ],
-        "operationId": "replaceCoreKubeVaultComV1alpha1NamespacedVaultServer",
+        "operationId": "replaceCoreKubevaultComV1alpha1NamespacedVaultServer",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
             }
           }
         ],
@@ -423,19 +423,19 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
             }
           },
           "201": {
             "description": "Created",
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
             }
           }
         },
         "x-kubernetes-action": "put",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -454,9 +454,9 @@
           "https"
         ],
         "tags": [
-          "coreKubeVaultCom_v1alpha1"
+          "coreKubevaultCom_v1alpha1"
         ],
-        "operationId": "deleteCoreKubeVaultComV1alpha1NamespacedVaultServer",
+        "operationId": "deleteCoreKubevaultComV1alpha1NamespacedVaultServer",
         "parameters": [
           {
             "name": "body",
@@ -498,7 +498,7 @@
         },
         "x-kubernetes-action": "delete",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -519,9 +519,9 @@
           "https"
         ],
         "tags": [
-          "coreKubeVaultCom_v1alpha1"
+          "coreKubevaultCom_v1alpha1"
         ],
-        "operationId": "patchCoreKubeVaultComV1alpha1NamespacedVaultServer",
+        "operationId": "patchCoreKubevaultComV1alpha1NamespacedVaultServer",
         "parameters": [
           {
             "name": "body",
@@ -536,13 +536,13 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
             }
           }
         },
         "x-kubernetes-action": "patch",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -573,7 +573,7 @@
         }
       ]
     },
-    "/apis/core.kube-vault.com/v1alpha1/vaultservers": {
+    "/apis/core.kubevault.com/v1alpha1/vaultservers": {
       "get": {
         "description": "list or watch objects of kind VaultServer",
         "consumes": [
@@ -590,20 +590,20 @@
           "https"
         ],
         "tags": [
-          "coreKubeVaultCom_v1alpha1"
+          "coreKubevaultCom_v1alpha1"
         ],
-        "operationId": "listCoreKubeVaultComV1alpha1VaultServerForAllNamespaces",
+        "operationId": "listCoreKubevaultComV1alpha1VaultServerForAllNamespaces",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServerList"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServerList"
             }
           }
         },
         "x-kubernetes-action": "list",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -674,7 +674,7 @@
         }
       ]
     },
-    "/apis/core.kube-vault.com/v1alpha1/watch/namespaces/{namespace}/vaultservers": {
+    "/apis/core.kubevault.com/v1alpha1/watch/namespaces/{namespace}/vaultservers": {
       "get": {
         "description": "watch individual changes to a list of VaultServer",
         "consumes": [
@@ -691,9 +691,9 @@
           "https"
         ],
         "tags": [
-          "coreKubeVaultCom_v1alpha1"
+          "coreKubevaultCom_v1alpha1"
         ],
-        "operationId": "watchCoreKubeVaultComV1alpha1NamespacedVaultServerList",
+        "operationId": "watchCoreKubevaultComV1alpha1NamespacedVaultServerList",
         "responses": {
           "200": {
             "description": "OK",
@@ -704,7 +704,7 @@
         },
         "x-kubernetes-action": "watchlist",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -783,7 +783,7 @@
         }
       ]
     },
-    "/apis/core.kube-vault.com/v1alpha1/watch/namespaces/{namespace}/vaultservers/{name}": {
+    "/apis/core.kubevault.com/v1alpha1/watch/namespaces/{namespace}/vaultservers/{name}": {
       "get": {
         "description": "watch changes to an object of kind VaultServer",
         "consumes": [
@@ -800,9 +800,9 @@
           "https"
         ],
         "tags": [
-          "coreKubeVaultCom_v1alpha1"
+          "coreKubevaultCom_v1alpha1"
         ],
-        "operationId": "watchCoreKubeVaultComV1alpha1NamespacedVaultServer",
+        "operationId": "watchCoreKubevaultComV1alpha1NamespacedVaultServer",
         "responses": {
           "200": {
             "description": "OK",
@@ -813,7 +813,7 @@
         },
         "x-kubernetes-action": "watch",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -900,7 +900,7 @@
         }
       ]
     },
-    "/apis/core.kube-vault.com/v1alpha1/watch/vaultservers": {
+    "/apis/core.kubevault.com/v1alpha1/watch/vaultservers": {
       "get": {
         "description": "watch individual changes to a list of VaultServer",
         "consumes": [
@@ -917,9 +917,9 @@
           "https"
         ],
         "tags": [
-          "coreKubeVaultCom_v1alpha1"
+          "coreKubevaultCom_v1alpha1"
         ],
-        "operationId": "watchCoreKubeVaultComV1alpha1VaultServerListForAllNamespaces",
+        "operationId": "watchCoreKubevaultComV1alpha1VaultServerListForAllNamespaces",
         "responses": {
           "200": {
             "description": "OK",
@@ -930,7 +930,7 @@
         },
         "x-kubernetes-action": "watchlist",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -1001,7 +1001,7 @@
         }
       ]
     },
-    "/apis/extensions.kube-vault.com/": {
+    "/apis/extensions.kubevault.com/": {
       "get": {
         "description": "get information of a group",
         "consumes": [
@@ -1018,9 +1018,9 @@
           "https"
         ],
         "tags": [
-          "extensionsKubeVaultCom"
+          "extensionsKubevaultCom"
         ],
-        "operationId": "getExtensionsKubeVaultComAPIGroup",
+        "operationId": "getExtensionsKubevaultComAPIGroup",
         "responses": {
           "200": {
             "description": "OK",
@@ -1031,7 +1031,7 @@
         }
       }
     },
-    "/apis/extensions.kube-vault.com/v1alpha1/": {
+    "/apis/extensions.kubevault.com/v1alpha1/": {
       "get": {
         "description": "get available resources",
         "consumes": [
@@ -1048,9 +1048,9 @@
           "https"
         ],
         "tags": [
-          "extensionsKubeVaultCom_v1alpha1"
+          "extensionsKubevaultCom_v1alpha1"
         ],
-        "operationId": "getExtensionsKubeVaultComV1alpha1APIResources",
+        "operationId": "getExtensionsKubevaultComV1alpha1APIResources",
         "responses": {
           "200": {
             "description": "OK",
@@ -1061,7 +1061,7 @@
         }
       }
     },
-    "/apis/extensions.kube-vault.com/v1alpha1/namespaces/{namespace}/vaultsecrets": {
+    "/apis/extensions.kubevault.com/v1alpha1/namespaces/{namespace}/vaultsecrets": {
       "get": {
         "description": "list objects of kind VaultSecret",
         "consumes": [
@@ -1078,20 +1078,20 @@
           "https"
         ],
         "tags": [
-          "extensionsKubeVaultCom_v1alpha1"
+          "extensionsKubevaultCom_v1alpha1"
         ],
-        "operationId": "listExtensionsKubeVaultComV1alpha1NamespacedVaultSecret",
+        "operationId": "listExtensionsKubevaultComV1alpha1NamespacedVaultSecret",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.extensions.v1alpha1.VaultSecretList"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecretList"
             }
           }
         },
         "x-kubernetes-action": "list",
         "x-kubernetes-group-version-kind": {
-          "group": "extensions.kube-vault.com",
+          "group": "extensions.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultSecret"
         }
@@ -1170,7 +1170,7 @@
         }
       ]
     },
-    "/apis/extensions.kube-vault.com/v1alpha1/namespaces/{namespace}/vaultsecrets/{name}": {
+    "/apis/extensions.kubevault.com/v1alpha1/namespaces/{namespace}/vaultsecrets/{name}": {
       "get": {
         "description": "read the specified VaultSecret",
         "consumes": [
@@ -1185,20 +1185,20 @@
           "https"
         ],
         "tags": [
-          "extensionsKubeVaultCom_v1alpha1"
+          "extensionsKubevaultCom_v1alpha1"
         ],
-        "operationId": "readExtensionsKubeVaultComV1alpha1NamespacedVaultSecret",
+        "operationId": "readExtensionsKubevaultComV1alpha1NamespacedVaultSecret",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.extensions.v1alpha1.VaultSecret"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecret"
             }
           }
         },
         "x-kubernetes-action": "get",
         "x-kubernetes-group-version-kind": {
-          "group": "extensions.kube-vault.com",
+          "group": "extensions.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultSecret"
         }
@@ -1217,9 +1217,9 @@
           "https"
         ],
         "tags": [
-          "extensionsKubeVaultCom_v1alpha1"
+          "extensionsKubevaultCom_v1alpha1"
         ],
-        "operationId": "deleteExtensionsKubeVaultComV1alpha1NamespacedVaultSecret",
+        "operationId": "deleteExtensionsKubevaultComV1alpha1NamespacedVaultSecret",
         "parameters": [
           {
             "name": "body",
@@ -1261,7 +1261,7 @@
         },
         "x-kubernetes-action": "delete",
         "x-kubernetes-group-version-kind": {
-          "group": "extensions.kube-vault.com",
+          "group": "extensions.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultSecret"
         }
@@ -1292,7 +1292,7 @@
         }
       ]
     },
-    "/apis/extensions.kube-vault.com/v1alpha1/vaultsecrets": {
+    "/apis/extensions.kubevault.com/v1alpha1/vaultsecrets": {
       "get": {
         "description": "list objects of kind VaultSecret",
         "consumes": [
@@ -1309,20 +1309,20 @@
           "https"
         ],
         "tags": [
-          "extensionsKubeVaultCom_v1alpha1"
+          "extensionsKubevaultCom_v1alpha1"
         ],
-        "operationId": "listExtensionsKubeVaultComV1alpha1VaultSecretForAllNamespaces",
+        "operationId": "listExtensionsKubevaultComV1alpha1VaultSecretForAllNamespaces",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kube-vault.operator.apis.extensions.v1alpha1.VaultSecretList"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecretList"
             }
           }
         },
         "x-kubernetes-action": "list",
         "x-kubernetes-group-version-kind": {
-          "group": "extensions.kube-vault.com",
+          "group": "extensions.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultSecret"
         }
@@ -1395,14 +1395,14 @@
     }
   },
   "definitions": {
-    "com.github.kube-vault.operator.apis.core.v1alpha1.BackendStorageSpec": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.BackendStorageSpec": {
       "description": "BackendStorageSpec defines storage backend configuration of vault",
       "properties": {
         "etcd": {
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.EtcdSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.EtcdSpec"
         },
         "gcs": {
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.GcsSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.GcsSpec"
         },
         "inmem": {
           "description": "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
@@ -1410,7 +1410,7 @@
         }
       }
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.EtcdSpec": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.EtcdSpec": {
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html\n\nEtcdSpec defines configuration to set up etcd as backend storage in vault",
       "properties": {
         "address": {
@@ -1447,7 +1447,7 @@
         }
       }
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.GcsSpec": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.GcsSpec": {
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html\n\nGcsSpec defines configuration to set up Google Cloud Storage as backend storage in vault",
       "required": [
         "bucket"
@@ -1476,7 +1476,7 @@
         }
       }
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.GoogleKmsGcsSpec": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.GoogleKmsGcsSpec": {
       "description": "GoogleKmsGcsSpec contain the fields that required to unseal vault",
       "required": [
         "kmsCryptoKey",
@@ -1512,7 +1512,7 @@
         }
       }
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.KubernetesSecretSpec": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.KubernetesSecretSpec": {
       "description": "KubernetesSecretSpec contain the fields that required to unseal using kubernetes secret",
       "required": [
         "secretName"
@@ -1523,18 +1523,18 @@
         }
       }
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.ModeSpec": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.ModeSpec": {
       "description": "ModeSPpec contain unseal mechanism",
       "properties": {
         "googleKmsGcs": {
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.GoogleKmsGcsSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.GoogleKmsGcsSpec"
         },
         "kubernetesSecret": {
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.KubernetesSecretSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.KubernetesSecretSpec"
         }
       }
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.PodPolicy": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.PodPolicy": {
       "description": "PodPolicy defines the policy for pods owned by vault operator.",
       "properties": {
         "resources": {
@@ -1543,7 +1543,7 @@
         }
       }
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.StaticTLS": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.StaticTLS": {
       "properties": {
         "clientSecret": {
           "description": "ClientSecret is the secret containing the CA certificate that will be used to verify the above server certificate The ca secret should contain one file: vault-client-ca.crt",
@@ -1555,16 +1555,16 @@
         }
       }
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.TLSPolicy": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.TLSPolicy": {
       "description": "TLSPolicy defines the TLS policy of the vault nodes",
       "properties": {
         "static": {
           "description": "StaticTLS enables user to use static x509 certificates and keys, by putting them into Kubernetes secrets, and specifying them here. If this is not set, operator will auto-gen TLS assets and secrets.",
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.StaticTLS"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.StaticTLS"
         }
       }
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.UnsealerSpec": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.UnsealerSpec": {
       "description": "UnsealerSpec contain the configuration for auto vault initialize/unseal",
       "properties": {
         "insecureTLS": {
@@ -1573,7 +1573,7 @@
         },
         "mode": {
           "description": "mode contains unseal mechanism",
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.ModeSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.ModeSpec"
         },
         "overwriteExisting": {
           "description": "overwrite existing unseal keys and root tokens, possibly dangerous!",
@@ -1604,7 +1604,7 @@
         }
       }
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.VaultServer": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.VaultServer": {
       "properties": {
         "apiVersion": {
           "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
@@ -1618,21 +1618,21 @@
           "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta"
         },
         "spec": {
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServerSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServerSpec"
         },
         "status": {
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServerStatus"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServerStatus"
         }
       },
       "x-kubernetes-group-version-kind": [
         {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
       ]
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.VaultServerList": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.VaultServerList": {
       "properties": {
         "apiVersion": {
           "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
@@ -1641,7 +1641,7 @@
         "items": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultServer"
+            "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
           }
         },
         "kind": {
@@ -1654,13 +1654,13 @@
       },
       "x-kubernetes-group-version-kind": [
         {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServerList"
         }
       ]
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.VaultServerSpec": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.VaultServerSpec": {
       "required": [
         "baseImage",
         "version",
@@ -1669,11 +1669,11 @@
       "properties": {
         "TLS": {
           "description": "TLS policy of vault nodes",
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.TLSPolicy"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.TLSPolicy"
         },
         "backendStorage": {
           "description": "backend storage configuration for vault",
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.BackendStorageSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.BackendStorageSpec"
         },
         "baseImage": {
           "description": "Base image to use for a Vault deployment.",
@@ -1690,11 +1690,11 @@
         },
         "podPolicy": {
           "description": "PodPolicy defines the policy for pods owned by vault operator. This field cannot be updated once the CR is created.",
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.PodPolicy"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.PodPolicy"
         },
         "unsealer": {
           "description": "unseal configuration for vault",
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.UnsealerSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.UnsealerSpec"
         },
         "version": {
           "description": "Version of Vault to be deployed.",
@@ -1702,7 +1702,7 @@
         }
       }
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.VaultServerStatus": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.VaultServerStatus": {
       "properties": {
         "clientPort": {
           "description": "ClientPort is the port for vault client to access. It's the same on client LB service and vault nodes.",
@@ -1730,11 +1730,11 @@
         },
         "vaultStatus": {
           "description": "VaultStatus is the set of Vault node specific statuses: Active, Standby, and Sealed",
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.VaultStatus"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultStatus"
         }
       }
     },
-    "com.github.kube-vault.operator.apis.core.v1alpha1.VaultStatus": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.VaultStatus": {
       "properties": {
         "active": {
           "description": "PodName of the active Vault node. Active node is unsealed. Only active node can serve requests. Vault service only points to the active node.",
@@ -1763,7 +1763,7 @@
         }
       }
     },
-    "com.github.kube-vault.operator.apis.extensions.v1alpha1.VaultSecret": {
+    "com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecret": {
       "properties": {
         "apiVersion": {
           "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
@@ -1784,18 +1784,18 @@
           "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta"
         },
         "status": {
-          "$ref": "#/definitions/com.github.kube-vault.operator.apis.extensions.v1alpha1.VaultSecretStatus"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecretStatus"
         }
       },
       "x-kubernetes-group-version-kind": [
         {
-          "group": "extensions.kube-vault.com",
+          "group": "extensions.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultSecret"
         }
       ]
     },
-    "com.github.kube-vault.operator.apis.extensions.v1alpha1.VaultSecretList": {
+    "com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecretList": {
       "properties": {
         "apiVersion": {
           "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
@@ -1804,7 +1804,7 @@
         "items": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/com.github.kube-vault.operator.apis.extensions.v1alpha1.VaultSecret"
+            "$ref": "#/definitions/com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecret"
           }
         },
         "kind": {
@@ -1817,13 +1817,13 @@
       },
       "x-kubernetes-group-version-kind": [
         {
-          "group": "extensions.kube-vault.com",
+          "group": "extensions.kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultSecretList"
         }
       ]
     },
-    "com.github.kube-vault.operator.apis.extensions.v1alpha1.VaultSecretStatus": {
+    "com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecretStatus": {
       "required": [
         "tree",
         "paths",
@@ -2085,12 +2085,12 @@
           "kind": "DeleteOptions"
         },
         {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "DeleteOptions"
         },
         {
-          "group": "extensions.kube-vault.com",
+          "group": "extensions.kubevault.com",
           "version": "v1alpha1",
           "kind": "DeleteOptions"
         }
@@ -2357,7 +2357,7 @@
           "kind": "Status"
         },
         {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "Status"
         }
@@ -2439,12 +2439,12 @@
           "kind": "WatchEvent"
         },
         {
-          "group": "core.kube-vault.com",
+          "group": "core.kubevault.com",
           "version": "v1alpha1",
           "kind": "WatchEvent"
         },
         {
-          "group": "extensions.kube-vault.com",
+          "group": "extensions.kubevault.com",
           "version": "v1alpha1",
           "kind": "WatchEvent"
         }

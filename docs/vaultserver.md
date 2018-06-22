@@ -3,7 +3,7 @@
 Vault operator will deploy vault according to `VaultServer` CRD specification.
 
 ```yaml
-apiVersion: "core.kube-vault.com/v1alpha1"
+apiVersion: "core.kubevault.com/v1alpha1"
 kind: "VaultServer"
 metadata:
   name: <name>
@@ -16,7 +16,7 @@ status:
 
 VaultServer Spec contains the configuration about how to deploy vault in kubernetes cluster. 
 ```yaml
-apiVersion: "core.kube-vault.com/v1alpha1"
+apiVersion: "core.kubevault.com/v1alpha1"
 kind: "VaultServer"
 metadata:
   name: <name>
@@ -158,7 +158,7 @@ BackendStorage Spec contains the information for vault storage backend. Vault op
     - **haEnabled** (bool) : Specifies if high availability mode is enabled.
 
 ### Unsealer Spec
-Vault operator use [kube-vault/unsealer](https://github.com/kube-vault/unsealer) to unseal vault. Unsealer spec contains the informations that used in unsealer to unseal vault.
+Vault operator use [kubevault/unsealer](https://github.com/kubevault/unsealer) to unseal vault. Unsealer spec contains the informations that used in unsealer to unseal vault.
 
 ```yaml
 spec:
