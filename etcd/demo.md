@@ -222,6 +222,8 @@ status:
 
 ```
 
+Vault operator create an service with same name as vault server. In this example, vault can be accessed using `my-vault` service.
+
 Check vault is unsealed:
 ```console
 $ kubectl port-forward my-vault-f99498d45-2fdmm 8200:8200
