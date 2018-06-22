@@ -153,6 +153,7 @@ type BackendStorageSpec struct {
 	// ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html
 	Inmem bool      `json:"inmem,omitempty"`
 	Etcd  *EtcdSpec `json:"etcd,omitempty"`
+	Gcs   *GcsSpec  `json:"gcs,omitempty"`
 }
 
 // TODO : set defaults and validation
@@ -185,6 +186,27 @@ type EtcdSpec struct {
 	TLSSecretName string `json:"tlsSecretName,omitempty"`
 }
 
+// vault doc: https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html
+//
+// GcsSpec defines configuration to set up Google Cloud Storage as backend storage in vault
+type GcsSpec struct {
+	// Specifies the name of the bucket to use for storage.
+	Bucket string `json:"bucket"`
+
+	// Specifies the maximum size (in kilobytes) to send in a single request. If set to 0,
+	// it will attempt to send the whole object at once, but will not retry any failures.
+	ChunkSize string `json:"chunkSize,omitempty"`
+
+	//  Specifies the maximum number of parallel operations to take place.
+	MaxParallel int `json:"maxParallet,omitempty"`
+
+	// Specifies if high availability mode is enabled.
+	HAEnabled bool `json:"haEnabled,omitempty"`
+
+	// Google application credential path
+	CredentialPath string `json:"credentialPath,omitempty"`
+}
+
 // UnsealerSpec contain the configuration for auto vault initialize/unseal
 type UnsealerSpec struct {
 	// Total count of secret shares that exist
@@ -215,11 +237,33 @@ type UnsealerSpec struct {
 // ModeSPpec contain unseal mechanism
 type ModeSpec struct {
 	KubernetesSecret *KubernetesSecretSpec `json:"kubernetesSecret,omitempty"`
+	GoogleKmsGcs     *GoogleKmsGcsSpec     `json:"googleKmsGcs,omitempty"`
 }
 
 // KubernetesSecretSpec contain the fields that required to unseal using kubernetes secret
 type KubernetesSecretSpec struct {
 	SecretName string `json:"secretName"`
+}
+
+// GoogleKmsGcsSpec contain the fields that required to unseal vault
+type GoogleKmsGcsSpec struct {
+	// The name of the Google Cloud KMS crypto key to use
+	KmsCryptoKey string `json:"kmsCryptoKey"`
+
+	// The name of the Google Cloud KMS key ring to use
+	KmsKeyRing string `json:"kmsKeyRing"`
+
+	// The Google Cloud KMS location to use (eg. 'global', 'europe-west1')
+	KmsLocation string `json:"kmsLocation"`
+
+	// The Google Cloud KMS project to use
+	KmsProject string `json:"kmsProject"`
+
+	// The name of the Google Cloud Storage bucket to store values in
+	Bucket string `json:"bucket"`
+
+	// Google application credential path
+	CredentialPath string `json:"credentialPath,omitempty"`
 }
 
 // TODO : use webhook?

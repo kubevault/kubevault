@@ -1,11 +1,11 @@
 package etcd
 
 import (
+	"fmt"
 	"testing"
 
 	api "github.com/kube-vault/operator/apis/core/v1alpha1"
 	"github.com/stretchr/testify/assert"
-	"fmt"
 )
 
 func TestGetEtcdConfig(t *testing.T) {

@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	corev1 "k8s.io/api/core/v1"
+	rbac "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
@@ -539,6 +540,159 @@ func TestSyncUpgrade(t *testing.T) {
 			} else {
 				assert.Nil(t, err)
 			}
+		})
+	}
+}
+
+func TestCreateRoleAndRoleBinding(t *testing.T) {
+	vaultCtrl := VaultController{
+		kubeClient: kfake.NewSimpleClientset(),
+	}
+
+	demoRole := rbac.Role{
+		Rules: []rbac.PolicyRule{
+			{
+				APIGroups: []string{corev1.GroupName},
+				Resources: []string{"secret"},
+				Verbs:     []string{"*"},
+			},
+		},
+	}
+
+	vs := &api.VaultServer{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "try",
+			Namespace: "default",
+		},
+	}
+
+	testData := []struct {
+		testName           string
+		preCreatedRole     []rbac.Role
+		roles              []rbac.Role
+		expectErr          bool
+		expectRoles        []string
+		expectRoleBindings []string
+	}{
+		{
+			"create 2 rbac role and rolebinding",
+			nil,
+			[]rbac.Role{
+				func(r *rbac.Role) rbac.Role { r.SetName("test1"); r.SetNamespace(vs.Namespace); return *r }(&demoRole),
+				func(r *rbac.Role) rbac.Role { r.SetName("test2"); r.SetNamespace(vs.Namespace); return *r }(&demoRole),
+			},
+			false,
+			[]string{"test1", "test2"},
+			[]string{"test1", "test2"},
+		},
+		{
+			"create 1 rbac role and rolebinding, but role already exists",
+			[]rbac.Role{
+				func(r *rbac.Role) rbac.Role { r.SetName("test3"); r.SetNamespace(vs.Namespace); return *r }(&demoRole),
+			},
+			[]rbac.Role{
+				func(r *rbac.Role) rbac.Role { r.SetName("test3"); r.SetNamespace(vs.Namespace); return *r }(&demoRole),
+			},
+			false,
+			[]string{"test3"},
+			[]string{"test3"},
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.testName, func(t *testing.T) {
+			for _, r := range test.preCreatedRole {
+				_, err := vaultCtrl.kubeClient.RbacV1().Roles(vs.Namespace).Create(&r)
+				assert.Nil(t, err)
+			}
+
+			err := vaultCtrl.createRoleAndRoleBinding(vs, test.roles, "try")
+			if test.expectErr {
+				assert.NotNil(t, err)
+			} else {
+				assert.Nil(t, err)
+			}
+
+			for _, r := range test.expectRoles {
+				_, err := vaultCtrl.kubeClient.RbacV1().Roles(vs.Namespace).Get(r, metav1.GetOptions{})
+				assert.Nil(t, err, fmt.Sprintf("role(%s) should exists", r))
+			}
+
+			for _, rb := range test.expectRoleBindings {
+				_, err := vaultCtrl.kubeClient.RbacV1().RoleBindings(vs.Namespace).Get(rb, metav1.GetOptions{})
+				assert.Nil(t, err, fmt.Sprintf("rolebinding (%s) should exists", rb))
+			}
+		})
+	}
+}
+
+func TestCreateSecret(t *testing.T) {
+	vaultCtrl := VaultController{
+		kubeClient: kfake.NewSimpleClientset(),
+	}
+
+	demoSecret := corev1.Secret{
+		Data: map[string][]byte{
+			"test": []byte("secret"),
+		},
+	}
+
+	vs := &api.VaultServer{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "try",
+			Namespace: "default",
+		},
+	}
+
+	testData := []struct {
+		testName         string
+		preCreatedSecret []corev1.Secret
+		secrets          []corev1.Secret
+		expectErr        bool
+		expectSecrets    []string
+	}{
+		{
+			"create 2 secret",
+			nil,
+			[]corev1.Secret{
+				func(r *corev1.Secret) corev1.Secret { r.SetName("test1"); r.SetNamespace(vs.Namespace); return *r }(&demoSecret),
+				func(r *corev1.Secret) corev1.Secret { r.SetName("test2"); r.SetNamespace(vs.Namespace); return *r }(&demoSecret),
+			},
+			false,
+			[]string{"test1", "test2"},
+		},
+		{
+			"create 1 secret, but secret already exist",
+			[]corev1.Secret{
+				func(r *corev1.Secret) corev1.Secret { r.SetName("test3"); r.SetNamespace(vs.Namespace); return *r }(&demoSecret),
+			},
+			[]corev1.Secret{
+				func(r *corev1.Secret) corev1.Secret { r.SetName("test3"); r.SetNamespace(vs.Namespace); return *r }(&demoSecret),
+			},
+			false,
+			[]string{"test3"},
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.testName, func(t *testing.T) {
+			for _, s := range test.preCreatedSecret {
+				_, err := vaultCtrl.kubeClient.CoreV1().Secrets(vs.Namespace).Create(&s)
+				assert.Nil(t, err)
+			}
+
+			err := vaultCtrl.createSecret(vs, test.secrets, "")
+			if test.expectErr {
+				assert.NotNil(t, err)
+			} else {
+				assert.Nil(t, err)
+			}
+
+			for _, s := range test.expectSecrets {
+				_, err := vaultCtrl.kubeClient.CoreV1().Secrets(vs.Namespace).Get(s, metav1.GetOptions{})
+				assert.Nil(t, err, fmt.Sprintf("secret(%s) should exists", s))
+			}
+
 		})
 	}
 }

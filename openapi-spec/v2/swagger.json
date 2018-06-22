@@ -1401,6 +1401,9 @@
         "etcd": {
           "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.EtcdSpec"
         },
+        "gcs": {
+          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.GcsSpec"
+        },
         "inmem": {
           "description": "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
           "type": "boolean"
@@ -1444,6 +1447,71 @@
         }
       }
     },
+    "com.github.kube-vault.operator.apis.core.v1alpha1.GcsSpec": {
+      "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html\n\nGcsSpec defines configuration to set up Google Cloud Storage as backend storage in vault",
+      "required": [
+        "bucket"
+      ],
+      "properties": {
+        "bucket": {
+          "description": "Specifies the name of the bucket to use for storage.",
+          "type": "string"
+        },
+        "chunkSize": {
+          "description": "Specifies the maximum size (in kilobytes) to send in a single request. If set to 0, it will attempt to send the whole object at once, but will not retry any failures.",
+          "type": "string"
+        },
+        "credentialPath": {
+          "description": "Google application credential path",
+          "type": "string"
+        },
+        "haEnabled": {
+          "description": "Specifies if high availability mode is enabled.",
+          "type": "boolean"
+        },
+        "maxParallet": {
+          "description": "\n Specifies the maximum number of parallel operations to take place.",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "com.github.kube-vault.operator.apis.core.v1alpha1.GoogleKmsGcsSpec": {
+      "description": "GoogleKmsGcsSpec contain the fields that required to unseal vault",
+      "required": [
+        "kmsCryptoKey",
+        "kmsKeyRing",
+        "kmsLocation",
+        "kmsProject",
+        "bucket"
+      ],
+      "properties": {
+        "bucket": {
+          "description": "The name of the Google Cloud Storage bucket to store values in",
+          "type": "string"
+        },
+        "credentialPath": {
+          "description": "Google application credential path",
+          "type": "string"
+        },
+        "kmsCryptoKey": {
+          "description": "The name of the Google Cloud KMS crypto key to use",
+          "type": "string"
+        },
+        "kmsKeyRing": {
+          "description": "The name of the Google Cloud KMS key ring to use",
+          "type": "string"
+        },
+        "kmsLocation": {
+          "description": "The Google Cloud KMS location to use (eg. 'global', 'europe-west1')",
+          "type": "string"
+        },
+        "kmsProject": {
+          "description": "The Google Cloud KMS project to use",
+          "type": "string"
+        }
+      }
+    },
     "com.github.kube-vault.operator.apis.core.v1alpha1.KubernetesSecretSpec": {
       "description": "KubernetesSecretSpec contain the fields that required to unseal using kubernetes secret",
       "required": [
@@ -1458,6 +1526,9 @@
     "com.github.kube-vault.operator.apis.core.v1alpha1.ModeSpec": {
       "description": "ModeSPpec contain unseal mechanism",
       "properties": {
+        "googleKmsGcs": {
+          "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.GoogleKmsGcsSpec"
+        },
         "kubernetesSecret": {
           "$ref": "#/definitions/com.github.kube-vault.operator.apis.core.v1alpha1.KubernetesSecretSpec"
         }

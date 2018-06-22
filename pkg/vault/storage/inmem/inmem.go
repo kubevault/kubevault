@@ -19,6 +19,10 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 	return nil
 }
 
+func (o *Options) GetSecrets(namespace string) ([]corev1.Secret, error) {
+	return nil, nil
+}
+
 // GetStorageConfig will create storage config for inmem backend
 func (o *Options) GetStorageConfig() (string, error) {
 	return inmenStorage, nil
