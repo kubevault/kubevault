@@ -1,16 +1,16 @@
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: admission.core.kubevault.com
+  name: admission.kubevault.com
   labels:
     app: vault-operator
 webhooks:
-- name: deployment.admission.core.kubevault.com
+- name: deployment.admission.kubevault.com
   clientConfig:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/admission.core.kubevault.com/v1alpha1/deployments
+      path: /apis/admission.kubevault.com/v1alpha1/deployments
     caBundle: ${KUBE_CA}
   rules:
   - operations:
@@ -24,12 +24,12 @@ webhooks:
     resources:
     - deployments
   failurePolicy: Fail
-- name: daemonset.admission.core.kubevault.com
+- name: daemonset.admission.kubevault.com
   clientConfig:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/admission.core.kubevault.com/v1alpha1/daemonsets
+      path: /apis/admission.kubevault.com/v1alpha1/daemonsets
     caBundle: ${KUBE_CA}
   rules:
   - operations:
@@ -43,12 +43,12 @@ webhooks:
     resources:
     - daemonsets
   failurePolicy: Fail
-- name: statefulset.admission.core.kubevault.com
+- name: statefulset.admission.kubevault.com
   clientConfig:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/admission.core.kubevault.com/v1alpha1/statefulsets
+      path: /apis/admission.kubevault.com/v1alpha1/statefulsets
     caBundle: ${KUBE_CA}
   rules:
   - operations:
@@ -60,12 +60,12 @@ webhooks:
     resources:
     - statefulsets
   failurePolicy: Fail
-- name: replicationcontroller.admission.core.kubevault.com
+- name: replicationcontroller.admission.kubevault.com
   clientConfig:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/admission.core.kubevault.com/v1alpha1/replicationcontrollers
+      path: /apis/admission.kubevault.com/v1alpha1/replicationcontrollers
     caBundle: ${KUBE_CA}
   rules:
   - operations:
@@ -78,12 +78,12 @@ webhooks:
     resources:
     - replicationcontrollers
   failurePolicy: Fail
-- name: replicaset.admission.core.kubevault.com
+- name: replicaset.admission.kubevault.com
   clientConfig:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/admission.core.kubevault.com/v1alpha1/replicasets
+      path: /apis/admission.kubevault.com/v1alpha1/replicasets
     caBundle: ${KUBE_CA}
   rules:
   - operations:
@@ -97,12 +97,12 @@ webhooks:
     resources:
     - replicasets
   failurePolicy: Fail
-- name: job.admission.core.kubevault.com
+- name: job.admission.kubevault.com
   clientConfig:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/admission.core.kubevault.com/v1alpha1/jobs
+      path: /apis/admission.kubevault.com/v1alpha1/jobs
     caBundle: ${KUBE_CA}
   rules:
   - operations:
@@ -115,12 +115,12 @@ webhooks:
     resources:
     - jobs
   failurePolicy: Fail
-- name: cronjob.admission.core.kubevault.com
+- name: cronjob.admission.kubevault.com
   clientConfig:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/admission.core.kubevault.com/v1alpha1/cronjobs
+      path: /apis/admission.kubevault.com/v1alpha1/cronjobs
     caBundle: ${KUBE_CA}
   rules:
   - operations:
