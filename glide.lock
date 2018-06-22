@@ -1,5 +1,5 @@
-hash: e66741716f3edb06d1320e89099352075530be86f3ee020000943dd7c97dbbb0
-updated: 2018-05-30T07:05:17.463874151-07:00
+hash: ec0933ccf15cbd11afe4be65b1c382098ebe3f61655a292f2d38557388280563
+updated: 2018-06-21T19:56:22.536708691-07:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -9,7 +9,7 @@ imports:
   - compute/metadata
   - internal
 - name: github.com/appscode/go
-  version: 230e0e4622c682b5d117db8c28a66404ed874ed5
+  version: 578091d435e848d79527d8b911fdf1dd5423b227
   subpackages:
   - analytics
   - context
@@ -25,7 +25,7 @@ imports:
   - types
   - version
 - name: github.com/appscode/jsonpatch
-  version: 58a38a46ddb591a543c6b1003213353e29331c5a
+  version: 1359b374de83fa14fd58ab10aa8ea4935f84d249
 - name: github.com/appscode/kubernetes-webhook-util
   version: 5a1b68c81878cdb4e07a7b5dbdbb6c88e7f5fa04
   subpackages:
@@ -38,7 +38,7 @@ imports:
   - registry/admissionreview/v1beta1
   - runtime/serializer/versioning
 - name: github.com/appscode/kutil
-  version: 43cdfcf0dd17b42a24bcec48e51c5a96210c76fc
+  version: 85abe6c009de4b732e5963cb1ec82950efd2fdda
   subpackages:
   - apiextensions/v1beta1
   - apps/v1beta1
@@ -181,7 +181,7 @@ imports:
 - name: github.com/emicklei/go-restful-swagger12
   version: dcef7f55730566d41eae5db10e7d6981829720f6
 - name: github.com/evanphx/json-patch
-  version: 944e07253867aacae43c04b2e6a239005443f33a
+  version: afac545df32f2287a079e2dfb7ba2745a643747e
 - name: github.com/ghodss/yaml
   version: 73d445a93680fa1a78ae23a5839bad48f32ba1ee
 - name: github.com/go-openapi/jsonpointer
@@ -206,11 +206,13 @@ imports:
 - name: github.com/golang/protobuf
   version: 1643683e1b54a9e88ad26d98f81400c8c9d9f4f9
   subpackages:
+  - jsonpb
   - proto
   - protoc-gen-go/descriptor
   - ptypes
   - ptypes/any
   - ptypes/duration
+  - ptypes/struct
   - ptypes/timestamp
 - name: github.com/golang/snappy
   version: d9eb7a3d35ec988b8585d4a0068e462c27d28380
@@ -246,8 +248,12 @@ imports:
   version: d5fe4b57a186c716b0e00b8c301cbd9b4182694d
 - name: github.com/hashicorp/go-multierror
   version: b7773ae218740a7be65057fc60b366a49b538a44
+- name: github.com/hashicorp/go-retryablehttp
+  version: 3b087ef2d313afe6c55b2f511d20db04ca767075
 - name: github.com/hashicorp/go-rootcerts
   version: 6bb64b370b90e7ef1fa532be9e591a81c3493e00
+- name: github.com/hashicorp/go-sockaddr
+  version: 6d291a969b86c4b633730bfc6b8b9d64c3aafed9
 - name: github.com/hashicorp/go-version
   version: 53932f80ddea12bea96be074f9fb2dc545806aba
   repo: https://github.com/appscode/go-version.git
@@ -268,10 +274,11 @@ imports:
   - json/scanner
   - json/token
 - name: github.com/hashicorp/vault
-  version: 5dd7f25f5c4b541f2da62d70075b6f82771a650d
+  version: 533003e27840d9646cb4e7d23b3a113895da1dd0
   subpackages:
   - api
   - helper/compressutil
+  - helper/hclutil
   - helper/jsonutil
   - helper/parseutil
   - helper/strutil
@@ -302,7 +309,7 @@ imports:
 - name: github.com/NYTimes/gziphandler
   version: 56545f4a5d46df9a6648819d1664c3a03a13ffdb
 - name: github.com/onsi/gomega
-  version: dcabb60a477c2b6f456df65037cb6708210fbb02
+  version: 62bff4df71bdbc266561a0caee19f0594b17c240
   subpackages:
   - format
   - internal/assertion
@@ -348,7 +355,7 @@ imports:
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: 3233b24a36715a2fe36d162260457857a56d672d
+  version: 13ba4ddd0caa9c28ca7b7bffe1dfa9ed8d5ef207
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
@@ -369,14 +376,10 @@ imports:
   version: 97b2266dfe4bd4ea1b81a463322f04f8b724801e
   subpackages:
   - diffmatchpatch
-- name: github.com/sethgrid/pester
-  version: 03e26c9abbbf5accb8349790bf9f41bde09d72c3
 - name: github.com/shurcooL/sanitized_anchor_name
   version: 10ef21a441db47d8b13ebcc5fd2310f636973c77
-- name: github.com/sirupsen/logrus
-  version: f006c2ac4710855cf0f916dd6b77acf6b048dc6e
 - name: github.com/spf13/afero
-  version: 63644898a8da0bc22138abf860edaf5277b6102e
+  version: 787d034dfe70e44075ccc060d346146ef53270ad
   subpackages:
   - mem
 - name: github.com/spf13/cobra
@@ -424,7 +427,7 @@ imports:
   - jws
   - jwt
 - name: golang.org/x/sys
-  version: bb24a47a89eac6c1227fbcb2ae37a8b9ed323366
+  version: 95c6576299259db960f6c5b9b69ea52422860fce
   subpackages:
   - unix
   - windows
@@ -541,7 +544,9 @@ imports:
   - pkg/client/clientset/clientset/typed/apiextensions/v1beta1
   - pkg/features
 - name: k8s.io/apimachinery
-  version: 302974c03f7e50f16561ba237db776ab93594ef6
+  version: 2d462cff08891d952e216b5372464180933fc26c
+  repo: https://github.com/pharmer/apimachinery.git
+  vcs: git
   subpackages:
   - pkg/api/equality
   - pkg/api/errors
@@ -867,7 +872,7 @@ imports:
   - pkg/client/clientset_generated/clientset/typed/apiregistration/v1
   - pkg/client/clientset_generated/clientset/typed/apiregistration/v1beta1
 - name: k8s.io/kube-openapi
-  version: 98b5c3f6a62e3f879d7017752989c925732b6c7d
+  version: 91cfa479c814065e420cee7ed227db0f63a5854e
   subpackages:
   - pkg/builder
   - pkg/common
@@ -911,7 +916,7 @@ imports:
   - pkg/util/pointer
 testImports:
 - name: github.com/onsi/ginkgo
-  version: 11459a886d9cd66b319dac7ef1e917ee221372c9
+  version: fa5fabab2a1bfbd924faf4c067d07ae414e2aedf
   subpackages:
   - config
   - internal/codelocation
@@ -935,6 +940,6 @@ testImports:
   subpackages:
   - difflib
 - name: github.com/stretchr/testify
-  version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
+  version: f35b8ab0b5a2cef36673838d662e249dd9c94686
   subpackages:
   - assert
