@@ -56,12 +56,12 @@ func generateSwaggerJson() {
 		Scheme:   Scheme,
 		Codecs:   Codecs,
 		Info: spec.InfoProps{
-			Title:   "Vault",
+			Title:   "KubeVault",
 			Version: "v0.1.0",
 			Contact: &spec.ContactInfo{
 				Name:  "AppsCode Inc.",
 				URL:   "https://appscode.com",
-				Email: "hello@appscode.com",
+				Email: "kubevault@appscode.com",
 			},
 			License: &spec.License{
 				Name: "Apache 2.0",
