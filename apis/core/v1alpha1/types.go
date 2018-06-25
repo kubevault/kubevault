@@ -154,6 +154,7 @@ type BackendStorageSpec struct {
 	Inmem bool      `json:"inmem,omitempty"`
 	Etcd  *EtcdSpec `json:"etcd,omitempty"`
 	Gcs   *GcsSpec  `json:"gcs,omitempty"`
+	S3    *S3Spec   `json:"s3,omitempty"`
 }
 
 // TODO : set defaults and validation
@@ -198,13 +199,42 @@ type GcsSpec struct {
 	ChunkSize string `json:"chunkSize,omitempty"`
 
 	//  Specifies the maximum number of parallel operations to take place.
-	MaxParallel int `json:"maxParallet,omitempty"`
+	MaxParallel int `json:"maxParallel,omitempty"`
 
 	// Specifies if high availability mode is enabled.
 	HAEnabled bool `json:"haEnabled,omitempty"`
 
 	// Google application credential path
 	CredentialPath string `json:"credentialPath,omitempty"`
+}
+
+// vault doc: https://www.vaultproject.io/docs/configuration/storage/s3.html
+//
+// S3Spec defines configuration to set up Amazon S3 Storage as backend storage in vault
+type S3Spec struct {
+	// Specifies the name of the bucket to use for storage.
+	Bucket string `json:"bucket"`
+
+	// Specifies an alternative, AWS compatible, S3 endpoint.
+	EndPoint string `json:"endPoint,omitempty"`
+
+	// Specifies the AWS region
+	Region string `json:"region,omitempty"`
+
+	// Specifies the secret name containing AWS access key and AWS secret key
+	CredentialSecret string `json:"credentialSecret,omitempty"`
+
+	// Specifies the secret name containing AWS session token
+	SessionTokenSecret string `json:"sessionTokenSecret,omitempty"`
+
+	// Specifies the maximum number of parallel operations to take place.
+	MaxParallel int `json:"maxParallel,omitempty"`
+
+	// Specifies whether to use host bucket style domains with the configured endpoint.
+	S3ForcePathStyle bool `json:"s3ForcePathStyle,omitempty"`
+
+	// Specifies if SSL should be used for the endpoint connection
+	DisableSSL bool `json:"disableSSL,omitempty"`
 }
 
 // UnsealerSpec contain the configuration for auto vault initialize/unseal
@@ -234,10 +264,11 @@ type UnsealerSpec struct {
 	Mode ModeSpec `json:"mode,omitempty"`
 }
 
-// ModeSPpec contain unseal mechanism
+// ModeSpec contain unseal mechanism
 type ModeSpec struct {
 	KubernetesSecret *KubernetesSecretSpec `json:"kubernetesSecret,omitempty"`
 	GoogleKmsGcs     *GoogleKmsGcsSpec     `json:"googleKmsGcs,omitempty"`
+	AwsKmsSsm        *AwsKmsSsmSpec        `json:"awsKmsSsm,omitempty"`
 }
 
 // KubernetesSecretSpec contain the fields that required to unseal using kubernetes secret
@@ -245,7 +276,7 @@ type KubernetesSecretSpec struct {
 	SecretName string `json:"secretName"`
 }
 
-// GoogleKmsGcsSpec contain the fields that required to unseal vault
+// GoogleKmsGcsSpec contain the fields that required to unseal vault using google kms
 type GoogleKmsGcsSpec struct {
 	// The name of the Google Cloud KMS crypto key to use
 	KmsCryptoKey string `json:"kmsCryptoKey"`
@@ -264,6 +295,17 @@ type GoogleKmsGcsSpec struct {
 
 	// Google application credential path
 	CredentialPath string `json:"credentialPath,omitempty"`
+}
+
+// AwsKmsSsmSpec contain the fields that required to unseal vault using aws kms ssm
+type AwsKmsSsmSpec struct {
+	// The ID or ARN of the AWS KMS key to encrypt values
+	KmsKeyID string `json:"kmsKeyID"`
+
+	Region string `json:"region,omitempty"`
+
+	// Specifies the secret name containing AWS access key and AWS secret key
+	CredentialSecret string `json:"credentialSecret,omitempty"`
 }
 
 // TODO : use webhook?
