@@ -6,6 +6,7 @@ import (
 	"time"
 
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	"github.com/kubevault/operator/pkg/vault/unsealer/aws"
 	"github.com/kubevault/operator/pkg/vault/unsealer/google"
 	"github.com/kubevault/operator/pkg/vault/unsealer/kubernetes"
 	"github.com/pkg/errors"
@@ -29,6 +30,8 @@ func NewUnsealerService(s *api.UnsealerSpec) (UnsealerService, error) {
 		return kubernetes.NewOptions(*s.Mode.KubernetesSecret)
 	} else if s.Mode.GoogleKmsGcs != nil {
 		return google.NewOptions(*s.Mode.GoogleKmsGcs)
+	} else if s.Mode.AwsKmsSsm != nil {
+		return aws.NewOptions(*s.Mode.AwsKmsSsm)
 	} else {
 		return nil, errors.New("unsealer mode is not valid/defined")
 	}
@@ -57,7 +60,10 @@ func (u *Unsealer) AddContainer(pt *corev1.PodTemplateSpec) error {
 		Image: "nightfury1204/vault-unsealer:canary",
 	}
 
-	args = append(args, "run")
+	args = append(args,
+		"run",
+		"--v=3",
+	)
 
 	if u.SecretShares != 0 {
 		args = append(args, fmt.Sprintf("--secret-shares=%d", u.SecretShares))
@@ -79,6 +85,9 @@ func (u *Unsealer) AddContainer(pt *corev1.PodTemplateSpec) error {
 	}
 	if u.InsecureTLS == true {
 		args = append(args, fmt.Sprintf("--insecure-tls=true"))
+	}
+	if u.OverwriteExisting == true {
+		args = append(args, fmt.Sprintf("--overwrite-existing=true"))
 	}
 
 	if u.VaultCASecret != "" {

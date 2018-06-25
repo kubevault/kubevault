@@ -31,6 +31,37 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
+		"github.com/kubevault/operator/apis/core/v1alpha1.AwsKmsSsmSpec": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "AwsKmsSsmSpec contain the fields that required to unseal vault using aws kms ssm",
+					Properties: map[string]spec.Schema{
+						"kmsKeyID": {
+							SchemaProps: spec.SchemaProps{
+								Description: "The ID or ARN of the AWS KMS key to encrypt values",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"region": {
+							SchemaProps: spec.SchemaProps{
+								Type:   []string{"string"},
+								Format: "",
+							},
+						},
+						"credentialSecret": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the secret name containing AWS access key and AWS secret key",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+					},
+					Required: []string{"kmsKeyID"},
+				},
+			},
+			Dependencies: []string{},
+		},
 		"github.com/kubevault/operator/apis/core/v1alpha1.BackendStorageSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
@@ -53,11 +84,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec"),
 							},
 						},
+						"s3": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"),
+							},
+						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"},
 		},
 		"github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec": {
 			Schema: spec.Schema{
@@ -144,7 +180,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Format:      "",
 							},
 						},
-						"maxParallet": {
+						"maxParallel": {
 							SchemaProps: spec.SchemaProps{
 								Description: "\n Specifies the maximum number of parallel operations to take place.",
 								Type:        []string{"integer"},
@@ -174,7 +210,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/kubevault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
-					Description: "GoogleKmsGcsSpec contain the fields that required to unseal vault",
+					Description: "GoogleKmsGcsSpec contain the fields that required to unseal vault using google kms",
 					Properties: map[string]spec.Schema{
 						"kmsCryptoKey": {
 							SchemaProps: spec.SchemaProps{
@@ -244,7 +280,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/kubevault/operator/apis/core/v1alpha1.ModeSpec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
-					Description: "ModeSPpec contain unseal mechanism",
+					Description: "ModeSpec contain unseal mechanism",
 					Properties: map[string]spec.Schema{
 						"kubernetesSecret": {
 							SchemaProps: spec.SchemaProps{
@@ -256,11 +292,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec"),
 							},
 						},
+						"awsKmsSsm": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.AwsKmsSsmSpec"),
+							},
+						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kubevault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.KubernetesSecretSpec"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.AwsKmsSsmSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.KubernetesSecretSpec"},
 		},
 		"github.com/kubevault/operator/apis/core/v1alpha1.PodPolicy": {
 			Schema: spec.Schema{
@@ -278,6 +319,73 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			},
 			Dependencies: []string{
 				"k8s.io/api/core/v1.ResourceRequirements"},
+		},
+		"github.com/kubevault/operator/apis/core/v1alpha1.S3Spec": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/s3.html\n\nS3Spec defines configuration to set up Amazon S3 Storage as backend storage in vault",
+					Properties: map[string]spec.Schema{
+						"bucket": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the name of the bucket to use for storage.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"endPoint": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies an alternative, AWS compatible, S3 endpoint.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"region": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the AWS region",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"credentialSecret": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the secret name containing AWS access key and AWS secret key",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"sessionTokenSecret": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the secret name containing AWS session token",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"maxParallel": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the maximum number of parallel operations to take place.",
+								Type:        []string{"integer"},
+								Format:      "int32",
+							},
+						},
+						"s3ForcePathStyle": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies whether to use host bucket style domains with the configured endpoint.",
+								Type:        []string{"boolean"},
+								Format:      "",
+							},
+						},
+						"disableSSL": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies if SSL should be used for the endpoint connection",
+								Type:        []string{"boolean"},
+								Format:      "",
+							},
+						},
+					},
+					Required: []string{"bucket"},
+				},
+			},
+			Dependencies: []string{},
 		},
 		"github.com/kubevault/operator/apis/core/v1alpha1.StaticTLS": {
 			Schema: spec.Schema{

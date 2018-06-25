@@ -80,84 +80,138 @@ spec:
 - **unsealer** (UnsealerSpec): It contains auto unsealing configuration. See [here](vaultserver.md#unsealer-spec) for more information.
 
 ### BackendStorage Spec
+
 BackendStorage Spec contains the information for vault storage backend. Vault operator generates storage configuration according to this spec.
 
-- **inmem** (bool): To use In-Memory as storage backend in vault. For more information see [here](https://www.vaultproject.io/docs/configuration/storage/in-memory.html).
-  ```yaml
-  backendStorage:
-    inmem: true
-  ```
+#### inmem
 
-- **etcd** (EtcdSpec): Contain the information to use etcd as storage backend in vault.
-  ```yaml
-  backendStorage:
-    etcd:
-      address: "http://example.etcd.svc:8200"
-      etcdApi: "v3"
-  ```
-  **EtcdSpec** contain following fields: 
-    - **address** (string): Specifies the addresses of the etcd instances. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#address).
-    - **etcdApi** (string): Specifies the version of the API to communicate with etcd. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#etcd_api).
-    - **haEnable** (bool): Specifies if high availability should be enabled. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#ha_enabled).
-    - **path** (string):Specifies the path in etcd where vault data will be stored. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#path).
-    - **sync** (bool):Specifies whether to sync list of available etcd services on startup. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#sync).
-    - **discoverySrv** (string): Specifies the domain name to query for SRV records describing cluster endpoints. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#discovery_srv).
-    - **credentialSecretName** (string): Specifies the secret name that contain username and password to use when authenticating with the etcd server. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#username).
+To use In-Memory as storage backend in vault. For more information see [here](https://www.vaultproject.io/docs/configuration/storage/in-memory.html).
+```yaml
+backendStorage:
+  inmem: true
+```
+
+#### etcd 
+
+Contain the information to use etcd as storage backend in vault.
+```yaml
+backendStorage:
+  etcd:
+    address: "http://example.etcd.svc:8200"
+    etcdApi: "v3"
+```
+**EtcdSpec** contain following fields: 
+  - **address** (string): Specifies the addresses of the etcd instances. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#address).
+  - **etcdApi** (string): Specifies the version of the API to communicate with etcd. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#etcd_api).
+  - **haEnable** (bool): Specifies if high availability should be enabled. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#ha_enabled).
+  - **path** (string):Specifies the path in etcd where vault data will be stored. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#path).
+  - **sync** (bool):Specifies whether to sync list of available etcd services on startup. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#sync).
+  - **discoverySrv** (string): Specifies the domain name to query for SRV records describing cluster endpoints. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#discovery_srv).
+  - **credentialSecretName** (string): Specifies the secret name that contain username and password to use when authenticating with the etcd server. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#username).
   
-      ```yaml
-      backendStorage:
-        etcd:
-          credentialSecretName: "vault-etcd-credential"
-          ...
-      ```
-      Credential secret example:
-  
-      ```yaml
-      apiVersion: v1
-      data:
-        username: <username>
-        password: <password>
-      kind: Secret
-      metadata:
-        name: vault-etcd-credential
-      ```
+    ```yaml
+    backendStorage:
+      etcd:
+        credentialSecretName: "vault-etcd-credential"
+        ...
+    ```
+    Credential secret example:
+
+    ```yaml
+    apiVersion: v1
+    data:
+      username: <username>
+      password: <password>
+    kind: Secret
+    metadata:
+      name: vault-etcd-credential
+    ```
     
-    - **tlsSecretName** (string): Specifies the secret name that contains ca cert, client cert and client key for etcd communication.For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#tls_ca_file).
+  - **tlsSecretName** (string): Specifies the secret name that containsca cert, client cert and client key for etcd communication.For vaultdocumentation, click [here(https://www.vaultproject.io/docs/configuration/storage/etcdhtml#tls_ca_file).
   
-      ```yaml
-      backendStorage:
-        etcd:
-          tlsSecretName: "vault-etcd-tls"
-          ...
-      ```
-      TLS secret example:
-  
-      ```yaml
-      apiVersion: v1
-      data:
-        etcd-ca.crt: <ca_crt>
-        etcd-client.crt: <client-crt>
-        etcd-client.key: <client-key>
-      kind: Secret
-      metadata:
-        name: vault-etcd-tls
-      ```
-- **gcs** (GcsSpec): Contain the informations to use gcs as backen storage in vault. Vault documention about gcs storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html)
+    ```yaml
+    backendStorage:
+      etcd:
+        tlsSecretName: "vault-etcd-tls"
+        ...
+    ```
+    TLS secret example:
+
+    ```yaml
+    apiVersion: v1
+    data:
+      etcd-ca.crt: <ca_crt>
+      etcd-client.crt: <client-crt>
+      etcd-client.key: <client-key>
+    kind: Secret
+    metadata:
+      name: vault-etcd-tls
+    ```
+#### gcs 
+
+Contain the informations to use gcs as backend storage in vault. Vault documention about gcs storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html)
+```yaml
+backendStorage:
+  gcs:
+    Bucket: <bucket_name>
+    chunkSize: <chunk_size>
+    maxParallel: <max_parallet>
+    haEnabled: <true/false>
+```
+**GcsSpec** has following fields:
+  - **bucket** (string): Specifies the name of the bucket to use for storage.
+  - **chunkSize** (string) : Specifies the maximum size (in kilobytes)to send in a single request. If set to 0, it will attempt to send the whole object at once, but will not retry any failures.
+  - **maParallel** (int): Specifies the maximum number of paralleloperations to take place.
+  - **haEnabled** (bool) : Specifies if high availability mode is enabled.
+
+#### s3
+
+Contain the informations to use aws s3 as backend storage in vault. Vault documention about s3 storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/s3.html).
   ```yaml
   backendStorage:
-    gcs:
-      Bucket: <bucket_name>
-      chunkSize: <chunk_size>
-      maxParallel: <max_parallet>
-      haEnabled: <true/false>
+    s3:
+      bucket: <bucket_name>
+      endPoint: <end_point>
+      region: <region>
+      credentialSecret: <credential_secret_name>
+      sessionTokenSecret: <session_secret_name>
+      maxParallel: <max_parallel>
+      s3ForcePathStyle: <true/false>
+      disableSSL: <true/false>
   ```
-  **GcsSpec** has following fields:
-    - **bucket** (string): Specifies the name of the bucket to use for storage.
-    - **chunkSize** (string) : Specifies the maximum size (in kilobytes) to send in a single request. If set to 0, it will attempt to send the whole object at once, but will not retry any failures.
-    - **maParallel** (int): Specifies the maximum number of parallel operations to take place.
-    - **haEnabled** (bool) : Specifies if high availability mode is enabled.
+  
+  **S3Spec** has following fields:
+  - **bucket** (string): Specifies the name of the bucket to use for storage.
+  - **endPoint** (string): Specifies an alternative, AWS compatible, S3 endpoint.
+  - **region** (string): Specifies the AWS region.
+  - **credentialSecret** (string): Name of the secret containing AWS access key and secret key. Credential secret example:
+    ```yaml
+    apiVersion: v1
+    data:
+      access_key: <base64_encoded_access_key>
+      secret_key: <base64_encoded_secret_key>
+    kind: Secret
+    metadata:
+      name: aws-credential
+      namespaces: default
+    ```
+  - **sessionTokenSecret** (string): Name of the secret containing AWS session token. Session token secret example:
+    ```yaml
+    apiVersion: v1
+    data:
+      session_token: <base64_encoded_session_token>
+    kind: Secret
+    metadata:
+      name: aws-session
+      namespaces: default
+    ```
+  - **maxParallel** (int):  Specifies the maximum number of concurrent requests to S3.
+  - **s3ForcePathStyle** (bool): Specifies whether to use host bucket style domains with the configured endpoint. Default value is `false`.
+  - **disableSSL** (bool):  Specifies if SSL should be used for the endpoint connection. Default value is `false`.
+
 
 ### Unsealer Spec
+
 Vault operator use [kubevault/unsealer](https://github.com/kubevault/unsealer) to unseal vault. Unsealer spec contains the informations that used in unsealer to unseal vault.
 
 ```yaml
@@ -211,6 +265,7 @@ spec:
     ```
     kubernetesSecret contains following fields:
       - **secretName** (string): Unsealer will create secret of this name.
+  <br></br>
   - **googleKmsGcs** : Unseal key and root token are stored in google cloud bucket and they are encrypted using google cryptographic keys.
     ```yaml
     spec:
@@ -231,6 +286,32 @@ spec:
     - **kmsLocation** (string): Specifies the location of the key ring. 
     - **kmsKeyRing** (string): Specifies the name of the key ring.
     - **kmsCryptoKey** (string): Specifies the name of the crypto key.
+  <br></br>
+  - **awsKmsSsm** : Unseal keys and root token will be stored in AWS System Manager Parameter store. They will be encrypted using AWS encryption key.
+    ```yaml
+    spec:
+      unsealer:
+        ...
+        mode:
+          awsKmsSsm:
+            kmsKeyID: <key_id>
+            region: <region>
+            credentialSecret: <secret_name>
+    ```
+    awsKmsSsm has following fields:
+    - **kmsKeyID** (string): The ID or ARN of the AWS KMS key to encrypt values.
+    - **region** (string): Specifies the AWS region.
+    - **credentialSecret** (string): Specifies the secret name containing AWS access key and AWS secret key. Credential secret example:
+      ```yaml
+      apiVersion: v1
+      data:
+        access_key: <base64_encoded_access_key>
+        secret_key: <base64_encoded_secret_key>
+      kind: Secret
+      metadata:
+        name: aws-credential
+        namespaces: default
+      ```
 
 ## VaultServer Status
 

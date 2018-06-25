@@ -224,7 +224,7 @@ status:
 
 Vault operator create an service with same name as vault server. In this example, vault can be accessed using `my-vault` service.
 
-Check vault is unsealed:
+Check vault seal status:
 ```console
 $ kubectl port-forward my-vault-f99498d45-2fdmm 8200:8200
 Forwarding from 127.0.0.1:8200 -> 8200
@@ -268,7 +268,7 @@ metadata:
 type: Opaque
 
 ```
-We can see the cofig that used when deploying vault. The config is stored in configMap named `{metadata.name}-vault-config`. For this example, it is `my-vault-vault-config`.
+We can see the config that used when deploying vault. The config is stored in configMap named `{metadata.name}-vault-config`. For this example, it is `my-vault-vault-config`.
 ```console
 $ kubectl get configMaps/my-vault-vault-config -o yaml
 apiVersion: v1

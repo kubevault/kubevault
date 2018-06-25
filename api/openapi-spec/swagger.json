@@ -1395,6 +1395,25 @@
     }
   },
   "definitions": {
+    "com.github.kubevault.operator.apis.core.v1alpha1.AwsKmsSsmSpec": {
+      "description": "AwsKmsSsmSpec contain the fields that required to unseal vault using aws kms ssm",
+      "required": [
+        "kmsKeyID"
+      ],
+      "properties": {
+        "credentialSecret": {
+          "description": "Specifies the secret name containing AWS access key and AWS secret key",
+          "type": "string"
+        },
+        "kmsKeyID": {
+          "description": "The ID or ARN of the AWS KMS key to encrypt values",
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        }
+      }
+    },
     "com.github.kubevault.operator.apis.core.v1alpha1.BackendStorageSpec": {
       "description": "BackendStorageSpec defines storage backend configuration of vault",
       "properties": {
@@ -1407,6 +1426,9 @@
         "inmem": {
           "description": "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
           "type": "boolean"
+        },
+        "s3": {
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.S3Spec"
         }
       }
     },
@@ -1469,7 +1491,7 @@
           "description": "Specifies if high availability mode is enabled.",
           "type": "boolean"
         },
-        "maxParallet": {
+        "maxParallel": {
           "description": "\n Specifies the maximum number of parallel operations to take place.",
           "type": "integer",
           "format": "int32"
@@ -1477,7 +1499,7 @@
       }
     },
     "com.github.kubevault.operator.apis.core.v1alpha1.GoogleKmsGcsSpec": {
-      "description": "GoogleKmsGcsSpec contain the fields that required to unseal vault",
+      "description": "GoogleKmsGcsSpec contain the fields that required to unseal vault using google kms",
       "required": [
         "kmsCryptoKey",
         "kmsKeyRing",
@@ -1524,8 +1546,11 @@
       }
     },
     "com.github.kubevault.operator.apis.core.v1alpha1.ModeSpec": {
-      "description": "ModeSPpec contain unseal mechanism",
+      "description": "ModeSpec contain unseal mechanism",
       "properties": {
+        "awsKmsSsm": {
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.AwsKmsSsmSpec"
+        },
         "googleKmsGcs": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.GoogleKmsGcsSpec"
         },
@@ -1540,6 +1565,47 @@
         "resources": {
           "description": "Resources is the resource requirements for the containers.",
           "$ref": "#/definitions/io.k8s.api.core.v1.ResourceRequirements"
+        }
+      }
+    },
+    "com.github.kubevault.operator.apis.core.v1alpha1.S3Spec": {
+      "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/s3.html\n\nS3Spec defines configuration to set up Amazon S3 Storage as backend storage in vault",
+      "required": [
+        "bucket"
+      ],
+      "properties": {
+        "bucket": {
+          "description": "Specifies the name of the bucket to use for storage.",
+          "type": "string"
+        },
+        "credentialSecret": {
+          "description": "Specifies the secret name containing AWS access key and AWS secret key",
+          "type": "string"
+        },
+        "disableSSL": {
+          "description": "Specifies if SSL should be used for the endpoint connection",
+          "type": "boolean"
+        },
+        "endPoint": {
+          "description": "Specifies an alternative, AWS compatible, S3 endpoint.",
+          "type": "string"
+        },
+        "maxParallel": {
+          "description": "Specifies the maximum number of parallel operations to take place.",
+          "type": "integer",
+          "format": "int32"
+        },
+        "region": {
+          "description": "Specifies the AWS region",
+          "type": "string"
+        },
+        "s3ForcePathStyle": {
+          "description": "Specifies whether to use host bucket style domains with the configured endpoint.",
+          "type": "boolean"
+        },
+        "sessionTokenSecret": {
+          "description": "Specifies the secret name containing AWS session token",
+          "type": "string"
         }
       }
     },

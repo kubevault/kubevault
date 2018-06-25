@@ -17,10 +17,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"os"
+	corev1 "k8s.io/api/core/v1"
 )
 
 const (
-	timeOut         = 10 * time.Minute
+	timeOut         = 20 * time.Minute
 	pollingInterval = 10 * time.Second
 )
 
@@ -264,6 +265,54 @@ var _ = Describe("VaultServer", func() {
 				shouldCreateVaultServer(vs)
 			})
 		})
+
+		Context("s3 backend", func() {
+			const (
+				awsCredSecret = "test-aws-cred"
+			)
+
+			BeforeEach(func() {
+				s3 := api.BackendStorageSpec{
+					S3: &api.S3Spec{
+						Bucket: "test-vault-s3",
+						Region: "us-wes-1",
+						CredentialSecret: awsCredSecret,
+					},
+				}
+
+				vs = f.VaultServer(1, s3)
+
+				sr := corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: awsCredSecret,
+						Namespace: vs.Namespace,
+					},
+					Data: map[string][]byte{
+						"access_key": []byte(os.Getenv("AWS_ACCESS_KEY_ID")),
+						"secret_key": []byte(os.Getenv("AWS_SECRET_ACCESS_KEY")),
+					},
+				}
+
+				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
+			})
+
+			AfterEach(func() {
+				Expect(f.DeleteSecret(awsCredSecret, vs.Namespace)).NotTo(HaveOccurred())
+
+				checkForSecretDeleted(awsCredSecret, vs.Namespace)
+
+				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
+
+				checkForVaultServerDeleted(vs.Name, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+			})
+
+			It("should create vault server", func() {
+				shouldCreateVaultServer(vs)
+			})
+		})
 	})
 
 	Describe("Updating vault server replica for", func() {
@@ -492,6 +541,74 @@ var _ = Describe("VaultServer", func() {
 			AfterEach(func() {
 				err := f.DeleteVaultServer(vs.ObjectMeta)
 				Expect(err).NotTo(HaveOccurred())
+
+				checkForVaultServerDeleted(vs.Name, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+			})
+
+			It("should create vault server", func() {
+				shouldCreateVaultServer(vs)
+
+				checkForVaultIsUnsealed(vs)
+			})
+		})
+	})
+
+	Describe("unsealing using aws kms ssm", func() {
+		var (
+			vs *api.VaultServer
+		)
+
+		const (
+			awsCredSecret = "test-aws-cred"
+		)
+
+		Context("using s3 backend", func() {
+			BeforeEach(func() {
+				s3 := api.BackendStorageSpec{
+					S3:  &api.S3Spec{
+						Bucket:         "test-vault-s3",
+						Region: "us-west-1",
+						CredentialSecret: awsCredSecret,
+					},
+				}
+
+				unsealer := api.UnsealerSpec{
+					SecretShares:    4,
+					SecretThreshold: 2,
+					InsecureTLS:     true,
+					Mode: api.ModeSpec{
+						AwsKmsSsm: &api.AwsKmsSsmSpec{
+							KmsKeyID: "65ed2c85-4915-4e82-be47-d56ccaa8019b",
+							Region: "us-west-1",
+							CredentialSecret: awsCredSecret,
+						},
+					},
+				}
+
+				vs = f.VaultServerWithUnsealer(1, s3, unsealer)
+
+				sr := corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: awsCredSecret,
+						Namespace: vs.Namespace,
+					},
+					Data: map[string][]byte{
+						"access_key": []byte(os.Getenv("AWS_ACCESS_KEY_ID")),
+						"secret_key": []byte(os.Getenv("AWS_SECRET_ACCESS_KEY")),
+					},
+				}
+
+				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
+			})
+
+			AfterEach(func() {
+				Expect(f.DeleteSecret(awsCredSecret, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(awsCredSecret, vs.Namespace)
+
+				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
 				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
