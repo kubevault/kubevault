@@ -73,8 +73,7 @@ spec:
     mode:
       googleKmsGcs:
         bucket: "vault-test-bucket"
-        kmsProject: "tigerworks-kube
-    "
+        kmsProject: "tigerworks-kube"
         kmsLocation: "global"
         kmsKeyRing: "vault-key-ring"
         kmsCryptoKey: "vault-init"
@@ -102,8 +101,7 @@ spec:
     mode:
       googleKmsGcs:
         bucket: "vault-test-bucket"
-        kmsProject: "tigerworks-kube
-    "
+        kmsProject: "tigerworks-kube"
         kmsLocation: "global"
         kmsKeyRing: "vault-key-ring"
         kmsCryptoKey: "vault-init"
@@ -133,7 +131,6 @@ spec:
         kmsKeyRing: vault-key-ring
         kmsLocation: global
         kmsProject: tigerworks-kube
-    
     retryPeriodSeconds: 15
     secretShares: 4
     secretThreshold: 2
@@ -151,9 +148,9 @@ status:
     - my-vault-5568f99b5d-d9vs8
 
 ```
-Vault operator create an service with same name as vault server. In this example, vault can be accessed using `my-vault` service. 
+Vault operator creates a service with the same name as vault server. In this example, vault can be accessed using `my-vault` service. 
 
-Check vault is unsealed:
+Check vault seal status:
 ```console
 $ kubectl port-forward my-vault-5568f99b5d-d9vs8 8200:8200
 Forwarding from 127.0.0.1:8200 -> 8200
@@ -184,8 +181,7 @@ Download and decrypt the root token:
 ```console
 $ export VAULT_TOKEN=$(gsutil cat gs://vault-test-bucket/vault-root | \
   gcloud kms decrypt \
-    --project tigerworks-kube
- \
+    --project tigerworks-kube \
     --location global \
     --keyring vault-key-ring \
     --key vault-init \
@@ -196,7 +192,7 @@ $ echo $VAULT_TOKEN
 ec3a2374-38cc-14fe-1b61-2ab60f8763b0
 ```
 
-We can see the cofig that used when deploying vault. The config is stored in configMap named `{metadata.name}-vault-config`. For this example, it is `my-vault-vault-config`.
+We can see the config that used when deploying vault. The config is stored in configMap named `{metadata.name}-vault-config`. For this example, it is `my-vault-vault-config`.
 ```console
 $ kubectl get configMaps/my-vault-vault-config -o yaml
 apiVersion: v1
