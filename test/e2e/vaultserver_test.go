@@ -18,6 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"os"
 	corev1 "k8s.io/api/core/v1"
+	"io/ioutil"
 )
 
 const (
@@ -240,11 +241,30 @@ var _ = Describe("VaultServer", func() {
 		})
 
 		Context("gcs backend", func() {
+			const (
+				secretName = "google-cred"
+			)
 			BeforeEach(func() {
+				credFile := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+				data, err :=ioutil.ReadFile(credFile)
+				Expect(err).NotTo(HaveOccurred())
+
+				sr := corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: secretName,
+						Namespace: f.Namespace(),
+					},
+					Data: map[string][]byte {
+						"sa.json":data,
+					},
+				}
+
+				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
+
 				gcs := api.BackendStorageSpec{
 					Gcs: &api.GcsSpec{
 						Bucket: "vault-test-bucket",
-						CredentialPath: os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+						CredentialSecret: secretName,
 					},
 				}
 
@@ -252,8 +272,10 @@ var _ = Describe("VaultServer", func() {
 			})
 
 			AfterEach(func() {
-				err := f.DeleteVaultServer(vs.ObjectMeta)
-				Expect(err).NotTo(HaveOccurred())
+				Expect(f.DeleteSecret(secretName, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(secretName, vs.Namespace)
+
+				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
 				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
@@ -511,11 +533,29 @@ var _ = Describe("VaultServer", func() {
 		)
 
 		Context("using gcs backend", func() {
+			const (
+				secretName = "google-cred"
+			)
 			BeforeEach(func() {
+				credFile := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+				data, err :=ioutil.ReadFile(credFile)
+				Expect(err).NotTo(HaveOccurred())
+
+				sr := corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: secretName,
+						Namespace: f.Namespace(),
+					},
+					Data: map[string][]byte {
+						"sa.json":data,
+					},
+				}
+
+				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
 				gcs := api.BackendStorageSpec{
 					Gcs: &api.GcsSpec{
 						Bucket:         "vault-test-bucket",
-						CredentialPath: os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+						CredentialSecret: secretName,
 					},
 				}
 
@@ -526,7 +566,7 @@ var _ = Describe("VaultServer", func() {
 					Mode: api.ModeSpec{
 						GoogleKmsGcs: &api.GoogleKmsGcsSpec{
 							Bucket:         "vault-test-bucket",
-							CredentialPath: os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+							CredentialSecret: secretName,
 							KmsCryptoKey:   "vault-init",
 							KmsKeyRing:     "vault-key-ring",
 							KmsLocation:    "global",
@@ -539,8 +579,10 @@ var _ = Describe("VaultServer", func() {
 			})
 
 			AfterEach(func() {
-				err := f.DeleteVaultServer(vs.ObjectMeta)
-				Expect(err).NotTo(HaveOccurred())
+				Expect(f.DeleteSecret(secretName, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(secretName, vs.Namespace)
+
+				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
 				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)

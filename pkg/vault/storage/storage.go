@@ -12,7 +12,6 @@ import (
 
 type Storage interface {
 	Apply(pt *corev1.PodTemplateSpec) error
-	GetSecrets(namespace string) ([]corev1.Secret, error)
 	GetStorageConfig() (string, error)
 }
 

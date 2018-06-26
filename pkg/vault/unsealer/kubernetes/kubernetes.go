@@ -58,7 +58,3 @@ func (o *Options) GetRBAC(namespace string) []rbac.Role {
 
 	return roles
 }
-
-func (o *Options) GetSecrets(namespace string) ([]corev1.Secret, error) {
-	return nil, nil
-}

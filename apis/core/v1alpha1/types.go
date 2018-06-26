@@ -204,8 +204,10 @@ type GcsSpec struct {
 	// Specifies if high availability mode is enabled.
 	HAEnabled bool `json:"haEnabled,omitempty"`
 
-	// Google application credential path
-	CredentialPath string `json:"credentialPath,omitempty"`
+	// Secret containing Google application credential
+	// secret data:
+	//	- sa.json:<value>
+	CredentialSecret string `json:"credentialSecret,omitempty"`
 }
 
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/s3.html
@@ -293,8 +295,10 @@ type GoogleKmsGcsSpec struct {
 	// The name of the Google Cloud Storage bucket to store values in
 	Bucket string `json:"bucket"`
 
-	// Google application credential path
-	CredentialPath string `json:"credentialPath,omitempty"`
+	// Secret containing Google application credential
+	// secret data:
+	//	- sa.json:<value>
+	CredentialSecret string `json:"credentialSecret,omitempty"`
 }
 
 // AwsKmsSsmSpec contain the fields that required to unseal vault using aws kms ssm

@@ -17,7 +17,6 @@ import (
 type UnsealerService interface {
 	Apply(pt *corev1.PodTemplateSpec, cont *corev1.Container) error
 	GetRBAC(namespace string) []rbac.Role
-	GetSecrets(namespace string) ([]corev1.Secret, error)
 }
 
 type Unsealer struct {
@@ -123,9 +122,4 @@ func (u *Unsealer) AddContainer(pt *corev1.PodTemplateSpec) error {
 // GetRBAC return rbac roles required by unsealer
 func (u *Unsealer) GetRBAC(namespace string) []rbac.Role {
 	return u.Service.GetRBAC(namespace)
-}
-
-// GetRBAC return rbac roles required by unsealer
-func (u *Unsealer) GetSecrets(namespace string) ([]corev1.Secret, error) {
-	return u.Service.GetSecrets(namespace)
 }

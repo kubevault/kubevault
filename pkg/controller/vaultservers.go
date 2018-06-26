@@ -530,16 +530,6 @@ func (c *VaultController) configureForVaultBackendStorage(v *api.VaultServer, po
 		return errors.Wrap(err, "failed to apply changes in pod template")
 	}
 
-	// create necessary secrets for storage backend
-	secrets, err := storageSrv.GetSecrets(v.GetNamespace())
-	if err != nil {
-		return errors.Wrap(err, "failed to get secrets for storage")
-	}
-	err = c.createSecret(v, secrets)
-	if err != nil {
-		return errors.Wrap(err, "failed to create secrets for storage")
-	}
-
 	return nil
 }
 
@@ -564,17 +554,6 @@ func (c *VaultController) configureForVaultUnsealer(v *api.VaultServer, podTempl
 	err = c.createRoleAndRoleBinding(v, rbacRoles, saName)
 	if err != nil {
 		return err
-	}
-
-	// get secrets
-	secrets, err := unseal.GetSecrets(v.GetNamespace())
-	if err != nil {
-		return errors.Wrap(err, "failed to get usealer secrets")
-	}
-
-	err = c.createSecret(v, secrets)
-	if err != nil {
-		return errors.Wrap(err, "failed to create secrets for unsealer")
 	}
 
 	return nil

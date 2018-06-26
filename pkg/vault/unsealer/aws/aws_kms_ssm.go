@@ -73,7 +73,3 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec, cont *corev1.Container) erro
 func (o *Options) GetRBAC(namespace string) []rbac.Role {
 	return nil
 }
-
-func (o *Options) GetSecrets(namespace string) ([]corev1.Secret, error) {
-	return nil, nil
-}

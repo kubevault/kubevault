@@ -377,8 +377,9 @@ spec:
                         in a single request. If set to 0, it will attempt to send
                         the whole object at once, but will not retry any failures.
                       type: string
-                    credentialPath:
-                      description: Google application credential path
+                    credentialSecret:
+                      description: "Secret containing Google application credential
+                        secret data:\n\t- sa.json:<value>"
                       type: string
                     haEnabled:
                       description: Specifies if high availability mode is enabled.
@@ -495,8 +496,9 @@ spec:
                           description: The name of the Google Cloud Storage bucket
                             to store values in
                           type: string
-                        credentialPath:
-                          description: Google application credential path
+                        credentialSecret:
+                          description: "Secret containing Google application credential
+                            secret data:\n\t- sa.json:<value>"
                           type: string
                         kmsCryptoKey:
                           description: The name of the Google Cloud KMS crypto key

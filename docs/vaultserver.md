@@ -157,12 +157,22 @@ backendStorage:
     chunkSize: <chunk_size>
     maxParallel: <max_parallet>
     haEnabled: <true/false>
+    credentialSecret: <secret_name>
 ```
 **GcsSpec** has following fields:
   - **bucket** (string): Specifies the name of the bucket to use for storage.
   - **chunkSize** (string) : Specifies the maximum size (in kilobytes)to send in a single request. If set to 0, it will attempt to send the whole object at once, but will not retry any failures.
   - **maParallel** (int): Specifies the maximum number of paralleloperations to take place.
   - **haEnabled** (bool) : Specifies if high availability mode is enabled.
+  - **credentialSecret** (string): Specifies the secret name containing google credential. If this is empty, then instance service account will be used. Google credential secret example:
+    ```yaml
+    apiVersion: v1
+    data:
+      sa.json: <data>
+    kind: Secret
+    metadata:
+      name: google-credential
+    ```
 
 #### s3
 
@@ -278,6 +288,7 @@ spec:
             kmsLocation: <location>
             kmsKeyRing: <key_ring_name>
             kmsCryptoKey: <crypto_key_name>
+            credentialSecret: <secret_name>
     ```
 
     googleKmsGcs has following fields:
@@ -286,6 +297,15 @@ spec:
     - **kmsLocation** (string): Specifies the location of the key ring. 
     - **kmsKeyRing** (string): Specifies the name of the key ring.
     - **kmsCryptoKey** (string): Specifies the name of the crypto key.
+    - **credentialSecret** (string): Specifies the secret name containing google credential. If this is empty, then instance service account will be used. Google credential secret example:
+      ```yaml
+      apiVersion: v1
+      data:
+        sa.json: <data>
+      kind: Secret
+      metadata:
+        name: google-credential
+      ```
   <br></br>
   - **awsKmsSsm** : Unseal keys and root token will be stored in AWS System Manager Parameter store. They will be encrypted using AWS encryption key.
     ```yaml

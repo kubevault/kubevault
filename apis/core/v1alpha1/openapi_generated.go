@@ -194,9 +194,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Format:      "",
 							},
 						},
-						"credentialPath": {
+						"credentialSecret": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Google application credential path",
+								Description: "Secret containing Google application credential secret data:\n\t- sa.json:<value>",
 								Type:        []string{"string"},
 								Format:      "",
 							},
@@ -247,9 +247,9 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Format:      "",
 							},
 						},
-						"credentialPath": {
+						"credentialSecret": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Google application credential path",
+								Description: "Secret containing Google application credential secret data:\n\t- sa.json:<value>",
 								Type:        []string{"string"},
 								Format:      "",
 							},

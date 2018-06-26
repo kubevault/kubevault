@@ -2,14 +2,11 @@ package gcs
 
 import (
 	"fmt"
-	"io/ioutil"
 	"path/filepath"
 	"strings"
 
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
-	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var gcsStorageFmt = `
@@ -19,9 +16,8 @@ storage "gcs" {
 `
 
 const (
-	GoogleCredentialFile   = "/etc/vault/storage/gcs/creds/credential.json"
+	GoogleCredentialFile   = "/etc/vault/storage/gcs/creds/sa.json"
 	GoogleCredentialEnv    = "GOOGLE_APPLICATION_CREDENTIALS"
-	GoogleCredentialSecret = "vault-google-credential"
 	GoogleCredentialVolume = "vault-google-credential"
 )
 
@@ -36,12 +32,12 @@ func NewOptions(s api.GcsSpec) (*Options, error) {
 }
 
 func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
-	if o.CredentialPath != "" {
+	if o.CredentialSecret != "" {
 		pt.Spec.Volumes = append(pt.Spec.Volumes, corev1.Volume{
 			Name: GoogleCredentialVolume,
 			VolumeSource: corev1.VolumeSource{
 				Secret: &corev1.SecretVolumeSource{
-					SecretName: GoogleCredentialSecret,
+					SecretName: o.CredentialSecret,
 				},
 			},
 		})
@@ -57,26 +53,6 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 		})
 	}
 	return nil
-}
-
-func (o *Options) GetSecrets(namespace string) ([]corev1.Secret, error) {
-	var secrets []corev1.Secret
-	if o.CredentialPath != "" {
-		data, err := ioutil.ReadFile(o.CredentialPath)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed to read google credential file(%s)", o.CredentialPath)
-		}
-
-		secrets = append(secrets, corev1.Secret{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: GoogleCredentialSecret,
-			},
-			Data: map[string][]byte{
-				filepath.Base(GoogleCredentialFile): data,
-			},
-		})
-	}
-	return secrets, nil
 }
 
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html
