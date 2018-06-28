@@ -151,10 +151,11 @@ type StaticTLS struct {
 // BackendStorageSpec defines storage backend configuration of vault
 type BackendStorageSpec struct {
 	// ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html
-	Inmem bool      `json:"inmem,omitempty"`
-	Etcd  *EtcdSpec `json:"etcd,omitempty"`
-	Gcs   *GcsSpec  `json:"gcs,omitempty"`
-	S3    *S3Spec   `json:"s3,omitempty"`
+	Inmem bool       `json:"inmem,omitempty"`
+	Etcd  *EtcdSpec  `json:"etcd,omitempty"`
+	Gcs   *GcsSpec   `json:"gcs,omitempty"`
+	S3    *S3Spec    `json:"s3,omitempty"`
+	Azure *AzureSpec `json:"azure,omitempty"`
 }
 
 // TODO : set defaults and validation
@@ -181,6 +182,9 @@ type EtcdSpec struct {
 	DiscoverySrv string `json:"discoverySrv,omitempty"`
 
 	// Specifies the secret name that contain username and password to use when authenticating with the etcd server
+	// secret data:
+	//	- username:<value>
+	//	- password:<value>
 	CredentialSecretName string `json:"credentialSecretName,omitempty"`
 
 	// Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication
@@ -224,9 +228,14 @@ type S3Spec struct {
 	Region string `json:"region,omitempty"`
 
 	// Specifies the secret name containing AWS access key and AWS secret key
+	// secret data:
+	//	- access_key=<value>
+	//  - secret_key=<value>
 	CredentialSecret string `json:"credentialSecret,omitempty"`
 
 	// Specifies the secret name containing AWS session token
+	// secret data:
+	//	- session_token:<value>
 	SessionTokenSecret string `json:"sessionTokenSecret,omitempty"`
 
 	// Specifies the maximum number of parallel operations to take place.
@@ -237,6 +246,23 @@ type S3Spec struct {
 
 	// Specifies if SSL should be used for the endpoint connection
 	DisableSSL bool `json:"disableSSL,omitempty"`
+}
+
+// vault doc: https://www.vaultproject.io/docs/configuration/storage/azure.html
+//
+// AzureSpec defines configuration to set up Google Cloud Storage as backend storage in vault
+type AzureSpec struct {
+	// Specifies the Azure Storage account name.
+	AccountName string `json:"accountName"`
+
+	// Specifies the Azure Storage account key.
+	AccountKey string `json:"accountKey"`
+
+	// Specifies the Azure Storage Blob container name.
+	Container string `json:"container"`
+
+	//  Specifies the maximum number of concurrent operations to take place.
+	MaxParallel int `json:"maxParallel,omitempty"`
 }
 
 // UnsealerSpec contain the configuration for auto vault initialize/unseal
@@ -271,6 +297,7 @@ type ModeSpec struct {
 	KubernetesSecret *KubernetesSecretSpec `json:"kubernetesSecret,omitempty"`
 	GoogleKmsGcs     *GoogleKmsGcsSpec     `json:"googleKmsGcs,omitempty"`
 	AwsKmsSsm        *AwsKmsSsmSpec        `json:"awsKmsSsm,omitempty"`
+	AzureKeyVault    *AzureKeyVault        `json:"azureKeyVault,omitempty"`
 }
 
 // KubernetesSecretSpec contain the fields that required to unseal using kubernetes secret
@@ -309,7 +336,38 @@ type AwsKmsSsmSpec struct {
 	Region string `json:"region,omitempty"`
 
 	// Specifies the secret name containing AWS access key and AWS secret key
+	// secret data:
+	//	- access_key:<value>
+	//  - secret_key:<value>
 	CredentialSecret string `json:"credentialSecret,omitempty"`
+}
+
+// AzureKeyVault contain the fields that required to unseal vault using azure key vault
+type AzureKeyVault struct {
+	// Azure key vault url, for example https://myvault.vault.azure.net
+	VaultBaseUrl string `json:"vaultBaseUrl"`
+
+	// The cloud environment identifier
+	// default: "AZUREPUBLICCLOUD"
+	Cloud string `json:"cloud,omitempty"`
+
+	// The AAD Tenant ID
+	TenantID string `json:"tenantID"`
+
+	// Specifies the name of secret containing client cert and client cert password
+	// secret data:
+	//	- client-cert:<value>
+	// 	- client-cert-password: <value>
+	ClientCertSecret string `json:"clientCertSecret,omitempty"`
+
+	// Specifies the name of secret containing client id and client secret of AAD application
+	// secret data:
+	//	- client-id:<value>
+	//	- client-secret:<value>
+	AADClientSecret string `json:"aadClientSecret,omitempty"`
+
+	// Use managed service identity for the virtual machine
+	UseManagedIdentity bool `json:"useManagedIdentity,omitempty"`
 }
 
 // TODO : use webhook?

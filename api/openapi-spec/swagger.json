@@ -1402,7 +1402,7 @@
       ],
       "properties": {
         "credentialSecret": {
-          "description": "Specifies the secret name containing AWS access key and AWS secret key",
+          "description": "Specifies the secret name containing AWS access key and AWS secret key secret data:\n\t- access_key:\u003cvalue\u003e\n - secret_key:\u003cvalue\u003e",
           "type": "string"
         },
         "kmsKeyID": {
@@ -1414,9 +1414,72 @@
         }
       }
     },
+    "com.github.kubevault.operator.apis.core.v1alpha1.AzureKeyVault": {
+      "description": "AzureKeyVault contain the fields that required to unseal vault using azure key vault",
+      "required": [
+        "vaultBaseUrl",
+        "tenantID"
+      ],
+      "properties": {
+        "aadClientSecret": {
+          "description": "Specifies the name of secret containing client id and client secret of AAD application secret data:\n\t- client-id:\u003cvalue\u003e\n\t- client-secret:\u003cvalue\u003e",
+          "type": "string"
+        },
+        "clientCertSecret": {
+          "description": "Specifies the name of secret containing client cert and client cert password secret data:\n\t- client-cert:\u003cvalue\u003e\n\t- client-cert-password: \u003cvalue\u003e",
+          "type": "string"
+        },
+        "cloud": {
+          "description": "The cloud environment identifier default: \"AZUREPUBLICCLOUD\"",
+          "type": "string"
+        },
+        "tenantID": {
+          "description": "The AAD Tenant ID",
+          "type": "string"
+        },
+        "useManagedIdentity": {
+          "description": "Use managed service identity for the virtual machine",
+          "type": "boolean"
+        },
+        "vaultBaseUrl": {
+          "description": "Azure key vault url, for example https://myvault.vault.azure.net",
+          "type": "string"
+        }
+      }
+    },
+    "com.github.kubevault.operator.apis.core.v1alpha1.AzureSpec": {
+      "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/azure.html\n\nAzureSpec defines configuration to set up Google Cloud Storage as backend storage in vault",
+      "required": [
+        "accountName",
+        "accountKey",
+        "container"
+      ],
+      "properties": {
+        "accountKey": {
+          "description": "Specifies the Azure Storage account key.",
+          "type": "string"
+        },
+        "accountName": {
+          "description": "Specifies the Azure Storage account name.",
+          "type": "string"
+        },
+        "container": {
+          "description": "Specifies the Azure Storage Blob container name.",
+          "type": "string"
+        },
+        "maxParallel": {
+          "description": "\n Specifies the maximum number of concurrent operations to take place.",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "com.github.kubevault.operator.apis.core.v1alpha1.BackendStorageSpec": {
       "description": "BackendStorageSpec defines storage backend configuration of vault",
       "properties": {
+        "azure": {
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.AzureSpec"
+        },
         "etcd": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.EtcdSpec"
         },
@@ -1440,7 +1503,7 @@
           "type": "string"
         },
         "credentialSecretName": {
-          "description": "Specifies the secret name that contain username and password to use when authenticating with the etcd server",
+          "description": "Specifies the secret name that contain username and password to use when authenticating with the etcd server secret data:\n\t- username:\u003cvalue\u003e\n\t- password:\u003cvalue\u003e",
           "type": "string"
         },
         "discoverySrv": {
@@ -1551,6 +1614,9 @@
         "awsKmsSsm": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.AwsKmsSsmSpec"
         },
+        "azureKeyVault": {
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.AzureKeyVault"
+        },
         "googleKmsGcs": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.GoogleKmsGcsSpec"
         },
@@ -1579,7 +1645,7 @@
           "type": "string"
         },
         "credentialSecret": {
-          "description": "Specifies the secret name containing AWS access key and AWS secret key",
+          "description": "Specifies the secret name containing AWS access key and AWS secret key secret data:\n\t- access_key=\u003cvalue\u003e\n - secret_key=\u003cvalue\u003e",
           "type": "string"
         },
         "disableSSL": {
@@ -1604,7 +1670,7 @@
           "type": "boolean"
         },
         "sessionTokenSecret": {
-          "description": "Specifies the secret name containing AWS session token",
+          "description": "Specifies the secret name containing AWS session token secret data:\n\t- session_token:\u003cvalue\u003e",
           "type": "string"
         }
       }

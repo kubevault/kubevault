@@ -327,6 +327,31 @@ spec:
               description: BackendStorageSpec defines storage backend configuration
                 of vault
               properties:
+                azure:
+                  description: |-
+                    vault doc: https://www.vaultproject.io/docs/configuration/storage/azure.html
+
+                    AzureSpec defines configuration to set up Google Cloud Storage as backend storage in vault
+                  properties:
+                    accountKey:
+                      description: Specifies the Azure Storage account key.
+                      type: string
+                    accountName:
+                      description: Specifies the Azure Storage account name.
+                      type: string
+                    container:
+                      description: Specifies the Azure Storage Blob container name.
+                      type: string
+                    maxParallel:
+                      description: |2-
+
+                         Specifies the maximum number of concurrent operations to take place.
+                      format: int32
+                      type: integer
+                  required:
+                  - accountName
+                  - accountKey
+                  - container
                 etcd:
                   description: |-
                     vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html
@@ -337,8 +362,9 @@ spec:
                       description: Specifies the addresses of the etcd instances
                       type: string
                     credentialSecretName:
-                      description: Specifies the secret name that contain username
+                      description: "Specifies the secret name that contain username
                         and password to use when authenticating with the etcd server
+                        secret data:\n\t- username:<value>\n\t- password:<value>"
                       type: string
                     discoverySrv:
                       description: Specifies the domain name to query for SRV records
@@ -405,8 +431,9 @@ spec:
                       description: Specifies the name of the bucket to use for storage.
                       type: string
                     credentialSecret:
-                      description: Specifies the secret name containing AWS access
-                        key and AWS secret key
+                      description: "Specifies the secret name containing AWS access
+                        key and AWS secret key secret data:\n\t- access_key=<value>\n
+                        - secret_key=<value>"
                       type: string
                     disableSSL:
                       description: Specifies if SSL should be used for the endpoint
@@ -428,8 +455,8 @@ spec:
                         with the configured endpoint.
                       type: boolean
                     sessionTokenSecret:
-                      description: Specifies the secret name containing AWS session
-                        token
+                      description: "Specifies the secret name containing AWS session
+                        token secret data:\n\t- session_token:<value>"
                       type: string
                   required:
                   - bucket
@@ -477,8 +504,9 @@ spec:
                         to unseal vault using aws kms ssm
                       properties:
                         credentialSecret:
-                          description: Specifies the secret name containing AWS access
-                            key and AWS secret key
+                          description: "Specifies the secret name containing AWS access
+                            key and AWS secret key secret data:\n\t- access_key:<value>\n
+                            - secret_key:<value>"
                           type: string
                         kmsKeyID:
                           description: The ID or ARN of the AWS KMS key to encrypt
@@ -488,6 +516,37 @@ spec:
                           type: string
                       required:
                       - kmsKeyID
+                    azureKeyVault:
+                      description: AzureKeyVault contain the fields that required
+                        to unseal vault using azure key vault
+                      properties:
+                        aadClientSecret:
+                          description: "Specifies the name of secret containing client
+                            id and client secret of AAD application secret data:\n\t-
+                            client-id:<value>\n\t- client-secret:<value>"
+                          type: string
+                        clientCertSecret:
+                          description: "Specifies the name of secret containing client
+                            cert and client cert password secret data:\n\t- client-cert:<value>\n\t-
+                            client-cert-password: <value>"
+                          type: string
+                        cloud:
+                          description: 'The cloud environment identifier default:
+                            "AZUREPUBLICCLOUD"'
+                          type: string
+                        tenantID:
+                          description: The AAD Tenant ID
+                          type: string
+                        useManagedIdentity:
+                          description: Use managed service identity for the virtual
+                            machine
+                          type: boolean
+                        vaultBaseUrl:
+                          description: Azure key vault url, for example https://myvault.vault.azure.net
+                          type: string
+                      required:
+                      - vaultBaseUrl
+                      - tenantID
                     googleKmsGcs:
                       description: GoogleKmsGcsSpec contain the fields that required
                         to unseal vault using google kms

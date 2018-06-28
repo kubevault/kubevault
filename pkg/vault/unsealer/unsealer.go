@@ -7,6 +7,7 @@ import (
 
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/unsealer/aws"
+	"github.com/kubevault/operator/pkg/vault/unsealer/azure"
 	"github.com/kubevault/operator/pkg/vault/unsealer/google"
 	"github.com/kubevault/operator/pkg/vault/unsealer/kubernetes"
 	"github.com/pkg/errors"
@@ -31,6 +32,8 @@ func NewUnsealerService(s *api.UnsealerSpec) (UnsealerService, error) {
 		return google.NewOptions(*s.Mode.GoogleKmsGcs)
 	} else if s.Mode.AwsKmsSsm != nil {
 		return aws.NewOptions(*s.Mode.AwsKmsSsm)
+	} else if s.Mode.AzureKeyVault != nil {
+		return azure.NewOptions(*s.Mode.AzureKeyVault)
 	} else {
 		return nil, errors.New("unsealer mode is not valid/defined")
 	}

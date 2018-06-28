@@ -2,6 +2,7 @@ package storage
 
 import (
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	"github.com/kubevault/operator/pkg/vault/storage/azure"
 	"github.com/kubevault/operator/pkg/vault/storage/etcd"
 	"github.com/kubevault/operator/pkg/vault/storage/gcs"
 	"github.com/kubevault/operator/pkg/vault/storage/inmem"
@@ -24,6 +25,8 @@ func NewStorage(s *api.BackendStorageSpec) (Storage, error) {
 		return gcs.NewOptions(*s.Gcs)
 	} else if s.S3 != nil {
 		return s3.NewOptions(*s.S3)
+	} else if s.Azure != nil {
+		return azure.NewOptions(*s.Azure)
 	} else {
 		return nil, errors.New("invalid storage backend")
 	}

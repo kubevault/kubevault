@@ -176,7 +176,7 @@ backendStorage:
 
 #### s3
 
-Contain the informations to use aws s3 as backend storage in vault. Vault documention about s3 storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/s3.html).
+Contain the information to use aws s3 as backend storage in vault. Vault documention about s3 storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/s3.html).
   ```yaml
   backendStorage:
     s3:
@@ -218,6 +218,24 @@ Contain the informations to use aws s3 as backend storage in vault. Vault docume
   - **maxParallel** (int):  Specifies the maximum number of concurrent requests to S3.
   - **s3ForcePathStyle** (bool): Specifies whether to use host bucket style domains with the configured endpoint. Default value is `false`.
   - **disableSSL** (bool):  Specifies if SSL should be used for the endpoint connection. Default value is `false`.
+
+#### azure
+
+Contain the information to use azure storage container as backend storage in vault. Vault documention about azure storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/azure.html).
+  ```yaml
+  backendStorage:
+    azure:
+      accountName: <storage_account_name>
+      accountKey: <storage_account_key>
+      container: <container_name>
+      maxParallel: <max_parallel>
+  ```
+
+  **AzureSpec** has following fields:
+  - **accountName** (string): Specifies the Azure Storage account name.
+  - **accountKey** (string): Specifies the Azure Storage account key.
+  - **container** (string): Specifies the Azure Storage Blob container name.
+  - **maxParallel** (int): Specifies the maximum number of concurrent operations to take place.
 
 
 ### Unsealer Spec
@@ -332,6 +350,50 @@ spec:
         name: aws-credential
         namespaces: default
       ```
+  <br></br>
+  - **azureKeyVault** : Unseal keys and root token will be stored in Azure Key Vault as secret.
+    ```yaml
+    spec:
+      unsealer:
+        ...
+        mode:
+          azureKeyVault:
+            vaultBaseUrl: <vault_base_url>
+            tenantID: <tenant_id>
+            clientCertSecret: <secret_name>
+            aadClientSecret: <secret_name
+            useManagedIdentity: <true/false>
+            cloud: <cloud_environment_identifier>
+    ```
+    azureKeyVault has following field:
+    - **vaultBaseUrl** (string): Specifies Azure key vault url.
+    - **tenantID** (string): Specifies Azure Active Directory tenant ID.
+    - **clientCertSecret** (string) : Specifies the name of secret containing client cert and client cert password.
+      ```yaml
+      apiVersion: v1
+      data:
+        client-cert: <client_cert>
+        client-cert-password: <client_cert_password>
+      kind: Secret
+      metadata:
+        name: azure-client-cert
+        namespace: default
+      ```
+    - **addClientSecret** (string) : Specifies the name of secret containing client id and client secret of AAD application.
+      ```yaml
+      apiVersion: v1
+      data:
+        client-id: <client_id>
+        client-secret: <client_secret>
+      kind: Secret
+      metadata:
+        name: azure-client-secret
+        namespace: default
+      ```
+    - **useManageIdentity** (bool): Use managed service identity for the virtual machine.
+    - **cloud** (string): Specifies the the cloud environment identifier. If it is not provided then `AZUREPUBLICCLOUD` will be used as default.
+    <br></br>
+    > Note: unsealer will need `GET,LIST,SET` secret permissions to store or access unseal keys and root token.
 
 ## VaultServer Status
 

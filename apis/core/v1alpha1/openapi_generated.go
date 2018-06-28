@@ -51,13 +51,105 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"credentialSecret": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Specifies the secret name containing AWS access key and AWS secret key",
+								Description: "Specifies the secret name containing AWS access key and AWS secret key secret data:\n\t- access_key:<value>\n - secret_key:<value>",
 								Type:        []string{"string"},
 								Format:      "",
 							},
 						},
 					},
 					Required: []string{"kmsKeyID"},
+				},
+			},
+			Dependencies: []string{},
+		},
+		"github.com/kubevault/operator/apis/core/v1alpha1.AzureKeyVault": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "AzureKeyVault contain the fields that required to unseal vault using azure key vault",
+					Properties: map[string]spec.Schema{
+						"vaultBaseUrl": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Azure key vault url, for example https://myvault.vault.azure.net",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"cloud": {
+							SchemaProps: spec.SchemaProps{
+								Description: "The cloud environment identifier default: \"AZUREPUBLICCLOUD\"",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"tenantID": {
+							SchemaProps: spec.SchemaProps{
+								Description: "The AAD Tenant ID",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"clientCertSecret": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the name of secret containing client cert and client cert password secret data:\n\t- client-cert:<value>\n\t- client-cert-password: <value>",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"aadClientSecret": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the name of secret containing client id and client secret of AAD application secret data:\n\t- client-id:<value>\n\t- client-secret:<value>",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"useManagedIdentity": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Use managed service identity for the virtual machine",
+								Type:        []string{"boolean"},
+								Format:      "",
+							},
+						},
+					},
+					Required: []string{"vaultBaseUrl", "tenantID"},
+				},
+			},
+			Dependencies: []string{},
+		},
+		"github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/azure.html\n\nAzureSpec defines configuration to set up Google Cloud Storage as backend storage in vault",
+					Properties: map[string]spec.Schema{
+						"accountName": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the Azure Storage account name.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"accountKey": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the Azure Storage account key.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"container": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the Azure Storage Blob container name.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"maxParallel": {
+							SchemaProps: spec.SchemaProps{
+								Description: "\n Specifies the maximum number of concurrent operations to take place.",
+								Type:        []string{"integer"},
+								Format:      "int32",
+							},
+						},
+					},
+					Required: []string{"accountName", "accountKey", "container"},
 				},
 			},
 			Dependencies: []string{},
@@ -89,11 +181,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"),
 							},
 						},
+						"azure": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec"),
+							},
+						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec", "github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"},
 		},
 		"github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec": {
 			Schema: spec.Schema{
@@ -144,7 +241,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"credentialSecretName": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Specifies the secret name that contain username and password to use when authenticating with the etcd server",
+								Description: "Specifies the secret name that contain username and password to use when authenticating with the etcd server secret data:\n\t- username:<value>\n\t- password:<value>",
 								Type:        []string{"string"},
 								Format:      "",
 							},
@@ -297,11 +394,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.AwsKmsSsmSpec"),
 							},
 						},
+						"azureKeyVault": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.AzureKeyVault"),
+							},
+						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kubevault/operator/apis/core/v1alpha1.AwsKmsSsmSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.KubernetesSecretSpec"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.AwsKmsSsmSpec", "github.com/kubevault/operator/apis/core/v1alpha1.AzureKeyVault", "github.com/kubevault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.KubernetesSecretSpec"},
 		},
 		"github.com/kubevault/operator/apis/core/v1alpha1.PodPolicy": {
 			Schema: spec.Schema{
@@ -348,14 +450,14 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 						},
 						"credentialSecret": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Specifies the secret name containing AWS access key and AWS secret key",
+								Description: "Specifies the secret name containing AWS access key and AWS secret key secret data:\n\t- access_key=<value>\n - secret_key=<value>",
 								Type:        []string{"string"},
 								Format:      "",
 							},
 						},
 						"sessionTokenSecret": {
 							SchemaProps: spec.SchemaProps{
-								Description: "Specifies the secret name containing AWS session token",
+								Description: "Specifies the secret name containing AWS session token secret data:\n\t- session_token:<value>",
 								Type:        []string{"string"},
 								Format:      "",
 							},

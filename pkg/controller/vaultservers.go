@@ -544,6 +544,10 @@ func (c *VaultController) configureForVaultUnsealer(v *api.VaultServer, podTempl
 
 	// add vault unsealer as sidecar
 	unseal, err := unsealer.NewUnsealer(v.Spec.Unsealer)
+	if err != nil {
+		return errors.Wrap(err, "failed to create unsealer client")
+	}
+
 	err = unseal.AddContainer(podTempl)
 	if err != nil {
 		return errors.Wrap(err, "failed to add unsealer container")
