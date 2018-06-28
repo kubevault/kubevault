@@ -157,16 +157,26 @@ backendStorage:
     chunkSize: <chunk_size>
     maxParallel: <max_parallet>
     haEnabled: <true/false>
+    credentialSecret: <secret_name>
 ```
 **GcsSpec** has following fields:
   - **bucket** (string): Specifies the name of the bucket to use for storage.
   - **chunkSize** (string) : Specifies the maximum size (in kilobytes)to send in a single request. If set to 0, it will attempt to send the whole object at once, but will not retry any failures.
   - **maParallel** (int): Specifies the maximum number of paralleloperations to take place.
   - **haEnabled** (bool) : Specifies if high availability mode is enabled.
+  - **credentialSecret** (string): Specifies the secret name containing google credential. If this is empty, then instance service account will be used. Google credential secret example:
+    ```yaml
+    apiVersion: v1
+    data:
+      sa.json: <data>
+    kind: Secret
+    metadata:
+      name: google-credential
+    ```
 
 #### s3
 
-Contain the informations to use aws s3 as backend storage in vault. Vault documention about s3 storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/s3.html).
+Contain the information to use aws s3 as backend storage in vault. Vault documention about s3 storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/s3.html).
   ```yaml
   backendStorage:
     s3:
@@ -208,6 +218,24 @@ Contain the informations to use aws s3 as backend storage in vault. Vault docume
   - **maxParallel** (int):  Specifies the maximum number of concurrent requests to S3.
   - **s3ForcePathStyle** (bool): Specifies whether to use host bucket style domains with the configured endpoint. Default value is `false`.
   - **disableSSL** (bool):  Specifies if SSL should be used for the endpoint connection. Default value is `false`.
+
+#### azure
+
+Contain the information to use azure storage container as backend storage in vault. Vault documention about azure storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/azure.html).
+  ```yaml
+  backendStorage:
+    azure:
+      accountName: <storage_account_name>
+      accountKey: <storage_account_key>
+      container: <container_name>
+      maxParallel: <max_parallel>
+  ```
+
+  **AzureSpec** has following fields:
+  - **accountName** (string): Specifies the Azure Storage account name.
+  - **accountKey** (string): Specifies the Azure Storage account key.
+  - **container** (string): Specifies the Azure Storage Blob container name.
+  - **maxParallel** (int): Specifies the maximum number of concurrent operations to take place.
 
 
 ### Unsealer Spec
@@ -278,6 +306,7 @@ spec:
             kmsLocation: <location>
             kmsKeyRing: <key_ring_name>
             kmsCryptoKey: <crypto_key_name>
+            credentialSecret: <secret_name>
     ```
 
     googleKmsGcs has following fields:
@@ -286,6 +315,15 @@ spec:
     - **kmsLocation** (string): Specifies the location of the key ring. 
     - **kmsKeyRing** (string): Specifies the name of the key ring.
     - **kmsCryptoKey** (string): Specifies the name of the crypto key.
+    - **credentialSecret** (string): Specifies the secret name containing google credential. If this is empty, then instance service account will be used. Google credential secret example:
+      ```yaml
+      apiVersion: v1
+      data:
+        sa.json: <data>
+      kind: Secret
+      metadata:
+        name: google-credential
+      ```
   <br></br>
   - **awsKmsSsm** : Unseal keys and root token will be stored in AWS System Manager Parameter store. They will be encrypted using AWS encryption key.
     ```yaml
@@ -312,6 +350,50 @@ spec:
         name: aws-credential
         namespaces: default
       ```
+  <br></br>
+  - **azureKeyVault** : Unseal keys and root token will be stored in Azure Key Vault as secret.
+    ```yaml
+    spec:
+      unsealer:
+        ...
+        mode:
+          azureKeyVault:
+            vaultBaseUrl: <vault_base_url>
+            tenantID: <tenant_id>
+            clientCertSecret: <secret_name>
+            aadClientSecret: <secret_name
+            useManagedIdentity: <true/false>
+            cloud: <cloud_environment_identifier>
+    ```
+    azureKeyVault has following field:
+    - **vaultBaseUrl** (string): Specifies Azure key vault url.
+    - **tenantID** (string): Specifies Azure Active Directory tenant ID.
+    - **clientCertSecret** (string) : Specifies the name of secret containing client cert and client cert password.
+      ```yaml
+      apiVersion: v1
+      data:
+        client-cert: <client_cert>
+        client-cert-password: <client_cert_password>
+      kind: Secret
+      metadata:
+        name: azure-client-cert
+        namespace: default
+      ```
+    - **addClientSecret** (string) : Specifies the name of secret containing client id and client secret of AAD application.
+      ```yaml
+      apiVersion: v1
+      data:
+        client-id: <client_id>
+        client-secret: <client_secret>
+      kind: Secret
+      metadata:
+        name: azure-client-secret
+        namespace: default
+      ```
+    - **useManageIdentity** (bool): Use managed service identity for the virtual machine.
+    - **cloud** (string): Specifies the the cloud environment identifier. If it is not provided then `AZUREPUBLICCLOUD` will be used as default.
+    <br></br>
+    > Note: unsealer will need `GET,LIST,SET` secret permissions to store or access unseal keys and root token.
 
 ## VaultServer Status
 
