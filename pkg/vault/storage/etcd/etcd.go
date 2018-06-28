@@ -88,10 +88,6 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 	return nil
 }
 
-func (o *Options) GetSecrets(namespace string) ([]corev1.Secret, error) {
-	return nil, nil
-}
-
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html
 //
 // Note:

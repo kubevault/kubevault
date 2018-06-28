@@ -18,6 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"os"
 	corev1 "k8s.io/api/core/v1"
+	"io/ioutil"
 )
 
 const (
@@ -240,11 +241,30 @@ var _ = Describe("VaultServer", func() {
 		})
 
 		Context("gcs backend", func() {
+			const (
+				secretName = "google-cred"
+			)
 			BeforeEach(func() {
+				credFile := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+				data, err :=ioutil.ReadFile(credFile)
+				Expect(err).NotTo(HaveOccurred())
+
+				sr := corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: secretName,
+						Namespace: f.Namespace(),
+					},
+					Data: map[string][]byte {
+						"sa.json":data,
+					},
+				}
+
+				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
+
 				gcs := api.BackendStorageSpec{
 					Gcs: &api.GcsSpec{
 						Bucket: "vault-test-bucket",
-						CredentialPath: os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+						CredentialSecret: secretName,
 					},
 				}
 
@@ -252,8 +272,10 @@ var _ = Describe("VaultServer", func() {
 			})
 
 			AfterEach(func() {
-				err := f.DeleteVaultServer(vs.ObjectMeta)
-				Expect(err).NotTo(HaveOccurred())
+				Expect(f.DeleteSecret(secretName, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(secretName, vs.Namespace)
+
+				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
 				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
@@ -511,11 +533,29 @@ var _ = Describe("VaultServer", func() {
 		)
 
 		Context("using gcs backend", func() {
+			const (
+				secretName = "google-cred"
+			)
 			BeforeEach(func() {
+				credFile := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+				data, err :=ioutil.ReadFile(credFile)
+				Expect(err).NotTo(HaveOccurred())
+
+				sr := corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: secretName,
+						Namespace: f.Namespace(),
+					},
+					Data: map[string][]byte {
+						"sa.json":data,
+					},
+				}
+
+				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
 				gcs := api.BackendStorageSpec{
 					Gcs: &api.GcsSpec{
 						Bucket:         "vault-test-bucket",
-						CredentialPath: os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+						CredentialSecret: secretName,
 					},
 				}
 
@@ -526,7 +566,7 @@ var _ = Describe("VaultServer", func() {
 					Mode: api.ModeSpec{
 						GoogleKmsGcs: &api.GoogleKmsGcsSpec{
 							Bucket:         "vault-test-bucket",
-							CredentialPath: os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+							CredentialSecret: secretName,
 							KmsCryptoKey:   "vault-init",
 							KmsKeyRing:     "vault-key-ring",
 							KmsLocation:    "global",
@@ -539,8 +579,10 @@ var _ = Describe("VaultServer", func() {
 			})
 
 			AfterEach(func() {
-				err := f.DeleteVaultServer(vs.ObjectMeta)
-				Expect(err).NotTo(HaveOccurred())
+				Expect(f.DeleteSecret(secretName, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(secretName, vs.Namespace)
+
+				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
 				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
@@ -607,6 +649,88 @@ var _ = Describe("VaultServer", func() {
 			AfterEach(func() {
 				Expect(f.DeleteSecret(awsCredSecret, vs.Namespace)).NotTo(HaveOccurred())
 				checkForSecretDeleted(awsCredSecret, vs.Namespace)
+
+				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
+
+				checkForVaultServerDeleted(vs.Name, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+			})
+
+			It("should create vault server", func() {
+				shouldCreateVaultServer(vs)
+
+				checkForVaultIsUnsealed(vs)
+			})
+		})
+	})
+
+	Describe("unsealing using azure key vault", func() {
+		var (
+			vs *api.VaultServer
+		)
+
+		const (
+			azureCredSecret = "test-azure-cred"
+		)
+
+		Context("using azure storage backend", func() {
+			BeforeEach(func() {
+				var (
+					clientID = os.Getenv("AZURE_CLIENT_ID")
+					clientSecret = os.Getenv("AZURE_CLIENT_SECRET")
+					tenantID = os.Getenv("AZURE_TENANT_ID")
+					accountName = os.Getenv("AZURE_STORAGE_ACCOUNT_NAME")
+					accountKey = os.Getenv("AZURE_STORAGE_ACCOUNT_KEY")
+				)
+
+				Expect(clientID != "").To(BeTrue())
+				Expect(clientSecret != "").To(BeTrue())
+				Expect(tenantID != "").To(BeTrue())
+				Expect(accountName != "").To(BeTrue())
+				Expect(accountKey != "").To(BeTrue())
+
+				sr := corev1.Secret{
+					ObjectMeta:metav1.ObjectMeta{
+						Name:azureCredSecret,
+						Namespace: f.Namespace(),
+					},
+					Data: map[string][]byte{
+						"client-id":[]byte(clientID),
+						"client-secret":[]byte(clientSecret),
+					},
+				}
+
+				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
+
+				azure := api.BackendStorageSpec{
+					Azure: &api.AzureSpec{
+						AccountName: accountName,
+						AccountKey: accountKey,
+						Container: "vault",
+					},
+				}
+
+				unsealer := api.UnsealerSpec{
+					SecretShares:    4,
+					SecretThreshold: 2,
+					InsecureTLS:     true,
+					Mode: api.ModeSpec{
+						AzureKeyVault: &api.AzureKeyVault{
+							VaultBaseUrl: "https://vault-test-1204.vault.azure.net/",
+							TenantID: tenantID,
+							AADClientSecret: azureCredSecret,
+						},
+					},
+				}
+
+				vs = f.VaultServerWithUnsealer(1, azure, unsealer)
+			})
+
+			AfterEach(func() {
+				Expect(f.DeleteSecret(azureCredSecret, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(azureCredSecret, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 

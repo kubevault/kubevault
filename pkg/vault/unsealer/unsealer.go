@@ -7,6 +7,7 @@ import (
 
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/unsealer/aws"
+	"github.com/kubevault/operator/pkg/vault/unsealer/azure"
 	"github.com/kubevault/operator/pkg/vault/unsealer/google"
 	"github.com/kubevault/operator/pkg/vault/unsealer/kubernetes"
 	"github.com/pkg/errors"
@@ -17,7 +18,6 @@ import (
 type UnsealerService interface {
 	Apply(pt *corev1.PodTemplateSpec, cont *corev1.Container) error
 	GetRBAC(namespace string) []rbac.Role
-	GetSecrets(namespace string) ([]corev1.Secret, error)
 }
 
 type Unsealer struct {
@@ -32,6 +32,8 @@ func NewUnsealerService(s *api.UnsealerSpec) (UnsealerService, error) {
 		return google.NewOptions(*s.Mode.GoogleKmsGcs)
 	} else if s.Mode.AwsKmsSsm != nil {
 		return aws.NewOptions(*s.Mode.AwsKmsSsm)
+	} else if s.Mode.AzureKeyVault != nil {
+		return azure.NewOptions(*s.Mode.AzureKeyVault)
 	} else {
 		return nil, errors.New("unsealer mode is not valid/defined")
 	}
@@ -123,9 +125,4 @@ func (u *Unsealer) AddContainer(pt *corev1.PodTemplateSpec) error {
 // GetRBAC return rbac roles required by unsealer
 func (u *Unsealer) GetRBAC(namespace string) []rbac.Role {
 	return u.Service.GetRBAC(namespace)
-}
-
-// GetRBAC return rbac roles required by unsealer
-func (u *Unsealer) GetSecrets(namespace string) ([]corev1.Secret, error) {
-	return u.Service.GetSecrets(namespace)
 }
