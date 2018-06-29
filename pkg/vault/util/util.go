@@ -48,17 +48,6 @@ func AsOwner(v *api.VaultServer) metav1.OwnerReference {
 	}
 }
 
-// ApplyPodResourcePolicy add resource requirements
-func ApplyPodResourcePolicy(s *corev1.PodSpec, p *api.PodPolicy) {
-	for i := range s.Containers {
-		s.Containers[i].Resources = p.Resources
-	}
-
-	for i := range s.InitContainers {
-		s.InitContainers[i].Resources = p.Resources
-	}
-}
-
 func VaultImage(v *api.VaultServer) string {
 	return fmt.Sprintf("%s:%s", v.Spec.BaseImage, v.Spec.Version)
 }

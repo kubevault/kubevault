@@ -405,23 +405,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			Dependencies: []string{
 				"github.com/kubevault/operator/apis/core/v1alpha1.AwsKmsSsmSpec", "github.com/kubevault/operator/apis/core/v1alpha1.AzureKeyVault", "github.com/kubevault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.KubernetesSecretSpec"},
 		},
-		"github.com/kubevault/operator/apis/core/v1alpha1.PodPolicy": {
-			Schema: spec.Schema{
-				SchemaProps: spec.SchemaProps{
-					Description: "PodPolicy defines the policy for pods owned by vault operator.",
-					Properties: map[string]spec.Schema{
-						"resources": {
-							SchemaProps: spec.SchemaProps{
-								Description: "Resources is the resource requirements for the containers.",
-								Ref:         ref("k8s.io/api/core/v1.ResourceRequirements"),
-							},
-						},
-					},
-				},
-			},
-			Dependencies: []string{
-				"k8s.io/api/core/v1.ResourceRequirements"},
-		},
 		"github.com/kubevault/operator/apis/core/v1alpha1.S3Spec": {
 			Schema: spec.Schema{
 				SchemaProps: spec.SchemaProps{
@@ -700,12 +683,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Format:      "",
 							},
 						},
-						"podPolicy": {
-							SchemaProps: spec.SchemaProps{
-								Description: "PodPolicy defines the policy for pods owned by vault operator. This field cannot be updated once the CR is created.",
-								Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.PodPolicy"),
-							},
-						},
 						"configMapName": {
 							SchemaProps: spec.SchemaProps{
 								Description: "Name of the ConfigMap for Vault's configuration In this configMap contain extra config for vault",
@@ -731,12 +708,71 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.UnsealerSpec"),
 							},
 						},
+						"resources": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Compute Resources for vault container.",
+								Ref:         ref("k8s.io/api/core/v1.ResourceRequirements"),
+							},
+						},
+						"nodeSelector": {
+							SchemaProps: spec.SchemaProps{
+								Description: "NodeSelector is a selector which must be true for the pod to fit on a node. Selector which must match a node's labels for the pod to be scheduled on that node. More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/",
+								Type:        []string{"object"},
+								AdditionalProperties: &spec.SchemaOrBool{
+									Schema: &spec.Schema{
+										SchemaProps: spec.SchemaProps{
+											Type:   []string{"string"},
+											Format: "",
+										},
+									},
+								},
+							},
+						},
+						"affinity": {
+							SchemaProps: spec.SchemaProps{
+								Description: "If specified, the pod's scheduling constraints",
+								Ref:         ref("k8s.io/api/core/v1.Affinity"),
+							},
+						},
+						"schedulerName": {
+							SchemaProps: spec.SchemaProps{
+								Description: "If specified, the pod will be dispatched by specified scheduler. If not specified, the pod will be dispatched by default scheduler.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"tolerations": {
+							SchemaProps: spec.SchemaProps{
+								Description: "If specified, the pod's tolerations.",
+								Type:        []string{"array"},
+								Items: &spec.SchemaOrArray{
+									Schema: &spec.Schema{
+										SchemaProps: spec.SchemaProps{
+											Ref: ref("k8s.io/api/core/v1.Toleration"),
+										},
+									},
+								},
+							},
+						},
+						"imagePullSecrets": {
+							SchemaProps: spec.SchemaProps{
+								Description: "ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec. If specified, these secrets will be passed to individual puller implementations for them to use. For example, in the case of docker, only DockerConfig type secrets are honored. More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod",
+								Type:        []string{"array"},
+								Items: &spec.SchemaOrArray{
+									Schema: &spec.Schema{
+										SchemaProps: spec.SchemaProps{
+											Ref: ref("k8s.io/api/core/v1.LocalObjectReference"),
+										},
+									},
+								},
+							},
+						},
 					},
 					Required: []string{"baseImage", "version", "backendStorage"},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kubevault/operator/apis/core/v1alpha1.BackendStorageSpec", "github.com/kubevault/operator/apis/core/v1alpha1.PodPolicy", "github.com/kubevault/operator/apis/core/v1alpha1.TLSPolicy", "github.com/kubevault/operator/apis/core/v1alpha1.UnsealerSpec"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.BackendStorageSpec", "github.com/kubevault/operator/apis/core/v1alpha1.TLSPolicy", "github.com/kubevault/operator/apis/core/v1alpha1.UnsealerSpec", "k8s.io/api/core/v1.Affinity", "k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.Toleration"},
 		},
 		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerStatus": {
 			Schema: spec.Schema{

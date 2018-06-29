@@ -293,7 +293,9 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 			Namespace: v.GetNamespace(),
 		},
 		Spec: corev1.PodSpec{
-			Containers:         []corev1.Container{vaultContainer(v)},
+			Containers: []corev1.Container{
+				vaultContainer(v, v.Spec.Resources),
+			},
 			ServiceAccountName: saName,
 			Volumes: []corev1.Volume{{
 				Name: VaultConfigVolumeName,
@@ -305,12 +307,12 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 					},
 				},
 			}},
+			NodeSelector:     v.Spec.NodeSelector,
+			Tolerations:      v.Spec.Tolerations,
+			ImagePullSecrets: v.Spec.ImagePullSecrets,
+			Affinity:         v.Spec.Affinity,
+			SchedulerName:    v.Spec.SchedulerName,
 		},
-	}
-
-	// Add pod resource policy
-	if v.Spec.PodPolicy != nil {
-		util.ApplyPodResourcePolicy(&podTempl.Spec, v.Spec.PodPolicy)
 	}
 
 	configureVaultServerTLS(&podTempl)
@@ -730,7 +732,7 @@ func (c *VaultController) createVaultService(v *api.VaultServer) error {
 	return nil
 }
 
-func vaultContainer(v *api.VaultServer) corev1.Container {
+func vaultContainer(v *api.VaultServer, resource corev1.ResourceRequirements) corev1.Container {
 	return corev1.Container{
 		Name:  "vault",
 		Image: util.VaultImage(v),
@@ -780,6 +782,7 @@ func vaultContainer(v *api.VaultServer) corev1.Container {
 			PeriodSeconds:       10,
 			FailureThreshold:    5,
 		},
+		Resources: resource,
 	}
 }
 
