@@ -1490,6 +1490,9 @@
           "description": "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
           "type": "boolean"
         },
+        "postgreSQL": {
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.PostgreSQLSpec"
+        },
         "s3": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.S3Spec"
         }
@@ -1622,6 +1625,27 @@
         },
         "kubernetesSecret": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.KubernetesSecretSpec"
+        }
+      }
+    },
+    "com.github.kubevault.operator.apis.core.v1alpha1.PostgreSQLSpec": {
+      "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/postgresql.html\n\nPostgreSQLSpec defines configuration to set up PostgreSQL storage as backend storage in vault",
+      "required": [
+        "connectionUrl"
+      ],
+      "properties": {
+        "connectionUrl": {
+          "description": "Specifies the connection string to use to authenticate and connect to PostgreSQL. A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters).",
+          "type": "string"
+        },
+        "maxParallel": {
+          "description": "\n Specifies the maximum number of concurrent requests to take place.",
+          "type": "integer",
+          "format": "int32"
+        },
+        "table": {
+          "description": "Specifies the name of the table in which to write Vault data. This table must already exist (Vault will not attempt to create it).",
+          "type": "string"
         }
       }
     },

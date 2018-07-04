@@ -268,6 +268,20 @@ Contain the information to use azure storage container as backend storage in vau
   - **container** (string): Specifies the Azure Storage Blob container name.
   - **maxParallel** (int): Specifies the maximum number of concurrent operations to take place.
 
+#### PostgreSQL
+Contain the information to use postgresql storage as backend storage in vault. Vault documention about azure storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/postgresql.html).
+  ```yaml
+  backendStorage:
+    postgreSQL:
+      connectionUrl: <connection_url>
+      table: <table_name>
+      maxParallel: <max_parallel>
+  ```
+  **PostgreSQLSpec** has following fields:
+  - **connectionUrl** (string): Specifies the connection string to use to authenticate and connect to PostgreSQL.
+  - **table** (string): Specifies the name of the table in which to write Vault data. This table must already exist (Vault will not attempt to create it). Default value is `vault_kv_store`.
+   - **maxParallel** (int): Specifies the maximum number of concurrent requests to take place. Default vault is `128`.
+
 
 ### Unsealer Spec
 

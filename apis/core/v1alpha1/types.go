@@ -169,11 +169,12 @@ type StaticTLS struct {
 // BackendStorageSpec defines storage backend configuration of vault
 type BackendStorageSpec struct {
 	// ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html
-	Inmem bool       `json:"inmem,omitempty"`
-	Etcd  *EtcdSpec  `json:"etcd,omitempty"`
-	Gcs   *GcsSpec   `json:"gcs,omitempty"`
-	S3    *S3Spec    `json:"s3,omitempty"`
-	Azure *AzureSpec `json:"azure,omitempty"`
+	Inmem      bool            `json:"inmem,omitempty"`
+	Etcd       *EtcdSpec       `json:"etcd,omitempty"`
+	Gcs        *GcsSpec        `json:"gcs,omitempty"`
+	S3         *S3Spec         `json:"s3,omitempty"`
+	Azure      *AzureSpec      `json:"azure,omitempty"`
+	PostgreSQL *PostgreSQLSpec `json:"postgreSQL,omitempty"`
 }
 
 // TODO : set defaults and validation
@@ -280,6 +281,22 @@ type AzureSpec struct {
 	Container string `json:"container"`
 
 	//  Specifies the maximum number of concurrent operations to take place.
+	MaxParallel int `json:"maxParallel,omitempty"`
+}
+
+// vault doc: https://www.vaultproject.io/docs/configuration/storage/postgresql.html
+//
+// PostgreSQLSpec defines configuration to set up PostgreSQL storage as backend storage in vault
+type PostgreSQLSpec struct {
+	//Specifies the connection string to use to authenticate and connect to PostgreSQL.
+	// A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters).
+	ConnectionUrl string `json:"connectionUrl"`
+
+	// Specifies the name of the table in which to write Vault data.
+	// This table must already exist (Vault will not attempt to create it).
+	Table string `json:"table,omitempty"`
+
+	//  Specifies the maximum number of concurrent requests to take place.
 	MaxParallel int `json:"maxParallel,omitempty"`
 }
 

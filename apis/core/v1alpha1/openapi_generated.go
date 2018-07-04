@@ -186,11 +186,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec"),
 							},
 						},
+						"postgreSQL": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec"),
+							},
+						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec", "github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec", "github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"},
 		},
 		"github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec": {
 			Schema: spec.Schema{
@@ -404,6 +409,38 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			},
 			Dependencies: []string{
 				"github.com/kubevault/operator/apis/core/v1alpha1.AwsKmsSsmSpec", "github.com/kubevault/operator/apis/core/v1alpha1.AzureKeyVault", "github.com/kubevault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.KubernetesSecretSpec"},
+		},
+		"github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/postgresql.html\n\nPostgreSQLSpec defines configuration to set up PostgreSQL storage as backend storage in vault",
+					Properties: map[string]spec.Schema{
+						"connectionUrl": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the connection string to use to authenticate and connect to PostgreSQL. A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters).",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"table": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the name of the table in which to write Vault data. This table must already exist (Vault will not attempt to create it).",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"maxParallel": {
+							SchemaProps: spec.SchemaProps{
+								Description: "\n Specifies the maximum number of concurrent requests to take place.",
+								Type:        []string{"integer"},
+								Format:      "int32",
+							},
+						},
+					},
+					Required: []string{"connectionUrl"},
+				},
+			},
+			Dependencies: []string{},
 		},
 		"github.com/kubevault/operator/apis/core/v1alpha1.S3Spec": {
 			Schema: spec.Schema{
