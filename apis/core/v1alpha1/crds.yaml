@@ -913,6 +913,39 @@ spec:
                 inmem:
                   description: 'ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html'
                   type: boolean
+                mySQL:
+                  description: |-
+                    vault doc: https://www.vaultproject.io/docs/configuration/storage/mysql.html
+
+                    MySQLSpec defines configuration to set up MySQL Storage as backend storage in vault
+                  properties:
+                    address:
+                      description: Specifies the address of the MySQL host.
+                      type: string
+                    database:
+                      description: Specifies the name of the database. If the database
+                        does not exist, Vault will attempt to create it.
+                      type: string
+                    maxParallel:
+                      description: |2-
+
+                         Specifies the maximum number of concurrent requests to take place.
+                      format: int32
+                      type: integer
+                    table:
+                      description: Specifies the name of the table. If the table does
+                        not exist, Vault will attempt to create it.
+                      type: string
+                    tlsCASecret:
+                      description: "Specifies the name of the secret containing the
+                        CA certificate to connect using TLS. secret data:\n\t- ca=<ca_cert>"
+                      type: string
+                    userCredentialSecret:
+                      description: "Specifies the MySQL username and password to connect
+                        to the database secret data:\n\t- username=<value>\n\t- password=<value>"
+                      type: string
+                  required:
+                  - userCredentialSecret
                 postgreSQL:
                   description: |-
                     vault doc: https://www.vaultproject.io/docs/configuration/storage/postgresql.html

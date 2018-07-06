@@ -175,6 +175,7 @@ type BackendStorageSpec struct {
 	S3         *S3Spec         `json:"s3,omitempty"`
 	Azure      *AzureSpec      `json:"azure,omitempty"`
 	PostgreSQL *PostgreSQLSpec `json:"postgreSQL,omitempty"`
+	MySQL      *MySQLSpec      `json:"mySQL,omitempty"`
 }
 
 // TODO : set defaults and validation
@@ -297,6 +298,34 @@ type PostgreSQLSpec struct {
 	// Specifies the name of the table in which to write Vault data.
 	// This table must already exist (Vault will not attempt to create it).
 	Table string `json:"table,omitempty"`
+
+	//  Specifies the maximum number of concurrent requests to take place.
+	MaxParallel int `json:"maxParallel,omitempty"`
+}
+
+// vault doc: https://www.vaultproject.io/docs/configuration/storage/mysql.html
+//
+// MySQLSpec defines configuration to set up MySQL Storage as backend storage in vault
+type MySQLSpec struct {
+	// Specifies the address of the MySQL host.
+	Address string `json:"address,omitempty"`
+
+	// Specifies the name of the database. If the database does not exist, Vault will attempt to create it.
+	Database string `json:"database,omitempty"`
+
+	// Specifies the name of the table. If the table does not exist, Vault will attempt to create it.
+	Table string `json:"table,omitempty"`
+
+	// Specifies the MySQL username and password to connect to the database
+	// secret data:
+	//	- username=<value>
+	//	- password=<value>
+	UserCredentialSecret string `json:"userCredentialSecret"`
+
+	// Specifies the name of the secret containing the CA certificate to connect using TLS.
+	// secret data:
+	//	- ca=<ca_cert>
+	TLSCASecret string `json:"tlsCASecret,omitempty"`
 
 	//  Specifies the maximum number of concurrent requests to take place.
 	MaxParallel int `json:"maxParallel,omitempty"`

@@ -821,4 +821,77 @@ var _ = Describe("VaultServer", func() {
 		})
 	})
 
+	Describe("using mySQL backend", func() {
+		Context("using unsealer kubernetes secret", func() {
+			var (
+				vs *api.VaultServer
+			)
+
+			const (
+				k8sSecretName   = "k8s-mysql-vault-keys"
+				mysqlCredSecret = "mysql-cred-1234"
+			)
+			BeforeEach(func() {
+				url, err := f.DeployMySQL()
+				Expect(err).NotTo(HaveOccurred())
+
+				sr := corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      mysqlCredSecret,
+						Namespace: f.Namespace(),
+					},
+					Data: map[string][]byte{
+						"username": []byte("root"),
+						"password": []byte("root"),
+					},
+				}
+
+				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
+
+				mysql := api.BackendStorageSpec{
+					MySQL: &api.MySQLSpec{
+						Address:              url,
+						UserCredentialSecret: mysqlCredSecret,
+					},
+				}
+
+				unsealer := api.UnsealerSpec{
+					SecretShares:    4,
+					SecretThreshold: 2,
+					InsecureTLS:     true,
+					Mode: api.ModeSpec{
+						KubernetesSecret: &api.KubernetesSecretSpec{
+							SecretName: k8sSecretName,
+						},
+					},
+				}
+
+				vs = f.VaultServerWithUnsealer(1, mysql, unsealer)
+			})
+
+			AfterEach(func() {
+
+				Expect(f.DeleteMySQL()).NotTo(HaveOccurred())
+
+				Expect(f.DeleteSecret(k8sSecretName, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(k8sSecretName, vs.Namespace)
+				Expect(f.DeleteSecret(mysqlCredSecret, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(mysqlCredSecret, vs.Namespace)
+
+				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
+
+				checkForVaultServerDeleted(vs.Name, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+			})
+
+			It("should create vault server", func() {
+				shouldCreateVaultServer(vs)
+
+				checkForVaultIsUnsealed(vs)
+			})
+		})
+	})
+
 })

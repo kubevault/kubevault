@@ -191,11 +191,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec"),
 							},
 						},
+						"mySQL": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.MySQLSpec"),
+							},
+						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec", "github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec", "github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.MySQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"},
 		},
 		"github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec": {
 			Schema: spec.Schema{
@@ -409,6 +414,59 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 			},
 			Dependencies: []string{
 				"github.com/kubevault/operator/apis/core/v1alpha1.AwsKmsSsmSpec", "github.com/kubevault/operator/apis/core/v1alpha1.AzureKeyVault", "github.com/kubevault/operator/apis/core/v1alpha1.GoogleKmsGcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.KubernetesSecretSpec"},
+		},
+		"github.com/kubevault/operator/apis/core/v1alpha1.MySQLSpec": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/mysql.html\n\nMySQLSpec defines configuration to set up MySQL Storage as backend storage in vault",
+					Properties: map[string]spec.Schema{
+						"address": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the address of the MySQL host.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"database": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the name of the database. If the database does not exist, Vault will attempt to create it.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"table": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the name of the table. If the table does not exist, Vault will attempt to create it.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"userCredentialSecret": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the MySQL username and password to connect to the database secret data:\n\t- username=<value>\n\t- password=<value>",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"tlsCASecret": {
+							SchemaProps: spec.SchemaProps{
+								Description: "Specifies the name of the secret containing the CA certificate to connect using TLS. secret data:\n\t- ca=<ca_cert>",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+						"maxParallel": {
+							SchemaProps: spec.SchemaProps{
+								Description: "\n Specifies the maximum number of concurrent requests to take place.",
+								Type:        []string{"integer"},
+								Format:      "int32",
+							},
+						},
+					},
+					Required: []string{"userCredentialSecret"},
+				},
+			},
+			Dependencies: []string{},
 		},
 		"github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec": {
 			Schema: spec.Schema{

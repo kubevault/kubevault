@@ -12,9 +12,10 @@ spec:
 status:
   ...
 ```
-### VaultServer Spec
+## VaultServer Spec
 
-VaultServer Spec contains the configuration about how to deploy vault in kubernetes cluster. 
+VaultServer Spec contains the configuration about how to deploy vault in kubernetes cluster.
+
 ```yaml
 apiVersion: "core.kubevault.com/v1alpha1"
 kind: "VaultServer"
@@ -110,11 +111,11 @@ spec:
 - **imagePullSecrets** : ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by PodSpec. If specified, these secrets will be passed to individual puller implementations for them to use. For example, in the case of docker, only DockerConfig type secrets are honored. For more information see [here](https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod).
 
 
-### BackendStorage Spec
+## BackendStorage Spec
 
 BackendStorage Spec contains the information for vault storage backend. Vault operator generates storage configuration according to this spec.
 
-#### inmem
+### Inmem
 
 To use In-Memory as storage backend in vault. For more information see [here](https://www.vaultproject.io/docs/configuration/storage/in-memory.html).
 ```yaml
@@ -122,7 +123,7 @@ backendStorage:
   inmem: true
 ```
 
-#### etcd 
+### Etcd
 
 Contain the information to use etcd as storage backend in vault.
 ```yaml
@@ -131,7 +132,7 @@ backendStorage:
     address: "http://example.etcd.svc:8200"
     etcdApi: "v3"
 ```
-**EtcdSpec** contain following fields: 
+**EtcdSpec** contain following fields:
   - **address** (string): Specifies the addresses of the etcd instances. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#address).
   - **etcdApi** (string): Specifies the version of the API to communicate with etcd. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#etcd_api).
   - **haEnable** (bool): Specifies if high availability should be enabled. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#ha_enabled).
@@ -139,7 +140,7 @@ backendStorage:
   - **sync** (bool):Specifies whether to sync list of available etcd services on startup. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#sync).
   - **discoverySrv** (string): Specifies the domain name to query for SRV records describing cluster endpoints. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#discovery_srv).
   - **credentialSecretName** (string): Specifies the secret name that contain username and password to use when authenticating with the etcd server. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#username).
-  
+
     ```yaml
     backendStorage:
       etcd:
@@ -157,9 +158,9 @@ backendStorage:
     metadata:
       name: vault-etcd-credential
     ```
-    
+
   - **tlsSecretName** (string): Specifies the secret name that containsca cert, client cert and client key for etcd communication.For vaultdocumentation, click [here(https://www.vaultproject.io/docs/configuration/storage/etcdhtml#tls_ca_file).
-  
+
     ```yaml
     backendStorage:
       etcd:
@@ -178,7 +179,7 @@ backendStorage:
     metadata:
       name: vault-etcd-tls
     ```
-#### gcs 
+### Gcs
 
 Contain the informations to use gcs as backend storage in vault. Vault documention about gcs storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html)
 ```yaml
@@ -205,7 +206,7 @@ backendStorage:
       name: google-credential
     ```
 
-#### s3
+### S3
 
 Contain the information to use aws s3 as backend storage in vault. Vault documention about s3 storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/s3.html).
   ```yaml
@@ -220,7 +221,7 @@ Contain the information to use aws s3 as backend storage in vault. Vault documen
       s3ForcePathStyle: <true/false>
       disableSSL: <true/false>
   ```
-  
+
   **S3Spec** has following fields:
   - **bucket** (string): Specifies the name of the bucket to use for storage.
   - **endPoint** (string): Specifies an alternative, AWS compatible, S3 endpoint.
@@ -250,9 +251,9 @@ Contain the information to use aws s3 as backend storage in vault. Vault documen
   - **s3ForcePathStyle** (bool): Specifies whether to use host bucket style domains with the configured endpoint. Default value is `false`.
   - **disableSSL** (bool):  Specifies if SSL should be used for the endpoint connection. Default value is `false`.
 
-#### azure
+### Azure
 
-Contain the information to use azure storage container as backend storage in vault. Vault documention about azure storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/azure.html).
+Contain the information to use azure storage container as backend storage in vault. Vault documentions about azure storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/azure.html).
   ```yaml
   backendStorage:
     azure:
@@ -291,8 +292,48 @@ Contain the information to use postgreSQL storage as backend storage in vault. V
   - **table** (string): Specifies the name of the table in which to write Vault data. This table must already exist (Vault will not attempt to create it). Default value is `vault_kv_store`.
    - **maxParallel** (int): Specifies the maximum number of concurrent requests to take place. Default vault is `128`.
 
+### MySQL
 
-### Unsealer Spec
+Contain the information to use MySQL as backend storage in vault. Vault documentions about MySQL can be found [here](https://www.vaultproject.io/docs/configuration/storage/mysql.html).
+  ```yaml
+  backendStorage:
+    mySQL:
+      address: <address>
+      database: <database_name>
+      table: <table_name>
+      userCredentialSecret: <secret_name>
+      tlsCASecret: <secret_name>
+      maxParallel: <max_parallel>
+  ```
+  **mySQLSpec** has following fields:
+  - **address** (string): Specifies the address of the MySQL host.
+  - **database** (string): Specifies the name of the database. If the database does not exist, Vault will attempt to create it. Default database name is `vault`.
+  - **table** (string): Specifies the name of the table. If the table does not exist, Vault will attempt to create it. Default table name is `vault`.
+  - **userCredentialSecret** (string): Specifies the MySQL username and password to connect to the database. Example:
+    ```yaml
+    apiVersion: v1
+    data:
+      username: <data>
+      password: <data>
+    kind: Secret
+    metadata:
+      name: mysql-user-cred
+      namespace: default
+    ```
+  - **tlsCASecret** (string): Specifies the name of the secret containing the CA certificate to connect using TLS.
+    ```yaml
+    apiVersion: v1
+    data:
+      ca: <data>
+    kind: Secret
+    metadata:
+      name: mysql-tls-ca
+      namespace: default
+    ```
+  - **maxParallel** (int): Specifies the maximum number of concurrent requests to take place.
+
+
+## Unsealer Spec
 
 Vault operator use [kubevault/unsealer](https://github.com/kubevault/unsealer) to unseal vault. Unsealer spec contains the informations that used in unsealer to unseal vault.
 
@@ -366,7 +407,7 @@ spec:
     googleKmsGcs has following fields:
     - **bucket** (string): Specifies the name of the bucket to store keys in.
     - **kmsProject** (string): Specifies the name of the projects under which key ring is created.
-    - **kmsLocation** (string): Specifies the location of the key ring. 
+    - **kmsLocation** (string): Specifies the location of the key ring.
     - **kmsKeyRing** (string): Specifies the name of the key ring.
     - **kmsCryptoKey** (string): Specifies the name of the crypto key.
     - **credentialSecret** (string): Specifies the secret name containing google credential. If this is empty, then instance service account will be used. Google credential secret example:
@@ -473,4 +514,3 @@ status:
   - **standby**: Names of the standby vault pods.
   - **sealed**: Names of the sealed vault pods.
   - **unsealed**: Names of the unsealed vault pods.
-  
