@@ -269,16 +269,25 @@ Contain the information to use azure storage container as backend storage in vau
   - **maxParallel** (int): Specifies the maximum number of concurrent operations to take place.
 
 #### PostgreSQL
-Contain the information to use postgresql storage as backend storage in vault. Vault documention about azure storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/postgresql.html).
+Contain the information to use postgreSQL storage as backend storage in vault. Vault documention about postgreSQL can be found [here](https://www.vaultproject.io/docs/configuration/storage/postgresql.html).
   ```yaml
   backendStorage:
     postgreSQL:
-      connectionUrl: <connection_url>
+      connectionUrlSecretName: <secret_name>
       table: <table_name>
       maxParallel: <max_parallel>
   ```
   **PostgreSQLSpec** has following fields:
-  - **connectionUrl** (string): Specifies the connection string to use to authenticate and connect to PostgreSQL.
+  - **connectionUrlSecret** (string): Specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL.
+    ```yaml
+    apiVersion: v1
+    data:
+      connection_url: <data>
+    kind: Secret
+    metadata:
+      name: postgres-conn-url
+      namespaces: default
+    ```
   - **table** (string): Specifies the name of the table in which to write Vault data. This table must already exist (Vault will not attempt to create it). Default value is `vault_kv_store`.
    - **maxParallel** (int): Specifies the maximum number of concurrent requests to take place. Default vault is `128`.
 

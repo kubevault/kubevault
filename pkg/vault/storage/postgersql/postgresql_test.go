@@ -6,19 +6,39 @@ import (
 
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
 	"github.com/stretchr/testify/assert"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kfake "k8s.io/client-go/kubernetes/fake"
 )
 
 func TestOptions_GetStorageConfig(t *testing.T) {
-	opts, err := NewOptions(api.PostgreSQLSpec{
-		ConnectionUrl: "url",
-		Table:         "table",
-		MaxParallel:   128,
+	kClient := kfake.NewSimpleClientset()
+	ns := "test"
+	sr := corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "url",
+			Namespace: ns,
+		},
+		Data: map[string][]byte{
+			"connection_url": []byte("test.com"),
+		},
+	}
+	_, err := kClient.CoreV1().Secrets(ns).Create(&sr)
+	if !assert.Nil(t, err) {
+		return
+	}
+	opts, err := NewOptions(kClient, ns, api.PostgreSQLSpec{
+		ConnectionUrlSecret: "url",
+		Table:               "table",
+		MaxParallel:         128,
 	})
-	assert.Nil(t, err)
+	if !assert.Nil(t, err) {
+		return
+	}
 
 	out := `
 storage "postgresql" {
-connection_url = "url"
+connection_url = "test.com"
 table = "table"
 max_parallel = "128"
 }

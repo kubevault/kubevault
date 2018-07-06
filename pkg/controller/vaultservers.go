@@ -485,7 +485,7 @@ func (c *VaultController) prepareConfig(v *api.VaultServer) error {
 		cfgData = fmt.Sprintf("%s\n%s", cfgData, cm.Data[filepath.Base(util.VaultConfigFile)])
 	}
 
-	storageSrv, err := storage.NewStorage(&v.Spec.BackendStorage)
+	storageSrv, err := storage.NewStorage(c.kubeClient, v)
 	if err != nil {
 		return errors.Wrap(err, "failed to create storage service for vault backend service")
 	}
@@ -521,7 +521,7 @@ func (c *VaultController) prepareConfig(v *api.VaultServer) error {
 //	- Create secret
 //  - Mount secret
 func (c *VaultController) configureForVaultBackendStorage(v *api.VaultServer, podTempl *corev1.PodTemplateSpec) error {
-	storageSrv, err := storage.NewStorage(&v.Spec.BackendStorage)
+	storageSrv, err := storage.NewStorage(c.kubeClient, v)
 	if err != nil {
 		return errors.Wrap(err, "failed to create storage service for vault backend service")
 	}

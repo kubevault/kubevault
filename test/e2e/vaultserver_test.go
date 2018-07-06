@@ -756,15 +756,28 @@ var _ = Describe("VaultServer", func() {
 			)
 
 			const (
-				k8sSecretName = "k8s-postgres-vault-keys"
+				k8sSecretName       = "k8s-postgres-vault-keys"
+				connectionUrlSecret = "postgresql-conn-url"
 			)
 			BeforeEach(func() {
 				url, err := f.DeployPostgresSQL()
 				Expect(err).NotTo(HaveOccurred())
 
+				sr := corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      connectionUrlSecret,
+						Namespace: f.Namespace(),
+					},
+					Data: map[string][]byte{
+						"connection_url": []byte(fmt.Sprintf("postgres://postgres:root@%s/database?sslmode=disable", url)),
+					},
+				}
+
+				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
+
 				postgres := api.BackendStorageSpec{
 					PostgreSQL: &api.PostgreSQLSpec{
-						ConnectionUrl: fmt.Sprintf("postgres://postgres:root@%s/database?sslmode=disable", url),
+						ConnectionUrlSecret: connectionUrlSecret,
 					},
 				}
 
@@ -788,6 +801,9 @@ var _ = Describe("VaultServer", func() {
 
 				Expect(f.DeleteSecret(k8sSecretName, vs.Namespace)).NotTo(HaveOccurred())
 				checkForSecretDeleted(k8sSecretName, vs.Namespace)
+
+				Expect(f.DeleteSecret(connectionUrlSecret, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(connectionUrlSecret, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 

@@ -919,10 +919,12 @@ spec:
 
                     PostgreSQLSpec defines configuration to set up PostgreSQL storage as backend storage in vault
                   properties:
-                    connectionUrl:
-                      description: Specifies the connection string to use to authenticate
-                        and connect to PostgreSQL. A full list of supported parameters
-                        can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters).
+                    connectionUrlSecret:
+                      description: "Specifies the name of the secret containing the
+                        connection string to use to authenticate and connect to PostgreSQL.
+                        A full list of supported parameters can be found in the pq
+                        library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters).
+                        secret data:\n\t- connection_url:<data>"
                       type: string
                     maxParallel:
                       description: |2-
@@ -936,7 +938,7 @@ spec:
                         attempt to create it).
                       type: string
                   required:
-                  - connectionUrl
+                  - connectionUrlSecret
                 s3:
                   description: |-
                     vault doc: https://www.vaultproject.io/docs/configuration/storage/s3.html
@@ -1243,8 +1245,3 @@ spec:
                     type: string
                   type: array
   version: v1alpha1
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: null
