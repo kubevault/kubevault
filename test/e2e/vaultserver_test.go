@@ -1,14 +1,12 @@
 package e2e_test
 
 import (
+	"fmt"
+	"io/ioutil"
+	"math/rand"
+	"os"
 	"path/filepath"
 	"time"
-
-	"fmt"
-	"math/rand"
-
-	"io/ioutil"
-	"os"
 
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
 	"github.com/kubevault/operator/pkg/controller"
@@ -901,7 +899,7 @@ var _ = Describe("VaultServer", func() {
 			)
 
 			const (
-				k8sSecretName   = "k8s-file-vault-keys"
+				k8sSecretName = "k8s-file-vault-keys"
 			)
 			BeforeEach(func() {
 				file := api.BackendStorageSpec{

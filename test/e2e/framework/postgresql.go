@@ -1,72 +1,72 @@
 package framework
 
 import (
+	"database/sql"
+	"fmt"
+	"strconv"
+	"time"
+
+	"github.com/appscode/go/crypto/rand"
+	"github.com/appscode/kutil/tools/portforward"
+	_ "github.com/lib/pq"
+	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
+	apps "k8s.io/api/apps/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"github.com/appscode/go/crypto/rand"
-	"k8s.io/apimachinery/pkg/util/intstr"
-	apps "k8s.io/api/apps/v1beta1"
-	. "github.com/onsi/gomega"
-	"fmt"
 	"k8s.io/apimachinery/pkg/labels"
-	"github.com/pkg/errors"
-	"time"
-	"database/sql"
-
-	_ "github.com/lib/pq"
-	"github.com/appscode/kutil/tools/portforward"
-	"strconv"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 var (
-	postgresqlServiceName = rand.WithUniqSuffix("test-svc-postgresql")
+	postgresqlServiceName    = rand.WithUniqSuffix("test-svc-postgresql")
 	postgresqlDeploymentName = rand.WithUniqSuffix("test-postgresql-deploy")
 )
 
 func (f *Framework) DeployPostgresSQL() (string, error) {
-	label := map[string]string {
-		"app":rand.WithUniqSuffix("test-postgresql"),
+	label := map[string]string{
+		"app": rand.WithUniqSuffix("test-postgresql"),
 	}
 
 	srv := corev1.Service{
-		ObjectMeta:metav1.ObjectMeta{
-			Namespace:f.namespace,
-			Name: postgresqlServiceName,
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: f.namespace,
+			Name:      postgresqlServiceName,
 		},
-		Spec:corev1.ServiceSpec{
+		Spec: corev1.ServiceSpec{
 			Selector: label,
 			Ports: []corev1.ServicePort{
 				{
-					Name: "tcp",
-					Protocol: corev1.ProtocolTCP,
-					Port: 5432,
+					Name:       "tcp",
+					Protocol:   corev1.ProtocolTCP,
+					Port:       5432,
 					TargetPort: intstr.FromInt(5432),
 				},
 			},
 		},
 	}
 
-	url := fmt.Sprintf("%s.%s.svc:5432",postgresqlServiceName, f.namespace)
+	url := fmt.Sprintf("%s.%s.svc:5432", postgresqlServiceName, f.namespace)
 
 	postgresqlCont := corev1.Container{
-		Name: "postgres",
-		Image: "postgres:9.6.2",
+		Name:            "postgres",
+		Image:           "postgres:9.6.2",
 		ImagePullPolicy: "IfNotPresent",
-		Env:[]corev1.EnvVar{
+		Env: []corev1.EnvVar{
 			{
-				Name: "POSTGRES_USER",
+				Name:  "POSTGRES_USER",
 				Value: "postgres",
 			},
 			{
-				Name: "POSTGRES_PASSWORD",
+				Name:  "POSTGRES_PASSWORD",
 				Value: "root",
 			},
 			{
-				Name: "POSTGRES_DB",
+				Name:  "POSTGRES_DB",
 				Value: "database",
 			},
 			{
-				Name: "PGDATA",
+				Name:  "PGDATA",
 				Value: "/var/lib/postgresql/data/pgdata",
 			},
 			{
@@ -80,16 +80,16 @@ func (f *Framework) DeployPostgresSQL() (string, error) {
 		},
 		Ports: []corev1.ContainerPort{
 			{
-				Name: "postgresql",
-				Protocol: corev1.ProtocolTCP,
+				Name:          "postgresql",
+				Protocol:      corev1.ProtocolTCP,
 				ContainerPort: 5432,
 			},
 		},
 		VolumeMounts: []corev1.VolumeMount{
 			{
 				MountPath: "/var/lib/postgresql/data/pgdata",
-				Name: "data",
-				SubPath: "postgresgl-db",
+				Name:      "data",
+				SubPath:   "postgresgl-db",
 			},
 		},
 		ReadinessProbe: &corev1.Probe{
@@ -103,25 +103,25 @@ func (f *Framework) DeployPostgresSQL() (string, error) {
 				},
 			},
 			InitialDelaySeconds: 5,
-			TimeoutSeconds: 3,
-			PeriodSeconds: 5,
-			FailureThreshold: 10,
+			TimeoutSeconds:      3,
+			PeriodSeconds:       5,
+			FailureThreshold:    10,
 		},
 	}
 
 	postgresqlDeploy := apps.Deployment{
-		ObjectMeta:metav1.ObjectMeta{
-			Namespace:f.namespace,
-			Name: postgresqlDeploymentName,
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: f.namespace,
+			Name:      postgresqlDeploymentName,
 		},
 		Spec: apps.DeploymentSpec{
-			Replicas: func(i int32) *int32 {return &i}(1),
+			Replicas: func(i int32) *int32 { return &i }(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: label,
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels:label,
+					Labels: label,
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -141,13 +141,13 @@ func (f *Framework) DeployPostgresSQL() (string, error) {
 	}
 
 	err := f.CreateService(srv)
-	if err!=nil {
-		return "",err
+	if err != nil {
+		return "", err
 	}
 
 	_, err = f.CreateDeployment(postgresqlDeploy)
-	if err!=nil {
-		return "",err
+	if err != nil {
+		return "", err
 	}
 
 	Eventually(func() bool {
@@ -157,13 +157,13 @@ func (f *Framework) DeployPostgresSQL() (string, error) {
 		return false
 	}, timeOut, pollingInterval).Should(BeTrue())
 
-	time.Sleep(10*time.Second)
+	time.Sleep(10 * time.Second)
 
 	// create table
 	pods, err := f.KubeClient.CoreV1().Pods(f.namespace).List(metav1.ListOptions{
 		LabelSelector: labels.SelectorFromSet(label).String(),
 	})
-	if err!=nil {
+	if err != nil {
 		return "", errors.Wrap(err, "failed to get postgresql pods")
 	}
 	if len(pods.Items) == 0 {
@@ -171,27 +171,27 @@ func (f *Framework) DeployPostgresSQL() (string, error) {
 	}
 
 	err = f.setupPostgreSQL(pods.Items[0])
-	if err!=nil {
-		return "",err
+	if err != nil {
+		return "", err
 	}
 
 	return url, nil
 }
 
-func (f *Framework)setupPostgreSQL(pod corev1.Pod) error {
+func (f *Framework) setupPostgreSQL(pod corev1.Pod) error {
 
 	portFwd := portforward.NewTunnel(f.KubeClient.CoreV1().RESTClient(), f.ClientConfig, pod.GetNamespace(), pod.GetName(), 5432)
 	defer portFwd.Close()
 
 	err := portFwd.ForwardPort()
-	if err!=nil {
-		return errors.Wrapf(err, "failed to port forward for pod(%s)",pod.GetName())
+	if err != nil {
+		return errors.Wrapf(err, "failed to port forward for pod(%s)", pod.GetName())
 	}
 
-	conn := fmt.Sprintf("postgres://postgres:root@localhost:%s/database?sslmode=disable",strconv.Itoa(portFwd.Local))
+	conn := fmt.Sprintf("postgres://postgres:root@localhost:%s/database?sslmode=disable", strconv.Itoa(portFwd.Local))
 
-	db, err := sql.Open("postgres",conn)
-	if err!=nil {
+	db, err := sql.Open("postgres", conn)
+	if err != nil {
 		return errors.Wrap(err, "failed to create postgres connection")
 	}
 	defer db.Close()
@@ -205,13 +205,13 @@ func (f *Framework)setupPostgreSQL(pod corev1.Pod) error {
 	)`
 
 	_, err = db.Exec(stmt)
-	if err!=nil {
+	if err != nil {
 		return err
 	}
 
 	stmt = `CREATE INDEX parent_path_idx ON vault_kv_store (parent_path)`
 	_, err = db.Exec(stmt)
-	if err!=nil {
+	if err != nil {
 		return err
 	}
 
@@ -220,7 +220,7 @@ func (f *Framework)setupPostgreSQL(pod corev1.Pod) error {
 
 func (f *Framework) DeletePostgresSQL() error {
 	err := f.DeleteService(postgresqlServiceName, f.namespace)
-	if err!=nil {
+	if err != nil {
 		return err
 	}
 

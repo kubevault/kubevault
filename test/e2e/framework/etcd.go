@@ -1,54 +1,55 @@
 package framework
 
 import (
+	"fmt"
+
+	"github.com/appscode/go/crypto/rand"
+	. "github.com/onsi/gomega"
+	apps "k8s.io/api/apps/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"github.com/appscode/go/crypto/rand"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	apps "k8s.io/api/apps/v1beta1"
-	. "github.com/onsi/gomega"
-	"fmt"
 )
 
 var (
-	etcdServiceName = rand.WithUniqSuffix("test-svc-etcd")
+	etcdServiceName    = rand.WithUniqSuffix("test-svc-etcd")
 	etcdDeploymentName = rand.WithUniqSuffix("test-etcd-deploy")
 )
 
 func (f *Framework) DeployEtcd() (string, error) {
-	label := map[string]string {
-		"app":rand.WithUniqSuffix("test-etcd"),
+	label := map[string]string{
+		"app": rand.WithUniqSuffix("test-etcd"),
 	}
 
 	srv := corev1.Service{
-		ObjectMeta:metav1.ObjectMeta{
-			Namespace:f.namespace,
-			Name: etcdServiceName,
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: f.namespace,
+			Name:      etcdServiceName,
 		},
-		Spec:corev1.ServiceSpec{
+		Spec: corev1.ServiceSpec{
 			Selector: label,
 			Ports: []corev1.ServicePort{
 				{
-					Name: "client",
-					Protocol: corev1.ProtocolTCP,
-					Port: 2379,
+					Name:       "client",
+					Protocol:   corev1.ProtocolTCP,
+					Port:       2379,
 					TargetPort: intstr.FromInt(2379),
 				},
 				{
-					Name: "peer",
-					Protocol: corev1.ProtocolTCP,
-					Port: 2380,
+					Name:       "peer",
+					Protocol:   corev1.ProtocolTCP,
+					Port:       2380,
 					TargetPort: intstr.FromInt(2380),
 				},
 			},
 		},
 	}
 
-	clientUrl := fmt.Sprintf("http://%s.%s.svc:2379",etcdServiceName, f.namespace)
-	peerUrl := fmt.Sprintf("http://%s.%s.svc:2380",etcdServiceName, f.namespace)
+	clientUrl := fmt.Sprintf("http://%s.%s.svc:2379", etcdServiceName, f.namespace)
+	peerUrl := fmt.Sprintf("http://%s.%s.svc:2380", etcdServiceName, f.namespace)
 
 	etcdCont := corev1.Container{
-		Name: "etcd",
+		Name:  "etcd",
 		Image: "quay.io/coreos/etcd:v3.2.13",
 		Command: []string{
 			"/usr/local/bin/etcd",
@@ -58,11 +59,11 @@ func (f *Framework) DeployEtcd() (string, error) {
 			"--listen-client-urls=http://0.0.0.0:2379",
 			"--initial-cluster-state=new",
 			"--initial-cluster-token=12345",
-			fmt.Sprintf("--initial-advertise-peer-urls=%s",peerUrl),
-			fmt.Sprintf("--advertise-client-urls=%s",clientUrl),
-			fmt.Sprintf("--initial-cluster=$(MY_POD_NAME)=%s",peerUrl),
+			fmt.Sprintf("--initial-advertise-peer-urls=%s", peerUrl),
+			fmt.Sprintf("--advertise-client-urls=%s", clientUrl),
+			fmt.Sprintf("--initial-cluster=$(MY_POD_NAME)=%s", peerUrl),
 		},
-		Env:[]corev1.EnvVar{
+		Env: []corev1.EnvVar{
 			{
 				Name: "MY_POD_NAMESPACE",
 				ValueFrom: &corev1.EnvVarSource{
@@ -83,18 +84,18 @@ func (f *Framework) DeployEtcd() (string, error) {
 	}
 
 	etcdDeploy := apps.Deployment{
-		ObjectMeta:metav1.ObjectMeta{
-			Namespace:f.namespace,
-			Name: etcdDeploymentName,
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: f.namespace,
+			Name:      etcdDeploymentName,
 		},
 		Spec: apps.DeploymentSpec{
-			Replicas: func(i int32) *int32 {return &i}(1),
+			Replicas: func(i int32) *int32 { return &i }(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: label,
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels:label,
+					Labels: label,
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -106,13 +107,13 @@ func (f *Framework) DeployEtcd() (string, error) {
 	}
 
 	err := f.CreateService(srv)
-	if err!=nil {
-		return "",err
+	if err != nil {
+		return "", err
 	}
 
 	_, err = f.CreateDeployment(etcdDeploy)
-	if err!=nil {
-		return "",err
+	if err != nil {
+		return "", err
 	}
 
 	Eventually(func() bool {
@@ -122,12 +123,12 @@ func (f *Framework) DeployEtcd() (string, error) {
 		return false
 	}, timeOut, pollingInterval).Should(BeTrue())
 
-	return fmt.Sprintf("http://%s.%s.svc:2379",srv.GetName(), srv.GetNamespace()), nil
+	return fmt.Sprintf("http://%s.%s.svc:2379", srv.GetName(), srv.GetNamespace()), nil
 }
 
 func (f *Framework) DeleteEtcd() error {
 	err := f.DeleteService(etcdServiceName, f.namespace)
-	if err!=nil {
+	if err != nil {
 		return err
 	}
 

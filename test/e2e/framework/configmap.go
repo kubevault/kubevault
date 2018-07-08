@@ -1,9 +1,9 @@
 package framework
 
 import (
+	. "github.com/onsi/gomega"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	. "github.com/onsi/gomega"
 )
 
 func (f *Framework) CreateConfigMap(obj core.ConfigMap) error {
