@@ -15,10 +15,7 @@ import (
 	extinstall "github.com/kubevault/operator/apis/extensions/install"
 	repov1alpha1 "github.com/kubevault/operator/apis/extensions/v1alpha1"
 	crd_api "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	"k8s.io/apimachinery/pkg/apimachinery/announced"
-	"k8s.io/apimachinery/pkg/apimachinery/registered"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/kube-openapi/pkg/common"
 	"path/filepath"
@@ -42,19 +39,16 @@ func generateCRDDefinitions() {
 }
 func generateSwaggerJson() {
 	var (
-		groupFactoryRegistry = make(announced.APIGroupFactoryRegistry)
-		registry             = registered.NewOrDie("")
-		Scheme               = runtime.NewScheme()
-		Codecs               = serializer.NewCodecFactory(Scheme)
+		Scheme = runtime.NewScheme()
+		Codecs = serializer.NewCodecFactory(Scheme)
 	)
 
-	vaultinstall.Install(groupFactoryRegistry, registry, Scheme)
-	extinstall.Install(groupFactoryRegistry, registry, Scheme)
+	vaultinstall.Install(Scheme)
+	extinstall.Install(Scheme)
 
 	apispec, err := openapi.RenderOpenAPISpec(openapi.Config{
-		Registry: registry,
-		Scheme:   Scheme,
-		Codecs:   Codecs,
+		Scheme: Scheme,
+		Codecs: Codecs,
 		Info: spec.InfoProps{
 			Title:   "KubeVault",
 			Version: "v0.1.0",
@@ -72,11 +66,11 @@ func generateSwaggerJson() {
 			stashv1alpha1.GetOpenAPIDefinitions,
 			repov1alpha1.GetOpenAPIDefinitions,
 		},
-		Resources: []schema.GroupVersionResource{
-			stashv1alpha1.SchemeGroupVersion.WithResource(stashv1alpha1.ResourceVaultServers),
+		Resources: []openapi.TypeInfo{
+			{stashv1alpha1.SchemeGroupVersion, stashv1alpha1.ResourceVaultServers, stashv1alpha1.ResourceKindVaultServer, true},
 		},
-		RDResources: []schema.GroupVersionResource{
-			repov1alpha1.SchemeGroupVersion.WithResource(repov1alpha1.ResourcePluralVaultSecret),
+		RDResources: []openapi.TypeInfo{
+			{repov1alpha1.SchemeGroupVersion, repov1alpha1.ResourceVaultSecrets, repov1alpha1.ResourceKindVaultSecret, true},
 		},
 	})
 	if err != nil {

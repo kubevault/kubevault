@@ -176,7 +176,7 @@ type BackendStorageSpec struct {
 	Azure      *AzureSpec      `json:"azure,omitempty"`
 	PostgreSQL *PostgreSQLSpec `json:"postgreSQL,omitempty"`
 	MySQL      *MySQLSpec      `json:"mySQL,omitempty"`
-	File  *FileSpec  `json:"file,omitempty"`
+	File       *FileSpec       `json:"file,omitempty"`
 }
 
 // TODO : set defaults and validation
