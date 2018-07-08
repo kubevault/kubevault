@@ -333,6 +333,17 @@ Contain the information to use MySQL as backend storage in vault. Vault document
   - **maxParallel** (int): Specifies the maximum number of concurrent requests to take place.
 
 
+### Filesystem
+
+Contain the information to use Filesystem as backend storage in vault. Vault documentions about Filesystem can be found [here](https://www.vaultproject.io/docs/configuration/storage/filesystem.html).
+  ```yaml
+  backendStorage:
+    file:
+      path: <file_path>
+  ```
+  **fileSpec** has following fields:
+  - **path** (string): The absolute path on disk to the directory where the data will be stored. If the directory does not exist, Vault will create it.
+
 ## Unsealer Spec
 
 Vault operator use [kubevault/unsealer](https://github.com/kubevault/unsealer) to unseal vault. Unsealer spec contains the informations that used in unsealer to unseal vault.

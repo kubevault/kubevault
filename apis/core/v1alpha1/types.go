@@ -176,6 +176,7 @@ type BackendStorageSpec struct {
 	Azure      *AzureSpec      `json:"azure,omitempty"`
 	PostgreSQL *PostgreSQLSpec `json:"postgreSQL,omitempty"`
 	MySQL      *MySQLSpec      `json:"mySQL,omitempty"`
+	File  *FileSpec  `json:"file,omitempty"`
 }
 
 // TODO : set defaults and validation
@@ -329,6 +330,15 @@ type MySQLSpec struct {
 
 	//  Specifies the maximum number of concurrent requests to take place.
 	MaxParallel int `json:"maxParallel,omitempty"`
+}
+
+// vault doc: https://www.vaultproject.io/docs/configuration/storage/filesystem.html
+//
+// FileSpec defines configuration to set up File system Storage as backend storage in vault
+type FileSpec struct {
+	// The absolute path on disk to the directory where the data will be stored.
+	// If the directory does not exist, Vault will create it.
+	Path string `json:"path"`
 }
 
 // UnsealerSpec contain the configuration for auto vault initialize/unseal

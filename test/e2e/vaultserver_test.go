@@ -894,4 +894,54 @@ var _ = Describe("VaultServer", func() {
 		})
 	})
 
+	Describe("using File system backend", func() {
+		Context("using unsealer kubernetes secret", func() {
+			var (
+				vs *api.VaultServer
+			)
+
+			const (
+				k8sSecretName   = "k8s-file-vault-keys"
+			)
+			BeforeEach(func() {
+				file := api.BackendStorageSpec{
+					File: &api.FileSpec{
+						Path: "/etc/data",
+					},
+				}
+
+				unsealer := api.UnsealerSpec{
+					SecretShares:    4,
+					SecretThreshold: 2,
+					InsecureTLS:     true,
+					Mode: api.ModeSpec{
+						KubernetesSecret: &api.KubernetesSecretSpec{
+							SecretName: k8sSecretName,
+						},
+					},
+				}
+
+				vs = f.VaultServerWithUnsealer(1, file, unsealer)
+			})
+
+			AfterEach(func() {
+				Expect(f.DeleteSecret(k8sSecretName, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(k8sSecretName, vs.Namespace)
+
+				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
+
+				checkForVaultServerDeleted(vs.Name, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+			})
+
+			It("should create vault server", func() {
+				shouldCreateVaultServer(vs)
+
+				checkForVaultIsUnsealed(vs)
+			})
+		})
+	})
+
 })

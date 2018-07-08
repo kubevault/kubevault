@@ -4,6 +4,7 @@ import (
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/storage/azure"
 	"github.com/kubevault/operator/pkg/vault/storage/etcd"
+	"github.com/kubevault/operator/pkg/vault/storage/file"
 	"github.com/kubevault/operator/pkg/vault/storage/gcs"
 	"github.com/kubevault/operator/pkg/vault/storage/inmem"
 	"github.com/kubevault/operator/pkg/vault/storage/mysql"
@@ -36,6 +37,8 @@ func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage, 
 		return postgresql.NewOptions(kubeClient, vs.GetNamespace(), *s.PostgreSQL)
 	} else if s.MySQL != nil {
 		return mysql.NewOptions(kubeClient, vs.GetNamespace(), *s.MySQL)
+	} else if s.File != nil {
+		return file.NewOptions(*s.File)
 	} else {
 		return nil, errors.New("invalid storage backend")
 	}
