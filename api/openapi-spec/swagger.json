@@ -1490,6 +1490,9 @@
           "description": "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
           "type": "boolean"
         },
+        "mySQL": {
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.MySQLSpec"
+        },
         "postgreSQL": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.PostgreSQLSpec"
         },
@@ -1625,6 +1628,39 @@
         },
         "kubernetesSecret": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.KubernetesSecretSpec"
+        }
+      }
+    },
+    "com.github.kubevault.operator.apis.core.v1alpha1.MySQLSpec": {
+      "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/mysql.html\n\nMySQLSpec defines configuration to set up MySQL Storage as backend storage in vault",
+      "required": [
+        "userCredentialSecret"
+      ],
+      "properties": {
+        "address": {
+          "description": "Specifies the address of the MySQL host.",
+          "type": "string"
+        },
+        "database": {
+          "description": "Specifies the name of the database. If the database does not exist, Vault will attempt to create it.",
+          "type": "string"
+        },
+        "maxParallel": {
+          "description": "\n Specifies the maximum number of concurrent requests to take place.",
+          "type": "integer",
+          "format": "int32"
+        },
+        "table": {
+          "description": "Specifies the name of the table. If the table does not exist, Vault will attempt to create it.",
+          "type": "string"
+        },
+        "tlsCASecret": {
+          "description": "Specifies the name of the secret containing the CA certificate to connect using TLS. secret data:\n\t- ca=\u003cca_cert\u003e",
+          "type": "string"
+        },
+        "userCredentialSecret": {
+          "description": "Specifies the MySQL username and password to connect to the database secret data:\n\t- username=\u003cvalue\u003e\n\t- password=\u003cvalue\u003e",
+          "type": "string"
         }
       }
     },
