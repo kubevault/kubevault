@@ -21,9 +21,9 @@ import (
 )
 
 const (
-	ResourceKindVaultSecret     = "VaultSecret"
-	ResourcePluralVaultSecret   = "vaultsecrets"
-	ResourceSingularVaultSecret = "vaultsecret"
+	ResourceKindVaultSecret = "VaultSecret"
+	ResourceVaultSecrets    = "vaultsecrets"
+	ResourceVaultSecret     = "vaultsecret"
 )
 
 // +genclient

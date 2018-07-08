@@ -1,6 +1,7 @@
 package vaultsecret
 
 import (
+	"context"
 	"fmt"
 
 	api "github.com/kubevault/operator/apis/extensions/v1alpha1"
@@ -25,6 +26,7 @@ type REST struct {
 var _ rest.Getter = &REST{}
 var _ rest.Lister = &REST{}
 var _ rest.GracefulDeleter = &REST{}
+var _ rest.Scoper = &REST{}
 var _ rest.GroupVersionKindProvider = &REST{}
 
 func NewREST(config *restconfig.Config) *REST {
@@ -43,7 +45,11 @@ func (r *REST) GroupVersionKind(containingGV schema.GroupVersion) schema.GroupVe
 	return api.SchemeGroupVersion.WithKind(api.ResourceKindVaultSecret)
 }
 
-func (r *REST) Get(ctx apirequest.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
+func (r *REST) NamespaceScoped() bool {
+	return true
+}
+
+func (r *REST) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
 	ns, ok := apirequest.NamespaceFrom(ctx)
 	if !ok {
 		return nil, errors.New("missing namespace")
@@ -61,7 +67,7 @@ func (r *REST) NewList() runtime.Object {
 	return &api.VaultSecretList{}
 }
 
-func (r *REST) List(ctx apirequest.Context, options *metainternalversion.ListOptions) (runtime.Object, error) {
+func (r *REST) List(ctx context.Context, options *metainternalversion.ListOptions) (runtime.Object, error) {
 	ns, ok := apirequest.NamespaceFrom(ctx)
 	if !ok {
 		return nil, errors.New("missing namespace")
@@ -72,6 +78,6 @@ func (r *REST) List(ctx apirequest.Context, options *metainternalversion.ListOpt
 	return objects, nil
 }
 
-func (r *REST) Delete(ctx apirequest.Context, name string, options *metav1.DeleteOptions) (runtime.Object, bool, error) {
+func (r *REST) Delete(ctx context.Context, name string, options *metav1.DeleteOptions) (runtime.Object, bool, error) {
 	return nil, false, nil
 }

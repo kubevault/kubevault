@@ -1,10 +1,11 @@
 package framework
 
 import (
+	"fmt"
+
+	. "github.com/onsi/gomega"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	. "github.com/onsi/gomega"
-	"fmt"
 )
 
 func (f *Framework) CreateSecret(obj core.Secret) error {
@@ -12,11 +13,11 @@ func (f *Framework) CreateSecret(obj core.Secret) error {
 	return err
 }
 
-func (f *Framework) CreateSecretWithData(name,namespace string,data map[string][]byte) error {
+func (f *Framework) CreateSecretWithData(name, namespace string, data map[string][]byte) error {
 	sr := core.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:name,
-			Namespace:namespace,
+			Name:      name,
+			Namespace: namespace,
 		},
 		Data: data,
 	}
@@ -34,5 +35,5 @@ func (f *Framework) EventuallySecret(name, namespace string) GomegaAsyncAssertio
 		fmt.Println("---secret-----")
 		Expect(err).NotTo(HaveOccurred())
 		return obj
-	},timeOut, pollingInterval)
+	}, timeOut, pollingInterval)
 }

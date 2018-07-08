@@ -19,7 +19,6 @@ limitations under the License.
 package versioned
 
 import (
-	glog "github.com/golang/glog"
 	corev1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/core/v1alpha1"
 	extensionsv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/extensions/v1alpha1"
 	discovery "k8s.io/client-go/discovery"
@@ -94,7 +93,6 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 
 	cs.DiscoveryClient, err = discovery.NewDiscoveryClientForConfig(&configShallowCopy)
 	if err != nil {
-		glog.Errorf("failed to create the DiscoveryClient: %v", err)
 		return nil, err
 	}
 	return &cs, nil
