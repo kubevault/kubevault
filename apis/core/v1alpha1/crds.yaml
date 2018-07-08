@@ -881,6 +881,19 @@ spec:
                       description: Specifies the secret name that contains tls_ca_file,
                         tls_cert_file and tls_key_file for etcd communication
                       type: string
+                file:
+                  description: |-
+                    vault doc: https://www.vaultproject.io/docs/configuration/storage/filesystem.html
+
+                    FileSpec defines configuration to set up File system Storage as backend storage in vault
+                  properties:
+                    path:
+                      description: The absolute path on disk to the directory where
+                        the data will be stored. If the directory does not exist,
+                        Vault will create it.
+                      type: string
+                  required:
+                  - path
                 gcs:
                   description: |-
                     vault doc: https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html

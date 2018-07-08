@@ -52,7 +52,7 @@ password = "root"
 max_parallel = "128"
 }
 `
-	t.Run("Gcs storage config", func(t *testing.T) {
+	t.Run("MySQL storage config", func(t *testing.T) {
 		got, err := opts.GetStorageConfig()
 		assert.Nil(t, err)
 		if !assert.Equal(t, out, got) {

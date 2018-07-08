@@ -1483,6 +1483,9 @@
         "etcd": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.EtcdSpec"
         },
+        "file": {
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.FileSpec"
+        },
         "gcs": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.GcsSpec"
         },
@@ -1534,6 +1537,18 @@
         },
         "tlsSecretName": {
           "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication",
+          "type": "string"
+        }
+      }
+    },
+    "com.github.kubevault.operator.apis.core.v1alpha1.FileSpec": {
+      "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/filesystem.html\n\nFileSpec defines configuration to set up File system Storage as backend storage in vault",
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "description": "The absolute path on disk to the directory where the data will be stored. If the directory does not exist, Vault will create it.",
           "type": "string"
         }
       }

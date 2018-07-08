@@ -196,11 +196,16 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.MySQLSpec"),
 							},
 						},
+						"file": {
+							SchemaProps: spec.SchemaProps{
+								Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.FileSpec"),
+							},
+						},
 					},
 				},
 			},
 			Dependencies: []string{
-				"github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec", "github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.MySQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"},
+				"github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec", "github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.FileSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.MySQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"},
 		},
 		"github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec": {
 			Schema: spec.Schema{
@@ -264,6 +269,24 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 							},
 						},
 					},
+				},
+			},
+			Dependencies: []string{},
+		},
+		"github.com/kubevault/operator/apis/core/v1alpha1.FileSpec": {
+			Schema: spec.Schema{
+				SchemaProps: spec.SchemaProps{
+					Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/filesystem.html\n\nFileSpec defines configuration to set up File system Storage as backend storage in vault",
+					Properties: map[string]spec.Schema{
+						"path": {
+							SchemaProps: spec.SchemaProps{
+								Description: "The absolute path on disk to the directory where the data will be stored. If the directory does not exist, Vault will create it.",
+								Type:        []string{"string"},
+								Format:      "",
+							},
+						},
+					},
+					Required: []string{"path"},
 				},
 			},
 			Dependencies: []string{},
