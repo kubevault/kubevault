@@ -61,6 +61,7 @@ The following table lists the configurable parameters of the Vault chart and the
 | `apioperator.enableValidatingWebhook` | Enable validating webhooks for Kubernetes workloads                | false              |
 | `apioperator.enableMutatingWebhook`   | Enable mutating webhooks for Kubernetes workloads                  | false              |
 | `apioperator.ca`                      | CA certificate used by main Kubernetes api operator                | ``                 |
+| `apiserver.enableStatusSubresource`   | If true, uses status sub resource for crds                         | `false`            |
 | `enableAnalytics`                     | Send usage events to Google Analytics                              | `true`             |
 
 
