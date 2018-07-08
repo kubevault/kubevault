@@ -105,6 +105,7 @@ export VAULT_OPERATOR_IMAGE_PULL_POLICY=IfNotPresent
 export VAULT_OPERATOR_ENABLE_ANALYTICS=true
 export VAULT_OPERATOR_UNINSTALL=0
 export VAULT_OPERATOR_PURGE=0
+export VAULT_OPERATOR_ENABLE_STATUS_SUBRESOURCE=false
 
 export APPSCODE_ENV=${APPSCODE_ENV:-prod}
 export SCRIPT_LOCATION="curl -fsSL https://raw.githubusercontent.com/kubevault/operator/master/"
@@ -120,6 +121,7 @@ $ONESSL semver --check='<1.9.0' $KUBE_APISERVER_VERSION || {
   export VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK=true
   export VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK=true
 }
+$ONESSL semver --check='<1.11.0' $KUBE_APISERVER_VERSION || { export VAULT_OPERATOR_ENABLE_STATUS_SUBRESOURCE=true; }
 
 show_help() {
   echo "vault-operator.sh - install Vault operator"
@@ -135,6 +137,7 @@ show_help() {
   echo "    --run-on-master                run Vault operator on master"
   echo "    --enable-validating-webhook    enable/disable validating webhooks for Vault operator"
   echo "    --enable-mutating-webhook      enable/disable mutating webhooks for Vault operator"
+  echo "    --enable-status-subresource    If enabled, uses status sub resource for crds"
   echo "    --enable-analytics             send usage events to Google Analytics (default: true)"
   echo "    --uninstall                    uninstall Vault operator"
   echo "    --purge                        purges Vault operator crd objects and crds"
@@ -180,6 +183,13 @@ while test $# -gt 0; do
       val=$(echo $1 | sed -e 's/^[^=]*=//g')
       if [ "$val" = "false" ]; then
         export VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK=false
+      fi
+      shift
+      ;;
+    --enable-status-subresource*)
+      val=$(echo $1 | sed -e 's/^[^=]*=//g')
+      if [ "$val" = "false" ]; then
+        export VAULT_OPERATOR_ENABLE_STATUS_SUBRESOURCE=false
       fi
       shift
       ;;

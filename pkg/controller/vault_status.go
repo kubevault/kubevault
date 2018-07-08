@@ -161,9 +161,9 @@ func (c *VaultController) updateVaultCRStatus(ctx1 context.Context, name, namesp
 
 	// TODO : flag for useSubresource?
 	vault, err = patchutil.UpdateVaultServerStatus(c.extClient.CoreV1alpha1(), vault, func(s *api.VaultServerStatus) *api.VaultServerStatus {
-		s = status
+		*s = *status
 		return s
-	})
+	}, api.EnableStatusSubresource)
 	return vault, err
 }
 

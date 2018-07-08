@@ -7,6 +7,10 @@ import (
 	"k8s.io/kube-openapi/pkg/common"
 )
 
+var (
+	EnableStatusSubresource bool
+)
+
 func setNameSchema(openapiSpec map[string]common.OpenAPIDefinition) {
 	// ref: https://github.com/kubedb/project/issues/166
 	// https://github.com/kubernetes/apimachinery/blob/94ebb086c69b9fec4ddbfb6a1433d28ecca9292b/pkg/util/validation/validation.go#L153
@@ -34,8 +38,9 @@ func (c VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDef
 		Labels: crdutils.Labels{
 			LabelsMap: map[string]string{"app": "vault-operator"},
 		},
-		SpecDefinitionName:    "github.com/kubevault/operator/apis/core/v1alpha1.VaultServer",
-		EnableValidation:      true,
-		GetOpenAPIDefinitions: GetOpenAPIDefinitions,
+		SpecDefinitionName:      "github.com/kubevault/operator/apis/core/v1alpha1.VaultServer",
+		EnableValidation:        true,
+		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
+		EnableStatusSubresource: EnableStatusSubresource,
 	}, setNameSchema)
 }
