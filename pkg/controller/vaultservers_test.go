@@ -34,7 +34,11 @@ func getConfigData(t *testing.T, extraConfig string, strg *api.BackendStorageSpe
 		cfg = fmt.Sprintf("%s\n%s", cfg, extraConfig)
 	}
 
-	strgSrv, err := storage.NewStorage(strg)
+	strgSrv, err := storage.NewStorage(nil, &api.VaultServer{
+		Spec: api.VaultServerSpec{
+			BackendStorage: *strg,
+		},
+	})
 	assert.Nil(t, err)
 
 	storageCfg, err := strgSrv.GetStorageConfig()

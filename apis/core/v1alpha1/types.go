@@ -47,10 +47,6 @@ type VaultServerSpec struct {
 	// Version of Vault to be deployed.
 	Version string `json:"version"`
 
-	// PodPolicy defines the policy for pods owned by vault operator.
-	// This field cannot be updated once the CR is created.
-	PodPolicy *PodPolicy `json:"podPolicy,omitempty"`
-
 	// Name of the ConfigMap for Vault's configuration
 	// In this configMap contain extra config for vault
 	ConfigMapName string `json:"configMapName,omitempty"`
@@ -63,6 +59,34 @@ type VaultServerSpec struct {
 
 	// unseal configuration for vault
 	Unsealer *UnsealerSpec `json:"unsealer,omitempty"`
+
+	// Compute Resources for vault container.
+	Resources core.ResourceRequirements `json:"resources,omitempty"`
+
+	// NodeSelector is a selector which must be true for the pod to fit on a node.
+	// Selector which must match a node's labels for the pod to be scheduled on that node.
+	// More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+	NodeSelector map[string]string `json:"nodeSelector,omitempty"`
+
+	// If specified, the pod's scheduling constraints
+	// +optional
+	Affinity *core.Affinity `json:"affinity,omitempty"`
+
+	// If specified, the pod will be dispatched by specified scheduler.
+	// If not specified, the pod will be dispatched by default scheduler.
+	// +optional
+	SchedulerName string `json:"schedulerName,omitempty"`
+
+	// If specified, the pod's tolerations.
+	// +optional
+	Tolerations []core.Toleration `json:"tolerations,omitempty"`
+
+	// ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec.
+	// If specified, these secrets will be passed to individual puller implementations for them to use. For example,
+	// in the case of docker, only DockerConfig type secrets are honored.
+	// More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
+	// +optional
+	ImagePullSecrets []core.LocalObjectReference `json:"imagePullSecrets,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -115,12 +139,6 @@ type VaultStatus struct {
 	Unsealed []string `json:"unsealed,omitempty"`
 }
 
-// PodPolicy defines the policy for pods owned by vault operator.
-type PodPolicy struct {
-	// Resources is the resource requirements for the containers.
-	Resources core.ResourceRequirements `json:"resources,omitempty"`
-}
-
 // TLSPolicy defines the TLS policy of the vault nodes
 type TLSPolicy struct {
 	// StaticTLS enables user to use static x509 certificates and keys,
@@ -151,11 +169,12 @@ type StaticTLS struct {
 // BackendStorageSpec defines storage backend configuration of vault
 type BackendStorageSpec struct {
 	// ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html
-	Inmem bool       `json:"inmem,omitempty"`
-	Etcd  *EtcdSpec  `json:"etcd,omitempty"`
-	Gcs   *GcsSpec   `json:"gcs,omitempty"`
-	S3    *S3Spec    `json:"s3,omitempty"`
-	Azure *AzureSpec `json:"azure,omitempty"`
+	Inmem      bool            `json:"inmem,omitempty"`
+	Etcd       *EtcdSpec       `json:"etcd,omitempty"`
+	Gcs        *GcsSpec        `json:"gcs,omitempty"`
+	S3         *S3Spec         `json:"s3,omitempty"`
+	Azure      *AzureSpec      `json:"azure,omitempty"`
+	PostgreSQL *PostgreSQLSpec `json:"postgreSQL,omitempty"`
 }
 
 // TODO : set defaults and validation
@@ -262,6 +281,24 @@ type AzureSpec struct {
 	Container string `json:"container"`
 
 	//  Specifies the maximum number of concurrent operations to take place.
+	MaxParallel int `json:"maxParallel,omitempty"`
+}
+
+// vault doc: https://www.vaultproject.io/docs/configuration/storage/postgresql.html
+//
+// PostgreSQLSpec defines configuration to set up PostgreSQL storage as backend storage in vault
+type PostgreSQLSpec struct {
+	//Specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL.
+	// A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters).
+	// secret data:
+	//	- connection_url:<data>
+	ConnectionUrlSecret string `json:"connectionUrlSecret"`
+
+	// Specifies the name of the table in which to write Vault data.
+	// This table must already exist (Vault will not attempt to create it).
+	Table string `json:"table,omitempty"`
+
+	//  Specifies the maximum number of concurrent requests to take place.
 	MaxParallel int `json:"maxParallel,omitempty"`
 }
 

@@ -6,9 +6,11 @@ import (
 	"github.com/kubevault/operator/pkg/vault/storage/etcd"
 	"github.com/kubevault/operator/pkg/vault/storage/gcs"
 	"github.com/kubevault/operator/pkg/vault/storage/inmem"
+	"github.com/kubevault/operator/pkg/vault/storage/postgersql"
 	"github.com/kubevault/operator/pkg/vault/storage/s3"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 type Storage interface {
@@ -16,7 +18,9 @@ type Storage interface {
 	GetStorageConfig() (string, error)
 }
 
-func NewStorage(s *api.BackendStorageSpec) (Storage, error) {
+func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage, error) {
+	s := vs.Spec.BackendStorage
+
 	if s.Inmem {
 		return inmem.NewOptions()
 	} else if s.Etcd != nil {
@@ -27,6 +31,8 @@ func NewStorage(s *api.BackendStorageSpec) (Storage, error) {
 		return s3.NewOptions(*s.S3)
 	} else if s.Azure != nil {
 		return azure.NewOptions(*s.Azure)
+	} else if s.PostgreSQL != nil {
+		return postgresql.NewOptions(kubeClient, vs.GetNamespace(), *s.PostgreSQL)
 	} else {
 		return nil, errors.New("invalid storage backend")
 	}

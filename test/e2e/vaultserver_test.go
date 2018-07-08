@@ -7,18 +7,19 @@ import (
 	"fmt"
 	"math/rand"
 
+	"io/ioutil"
+	"os"
+
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
 	"github.com/kubevault/operator/pkg/controller"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/kubevault/operator/test/e2e/framework"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"os"
-	corev1 "k8s.io/api/core/v1"
-	"io/ioutil"
 )
 
 const (
@@ -246,16 +247,16 @@ var _ = Describe("VaultServer", func() {
 			)
 			BeforeEach(func() {
 				credFile := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-				data, err :=ioutil.ReadFile(credFile)
+				data, err := ioutil.ReadFile(credFile)
 				Expect(err).NotTo(HaveOccurred())
 
 				sr := corev1.Secret{
 					ObjectMeta: metav1.ObjectMeta{
-						Name: secretName,
+						Name:      secretName,
 						Namespace: f.Namespace(),
 					},
-					Data: map[string][]byte {
-						"sa.json":data,
+					Data: map[string][]byte{
+						"sa.json": data,
 					},
 				}
 
@@ -263,7 +264,7 @@ var _ = Describe("VaultServer", func() {
 
 				gcs := api.BackendStorageSpec{
 					Gcs: &api.GcsSpec{
-						Bucket: "vault-test-bucket",
+						Bucket:           "vault-test-bucket",
 						CredentialSecret: secretName,
 					},
 				}
@@ -296,8 +297,8 @@ var _ = Describe("VaultServer", func() {
 			BeforeEach(func() {
 				s3 := api.BackendStorageSpec{
 					S3: &api.S3Spec{
-						Bucket: "test-vault-s3",
-						Region: "us-wes-1",
+						Bucket:           "test-vault-s3",
+						Region:           "us-wes-1",
 						CredentialSecret: awsCredSecret,
 					},
 				}
@@ -306,7 +307,7 @@ var _ = Describe("VaultServer", func() {
 
 				sr := corev1.Secret{
 					ObjectMeta: metav1.ObjectMeta{
-						Name: awsCredSecret,
+						Name:      awsCredSecret,
 						Namespace: vs.Namespace,
 					},
 					Data: map[string][]byte{
@@ -538,23 +539,23 @@ var _ = Describe("VaultServer", func() {
 			)
 			BeforeEach(func() {
 				credFile := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-				data, err :=ioutil.ReadFile(credFile)
+				data, err := ioutil.ReadFile(credFile)
 				Expect(err).NotTo(HaveOccurred())
 
 				sr := corev1.Secret{
 					ObjectMeta: metav1.ObjectMeta{
-						Name: secretName,
+						Name:      secretName,
 						Namespace: f.Namespace(),
 					},
-					Data: map[string][]byte {
-						"sa.json":data,
+					Data: map[string][]byte{
+						"sa.json": data,
 					},
 				}
 
 				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
 				gcs := api.BackendStorageSpec{
 					Gcs: &api.GcsSpec{
-						Bucket:         "vault-test-bucket",
+						Bucket:           "vault-test-bucket",
 						CredentialSecret: secretName,
 					},
 				}
@@ -565,12 +566,12 @@ var _ = Describe("VaultServer", func() {
 					InsecureTLS:     true,
 					Mode: api.ModeSpec{
 						GoogleKmsGcs: &api.GoogleKmsGcsSpec{
-							Bucket:         "vault-test-bucket",
+							Bucket:           "vault-test-bucket",
 							CredentialSecret: secretName,
-							KmsCryptoKey:   "vault-init",
-							KmsKeyRing:     "vault-key-ring",
-							KmsLocation:    "global",
-							KmsProject:     "tigerworks-kube",
+							KmsCryptoKey:     "vault-init",
+							KmsKeyRing:       "vault-key-ring",
+							KmsLocation:      "global",
+							KmsProject:       "tigerworks-kube",
 						},
 					},
 				}
@@ -610,9 +611,9 @@ var _ = Describe("VaultServer", func() {
 		Context("using s3 backend", func() {
 			BeforeEach(func() {
 				s3 := api.BackendStorageSpec{
-					S3:  &api.S3Spec{
-						Bucket:         "test-vault-s3",
-						Region: "us-west-1",
+					S3: &api.S3Spec{
+						Bucket:           "test-vault-s3",
+						Region:           "us-west-1",
 						CredentialSecret: awsCredSecret,
 					},
 				}
@@ -623,8 +624,8 @@ var _ = Describe("VaultServer", func() {
 					InsecureTLS:     true,
 					Mode: api.ModeSpec{
 						AwsKmsSsm: &api.AwsKmsSsmSpec{
-							KmsKeyID: "65ed2c85-4915-4e82-be47-d56ccaa8019b",
-							Region: "us-west-1",
+							KmsKeyID:         "65ed2c85-4915-4e82-be47-d56ccaa8019b",
+							Region:           "us-west-1",
 							CredentialSecret: awsCredSecret,
 						},
 					},
@@ -634,7 +635,7 @@ var _ = Describe("VaultServer", func() {
 
 				sr := corev1.Secret{
 					ObjectMeta: metav1.ObjectMeta{
-						Name: awsCredSecret,
+						Name:      awsCredSecret,
 						Namespace: vs.Namespace,
 					},
 					Data: map[string][]byte{
@@ -678,11 +679,11 @@ var _ = Describe("VaultServer", func() {
 		Context("using azure storage backend", func() {
 			BeforeEach(func() {
 				var (
-					clientID = os.Getenv("AZURE_CLIENT_ID")
+					clientID     = os.Getenv("AZURE_CLIENT_ID")
 					clientSecret = os.Getenv("AZURE_CLIENT_SECRET")
-					tenantID = os.Getenv("AZURE_TENANT_ID")
-					accountName = os.Getenv("AZURE_STORAGE_ACCOUNT_NAME")
-					accountKey = os.Getenv("AZURE_STORAGE_ACCOUNT_KEY")
+					tenantID     = os.Getenv("AZURE_TENANT_ID")
+					accountName  = os.Getenv("AZURE_STORAGE_ACCOUNT_NAME")
+					accountKey   = os.Getenv("AZURE_STORAGE_ACCOUNT_KEY")
 				)
 
 				Expect(clientID != "").To(BeTrue())
@@ -692,13 +693,13 @@ var _ = Describe("VaultServer", func() {
 				Expect(accountKey != "").To(BeTrue())
 
 				sr := corev1.Secret{
-					ObjectMeta:metav1.ObjectMeta{
-						Name:azureCredSecret,
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      azureCredSecret,
 						Namespace: f.Namespace(),
 					},
 					Data: map[string][]byte{
-						"client-id":[]byte(clientID),
-						"client-secret":[]byte(clientSecret),
+						"client-id":     []byte(clientID),
+						"client-secret": []byte(clientSecret),
 					},
 				}
 
@@ -707,8 +708,8 @@ var _ = Describe("VaultServer", func() {
 				azure := api.BackendStorageSpec{
 					Azure: &api.AzureSpec{
 						AccountName: accountName,
-						AccountKey: accountKey,
-						Container: "vault",
+						AccountKey:  accountKey,
+						Container:   "vault",
 					},
 				}
 
@@ -718,8 +719,8 @@ var _ = Describe("VaultServer", func() {
 					InsecureTLS:     true,
 					Mode: api.ModeSpec{
 						AzureKeyVault: &api.AzureKeyVault{
-							VaultBaseUrl: "https://vault-test-1204.vault.azure.net/",
-							TenantID: tenantID,
+							VaultBaseUrl:    "https://vault-test-1204.vault.azure.net/",
+							TenantID:        tenantID,
 							AADClientSecret: azureCredSecret,
 						},
 					},
@@ -731,6 +732,78 @@ var _ = Describe("VaultServer", func() {
 			AfterEach(func() {
 				Expect(f.DeleteSecret(azureCredSecret, vs.Namespace)).NotTo(HaveOccurred())
 				checkForSecretDeleted(azureCredSecret, vs.Namespace)
+
+				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
+
+				checkForVaultServerDeleted(vs.Name, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+			})
+
+			It("should create vault server", func() {
+				shouldCreateVaultServer(vs)
+
+				checkForVaultIsUnsealed(vs)
+			})
+		})
+	})
+
+	Describe("using postgerSQL backend", func() {
+		Context("using unsealer kubernetes secret", func() {
+			var (
+				vs *api.VaultServer
+			)
+
+			const (
+				k8sSecretName       = "k8s-postgres-vault-keys"
+				connectionUrlSecret = "postgresql-conn-url"
+			)
+			BeforeEach(func() {
+				url, err := f.DeployPostgresSQL()
+				Expect(err).NotTo(HaveOccurred())
+
+				sr := corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      connectionUrlSecret,
+						Namespace: f.Namespace(),
+					},
+					Data: map[string][]byte{
+						"connection_url": []byte(fmt.Sprintf("postgres://postgres:root@%s/database?sslmode=disable", url)),
+					},
+				}
+
+				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
+
+				postgres := api.BackendStorageSpec{
+					PostgreSQL: &api.PostgreSQLSpec{
+						ConnectionUrlSecret: connectionUrlSecret,
+					},
+				}
+
+				unsealer := api.UnsealerSpec{
+					SecretShares:    4,
+					SecretThreshold: 2,
+					InsecureTLS:     true,
+					Mode: api.ModeSpec{
+						KubernetesSecret: &api.KubernetesSecretSpec{
+							SecretName: k8sSecretName,
+						},
+					},
+				}
+
+				vs = f.VaultServerWithUnsealer(1, postgres, unsealer)
+			})
+
+			AfterEach(func() {
+
+				Expect(f.DeletePostgresSQL()).NotTo(HaveOccurred())
+
+				Expect(f.DeleteSecret(k8sSecretName, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(k8sSecretName, vs.Namespace)
+
+				Expect(f.DeleteSecret(connectionUrlSecret, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(connectionUrlSecret, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
