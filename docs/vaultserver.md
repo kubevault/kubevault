@@ -208,7 +208,7 @@ backendStorage:
 
 ### S3
 
-Contain the information to use aws s3 as backend storage in vault. Vault documention about s3 storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/s3.html).
+Contain the informations to use aws s3 as backend storage in vault. Vault documention about s3 storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/s3.html).
   ```yaml
   backendStorage:
     s3:
@@ -253,7 +253,7 @@ Contain the information to use aws s3 as backend storage in vault. Vault documen
 
 ### Azure
 
-Contain the information to use azure storage container as backend storage in vault. Vault documentions about azure storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/azure.html).
+Contain the informations to use azure storage container as backend storage in vault. Vault documentions about azure storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/azure.html).
   ```yaml
   backendStorage:
     azure:
@@ -270,7 +270,7 @@ Contain the information to use azure storage container as backend storage in vau
   - **maxParallel** (int): Specifies the maximum number of concurrent operations to take place.
 
 #### PostgreSQL
-Contain the information to use postgreSQL storage as backend storage in vault. Vault documention about postgreSQL can be found [here](https://www.vaultproject.io/docs/configuration/storage/postgresql.html).
+Contain the informations to use postgreSQL storage as backend storage in vault. Vault documention about postgreSQL can be found [here](https://www.vaultproject.io/docs/configuration/storage/postgresql.html).
   ```yaml
   backendStorage:
     postgreSQL:
@@ -294,7 +294,7 @@ Contain the information to use postgreSQL storage as backend storage in vault. V
 
 ### MySQL
 
-Contain the information to use MySQL as backend storage in vault. Vault documentions about MySQL can be found [here](https://www.vaultproject.io/docs/configuration/storage/mysql.html).
+Contain the informations to use MySQL as backend storage in vault. Vault documentions about MySQL can be found [here](https://www.vaultproject.io/docs/configuration/storage/mysql.html).
   ```yaml
   backendStorage:
     mySQL:
@@ -335,7 +335,7 @@ Contain the information to use MySQL as backend storage in vault. Vault document
 
 ### Filesystem
 
-Contain the information to use Filesystem as backend storage in vault. Vault documentions about Filesystem can be found [here](https://www.vaultproject.io/docs/configuration/storage/filesystem.html).
+Contain the informations to use Filesystem as backend storage in vault. Vault documentions about Filesystem can be found [here](https://www.vaultproject.io/docs/configuration/storage/filesystem.html).
   ```yaml
   backendStorage:
     file:
@@ -343,6 +343,52 @@ Contain the information to use Filesystem as backend storage in vault. Vault doc
   ```
   **fileSpec** has following fields:
   - **path** (string): The absolute path on disk to the directory where the data will be stored. If the directory does not exist, Vault will create it.
+
+### DynamoDB
+
+Contain the informations to use AWS DynamoDB as backend storage in vault. Vault documentions about DynamoDB can be found [here](https://www.vaultproject.io/docs/configuration/storage/dynamodb.html).
+  ```yaml
+  backendStorage:
+    dynamoDB:
+      table: <table_name>
+      region: <region>
+      endPoint: <endpoint>
+      haEnabled: <true/false>
+      readCapacity: <read_capacity>
+      writeCapacity: <write_capacity>
+      credentialSecret: <secret_name>
+      sessionTokenSecret: <secret_name>
+      maxParallel: <max_parallel>
+  ```
+  **dynamoDBSpec** has following fields:
+  - **table** (string): Specifies the name of the DynamoDB table in which to store Vault data. If the specified table does not yet exist, it will be created during initialization. Default value is `vault-dynamodb-backend`.
+  - **region** (string): Specifies the AWS region. Default value is `us-east-1`.\
+  - **endPoint** (string): Specifies an alternative, AWS compatible, DynamoDB endpoint.
+  - **haEnabled** (bool): Specifies whether this backend should be used to run Vault in high availability mode. Default value is `false`.
+  - **readCapacity** (int): Specifies the maximum number of reads consumed per second on the table. Default value is `5`.
+  - **writeCapacity** (int): Specifies the maximum number of writes performed per second on the table. Default value is `5`.
+  - **credentialSecret** (string): Name of the secret containing AWS access key and secret key. If it is not provided then vault will attempt to retrieve credentials from the AWS metadata service. Credential secret example:
+    ```yaml
+    apiVersion: v1
+    data:
+      access_key: <base64_encoded_access_key>
+      secret_key: <base64_encoded_secret_key>
+    kind: Secret
+    metadata:
+      name: aws-credential
+      namespaces: default
+    ```
+  - **sessionTokenSecret** (string): Name of the secret containing AWS session token. Session token secret example:
+    ```yaml
+    apiVersion: v1
+    data:
+      session_token: <base64_encoded_session_token>
+    kind: Secret
+    metadata:
+      name: aws-session
+      namespaces: default
+    ```
+  - **maxParallel** (int): Specifies the maximum number of concurrent requests to take place.
 
 ## Unsealer Spec
 

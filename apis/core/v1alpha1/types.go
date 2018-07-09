@@ -177,6 +177,7 @@ type BackendStorageSpec struct {
 	PostgreSQL *PostgreSQLSpec `json:"postgreSQL,omitempty"`
 	MySQL      *MySQLSpec      `json:"mySQL,omitempty"`
 	File       *FileSpec       `json:"file,omitempty"`
+	DynamoDB   *DynamoDBSpec   `json:"dynamoDB,omitempty"`
 }
 
 // TODO : set defaults and validation
@@ -339,6 +340,45 @@ type FileSpec struct {
 	// The absolute path on disk to the directory where the data will be stored.
 	// If the directory does not exist, Vault will create it.
 	Path string `json:"path"`
+}
+
+// vault doc: https://www.vaultproject.io/docs/configuration/storage/dynamodb.html
+//
+// DynamoDBSpec defines configuration to set up DynamoDB Storage as backend storage in vault
+type DynamoDBSpec struct {
+	// Specifies an alternative, AWS compatible, DynamoDB endpoint.
+	EndPoint string `json:"endPoint,omitempty"`
+
+	// Specifies the AWS region
+	Region string `json:"region,omitempty"`
+
+	// Specifies whether this backend should be used to run Vault in high availability mode.
+	HaEnabled bool `json:"haEnabled,omitempty"`
+
+	// Specifies the maximum number of reads consumed per second on the table
+	ReadCapacity int `json:"readCapacity,omiempty"`
+
+	// Specifies the maximum number of writes performed per second on the table.
+	WriteCapacity int `json:"writeCapacity,omitempty"`
+
+	// Specifies the name of the DynamoDB table in which to store Vault data.
+	// If the specified table does not yet exist, it will be created during initialization.
+	// default: vault-dynamodb-backend
+	Table string `json:"table,omitempty"`
+
+	// Specifies the secret name containing AWS access key and AWS secret key
+	// secret data:
+	//	- access_key=<value>
+	//  - secret_key=<value>
+	CredentialSecret string `json:"credentialSecret,omitempty"`
+
+	// Specifies the secret name containing AWS session token
+	// secret data:
+	//	- session_token:<value>
+	SessionTokenSecret string `json:"sessionTokenSecret,omitempty"`
+
+	// Specifies the maximum number of parallel operations to take place.
+	MaxParallel int `json:"maxParallel,omitempty"`
 }
 
 // UnsealerSpec contain the configuration for auto vault initialize/unseal

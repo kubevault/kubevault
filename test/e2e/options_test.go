@@ -16,6 +16,7 @@ type E2EOptions struct {
 	KubeContext    string
 	KubeConfig     string
 	StartAPIServer bool
+	RunDynamoDBTest bool
 }
 
 var (
@@ -31,6 +32,7 @@ func init() {
 	flag.StringVar(&options.KubeConfig, "kubeconfig", "", "Path to kubeconfig file with authorization information (the master location is set by the master flag).")
 	flag.StringVar(&options.KubeContext, "kube-context", "", "Name of kube context")
 	flag.BoolVar(&options.StartAPIServer, "webhook", options.StartAPIServer, "Start API server for webhook")
+	flag.BoolVar(&options.RunDynamoDBTest, "run-dynamodb-test", options.RunDynamoDBTest, "Run dynamoDB test")
 	enableLogging()
 	flag.Parse()
 }

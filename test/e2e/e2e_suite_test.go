@@ -45,7 +45,7 @@ var _ = BeforeSuite(func() {
 	ctrl, err := ctrlConfig.New()
 	Expect(err).NotTo(HaveOccurred())
 
-	root = framework.New(ctrlConfig.KubeClient, ctrlConfig.ExtClient, nil, options.StartAPIServer, clientConfig)
+	root = framework.New(ctrlConfig.KubeClient, ctrlConfig.ExtClient, nil, options.StartAPIServer, clientConfig,options.RunDynamoDBTest)
 	err = root.CreateNamespace()
 	Expect(err).NotTo(HaveOccurred())
 	By("Using test namespace " + root.Namespace())
