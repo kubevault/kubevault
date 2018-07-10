@@ -27,10 +27,10 @@ type Framework struct {
 	CertStore         *certstore.CertStore
 	WebhookEnabled    bool
 	ClientConfig      *rest.Config
-	RunDynamoDBTest bool
+	RunDynamoDBTest   bool
 }
 
-func New(kubeClient kubernetes.Interface, extClient cs.Interface, kaClient ka.Interface, webhookEnabled bool, clientConfig *rest.Config,runDynamoDBTest bool) *Framework {
+func New(kubeClient kubernetes.Interface, extClient cs.Interface, kaClient ka.Interface, webhookEnabled bool, clientConfig *rest.Config, runDynamoDBTest bool) *Framework {
 	store, err := certstore.NewCertStore(afero.NewMemMapFs(), filepath.Join("", "pki"))
 	Expect(err).NotTo(HaveOccurred())
 
@@ -45,7 +45,7 @@ func New(kubeClient kubernetes.Interface, extClient cs.Interface, kaClient ka.In
 		CertStore:         store,
 		WebhookEnabled:    webhookEnabled,
 		ClientConfig:      clientConfig,
-		RunDynamoDBTest: runDynamoDBTest,
+		RunDynamoDBTest:   runDynamoDBTest,
 	}
 }
 

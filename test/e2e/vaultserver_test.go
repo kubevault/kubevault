@@ -949,9 +949,9 @@ var _ = Describe("VaultServer", func() {
 
 		const (
 			awsCredSecret = "test-aws-cred-123"
-			region =  "us-west-1"
-			table = "vault-dynamodb-test-1234"
-			readCapacity = 5
+			region        = "us-west-1"
+			table         = "vault-dynamodb-test-1234"
+			readCapacity  = 5
 			writeCapacity = 5
 		)
 
@@ -974,15 +974,15 @@ var _ = Describe("VaultServer", func() {
 
 				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
 
-				Expect(f.DynamoDBCreateTable(region, table, readCapacity,writeCapacity)).NotTo(HaveOccurred())
+				Expect(f.DynamoDBCreateTable(region, table, readCapacity, writeCapacity)).NotTo(HaveOccurred())
 
 				dynamodb := api.BackendStorageSpec{
 					DynamoDB: &api.DynamoDBSpec{
-						Region: region,
+						Region:           region,
 						CredentialSecret: awsCredSecret,
-						Table: table,
-						ReadCapacity: readCapacity,
-						WriteCapacity: writeCapacity,
+						Table:            table,
+						ReadCapacity:     readCapacity,
+						WriteCapacity:    writeCapacity,
 					},
 				}
 
@@ -997,7 +997,7 @@ var _ = Describe("VaultServer", func() {
 					},
 				}
 
-				vs = f.VaultServerWithUnsealer(1,dynamodb, unsealer)
+				vs = f.VaultServerWithUnsealer(1, dynamodb, unsealer)
 			})
 
 			AfterEach(func() {

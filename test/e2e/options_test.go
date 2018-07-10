@@ -13,9 +13,9 @@ import (
 type E2EOptions struct {
 	*server.ExtraOptions
 
-	KubeContext    string
-	KubeConfig     string
-	StartAPIServer bool
+	KubeContext     string
+	KubeConfig      string
+	StartAPIServer  bool
 	RunDynamoDBTest bool
 }
 

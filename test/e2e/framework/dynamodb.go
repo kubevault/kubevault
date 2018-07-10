@@ -1,16 +1,17 @@
 package framework
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	. "github.com/onsi/gomega"
-	"time"
 )
 
-func (f *Framework) DynamoDBCreateTable(region,table string, readCapacity, writeCapacity int) error {
+func (f *Framework) DynamoDBCreateTable(region, table string, readCapacity, writeCapacity int) error {
 	sess, err := session.NewSession()
-	if err!=nil {
+	if err != nil {
 		return err
 	}
 
@@ -39,29 +40,29 @@ func (f *Framework) DynamoDBCreateTable(region,table string, readCapacity, write
 	}
 
 	_, err = db.CreateTable(in)
-	if err!=nil {
+	if err != nil {
 		return err
 	}
 
-	Eventually(func() bool{
+	Eventually(func() bool {
 		resp, err := db.DescribeTable(&dynamodb.DescribeTableInput{
 			TableName: aws.String(table),
 		})
-		if err!=nil {
+		if err != nil {
 			return false
 		}
 
 		return *resp.Table.TableStatus == "ACTIVE"
 
-	},5*time.Minute, 3*time.Second).Should(BeTrue())
+	}, 5*time.Minute, 3*time.Second).Should(BeTrue())
 
 	return nil
 
 }
 
-func (f *Framework) DynamoDBDeleteTable(region,table string) error {
+func (f *Framework) DynamoDBDeleteTable(region, table string) error {
 	sess, err := session.NewSession()
-	if err!=nil {
+	if err != nil {
 		return err
 	}
 
