@@ -35,6 +35,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/kubevault/operator/apis/core/v1alpha1.AzureKeyVault":        schema_operator_apis_core_v1alpha1_AzureKeyVault(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec":            schema_operator_apis_core_v1alpha1_AzureSpec(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.BackendStorageSpec":   schema_operator_apis_core_v1alpha1_BackendStorageSpec(ref),
+		"github.com/kubevault/operator/apis/core/v1alpha1.DynamoDBSpec":         schema_operator_apis_core_v1alpha1_DynamoDBSpec(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec":             schema_operator_apis_core_v1alpha1_EtcdSpec(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.FileSpec":             schema_operator_apis_core_v1alpha1_FileSpec(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec":              schema_operator_apis_core_v1alpha1_GcsSpec(ref),
@@ -471,11 +472,93 @@ func schema_operator_apis_core_v1alpha1_BackendStorageSpec(ref common.ReferenceC
 							Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.FileSpec"),
 						},
 					},
+					"dynamoDB": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.DynamoDBSpec"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec", "github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.FileSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.MySQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"},
+			"github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec", "github.com/kubevault/operator/apis/core/v1alpha1.DynamoDBSpec", "github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.FileSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.MySQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"},
+	}
+}
+
+func schema_operator_apis_core_v1alpha1_DynamoDBSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/dynamodb.html\n\nDynamoDBSpec defines configuration to set up DynamoDB Storage as backend storage in vault",
+				Properties: map[string]spec.Schema{
+					"endPoint": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies an alternative, AWS compatible, DynamoDB endpoint.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"region": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the AWS region",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"haEnabled": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies whether this backend should be used to run Vault in high availability mode.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"readCapacity": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum number of reads consumed per second on the table",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"writeCapacity": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum number of writes performed per second on the table.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"table": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the name of the DynamoDB table in which to store Vault data. If the specified table does not yet exist, it will be created during initialization. default: vault-dynamodb-backend",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"credentialSecret": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the secret name containing AWS access key and AWS secret key secret data:\n\t- access_key=<value>\n - secret_key=<value>",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"sessionTokenSecret": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the secret name containing AWS session token secret data:\n\t- session_token:<value>",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"maxParallel": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum number of parallel operations to take place.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+				Required: []string{"readCapacity"},
+			},
+		},
+		Dependencies: []string{},
 	}
 }
 

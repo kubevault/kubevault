@@ -7,6 +7,19 @@ metadata:
     app: vault-operator
   name: vaultservers.core.kubevault.com
 spec:
+  additionalPrinterColumns:
+  - JSONPath: .spec.nodes
+    name: Nodes
+    type: string
+  - JSONPath: .spec.version
+    name: Version
+    type: string
+  - JSONPath: .status.vaultStatus
+    name: Status
+    type: string
+  - JSONPath: .metadata.creationTimestamp
+    name: Age
+    type: date
   group: core.kubevault.com
   names:
     kind: VaultServer
@@ -916,6 +929,54 @@ spec:
                   - accountName
                   - accountKey
                   - container
+                dynamoDB:
+                  description: |-
+                    vault doc: https://www.vaultproject.io/docs/configuration/storage/dynamodb.html
+
+                    DynamoDBSpec defines configuration to set up DynamoDB Storage as backend storage in vault
+                  properties:
+                    credentialSecret:
+                      description: "Specifies the secret name containing AWS access
+                        key and AWS secret key secret data:\n\t- access_key=<value>\n
+                        - secret_key=<value>"
+                      type: string
+                    endPoint:
+                      description: Specifies an alternative, AWS compatible, DynamoDB
+                        endpoint.
+                      type: string
+                    haEnabled:
+                      description: Specifies whether this backend should be used to
+                        run Vault in high availability mode.
+                      type: boolean
+                    maxParallel:
+                      description: Specifies the maximum number of parallel operations
+                        to take place.
+                      format: int32
+                      type: integer
+                    readCapacity:
+                      description: Specifies the maximum number of reads consumed
+                        per second on the table
+                      format: int32
+                      type: integer
+                    region:
+                      description: Specifies the AWS region
+                      type: string
+                    sessionTokenSecret:
+                      description: "Specifies the secret name containing AWS session
+                        token secret data:\n\t- session_token:<value>"
+                      type: string
+                    table:
+                      description: 'Specifies the name of the DynamoDB table in which
+                        to store Vault data. If the specified table does not yet exist,
+                        it will be created during initialization. default: vault-dynamodb-backend'
+                      type: string
+                    writeCapacity:
+                      description: Specifies the maximum number of writes performed
+                        per second on the table.
+                      format: int32
+                      type: integer
+                  required:
+                  - readCapacity
                 etcd:
                   description: |-
                     vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html
@@ -1363,3 +1424,7 @@ spec:
                     type: string
                   type: array
   version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
