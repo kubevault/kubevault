@@ -942,4 +942,83 @@ var _ = Describe("VaultServer", func() {
 		})
 	})
 
+	Describe("unsealing using kubernetes secret", func() {
+		var (
+			vs *api.VaultServer
+		)
+
+		const (
+			awsCredSecret = "test-aws-cred-123"
+			region        = "us-west-1"
+			table         = "vault-dynamodb-test-1234"
+			readCapacity  = 5
+			writeCapacity = 5
+		)
+
+		Context("using dynamoDB backend", func() {
+			BeforeEach(func() {
+				if !f.RunDynamoDBTest {
+					Skip("dynamodb test is skipped")
+				}
+
+				sr := corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      awsCredSecret,
+						Namespace: f.Namespace(),
+					},
+					Data: map[string][]byte{
+						"access_key": []byte(os.Getenv("AWS_ACCESS_KEY_ID")),
+						"secret_key": []byte(os.Getenv("AWS_SECRET_ACCESS_KEY")),
+					},
+				}
+
+				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
+
+				Expect(f.DynamoDBCreateTable(region, table, readCapacity, writeCapacity)).NotTo(HaveOccurred())
+
+				dynamodb := api.BackendStorageSpec{
+					DynamoDB: &api.DynamoDBSpec{
+						Region:           region,
+						CredentialSecret: awsCredSecret,
+						Table:            table,
+						ReadCapacity:     readCapacity,
+						WriteCapacity:    writeCapacity,
+					},
+				}
+
+				unsealer := api.UnsealerSpec{
+					SecretShares:    4,
+					SecretThreshold: 2,
+					InsecureTLS:     true,
+					Mode: api.ModeSpec{
+						KubernetesSecret: &api.KubernetesSecretSpec{
+							SecretName: "k8s-dynamodb-keys-1234",
+						},
+					},
+				}
+
+				vs = f.VaultServerWithUnsealer(1, dynamodb, unsealer)
+			})
+
+			AfterEach(func() {
+				Expect(f.DynamoDBDeleteTable(region, table)).NotTo(HaveOccurred())
+
+				Expect(f.DeleteSecret(awsCredSecret, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(awsCredSecret, vs.Namespace)
+
+				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
+
+				checkForVaultServerDeleted(vs.Name, vs.Namespace)
+				checkForSecretDeleted(controller.VaultTlsSecretName, vs.Namespace)
+				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+			})
+
+			It("should create vault server", func() {
+				shouldCreateVaultServer(vs)
+
+				checkForVaultIsUnsealed(vs)
+			})
+		})
+	})
 })

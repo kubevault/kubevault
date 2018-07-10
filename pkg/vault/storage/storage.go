@@ -3,6 +3,7 @@ package storage
 import (
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/storage/azure"
+	"github.com/kubevault/operator/pkg/vault/storage/dynamodb"
 	"github.com/kubevault/operator/pkg/vault/storage/etcd"
 	"github.com/kubevault/operator/pkg/vault/storage/file"
 	"github.com/kubevault/operator/pkg/vault/storage/gcs"
@@ -39,6 +40,8 @@ func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage, 
 		return mysql.NewOptions(kubeClient, vs.GetNamespace(), *s.MySQL)
 	} else if s.File != nil {
 		return file.NewOptions(*s.File)
+	} else if s.DynamoDB != nil {
+		return dynamodb.NewOptions(*s.DynamoDB)
 	} else {
 		return nil, errors.New("invalid storage backend")
 	}
