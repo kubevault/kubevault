@@ -29,12 +29,18 @@ func setNameSchema(openapiSpec map[string]common.OpenAPIDefinition) {
 func (c VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crdutils.NewCustomResourceDefinition(crdutils.Config{
 		Group:         SchemeGroupVersion.Group,
-		Version:       SchemeGroupVersion.Version,
 		Plural:        ResourceVaultServers,
 		Singular:      ResourceVaultServer,
 		Kind:          ResourceKindVaultServer,
 		ShortNames:    []string{"vs"},
 		ResourceScope: string(apiextensions.NamespaceScoped),
+		Versions: []apiextensions.CustomResourceDefinitionVersion{
+			{
+				Name:    SchemeGroupVersion.Version,
+				Served:  true,
+				Storage: true,
+			},
+		},
 		Labels: crdutils.Labels{
 			LabelsMap: map[string]string{"app": "vault-operator"},
 		},
@@ -42,5 +48,27 @@ func (c VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDef
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
 		EnableStatusSubresource: EnableStatusSubresource,
+		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
+			{
+				Name:     "Nodes",
+				Type:     "string",
+				JSONPath: ".spec.nodes",
+			},
+			{
+				Name:     "Version",
+				Type:     "string",
+				JSONPath: ".spec.version",
+			},
+			{
+				Name:     "Status",
+				Type:     "string",
+				JSONPath: ".status.vaultStatus",
+			},
+			{
+				Name:     "Age",
+				Type:     "date",
+				JSONPath: ".metadata.creationTimestamp",
+			},
+		},
 	}, setNameSchema)
 }
