@@ -181,7 +181,7 @@ backendStorage:
     ```
 ### Gcs
 
-Contain the informations to use gcs as backend storage in vault. Vault documention about gcs storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html)
+Contains required information to use gcs as backend storage in vault. Vault documention about gcs storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html)
 ```yaml
 backendStorage:
   gcs:
@@ -208,7 +208,7 @@ backendStorage:
 
 ### S3
 
-Contain the informations to use aws s3 as backend storage in vault. Vault documention about s3 storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/s3.html).
+Contains required information to use aws s3 as backend storage in vault. Vault documention about s3 storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/s3.html).
   ```yaml
   backendStorage:
     s3:
@@ -253,7 +253,7 @@ Contain the informations to use aws s3 as backend storage in vault. Vault docume
 
 ### Azure
 
-Contain the informations to use azure storage container as backend storage in vault. Vault documentions about azure storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/azure.html).
+Contains required information to use azure storage container as backend storage in vault. Vault documentions about azure storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/azure.html).
   ```yaml
   backendStorage:
     azure:
@@ -270,7 +270,7 @@ Contain the informations to use azure storage container as backend storage in va
   - **maxParallel** (int): Specifies the maximum number of concurrent operations to take place.
 
 #### PostgreSQL
-Contain the informations to use postgreSQL storage as backend storage in vault. Vault documention about postgreSQL can be found [here](https://www.vaultproject.io/docs/configuration/storage/postgresql.html).
+Contains required information to use postgreSQL storage as backend storage in vault. Vault documention about postgreSQL can be found [here](https://www.vaultproject.io/docs/configuration/storage/postgresql.html).
   ```yaml
   backendStorage:
     postgreSQL:
@@ -294,7 +294,7 @@ Contain the informations to use postgreSQL storage as backend storage in vault. 
 
 ### MySQL
 
-Contain the informations to use MySQL as backend storage in vault. Vault documentions about MySQL can be found [here](https://www.vaultproject.io/docs/configuration/storage/mysql.html).
+Contains required information to use MySQL as backend storage in vault. Vault documentions about MySQL can be found [here](https://www.vaultproject.io/docs/configuration/storage/mysql.html).
   ```yaml
   backendStorage:
     mySQL:
@@ -335,7 +335,7 @@ Contain the informations to use MySQL as backend storage in vault. Vault documen
 
 ### Filesystem
 
-Contain the informations to use Filesystem as backend storage in vault. Vault documentions about Filesystem can be found [here](https://www.vaultproject.io/docs/configuration/storage/filesystem.html).
+Contains required information to use Filesystem as backend storage in vault. Vault documentions about Filesystem can be found [here](https://www.vaultproject.io/docs/configuration/storage/filesystem.html).
   ```yaml
   backendStorage:
     file:
@@ -346,7 +346,7 @@ Contain the informations to use Filesystem as backend storage in vault. Vault do
 
 ### DynamoDB
 
-Contain the informations to use AWS DynamoDB as backend storage in vault. Vault documentions about DynamoDB can be found [here](https://www.vaultproject.io/docs/configuration/storage/dynamodb.html).
+Contains required information to use AWS DynamoDB as backend storage in vault. Vault documentions about DynamoDB can be found [here](https://www.vaultproject.io/docs/configuration/storage/dynamodb.html).
   ```yaml
   backendStorage:
     dynamoDB:
@@ -392,7 +392,7 @@ Contain the informations to use AWS DynamoDB as backend storage in vault. Vault 
 
 ## Unsealer Spec
 
-Vault operator use [kubevault/unsealer](https://github.com/kubevault/unsealer) to unseal vault. Unsealer spec contains the informations that used in unsealer to unseal vault.
+Vault operator use [kubevault/unsealer](https://github.com/kubevault/unsealer) to unseal vault. Unsealer spec contains the information that is used in unsealer to unseal vault.
 
 ```yaml
 spec:
