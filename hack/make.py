@@ -82,17 +82,17 @@ def version():
 
 
 def fmt():
-    libbuild.ungroup_go_imports('*.go', 'apis', 'client', 'pkg', 'test')
-    die(call('goimports -w *.go apis client pkg test'))
-    call('gofmt -s -w *.go apis client pkg test')
+    libbuild.ungroup_go_imports('cmd', 'apis', 'client', 'pkg', 'test')
+    die(call('goimports -w cmd apis client pkg test'))
+    call('gofmt -s -w cmd apis client pkg test')
 
 
 def vet():
-    call('go vet *.go ./...')
+    call('go vet ./...')
 
 
 def lint():
-    call('golint *.go ./...')
+    call('golint ./...')
 
 
 def gen():
@@ -101,15 +101,16 @@ def gen():
 
 def build_cmd(name):
     cfg = libbuild.BIN_MATRIX[name]
-    entrypoint='*.go'
+    entrypoint = 'cmd/{}/*.go'.format(name)
     compress = libbuild.ENV in ['prod']
+    upx= False
     if cfg['type'] == 'go':
         if 'distro' in cfg:
             for goos, archs in cfg['distro'].items():
                 for goarch in archs:
-                    libbuild.go_build(name, goos, goarch, entrypoint, compress)
+                    libbuild.go_build(name, goos, goarch, entrypoint, compress, upx)
         else:
-            libbuild.go_build(name, libbuild.GOHOSTOS, libbuild.GOHOSTARCH, entrypoint, compress)
+            libbuild.go_build(name, libbuild.GOHOSTOS, libbuild.GOHOSTARCH, entrypoint, compress, upx)
 
 
 def build_cmds():
@@ -128,14 +129,6 @@ def build(name=None):
         build_cmds()
 
 
-def push_bin(bindir):
-    call('rm -f *.md5', cwd=bindir)
-    call('rm -f *.sha1', cwd=bindir)
-    for f in os.listdir(bindir):
-        if os.path.isfile(bindir + '/' + f):
-            libbuild.upload_to_cloud(bindir, f, BUILD_METADATA['version'])
-
-
 def push(name=None):
     if name:
         bindir = libbuild.REPO_ROOT + '/dist/' + name
@@ -148,35 +141,36 @@ def push(name=None):
                 push_bin(d)
 
 
-def update_registry():
-    vf = libbuild.REPO_ROOT + '/dist/vault-operator/versions.json'
-    bucket = libbuild.BUCKET_MATRIX.get(libbuild.ENV, libbuild.BUCKET_MATRIX['dev'])
-    call('gsutil cp {0}/binaries/vault-operator/versions.json {1}'.format(bucket, vf))
-    vj = {}
-    if os.path.isfile(vf):
-        vj = libbuild.read_json(vf)
-    vj[BUILD_METADATA['version']] = {
-        'changesets': [],
-        'release_date': int(time.time())
-    }
-    libbuild.write_json(vj, vf)
-    call("gsutil cp {1} {0}/binaries/vault-operator/versions.json".format(bucket, vf))
-    call('gsutil acl ch -u AllUsers:R -r {0}/binaries/vault-operator/versions.json'.format(bucket))
+def push_bin(bindir):
+    call('rm -f *.md5', cwd=bindir)
+    call('rm -f *.sha1', cwd=bindir)
+    for f in os.listdir(bindir):
+        if os.path.isfile(bindir + '/' + f):
+            libbuild.upload_to_cloud(bindir, f, BUILD_METADATA['version'])
 
-    lf = libbuild.REPO_ROOT + '/dist/vault-operator/latest.txt'
-    libbuild.write_file(lf, BUILD_METADATA['version'])
-    call("gsutil cp {1} {0}/binaries/vault-operator/latest.txt".format(bucket, lf))
-    call('gsutil acl ch -u AllUsers:R -r {0}/binaries/vault-operator/latest.txt'.format(bucket))
+
+def update_registry():
+    libbuild.update_registry(BUILD_METADATA['version'])
 
 
 def install():
-    die(call('GO15VENDOREXPERIMENT=1 ' + libbuild.GOC + ' install ./...'))
+    die(call(libbuild.GOC + ' install ./...'))
 
 
 def default():
     gen()
     fmt()
-    die(call('GO15VENDOREXPERIMENT=1 ' + libbuild.GOC + ' install .'))
+    install()
+
+
+def test(type, *args):
+    pydotenv.load_dotenv(join(libbuild.REPO_ROOT, 'hack/config/.env'))
+    if type == 'e2e':
+        die(call('goimports -w *.go pkg test'))
+        call('gofmt -s -w *.go pkg test')
+        die(call('ginkgo -r -v -progress -trace test/e2e -- ' + " ".join(args)))
+    else:
+        print '{test e2e}'
 
 
 if __name__ == "__main__":
