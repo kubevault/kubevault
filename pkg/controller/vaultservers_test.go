@@ -346,10 +346,10 @@ func TestPrepareVaultTLSSecrets(t *testing.T) {
 				defer deleteSecret(t, vaultCtrl.kubeClient, test.extraSecret)
 			}
 
-			err := vaultCtrl.prepareVaultTLSSecrets(test.vs)
+			tlsSecret, err := vaultCtrl.prepareVaultTLSSecrets(test.vs)
 			if test.epectErr {
 				assert.NotNil(t, err)
-				sr, err := vaultCtrl.kubeClient.CoreV1().Secrets(test.vs.Namespace).Get(VaultTlsSecretName, metav1.GetOptions{})
+				sr, err := vaultCtrl.kubeClient.CoreV1().Secrets(test.vs.Namespace).Get(tlsSecret, metav1.GetOptions{})
 				defer deleteSecret(t, vaultCtrl.kubeClient, sr)
 				assert.Nil(t, err)
 			} else {
@@ -492,7 +492,7 @@ func TestDeployVault(t *testing.T) {
 				defer deleteService(t, vaultCtrl.kubeClient, test.extraService)
 			}
 
-			err := vaultCtrl.DeployVault(test.vs)
+			err := vaultCtrl.DeployVault(test.vs, VaultTlsSecretName)
 			if test.expectErr {
 				assert.NotNil(t, err, "error must be non-empty")
 			} else {

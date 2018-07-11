@@ -137,7 +137,7 @@ func (c *VaultController) reconcileVault(v *api.VaultServer) error {
 	if kerrors.IsNotFound(err) {
 		//deploy vault
 
-		err = c.prepareVaultTLSSecrets(v)
+		tlsSecret, err := c.prepareVaultTLSSecrets(v)
 		if err != nil {
 			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
 				c.recorder.Eventf(
@@ -154,7 +154,7 @@ func (c *VaultController) reconcileVault(v *api.VaultServer) error {
 					ref,
 					corev1.EventTypeNormal,
 					"vault tls secret created",
-					fmt.Sprintf("vault tls secret '%s' created successfully", VaultTlsSecretName),
+					fmt.Sprintf("vault tls secret '%s' created/provided", tlsSecret),
 				)
 			}
 		}
@@ -182,7 +182,7 @@ func (c *VaultController) reconcileVault(v *api.VaultServer) error {
 			}
 		}
 
-		err = c.DeployVault(v)
+		err = c.DeployVault(v, tlsSecret)
 		if err != nil {
 			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
 				c.recorder.Eventf(
@@ -272,7 +272,7 @@ func (c *VaultController) reconcileVault(v *api.VaultServer) error {
 //
 // DeployVault is idempotent. If an object already exists, this function will ignore creating
 // it and return no error. It is safe to retry on this function.
-func (c *VaultController) DeployVault(v *api.VaultServer) error {
+func (c *VaultController) DeployVault(v *api.VaultServer, tlsSecret string) error {
 	_, err := c.kubeClient.AppsV1beta1().Deployments(v.Namespace).Get(v.Name, metav1.GetOptions{})
 	if !kerrors.IsNotFound(err) {
 		glog.Infof("deployment '%s' already exists", v.Name)
@@ -315,7 +315,7 @@ func (c *VaultController) DeployVault(v *api.VaultServer) error {
 		},
 	}
 
-	configureVaultServerTLS(&podTempl)
+	configureVaultServerTLS(&podTempl, tlsSecret)
 
 	// configure for vault backend storage
 	err = c.configureForVaultBackendStorage(v, &podTempl)
@@ -409,23 +409,32 @@ func (c *VaultController) UpgradeDeployment(v *api.VaultServer, d *appsv1beta1.D
 //     server.key : <vault-server-key>
 //
 // currently used self signed certificate
-func (c *VaultController) prepareVaultTLSSecrets(v *api.VaultServer) error {
+func (c *VaultController) prepareVaultTLSSecrets(v *api.VaultServer) (string, error) {
+	if v.Spec.TLS != nil {
+		if v.Spec.TLS.TLSSecret != "" {
+			glog.Infof("user provided tls assets in secret '%s'\n", v.Spec.TLS.TLSSecret)
+			return v.Spec.TLS.TLSSecret, nil
+		}
+	}
+
+	glog.Infoln("generating tls assets for vault...")
+
 	_, err := c.kubeClient.CoreV1().Secrets(v.Namespace).Get(VaultTlsSecretName, metav1.GetOptions{})
 	if !kerrors.IsNotFound(err) {
 		glog.Infof("secret '%s' already exists", VaultTlsSecretName)
-		return nil
+		return VaultTlsSecretName, nil
 	} else if !kerrors.IsNotFound(err) {
-		return errors.Wrap(err, "vault secret get error")
+		return "", errors.Wrap(err, "vault secret get error")
 	}
 
 	store, err := certstore.NewCertStore(afero.NewMemMapFs(), filepath.Join("", "pki"))
 	if err != nil {
-		return errors.Wrap(err, "certificate store create error")
+		return "", errors.Wrap(err, "certificate store create error")
 	}
 
 	err = store.NewCA()
 	if err != nil {
-		return errors.Wrap(err, "ca certificate create error")
+		return "", errors.Wrap(err, "ca certificate create error")
 	}
 
 	// ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
@@ -439,7 +448,7 @@ func (c *VaultController) prepareVaultTLSSecrets(v *api.VaultServer) error {
 
 	srvCrt, srvKey, err := store.NewServerCertPair("server", altNames)
 	if err != nil {
-		return errors.Wrap(err, "vault server create crt/key pair error")
+		return "", errors.Wrap(err, "vault server create crt/key pair error")
 	}
 
 	vaultTlsSecret := &corev1.Secret{
@@ -458,10 +467,12 @@ func (c *VaultController) prepareVaultTLSSecrets(v *api.VaultServer) error {
 
 	_, err = c.kubeClient.CoreV1().Secrets(v.Namespace).Create(vaultTlsSecret)
 	if err != nil {
-		return errors.Wrap(err, "vault tls secret create error")
+		return "", errors.Wrap(err, "vault tls secret create error")
 	}
 
-	return nil
+	glog.Infof("created secret(%s) containing tls assets\n", VaultTlsSecretName)
+
+	return VaultTlsSecretName, nil
 }
 
 // prepareConfig will do:
@@ -788,14 +799,14 @@ func vaultContainer(v *api.VaultServer, resource corev1.ResourceRequirements) co
 
 // TODO : Use user provided certificates
 // configureVaultServerTLS mounts the volume containing the vault server TLS assets for the vault pod
-func configureVaultServerTLS(pt *corev1.PodTemplateSpec) {
+func configureVaultServerTLS(pt *corev1.PodTemplateSpec, tlsSecret string) {
 	vaultTLSAssetVolume := "vault-tls-secret"
 
 	pt.Spec.Volumes = append(pt.Spec.Volumes, corev1.Volume{
 		Name: vaultTLSAssetVolume,
 		VolumeSource: corev1.VolumeSource{
 			Secret: &corev1.SecretVolumeSource{
-				SecretName: VaultTlsSecretName,
+				SecretName: tlsSecret,
 			},
 		},
 	})

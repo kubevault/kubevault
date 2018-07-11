@@ -45,7 +45,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/kubevault/operator/apis/core/v1alpha1.MySQLSpec":            schema_operator_apis_core_v1alpha1_MySQLSpec(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec":       schema_operator_apis_core_v1alpha1_PostgreSQLSpec(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.S3Spec":               schema_operator_apis_core_v1alpha1_S3Spec(ref),
-		"github.com/kubevault/operator/apis/core/v1alpha1.StaticTLS":            schema_operator_apis_core_v1alpha1_StaticTLS(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.TLSPolicy":            schema_operator_apis_core_v1alpha1_TLSPolicy(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.UnsealerSpec":         schema_operator_apis_core_v1alpha1_UnsealerSpec(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServer":          schema_operator_apis_core_v1alpha1_VaultServer(ref),
@@ -972,49 +971,24 @@ func schema_operator_apis_core_v1alpha1_S3Spec(ref common.ReferenceCallback) com
 	}
 }
 
-func schema_operator_apis_core_v1alpha1_StaticTLS(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Properties: map[string]spec.Schema{
-					"serverSecret": {
-						SchemaProps: spec.SchemaProps{
-							Description: "ServerSecret is the secret containing TLS certs used by each vault node for the communication between the vault server and its clients. The server secret should contain two files: server.crt and server.key The server.crt file should only contain the server certificate. It should not be concatenated with the optional ca certificate as allowed by https://www.vaultproject.io/docs/configuration/listener/tcp.html#tls_cert_file The server certificate must allow the following wildcard domains: localhost *.<namespace>.pod <vault-cluster-name>.<namespace>.svc",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"clientSecret": {
-						SchemaProps: spec.SchemaProps{
-							Description: "ClientSecret is the secret containing the CA certificate that will be used to verify the above server certificate The ca secret should contain one file: vault-client-ca.crt",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-				},
-			},
-		},
-		Dependencies: []string{},
-	}
-}
-
 func schema_operator_apis_core_v1alpha1_TLSPolicy(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "TLSPolicy defines the TLS policy of the vault nodes",
+				Description: "TLSPolicy defines the TLS policy of the vault nodes If this is not set, operator will auto-gen TLS assets and secrets.",
 				Properties: map[string]spec.Schema{
-					"static": {
+					"tlsSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "StaticTLS enables user to use static x509 certificates and keys, by putting them into Kubernetes secrets, and specifying them here. If this is not set, operator will auto-gen TLS assets and secrets.",
-							Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.StaticTLS"),
+							Description: "ServerSecret is the secret containing TLS certs used by each vault node for the communication between the vault server and its clients. The server secret should contain three files:\n\t- ca.crt\n\t- server.crt\n\t- server.key\n\nThe server certificate must allow the following wildcard domains:\n\t- localhost\n\t- *.<namespace>.pod\n\t- <vaultServer-name>.<namespace>.svc",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
+				Required: []string{"tlsSecret"},
 			},
 		},
-		Dependencies: []string{
-			"github.com/kubevault/operator/apis/core/v1alpha1.StaticTLS"},
+		Dependencies: []string{},
 	}
 }
 
@@ -1206,7 +1180,7 @@ func schema_operator_apis_core_v1alpha1_VaultServerSpec(ref common.ReferenceCall
 							Format:      "",
 						},
 					},
-					"TLS": {
+					"tls": {
 						SchemaProps: spec.SchemaProps{
 							Description: "TLS policy of vault nodes",
 							Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.TLSPolicy"),

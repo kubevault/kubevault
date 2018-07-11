@@ -1791,24 +1791,15 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.StaticTLS": {
-      "properties": {
-        "clientSecret": {
-          "description": "ClientSecret is the secret containing the CA certificate that will be used to verify the above server certificate The ca secret should contain one file: vault-client-ca.crt",
-          "type": "string"
-        },
-        "serverSecret": {
-          "description": "ServerSecret is the secret containing TLS certs used by each vault node for the communication between the vault server and its clients. The server secret should contain two files: server.crt and server.key The server.crt file should only contain the server certificate. It should not be concatenated with the optional ca certificate as allowed by https://www.vaultproject.io/docs/configuration/listener/tcp.html#tls_cert_file The server certificate must allow the following wildcard domains: localhost *.\u003cnamespace\u003e.pod \u003cvault-cluster-name\u003e.\u003cnamespace\u003e.svc",
-          "type": "string"
-        }
-      }
-    },
     "com.github.kubevault.operator.apis.core.v1alpha1.TLSPolicy": {
-      "description": "TLSPolicy defines the TLS policy of the vault nodes",
+      "description": "TLSPolicy defines the TLS policy of the vault nodes If this is not set, operator will auto-gen TLS assets and secrets.",
+      "required": [
+        "tlsSecret"
+      ],
       "properties": {
-        "static": {
-          "description": "StaticTLS enables user to use static x509 certificates and keys, by putting them into Kubernetes secrets, and specifying them here. If this is not set, operator will auto-gen TLS assets and secrets.",
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.StaticTLS"
+        "tlsSecret": {
+          "description": "ServerSecret is the secret containing TLS certs used by each vault node for the communication between the vault server and its clients. The server secret should contain three files:\n\t- ca.crt\n\t- server.crt\n\t- server.key\n\nThe server certificate must allow the following wildcard domains:\n\t- localhost\n\t- *.\u003cnamespace\u003e.pod\n\t- \u003cvaultServer-name\u003e.\u003cnamespace\u003e.svc",
+          "type": "string"
         }
       }
     },
@@ -1915,10 +1906,6 @@
         "backendStorage"
       ],
       "properties": {
-        "TLS": {
-          "description": "TLS policy of vault nodes",
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.TLSPolicy"
-        },
         "affinity": {
           "description": "If specified, the pod's scheduling constraints",
           "$ref": "#/definitions/io.k8s.api.core.v1.Affinity"
@@ -1961,6 +1948,10 @@
         "schedulerName": {
           "description": "If specified, the pod will be dispatched by specified scheduler. If not specified, the pod will be dispatched by default scheduler.",
           "type": "string"
+        },
+        "tls": {
+          "description": "TLS policy of vault nodes",
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.TLSPolicy"
         },
         "tolerations": {
           "description": "If specified, the pod's tolerations.",
