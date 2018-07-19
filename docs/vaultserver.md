@@ -25,9 +25,19 @@ spec:
   nodes: <num_of_nodes>
   baseImage: <base_image>
   version: <version>
-  podPolicy:
+  configMapName: <configMap_name>
+  schedulerName: <scheduler_name>
+  tls: 
     ...
-  configMapName:
+  resources:
+    ...
+  nodeSelector:
+    ...
+  affinity:
+    ...
+  tolerations:
+    ...
+  imagePullSecrets:
     ...
   backendStorage:
     ...
@@ -64,6 +74,27 @@ spec:
   kind: ConfigMap
   metadata:
     name: vault-extra-config
+  ```
+
+- **tls**: It specifies the TLS policy of the vault nodes. If this is not set, operator will auto-gen TLS assets and secrets. Provided TLS secret will contain `ca.crt`, `server.crt` and `server.key`. The server certificate must allow the following wildcard domains:
+  - `localhost`
+  - `*.<namespace>.pod`
+  - `<vaultServer-name>.<namespace>.svc`
+  ```yaml
+  spec:
+    ...
+    tls:
+      tlsSecret: "vault-tls"
+  ```
+  ```yaml
+  apiVersion: v1
+  data:
+    ca.crt: <ca_cert>
+    server.crt: <server_cert>
+    server.key: <server_key>
+  kind: Secret
+  metadata:
+    name: vault-tls
   ```
 
 - **backendStorage** (BackendStorageSpec): It contains backend storage configuration for vault. See [here](vaultserver.md#backendstorage-spec) for more information.

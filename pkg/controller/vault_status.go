@@ -28,6 +28,7 @@ const (
 // updates the status resource in the vault CR item.
 func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.VaultServer) {
 	var tlsConfig *vaultapi.TLSConfig
+	tlsSecretName := VaultTlsSecretName
 
 	appFs := afero.NewOsFs()
 	appFs.Mkdir(caFileDir, 0777)
@@ -61,9 +62,14 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.Vau
 		}
 
 		if tlsConfig == nil {
-			se, err := c.kubeClient.CoreV1().Secrets(v.Namespace).Get(VaultTlsSecretName, metav1.GetOptions{})
+			if v.Spec.TLS != nil {
+				if v.Spec.TLS.TLSSecret != "" {
+					tlsSecretName = v.Spec.TLS.TLSSecret
+				}
+			}
+			se, err := c.kubeClient.CoreV1().Secrets(v.Namespace).Get(tlsSecretName, metav1.GetOptions{})
 			if err != nil {
-				glog.Errorf("vault status monitor: failed get secret `%v`", VaultTlsSecretName)
+				glog.Errorf("vault status monitor: failed get secret `%v`", tlsSecretName)
 			}
 
 			caFile := filepath.Join(caFileDir, CaCertName)
