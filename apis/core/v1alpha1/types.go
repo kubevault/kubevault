@@ -3,8 +3,8 @@ package v1alpha1
 import (
 	"time"
 
-	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	ofst "kmodules.xyz/offshoot-api/api/v1"
 )
 
 const (
@@ -55,38 +55,18 @@ type VaultServerSpec struct {
 	TLS *TLSPolicy `json:"tls,omitempty"`
 
 	// backend storage configuration for vault
-	BackendStorage BackendStorageSpec `json:"backendStorage"`
+	Backend BackendStorageSpec `json:"backend"`
 
-	// unseal configuration for vault
+	// Unsealer configuration for vault
 	Unsealer *UnsealerSpec `json:"unsealer,omitempty"`
 
-	// Compute Resources for vault container.
-	Resources core.ResourceRequirements `json:"resources,omitempty"`
-
-	// NodeSelector is a selector which must be true for the pod to fit on a node.
-	// Selector which must match a node's labels for the pod to be scheduled on that node.
-	// More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
-	NodeSelector map[string]string `json:"nodeSelector,omitempty"`
-
-	// If specified, the pod's scheduling constraints
+	// PodTemplate is an optional configuration for pods used to run vault
 	// +optional
-	Affinity *core.Affinity `json:"affinity,omitempty"`
+	PodTemplate ofst.PodTemplateSpec `json:"podTemplate,omitempty"`
 
-	// If specified, the pod will be dispatched by specified scheduler.
-	// If not specified, the pod will be dispatched by default scheduler.
+	// ServiceTemplate is an optional configuration for service used to expose vault
 	// +optional
-	SchedulerName string `json:"schedulerName,omitempty"`
-
-	// If specified, the pod's tolerations.
-	// +optional
-	Tolerations []core.Toleration `json:"tolerations,omitempty"`
-
-	// ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec.
-	// If specified, these secrets will be passed to individual puller implementations for them to use. For example,
-	// in the case of docker, only DockerConfig type secrets are honored.
-	// More info: https://kubernetes.io/docs/concepts/containers/images#specifying-imagepullsecrets-on-a-pod
-	// +optional
-	ImagePullSecrets []core.LocalObjectReference `json:"imagePullSecrets,omitempty"`
+	ServiceTemplate ofst.ServiceTemplateSpec `json:"serviceTemplate,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

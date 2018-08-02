@@ -129,7 +129,7 @@ spec:
   nodes: 1
   version: "0.10.0"
   baseImage: "vault"
-  backendStorage:
+  backend:
     etcd:
       address: "https://my-etcd-cluster-client.default.svc:2379"
       etcdApi: "v3"
@@ -167,7 +167,7 @@ spec:
   nodes: 1
   version: "0.10.0"
   baseImage: "vault"
-  backendStorage:
+  backend:
     etcd:
       address: "https://my-etcd-cluster-client.default.svc:2379"
       etcdApi: "v3"
@@ -192,7 +192,7 @@ metadata:
   namespace: default
   ...
 spec:
-  backendStorage:
+  backend:
     etcd:
       address: https://my-etcd-cluster-client.default.svc:2379
       etcdApi: v3

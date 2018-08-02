@@ -1,5 +1,5 @@
-hash: ce545c3eb16c8245b31cfa3a754f58497b52ad631edd0bf8245647f83dea2d0d
-updated: 2018-08-04T03:17:26.925139465-07:00
+hash: 449b8495e1519d19967d109786874db021e81a2778ce14debc39cdfa039ad335
+updated: 2018-08-01T17:31:37.701282591-07:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -40,7 +40,7 @@ imports:
   - registry/admissionreview/v1beta1
   - runtime/serializer/versioning
 - name: github.com/appscode/kutil
-  version: d31eda1052245a20fb5757fbf12c6c8ace8a12a7
+  version: c9b929cfcab96c233c1b0ab59cd4a5ab6a4ff96a
   subpackages:
   - apiextensions/v1beta1
   - apps/v1beta1
@@ -660,7 +660,7 @@ imports:
   - third_party/forked/golang/netutil
   - third_party/forked/golang/reflect
 - name: k8s.io/apiserver
-  version: bf4767929ee604e8b2a6ca0322c2b6f12fd6c912
+  version: 79540596e3b2021b528c4c147fb78cebc29a2f75
   repo: https://github.com/pharmer/apiserver.git
   vcs: git
   subpackages:
@@ -976,6 +976,12 @@ imports:
   - pkg/features
   - pkg/util/parsers
   - pkg/util/pointer
+- name: kmodules.xyz/offshoot-api
+  version: ca509dced59191f2fe70d49a5e238ec92016a8eb
+  repo: https://github.com/kmodules/offshoot-api.git
+  vcs: git
+  subpackages:
+  - api/v1
 testImports:
 - name: github.com/onsi/ginkgo
   version: fa5fabab2a1bfbd924faf4c067d07ae414e2aedf

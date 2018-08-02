@@ -288,13 +288,14 @@ func (c *VaultController) DeployVault(v *api.VaultServer, tlsSecret string) erro
 
 	podTempl := corev1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      v.GetName(),
-			Labels:    selector,
-			Namespace: v.GetNamespace(),
+			Name:        v.GetName(),
+			Labels:      selector,
+			Namespace:   v.GetNamespace(),
+			Annotations: v.Spec.PodTemplate.Annotations,
 		},
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
-				vaultContainer(v, v.Spec.Resources),
+				vaultContainer(v, v.Spec.PodTemplate.Spec.Resources),
 			},
 			ServiceAccountName: saName,
 			Volumes: []corev1.Volume{{
@@ -307,11 +308,14 @@ func (c *VaultController) DeployVault(v *api.VaultServer, tlsSecret string) erro
 					},
 				},
 			}},
-			NodeSelector:     v.Spec.NodeSelector,
-			Tolerations:      v.Spec.Tolerations,
-			ImagePullSecrets: v.Spec.ImagePullSecrets,
-			Affinity:         v.Spec.Affinity,
-			SchedulerName:    v.Spec.SchedulerName,
+			NodeSelector:      v.Spec.PodTemplate.Spec.NodeSelector,
+			Affinity:          v.Spec.PodTemplate.Spec.Affinity,
+			SchedulerName:     v.Spec.PodTemplate.Spec.SchedulerName,
+			Tolerations:       v.Spec.PodTemplate.Spec.Tolerations,
+			ImagePullSecrets:  v.Spec.PodTemplate.Spec.ImagePullSecrets,
+			PriorityClassName: v.Spec.PodTemplate.Spec.PriorityClassName,
+			Priority:          v.Spec.PodTemplate.Spec.Priority,
+			SecurityContext:   v.Spec.PodTemplate.Spec.SecurityContext,
 		},
 	}
 
@@ -582,8 +586,9 @@ func (c *VaultController) createVaultDeployment(v *api.VaultServer, p *corev1.Po
 
 	d := &appsv1beta1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   v.GetName(),
-			Labels: selector,
+			Name:        v.GetName(),
+			Labels:      selector,
+			Annotations: v.Spec.PodTemplate.Controller.Annotations,
 		},
 		Spec: appsv1beta1.DeploymentSpec{
 			Replicas: &v.Spec.Nodes,
@@ -712,8 +717,9 @@ func (c *VaultController) createVaultService(v *api.VaultServer) error {
 
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   v.Name,
-			Labels: selector,
+			Name:        v.Name,
+			Labels:      selector,
+			Annotations: v.Spec.ServiceTemplate.Annotations,
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: selector,
@@ -729,6 +735,13 @@ func (c *VaultController) createVaultService(v *api.VaultServer) error {
 					Port:     VaultClusterPort,
 				},
 			},
+			ClusterIP:                v.Spec.ServiceTemplate.Spec.ClusterIP,
+			Type:                     v.Spec.ServiceTemplate.Spec.Type,
+			ExternalIPs:              v.Spec.ServiceTemplate.Spec.ExternalIPs,
+			LoadBalancerIP:           v.Spec.ServiceTemplate.Spec.LoadBalancerIP,
+			LoadBalancerSourceRanges: v.Spec.ServiceTemplate.Spec.LoadBalancerSourceRanges,
+			ExternalTrafficPolicy:    v.Spec.ServiceTemplate.Spec.ExternalTrafficPolicy,
+			HealthCheckNodePort:      v.Spec.ServiceTemplate.Spec.HealthCheckNodePort,
 		},
 	}
 

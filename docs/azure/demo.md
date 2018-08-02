@@ -62,7 +62,7 @@ spec:
   nodes: 1
   version: "0.10.0"
   baseImage: "vault"
-  backendStorage:
+  backend:
     azure:
       container: vault
       accountName:  vaultstorageac
@@ -101,7 +101,7 @@ spec:
   nodes: 1
   version: "0.10.0"
   baseImage: "vault"
-  backendStorage:
+  backend:
     azure:
       container: vault
       accountName:  vaultstorageac
@@ -128,7 +128,7 @@ metadata:
   namespace: default
   ...
 spec:
-  backendStorage:
+  backend:
     azure:
       accountKey: <account_key>
       accountName: vaultstorageac

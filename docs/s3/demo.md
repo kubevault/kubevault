@@ -95,7 +95,7 @@ spec:
   nodes: 1
   version: "0.10.0"
   baseImage: "vault"
-  backendStorage:
+  backend:
     s3:
       bucket: "test-vault-s3"
       region: "us-west-1"
@@ -121,7 +121,7 @@ spec:
   nodes: 1
   version: "0.10.0"
   baseImage: "vault"
-  backendStorage:
+  backend:
     s3:
       bucket: "test-vault-s3"
       region: "us-west-1"
@@ -147,7 +147,7 @@ metadata:
   namespace: default
   ...
 spec:
-  backendStorage:
+  backend:
     s3:
       bucket: test-vault-s3
       region: us-west-1
