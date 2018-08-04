@@ -11,9 +11,9 @@ import (
 	"github.com/go-openapi/spec"
 	"github.com/golang/glog"
 	vaultinstall "github.com/kubevault/operator/apis/core/install"
-	stashv1alpha1 "github.com/kubevault/operator/apis/core/v1alpha1"
+	corev1alpha1 "github.com/kubevault/operator/apis/core/v1alpha1"
 	extinstall "github.com/kubevault/operator/apis/extensions/install"
-	repov1alpha1 "github.com/kubevault/operator/apis/extensions/v1alpha1"
+	extv1alpha1 "github.com/kubevault/operator/apis/extensions/v1alpha1"
 	crd_api "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
@@ -22,6 +22,8 @@ import (
 )
 
 func generateCRDDefinitions() {
+	corev1alpha1.EnableStatusSubresource = true
+
 	filename := gort.GOPath() + "/src/github.com/kubevault/operator/apis/core/v1alpha1/crds.yaml"
 	os.Remove(filename)
 
@@ -31,7 +33,7 @@ func generateCRDDefinitions() {
 	}
 
 	crds := []*crd_api.CustomResourceDefinition{
-		stashv1alpha1.VaultServer{}.CustomResourceDefinition(),
+		corev1alpha1.VaultServer{}.CustomResourceDefinition(),
 	}
 	for _, crd := range crds {
 		filename := filepath.Join(gort.GOPath(), "/src/github.com/kubevault/operator/api/crds", crd.Spec.Names.Singular+".yaml")
@@ -69,14 +71,14 @@ func generateSwaggerJson() {
 			},
 		},
 		OpenAPIDefinitions: []common.GetOpenAPIDefinitions{
-			stashv1alpha1.GetOpenAPIDefinitions,
-			repov1alpha1.GetOpenAPIDefinitions,
+			corev1alpha1.GetOpenAPIDefinitions,
+			extv1alpha1.GetOpenAPIDefinitions,
 		},
 		Resources: []openapi.TypeInfo{
-			{stashv1alpha1.SchemeGroupVersion, stashv1alpha1.ResourceVaultServers, stashv1alpha1.ResourceKindVaultServer, true},
+			{corev1alpha1.SchemeGroupVersion, corev1alpha1.ResourceVaultServers, corev1alpha1.ResourceKindVaultServer, true},
 		},
 		RDResources: []openapi.TypeInfo{
-			{repov1alpha1.SchemeGroupVersion, repov1alpha1.ResourceVaultSecrets, repov1alpha1.ResourceKindVaultSecret, true},
+			{extv1alpha1.SchemeGroupVersion, extv1alpha1.ResourceVaultSecrets, extv1alpha1.ResourceKindVaultSecret, true},
 		},
 	})
 	if err != nil {
