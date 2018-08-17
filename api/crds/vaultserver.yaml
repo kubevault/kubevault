@@ -4,7 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   creationTimestamp: null
   labels:
-    app: vault-operator
+    app: vault
   name: vaultservers.core.kubevault.com
 spec:
   additionalPrinterColumns:
@@ -22,6 +22,10 @@ spec:
     type: date
   group: core.kubevault.com
   names:
+    categories:
+    - vault
+    - appscode
+    - all
     kind: VaultServer
     plural: vaultservers
     shortNames:
