@@ -78,6 +78,11 @@ type VaultServerList struct {
 }
 
 type VaultServerStatus struct {
+	// observedGeneration is the most recent generation observed for this resource. It corresponds to the
+	// resource's generation, which is updated on mutation by the API Server.
+	// +optional
+	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
+
 	// Phase indicates the state this Vault cluster jumps in.
 	// Phase goes as one way as below:
 	//   Initial -> Running
