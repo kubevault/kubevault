@@ -1,5 +1,5 @@
-hash: 449b8495e1519d19967d109786874db021e81a2778ce14debc39cdfa039ad335
-updated: 2018-08-16T20:50:43.657300352-07:00
+hash: a4857b3b2d92db84cfc7e511ebda98428db0b0258a7a2c9ced506ffef26be2d4
+updated: 2018-08-17T22:36:35.46533918-07:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -40,7 +40,7 @@ imports:
   - registry/admissionreview/v1beta1
   - runtime/serializer/versioning
 - name: github.com/appscode/kutil
-  version: 6d0655abaa259a3d3637fb01e225d6a898e20dc8
+  version: 55817b7c4b57c117d9779249b3924a866b644fbb
   subpackages:
   - apiextensions/v1beta1
   - apps/v1beta1
@@ -192,7 +192,7 @@ imports:
   - daemon
   - journal
 - name: github.com/cpuguy83/go-md2man
-  version: 71acacd42f85e5e82f70a55327789582a5200a90
+  version: 20f5889cbdc3c73dbd2862796665e7c465ade7d1
   subpackages:
   - md2man
 - name: github.com/davecgh/go-spew
@@ -979,7 +979,7 @@ imports:
   - pkg/util/parsers
   - pkg/util/pointer
 - name: kmodules.xyz/offshoot-api
-  version: 71dd2bafc0a452e3eb2d5bc60b2786d1f1843a51
+  version: 5ff9de954aeb2148edc7a831671f3f875aa56f30
   repo: https://github.com/kmodules/offshoot-api.git
   vcs: git
   subpackages:
