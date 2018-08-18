@@ -72,9 +72,11 @@ func (c *VaultController) NewVaultServerWebhook() hooks.AdmissionHook {
 func (c *VaultController) initVaultServerWatcher() {
 	c.vsInformer = c.extInformerFactory.Core().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New("VaultServer", c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
-
-	// TODO: Add a custom event handler
-	c.vsInformer.AddEventHandler(queue.DefaultEventHandler(c.vsQueue.GetQueue()))
+	c.vsInformer.AddEventHandler(queue.NewEventHandler(c.vsQueue.GetQueue(), func(old interface{}, new interface{}) bool {
+		oldObj := old.(*api.VaultServer)
+		newObj := new.(*api.VaultServer)
+		return !newObj.AlreadyObserved(oldObj)
+	}))
 	c.vsLister = c.extInformerFactory.Core().V1alpha1().VaultServers().Lister()
 }
 
@@ -103,7 +105,7 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 		}
 
 	} else {
-		vault := obj.(*api.VaultServer)
+		vault := obj.(*api.VaultServer).DeepCopy()
 
 		glog.Infof("Sync/Add/Update for VaultServer %s/%s\n", vault.GetNamespace(), vault.GetName())
 		// glog.Infoln(vault.Name, vault.Namespace)
