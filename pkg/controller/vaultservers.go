@@ -72,11 +72,7 @@ func (c *VaultController) NewVaultServerWebhook() hooks.AdmissionHook {
 func (c *VaultController) initVaultServerWatcher() {
 	c.vsInformer = c.extInformerFactory.Core().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New("VaultServer", c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
-	c.vsInformer.AddEventHandler(queue.NewEventHandler(c.vsQueue.GetQueue(), func(old interface{}, new interface{}) bool {
-		oldObj := old.(*api.VaultServer)
-		newObj := new.(*api.VaultServer)
-		return !newObj.AlreadyObserved(oldObj)
-	}))
+	c.vsInformer.AddEventHandler(queue.NewObservableHandler(c.vsQueue.GetQueue(), api.EnableStatusSubresource))
 	c.vsLister = c.extInformerFactory.Core().V1alpha1().VaultServers().Lister()
 }
 

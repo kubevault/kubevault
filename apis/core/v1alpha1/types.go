@@ -83,6 +83,9 @@ type VaultServerStatus struct {
 	// +optional
 	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
 
+	// +optional
+	ObservedGenerationHash string `json:"observedGenerationHash,omitempty"`
+
 	// Phase indicates the state this Vault cluster jumps in.
 	// Phase goes as one way as below:
 	//   Initial -> Running
