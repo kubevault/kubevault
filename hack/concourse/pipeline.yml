@@ -9,13 +9,13 @@ resources:
 - name: master
   type: git
   source:
-    uri: https://github.com/tahsinrahman/operator
+    uri: https://github.com/kubevault/operator
     branch: master
 
 - name: gke
   type: pull-request
   source:
-    owner: tahsinrahman
+    owner: kubevault
     repo: operator
     label: ok-to-test/gke
     access_token: ((access_token))
@@ -23,7 +23,7 @@ resources:
 - name: aws
   type: pull-request
   source:
-    owner: tahsinrahman
+    owner: kubevault
     repo: operator
     label: ok-to-test/kops-aws
     access_token: ((access_token))
@@ -31,7 +31,7 @@ resources:
 - name: azure-aks
   type: pull-request
   source:
-    owner: tahsinrahman
+    owner: kubevault
     repo: operator
     label: ok-to-test/aks
     access_token: ((access_token))
@@ -39,7 +39,7 @@ resources:
 - name: azure-acs
   type: pull-request
   source:
-    owner: tahsinrahman
+    owner: kubevault
     repo: operator
     label: ok-to-test/acs
     access_token: ((access_token))
@@ -47,15 +47,15 @@ resources:
 - name: do
   type: pull-request
   source:
-    owner: tahsinrahman
+    owner: kubevault
     repo: operator
     label: ok-to-test/do
-    access_token: ((access_token_tahsin))
+    access_token: ((access_token))
 
 - name: kubespray
   type: pull-request
   source:
-    owner: tahsinrahman
+    owner: kubevault
     repo: operator
     label: ok-to-test/kubespray
     access_token: ((access_token))
