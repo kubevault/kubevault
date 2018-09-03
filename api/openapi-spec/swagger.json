@@ -1504,6 +1504,9 @@
         },
         "s3": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.S3Spec"
+        },
+        "swift": {
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.SwiftSpec"
         }
       }
     },
@@ -1787,6 +1790,65 @@
         },
         "sessionTokenSecret": {
           "description": "Specifies the secret name containing AWS session token secret data:\n\t- session_token:\u003cvalue\u003e",
+          "type": "string"
+        }
+      }
+    },
+    "com.github.kubevault.operator.apis.core.v1alpha1.SwiftSpec": {
+      "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/swift.html\n\nSwiftSpec defines configuration to set up Swift Storage as backend storage in vault",
+      "required": [
+        "authUrl",
+        "container",
+        "credentialSecret"
+      ],
+      "properties": {
+        "authTokenSecret": {
+          "description": "Specifies secret containing auth token from alternate authentication. secret data:\n\t- auth_token=\u003cvalue\u003e",
+          "type": "string"
+        },
+        "authUrl": {
+          "description": "Specifies the OpenStack authentication endpoint.",
+          "type": "string"
+        },
+        "container": {
+          "description": "Specifies the name of the Swift container.",
+          "type": "string"
+        },
+        "credentialSecret": {
+          "description": "Specifies the name of the secret containing the OpenStack account/username and password secret data:\n\t- username=\u003cvalue\u003e\n\t- password=\u003cvalue\u003e",
+          "type": "string"
+        },
+        "domain": {
+          "description": "Specifies the name of the user domain.",
+          "type": "string"
+        },
+        "maxParallel": {
+          "description": "\n Specifies the maximum number of concurrent requests to take place.",
+          "type": "integer",
+          "format": "int32"
+        },
+        "projectDomain": {
+          "description": "Specifies the name of the project's domain.",
+          "type": "string"
+        },
+        "region": {
+          "description": "Specifies the name of the region.",
+          "type": "string"
+        },
+        "storageUrl": {
+          "description": "Specifies storage URL from alternate authentication.",
+          "type": "string"
+        },
+        "tenant": {
+          "description": "Specifies the name of the tenant. If left blank, this will default to the default tenant of the username.",
+          "type": "string"
+        },
+        "tenantID": {
+          "description": "Specifies the id of the tenant.",
+          "type": "string"
+        },
+        "trustID": {
+          "description": "Specifies the id of the trust.",
           "type": "string"
         }
       }

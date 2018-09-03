@@ -45,6 +45,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/kubevault/operator/apis/core/v1alpha1.MySQLSpec":            schema_operator_apis_core_v1alpha1_MySQLSpec(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec":       schema_operator_apis_core_v1alpha1_PostgreSQLSpec(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.S3Spec":               schema_operator_apis_core_v1alpha1_S3Spec(ref),
+		"github.com/kubevault/operator/apis/core/v1alpha1.SwiftSpec":            schema_operator_apis_core_v1alpha1_SwiftSpec(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.TLSPolicy":            schema_operator_apis_core_v1alpha1_TLSPolicy(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.UnsealerSpec":         schema_operator_apis_core_v1alpha1_UnsealerSpec(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServer":          schema_operator_apis_core_v1alpha1_VaultServer(ref),
@@ -476,11 +477,16 @@ func schema_operator_apis_core_v1alpha1_BackendStorageSpec(ref common.ReferenceC
 							Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.DynamoDBSpec"),
 						},
 					},
+					"swift": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.SwiftSpec"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec", "github.com/kubevault/operator/apis/core/v1alpha1.DynamoDBSpec", "github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.FileSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.MySQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.S3Spec"},
+			"github.com/kubevault/operator/apis/core/v1alpha1.AzureSpec", "github.com/kubevault/operator/apis/core/v1alpha1.DynamoDBSpec", "github.com/kubevault/operator/apis/core/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/core/v1alpha1.FileSpec", "github.com/kubevault/operator/apis/core/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/core/v1alpha1.MySQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.PostgreSQLSpec", "github.com/kubevault/operator/apis/core/v1alpha1.S3Spec", "github.com/kubevault/operator/apis/core/v1alpha1.SwiftSpec"},
 	}
 }
 
@@ -965,6 +971,104 @@ func schema_operator_apis_core_v1alpha1_S3Spec(ref common.ReferenceCallback) com
 					},
 				},
 				Required: []string{"bucket"},
+			},
+		},
+		Dependencies: []string{},
+	}
+}
+
+func schema_operator_apis_core_v1alpha1_SwiftSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/swift.html\n\nSwiftSpec defines configuration to set up Swift Storage as backend storage in vault",
+				Properties: map[string]spec.Schema{
+					"authUrl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the OpenStack authentication endpoint.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"container": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the name of the Swift container.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"credentialSecret": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the name of the secret containing the OpenStack account/username and password secret data:\n\t- username=<value>\n\t- password=<value>",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tenant": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the name of the tenant. If left blank, this will default to the default tenant of the username.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"region": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the name of the region.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tenantID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the id of the tenant.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"domain": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the name of the user domain.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"projectDomain": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the name of the project's domain.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"trustID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the id of the trust.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"storageUrl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies storage URL from alternate authentication.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"authTokenSecret": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies secret containing auth token from alternate authentication. secret data:\n\t- auth_token=<value>",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"maxParallel": {
+						SchemaProps: spec.SchemaProps{
+							Description: "\n Specifies the maximum number of concurrent requests to take place.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+				},
+				Required: []string{"authUrl", "container", "credentialSecret"},
 			},
 		},
 		Dependencies: []string{},
