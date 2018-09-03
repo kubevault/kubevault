@@ -8,10 +8,12 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/hashicorp/go-cleanhttp"
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
 	"github.com/kubevault/operator/pkg/controller"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/kubevault/operator/test/e2e/framework"
+	"github.com/ncw/swift"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
@@ -524,6 +526,79 @@ var _ = Describe("VaultServer", func() {
 				checkForVaultIsUnsealed(vs)
 			})
 		})
+
+		Context("using swift backend", func() {
+			const swiftCredSecret = "swift-user-cred"
+			var (
+				username  = os.Getenv("OS_USERNAME")
+				password  = os.Getenv("OS_PASSWORD")
+				authUrl   = os.Getenv("OS_AUTH_URL")
+				region    = os.Getenv("OS_REGION_NAME")
+				tenant    = os.Getenv("OS_TENANT_NAME")
+				container = "vault-test"
+			)
+
+			BeforeEach(func() {
+				if username == "" || password == "" || authUrl == "" || region == "" || tenant == "" {
+					Skip("OS_USERNAME or OS_PASSWORD or OS_AUTH_URL or OS_REGION_NAME or OS_TENANT_NAME  are not provided")
+				}
+
+				cleaner := swift.Connection{
+					UserName:  username,
+					ApiKey:    password,
+					AuthUrl:   authUrl,
+					Tenant:    tenant,
+					Region:    region,
+					Transport: cleanhttp.DefaultPooledTransport(),
+				}
+				Expect(cleaner.Authenticate()).NotTo(HaveOccurred())
+
+				// clean all the objects in swift storage
+				newObjects, err := cleaner.ObjectNamesAll(container, nil)
+				Expect(err).NotTo(HaveOccurred())
+				for _, o := range newObjects {
+					err := cleaner.ObjectDelete(container, o)
+					Expect(err).NotTo(HaveOccurred())
+				}
+
+				sr := corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      swiftCredSecret,
+						Namespace: f.Namespace(),
+					},
+					Data: map[string][]byte{
+						"username": []byte(username),
+						"password": []byte(password),
+					},
+				}
+				_, err = f.KubeClient.CoreV1().Secrets(sr.Namespace).Create(&sr)
+				Expect(err).NotTo(HaveOccurred())
+
+				swift := api.BackendStorageSpec{
+					Swift: &api.SwiftSpec{
+						AuthUrl:          authUrl,
+						Container:        container,
+						CredentialSecret: swiftCredSecret,
+						Region:           region,
+						Tenant:           tenant,
+					},
+				}
+				vs = f.VaultServerWithUnsealer(1, swift, *unseal)
+			})
+
+			AfterEach(func() {
+				err := f.DeleteSecret(swiftCredSecret, f.Namespace())
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("vault should be unsealed", func() {
+				shouldCreateVaultServer(vs)
+
+				checkForSecretCreated(secretName, vs.Namespace)
+				checkForVaultIsUnsealed(vs)
+			})
+		})
+
 	})
 
 	Describe("unsealing using google kms gcs", func() {
