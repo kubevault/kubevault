@@ -39,7 +39,7 @@ spec:
     ...
   imagePullSecrets:
     ...
-  backendStorage:
+  backend:
     ...
   unsealer:
     ...
@@ -97,7 +97,7 @@ spec:
     name: vault-tls
   ```
 
-- **backendStorage** (BackendStorageSpec): It contains backend storage configuration for vault. See [here](vaultserver.md#backendstorage-spec) for more information.
+- **backend** (BackendStorageSpec): It contains backend storage configuration for vault. See [here](vaultserver.md#backendstorage-spec) for more information.
 
 - **unsealer** (UnsealerSpec): It contains auto unsealing configuration. See [here](vaultserver.md#unsealer-spec) for more information.
 
@@ -150,7 +150,7 @@ BackendStorage Spec contains the information for vault storage backend. Vault op
 
 To use In-Memory as storage backend in vault. For more information see [here](https://www.vaultproject.io/docs/configuration/storage/in-memory.html).
 ```yaml
-backendStorage:
+backend:
   inmem: true
 ```
 
@@ -158,7 +158,7 @@ backendStorage:
 
 Contain the information to use etcd as storage backend in vault.
 ```yaml
-backendStorage:
+backend:
   etcd:
     address: "http://example.etcd.svc:8200"
     etcdApi: "v3"
@@ -173,7 +173,7 @@ backendStorage:
   - **credentialSecretName** (string): Specifies the secret name that contain username and password to use when authenticating with the etcd server. For vault documentation, click [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html#username).
 
     ```yaml
-    backendStorage:
+    backend:
       etcd:
         credentialSecretName: "vault-etcd-credential"
         ...
@@ -193,7 +193,7 @@ backendStorage:
   - **tlsSecretName** (string): Specifies the secret name that containsca cert, client cert and client key for etcd communication.For vaultdocumentation, click [here(https://www.vaultproject.io/docs/configuration/storage/etcdhtml#tls_ca_file).
 
     ```yaml
-    backendStorage:
+    backend:
       etcd:
         tlsSecretName: "vault-etcd-tls"
         ...
@@ -214,7 +214,7 @@ backendStorage:
 
 Contains required information to use gcs as backend storage in vault. Vault documention about gcs storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html)
 ```yaml
-backendStorage:
+backend:
   gcs:
     Bucket: <bucket_name>
     chunkSize: <chunk_size>
@@ -241,7 +241,7 @@ backendStorage:
 
 Contains required information to use aws s3 as backend storage in vault. Vault documention about s3 storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/s3.html).
   ```yaml
-  backendStorage:
+  backend:
     s3:
       bucket: <bucket_name>
       endPoint: <end_point>
@@ -286,7 +286,7 @@ Contains required information to use aws s3 as backend storage in vault. Vault d
 
 Contains required information to use azure storage container as backend storage in vault. Vault documentions about azure storage can be found [here](https://www.vaultproject.io/docs/configuration/storage/azure.html).
   ```yaml
-  backendStorage:
+  backend:
     azure:
       accountName: <storage_account_name>
       accountKey: <storage_account_key>
@@ -303,7 +303,7 @@ Contains required information to use azure storage container as backend storage 
 #### PostgreSQL
 Contains required information to use postgreSQL storage as backend storage in vault. Vault documention about postgreSQL can be found [here](https://www.vaultproject.io/docs/configuration/storage/postgresql.html).
   ```yaml
-  backendStorage:
+  backend:
     postgreSQL:
       connectionUrlSecretName: <secret_name>
       table: <table_name>
@@ -327,7 +327,7 @@ Contains required information to use postgreSQL storage as backend storage in va
 
 Contains required information to use MySQL as backend storage in vault. Vault documentions about MySQL can be found [here](https://www.vaultproject.io/docs/configuration/storage/mysql.html).
   ```yaml
-  backendStorage:
+  backend:
     mySQL:
       address: <address>
       database: <database_name>
@@ -368,7 +368,7 @@ Contains required information to use MySQL as backend storage in vault. Vault do
 
 Contains required information to use Filesystem as backend storage in vault. Vault documentions about Filesystem can be found [here](https://www.vaultproject.io/docs/configuration/storage/filesystem.html).
   ```yaml
-  backendStorage:
+  backend:
     file:
       path: <file_path>
   ```
@@ -379,7 +379,7 @@ Contains required information to use Filesystem as backend storage in vault. Vau
 
 Contains required information to use AWS DynamoDB as backend storage in vault. Vault documentions about DynamoDB can be found [here](https://www.vaultproject.io/docs/configuration/storage/dynamodb.html).
   ```yaml
-  backendStorage:
+  backend:
     dynamoDB:
       table: <table_name>
       region: <region>

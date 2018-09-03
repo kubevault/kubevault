@@ -43,6 +43,10 @@ import:
   version: release-8.0
 - package: github.com/appscode/kubernetes-webhook-util
   version: release-8.0
+- package: kmodules.xyz/offshoot-api
+  repo: https://github.com/kmodules/offshoot-api.git
+  vcs: git
+  version: release-8.0
 - package: github.com/openshift/api
   version: 31a7bbd2266d178da3c12bb83f5274d387f775e6
 - package: github.com/openshift/client-go
@@ -53,6 +57,8 @@ import:
   version: release-3.11
 - package: github.com/mailru/easyjson
   version: 2f5df55504ebc322e4d52d34df6a1f5b503bf26d
+- package: github.com/cpuguy83/go-md2man
+  version: v1.0.8
 testImport:
 - package: github.com/onsi/ginkgo
   version: v1.5.0

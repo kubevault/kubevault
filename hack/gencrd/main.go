@@ -45,6 +45,7 @@ func generateCRDDefinitions() {
 		f.Close()
 	}
 }
+
 func generateSwaggerJson() {
 	var (
 		Scheme = runtime.NewScheme()

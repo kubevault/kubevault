@@ -21,7 +21,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1 "k8s.io/api/core/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -488,7 +487,7 @@ func (in *VaultServerSpec) DeepCopyInto(out *VaultServerSpec) {
 			**out = **in
 		}
 	}
-	in.BackendStorage.DeepCopyInto(&out.BackendStorage)
+	in.Backend.DeepCopyInto(&out.Backend)
 	if in.Unsealer != nil {
 		in, out := &in.Unsealer, &out.Unsealer
 		if *in == nil {
@@ -498,35 +497,8 @@ func (in *VaultServerSpec) DeepCopyInto(out *VaultServerSpec) {
 			(*in).DeepCopyInto(*out)
 		}
 	}
-	in.Resources.DeepCopyInto(&out.Resources)
-	if in.NodeSelector != nil {
-		in, out := &in.NodeSelector, &out.NodeSelector
-		*out = make(map[string]string, len(*in))
-		for key, val := range *in {
-			(*out)[key] = val
-		}
-	}
-	if in.Affinity != nil {
-		in, out := &in.Affinity, &out.Affinity
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(v1.Affinity)
-			(*in).DeepCopyInto(*out)
-		}
-	}
-	if in.Tolerations != nil {
-		in, out := &in.Tolerations, &out.Tolerations
-		*out = make([]v1.Toleration, len(*in))
-		for i := range *in {
-			(*in)[i].DeepCopyInto(&(*out)[i])
-		}
-	}
-	if in.ImagePullSecrets != nil {
-		in, out := &in.ImagePullSecrets, &out.ImagePullSecrets
-		*out = make([]v1.LocalObjectReference, len(*in))
-		copy(*out, *in)
-	}
+	in.PodTemplate.DeepCopyInto(&out.PodTemplate)
+	in.ServiceTemplate.DeepCopyInto(&out.ServiceTemplate)
 	return
 }
 

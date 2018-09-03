@@ -36,7 +36,7 @@ func getConfigData(t *testing.T, extraConfig string, strg *api.BackendStorageSpe
 
 	strgSrv, err := storage.NewStorage(nil, &api.VaultServer{
 		Spec: api.VaultServerSpec{
-			BackendStorage: *strg,
+			Backend: *strg,
 		},
 	})
 	assert.Nil(t, err)
@@ -208,7 +208,7 @@ telemetry {
 			api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(1),
 				Spec: api.VaultServerSpec{
-					BackendStorage: backendInmem,
+					Backend: backendInmem,
 				},
 			},
 			nil,
@@ -221,8 +221,8 @@ telemetry {
 			api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(2),
 				Spec: api.VaultServerSpec{
-					BackendStorage: backendInmem,
-					ConfigMapName:  getVaultObjectMeta(2).Name + "-config",
+					Backend:       backendInmem,
+					ConfigMapName: getVaultObjectMeta(2).Name + "-config",
 				},
 			},
 			getConfigMap(getVaultObjectMeta(2), extraConfig),
@@ -235,7 +235,7 @@ telemetry {
 			api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(3),
 				Spec: api.VaultServerSpec{
-					BackendStorage: backendEtcd,
+					Backend: backendEtcd,
 				},
 			},
 			nil,
@@ -248,7 +248,7 @@ telemetry {
 			api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(4),
 				Spec: api.VaultServerSpec{
-					BackendStorage: backendEtcdWithSecret,
+					Backend: backendEtcdWithSecret,
 				},
 			},
 			nil,
@@ -261,8 +261,8 @@ telemetry {
 			api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(5),
 				Spec: api.VaultServerSpec{
-					BackendStorage: backendInmem,
-					ConfigMapName:  "extra-config-123456",
+					Backend:       backendInmem,
+					ConfigMapName: "extra-config-123456",
 				},
 			},
 			nil,
@@ -378,7 +378,7 @@ func TestReconcileVault(t *testing.T) {
 				ObjectMeta: getVaultObjectMeta(1),
 				Spec: api.VaultServerSpec{
 					Nodes: vaultTestNodes,
-					BackendStorage: api.BackendStorageSpec{
+					Backend: api.BackendStorageSpec{
 						Inmem: true,
 					},
 				},
@@ -393,7 +393,7 @@ func TestReconcileVault(t *testing.T) {
 				Spec: api.VaultServerSpec{
 					Nodes:     vaultTestNodes,
 					BaseImage: "vault",
-					BackendStorage: api.BackendStorageSpec{
+					Backend: api.BackendStorageSpec{
 						Inmem: true,
 					},
 				},
@@ -444,7 +444,7 @@ func TestDeployVault(t *testing.T) {
 			&api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(1),
 				Spec: api.VaultServerSpec{
-					BackendStorage: api.BackendStorageSpec{
+					Backend: api.BackendStorageSpec{
 						Inmem: true,
 					},
 				},

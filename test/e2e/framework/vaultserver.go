@@ -22,10 +22,10 @@ func (f *Invocation) VaultServer(node int32, bs api.BackendStorageSpec) *api.Vau
 			},
 		},
 		Spec: api.VaultServerSpec{
-			Nodes:          node,
-			BaseImage:      vaultImage,
-			Version:        vaultImageVersion,
-			BackendStorage: bs,
+			Nodes:     node,
+			BaseImage: vaultImage,
+			Version:   vaultImageVersion,
+			Backend:   bs,
 		},
 	}
 }

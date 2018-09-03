@@ -33,6 +33,7 @@ func (c VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDef
 		Singular:      ResourceVaultServer,
 		Kind:          ResourceKindVaultServer,
 		ShortNames:    []string{"vs"},
+		Categories:    []string{"vault", "appscode", "all"},
 		ResourceScope: string(apiextensions.NamespaceScoped),
 		Versions: []apiextensions.CustomResourceDefinitionVersion{
 			{
@@ -42,7 +43,7 @@ func (c VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDef
 			},
 		},
 		Labels: crdutils.Labels{
-			LabelsMap: map[string]string{"app": "vault-operator"},
+			LabelsMap: map[string]string{"app": "vault"},
 		},
 		SpecDefinitionName:      "github.com/kubevault/operator/apis/core/v1alpha1.VaultServer",
 		EnableValidation:        true,
