@@ -62,7 +62,7 @@ spec:
   nodes: 1
   version: "0.10.0"
   baseImage: "vault"
-  backendStorage:
+  backend:
     gcs:
       bucket: "vault-test-bucket"
   unsealer:
@@ -90,7 +90,7 @@ spec:
   nodes: 1
   version: "0.10.0"
   baseImage: "vault"
-  backendStorage:
+  backend:
     gcs:
       bucket: "vault-test-bucket"
   unsealer:
@@ -117,7 +117,7 @@ metadata:
   namespace: default
   ...
 spec:
-  backendStorage:
+  backend:
     gcs:
       bucket: vault-test-bucket
   baseImage: vault
