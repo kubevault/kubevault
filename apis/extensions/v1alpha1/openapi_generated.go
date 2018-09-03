@@ -23,6 +23,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	types "github.com/appscode/go/encoding/json/types"
 	spec "github.com/go-openapi/spec"
 	resource "k8s.io/apimachinery/pkg/api/resource"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,6 +33,7 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
+		"github.com/appscode/go/encoding/json/types.IntHash":                       schema_go_encoding_json_types_IntHash(ref),
 		"github.com/kubevault/operator/apis/extensions/v1alpha1.VaultSecret":       schema_operator_apis_extensions_v1alpha1_VaultSecret(ref),
 		"github.com/kubevault/operator/apis/extensions/v1alpha1.VaultSecretList":   schema_operator_apis_extensions_v1alpha1_VaultSecretList(ref),
 		"github.com/kubevault/operator/apis/extensions/v1alpha1.VaultSecretStatus": schema_operator_apis_extensions_v1alpha1_VaultSecretStatus(ref),
@@ -277,6 +279,18 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec":                         schema_kmodulesxyz_offshoot_api_api_v1_PodTemplateSpec(ref),
 		"kmodules.xyz/offshoot-api/api/v1.ServiceSpec":                             schema_kmodulesxyz_offshoot_api_api_v1_ServiceSpec(ref),
 		"kmodules.xyz/offshoot-api/api/v1.ServiceTemplateSpec":                     schema_kmodulesxyz_offshoot_api_api_v1_ServiceTemplateSpec(ref),
+	}
+}
+
+func schema_go_encoding_json_types_IntHash(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "IntHash represents as int64 Generation and string Hash. It is json serialized into <int64>$<hash_string>.",
+				Type:        types.IntHash{}.OpenAPISchemaType(),
+				Format:      types.IntHash{}.OpenAPISchemaFormat(),
+			},
+		},
 	}
 }
 

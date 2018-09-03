@@ -3,6 +3,7 @@ package v1alpha1
 import (
 	"time"
 
+	"github.com/appscode/go/encoding/json/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
 )
@@ -81,10 +82,7 @@ type VaultServerStatus struct {
 	// observedGeneration is the most recent generation observed for this resource. It corresponds to the
 	// resource's generation, which is updated on mutation by the API Server.
 	// +optional
-	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
-
-	// +optional
-	ObservedGenerationHash string `json:"observedGenerationHash,omitempty"`
+	ObservedGeneration *types.IntHash `json:"observedGeneration,omitempty"`
 
 	// Phase indicates the state this Vault cluster jumps in.
 	// Phase goes as one way as below:
