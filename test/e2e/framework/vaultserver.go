@@ -9,7 +9,7 @@ import (
 
 const (
 	vaultImage        = "vault"
-	vaultImageVersion = "0.10.0"
+	vaultImageVersion = "0.10.4"
 )
 
 func (f *Invocation) VaultServer(node int32, bs api.BackendStorageSpec) *api.VaultServer {

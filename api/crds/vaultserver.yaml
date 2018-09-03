@@ -585,6 +585,59 @@ spec:
                       type: string
                   required:
                   - bucket
+                swift:
+                  description: |-
+                    vault doc: https://www.vaultproject.io/docs/configuration/storage/swift.html
+
+                    SwiftSpec defines configuration to set up Swift Storage as backend storage in vault
+                  properties:
+                    authTokenSecret:
+                      description: "Specifies secret containing auth token from alternate
+                        authentication. secret data:\n\t- auth_token=<value>"
+                      type: string
+                    authUrl:
+                      description: Specifies the OpenStack authentication endpoint.
+                      type: string
+                    container:
+                      description: Specifies the name of the Swift container.
+                      type: string
+                    credentialSecret:
+                      description: "Specifies the name of the secret containing the
+                        OpenStack account/username and password secret data:\n\t-
+                        username=<value>\n\t- password=<value>"
+                      type: string
+                    domain:
+                      description: Specifies the name of the user domain.
+                      type: string
+                    maxParallel:
+                      description: |2-
+
+                         Specifies the maximum number of concurrent requests to take place.
+                      format: int32
+                      type: integer
+                    projectDomain:
+                      description: Specifies the name of the project's domain.
+                      type: string
+                    region:
+                      description: Specifies the name of the region.
+                      type: string
+                    storageUrl:
+                      description: Specifies storage URL from alternate authentication.
+                      type: string
+                    tenant:
+                      description: Specifies the name of the tenant. If left blank,
+                        this will default to the default tenant of the username.
+                      type: string
+                    tenantID:
+                      description: Specifies the id of the tenant.
+                      type: string
+                    trustID:
+                      description: Specifies the id of the trust.
+                      type: string
+                  required:
+                  - authUrl
+                  - container
+                  - credentialSecret
             baseImage:
               description: Base image to use for a Vault deployment.
               type: string

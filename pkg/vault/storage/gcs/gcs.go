@@ -57,7 +57,7 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html
 //
-// GetGcsConfig creates gcs storae config from GcsSpec
+//  GetStorageConfig creates gcs storae config from GcsSpec
 func (o *Options) GetStorageConfig() (string, error) {
 	params := []string{}
 	if o.Bucket != "" {

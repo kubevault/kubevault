@@ -11,6 +11,7 @@ import (
 	"github.com/kubevault/operator/pkg/vault/storage/mysql"
 	"github.com/kubevault/operator/pkg/vault/storage/postgersql"
 	"github.com/kubevault/operator/pkg/vault/storage/s3"
+	"github.com/kubevault/operator/pkg/vault/storage/swift"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
@@ -42,6 +43,8 @@ func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage, 
 		return file.NewOptions(*s.File)
 	} else if s.DynamoDB != nil {
 		return dynamodb.NewOptions(*s.DynamoDB)
+	} else if s.Swift != nil {
+		return swift.NewOptions(*s.Swift)
 	} else {
 		return nil, errors.New("invalid storage backend")
 	}

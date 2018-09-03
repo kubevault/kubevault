@@ -157,6 +157,7 @@ type BackendStorageSpec struct {
 	MySQL      *MySQLSpec      `json:"mySQL,omitempty"`
 	File       *FileSpec       `json:"file,omitempty"`
 	DynamoDB   *DynamoDBSpec   `json:"dynamoDB,omitempty"`
+	Swift      *SwiftSpec      `json:"swift,omitempty"`
 }
 
 // TODO : set defaults and validation
@@ -357,6 +358,52 @@ type DynamoDBSpec struct {
 	SessionTokenSecret string `json:"sessionTokenSecret,omitempty"`
 
 	// Specifies the maximum number of parallel operations to take place.
+	MaxParallel int `json:"maxParallel,omitempty"`
+}
+
+// vault doc: https://www.vaultproject.io/docs/configuration/storage/swift.html
+//
+// SwiftSpec defines configuration to set up Swift Storage as backend storage in vault
+type SwiftSpec struct {
+	// Specifies the OpenStack authentication endpoint.
+	AuthUrl string `json:"authUrl"`
+
+	// Specifies the name of the Swift container.
+	Container string `json:"container"`
+
+	// Specifies the name of the secret containing the OpenStack account/username and password
+	// secret data:
+	//	- username=<value>
+	//	- password=<value>
+	CredentialSecret string `json:"credentialSecret"`
+
+	// Specifies the name of the tenant. If left blank, this will default to the default tenant of the username.
+	Tenant string `json:"tenant,omitempty"`
+
+	// Specifies the name of the region.
+	Region string `json:"region,omitempty"`
+
+	// Specifies the id of the tenant.
+	TenantID string `json:"tenantID,omitempty"`
+
+	// Specifies the name of the user domain.
+	Domain string `json:"domain,omitempty"`
+
+	// Specifies the name of the project's domain.
+	ProjectDomain string `json:"projectDomain,omitempty"`
+
+	// Specifies the id of the trust.
+	TrustID string `json:"trustID,omitempty"`
+
+	// Specifies storage URL from alternate authentication.
+	StorageUrl string `json:"storageUrl,omitempty"`
+
+	// Specifies secret containing auth token from alternate authentication.
+	// secret data:
+	//	- auth_token=<value>
+	AuthTokenSecret string `json:"authTokenSecret,omitempty"`
+
+	//  Specifies the maximum number of concurrent requests to take place.
 	MaxParallel int `json:"maxParallel,omitempty"`
 }
 
