@@ -442,13 +442,14 @@ func (c *VaultController) prepareVaultTLSSecrets(v *api.VaultServer) (string, er
 	// ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
 	altNames := cert.AltNames{
 		DNSNames: []string{
+			"server",
 			"localhost",
 			fmt.Sprintf("*.%s.pod", v.Namespace),
 			fmt.Sprintf("%s.%s.svc", v.Name, v.Namespace),
 		},
 	}
 
-	srvCrt, srvKey, err := store.NewServerCertPair("server", altNames)
+	srvCrt, srvKey, err := store.NewServerCertPairBytes(altNames)
 	if err != nil {
 		return "", errors.Wrap(err, "vault server create crt/key pair error")
 	}
@@ -459,7 +460,7 @@ func (c *VaultController) prepareVaultTLSSecrets(v *api.VaultServer) (string, er
 			Labels: util.LabelsForVault(v.Name),
 		},
 		Data: map[string][]byte{
-			CaCertName:     store.CACert(),
+			CaCertName:     store.CACertBytes(),
 			ServerCertName: srvCrt,
 			ServerkeyName:  srvKey,
 		},
