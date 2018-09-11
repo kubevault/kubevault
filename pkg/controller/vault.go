@@ -53,9 +53,9 @@ type vaultSrv struct {
 	kubeClient kubernetes.Interface
 }
 
-func NewVault(vs *api.VaultServer, kubeClient kubernetes.Interface) (Vault, error) {
+func NewVault(vs *api.VaultServer, kc kubernetes.Interface) (Vault, error) {
 	// it is required to have storage
-	strg, err := storage.NewStorage(kubeClient, vs)
+	strg, err := storage.NewStorage(kc, vs)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func NewVault(vs *api.VaultServer, kubeClient kubernetes.Interface) (Vault, erro
 		vs:         vs,
 		strg:       strg,
 		unslr:      unslr,
-		kubeClient: kubeClient,
+		kubeClient: kc,
 	}, nil
 }
 
@@ -89,7 +89,7 @@ func (v *vaultSrv) GetServerTLS() (*corev1.Secret, error) {
 		return sr, err
 	}
 
-	tlsSecretName := util.TLSSecretNameForVault(v.vs)
+	tlsSecretName := v.vs.TLSSecretName()
 	sr, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(tlsSecretName, metav1.GetOptions{})
 	if err == nil {
 		glog.Infof("secret %s/%s already exists", v.vs.Namespace, tlsSecretName)
@@ -124,7 +124,7 @@ func (v *vaultSrv) GetServerTLS() (*corev1.Secret, error) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      tlsSecretName,
 			Namespace: v.vs.Namespace,
-			Labels:    util.LabelsForVault(v.vs.Name),
+			Labels:    v.vs.OffshootLabels(),
 		},
 		Data: map[string][]byte{
 			CaCertName:     store.CACertBytes(),
@@ -141,7 +141,7 @@ func (v *vaultSrv) GetServerTLS() (*corev1.Secret, error) {
 // - storage config
 // - user provided extra config
 func (v *vaultSrv) GetConfig() (*corev1.ConfigMap, error) {
-	configMapName := util.ConfigMapNameForVault(v.vs)
+	configMapName := v.vs.ConfigMapName()
 	cfgData := util.GetListenerConfig()
 
 	// append user provided extra config
@@ -163,7 +163,7 @@ func (v *vaultSrv) GetConfig() (*corev1.ConfigMap, error) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      configMapName,
 			Namespace: v.vs.Namespace,
-			Labels:    util.LabelsForVault(v.vs.Name),
+			Labels:    v.vs.OffshootLabels(),
 		},
 		Data: map[string]string{
 			filepath.Base(util.VaultConfigFile): cfgData,
@@ -180,7 +180,7 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 		return errors.New("podTempleSpec is nil")
 	}
 
-	tlsSecret := util.TLSSecretNameForVault(v.vs)
+	tlsSecret := v.vs.TLSSecretName()
 	if v.vs.Spec.TLS != nil && v.vs.Spec.TLS.TLSSecret != "" {
 		tlsSecret = v.vs.Spec.TLS.TLSSecret
 	}
@@ -197,7 +197,7 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 		VolumeSource: corev1.VolumeSource{
 			ConfigMap: &corev1.ConfigMapVolumeSource{
 				LocalObjectReference: corev1.LocalObjectReference{
-					Name: util.ConfigMapNameForVault(v.vs),
+					Name: v.vs.ConfigMapName(),
 				},
 			},
 		},
@@ -235,10 +235,10 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 }
 
 func (v *vaultSrv) GetService() *corev1.Service {
-	selector := util.LabelsForVault(v.vs.Name)
+	selector := v.vs.OffshootLabels()
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        v.vs.Name,
+			Name:        v.vs.ServiceName(),
 			Namespace:   v.vs.Namespace,
 			Labels:      selector,
 			Annotations: v.vs.Spec.ServiceTemplate.Annotations,
@@ -269,10 +269,10 @@ func (v *vaultSrv) GetService() *corev1.Service {
 }
 
 func (v *vaultSrv) GetDeployment(pt *corev1.PodTemplateSpec) *appsv1.Deployment {
-	selector := util.LabelsForVault(v.vs.Name)
+	selector := v.vs.OffshootLabels()
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        v.vs.Name,
+			Name:        v.vs.DeploymentName(),
 			Namespace:   v.vs.Namespace,
 			Labels:      selector,
 			Annotations: v.vs.Spec.PodTemplate.Controller.Annotations,
@@ -293,10 +293,10 @@ func (v *vaultSrv) GetDeployment(pt *corev1.PodTemplateSpec) *appsv1.Deployment 
 }
 
 func (v *vaultSrv) GetServiceAccount() *corev1.ServiceAccount {
-	selector := util.LabelsForVault(v.vs.Name)
+	selector := v.vs.OffshootLabels()
 	return &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      v.vs.Name,
+			Name:      v.vs.ServiceAccountName(),
 			Namespace: v.vs.Namespace,
 			Labels:    selector,
 		},
@@ -305,7 +305,7 @@ func (v *vaultSrv) GetServiceAccount() *corev1.ServiceAccount {
 
 func (v *vaultSrv) GetRBACRoles() []rbacv1.Role {
 	var roles []rbacv1.Role
-	labels := util.LabelsForVault(v.vs.Name)
+	labels := v.vs.OffshootLabels()
 	if v.unslr != nil {
 		rList := v.unslr.GetRBAC(v.vs.Namespace)
 		for _, r := range rList {
@@ -320,7 +320,7 @@ func (v *vaultSrv) GetPodTemplate(c corev1.Container, saName string) *corev1.Pod
 	return &corev1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        v.vs.Name,
-			Labels:      util.LabelsForVault(v.vs.Name),
+			Labels:      v.vs.OffshootLabels(),
 			Namespace:   v.vs.Namespace,
 			Annotations: v.vs.Spec.PodTemplate.Annotations,
 		},

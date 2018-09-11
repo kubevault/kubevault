@@ -535,23 +535,3 @@ type AzureKeyVault struct {
 	// Use managed service identity for the virtual machine
 	UseManagedIdentity bool `json:"useManagedIdentity,omitempty"`
 }
-
-// TODO : use webhook?
-// SetDefaults sets the default values for the vault spec and returns true if the spec was changed
-func (v *VaultServer) SetDefaults() bool {
-	changed := false
-	vs := &v.Spec
-	if vs.Nodes == 0 {
-		vs.Nodes = 1
-		changed = true
-	}
-	if len(vs.BaseImage) == 0 {
-		vs.BaseImage = defaultBaseImage
-		changed = true
-	}
-	if len(vs.Version) == 0 {
-		vs.Version = defaultVersion
-		changed = true
-	}
-	return changed
-}

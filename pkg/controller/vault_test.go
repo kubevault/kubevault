@@ -213,7 +213,7 @@ storage "test"{
 				assert.NotNil(t, err)
 			} else {
 				if assert.Nil(t, err) {
-					assert.Equal(t, util.ConfigMapNameForVault(&test.vs), cm.Name)
+					assert.Equal(t, test.vs.ConfigMapName(), cm.Name)
 					assert.Equal(t, test.exptConfigMData, cm.Data)
 				}
 			}
@@ -235,9 +235,9 @@ func TestGetServerTLS(t *testing.T) {
 			},
 			extraSecret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
-					Name: util.TLSSecretNameForVault(&api.VaultServer{
+					Name: api.VaultServer{
 						ObjectMeta: getVaultObjectMeta(1),
-					}),
+					}.TLSSecretName(),
 					Namespace: getVaultObjectMeta(1).Namespace,
 				},
 			},

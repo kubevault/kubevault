@@ -29,7 +29,7 @@ const (
 // updates the status resource in the vault CR item.
 func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.VaultServer) {
 	var tlsConfig *vaultapi.TLSConfig
-	tlsSecretName := util.TLSSecretNameForVault(v)
+	tlsSecretName := v.TLSSecretName()
 
 	appFs := afero.NewOsFs()
 	appFs.Mkdir(caFileDir, 0777)
@@ -37,7 +37,7 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.Vau
 
 	s := api.VaultServerStatus{
 		Phase:       api.ClusterPhaseRunning,
-		ServiceName: v.GetName(),
+		ServiceName: v.ServiceName(),
 		ClientPort:  VaultPort,
 		VaultStatus: api.VaultStatus{
 			Standby: []string{},
@@ -47,9 +47,9 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.Vau
 
 	for {
 		// Do not wait to update Phase ASAP.
-		latest, err := c.updateVaultCRStatus(ctx, v.GetName(), v.GetNamespace(), &s)
+		latest, err := c.updateVaultCRStatus(ctx, v.Name, v.Namespace, &s)
 		if err != nil {
-			glog.Errorf("vault status monitor: failed updating the status for the vault service: %s (%v)", v.GetName(), err)
+			glog.Errorf("vault status monitor: failed updating the status for the vault server %s: %v", v.Name, err)
 		}
 		if latest != nil {
 			v = latest
@@ -57,7 +57,7 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.Vau
 
 		select {
 		case err := <-ctx.Done():
-			glog.Infof("vault status monitor: stop monitoring vault (%s/%s), reason: %v\n", v.GetNamespace(), v.GetName(), err)
+			glog.Infof("vault status monitor: stop monitoring vault (%s/%s), reason: %v\n", v.Namespace, v.Name, err)
 			return
 		case <-time.After(10 * time.Second):
 		}
@@ -93,7 +93,7 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.Vau
 // updateLocalVaultCRStatus updates local vault CR status by querying each vault pod's API.
 func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.VaultServer, s *api.VaultServerStatus, tlsConfig *vaultapi.TLSConfig) {
 	name, namespace := v.Name, v.Namespace
-	sel := util.LabelsForVault(name)
+	sel := v.OffshootLabels()
 
 	// TODO : handle upgrades when pods from two replicaset can co-exist :(
 	opt := metav1.ListOptions{LabelSelector: labels.SelectorFromSet(sel).String()}
@@ -128,19 +128,19 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 		changed = true
 
 		if p.Spec.Containers[0].Image == util.VaultImage(v) {
-			updated = append(updated, p.GetName())
+			updated = append(updated, p.Name)
 		}
 
 		if hr.Initialized && !hr.Sealed && !hr.Standby {
-			activeNode = p.GetName()
+			activeNode = p.Name
 		}
 		if hr.Initialized && !hr.Sealed && hr.Standby {
-			standByNodes = append(standByNodes, p.GetName())
+			standByNodes = append(standByNodes, p.Name)
 		}
 		if hr.Sealed {
-			sealNodes = append(sealNodes, p.GetName())
+			sealNodes = append(sealNodes, p.Name)
 		} else {
-			unsealNodes = append(unsealNodes, p.GetName())
+			unsealNodes = append(unsealNodes, p.Name)
 		}
 		if hr.Initialized {
 			initiated = true
@@ -163,7 +163,7 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespace string, status *api.VaultServerStatus) (*api.VaultServer, error) {
 	vault, err := c.extClient.CoreV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
-		vid := util.GetVaultID(name, namespace)
+		vid := util.VaultIDForStatusMonitor(name, namespace)
 		if cancel, ok := c.ctxCancels[vid]; ok {
 			cancel()
 			delete(c.ctxCancels, vid)
@@ -191,12 +191,12 @@ func (c *VaultController) getVaultStatus(p *corev1.Pod, tlsConfig *vaultapi.TLSC
 	if !meta_util.PossiblyInCluster() {
 		// if not incluster mode, use port forwarding to access pod
 
-		portFwd := portforward.NewTunnel(c.kubeClient.CoreV1().RESTClient(), c.restConfig, p.GetNamespace(), p.GetName(), 8200)
+		portFwd := portforward.NewTunnel(c.kubeClient.CoreV1().RESTClient(), c.restConfig, p.Namespace, p.Name, 8200)
 		defer portFwd.Close()
 
 		err := portFwd.ForwardPort()
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to get vault pod status: port forward failed for pod (%s/%s).", p.GetNamespace(), p.GetName())
+			return nil, errors.Wrapf(err, "failed to get vault pod status: port forward failed for pod (%s/%s).", p.Namespace, p.Name)
 		}
 
 		podAddr = "localhost"
@@ -205,12 +205,12 @@ func (c *VaultController) getVaultStatus(p *corev1.Pod, tlsConfig *vaultapi.TLSC
 
 	vaultClient, err := util.NewVaultClient(podAddr, podPort, tlsConfig)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get vault pod status: failed creating client for the vault pod (%s/%s).", p.GetNamespace(), p.GetName())
+		return nil, errors.Wrapf(err, "failed to get vault pod status: failed creating client for the vault pod (%s/%s).", p.Namespace, p.Name)
 	}
 
 	hr, err := vaultClient.Sys().Health()
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get vault pod status: failed requesting health info for the vault pod (%s/%s).", p.GetNamespace(), p.GetName())
+		return nil, errors.Wrapf(err, "failed to get vault pod status: failed requesting health info for the vault pod (%s/%s).", p.Namespace, p.Name)
 	}
 
 	return hr, nil

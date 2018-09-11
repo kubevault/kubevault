@@ -149,8 +149,8 @@ var _ = Describe("VaultServer", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			checkForVaultServerCreated(vs.Name, vs.Namespace)
-			checkForVaultTLSSecretCreated(util.TLSSecretNameForVault(vs), vs.Namespace)
-			checkForVaultConfigMapCreated(util.ConfigMapNameForVault(vs), vs.Namespace)
+			checkForVaultTLSSecretCreated(vs.TLSSecretName(), vs.Namespace)
+			checkForVaultConfigMapCreated(vs.ConfigMapName(), vs.Namespace)
 			checkForVaultDeploymentCreatedOrUpdated(vs.Name, vs.Namespace, vs)
 		}
 
@@ -197,8 +197,8 @@ var _ = Describe("VaultServer", func() {
 				Expect(err).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
@@ -231,8 +231,8 @@ var _ = Describe("VaultServer", func() {
 				Expect(err).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
@@ -279,8 +279,8 @@ var _ = Describe("VaultServer", func() {
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
@@ -327,8 +327,8 @@ var _ = Describe("VaultServer", func() {
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
@@ -352,8 +352,8 @@ var _ = Describe("VaultServer", func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
@@ -382,8 +382,8 @@ var _ = Describe("VaultServer", func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
@@ -404,7 +404,7 @@ var _ = Describe("VaultServer", func() {
 
 				Eventually(func() bool {
 					pods, err := f.KubeClient.CoreV1().Pods(vs.Namespace).List(metav1.ListOptions{
-						LabelSelector: labels.SelectorFromSet(util.LabelsForVault(vs.Name)).String(),
+						LabelSelector: labels.SelectorFromSet(vs.OffshootLabels()).String(),
 					})
 					if kerrors.IsNotFound(err) {
 						return false
@@ -432,8 +432,8 @@ var _ = Describe("VaultServer", func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
@@ -481,8 +481,8 @@ var _ = Describe("VaultServer", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			checkForVaultServerDeleted(vs.Name, vs.Namespace)
-			checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-			checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+			checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+			checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 			checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 		})
 
@@ -659,8 +659,8 @@ var _ = Describe("VaultServer", func() {
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
@@ -727,8 +727,8 @@ var _ = Describe("VaultServer", func() {
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
@@ -809,8 +809,8 @@ var _ = Describe("VaultServer", func() {
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
@@ -881,8 +881,8 @@ var _ = Describe("VaultServer", func() {
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
@@ -954,8 +954,8 @@ var _ = Describe("VaultServer", func() {
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
@@ -1004,8 +1004,8 @@ var _ = Describe("VaultServer", func() {
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
@@ -1084,8 +1084,8 @@ var _ = Describe("VaultServer", func() {
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(util.TLSSecretNameForVault(vs), vs.Namespace)
-				checkForVaultConfigMapDeleted(util.ConfigMapNameForVault(vs), vs.Namespace)
+				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 

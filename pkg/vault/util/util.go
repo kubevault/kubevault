@@ -14,17 +14,6 @@ func VaultServiceURL(name, namespace string, port int) string {
 	return fmt.Sprintf("https://%s.%s.svc:%d", name, namespace, port)
 }
 
-// ConfigMapNameForVault returns the configMap name for vault
-func ConfigMapNameForVault(v *api.VaultServer) string {
-	return v.Name + "-vault-config"
-}
-
-// LabelsForVault returns the labels for selecting the resources
-// belonging to the given vault name.
-func LabelsForVault(name string) map[string]string {
-	return map[string]string{"app": "vault", "vault_cluster": name}
-}
-
 // PodDNSName constructs the dns name on which a pod can be addressed
 func PodDNSName(p corev1.Pod) string {
 	podIP := strings.Replace(p.Status.PodIP, ".", "-", -1)
@@ -73,11 +62,6 @@ func RemoveImageTag(im string) string {
 	return strings.Split(im, ":")[0]
 }
 
-// TLSSecretNameForVault returns tls secret name
-func TLSSecretNameForVault(v *api.VaultServer) string {
-	return v.Name + "-vault-tls"
-}
-
 func VaultImageName() string {
 	return "vault"
 }
@@ -86,6 +70,7 @@ func VaultUnsealerImageName() string {
 	return "vault-unsealer"
 }
 
-func GetVaultID(name, namespace string) string {
+// VaultIDForStatusMonitor will give an ID for vault status monitor
+func VaultIDForStatusMonitor(name, namespace string) string {
 	return fmt.Sprintf("%s/%s", namespace, name)
 }

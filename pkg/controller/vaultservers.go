@@ -76,7 +76,7 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 		}
 
 		// stop vault status monitor
-		vid := util.GetVaultID(name, namespace)
+		vid := util.VaultIDForStatusMonitor(name, namespace)
 		if cancel, ok := c.ctxCancels[vid]; ok {
 			cancel()
 			delete(c.ctxCancels, vid)
@@ -86,7 +86,6 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 		vs := obj.(*api.VaultServer).DeepCopy()
 
 		glog.Infof("Sync/Add/Update for VaultServer %s/%s\n", vs.Namespace, vs.Name)
-		// glog.Infoln(vault.Name, vault.Namespace)
 
 		// TODO : initializer or validation/mutating webhook
 		// will be deprecated
@@ -182,7 +181,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 	}
 
 	// Add vault monitor to watch vault seal or unseal status
-	vid := util.GetVaultID(vs.Name, vs.Namespace)
+	vid := util.VaultIDForStatusMonitor(vs.Name, vs.Namespace)
 	if _, ok := c.ctxCancels[vid]; !ok {
 		ctx, cancel := context.WithCancel(context.Background())
 		c.ctxCancels[vid] = cancel
@@ -257,8 +256,8 @@ func (c *VaultController) updatedVaultServerStatus(status *api.VaultServerStatus
 }
 
 // ensureServiceAccount creates/patches service account
-func ensureServiceAccount(kubeClient kubernetes.Interface, vs *api.VaultServer, sa *corev1.ServiceAccount) error {
-	_, _, err := core_util.CreateOrPatchServiceAccount(kubeClient, sa.ObjectMeta, func(in *corev1.ServiceAccount) *corev1.ServiceAccount {
+func ensureServiceAccount(kc kubernetes.Interface, vs *api.VaultServer, sa *corev1.ServiceAccount) error {
+	_, _, err := core_util.CreateOrPatchServiceAccount(kc, sa.ObjectMeta, func(in *corev1.ServiceAccount) *corev1.ServiceAccount {
 		in.Labels = core_util.UpsertMap(in.Labels, sa.Labels)
 		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
 		return in
@@ -267,8 +266,8 @@ func ensureServiceAccount(kubeClient kubernetes.Interface, vs *api.VaultServer, 
 }
 
 // ensureDeployment creates/patches deployment
-func ensureDeployment(kubeClient kubernetes.Interface, vs *api.VaultServer, d *appsv1.Deployment) error {
-	_, _, err := apps_util.CreateOrPatchDeployment(kubeClient, d.ObjectMeta, func(in *appsv1.Deployment) *appsv1.Deployment {
+func ensureDeployment(kc kubernetes.Interface, vs *api.VaultServer, d *appsv1.Deployment) error {
+	_, _, err := apps_util.CreateOrPatchDeployment(kc, d.ObjectMeta, func(in *appsv1.Deployment) *appsv1.Deployment {
 		in.Labels = core_util.UpsertMap(in.Labels, d.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, d.Annotations)
 		in.Spec.Replicas = d.Spec.Replicas
@@ -298,8 +297,8 @@ func ensureDeployment(kubeClient kubernetes.Interface, vs *api.VaultServer, d *a
 }
 
 // ensureService creates/patches service
-func ensureService(kubeClient kubernetes.Interface, vs *api.VaultServer, svc *corev1.Service) error {
-	_, _, err := core_util.CreateOrPatchService(kubeClient, svc.ObjectMeta, func(in *corev1.Service) *corev1.Service {
+func ensureService(kc kubernetes.Interface, vs *api.VaultServer, svc *corev1.Service) error {
+	_, _, err := core_util.CreateOrPatchService(kc, svc.ObjectMeta, func(in *corev1.Service) *corev1.Service {
 		in.Labels = core_util.UpsertMap(in.Labels, svc.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, svc.Annotations)
 
@@ -327,11 +326,11 @@ func ensureService(kubeClient kubernetes.Interface, vs *api.VaultServer, svc *co
 }
 
 // ensureRoleAndRoleBinding creates or patches rbac role and rolebinding
-func ensureRoleAndRoleBinding(kubeClient kubernetes.Interface, vs *api.VaultServer, roles []rbac.Role, saName string) error {
-	selector := util.LabelsForVault(vs.Name)
+func ensureRoleAndRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, roles []rbac.Role, saName string) error {
+	labels := vs.OffshootLabels()
 
 	for _, role := range roles {
-		_, _, err := rbac_util.CreateOrPatchRole(kubeClient, role.ObjectMeta, func(in *rbac.Role) *rbac.Role {
+		_, _, err := rbac_util.CreateOrPatchRole(kc, role.ObjectMeta, func(in *rbac.Role) *rbac.Role {
 			in.Labels = core_util.UpsertMap(in.Labels, role.Labels)
 			in.Annotations = core_util.UpsertMap(in.Annotations, role.Annotations)
 			in.Rules = role.Rules
@@ -345,9 +344,9 @@ func ensureRoleAndRoleBinding(kubeClient kubernetes.Interface, vs *api.VaultServ
 		rObj := metav1.ObjectMeta{
 			Name:      role.Name,
 			Namespace: vs.Namespace,
-			Labels:    selector,
+			Labels:    labels,
 		}
-		_, _, err = rbac_util.CreateOrPatchRoleBinding(kubeClient, rObj, func(in *rbac.RoleBinding) *rbac.RoleBinding {
+		_, _, err = rbac_util.CreateOrPatchRoleBinding(kc, rObj, func(in *rbac.RoleBinding) *rbac.RoleBinding {
 			in.Labels = core_util.UpsertMap(in.Labels, rObj.Labels)
 			in.RoleRef = rbac.RoleRef{
 				APIGroup: rbac.GroupName,
@@ -372,8 +371,8 @@ func ensureRoleAndRoleBinding(kubeClient kubernetes.Interface, vs *api.VaultServ
 }
 
 // ensureSecret creates/patches secret
-func ensureSecret(kubeClient kubernetes.Interface, vs *api.VaultServer, s *corev1.Secret) error {
-	_, _, err := core_util.CreateOrPatchSecret(kubeClient, s.ObjectMeta, func(in *corev1.Secret) *corev1.Secret {
+func ensureSecret(kc kubernetes.Interface, vs *api.VaultServer, s *corev1.Secret) error {
+	_, _, err := core_util.CreateOrPatchSecret(kc, s.ObjectMeta, func(in *corev1.Secret) *corev1.Secret {
 		in.Labels = core_util.UpsertMap(in.Labels, s.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, s.Annotations)
 		in.Data = s.Data
@@ -384,8 +383,8 @@ func ensureSecret(kubeClient kubernetes.Interface, vs *api.VaultServer, s *corev
 }
 
 // ensureConfigMap creates/patches configMap
-func ensureConfigMap(kubeClient kubernetes.Interface, vs *api.VaultServer, cm *corev1.ConfigMap) error {
-	_, _, err := core_util.CreateOrPatchConfigMap(kubeClient, cm.ObjectMeta, func(in *corev1.ConfigMap) *corev1.ConfigMap {
+func ensureConfigMap(kc kubernetes.Interface, vs *api.VaultServer, cm *corev1.ConfigMap) error {
+	_, _, err := core_util.CreateOrPatchConfigMap(kc, cm.ObjectMeta, func(in *corev1.ConfigMap) *corev1.ConfigMap {
 		in.Labels = core_util.UpsertMap(in.Labels, cm.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, cm.Annotations)
 		in.Data = cm.Data
