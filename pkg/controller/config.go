@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/appscode/go/log/golog"
@@ -24,27 +23,12 @@ var (
 )
 
 type config struct {
-	ClusterName      string
-	VaultAddress     string
-	VaultToken       string
-	CACertFile       string
-	TokenRenewPeriod time.Duration
-
 	EnableRBAC     bool
-	StashImageTag  string
 	DockerRegistry string
 	MaxNumRequeues int
 	NumThreads     int
 	OpsAddress     string
 	ResyncPeriod   time.Duration
-}
-
-func (c config) SecretBackend() string {
-	return strings.ToLower(c.ClusterName) + "-secrets/"
-}
-
-func (c config) AuthBackend() string {
-	return strings.ToLower(c.ClusterName) + "-service-accounts/"
 }
 
 type Config struct {
@@ -82,10 +66,6 @@ func (c *Config) New() (*VaultController, error) {
 		return nil, err
 	}
 
-	// ctrl.initVault()
-	// ctrl.initServiceAccountWatcher()
-	// ctrl.initSecretWatcher()
 	ctrl.initVaultServerWatcher()
-
 	return ctrl, nil
 }

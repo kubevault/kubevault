@@ -4,8 +4,6 @@ import (
 	"flag"
 	"time"
 
-	stringz "github.com/appscode/go/strings"
-	v "github.com/appscode/go/version"
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	"github.com/kubevault/operator/pkg/controller"
@@ -16,7 +14,6 @@ import (
 )
 
 type ExtraOptions struct {
-	StashImageTag  string
 	DockerRegistry string
 	MaxNumRequeues int
 	NumThreads     int
@@ -28,7 +25,6 @@ type ExtraOptions struct {
 func NewExtraOptions() *ExtraOptions {
 	return &ExtraOptions{
 		DockerRegistry: docker.ACRegistry,
-		StashImageTag:  stringz.Val(v.Version.Version, "canary"),
 		MaxNumRequeues: 5,
 		NumThreads:     2,
 		QPS:            100,
@@ -38,7 +34,6 @@ func NewExtraOptions() *ExtraOptions {
 }
 
 func (s *ExtraOptions) AddGoFlags(fs *flag.FlagSet) {
-	fs.StringVar(&s.StashImageTag, "image-tag", s.StashImageTag, "Image tag for sidecar, init-container, check-job and recovery-job")
 	fs.StringVar(&s.DockerRegistry, "docker-registry", s.DockerRegistry, "Docker image registry for sidecar, init-container, check-job, recovery-job and kubectl-job")
 
 	fs.Float64Var(&s.QPS, "qps", s.QPS, "The maximum QPS to the master from this client")
@@ -57,7 +52,6 @@ func (s *ExtraOptions) AddFlags(fs *pflag.FlagSet) {
 func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 	var err error
 
-	cfg.StashImageTag = s.StashImageTag
 	cfg.DockerRegistry = s.DockerRegistry
 	cfg.MaxNumRequeues = s.MaxNumRequeues
 	cfg.NumThreads = s.NumThreads

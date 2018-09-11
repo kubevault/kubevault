@@ -3,7 +3,10 @@ package aws
 import (
 	"fmt"
 
+	kutilcorev1 "github.com/appscode/kutil/core/v1"
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	"github.com/kubevault/operator/pkg/vault/util"
+	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 )
@@ -22,15 +25,24 @@ func NewOptions(s api.AwsKmsSsmSpec) (*Options, error) {
 	}, nil
 }
 
-func (o *Options) Apply(pt *corev1.PodTemplateSpec, cont *corev1.Container) error {
+func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+	if pt == nil {
+		return errors.New("podTempleSpec is nil")
+	}
+
 	var args []string
+	var cont corev1.Container
+
+	for _, c := range pt.Spec.Containers {
+		if c.Name == util.VaultUnsealerImageName() {
+			cont = c
+		}
+	}
 
 	args = append(args, fmt.Sprintf("--mode=%s", ModeAwsKmsSsm))
-
 	if o.KmsKeyID != "" {
 		args = append(args, fmt.Sprintf("--aws.kms-key-id=%s", o.KmsKeyID))
 	}
-
 	cont.Args = append(cont.Args, args...)
 
 	var envs []corev1.EnvVar
@@ -64,8 +76,8 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec, cont *corev1.Container) erro
 		})
 	}
 
-	cont.Env = append(cont.Env, envs...)
-
+	cont.Env = kutilcorev1.UpsertEnvVars(cont.Env, envs...)
+	pt.Spec.Containers = kutilcorev1.UpsertContainer(pt.Spec.Containers, cont)
 	return nil
 }
 

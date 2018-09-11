@@ -36,9 +36,9 @@ func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage, 
 	} else if s.Azure != nil {
 		return azure.NewOptions(*s.Azure)
 	} else if s.PostgreSQL != nil {
-		return postgresql.NewOptions(kubeClient, vs.GetNamespace(), *s.PostgreSQL)
+		return postgresql.NewOptions(kubeClient, vs.Namespace, *s.PostgreSQL)
 	} else if s.MySQL != nil {
-		return mysql.NewOptions(kubeClient, vs.GetNamespace(), *s.MySQL)
+		return mysql.NewOptions(kubeClient, vs.Namespace, *s.MySQL)
 	} else if s.File != nil {
 		return file.NewOptions(*s.File)
 	} else if s.DynamoDB != nil {

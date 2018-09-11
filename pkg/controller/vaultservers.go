@@ -2,49 +2,30 @@ package controller
 
 import (
 	"context"
-	"fmt"
-	"path/filepath"
-	"reflect"
 
+	"github.com/appscode/go/encoding/json/types"
 	"github.com/appscode/kubernetes-webhook-util/admission"
 	hooks "github.com/appscode/kubernetes-webhook-util/admission/v1beta1"
 	webhook "github.com/appscode/kubernetes-webhook-util/admission/v1beta1/generic"
-	kutilappsv1beta1 "github.com/appscode/kutil/apps/v1beta1"
-	"github.com/appscode/kutil/tools/certstore"
+	apps_util "github.com/appscode/kutil/apps/v1"
+	core_util "github.com/appscode/kutil/core/v1"
+	meta_util "github.com/appscode/kutil/meta"
+	rbac_util "github.com/appscode/kutil/rbac/v1"
 	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
 	"github.com/kubevault/operator/apis/core"
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
-	"github.com/kubevault/operator/client/clientset/versioned/scheme"
 	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/core/v1alpha1/util"
-	"github.com/kubevault/operator/pkg/vault/storage"
-	"github.com/kubevault/operator/pkg/vault/unsealer"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
-	"github.com/spf13/afero"
-	appsv1beta1 "k8s.io/api/apps/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
-	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/client-go/tools/reference"
-	"k8s.io/client-go/util/cert"
-)
-
-const (
-	EnvVaultAddr          = "VAULT_API_ADDR"
-	EnvVaultClusterAddr   = "VAULT_CLUSTER_ADDR"
-	VaultPort             = 8200
-	VaultClusterPort      = 8201
-	VaultConfigVolumeName = "vault-config"
-	VaultTlsSecretName    = "vault-tls-secret"
-	CaCertName            = "ca.crt"
-	ServerCertName        = "server.crt"
-	ServerkeyName         = "server.key"
 )
 
 func (c *VaultController) NewVaultServerWebhook() hooks.AdmissionHook {
@@ -89,28 +70,29 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 		// Below we will warm up our cache with a VaultServer, so that we will see a delete for one d
 		glog.Warningf("VaultServer %s does not exist anymore\n", key)
 
-		_, name, err := cache.SplitMetaNamespaceKey(key)
+		namespace, name, err := cache.SplitMetaNamespaceKey(key)
 		if err != nil {
 			return err
 		}
 
 		// stop vault status monitor
-		if cancel, ok := c.ctxCancels[name]; ok {
+		vid := util.GetVaultID(name, namespace)
+		if cancel, ok := c.ctxCancels[vid]; ok {
 			cancel()
-			delete(c.ctxCancels, name)
+			delete(c.ctxCancels, vid)
 		}
 
 	} else {
-		vault := obj.(*api.VaultServer).DeepCopy()
+		vs := obj.(*api.VaultServer).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for VaultServer %s/%s\n", vault.GetNamespace(), vault.GetName())
+		glog.Infof("Sync/Add/Update for VaultServer %s/%s\n", vs.Namespace, vs.Name)
 		// glog.Infoln(vault.Name, vault.Namespace)
 
 		// TODO : initializer or validation/mutating webhook
 		// will be deprecated
-		changed := vault.SetDefaults()
+		changed := vs.SetDefaults()
 		if changed {
-			_, _, err = patchutil.CreateOrPatchVaultServer(c.extClient.CoreV1alpha1(), vault.ObjectMeta, func(v *api.VaultServer) *api.VaultServer {
+			_, _, err = patchutil.CreateOrPatchVaultServer(c.extClient.CoreV1alpha1(), vs.ObjectMeta, func(v *api.VaultServer) *api.VaultServer {
 				v.SetDefaults()
 				return v
 			})
@@ -119,9 +101,14 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 			}
 		}
 
-		err := c.reconcileVault(vault)
+		v, err := NewVault(vs, c.kubeClient)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)
+		}
+
+		err = c.reconcileVault(vs, v)
+		if err != nil {
+			return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)
 		}
 	}
 	return nil
@@ -130,701 +117,280 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 // reconcileVault reconciles the vault cluster's state to the spec specified by v
 // by preparing the TLS secrets, deploying vault cluster,
 // and finally updating the vault deployment if needed.
-func (c *VaultController) reconcileVault(v *api.VaultServer) error {
-	d, err := c.kubeClient.AppsV1beta1().Deployments(v.Namespace).Get(v.Name, metav1.GetOptions{})
-	if kerrors.IsNotFound(err) {
-		//deploy vault
+func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
+	status := vs.Status
 
-		tlsSecret, err := c.prepareVaultTLSSecrets(v)
-		if err != nil {
-			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
-				c.recorder.Eventf(
-					ref,
-					corev1.EventTypeWarning,
-					"prepare vault tls failed",
-					err.Error(),
-				)
-			}
-			return errors.Wrap(err, "prepare vault tls secret error")
-		} else {
-			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
-				c.recorder.Eventf(
-					ref,
-					corev1.EventTypeNormal,
-					"vault tls secret created",
-					fmt.Sprintf("vault tls secret '%s' created/provided", tlsSecret),
-				)
-			}
-		}
-
-		err = c.prepareConfig(v)
-		if err != nil {
-			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
-				c.recorder.Eventf(
-					ref,
-					corev1.EventTypeWarning,
-					"vault configuration failed",
-					err.Error(),
-				)
-			}
-			return errors.Wrap(err, "prepare vault config error")
-
-		} else {
-			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
-				c.recorder.Eventf(
-					ref,
-					corev1.EventTypeNormal,
-					"vault configuration created",
-					fmt.Sprintf("configMap '%s' for vault configuration created successfully", util.ConfigMapNameForVault(v)),
-				)
-			}
-		}
-
-		err = c.DeployVault(v, tlsSecret)
-		if err != nil {
-			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
-				c.recorder.Eventf(
-					ref,
-					corev1.EventTypeWarning,
-					"vault deploy failed",
-					err.Error(),
-				)
-			}
-			return errors.Wrap(err, "vault deploy error")
-
-		} else {
-			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
-				c.recorder.Eventf(
-					ref,
-					corev1.EventTypeNormal,
-					"deployment created successfully",
-					fmt.Sprintf("deployment '%s' for vaultServer created successfully", v.GetName()),
-				)
-			}
-		}
-
-	} else if err == nil {
-		// if deployment is created for vaultserver, then sync specifications
-		// else give an error
-
-		// use image to determine whether this deployment is for vaultserver
-		if util.RemoveImageTag(d.Spec.Template.Spec.Containers[0].Image) != v.Spec.BaseImage {
-			fmt.Println(util.RemoveImageTag(d.Spec.Template.Spec.Containers[0].Name), v.Spec.BaseImage)
-			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
-				c.recorder.Eventf(
-					ref,
-					corev1.EventTypeWarning,
-					"deployment exists",
-					fmt.Sprintf("deployment with same name of vaultserver '%s' already exists", v.GetName()),
-				)
-			}
-
-			return errors.Errorf("deployment with same name of vaultserver '%s' already exists", v.GetName())
-		}
-
-		if *d.Spec.Replicas != v.Spec.Nodes {
-			d.Spec.Replicas = &(v.Spec.Nodes)
-			_, err = c.kubeClient.AppsV1beta1().Deployments(v.Namespace).Update(d)
-			if err != nil {
-				if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
-					c.recorder.Eventf(
-						ref,
-						corev1.EventTypeWarning,
-						"deployment update failed",
-						err.Error(),
-					)
-				}
-
-				return errors.Wrapf(err, "failed to update size of deployment '%s'", d.Name)
-			}
-		}
-
-		err = c.syncUpgrade(v, d)
-		if err != nil {
-			if ref, err2 := reference.GetReference(scheme.Scheme, v); err2 == nil {
-				c.recorder.Eventf(
-					ref,
-					corev1.EventTypeWarning,
-					"sync between vaultServer and deployments failed",
-					err.Error(),
-				)
-			}
-			return errors.Wrap(err, "sync vaultServer and deployments error")
-		}
-	} else {
-		return errors.Wrap(err, "get deployments error")
-	}
-
-	if _, ok := c.ctxCancels[v.Name]; !ok {
-		ctx, cancel := context.WithCancel(context.Background())
-		c.ctxCancels[v.Name] = cancel
-		go c.monitorAndUpdateStatus(ctx, v)
-	}
-
-	return nil
-}
-
-// DeployVault deploys a vault server.
-// DeployVault is a multi-steps process. It creates the deployment, the service, service account and
-// other related Kubernetes objects for Vault. Any intermediate step can fail.
-//
-// DeployVault is idempotent. If an object already exists, this function will ignore creating
-// it and return no error. It is safe to retry on this function.
-func (c *VaultController) DeployVault(v *api.VaultServer, tlsSecret string) error {
-	_, err := c.kubeClient.AppsV1beta1().Deployments(v.Namespace).Get(v.Name, metav1.GetOptions{})
-	if !kerrors.IsNotFound(err) {
-		glog.Infof("deployment '%s' already exists", v.Name)
-		return nil
-	}
-
-	saName, err := c.createVaultServiceAccount(v)
+	err := c.CreateVaultTLSSecret(vs, v)
 	if err != nil {
-		return err
-	}
-
-	selector := util.LabelsForVault(v.GetName())
-
-	podTempl := corev1.PodTemplateSpec{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        v.GetName(),
-			Labels:      selector,
-			Namespace:   v.GetNamespace(),
-			Annotations: v.Spec.PodTemplate.Annotations,
-		},
-		Spec: corev1.PodSpec{
-			Containers: []corev1.Container{
-				vaultContainer(v, v.Spec.PodTemplate.Spec.Resources),
+		status.Conditions = []api.VaultServerCondition{
+			{
+				Type:    api.VaultServerConditionFailure,
+				Status:  corev1.ConditionTrue,
+				Reason:  "FailedToCreateVaultTLSSecret",
+				Message: err.Error(),
 			},
-			ServiceAccountName: saName,
-			Volumes: []corev1.Volume{{
-				Name: VaultConfigVolumeName,
-				VolumeSource: corev1.VolumeSource{
-					ConfigMap: &corev1.ConfigMapVolumeSource{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: util.ConfigMapNameForVault(v),
-						},
-					},
-				},
-			}},
-			NodeSelector:      v.Spec.PodTemplate.Spec.NodeSelector,
-			Affinity:          v.Spec.PodTemplate.Spec.Affinity,
-			SchedulerName:     v.Spec.PodTemplate.Spec.SchedulerName,
-			Tolerations:       v.Spec.PodTemplate.Spec.Tolerations,
-			ImagePullSecrets:  v.Spec.PodTemplate.Spec.ImagePullSecrets,
-			PriorityClassName: v.Spec.PodTemplate.Spec.PriorityClassName,
-			Priority:          v.Spec.PodTemplate.Spec.Priority,
-			SecurityContext:   v.Spec.PodTemplate.Spec.SecurityContext,
-		},
+		}
+
+		err2 := c.updatedVaultServerStatus(&status, vs)
+		if err2 != nil {
+			return errors.Wrap(err2, "failed to update status")
+		}
+		return errors.Wrap(err, "failed to create vault server tls secret")
 	}
 
-	configureVaultServerTLS(&podTempl, tlsSecret)
-
-	// configure for vault backend storage
-	err = c.configureForVaultBackendStorage(v, &podTempl)
+	err = c.CreateVaultConfig(vs, v)
 	if err != nil {
-		return errors.Wrap(err, "failed to configure for vault backend storage")
+		status.Conditions = []api.VaultServerCondition{
+			{
+				Type:    api.VaultServerConditionFailure,
+				Status:  corev1.ConditionTrue,
+				Reason:  "FailedToCreateVaultConfig",
+				Message: err.Error(),
+			},
+		}
+
+		err2 := c.updatedVaultServerStatus(&status, vs)
+		if err2 != nil {
+			return errors.Wrap(err2, "failed to update status")
+		}
+		return errors.Wrap(err, "failed to create vault config")
 	}
 
-	// configure for vault unsealer
-	err = c.configureForVaultUnsealer(v, &podTempl, saName)
+	err = c.DeployVault(vs, v)
 	if err != nil {
-		return errors.Wrap(err, "failed to configure for vault unsealer")
+		status.Conditions = []api.VaultServerCondition{
+			{
+				Type:    api.VaultServerConditionFailure,
+				Status:  corev1.ConditionTrue,
+				Reason:  "FailedToDeployVault",
+				Message: err.Error(),
+			},
+		}
+
+		err2 := c.updatedVaultServerStatus(&status, vs)
+		if err2 != nil {
+			return errors.Wrap(err2, "failed to update status")
+		}
+		return errors.Wrap(err, "failed to deploy vault")
 	}
 
-	err = c.createVaultDeployment(v, &podTempl)
+	status.Conditions = []api.VaultServerCondition{}
+	status.ObservedGeneration = types.NewIntHash(vs.Generation, meta_util.GenerationHash(vs))
+	err = c.updatedVaultServerStatus(&status, vs)
+	if err != nil {
+		return errors.Wrap(err, "failed to update status")
+	}
+
+	// Add vault monitor to watch vault seal or unseal status
+	vid := util.GetVaultID(vs.Name, vs.Namespace)
+	if _, ok := c.ctxCancels[vid]; !ok {
+		ctx, cancel := context.WithCancel(context.Background())
+		c.ctxCancels[vid] = cancel
+		go c.monitorAndUpdateStatus(ctx, vs)
+	}
+	return nil
+}
+
+func (c *VaultController) CreateVaultTLSSecret(vs *api.VaultServer, v Vault) error {
+	sr, err := v.GetServerTLS()
+	if err != nil {
+		return err
+	}
+	return ensureSecret(c.kubeClient, vs, sr)
+}
+
+func (c *VaultController) CreateVaultConfig(vs *api.VaultServer, v Vault) error {
+	cm, err := v.GetConfig()
+	if err != nil {
+		return err
+	}
+	return ensureConfigMap(c.kubeClient, vs, cm)
+}
+
+// - create service account for vault pod
+// - create deployment
+// - create service
+// - create rbac role and rolebinding
+func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
+	sa := v.GetServiceAccount()
+	err := ensureServiceAccount(c.kubeClient, vs, sa)
 	if err != nil {
 		return err
 	}
 
-	err = c.createVaultService(v)
+	podT := v.GetPodTemplate(v.GetContainer(), sa.Name)
+
+	err = v.Apply(podT)
 	if err != nil {
 		return err
 	}
 
+	d := v.GetDeployment(podT)
+	err = ensureDeployment(c.kubeClient, vs, d)
+	if err != nil {
+		return err
+	}
+
+	svc := v.GetService()
+	err = ensureService(c.kubeClient, vs, svc)
+	if err != nil {
+		return err
+	}
+
+	roles := v.GetRBACRoles()
+	err = ensureRoleAndRoleBinding(c.kubeClient, vs, roles, sa.Name)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (c *VaultController) syncUpgrade(v *api.VaultServer, d *appsv1beta1.Deployment) error {
-	// If the deployment version hasn't been updated, roll forward the deployment version
-	// but keep the existing active Vault node alive though.
-	if d.Spec.Template.Spec.Containers[0].Image != util.VaultImage(v) {
-		err := c.UpgradeDeployment(v, d)
-		if err != nil {
-			return errors.Wrap(err, "unable to upgrade deployment")
-		}
-	}
-
-	// If there is one active node belonging to the old version, and all other nodes are
-	// standby and uptodate, then trigger step-down on active node.
-	// It maps to the following conditions on Status:
-	// 1. check standby == updated
-	// 2. check Available - Updated == Active
-	readyToTriggerStepdown := func() bool {
-		if len(v.Status.VaultStatus.Active) == 0 {
-			return false
-		}
-
-		if !reflect.DeepEqual(v.Status.VaultStatus.Standby, v.Status.UpdatedNodes) {
-			return false
-		}
-
-		ava := append(v.Status.VaultStatus.Standby, v.Status.VaultStatus.Sealed...)
-		if !reflect.DeepEqual(ava, v.Status.UpdatedNodes) {
-			return false
-		}
-		return true
-	}()
-
-	if readyToTriggerStepdown {
-		// This will send SIGTERM to the active Vault pod. It should release HA lock and exit properly.
-		// If it failed for some reason, kubelet will send SIGKILL after default grace period (30s) eventually.
-		// It take longer but the the lock will get released eventually on failure case.
-		err := c.kubeClient.CoreV1().Pods(v.Namespace).Delete(v.Status.VaultStatus.Active, nil)
-		if err != nil && !kerrors.IsNotFound(err) {
-			return errors.Wrapf(err, "step down: failed to delete active Vault pod (%s)", v.Status.VaultStatus.Active)
-		}
-	}
-
-	return nil
-}
-
-// UpgradeDeployment sets deployment spec to:
-// - roll forward version
-// - keep active Vault node available by setting `maxUnavailable=N-1` and `maxSurge=1`
-func (c *VaultController) UpgradeDeployment(v *api.VaultServer, d *appsv1beta1.Deployment) error {
-	mu := intstr.FromInt(int(v.Spec.Nodes - 1))
-
-	d, _, err := kutilappsv1beta1.CreateOrPatchDeployment(c.kubeClient, d.ObjectMeta, func(deployment *appsv1beta1.Deployment) *appsv1beta1.Deployment {
-		deployment.Spec.Strategy.RollingUpdate.MaxUnavailable = &mu
-		deployment.Spec.Template.Spec.Containers[0].Image = util.VaultImage(v)
-		return deployment
+func (c *VaultController) updatedVaultServerStatus(status *api.VaultServerStatus, vs *api.VaultServer) error {
+	_, err := patchutil.UpdateVaultServerStatus(c.extClient.CoreV1alpha1(), vs, func(s *api.VaultServerStatus) *api.VaultServerStatus {
+		s = status
+		return s
 	})
 	if err != nil {
-		return errors.Wrapf(err, "failed to upgrade deployment to (%s)", util.VaultImage(v))
-	}
-	return nil
-}
-
-// prepareVaultTLSSecrets creates secret containing following data:
-//     ca.crt : <ca.crt-used-to-sign-vault-server-cert>
-//     server.crt : <vault-server-cert>
-//     server.key : <vault-server-key>
-//
-// currently used self signed certificate
-func (c *VaultController) prepareVaultTLSSecrets(v *api.VaultServer) (string, error) {
-	if v.Spec.TLS != nil {
-		if v.Spec.TLS.TLSSecret != "" {
-			glog.Infof("user provided tls assets in secret '%s'\n", v.Spec.TLS.TLSSecret)
-			return v.Spec.TLS.TLSSecret, nil
-		}
-	}
-
-	glog.Infoln("generating tls assets for vault...")
-
-	_, err := c.kubeClient.CoreV1().Secrets(v.Namespace).Get(VaultTlsSecretName, metav1.GetOptions{})
-	if !kerrors.IsNotFound(err) {
-		glog.Infof("secret '%s' already exists", VaultTlsSecretName)
-		return VaultTlsSecretName, nil
-	} else if !kerrors.IsNotFound(err) {
-		return "", errors.Wrap(err, "vault secret get error")
-	}
-
-	store, err := certstore.NewCertStore(afero.NewMemMapFs(), filepath.Join("", "pki"))
-	if err != nil {
-		return "", errors.Wrap(err, "certificate store create error")
-	}
-
-	err = store.NewCA()
-	if err != nil {
-		return "", errors.Wrap(err, "ca certificate create error")
-	}
-
-	// ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
-	altNames := cert.AltNames{
-		DNSNames: []string{
-			"server",
-			"localhost",
-			fmt.Sprintf("*.%s.pod", v.Namespace),
-			fmt.Sprintf("%s.%s.svc", v.Name, v.Namespace),
-		},
-	}
-
-	srvCrt, srvKey, err := store.NewServerCertPairBytes(altNames)
-	if err != nil {
-		return "", errors.Wrap(err, "vault server create crt/key pair error")
-	}
-
-	vaultTlsSecret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:   VaultTlsSecretName,
-			Labels: util.LabelsForVault(v.Name),
-		},
-		Data: map[string][]byte{
-			CaCertName:     store.CACertBytes(),
-			ServerCertName: srvCrt,
-			ServerkeyName:  srvKey,
-		},
-	}
-
-	util.AddOwnerRefToObject(vaultTlsSecret, util.AsOwner(v))
-
-	_, err = c.kubeClient.CoreV1().Secrets(v.Namespace).Create(vaultTlsSecret)
-	if err != nil {
-		return "", errors.Wrap(err, "vault tls secret create error")
-	}
-
-	glog.Infof("created secret(%s) containing tls assets\n", VaultTlsSecretName)
-
-	return VaultTlsSecretName, nil
-}
-
-// prepareConfig will do:
-// - Create listener config
-// - Append extra user given config from configMap if user provided it
-// - Create backend storage config from backendStorageSpec
-// - Create a ConfigMap "${vaultName}-vault-config" containing configuration
-func (c *VaultController) prepareConfig(v *api.VaultServer) error {
-	_, err := c.kubeClient.CoreV1().ConfigMaps(v.Namespace).Get(util.ConfigMapNameForVault(v), metav1.GetOptions{})
-	if !kerrors.IsNotFound(err) {
-		glog.Infof("ConfigMap '%s' already exists", util.ConfigMapNameForVault(v))
-		return nil
-	}
-	cfgData := util.GetListenerConfig()
-
-	if len(v.Spec.ConfigMapName) != 0 {
-		cm, err := c.kubeClient.CoreV1().ConfigMaps(v.Namespace).Get(v.Spec.ConfigMapName, metav1.GetOptions{})
-		if err != nil {
-			return errors.Wrapf(err, "get configmap (%s) failed", v.Spec.ConfigMapName)
-		}
-		cfgData = fmt.Sprintf("%s\n%s", cfgData, cm.Data[filepath.Base(util.VaultConfigFile)])
-	}
-
-	storageSrv, err := storage.NewStorage(c.kubeClient, v)
-	if err != nil {
-		return errors.Wrap(err, "failed to create storage service for vault backend service")
-	}
-
-	storageCfg, err := storageSrv.GetStorageConfig()
-	if err != nil {
-		return errors.Wrap(err, "create vault storage config failed")
-	}
-	cfgData = fmt.Sprintf("%s\n%s", cfgData, storageCfg)
-
-	cm := &corev1.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:   util.ConfigMapNameForVault(v),
-			Labels: util.LabelsForVault(v.Name),
-		},
-		Data: map[string]string{
-			filepath.Base(util.VaultConfigFile): cfgData,
-		},
-	}
-
-	util.AddOwnerRefToObject(cm, util.AsOwner(v))
-	_, err = c.kubeClient.CoreV1().ConfigMaps(v.Namespace).Create(cm)
-	if err != nil {
-		return errors.Wrapf(err, "create new configmap (%s) failed", cm.Name)
-	}
-
-	return nil
-}
-
-// configureForVaultBackendStorage will do:
-//	- Add env variable
-//  - Add volume mount
-//	- Create secret
-//  - Mount secret
-func (c *VaultController) configureForVaultBackendStorage(v *api.VaultServer, podTempl *corev1.PodTemplateSpec) error {
-	storageSrv, err := storage.NewStorage(c.kubeClient, v)
-	if err != nil {
-		return errors.Wrap(err, "failed to create storage service for vault backend service")
-	}
-
-	// add environment variable, volume mount, etc for storage if required
-	err = storageSrv.Apply(podTempl)
-	if err != nil {
-		return errors.Wrap(err, "failed to apply changes in pod template")
-	}
-
-	return nil
-}
-
-// configureForVaultUnsealer will do:
-// 	- Add unsealer container
-// 	- Create rbac role and rolebinding
-//  - Create secrets
-func (c *VaultController) configureForVaultUnsealer(v *api.VaultServer, podTempl *corev1.PodTemplateSpec, saName string) error {
-	if v.Spec.Unsealer == nil {
-		return nil
-	}
-
-	// add vault unsealer as sidecar
-	unseal, err := unsealer.NewUnsealer(v.Spec.Unsealer)
-	if err != nil {
-		return errors.Wrap(err, "failed to create unsealer client")
-	}
-
-	err = unseal.AddContainer(podTempl)
-	if err != nil {
-		return errors.Wrap(err, "failed to add unsealer container")
-	}
-
-	// get rbac roles
-	rbacRoles := unseal.GetRBAC(v.GetNamespace())
-	err = c.createRoleAndRoleBinding(v, rbacRoles, saName)
-	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
-// createVaultDeployment creates deployment for vault
-func (c *VaultController) createVaultDeployment(v *api.VaultServer, p *corev1.PodTemplateSpec) error {
-	selector := util.LabelsForVault(v.GetName())
-
-	d := &appsv1beta1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        v.GetName(),
-			Labels:      selector,
-			Annotations: v.Spec.PodTemplate.Controller.Annotations,
-		},
-		Spec: appsv1beta1.DeploymentSpec{
-			Replicas: &v.Spec.Nodes,
-			Selector: &metav1.LabelSelector{MatchLabels: selector},
-			Template: *p,
-			Strategy: appsv1beta1.DeploymentStrategy{
-				Type: appsv1beta1.RollingUpdateDeploymentStrategyType,
-				RollingUpdate: &appsv1beta1.RollingUpdateDeployment{
-					MaxUnavailable: func(a intstr.IntOrString) *intstr.IntOrString { return &a }(intstr.FromInt(1)),
-					MaxSurge:       func(a intstr.IntOrString) *intstr.IntOrString { return &a }(intstr.FromInt(1)),
-				},
-			},
-		},
-	}
-
-	util.AddOwnerRefToObject(d, util.AsOwner(v))
-	_, err := c.kubeClient.AppsV1beta1().Deployments(v.Namespace).Create(d)
-	if err != nil {
-		return errors.Wrap(err, "unable to create deployments for vault")
-	}
-	return nil
+// ensureServiceAccount creates/patches service account
+func ensureServiceAccount(kubeClient kubernetes.Interface, vs *api.VaultServer, sa *corev1.ServiceAccount) error {
+	_, _, err := core_util.CreateOrPatchServiceAccount(kubeClient, sa.ObjectMeta, func(in *corev1.ServiceAccount) *corev1.ServiceAccount {
+		in.Labels = core_util.UpsertMap(in.Labels, sa.Labels)
+		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		return in
+	})
+	return err
 }
 
-// createVaultServiceAccount create service account
-// if service account of same name and namespace already exists then
-// operator will give a warning log, not an error
-func (c *VaultController) createVaultServiceAccount(v *api.VaultServer) (string, error) {
-	selector := util.LabelsForVault(v.GetName())
+// ensureDeployment creates/patches deployment
+func ensureDeployment(kubeClient kubernetes.Interface, vs *api.VaultServer, d *appsv1.Deployment) error {
+	_, _, err := apps_util.CreateOrPatchDeployment(kubeClient, d.ObjectMeta, func(in *appsv1.Deployment) *appsv1.Deployment {
+		in.Labels = core_util.UpsertMap(in.Labels, d.Labels)
+		in.Annotations = core_util.UpsertMap(in.Annotations, d.Annotations)
+		in.Spec.Replicas = d.Spec.Replicas
+		in.Spec.Selector = d.Spec.Selector
+		in.Spec.Strategy = d.Spec.Strategy
 
-	sa := &corev1.ServiceAccount{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      v.GetName(),
-			Namespace: v.GetNamespace(),
-			Labels:    selector,
-		},
-	}
+		in.Spec.Template.Labels = d.Spec.Template.Labels
+		in.Spec.Template.Annotations = d.Spec.Template.Annotations
+		in.Spec.Template.Spec.Containers = core_util.UpsertContainers(in.Spec.Template.Spec.Containers, d.Spec.Template.Spec.Containers)
+		in.Spec.Template.Spec.ServiceAccountName = d.Spec.Template.Spec.ServiceAccountName
+		in.Spec.Template.Spec.NodeSelector = d.Spec.Template.Spec.NodeSelector
+		in.Spec.Template.Spec.Affinity = d.Spec.Template.Spec.Affinity
+		if d.Spec.Template.Spec.SchedulerName != "" {
+			in.Spec.Template.Spec.SchedulerName = d.Spec.Template.Spec.SchedulerName
+		}
+		in.Spec.Template.Spec.Tolerations = d.Spec.Template.Spec.Tolerations
+		in.Spec.Template.Spec.ImagePullSecrets = d.Spec.Template.Spec.ImagePullSecrets
+		in.Spec.Template.Spec.PriorityClassName = d.Spec.Template.Spec.PriorityClassName
+		in.Spec.Template.Spec.Priority = d.Spec.Template.Spec.Priority
+		in.Spec.Template.Spec.SecurityContext = d.Spec.Template.Spec.SecurityContext
+		in.Spec.Template.Spec.Volumes = core_util.UpsertVolume(in.Spec.Template.Spec.Volumes, d.Spec.Template.Spec.Volumes...)
 
-	util.AddOwnerRefToObject(sa, util.AsOwner(v))
-	_, err := c.kubeClient.CoreV1().ServiceAccounts(v.GetNamespace()).Create(sa)
-	if kerrors.IsAlreadyExists(err) {
-		glog.Infof("service account (%s/%s) already exists\n", v.Namespace, sa.Name)
-		return sa.GetName(), nil
-	} else if err != nil {
-		return "", errors.Wrap(err, "failed to create service account")
-	}
-
-	return sa.GetName(), nil
+		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		return in
+	})
+	return err
 }
 
-// createRoleAndRoleBinding creates rbac role and rolebinding
-// if role or rolebinding of same name and namespace already exists then
-// operator will give a warning log, not an error
-func (c *VaultController) createRoleAndRoleBinding(v *api.VaultServer, roles []rbac.Role, saName string) error {
-	selector := util.LabelsForVault(v.GetName())
+// ensureService creates/patches service
+func ensureService(kubeClient kubernetes.Interface, vs *api.VaultServer, svc *corev1.Service) error {
+	_, _, err := core_util.CreateOrPatchService(kubeClient, svc.ObjectMeta, func(in *corev1.Service) *corev1.Service {
+		in.Labels = core_util.UpsertMap(in.Labels, svc.Labels)
+		in.Annotations = core_util.UpsertMap(in.Annotations, svc.Annotations)
+
+		in.Spec.Selector = svc.Spec.Selector
+		in.Spec.Ports = core_util.MergeServicePorts(in.Spec.Ports, svc.Spec.Ports)
+		if svc.Spec.ClusterIP != "" {
+			in.Spec.ClusterIP = svc.Spec.ClusterIP
+		}
+		if svc.Spec.Type != "" {
+			in.Spec.Type = svc.Spec.Type
+		}
+		if svc.Spec.LoadBalancerIP != "" {
+			in.Spec.LoadBalancerIP = svc.Spec.LoadBalancerIP
+		}
+		in.Spec.ExternalIPs = svc.Spec.ExternalIPs
+		in.Spec.LoadBalancerSourceRanges = svc.Spec.LoadBalancerSourceRanges
+		in.Spec.ExternalTrafficPolicy = svc.Spec.ExternalTrafficPolicy
+		if svc.Spec.HealthCheckNodePort > 0 {
+			in.Spec.HealthCheckNodePort = svc.Spec.HealthCheckNodePort
+		}
+		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		return in
+	})
+	return err
+}
+
+// ensureRoleAndRoleBinding creates or patches rbac role and rolebinding
+func ensureRoleAndRoleBinding(kubeClient kubernetes.Interface, vs *api.VaultServer, roles []rbac.Role, saName string) error {
+	selector := util.LabelsForVault(vs.Name)
 
 	for _, role := range roles {
-		role.SetLabels(selector)
+		_, _, err := rbac_util.CreateOrPatchRole(kubeClient, role.ObjectMeta, func(in *rbac.Role) *rbac.Role {
+			in.Labels = core_util.UpsertMap(in.Labels, role.Labels)
+			in.Annotations = core_util.UpsertMap(in.Annotations, role.Annotations)
+			in.Rules = role.Rules
+			util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+			return in
+		})
+		if err != nil {
+			return errors.Wrapf(err, "failed to create rbac role %s/%s", role.Namespace, role.Name)
+		}
 
-		roleBind := &rbac.RoleBinding{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      role.GetName(),
-				Namespace: v.GetNamespace(),
-				Labels:    selector,
-			},
-			RoleRef: rbac.RoleRef{
+		rObj := metav1.ObjectMeta{
+			Name:      role.Name,
+			Namespace: vs.Namespace,
+			Labels:    selector,
+		}
+		_, _, err = rbac_util.CreateOrPatchRoleBinding(kubeClient, rObj, func(in *rbac.RoleBinding) *rbac.RoleBinding {
+			in.Labels = core_util.UpsertMap(in.Labels, rObj.Labels)
+			in.RoleRef = rbac.RoleRef{
 				APIGroup: rbac.GroupName,
 				Kind:     "Role",
-				Name:     role.GetName(),
-			},
-			Subjects: []rbac.Subject{
+				Name:     role.Name,
+			}
+			in.Subjects = []rbac.Subject{
 				{
 					Kind:      rbac.ServiceAccountKind,
 					Name:      saName,
-					Namespace: v.GetNamespace(),
+					Namespace: vs.Namespace,
 				},
-			},
+			}
+			util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+			return in
+		})
+		if err != nil {
+			return errors.Wrapf(err, "failed to create rbac role binding %s/%s", rObj.Namespace, rObj.Name)
 		}
-
-		util.AddOwnerRefToObject(role.GetObjectMeta(), util.AsOwner(v))
-		_, err := c.kubeClient.RbacV1().Roles(role.GetNamespace()).Create(&role)
-		if kerrors.IsAlreadyExists(err) {
-			glog.Warningf("rbac role (%s/%s) already exists\n", v.Namespace, role.Name)
-		} else if err != nil {
-			return errors.Wrapf(err, "failed to create rbac role(%s)", role.GetName())
-		}
-
-		util.AddOwnerRefToObject(roleBind.GetObjectMeta(), util.AsOwner(v))
-		_, err = c.kubeClient.RbacV1().RoleBindings(roleBind.GetNamespace()).Create(roleBind)
-		if kerrors.IsAlreadyExists(err) {
-			glog.Warningf("role binding (%s/%s) already exists\n", v.Namespace, roleBind.Name)
-		} else if err != nil {
-			return errors.Wrapf(err, "failed to create rbac role binding(%s)", roleBind.GetName())
-		}
-	}
-
-	return nil
-}
-
-// create secret creates kubernetes secret
-// if secret of same name and namespace already exists then
-// operator will give a warning log, not an error
-func (c *VaultController) createSecret(v *api.VaultServer, secrets []corev1.Secret, errMsg ...string) error {
-	selector := util.LabelsForVault(v.GetName())
-
-	for _, sr := range secrets {
-		sr.SetLabels(selector)
-
-		util.AddOwnerRefToObject(sr.GetObjectMeta(), util.AsOwner(v))
-
-		_, err := c.kubeClient.CoreV1().Secrets(v.GetNamespace()).Create(&sr)
-		if kerrors.IsAlreadyExists(err) {
-			glog.Warningf("secret(%s/%s) already exists", sr.GetNamespace(), sr.GetName())
-		} else if err != nil {
-			return errors.Wrapf(err, "%s : failed to create secret(%s/%s)", errMsg, v.GetNamespace(), sr.GetName())
-		}
-	}
-
-	return nil
-}
-
-// createVaultService creates service for vault
-// if service of same name and namespace already exists then
-// operator will give a warning log, not an error
-func (c *VaultController) createVaultService(v *api.VaultServer) error {
-	selector := util.LabelsForVault(v.GetName())
-
-	svc := &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        v.Name,
-			Labels:      selector,
-			Annotations: v.Spec.ServiceTemplate.Annotations,
-		},
-		Spec: corev1.ServiceSpec{
-			Selector: selector,
-			Ports: []corev1.ServicePort{
-				{
-					Name:     "vault-port",
-					Protocol: corev1.ProtocolTCP,
-					Port:     VaultPort,
-				},
-				{
-					Name:     "cluster-port",
-					Protocol: corev1.ProtocolTCP,
-					Port:     VaultClusterPort,
-				},
-			},
-			ClusterIP:                v.Spec.ServiceTemplate.Spec.ClusterIP,
-			Type:                     v.Spec.ServiceTemplate.Spec.Type,
-			ExternalIPs:              v.Spec.ServiceTemplate.Spec.ExternalIPs,
-			LoadBalancerIP:           v.Spec.ServiceTemplate.Spec.LoadBalancerIP,
-			LoadBalancerSourceRanges: v.Spec.ServiceTemplate.Spec.LoadBalancerSourceRanges,
-			ExternalTrafficPolicy:    v.Spec.ServiceTemplate.Spec.ExternalTrafficPolicy,
-			HealthCheckNodePort:      v.Spec.ServiceTemplate.Spec.HealthCheckNodePort,
-		},
-	}
-
-	util.AddOwnerRefToObject(svc, util.AsOwner(v))
-	_, err := c.kubeClient.CoreV1().Services(v.Namespace).Create(svc)
-	if kerrors.IsAlreadyExists(err) {
-		glog.Warningf("service (%s/%s) already exists\n", v.Namespace, svc.Name)
-		return nil
-	} else if err != nil {
-		return errors.Wrap(err, "failed to create vault service")
 	}
 	return nil
 }
 
-func vaultContainer(v *api.VaultServer, resource corev1.ResourceRequirements) corev1.Container {
-	return corev1.Container{
-		Name:  "vault",
-		Image: util.VaultImage(v),
-		Command: []string{
-			"/bin/vault",
-			"server",
-			"-config=" + util.VaultConfigFile,
-		},
-		Env: []corev1.EnvVar{
-			{
-				Name:  EnvVaultAddr,
-				Value: util.VaultServiceURL(v.GetName(), v.GetNamespace(), VaultPort),
-			},
-			{
-				Name:  EnvVaultClusterAddr,
-				Value: util.VaultServiceURL(v.GetName(), v.GetNamespace(), VaultClusterPort),
-			},
-		},
-		VolumeMounts: []corev1.VolumeMount{{
-			Name:      VaultConfigVolumeName,
-			MountPath: filepath.Dir(util.VaultConfigFile),
-		}},
-		SecurityContext: &corev1.SecurityContext{
-			Capabilities: &corev1.Capabilities{
-				// Vault requires mlock syscall to work.
-				// Without this it would fail "Error initializing core: Failed to lock memory: cannot allocate memory"
-				Add: []corev1.Capability{"IPC_LOCK"},
-			},
-		},
-		Ports: []corev1.ContainerPort{{
-			Name:          "vault-port",
-			ContainerPort: int32(VaultPort),
-		}, {
-			Name:          "cluster-port",
-			ContainerPort: int32(VaultClusterPort),
-		}},
-		ReadinessProbe: &corev1.Probe{
-			Handler: corev1.Handler{
-				HTTPGet: &corev1.HTTPGetAction{
-					Path:   "/v1/sys/health",
-					Port:   intstr.FromInt(VaultPort),
-					Scheme: corev1.URISchemeHTTPS,
-				},
-			},
-			InitialDelaySeconds: 10,
-			TimeoutSeconds:      10,
-			PeriodSeconds:       10,
-			FailureThreshold:    5,
-		},
-		Resources: resource,
-	}
-}
-
-// TODO : Use user provided certificates
-// configureVaultServerTLS mounts the volume containing the vault server TLS assets for the vault pod
-func configureVaultServerTLS(pt *corev1.PodTemplateSpec, tlsSecret string) {
-	vaultTLSAssetVolume := "vault-tls-secret"
-
-	pt.Spec.Volumes = append(pt.Spec.Volumes, corev1.Volume{
-		Name: vaultTLSAssetVolume,
-		VolumeSource: corev1.VolumeSource{
-			Secret: &corev1.SecretVolumeSource{
-				SecretName: tlsSecret,
-			},
-		},
+// ensureSecret creates/patches secret
+func ensureSecret(kubeClient kubernetes.Interface, vs *api.VaultServer, s *corev1.Secret) error {
+	_, _, err := core_util.CreateOrPatchSecret(kubeClient, s.ObjectMeta, func(in *corev1.Secret) *corev1.Secret {
+		in.Labels = core_util.UpsertMap(in.Labels, s.Labels)
+		in.Annotations = core_util.UpsertMap(in.Annotations, s.Annotations)
+		in.Data = s.Data
+		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		return in
 	})
+	return err
+}
 
-	pt.Spec.Containers[0].VolumeMounts = append(pt.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
-		Name:      vaultTLSAssetVolume,
-		MountPath: util.VaultTLSAssetDir,
+// ensureConfigMap creates/patches configMap
+func ensureConfigMap(kubeClient kubernetes.Interface, vs *api.VaultServer, cm *corev1.ConfigMap) error {
+	_, _, err := core_util.CreateOrPatchConfigMap(kubeClient, cm.ObjectMeta, func(in *corev1.ConfigMap) *corev1.ConfigMap {
+		in.Labels = core_util.UpsertMap(in.Labels, cm.Labels)
+		in.Annotations = core_util.UpsertMap(in.Annotations, cm.Annotations)
+		in.Data = cm.Data
+		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		return in
 	})
+	return err
 }
