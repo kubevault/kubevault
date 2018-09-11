@@ -60,55 +60,13 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }
 
-func (c *VaultController) initVault() (err error) {
-	// TODO: unseal vault
-
-	c.renewer = time.NewTicker(c.TokenRenewPeriod)
-
-	c.vaultClient, err = vaultapi.NewClient(vaultapi.DefaultConfig())
-	if err != nil {
-		return
-	}
-	//var approleLoginPathRegex = regexp.MustCompile(`auth/.+/login`)
-	//c.vaultClient.SetWrappingLookupFunc(func(operation, path string) string {
-	//	if (operation == "PUT" || operation == "POST") &&
-	//		(path == "sys/wrapping/wrap" || approleLoginPathRegex.MatchString(path)) {
-	//		return stringz.Val(os.Getenv(api.EnvVaultWrapTTL), api.DefaultWrappingTTL)
-	//	}
-	//	return ""
-	//})
-
-	err = c.mountSecretBackend()
-	if err != nil {
-		return
-	}
-	err = c.mountAuthBackend()
-	if err != nil {
-		return
-	}
-	return
-}
-
 func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	defer runtime.HandleCrash()
 
-	// TODO : uncomment later
-	// defer c.renewer.Stop()
-
 	glog.Info("Starting Vault controller")
 
-	// TODO : uncomment later
-	// c.kubeInformerFactory.Start(stopCh)
 	c.extInformerFactory.Start(stopCh)
 
-	// TODO : uncomment later
-	// Wait for all involved caches to be synced, before processing items from the queue is started
-	//for _, v := range c.kubeInformerFactory.WaitForCacheSync(stopCh) {
-	//	if !v {
-	//		runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
-	//		return
-	//	}
-	//}
 	for _, v := range c.extInformerFactory.WaitForCacheSync(stopCh) {
 		if !v {
 			runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
@@ -116,13 +74,7 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 		}
 	}
 
-	// TODO : uncomment later
-	// c.saQueue.Run(stopCh)
-	// c.sQueue.Run(stopCh)
 	c.vsQueue.Run(stopCh)
-
-	// TODO : uncomment later
-	//go c.renewTokens()
 
 	<-stopCh
 	glog.Info("Stopping Vault operator")

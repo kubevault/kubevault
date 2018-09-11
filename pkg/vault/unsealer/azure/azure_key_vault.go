@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"path/filepath"
 
+	kutilcorev1 "github.com/appscode/kutil/core/v1"
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	"github.com/kubevault/operator/pkg/vault/util"
+	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 )
@@ -23,11 +26,21 @@ func NewOptions(s api.AzureKeyVault) (*Options, error) {
 	}, nil
 }
 
-func (o *Options) Apply(pt *corev1.PodTemplateSpec, cont *corev1.Container) error {
+func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+	if pt == nil {
+		return errors.New("podTempleSpec is nil")
+	}
+
 	var args []string
+	var cont corev1.Container
+
+	for _, c := range pt.Spec.Containers {
+		if c.Name == util.VaultUnsealerImageName() {
+			cont = c
+		}
+	}
 
 	args = append(args, fmt.Sprintf("--mode=%s", ModeAzureKeyVault))
-
 	if o.VaultBaseUrl != "" {
 		args = append(args, fmt.Sprintf("--azure.vault-base-url=%s", o.VaultBaseUrl))
 	}
@@ -82,7 +95,7 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec, cont *corev1.Container) erro
 
 		volumeName := "azure-client-cert"
 
-		pt.Spec.Volumes = append(pt.Spec.Volumes, corev1.Volume{
+		pt.Spec.Volumes = kutilcorev1.UpsertVolume(pt.Spec.Volumes, corev1.Volume{
 			Name: volumeName,
 			VolumeSource: corev1.VolumeSource{
 				Secret: &corev1.SecretVolumeSource{
@@ -99,7 +112,7 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec, cont *corev1.Container) erro
 
 		certFilePath := "/etc/vault/unsealer/azure/cert/client.crt"
 
-		cont.VolumeMounts = append(cont.VolumeMounts, corev1.VolumeMount{
+		cont.VolumeMounts = kutilcorev1.UpsertVolumeMount(cont.VolumeMounts, corev1.VolumeMount{
 			Name:      volumeName,
 			MountPath: filepath.Dir(certFilePath),
 		})
@@ -108,9 +121,8 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec, cont *corev1.Container) erro
 	}
 
 	cont.Args = append(cont.Args, args...)
-
-	cont.Env = append(cont.Env, envs...)
-
+	cont.Env = kutilcorev1.UpsertEnvVars(cont.Env, envs...)
+	pt.Spec.Containers = kutilcorev1.UpsertContainer(pt.Spec.Containers, cont)
 	return nil
 }
 

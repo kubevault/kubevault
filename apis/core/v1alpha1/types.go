@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/appscode/go/encoding/json/types"
+	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
 )
@@ -105,6 +106,31 @@ type VaultServerStatus struct {
 	// PodNames of updated Vault nodes. Updated means the Vault container image version
 	// matches the spec's version.
 	UpdatedNodes []string `json:"updatedNodes,omitempty"`
+
+	// Represents the latest available observations of a VaultServer current state.
+	Conditions []VaultServerCondition `json:"conditions,omitempty"`
+}
+
+type VaultServerConditionType string
+
+// These are valid conditions of a VaultServer.
+const (
+	VaultServerConditionFailure VaultServerConditionType = "Failure"
+)
+
+// VaultServerCondition describes the state of a VaultServer at a certain point.
+type VaultServerCondition struct {
+	// Type of VaultServerCondition condition.
+	Type VaultServerConditionType `json:"type,omitempty"`
+
+	// Status of the condition, one of True, False, Unknown.
+	Status v1.ConditionStatus `json:"status,omitempty"`
+
+	// The reason for the condition's.
+	Reason string `json:"reason,omitempty"`
+
+	// A human readable message indicating details about the transition.
+	Message string `json:"message,omitempty"`
 }
 
 type VaultStatus struct {

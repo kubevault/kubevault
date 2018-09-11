@@ -31,9 +31,25 @@ func PodDNSName(p corev1.Pod) string {
 	return fmt.Sprintf("%s.%s.pod", podIP, p.Namespace)
 }
 
-// AddOwnerRefToObject appends the desired OwnerReference to the object
-func AddOwnerRefToObject(o metav1.Object, r metav1.OwnerReference) {
-	o.SetOwnerReferences(append(o.GetOwnerReferences(), r))
+// EnsureOwnerRefToObject appends the desired OwnerReference to the object
+func EnsureOwnerRefToObject(o metav1.Object, r metav1.OwnerReference) {
+	if !IsOwnerRefAlreadyExists(o, r) {
+		o.SetOwnerReferences(append(o.GetOwnerReferences(), r))
+	}
+}
+
+// IsOwnerRefAlreadyExists checks whether owner ref already exists
+func IsOwnerRefAlreadyExists(o metav1.Object, r metav1.OwnerReference) bool {
+	refs := o.GetOwnerReferences()
+	for _, u := range refs {
+		if u.Name == r.Name &&
+			u.UID == r.UID &&
+			u.Kind == r.Kind &&
+			u.APIVersion == u.APIVersion {
+			return true
+		}
+	}
+	return false
 }
 
 // AsOwner returns an owner reference set as the vault cluster CR
@@ -55,4 +71,21 @@ func VaultImage(v *api.VaultServer) string {
 // image format: baseImageName:tag
 func RemoveImageTag(im string) string {
 	return strings.Split(im, ":")[0]
+}
+
+// TLSSecretNameForVault returns tls secret name
+func TLSSecretNameForVault(v *api.VaultServer) string {
+	return v.Name + "-vault-tls"
+}
+
+func VaultImageName() string {
+	return "vault"
+}
+
+func VaultUnsealerImageName() string {
+	return "vault-unsealer"
+}
+
+func GetVaultID(name, namespace string) string {
+	return fmt.Sprintf("%s/%s", namespace, name)
 }

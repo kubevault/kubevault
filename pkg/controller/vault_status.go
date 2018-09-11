@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	kutilmeta "github.com/appscode/kutil/meta"
+	meta_util "github.com/appscode/kutil/meta"
 	"github.com/appscode/kutil/tools/portforward"
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
@@ -16,6 +16,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	corev1 "k8s.io/api/core/v1"
+	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 )
@@ -28,7 +29,7 @@ const (
 // updates the status resource in the vault CR item.
 func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.VaultServer) {
 	var tlsConfig *vaultapi.TLSConfig
-	tlsSecretName := VaultTlsSecretName
+	tlsSecretName := util.TLSSecretNameForVault(v)
 
 	appFs := afero.NewOsFs()
 	appFs.Mkdir(caFileDir, 0777)
@@ -159,9 +160,16 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 }
 
 // updateVaultCRStatus updates the status field of the Vault CR.
-func (c *VaultController) updateVaultCRStatus(ctx1 context.Context, name, namespace string, status *api.VaultServerStatus) (*api.VaultServer, error) {
+func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespace string, status *api.VaultServerStatus) (*api.VaultServer, error) {
 	vault, err := c.extClient.CoreV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
-	if err != nil {
+	if kerr.IsNotFound(err) {
+		vid := util.GetVaultID(name, namespace)
+		if cancel, ok := c.ctxCancels[vid]; ok {
+			cancel()
+			delete(c.ctxCancels, vid)
+		}
+		return nil, err
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -180,7 +188,7 @@ func (c *VaultController) getVaultStatus(p *corev1.Pod, tlsConfig *vaultapi.TLSC
 	// vault server pod use port 8200
 	podPort := "8200"
 
-	if !kutilmeta.PossiblyInCluster() {
+	if !meta_util.PossiblyInCluster() {
 		// if not incluster mode, use port forwarding to access pod
 
 		portFwd := portforward.NewTunnel(c.kubeClient.CoreV1().RESTClient(), c.restConfig, p.GetNamespace(), p.GetName(), 8200)

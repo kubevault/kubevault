@@ -5,27 +5,29 @@ import (
 	"path/filepath"
 	"time"
 
+	kutilcorev1 "github.com/appscode/kutil/core/v1"
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/unsealer/aws"
 	"github.com/kubevault/operator/pkg/vault/unsealer/azure"
 	"github.com/kubevault/operator/pkg/vault/unsealer/google"
 	"github.com/kubevault/operator/pkg/vault/unsealer/kubernetes"
+	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 )
 
-type UnsealerService interface {
-	Apply(pt *corev1.PodTemplateSpec, cont *corev1.Container) error
+type Unsealer interface {
+	Apply(pt *corev1.PodTemplateSpec) error
 	GetRBAC(namespace string) []rbac.Role
 }
 
-type Unsealer struct {
-	Service UnsealerService
+type unsealerSrv struct {
+	unsealer Unsealer
 	*api.UnsealerSpec
 }
 
-func NewUnsealerService(s *api.UnsealerSpec) (UnsealerService, error) {
+func newUnsealer(s *api.UnsealerSpec) (Unsealer, error) {
 	if s.Mode.KubernetesSecret != nil {
 		return kubernetes.NewOptions(*s.Mode.KubernetesSecret)
 	} else if s.Mode.GoogleKmsGcs != nil {
@@ -39,29 +41,35 @@ func NewUnsealerService(s *api.UnsealerSpec) (UnsealerService, error) {
 	}
 }
 
-func NewUnsealer(s *api.UnsealerSpec) (*Unsealer, error) {
-	srv, err := NewUnsealerService(s)
+func NewUnsealerService(s *api.UnsealerSpec) (Unsealer, error) {
+	if s == nil {
+		return nil, nil
+	}
+
+	unslr, err := newUnsealer(s)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create unsealer service")
 	}
-
-	return &Unsealer{
-		srv,
+	return &unsealerSrv{
+		unslr,
 		s,
 	}, nil
 }
 
-// AddContainer add unsealer container for vault
-func (u *Unsealer) AddContainer(pt *corev1.PodTemplateSpec) error {
-	var args []string
-
-	vautlCACertFile := "/etc/vault/tls/ca.crt"
-
-	cont := corev1.Container{
-		Name:  "vault-unsealer",
-		Image: "nightfury1204/vault-unsealer:canary",
+// Apply will do:
+// 	- add unsealer container for vault
+//	- add additional env, volume mounts etc if required
+func (u *unsealerSrv) Apply(pt *corev1.PodTemplateSpec) error {
+	if u == nil {
+		return nil
 	}
 
+	var args []string
+	vautlCACertFile := "/etc/vault/tls/ca.crt"
+	cont := corev1.Container{
+		Name:  util.VaultUnsealerImageName(),
+		Image: "nightfury1204/vault-unsealer:canary",
+	}
 	args = append(args,
 		"run",
 		"--v=3",
@@ -73,13 +81,6 @@ func (u *Unsealer) AddContainer(pt *corev1.PodTemplateSpec) error {
 	if u.SecretThreshold != 0 {
 		args = append(args, fmt.Sprintf("--secret-threshold=%d", u.SecretThreshold))
 	}
-
-	// TODO: keep this?
-	/*if u.StoreRootToken == false {
-		args = append(args, fmt.Sprintf("--store-root-token=false"))
-	} else {
-		args = append(args, fmt.Sprintf("--store-root-token=true"))
-	}*/
 
 	if u.RetryPeriodSeconds != 0 {
 		p := time.Second * u.RetryPeriodSeconds
@@ -95,7 +96,7 @@ func (u *Unsealer) AddContainer(pt *corev1.PodTemplateSpec) error {
 	if u.VaultCASecret != "" {
 		args = append(args, fmt.Sprintf("--ca-cert-file=%s", vautlCACertFile))
 
-		pt.Spec.Volumes = append(pt.Spec.Volumes, corev1.Volume{
+		pt.Spec.Volumes = kutilcorev1.UpsertVolume(pt.Spec.Volumes, corev1.Volume{
 			Name: "vaultCA",
 			VolumeSource: corev1.VolumeSource{
 				Secret: &corev1.SecretVolumeSource{
@@ -104,25 +105,25 @@ func (u *Unsealer) AddContainer(pt *corev1.PodTemplateSpec) error {
 			},
 		})
 
-		cont.VolumeMounts = append(cont.VolumeMounts, corev1.VolumeMount{
+		cont.VolumeMounts = kutilcorev1.UpsertVolumeMount(cont.VolumeMounts, corev1.VolumeMount{
 			Name:      "vaultCA",
 			MountPath: filepath.Dir(vautlCACertFile),
 		})
 	}
 
 	cont.Args = append(cont.Args, args...)
-
-	err := u.Service.Apply(pt, &cont)
+	pt.Spec.Containers = kutilcorev1.UpsertContainer(pt.Spec.Containers, cont)
+	err := u.unsealer.Apply(pt)
 	if err != nil {
 		return err
 	}
-
-	pt.Spec.Containers = append(pt.Spec.Containers, cont)
-
 	return nil
 }
 
 // GetRBAC return rbac roles required by unsealer
-func (u *Unsealer) GetRBAC(namespace string) []rbac.Role {
-	return u.Service.GetRBAC(namespace)
+func (u *unsealerSrv) GetRBAC(namespace string) []rbac.Role {
+	if u == nil {
+		return nil
+	}
+	return u.unsealer.GetRBAC(namespace)
 }

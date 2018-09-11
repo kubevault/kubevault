@@ -96,15 +96,7 @@ func (c completedConfig) New() (*StashServer, error) {
 	if err != nil {
 		return nil, err
 	}
-	admissionHooks := []hooks.AdmissionHook{
-		ctrl.NewDeploymentWebhook(),
-		ctrl.NewDaemonSetWebhook(),
-		ctrl.NewStatefulSetWebhook(),
-		ctrl.NewReplicationControllerWebhook(),
-		ctrl.NewReplicaSetWebhook(),
-		ctrl.NewJobWebhook(),
-		ctrl.NewCronJobWebhook(),
-	}
+	admissionHooks := []hooks.AdmissionHook{}
 
 	s := &StashServer{
 		GenericAPIServer: genericServer,

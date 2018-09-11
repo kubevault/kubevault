@@ -1,100 +1,392 @@
 package controller
 
 import (
-	"strconv"
-	"time"
+	"fmt"
+	"path/filepath"
 
-	"github.com/appscode/go/log"
 	core_util "github.com/appscode/kutil/core/v1"
-	"github.com/hashicorp/vault/api"
-	core "k8s.io/api/core/v1"
+	"github.com/appscode/kutil/tools/certstore"
+	"github.com/golang/glog"
+	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	"github.com/kubevault/operator/pkg/vault/storage"
+	"github.com/kubevault/operator/pkg/vault/unsealer"
+	"github.com/kubevault/operator/pkg/vault/util"
+	"github.com/pkg/errors"
+	"github.com/spf13/afero"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/util/cert"
 )
 
-type AppRole struct {
-	BindSecretID    bool          `json:"bind_secret_id"`
-	BoundCidrList   []string      `json:"bound_cidr_list"`
-	Period          time.Duration `json:"period"`
-	Policies        []string      `json:"policies"`
-	SecretIDNumUses int           `json:"secret_id_num_uses"`
-	SecretIDTTL     time.Duration `json:"secret_id_ttl"`
-	TokenMaxTTL     time.Duration `json:"token_max_ttl"`
-	TokenNumUses    int           `json:"token_num_uses"`
-	TokenTTL        time.Duration `json:"token_ttl"`
+const (
+	EnvVaultAddr            = "VAULT_API_ADDR"
+	EnvVaultClusterAddr     = "VAULT_CLUSTER_ADDR"
+	VaultPort               = 8200
+	VaultClusterPort        = 8201
+	VaultConfigVolumeName   = "vault-config"
+	vaultTLSAssetVolumeName = "vault-tls-secret"
+	CaCertName              = "ca.crt"
+	ServerCertName          = "server.crt"
+	ServerkeyName           = "server.key"
+)
+
+type Vault interface {
+	GetServerTLS() (*corev1.Secret, error)
+	GetConfig() (*corev1.ConfigMap, error)
+	Apply(pt *corev1.PodTemplateSpec) error
+	GetService() *corev1.Service
+	GetDeployment(pt *corev1.PodTemplateSpec) *appsv1.Deployment
+	GetServiceAccount() *corev1.ServiceAccount
+	GetRBACRoles() []rbacv1.Role
+	GetPodTemplate(c corev1.Container, saName string) *corev1.PodTemplateSpec
+	GetContainer() corev1.Container
 }
 
-func (c *VaultController) mountSecretBackend() error {
-	// list enabled auth mechanism
-	mounts, err := c.vaultClient.Sys().ListMounts()
+type vaultSrv struct {
+	vs         *api.VaultServer
+	strg       storage.Storage
+	unslr      unsealer.Unsealer
+	kubeClient kubernetes.Interface
+}
+
+func NewVault(vs *api.VaultServer, kubeClient kubernetes.Interface) (Vault, error) {
+	// it is required to have storage
+	strg, err := storage.NewStorage(kubeClient, vs)
 	if err != nil {
-		return err
-	}
-	for name, mnt := range mounts {
-		if mnt.Type == "generic" && name == c.SecretBackend() {
-			log.Infof("Found secret backend %s of type %s!", name, mnt.Type)
-			return nil
-		}
+		return nil, err
 	}
 
-	log.Infof("Enabling secret backend %s of type %s!", c.SecretBackend(), "generic")
-	return c.vaultClient.Sys().Mount(c.SecretBackend(), &api.MountInput{
-		Type: "generic",
-	})
-}
-
-func (c *VaultController) mountAuthBackend() error {
-	// list enabled auth mechanism
-	mounts, err := c.vaultClient.Sys().ListAuth()
+	// it is not required to have unsealer
+	unslr, err := unsealer.NewUnsealerService(vs.Spec.Unsealer)
 	if err != nil {
-		return err
-	}
-	for name, mnt := range mounts {
-		if mnt.Type == "approle" && name == c.AuthBackend() {
-			log.Infof("Found auth backend %s of type %s!", name, mnt.Type)
-			return nil
-		}
+		return nil, err
 	}
 
-	log.Infof("Enabling auth backend %s of type %s!", c.AuthBackend(), "approle")
-	return c.vaultClient.Sys().EnableAuthWithOptions(c.AuthBackend(), &api.EnableAuthOptions{
-		Type: "approle",
-	})
+	return &vaultSrv{
+		vs:         vs,
+		strg:       strg,
+		unslr:      unslr,
+		kubeClient: kubeClient,
+	}, nil
 }
 
-func (c *VaultController) renewTokens() {
-	defer runtime.HandleCrash()
-	for range c.renewer.C {
-		list, err := c.kubeClient.CoreV1().Secrets(core.NamespaceAll).List(metav1.ListOptions{})
+// GetServerTLS will return a secret containing vault server tls assets
+// secret contains following data:
+// 	- ca.crt : <ca.crt-used-to-sign-vault-server-cert>
+//  - server.crt : <vault-server-cert>
+//  - server.key : <vault-server-key>
+//
+// if user provide TLS secrets, then it will be used.
+// Otherwise self signed certificates will be used
+func (v *vaultSrv) GetServerTLS() (*corev1.Secret, error) {
+	tls := v.vs.Spec.TLS
+	if tls != nil && tls.TLSSecret != "" {
+		sr, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(tls.TLSSecret, metav1.GetOptions{})
+		return sr, err
+	}
+
+	tlsSecretName := util.TLSSecretNameForVault(v.vs)
+	sr, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(tlsSecretName, metav1.GetOptions{})
+	if err == nil {
+		glog.Infof("secret %s/%s already exists", v.vs.Namespace, tlsSecretName)
+		return sr, nil
+	}
+
+	store, err := certstore.NewCertStore(afero.NewMemMapFs(), filepath.Join("", "pki"))
+	if err != nil {
+		return nil, errors.Wrap(err, "certificate store create error")
+	}
+
+	err = store.NewCA()
+	if err != nil {
+		return nil, errors.Wrap(err, "ca certificate create error")
+	}
+
+	// ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
+	altNames := cert.AltNames{
+		DNSNames: []string{
+			"localhost",
+			fmt.Sprintf("*.%s.pod", v.vs.Namespace),
+			fmt.Sprintf("%s.%s.svc", v.vs.Name, v.vs.Namespace),
+		},
+	}
+
+	srvCrt, srvKey, err := store.NewServerCertPairBytes(altNames)
+	if err != nil {
+		return nil, errors.Wrap(err, "vault server create crt/key pair error")
+	}
+
+	tlsSr := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      tlsSecretName,
+			Namespace: v.vs.Namespace,
+			Labels:    util.LabelsForVault(v.vs.Name),
+		},
+		Data: map[string][]byte{
+			CaCertName:     store.CACertBytes(),
+			ServerCertName: srvCrt,
+			ServerkeyName:  srvKey,
+		},
+	}
+	return tlsSr, nil
+}
+
+// GetConfig will return the vault config in ConfigMap
+// ConfigMap will contain:
+// - listener config
+// - storage config
+// - user provided extra config
+func (v *vaultSrv) GetConfig() (*corev1.ConfigMap, error) {
+	configMapName := util.ConfigMapNameForVault(v.vs)
+	cfgData := util.GetListenerConfig()
+
+	// append user provided extra config
+	if v.vs.Spec.ConfigMapName != "" {
+		cm, err := v.kubeClient.CoreV1().ConfigMaps(v.vs.Namespace).Get(v.vs.Spec.ConfigMapName, metav1.GetOptions{})
 		if err != nil {
-			continue
+			return nil, errors.Wrapf(err, "failed to get configMap %s/%s", v.vs.Namespace, v.vs.Spec.ConfigMapName)
 		}
-		for _, secret := range list.Items {
-			if _, found := GetString(secret.Annotations, "kubernetes.io/service-account.name"); found {
+		cfgData = fmt.Sprintf("%s\n%s", cfgData, cm.Data[filepath.Base(util.VaultConfigFile)])
+	}
 
-				// secret.Data["LEASE_DURATION"]
-				if renewable, _ := strconv.ParseBool(string(secret.Data["RENEWABLE"])); renewable {
-					token := string(secret.Data[api.EnvVaultToken])
-					vr, err := c.vaultClient.Auth().Token().RenewTokenAsSelf(token, 0)
-					if err != nil {
-						log.Errorln(err)
-					}
+	storageCfg, err := v.strg.GetStorageConfig()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get storage config")
+	}
+	cfgData = fmt.Sprintf("%s\n%s", cfgData, storageCfg)
 
-					_, _, err = core_util.PatchSecret(c.kubeClient, &secret, func(in *core.Secret) *core.Secret {
-						if in.Data == nil {
-							in.Data = map[string][]byte{}
-						}
-						in.Data[api.EnvVaultToken] = []byte(vr.Auth.ClientToken)
-						in.Data["VAULT_TOKEN_ACCESSOR"] = []byte(vr.Auth.Accessor)
-						in.Data["LEASE_DURATION"] = []byte(strconv.Itoa(vr.Auth.LeaseDuration))
-						in.Data["RENEWABLE"] = []byte(strconv.FormatBool(vr.Auth.Renewable))
-						return in
-					})
-					if err != nil {
-						log.Errorln(err)
-					}
-				}
-			}
+	configM := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      configMapName,
+			Namespace: v.vs.Namespace,
+			Labels:    util.LabelsForVault(v.vs.Name),
+		},
+		Data: map[string]string{
+			filepath.Base(util.VaultConfigFile): cfgData,
+		},
+	}
+	return configM, nil
+}
+
+// - add secret volume mount for tls secret
+// - add configMap volume mount for vault config
+// - add extra env, volume mount, unsealer contianer etc
+func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
+	if pt == nil {
+		return errors.New("podTempleSpec is nil")
+	}
+
+	tlsSecret := util.TLSSecretNameForVault(v.vs)
+	if v.vs.Spec.TLS != nil && v.vs.Spec.TLS.TLSSecret != "" {
+		tlsSecret = v.vs.Spec.TLS.TLSSecret
+	}
+
+	pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, corev1.Volume{
+		Name: vaultTLSAssetVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			Secret: &corev1.SecretVolumeSource{
+				SecretName: tlsSecret,
+			},
+		},
+	}, corev1.Volume{
+		Name: VaultConfigVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: util.ConfigMapNameForVault(v.vs),
+				},
+			},
+		},
+	})
+
+	var cont corev1.Container
+	for _, c := range pt.Spec.Containers {
+		if c.Name == util.VaultImageName() {
+			cont = c
 		}
+	}
+
+	cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, corev1.VolumeMount{
+		Name:      vaultTLSAssetVolumeName,
+		MountPath: util.VaultTLSAssetDir,
+	}, corev1.VolumeMount{
+		Name:      VaultConfigVolumeName,
+		MountPath: filepath.Dir(util.VaultConfigFile),
+	})
+
+	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)
+
+	err := v.strg.Apply(pt)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	if v.unslr != nil {
+		err = v.unslr.Apply(pt)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	}
+	return nil
+}
+
+func (v *vaultSrv) GetService() *corev1.Service {
+	selector := util.LabelsForVault(v.vs.Name)
+	return &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        v.vs.Name,
+			Namespace:   v.vs.Namespace,
+			Labels:      selector,
+			Annotations: v.vs.Spec.ServiceTemplate.Annotations,
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: selector,
+			Ports: []corev1.ServicePort{
+				{
+					Name:     "vault-port",
+					Protocol: corev1.ProtocolTCP,
+					Port:     VaultPort,
+				},
+				{
+					Name:     "cluster-port",
+					Protocol: corev1.ProtocolTCP,
+					Port:     VaultClusterPort,
+				},
+			},
+			ClusterIP:                v.vs.Spec.ServiceTemplate.Spec.ClusterIP,
+			Type:                     v.vs.Spec.ServiceTemplate.Spec.Type,
+			ExternalIPs:              v.vs.Spec.ServiceTemplate.Spec.ExternalIPs,
+			LoadBalancerIP:           v.vs.Spec.ServiceTemplate.Spec.LoadBalancerIP,
+			LoadBalancerSourceRanges: v.vs.Spec.ServiceTemplate.Spec.LoadBalancerSourceRanges,
+			ExternalTrafficPolicy:    v.vs.Spec.ServiceTemplate.Spec.ExternalTrafficPolicy,
+			HealthCheckNodePort:      v.vs.Spec.ServiceTemplate.Spec.HealthCheckNodePort,
+		},
+	}
+}
+
+func (v *vaultSrv) GetDeployment(pt *corev1.PodTemplateSpec) *appsv1.Deployment {
+	selector := util.LabelsForVault(v.vs.Name)
+	return &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        v.vs.Name,
+			Namespace:   v.vs.Namespace,
+			Labels:      selector,
+			Annotations: v.vs.Spec.PodTemplate.Controller.Annotations,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: &v.vs.Spec.Nodes,
+			Selector: &metav1.LabelSelector{MatchLabels: selector},
+			Template: *pt,
+			Strategy: appsv1.DeploymentStrategy{
+				Type: appsv1.RollingUpdateDeploymentStrategyType,
+				RollingUpdate: &appsv1.RollingUpdateDeployment{
+					MaxUnavailable: func(a intstr.IntOrString) *intstr.IntOrString { return &a }(intstr.FromInt(1)),
+					MaxSurge:       func(a intstr.IntOrString) *intstr.IntOrString { return &a }(intstr.FromInt(1)),
+				},
+			},
+		},
+	}
+}
+
+func (v *vaultSrv) GetServiceAccount() *corev1.ServiceAccount {
+	selector := util.LabelsForVault(v.vs.Name)
+	return &corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      v.vs.Name,
+			Namespace: v.vs.Namespace,
+			Labels:    selector,
+		},
+	}
+}
+
+func (v *vaultSrv) GetRBACRoles() []rbacv1.Role {
+	var roles []rbacv1.Role
+	labels := util.LabelsForVault(v.vs.Name)
+	if v.unslr != nil {
+		rList := v.unslr.GetRBAC(v.vs.Namespace)
+		for _, r := range rList {
+			r.Labels = core_util.UpsertMap(r.Labels, labels)
+			roles = append(roles, r)
+		}
+	}
+	return roles
+}
+
+func (v *vaultSrv) GetPodTemplate(c corev1.Container, saName string) *corev1.PodTemplateSpec {
+	return &corev1.PodTemplateSpec{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        v.vs.Name,
+			Labels:      util.LabelsForVault(v.vs.Name),
+			Namespace:   v.vs.Namespace,
+			Annotations: v.vs.Spec.PodTemplate.Annotations,
+		},
+		Spec: corev1.PodSpec{
+			Containers: []corev1.Container{
+				c,
+			},
+			ServiceAccountName: saName,
+			NodeSelector:       v.vs.Spec.PodTemplate.Spec.NodeSelector,
+			Affinity:           v.vs.Spec.PodTemplate.Spec.Affinity,
+			SchedulerName:      v.vs.Spec.PodTemplate.Spec.SchedulerName,
+			Tolerations:        v.vs.Spec.PodTemplate.Spec.Tolerations,
+			ImagePullSecrets:   v.vs.Spec.PodTemplate.Spec.ImagePullSecrets,
+			PriorityClassName:  v.vs.Spec.PodTemplate.Spec.PriorityClassName,
+			Priority:           v.vs.Spec.PodTemplate.Spec.Priority,
+			SecurityContext:    v.vs.Spec.PodTemplate.Spec.SecurityContext,
+		},
+	}
+}
+
+func (v *vaultSrv) GetContainer() corev1.Container {
+	return corev1.Container{
+		Name:  util.VaultImageName(),
+		Image: util.VaultImage(v.vs),
+		Command: []string{
+			"/bin/vault",
+			"server",
+			"-config=" + util.VaultConfigFile,
+		},
+		Env: []corev1.EnvVar{
+			{
+				Name:  EnvVaultAddr,
+				Value: util.VaultServiceURL(v.vs.Name, v.vs.Namespace, VaultPort),
+			},
+			{
+				Name:  EnvVaultClusterAddr,
+				Value: util.VaultServiceURL(v.vs.Name, v.vs.Namespace, VaultClusterPort),
+			},
+		},
+		SecurityContext: &corev1.SecurityContext{
+			Capabilities: &corev1.Capabilities{
+				// Vault requires mlock syscall to work.
+				// Without this it would fail "Error initializing core: Failed to lock memory: cannot allocate memory"
+				Add: []corev1.Capability{"IPC_LOCK"},
+			},
+		},
+		Ports: []corev1.ContainerPort{{
+			Name:          "vault-port",
+			ContainerPort: int32(VaultPort),
+		}, {
+			Name:          "cluster-port",
+			ContainerPort: int32(VaultClusterPort),
+		}},
+		ReadinessProbe: &corev1.Probe{
+			Handler: corev1.Handler{
+				HTTPGet: &corev1.HTTPGetAction{
+					Path:   "/v1/sys/health",
+					Port:   intstr.FromInt(VaultPort),
+					Scheme: corev1.URISchemeHTTPS,
+				},
+			},
+			InitialDelaySeconds: 10,
+			TimeoutSeconds:      10,
+			PeriodSeconds:       10,
+			FailureThreshold:    5,
+		},
+		Resources: v.vs.Spec.PodTemplate.Spec.Resources,
 	}
 }
