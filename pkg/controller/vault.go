@@ -179,42 +179,40 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 		Command: []string{"/bin/sh"},
 		Args: []string{
 			"-c",
-			`set -xe
-			if [ -f /etc/vault/controller/vault.hcl ]; then
-				  cat /etc/vault/controller/vault.hcl >> /etc/vault/config/vault.hcl
-			fi
-
-			echo "" >> /etc/vault/config/vault.hcl;
-
+			`set -e
+			cat /etc/vault/controller/vault.hcl > /etc/vault/config/vault.hcl
+			echo "" >> /etc/vault/config/vault.hcl
 			if [ -f /etc/vault/user/vault.hcl ]; then
 				  cat /etc/vault/user/vault.hcl >> /etc/vault/config/vault.hcl
 			fi`,
 		},
 	}
 
-	initCont.VolumeMounts = core_util.UpsertVolumeMount(initCont.VolumeMounts, corev1.VolumeMount{
-		Name:      "controller-config",
-		MountPath: "/etc/vault/controller",
-	}, corev1.VolumeMount{
-		Name:      "config",
-		MountPath: filepath.Dir(util.VaultConfigFile),
-	})
+	initCont.VolumeMounts = core_util.UpsertVolumeMount(initCont.VolumeMounts,
+		corev1.VolumeMount{
+			Name:      "config",
+			MountPath: filepath.Dir(util.VaultConfigFile),
+		}, corev1.VolumeMount{
+			Name:      "controller-config",
+			MountPath: "/etc/vault/controller",
+		})
 
-	pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, corev1.Volume{
-		Name: "config",
-		VolumeSource: corev1.VolumeSource{
-			EmptyDir: &corev1.EmptyDirVolumeSource{},
-		},
-	}, corev1.Volume{
-		Name: "controller-config",
-		VolumeSource: corev1.VolumeSource{
-			ConfigMap: &corev1.ConfigMapVolumeSource{
-				LocalObjectReference: corev1.LocalObjectReference{
-					Name: v.vs.ConfigMapName(),
+	pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes,
+		corev1.Volume{
+			Name: "config",
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{},
+			},
+		}, corev1.Volume{
+			Name: "controller-config",
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: v.vs.ConfigMapName(),
+					},
 				},
 			},
-		},
-	})
+		})
 
 	if v.vs.Spec.ConfigSource != nil {
 		initCont.VolumeMounts = core_util.UpsertVolumeMount(initCont.VolumeMounts, corev1.VolumeMount{
@@ -275,16 +273,15 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 }
 
 func (v *vaultSrv) GetService() *corev1.Service {
-	selector := v.vs.OffshootLabels()
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        v.vs.ServiceName(),
+			Name:        v.vs.OffshootName(),
 			Namespace:   v.vs.Namespace,
-			Labels:      selector,
+			Labels:      v.vs.OffshootLabels(),
 			Annotations: v.vs.Spec.ServiceTemplate.Annotations,
 		},
 		Spec: corev1.ServiceSpec{
-			Selector: selector,
+			Selector: v.vs.OffshootSelectors(),
 			Ports: []corev1.ServicePort{
 				{
 					Name:     "vault-port",
@@ -309,17 +306,16 @@ func (v *vaultSrv) GetService() *corev1.Service {
 }
 
 func (v *vaultSrv) GetDeployment(pt *corev1.PodTemplateSpec) *appsv1.Deployment {
-	selector := v.vs.OffshootLabels()
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        v.vs.DeploymentName(),
+			Name:        v.vs.OffshootName(),
 			Namespace:   v.vs.Namespace,
-			Labels:      selector,
+			Labels:      v.vs.OffshootLabels(),
 			Annotations: v.vs.Spec.PodTemplate.Controller.Annotations,
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: &v.vs.Spec.Nodes,
-			Selector: &metav1.LabelSelector{MatchLabels: selector},
+			Selector: &metav1.LabelSelector{MatchLabels: v.vs.OffshootSelectors()},
 			Template: *pt,
 			Strategy: appsv1.DeploymentStrategy{
 				Type: appsv1.RollingUpdateDeploymentStrategyType,
@@ -333,12 +329,11 @@ func (v *vaultSrv) GetDeployment(pt *corev1.PodTemplateSpec) *appsv1.Deployment 
 }
 
 func (v *vaultSrv) GetServiceAccount() *corev1.ServiceAccount {
-	selector := v.vs.OffshootLabels()
 	return &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      v.vs.ServiceAccountName(),
+			Name:      v.vs.OffshootName(),
 			Namespace: v.vs.Namespace,
-			Labels:    selector,
+			Labels:    v.vs.OffshootLabels(),
 		},
 	}
 }
@@ -360,7 +355,7 @@ func (v *vaultSrv) GetPodTemplate(c corev1.Container, saName string) *corev1.Pod
 	return &corev1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        v.vs.Name,
-			Labels:      v.vs.OffshootLabels(),
+			Labels:      v.vs.OffshootSelectors(),
 			Namespace:   v.vs.Namespace,
 			Annotations: v.vs.Spec.PodTemplate.Annotations,
 		},

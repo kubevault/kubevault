@@ -37,7 +37,7 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.Vau
 
 	s := api.VaultServerStatus{
 		Phase:       api.ClusterPhaseRunning,
-		ServiceName: v.ServiceName(),
+		ServiceName: v.OffshootName(),
 		ClientPort:  VaultPort,
 		VaultStatus: api.VaultStatus{
 			Standby: []string{},

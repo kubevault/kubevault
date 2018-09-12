@@ -1,26 +1,22 @@
 package v1alpha1
 
+import (
+	meta_util "github.com/appscode/kutil/meta"
+)
+
 func (v VaultServer) OffshootName() string {
 	return v.Name
 }
 
-func (v VaultServer) OffshootLabels() map[string]string {
+func (v VaultServer) OffshootSelectors() map[string]string {
 	return map[string]string{
 		"app":           "vault",
 		"vault_cluster": v.Name,
 	}
 }
 
-func (v VaultServer) ServiceName() string {
-	return v.OffshootName()
-}
-
-func (v VaultServer) DeploymentName() string {
-	return v.OffshootName()
-}
-
-func (v VaultServer) ServiceAccountName() string {
-	return v.OffshootName()
+func (v VaultServer) OffshootLabels() map[string]string {
+	return meta_util.FilterKeys("kubevault.com", v.OffshootSelectors(), v.Labels)
 }
 
 func (v VaultServer) ConfigMapName() string {
