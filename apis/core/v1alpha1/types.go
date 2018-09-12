@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/appscode/go/encoding/json/types"
-	"k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
 )
@@ -51,7 +51,10 @@ type VaultServerSpec struct {
 
 	// Name of the ConfigMap for Vault's configuration
 	// In this configMap contain extra config for vault
-	ConfigMapName string `json:"configMapName,omitempty"`
+	// ConfigSource is an optional field to provide extra configuration for vault.
+	// File name should be 'vault.hcl'.
+	// If specified, this file will be appended to the controller configuration file.
+	ConfigSource *core.VolumeSource `json:"configSource,omitempty"`
 
 	// TLS policy of vault nodes
 	TLS *TLSPolicy `json:"tls,omitempty"`
@@ -124,7 +127,7 @@ type VaultServerCondition struct {
 	Type VaultServerConditionType `json:"type,omitempty"`
 
 	// Status of the condition, one of True, False, Unknown.
-	Status v1.ConditionStatus `json:"status,omitempty"`
+	Status core.ConditionStatus `json:"status,omitempty"`
 
 	// The reason for the condition's.
 	Reason string `json:"reason,omitempty"`
@@ -534,24 +537,4 @@ type AzureKeyVault struct {
 
 	// Use managed service identity for the virtual machine
 	UseManagedIdentity bool `json:"useManagedIdentity,omitempty"`
-}
-
-// TODO : use webhook?
-// SetDefaults sets the default values for the vault spec and returns true if the spec was changed
-func (v *VaultServer) SetDefaults() bool {
-	changed := false
-	vs := &v.Spec
-	if vs.Nodes == 0 {
-		vs.Nodes = 1
-		changed = true
-	}
-	if len(vs.BaseImage) == 0 {
-		vs.BaseImage = defaultBaseImage
-		changed = true
-	}
-	if len(vs.Version) == 0 {
-		vs.Version = defaultVersion
-		changed = true
-	}
-	return changed
 }
