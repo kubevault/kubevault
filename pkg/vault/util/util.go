@@ -70,6 +70,10 @@ func VaultUnsealerImageName() string {
 	return "vault-unsealer"
 }
 
+func VaultInitContainerImageName() string {
+	return "vault-config"
+}
+
 // VaultIDForStatusMonitor will give an ID for vault status monitor
 func VaultIDForStatusMonitor(name, namespace string) string {
 	return fmt.Sprintf("%s/%s", namespace, name)

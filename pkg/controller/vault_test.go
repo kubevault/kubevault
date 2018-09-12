@@ -116,11 +116,6 @@ func deleteSecret(t *testing.T, client kubernetes.Interface, s *corev1.Secret) {
 
 func TestGetConfig(t *testing.T) {
 	var (
-		extraCfg = `
-telemetry {
-  statsite_address = "statsite.test.local:8125"
-}
-`
 		storageCfg = `
 storage "test"{
 	hi = "hello"
@@ -133,7 +128,6 @@ storage "test"{
 		name            string
 		vs              api.VaultServer
 		storage         storage.Storage
-		extraConfigM    *corev1.ConfigMap
 		exptErr         bool
 		exptConfigMData map[string]string
 	}{
@@ -146,41 +140,8 @@ storage "test"{
 				config:          storageCfg,
 				ErrInGetStrgCfg: false,
 			},
-			extraConfigM:    nil,
 			exptErr:         false,
 			exptConfigMData: map[string]string{filepath.Base(util.VaultConfigFile): getConfigData(t, "", storageCfg)},
-		},
-		{
-			name: "with extra config",
-			vs: api.VaultServer{
-				ObjectMeta: getVaultObjectMeta(2),
-				Spec: api.VaultServerSpec{
-					ConfigMapName: getVaultObjectMeta(2).Name + "-config",
-				},
-			},
-			storage: &storageFake{
-				config:          storageCfg,
-				ErrInGetStrgCfg: false,
-			},
-			extraConfigM:    getConfigMap(getVaultObjectMeta(2), extraCfg),
-			exptErr:         false,
-			exptConfigMData: map[string]string{filepath.Base(util.VaultConfigFile): getConfigData(t, extraCfg, storageCfg)},
-		},
-		{
-			name: "expected error,configMap with extra config doesn't exist",
-			vs: api.VaultServer{
-				ObjectMeta: getVaultObjectMeta(5),
-				Spec: api.VaultServerSpec{
-					ConfigMapName: getVaultObjectMeta(5).Name + "-config",
-				},
-			},
-			storage: &storageFake{
-				config:          storageCfg,
-				ErrInGetStrgCfg: false,
-			},
-			extraConfigM:    nil,
-			exptErr:         true,
-			exptConfigMData: nil,
 		},
 		{
 			name: "expected error, error when getting storage config",
@@ -191,7 +152,6 @@ storage "test"{
 				config:          storageCfg,
 				ErrInGetStrgCfg: true,
 			},
-			extraConfigM:    nil,
 			exptErr:         true,
 			exptConfigMData: nil,
 		},
@@ -203,10 +163,6 @@ storage "test"{
 				kubeClient: kfake.NewSimpleClientset(),
 				vs:         &test.vs,
 				strg:       test.storage,
-			}
-			if test.extraConfigM != nil {
-				createConfigMap(t, v.kubeClient, test.extraConfigM)
-				defer deleteConfigMap(t, v.kubeClient, test.extraConfigM)
 			}
 			cm, err := v.GetConfig()
 			if test.exptErr {

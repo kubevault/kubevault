@@ -27,7 +27,6 @@ const (
 	EnvVaultClusterAddr     = "VAULT_CLUSTER_ADDR"
 	VaultPort               = 8200
 	VaultClusterPort        = 8201
-	VaultConfigVolumeName   = "vault-config"
 	vaultTLSAssetVolumeName = "vault-tls-secret"
 	CaCertName              = "ca.crt"
 	ServerCertName          = "server.crt"
@@ -144,15 +143,6 @@ func (v *vaultSrv) GetConfig() (*corev1.ConfigMap, error) {
 	configMapName := v.vs.ConfigMapName()
 	cfgData := util.GetListenerConfig()
 
-	// append user provided extra config
-	if v.vs.Spec.ConfigMapName != "" {
-		cm, err := v.kubeClient.CoreV1().ConfigMaps(v.vs.Namespace).Get(v.vs.Spec.ConfigMapName, metav1.GetOptions{})
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed to get configMap %s/%s", v.vs.Namespace, v.vs.Spec.ConfigMapName)
-		}
-		cfgData = fmt.Sprintf("%s\n%s", cfgData, cm.Data[filepath.Base(util.VaultConfigFile)])
-	}
-
 	storageCfg, err := v.strg.GetStorageConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get storage config")
@@ -180,6 +170,64 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 		return errors.New("podTempleSpec is nil")
 	}
 
+	// Add init container
+	// this init container will append user provided configuration
+	// file to the controller provided configuration file
+	initCont := corev1.Container{
+		Name:    util.VaultInitContainerImageName(),
+		Image:   "busybox",
+		Command: []string{"/bin/sh"},
+		Args: []string{
+			"-c",
+			`set -xe
+			if [ -f /etc/vault/controller/vault.hcl ]; then
+				  cat /etc/vault/controller/vault.hcl >> /etc/vault/config/vault.hcl
+			fi
+
+			echo "" >> /etc/vault/config/vault.hcl;
+
+			if [ -f /etc/vault/user/vault.hcl ]; then
+				  cat /etc/vault/user/vault.hcl >> /etc/vault/config/vault.hcl
+			fi`,
+		},
+	}
+
+	initCont.VolumeMounts = core_util.UpsertVolumeMount(initCont.VolumeMounts, corev1.VolumeMount{
+		Name:      "controller-config",
+		MountPath: "/etc/vault/controller",
+	}, corev1.VolumeMount{
+		Name:      "config",
+		MountPath: filepath.Dir(util.VaultConfigFile),
+	})
+
+	pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, corev1.Volume{
+		Name: "config",
+		VolumeSource: corev1.VolumeSource{
+			EmptyDir: &corev1.EmptyDirVolumeSource{},
+		},
+	}, corev1.Volume{
+		Name: "controller-config",
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: v.vs.ConfigMapName(),
+				},
+			},
+		},
+	})
+
+	if v.vs.Spec.ConfigSource != nil {
+		initCont.VolumeMounts = core_util.UpsertVolumeMount(initCont.VolumeMounts, corev1.VolumeMount{
+			Name:      "user-config",
+			MountPath: "/etc/vault/user",
+		})
+
+		pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, corev1.Volume{
+			Name:         "user-config",
+			VolumeSource: *v.vs.Spec.ConfigSource,
+		})
+	}
+
 	tlsSecret := v.vs.TLSSecretName()
 	if v.vs.Spec.TLS != nil && v.vs.Spec.TLS.TLSSecret != "" {
 		tlsSecret = v.vs.Spec.TLS.TLSSecret
@@ -190,15 +238,6 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 		VolumeSource: corev1.VolumeSource{
 			Secret: &corev1.SecretVolumeSource{
 				SecretName: tlsSecret,
-			},
-		},
-	}, corev1.Volume{
-		Name: VaultConfigVolumeName,
-		VolumeSource: corev1.VolumeSource{
-			ConfigMap: &corev1.ConfigMapVolumeSource{
-				LocalObjectReference: corev1.LocalObjectReference{
-					Name: v.vs.ConfigMapName(),
-				},
 			},
 		},
 	})
@@ -214,10 +253,11 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 		Name:      vaultTLSAssetVolumeName,
 		MountPath: util.VaultTLSAssetDir,
 	}, corev1.VolumeMount{
-		Name:      VaultConfigVolumeName,
+		Name:      "config",
 		MountPath: filepath.Dir(util.VaultConfigFile),
 	})
 
+	pt.Spec.InitContainers = core_util.UpsertContainer(pt.Spec.InitContainers, initCont)
 	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)
 
 	err := v.strg.Apply(pt)

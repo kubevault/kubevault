@@ -19,12 +19,6 @@ const (
 
 	// ServerTLSKeyName is the filename of the vault server key
 	ServerTLSKeyName = "server.key"
-
-	// TLS related file name for etcd
-	EtcdTLSAssetDir    = "/etc/vault/storage/etcd/tls/"
-	EtcdClientCaName   = "etcd-client-ca.crt"
-	EtcdClientCertName = "etcd-client.crt"
-	EtcdClientKeyName  = "etcd-client.key"
 )
 
 var listenerFmt = `

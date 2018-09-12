@@ -277,6 +277,7 @@ func ensureDeployment(kc kubernetes.Interface, vs *api.VaultServer, d *appsv1.De
 		in.Spec.Template.Labels = d.Spec.Template.Labels
 		in.Spec.Template.Annotations = d.Spec.Template.Annotations
 		in.Spec.Template.Spec.Containers = core_util.UpsertContainers(in.Spec.Template.Spec.Containers, d.Spec.Template.Spec.Containers)
+		in.Spec.Template.Spec.InitContainers = core_util.UpsertContainers(in.Spec.Template.Spec.InitContainers, d.Spec.Template.Spec.InitContainers)
 		in.Spec.Template.Spec.ServiceAccountName = d.Spec.Template.Spec.ServiceAccountName
 		in.Spec.Template.Spec.NodeSelector = d.Spec.Template.Spec.NodeSelector
 		in.Spec.Template.Spec.Affinity = d.Spec.Template.Spec.Affinity
