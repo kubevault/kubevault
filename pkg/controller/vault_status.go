@@ -174,10 +174,10 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespace string, status *api.VaultServerStatus) (*api.VaultServer, error) {
 	vault, err := c.extClient.CoreV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
-		vid := util.VaultIDForStatusMonitor(name, namespace)
-		if cancel, ok := c.ctxCancels[vid]; ok {
+		key := vault.GetKey()
+		if cancel, ok := c.ctxCancels[key]; ok {
 			cancel()
-			delete(c.ctxCancels, vid)
+			delete(c.ctxCancels, key)
 		}
 		return nil, err
 	} else if err != nil {

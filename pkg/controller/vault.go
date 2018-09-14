@@ -182,7 +182,7 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 	// this init container will append user provided configuration
 	// file to the controller provided configuration file
 	initCont := corev1.Container{
-		Name:    util.VaultInitContainerName(),
+		Name:    util.VaultInitContainerName,
 		Image:   "busybox",
 		Command: []string{"/bin/sh"},
 		Args: []string{
@@ -250,7 +250,7 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 
 	var cont corev1.Container
 	for _, c := range pt.Spec.Containers {
-		if c.Name == util.VaultContainerName() {
+		if c.Name == util.VaultContainerName {
 			cont = c
 		}
 	}
@@ -386,7 +386,7 @@ func (v *vaultSrv) GetPodTemplate(c corev1.Container, saName string) *corev1.Pod
 
 func (v *vaultSrv) GetContainer() corev1.Container {
 	return corev1.Container{
-		Name:  util.VaultContainerName(),
+		Name:  util.VaultContainerName,
 		Image: v.image,
 		Command: []string{
 			"/bin/vault",

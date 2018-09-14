@@ -5,7 +5,11 @@ import (
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
 
-func (c VaultServerVersion) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+func (v VaultServerVersion) GetKey() string {
+	return v.Name
+}
+
+func (v VaultServerVersion) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crdutils.NewCustomResourceDefinition(crdutils.Config{
 		Group:         SchemeGroupVersion.Group,
 		Plural:        ResourceVaultServerVersions,

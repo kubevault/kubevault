@@ -69,7 +69,7 @@ func (u *unsealerSrv) Apply(pt *corev1.PodTemplateSpec) error {
 	var args []string
 	vautlCACertFile := "/etc/vault/tls/ca.crt"
 	cont := corev1.Container{
-		Name:  util.VaultUnsealerContainerName(),
+		Name:  util.VaultUnsealerContainerName,
 		Image: u.image,
 	}
 	args = append(args,

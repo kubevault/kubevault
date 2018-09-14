@@ -6,6 +6,10 @@ import (
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
 
+func (v VaultServer) GetKey() string {
+	return v.Namespace + "/" + v.Name
+}
+
 func (v VaultServer) OffshootName() string {
 	return v.Name
 }
@@ -44,7 +48,7 @@ func (v *VaultServer) SetDefaults() bool {
 	return changed
 }
 
-func (c VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+func (v VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crdutils.NewCustomResourceDefinition(crdutils.Config{
 		Group:         SchemeGroupVersion.Group,
 		Plural:        ResourceVaultServers,
@@ -92,6 +96,6 @@ func (c VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDef
 	}, setNameSchema)
 }
 
-func (r VaultServer) IsValid() error {
+func (v VaultServer) IsValid() error {
 	return nil
 }

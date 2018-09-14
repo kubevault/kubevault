@@ -8,6 +8,12 @@ import (
 )
 
 const (
+	VaultContainerName         = "vault"
+	VaultUnsealerContainerName = "vault-unsealer"
+	VaultInitContainerName     = "vault-config"
+)
+
+const (
 	// VaultConfigFile is the file that vault pod uses to read config from
 	VaultConfigFile = "/etc/vault/config/vault.hcl"
 

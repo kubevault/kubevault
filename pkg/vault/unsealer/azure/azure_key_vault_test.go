@@ -20,7 +20,7 @@ func TestOptions_Apply(t *testing.T) {
 	}
 
 	cont := corev1.Container{
-		Name: util.VaultUnsealerContainerName(),
+		Name: util.VaultUnsealerContainerName,
 	}
 	pt := corev1.PodTemplateSpec{
 		Spec: corev1.PodSpec{
