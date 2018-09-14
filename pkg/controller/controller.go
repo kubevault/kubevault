@@ -3,12 +3,10 @@ package controller
 import (
 	"context"
 	"fmt"
-	"time"
 
 	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
 	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
-	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	vaultinformers "github.com/kubevault/operator/client/informers/externalversions"
@@ -39,15 +37,6 @@ type VaultController struct {
 	kubeInformerFactory informers.SharedInformerFactory
 	extInformerFactory  vaultinformers.SharedInformerFactory
 
-	vaultClient *vaultapi.Client
-	renewer     *time.Ticker
-
-	saQueue    *queue.Worker
-	saInformer cache.SharedIndexInformer
-
-	sQueue    *queue.Worker
-	sInformer cache.SharedIndexInformer
-
 	vsQueue    *queue.Worker
 	vsInformer cache.SharedIndexInformer
 	vsLister   vault_listers.VaultServerLister
@@ -56,6 +45,7 @@ type VaultController struct {
 func (c *VaultController) ensureCustomResourceDefinitions() error {
 	crds := []*crd_api.CustomResourceDefinition{
 		api.VaultServer{}.CustomResourceDefinition(),
+		api.VaultServerVersion{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }

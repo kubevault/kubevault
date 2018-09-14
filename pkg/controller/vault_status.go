@@ -93,14 +93,25 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.Vau
 // updateLocalVaultCRStatus updates local vault CR status by querying each vault pod's API.
 func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.VaultServer, s *api.VaultServerStatus, tlsConfig *vaultapi.TLSConfig) {
 	name, namespace := v.Name, v.Namespace
-	sel := v.OffshootLabels()
+	sel := v.OffshootSelectors()
 
 	// TODO : handle upgrades when pods from two replicaset can co-exist :(
 	opt := metav1.ListOptions{LabelSelector: labels.SelectorFromSet(sel).String()}
 
+	version, err := c.extClient.CoreV1alpha1().VaultServerVersions().Get(string(v.Spec.Version), metav1.GetOptions{})
+	if err != nil {
+		glog.Errorf("vault status monitor: failed to get vault server version(%s): %v", v.Spec.Version, err)
+		return
+	}
+
 	pods, err := c.kubeClient.CoreV1().Pods(namespace).List(opt)
 	if err != nil {
-		glog.Errorf("vault status monitor: failed to update vault replica status: failed listing pods for the vault server (%s.%s): %v", name, namespace, err)
+		glog.Errorf("vault status monitor: failed to update vault replica status: failed listing pods for the vault server (%s.%s): %v", namespace, name, err)
+		return
+	}
+
+	if len(pods.Items) == 0 {
+		glog.Errorf("vault status monitor: for the vault server (%s.%s): no pods found", namespace, name)
 		return
 	}
 
@@ -127,7 +138,7 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 
 		changed = true
 
-		if p.Spec.Containers[0].Image == util.VaultImage(v) {
+		if p.Spec.Containers[0].Image == version.Spec.Vault.Image {
 			updated = append(updated, p.Name)
 		}
 
@@ -163,10 +174,10 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespace string, status *api.VaultServerStatus) (*api.VaultServer, error) {
 	vault, err := c.extClient.CoreV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
-		vid := util.VaultIDForStatusMonitor(name, namespace)
-		if cancel, ok := c.ctxCancels[vid]; ok {
+		key := vault.GetKey()
+		if cancel, ok := c.ctxCancels[key]; ok {
 			cancel()
-			delete(c.ctxCancels, vid)
+			delete(c.ctxCancels, key)
 		}
 		return nil, err
 	} else if err != nil {

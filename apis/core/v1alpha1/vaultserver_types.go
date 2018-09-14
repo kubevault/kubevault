@@ -14,8 +14,6 @@ const (
 	ResourceVaultServer     = "vaultserver"
 	ResourceVaultServers    = "vaultservers"
 
-	// vault base image
-	defaultBaseImage = "vault"
 	// version format is "<upstream-version>-<our-version>"
 	defaultVersion = "0.10.0"
 )
@@ -43,11 +41,8 @@ type VaultServerSpec struct {
 	// Default: 1.
 	Nodes int32 `json:"nodes,omitempty"`
 
-	// Base image to use for a Vault deployment.
-	BaseImage string `json:"baseImage"`
-
-	// Version of Vault to be deployed.
-	Version string `json:"version"`
+	// Version of Vault server to be deployed.
+	Version types.StrYo `json:"version"`
 
 	// Name of the ConfigMap for Vault's configuration
 	// In this configMap contain extra config for vault

@@ -32,6 +32,10 @@ func (c *FakeCoreV1alpha1) VaultServers(namespace string) v1alpha1.VaultServerIn
 	return &FakeVaultServers{c, namespace}
 }
 
+func (c *FakeCoreV1alpha1) VaultServerVersions() v1alpha1.VaultServerVersionInterface {
+	return &FakeVaultServerVersions{c}
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeCoreV1alpha1) RESTClient() rest.Interface {

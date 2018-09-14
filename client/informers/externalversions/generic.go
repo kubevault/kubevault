@@ -55,6 +55,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	// Group=core.kubevault.com, Version=v1alpha1
 	case v1alpha1.SchemeGroupVersion.WithResource("vaultservers"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Core().V1alpha1().VaultServers().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("vaultserverversions"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Core().V1alpha1().VaultServerVersions().Informer()}, nil
 
 	}
 

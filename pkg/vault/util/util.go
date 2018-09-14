@@ -52,29 +52,3 @@ func AsOwner(v *api.VaultServer) metav1.OwnerReference {
 		Controller: &trueVar,
 	}
 }
-
-func VaultImage(v *api.VaultServer) string {
-	return fmt.Sprintf("%s:%s", v.Spec.BaseImage, v.Spec.Version)
-}
-
-// image format: baseImageName:tag
-func RemoveImageTag(im string) string {
-	return strings.Split(im, ":")[0]
-}
-
-func VaultImageName() string {
-	return "vault"
-}
-
-func VaultUnsealerImageName() string {
-	return "vault-unsealer"
-}
-
-func VaultInitContainerImageName() string {
-	return "vault-config"
-}
-
-// VaultIDForStatusMonitor will give an ID for vault status monitor
-func VaultIDForStatusMonitor(name, namespace string) string {
-	return fmt.Sprintf("%s/%s", namespace, name)
-}

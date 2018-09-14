@@ -25,7 +25,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/cache"
 )
 
 func (c *VaultController) NewVaultServerWebhook() hooks.AdmissionHook {
@@ -70,16 +69,10 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 		// Below we will warm up our cache with a VaultServer, so that we will see a delete for one d
 		glog.Warningf("VaultServer %s does not exist anymore\n", key)
 
-		namespace, name, err := cache.SplitMetaNamespaceKey(key)
-		if err != nil {
-			return err
-		}
-
 		// stop vault status monitor
-		vid := util.VaultIDForStatusMonitor(name, namespace)
-		if cancel, ok := c.ctxCancels[vid]; ok {
+		if cancel, ok := c.ctxCancels[key]; ok {
 			cancel()
-			delete(c.ctxCancels, vid)
+			delete(c.ctxCancels, key)
 		}
 
 	} else {
@@ -100,7 +93,7 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 			}
 		}
 
-		v, err := NewVault(vs, c.kubeClient)
+		v, err := NewVault(vs, c.kubeClient, c.extClient)
 		if err != nil {
 			return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)
 		}
@@ -181,10 +174,10 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 	}
 
 	// Add vault monitor to watch vault seal or unseal status
-	vid := util.VaultIDForStatusMonitor(vs.Name, vs.Namespace)
-	if _, ok := c.ctxCancels[vid]; !ok {
+	key := vs.GetKey()
+	if _, ok := c.ctxCancels[key]; !ok {
 		ctx, cancel := context.WithCancel(context.Background())
-		c.ctxCancels[vid] = cancel
+		c.ctxCancels[key] = cancel
 		go c.monitorAndUpdateStatus(ctx, vs)
 	}
 	return nil

@@ -8,6 +8,7 @@ import (
 	"github.com/appscode/kutil/tools/certstore"
 	"github.com/golang/glog"
 	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	cs "github.com/kubevault/operator/client/clientset/versioned"
 	"github.com/kubevault/operator/pkg/vault/storage"
 	"github.com/kubevault/operator/pkg/vault/unsealer"
 	"github.com/kubevault/operator/pkg/vault/util"
@@ -50,9 +51,15 @@ type vaultSrv struct {
 	strg       storage.Storage
 	unslr      unsealer.Unsealer
 	kubeClient kubernetes.Interface
+	image      string
 }
 
-func NewVault(vs *api.VaultServer, kc kubernetes.Interface) (Vault, error) {
+func NewVault(vs *api.VaultServer, kc kubernetes.Interface, vc cs.Interface) (Vault, error) {
+	version, err := vc.CoreV1alpha1().VaultServerVersions().Get(string(vs.Spec.Version), metav1.GetOptions{})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get vault server version")
+	}
+
 	// it is required to have storage
 	strg, err := storage.NewStorage(kc, vs)
 	if err != nil {
@@ -60,7 +67,7 @@ func NewVault(vs *api.VaultServer, kc kubernetes.Interface) (Vault, error) {
 	}
 
 	// it is not required to have unsealer
-	unslr, err := unsealer.NewUnsealerService(vs.Spec.Unsealer)
+	unslr, err := unsealer.NewUnsealerService(vs.Spec.Unsealer, version.Spec.Unsealer.Image)
 	if err != nil {
 		return nil, err
 	}
@@ -70,6 +77,7 @@ func NewVault(vs *api.VaultServer, kc kubernetes.Interface) (Vault, error) {
 		strg:       strg,
 		unslr:      unslr,
 		kubeClient: kc,
+		image:      version.Spec.Vault.Image,
 	}, nil
 }
 
@@ -174,7 +182,7 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 	// this init container will append user provided configuration
 	// file to the controller provided configuration file
 	initCont := corev1.Container{
-		Name:    util.VaultInitContainerImageName(),
+		Name:    util.VaultInitContainerName,
 		Image:   "busybox",
 		Command: []string{"/bin/sh"},
 		Args: []string{
@@ -242,7 +250,7 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 
 	var cont corev1.Container
 	for _, c := range pt.Spec.Containers {
-		if c.Name == util.VaultImageName() {
+		if c.Name == util.VaultContainerName {
 			cont = c
 		}
 	}
@@ -378,8 +386,8 @@ func (v *vaultSrv) GetPodTemplate(c corev1.Container, saName string) *corev1.Pod
 
 func (v *vaultSrv) GetContainer() corev1.Container {
 	return corev1.Container{
-		Name:  util.VaultImageName(),
-		Image: util.VaultImage(v.vs),
+		Name:  util.VaultContainerName,
+		Image: v.image,
 		Command: []string{
 			"/bin/vault",
 			"server",
