@@ -98,7 +98,7 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 	// TODO : handle upgrades when pods from two replicaset can co-exist :(
 	opt := metav1.ListOptions{LabelSelector: labels.SelectorFromSet(sel).String()}
 
-	version, err := c.extClient.CoreV1alpha1().VaultserverVersions().Get(string(v.Spec.Version), metav1.GetOptions{})
+	version, err := c.extClient.CoreV1alpha1().VaultServerVersions().Get(string(v.Spec.Version), metav1.GetOptions{})
 	if err != nil {
 		glog.Errorf("vault status monitor: failed to get vault server version(%s): %v", v.Spec.Version, err)
 		return

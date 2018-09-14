@@ -27,40 +27,40 @@ import (
 	rest "k8s.io/client-go/rest"
 )
 
-// VaultserverVersionsGetter has a method to return a VaultserverVersionInterface.
+// VaultServerVersionsGetter has a method to return a VaultServerVersionInterface.
 // A group's client should implement this interface.
-type VaultserverVersionsGetter interface {
-	VaultserverVersions() VaultserverVersionInterface
+type VaultServerVersionsGetter interface {
+	VaultServerVersions() VaultServerVersionInterface
 }
 
-// VaultserverVersionInterface has methods to work with VaultserverVersion resources.
-type VaultserverVersionInterface interface {
-	Create(*v1alpha1.VaultserverVersion) (*v1alpha1.VaultserverVersion, error)
-	Update(*v1alpha1.VaultserverVersion) (*v1alpha1.VaultserverVersion, error)
+// VaultServerVersionInterface has methods to work with VaultServerVersion resources.
+type VaultServerVersionInterface interface {
+	Create(*v1alpha1.VaultServerVersion) (*v1alpha1.VaultServerVersion, error)
+	Update(*v1alpha1.VaultServerVersion) (*v1alpha1.VaultServerVersion, error)
 	Delete(name string, options *v1.DeleteOptions) error
 	DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error
-	Get(name string, options v1.GetOptions) (*v1alpha1.VaultserverVersion, error)
-	List(opts v1.ListOptions) (*v1alpha1.VaultserverVersionList, error)
+	Get(name string, options v1.GetOptions) (*v1alpha1.VaultServerVersion, error)
+	List(opts v1.ListOptions) (*v1alpha1.VaultServerVersionList, error)
 	Watch(opts v1.ListOptions) (watch.Interface, error)
-	Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VaultserverVersion, err error)
-	VaultserverVersionExpansion
+	Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VaultServerVersion, err error)
+	VaultServerVersionExpansion
 }
 
-// vaultserverVersions implements VaultserverVersionInterface
-type vaultserverVersions struct {
+// vaultServerVersions implements VaultServerVersionInterface
+type vaultServerVersions struct {
 	client rest.Interface
 }
 
-// newVaultserverVersions returns a VaultserverVersions
-func newVaultserverVersions(c *CoreV1alpha1Client) *vaultserverVersions {
-	return &vaultserverVersions{
+// newVaultServerVersions returns a VaultServerVersions
+func newVaultServerVersions(c *CoreV1alpha1Client) *vaultServerVersions {
+	return &vaultServerVersions{
 		client: c.RESTClient(),
 	}
 }
 
-// Get takes name of the vaultserverVersion, and returns the corresponding vaultserverVersion object, and an error if there is any.
-func (c *vaultserverVersions) Get(name string, options v1.GetOptions) (result *v1alpha1.VaultserverVersion, err error) {
-	result = &v1alpha1.VaultserverVersion{}
+// Get takes name of the vaultServerVersion, and returns the corresponding vaultServerVersion object, and an error if there is any.
+func (c *vaultServerVersions) Get(name string, options v1.GetOptions) (result *v1alpha1.VaultServerVersion, err error) {
+	result = &v1alpha1.VaultServerVersion{}
 	err = c.client.Get().
 		Resource("vaultserverversions").
 		Name(name).
@@ -70,9 +70,9 @@ func (c *vaultserverVersions) Get(name string, options v1.GetOptions) (result *v
 	return
 }
 
-// List takes label and field selectors, and returns the list of VaultserverVersions that match those selectors.
-func (c *vaultserverVersions) List(opts v1.ListOptions) (result *v1alpha1.VaultserverVersionList, err error) {
-	result = &v1alpha1.VaultserverVersionList{}
+// List takes label and field selectors, and returns the list of VaultServerVersions that match those selectors.
+func (c *vaultServerVersions) List(opts v1.ListOptions) (result *v1alpha1.VaultServerVersionList, err error) {
+	result = &v1alpha1.VaultServerVersionList{}
 	err = c.client.Get().
 		Resource("vaultserverversions").
 		VersionedParams(&opts, scheme.ParameterCodec).
@@ -81,8 +81,8 @@ func (c *vaultserverVersions) List(opts v1.ListOptions) (result *v1alpha1.Vaults
 	return
 }
 
-// Watch returns a watch.Interface that watches the requested vaultserverVersions.
-func (c *vaultserverVersions) Watch(opts v1.ListOptions) (watch.Interface, error) {
+// Watch returns a watch.Interface that watches the requested vaultServerVersions.
+func (c *vaultServerVersions) Watch(opts v1.ListOptions) (watch.Interface, error) {
 	opts.Watch = true
 	return c.client.Get().
 		Resource("vaultserverversions").
@@ -90,31 +90,31 @@ func (c *vaultserverVersions) Watch(opts v1.ListOptions) (watch.Interface, error
 		Watch()
 }
 
-// Create takes the representation of a vaultserverVersion and creates it.  Returns the server's representation of the vaultserverVersion, and an error, if there is any.
-func (c *vaultserverVersions) Create(vaultserverVersion *v1alpha1.VaultserverVersion) (result *v1alpha1.VaultserverVersion, err error) {
-	result = &v1alpha1.VaultserverVersion{}
+// Create takes the representation of a vaultServerVersion and creates it.  Returns the server's representation of the vaultServerVersion, and an error, if there is any.
+func (c *vaultServerVersions) Create(vaultServerVersion *v1alpha1.VaultServerVersion) (result *v1alpha1.VaultServerVersion, err error) {
+	result = &v1alpha1.VaultServerVersion{}
 	err = c.client.Post().
 		Resource("vaultserverversions").
-		Body(vaultserverVersion).
+		Body(vaultServerVersion).
 		Do().
 		Into(result)
 	return
 }
 
-// Update takes the representation of a vaultserverVersion and updates it. Returns the server's representation of the vaultserverVersion, and an error, if there is any.
-func (c *vaultserverVersions) Update(vaultserverVersion *v1alpha1.VaultserverVersion) (result *v1alpha1.VaultserverVersion, err error) {
-	result = &v1alpha1.VaultserverVersion{}
+// Update takes the representation of a vaultServerVersion and updates it. Returns the server's representation of the vaultServerVersion, and an error, if there is any.
+func (c *vaultServerVersions) Update(vaultServerVersion *v1alpha1.VaultServerVersion) (result *v1alpha1.VaultServerVersion, err error) {
+	result = &v1alpha1.VaultServerVersion{}
 	err = c.client.Put().
 		Resource("vaultserverversions").
-		Name(vaultserverVersion.Name).
-		Body(vaultserverVersion).
+		Name(vaultServerVersion.Name).
+		Body(vaultServerVersion).
 		Do().
 		Into(result)
 	return
 }
 
-// Delete takes name of the vaultserverVersion and deletes it. Returns an error if one occurs.
-func (c *vaultserverVersions) Delete(name string, options *v1.DeleteOptions) error {
+// Delete takes name of the vaultServerVersion and deletes it. Returns an error if one occurs.
+func (c *vaultServerVersions) Delete(name string, options *v1.DeleteOptions) error {
 	return c.client.Delete().
 		Resource("vaultserverversions").
 		Name(name).
@@ -124,7 +124,7 @@ func (c *vaultserverVersions) Delete(name string, options *v1.DeleteOptions) err
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *vaultserverVersions) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
+func (c *vaultServerVersions) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
 	return c.client.Delete().
 		Resource("vaultserverversions").
 		VersionedParams(&listOptions, scheme.ParameterCodec).
@@ -133,9 +133,9 @@ func (c *vaultserverVersions) DeleteCollection(options *v1.DeleteOptions, listOp
 		Error()
 }
 
-// Patch applies the patch and returns the patched vaultserverVersion.
-func (c *vaultserverVersions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VaultserverVersion, err error) {
-	result = &v1alpha1.VaultserverVersion{}
+// Patch applies the patch and returns the patched vaultServerVersion.
+func (c *vaultServerVersions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VaultServerVersion, err error) {
+	result = &v1alpha1.VaultServerVersion{}
 	err = c.client.Patch(pt).
 		Resource("vaultserverversions").
 		SubResource(subresources...).

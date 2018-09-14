@@ -1,7 +1,9 @@
 package v1alpha1
 
 import (
+	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
 	meta_util "github.com/appscode/kutil/meta"
+	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
 
 func (v VaultServer) OffshootName() string {
@@ -40,4 +42,56 @@ func (v *VaultServer) SetDefaults() bool {
 		changed = true
 	}
 	return changed
+}
+
+func (c VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+	return crdutils.NewCustomResourceDefinition(crdutils.Config{
+		Group:         SchemeGroupVersion.Group,
+		Plural:        ResourceVaultServers,
+		Singular:      ResourceVaultServer,
+		Kind:          ResourceKindVaultServer,
+		ShortNames:    []string{"vs"},
+		Categories:    []string{"vault", "appscode", "all"},
+		ResourceScope: string(apiextensions.NamespaceScoped),
+		Versions: []apiextensions.CustomResourceDefinitionVersion{
+			{
+				Name:    SchemeGroupVersion.Version,
+				Served:  true,
+				Storage: true,
+			},
+		},
+		Labels: crdutils.Labels{
+			LabelsMap: map[string]string{"app": "vault"},
+		},
+		SpecDefinitionName:      "github.com/kubevault/operator/apis/core/v1alpha1.VaultServer",
+		EnableValidation:        true,
+		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
+		EnableStatusSubresource: EnableStatusSubresource,
+		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
+			{
+				Name:     "Nodes",
+				Type:     "string",
+				JSONPath: ".spec.nodes",
+			},
+			{
+				Name:     "Version",
+				Type:     "string",
+				JSONPath: ".spec.version",
+			},
+			{
+				Name:     "Status",
+				Type:     "string",
+				JSONPath: ".status.vaultStatus",
+			},
+			{
+				Name:     "Age",
+				Type:     "date",
+				JSONPath: ".metadata.creationTimestamp",
+			},
+		},
+	}, setNameSchema)
+}
+
+func (r VaultServer) IsValid() error {
+	return nil
 }

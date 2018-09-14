@@ -6,24 +6,24 @@ import (
 )
 
 func (f *Framework) CreateVaultserverVersion() error {
-	v := &api.VaultserverVersion{
+	v := &api.VaultServerVersion{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: vaultVersion,
 		},
-		Spec: api.VaultserverVersionSpec{
+		Spec: api.VaultServerVersionSpec{
 			Version: vaultVersion,
-			Vault: api.VaultserverVersionVault{
+			Vault: api.VaultServerVersionVault{
 				Image: "vault:0.11.1",
 			},
-			Unsealer: api.VaultserverVersionUnsealer{
+			Unsealer: api.VaultServerVersionUnsealer{
 				Image: "nightfury1204/vault-unsealer:canary",
 			},
 		},
 	}
-	_, err := f.VaultServerClient.CoreV1alpha1().VaultserverVersions().Create(v)
+	_, err := f.VaultServerClient.CoreV1alpha1().VaultServerVersions().Create(v)
 	return err
 }
 
 func (f *Framework) DeleteVaultserverVersion() error {
-	return f.VaultServerClient.CoreV1alpha1().VaultserverVersions().Delete(vaultVersion, deleteInForeground())
+	return f.VaultServerClient.CoreV1alpha1().VaultServerVersions().Delete(vaultVersion, deleteInForeground())
 }

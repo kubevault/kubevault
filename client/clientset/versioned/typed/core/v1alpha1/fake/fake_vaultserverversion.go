@@ -28,29 +28,29 @@ import (
 	testing "k8s.io/client-go/testing"
 )
 
-// FakeVaultserverVersions implements VaultserverVersionInterface
-type FakeVaultserverVersions struct {
+// FakeVaultServerVersions implements VaultServerVersionInterface
+type FakeVaultServerVersions struct {
 	Fake *FakeCoreV1alpha1
 }
 
 var vaultserverversionsResource = schema.GroupVersionResource{Group: "core.kubevault.com", Version: "v1alpha1", Resource: "vaultserverversions"}
 
-var vaultserverversionsKind = schema.GroupVersionKind{Group: "core.kubevault.com", Version: "v1alpha1", Kind: "VaultserverVersion"}
+var vaultserverversionsKind = schema.GroupVersionKind{Group: "core.kubevault.com", Version: "v1alpha1", Kind: "VaultServerVersion"}
 
-// Get takes name of the vaultserverVersion, and returns the corresponding vaultserverVersion object, and an error if there is any.
-func (c *FakeVaultserverVersions) Get(name string, options v1.GetOptions) (result *v1alpha1.VaultserverVersion, err error) {
+// Get takes name of the vaultServerVersion, and returns the corresponding vaultServerVersion object, and an error if there is any.
+func (c *FakeVaultServerVersions) Get(name string, options v1.GetOptions) (result *v1alpha1.VaultServerVersion, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootGetAction(vaultserverversionsResource, name), &v1alpha1.VaultserverVersion{})
+		Invokes(testing.NewRootGetAction(vaultserverversionsResource, name), &v1alpha1.VaultServerVersion{})
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.VaultserverVersion), err
+	return obj.(*v1alpha1.VaultServerVersion), err
 }
 
-// List takes label and field selectors, and returns the list of VaultserverVersions that match those selectors.
-func (c *FakeVaultserverVersions) List(opts v1.ListOptions) (result *v1alpha1.VaultserverVersionList, err error) {
+// List takes label and field selectors, and returns the list of VaultServerVersions that match those selectors.
+func (c *FakeVaultServerVersions) List(opts v1.ListOptions) (result *v1alpha1.VaultServerVersionList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootListAction(vaultserverversionsResource, vaultserverversionsKind, opts), &v1alpha1.VaultserverVersionList{})
+		Invokes(testing.NewRootListAction(vaultserverversionsResource, vaultserverversionsKind, opts), &v1alpha1.VaultServerVersionList{})
 	if obj == nil {
 		return nil, err
 	}
@@ -59,8 +59,8 @@ func (c *FakeVaultserverVersions) List(opts v1.ListOptions) (result *v1alpha1.Va
 	if label == nil {
 		label = labels.Everything()
 	}
-	list := &v1alpha1.VaultserverVersionList{ListMeta: obj.(*v1alpha1.VaultserverVersionList).ListMeta}
-	for _, item := range obj.(*v1alpha1.VaultserverVersionList).Items {
+	list := &v1alpha1.VaultServerVersionList{ListMeta: obj.(*v1alpha1.VaultServerVersionList).ListMeta}
+	for _, item := range obj.(*v1alpha1.VaultServerVersionList).Items {
 		if label.Matches(labels.Set(item.Labels)) {
 			list.Items = append(list.Items, item)
 		}
@@ -68,53 +68,53 @@ func (c *FakeVaultserverVersions) List(opts v1.ListOptions) (result *v1alpha1.Va
 	return list, err
 }
 
-// Watch returns a watch.Interface that watches the requested vaultserverVersions.
-func (c *FakeVaultserverVersions) Watch(opts v1.ListOptions) (watch.Interface, error) {
+// Watch returns a watch.Interface that watches the requested vaultServerVersions.
+func (c *FakeVaultServerVersions) Watch(opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewRootWatchAction(vaultserverversionsResource, opts))
 }
 
-// Create takes the representation of a vaultserverVersion and creates it.  Returns the server's representation of the vaultserverVersion, and an error, if there is any.
-func (c *FakeVaultserverVersions) Create(vaultserverVersion *v1alpha1.VaultserverVersion) (result *v1alpha1.VaultserverVersion, err error) {
+// Create takes the representation of a vaultServerVersion and creates it.  Returns the server's representation of the vaultServerVersion, and an error, if there is any.
+func (c *FakeVaultServerVersions) Create(vaultServerVersion *v1alpha1.VaultServerVersion) (result *v1alpha1.VaultServerVersion, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootCreateAction(vaultserverversionsResource, vaultserverVersion), &v1alpha1.VaultserverVersion{})
+		Invokes(testing.NewRootCreateAction(vaultserverversionsResource, vaultServerVersion), &v1alpha1.VaultServerVersion{})
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.VaultserverVersion), err
+	return obj.(*v1alpha1.VaultServerVersion), err
 }
 
-// Update takes the representation of a vaultserverVersion and updates it. Returns the server's representation of the vaultserverVersion, and an error, if there is any.
-func (c *FakeVaultserverVersions) Update(vaultserverVersion *v1alpha1.VaultserverVersion) (result *v1alpha1.VaultserverVersion, err error) {
+// Update takes the representation of a vaultServerVersion and updates it. Returns the server's representation of the vaultServerVersion, and an error, if there is any.
+func (c *FakeVaultServerVersions) Update(vaultServerVersion *v1alpha1.VaultServerVersion) (result *v1alpha1.VaultServerVersion, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootUpdateAction(vaultserverversionsResource, vaultserverVersion), &v1alpha1.VaultserverVersion{})
+		Invokes(testing.NewRootUpdateAction(vaultserverversionsResource, vaultServerVersion), &v1alpha1.VaultServerVersion{})
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.VaultserverVersion), err
+	return obj.(*v1alpha1.VaultServerVersion), err
 }
 
-// Delete takes name of the vaultserverVersion and deletes it. Returns an error if one occurs.
-func (c *FakeVaultserverVersions) Delete(name string, options *v1.DeleteOptions) error {
+// Delete takes name of the vaultServerVersion and deletes it. Returns an error if one occurs.
+func (c *FakeVaultServerVersions) Delete(name string, options *v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewRootDeleteAction(vaultserverversionsResource, name), &v1alpha1.VaultserverVersion{})
+		Invokes(testing.NewRootDeleteAction(vaultserverversionsResource, name), &v1alpha1.VaultServerVersion{})
 	return err
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeVaultserverVersions) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
+func (c *FakeVaultServerVersions) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
 	action := testing.NewRootDeleteCollectionAction(vaultserverversionsResource, listOptions)
 
-	_, err := c.Fake.Invokes(action, &v1alpha1.VaultserverVersionList{})
+	_, err := c.Fake.Invokes(action, &v1alpha1.VaultServerVersionList{})
 	return err
 }
 
-// Patch applies the patch and returns the patched vaultserverVersion.
-func (c *FakeVaultserverVersions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VaultserverVersion, err error) {
+// Patch applies the patch and returns the patched vaultServerVersion.
+func (c *FakeVaultServerVersions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VaultServerVersion, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(vaultserverversionsResource, name, data, subresources...), &v1alpha1.VaultserverVersion{})
+		Invokes(testing.NewRootPatchSubresourceAction(vaultserverversionsResource, name, data, subresources...), &v1alpha1.VaultServerVersion{})
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.VaultserverVersion), err
+	return obj.(*v1alpha1.VaultServerVersion), err
 }

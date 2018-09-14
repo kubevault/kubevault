@@ -45,7 +45,7 @@ type VaultController struct {
 func (c *VaultController) ensureCustomResourceDefinitions() error {
 	crds := []*crd_api.CustomResourceDefinition{
 		api.VaultServer{}.CustomResourceDefinition(),
-		api.VaultserverVersion{}.CustomResourceDefinition(),
+		api.VaultServerVersion{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }

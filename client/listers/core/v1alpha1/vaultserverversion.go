@@ -25,35 +25,35 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-// VaultserverVersionLister helps list VaultserverVersions.
-type VaultserverVersionLister interface {
-	// List lists all VaultserverVersions in the indexer.
-	List(selector labels.Selector) (ret []*v1alpha1.VaultserverVersion, err error)
-	// Get retrieves the VaultserverVersion from the index for a given name.
-	Get(name string) (*v1alpha1.VaultserverVersion, error)
-	VaultserverVersionListerExpansion
+// VaultServerVersionLister helps list VaultServerVersions.
+type VaultServerVersionLister interface {
+	// List lists all VaultServerVersions in the indexer.
+	List(selector labels.Selector) (ret []*v1alpha1.VaultServerVersion, err error)
+	// Get retrieves the VaultServerVersion from the index for a given name.
+	Get(name string) (*v1alpha1.VaultServerVersion, error)
+	VaultServerVersionListerExpansion
 }
 
-// vaultserverVersionLister implements the VaultserverVersionLister interface.
-type vaultserverVersionLister struct {
+// vaultServerVersionLister implements the VaultServerVersionLister interface.
+type vaultServerVersionLister struct {
 	indexer cache.Indexer
 }
 
-// NewVaultserverVersionLister returns a new VaultserverVersionLister.
-func NewVaultserverVersionLister(indexer cache.Indexer) VaultserverVersionLister {
-	return &vaultserverVersionLister{indexer: indexer}
+// NewVaultServerVersionLister returns a new VaultServerVersionLister.
+func NewVaultServerVersionLister(indexer cache.Indexer) VaultServerVersionLister {
+	return &vaultServerVersionLister{indexer: indexer}
 }
 
-// List lists all VaultserverVersions in the indexer.
-func (s *vaultserverVersionLister) List(selector labels.Selector) (ret []*v1alpha1.VaultserverVersion, err error) {
+// List lists all VaultServerVersions in the indexer.
+func (s *vaultServerVersionLister) List(selector labels.Selector) (ret []*v1alpha1.VaultServerVersion, err error) {
 	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.VaultserverVersion))
+		ret = append(ret, m.(*v1alpha1.VaultServerVersion))
 	})
 	return ret, err
 }
 
-// Get retrieves the VaultserverVersion from the index for a given name.
-func (s *vaultserverVersionLister) Get(name string) (*v1alpha1.VaultserverVersion, error) {
+// Get retrieves the VaultServerVersion from the index for a given name.
+func (s *vaultServerVersionLister) Get(name string) (*v1alpha1.VaultServerVersion, error) {
 	obj, exists, err := s.indexer.GetByKey(name)
 	if err != nil {
 		return nil, err
@@ -61,5 +61,5 @@ func (s *vaultserverVersionLister) Get(name string) (*v1alpha1.VaultserverVersio
 	if !exists {
 		return nil, errors.NewNotFound(v1alpha1.Resource("vaultserverversion"), name)
 	}
-	return obj.(*v1alpha1.VaultserverVersion), nil
+	return obj.(*v1alpha1.VaultServerVersion), nil
 }

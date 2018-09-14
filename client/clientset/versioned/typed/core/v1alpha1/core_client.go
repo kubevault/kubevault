@@ -28,7 +28,7 @@ import (
 type CoreV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	VaultServersGetter
-	VaultserverVersionsGetter
+	VaultServerVersionsGetter
 }
 
 // CoreV1alpha1Client is used to interact with features provided by the core.kubevault.com group.
@@ -40,8 +40,8 @@ func (c *CoreV1alpha1Client) VaultServers(namespace string) VaultServerInterface
 	return newVaultServers(c, namespace)
 }
 
-func (c *CoreV1alpha1Client) VaultserverVersions() VaultserverVersionInterface {
-	return newVaultserverVersions(c)
+func (c *CoreV1alpha1Client) VaultServerVersions() VaultServerVersionInterface {
+	return newVaultServerVersions(c)
 }
 
 // NewForConfig creates a new CoreV1alpha1Client for the given config.

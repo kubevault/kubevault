@@ -20,4 +20,4 @@ package v1alpha1
 
 type VaultServerExpansion interface{}
 
-type VaultserverVersionExpansion interface{}
+type VaultServerVersionExpansion interface{}

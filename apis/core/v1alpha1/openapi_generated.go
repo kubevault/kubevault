@@ -56,12 +56,12 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerList":            schema_operator_apis_core_v1alpha1_VaultServerList(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerSpec":            schema_operator_apis_core_v1alpha1_VaultServerSpec(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerStatus":          schema_operator_apis_core_v1alpha1_VaultServerStatus(ref),
+		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersion":         schema_operator_apis_core_v1alpha1_VaultServerVersion(ref),
+		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersionList":     schema_operator_apis_core_v1alpha1_VaultServerVersionList(ref),
+		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersionSpec":     schema_operator_apis_core_v1alpha1_VaultServerVersionSpec(ref),
+		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersionUnsealer": schema_operator_apis_core_v1alpha1_VaultServerVersionUnsealer(ref),
+		"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersionVault":    schema_operator_apis_core_v1alpha1_VaultServerVersionVault(ref),
 		"github.com/kubevault/operator/apis/core/v1alpha1.VaultStatus":                schema_operator_apis_core_v1alpha1_VaultStatus(ref),
-		"github.com/kubevault/operator/apis/core/v1alpha1.VaultserverVersion":         schema_operator_apis_core_v1alpha1_VaultserverVersion(ref),
-		"github.com/kubevault/operator/apis/core/v1alpha1.VaultserverVersionList":     schema_operator_apis_core_v1alpha1_VaultserverVersionList(ref),
-		"github.com/kubevault/operator/apis/core/v1alpha1.VaultserverVersionSpec":     schema_operator_apis_core_v1alpha1_VaultserverVersionSpec(ref),
-		"github.com/kubevault/operator/apis/core/v1alpha1.VaultserverVersionUnsealer": schema_operator_apis_core_v1alpha1_VaultserverVersionUnsealer(ref),
-		"github.com/kubevault/operator/apis/core/v1alpha1.VaultserverVersionVault":    schema_operator_apis_core_v1alpha1_VaultserverVersionVault(ref),
 		"k8s.io/api/core/v1.AWSElasticBlockStoreVolumeSource":                         schema_k8sio_api_core_v1_AWSElasticBlockStoreVolumeSource(ref),
 		"k8s.io/api/core/v1.Affinity":                                                 schema_k8sio_api_core_v1_Affinity(ref),
 		"k8s.io/api/core/v1.AttachedVolume":                                           schema_k8sio_api_core_v1_AttachedVolume(ref),
@@ -1463,6 +1463,171 @@ func schema_operator_apis_core_v1alpha1_VaultServerStatus(ref common.ReferenceCa
 	}
 }
 
+func schema_operator_apis_core_v1alpha1_VaultServerVersion(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VaultServerVersion defines a vaultserver version.",
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersionSpec"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersionSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_operator_apis_core_v1alpha1_VaultServerVersionList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VaultServerVersionList is a list of VaultserverVersions",
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Items is a list of VaultServerVersion CRD objects",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersion"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersion", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_operator_apis_core_v1alpha1_VaultServerVersionSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VaultServerVersionSpec is the spec for postgres version",
+				Properties: map[string]spec.Schema{
+					"version": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Version",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"vault": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Vault Image",
+							Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersionVault"),
+						},
+					},
+					"unsealer": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Unsealer Image",
+							Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersionUnsealer"),
+						},
+					},
+					"deprecated": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Deprecated versions usable but regarded as obsolete and best avoided, typically due to having been superseded.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"version", "vault", "unsealer"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersionUnsealer", "github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersionVault"},
+	}
+}
+
+func schema_operator_apis_core_v1alpha1_VaultServerVersionUnsealer(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VaultServerVersionUnsealer is the image for the vault unsealer",
+				Properties: map[string]spec.Schema{
+					"image": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"image"},
+			},
+		},
+		Dependencies: []string{},
+	}
+}
+
+func schema_operator_apis_core_v1alpha1_VaultServerVersionVault(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VaultServerVersionVault is the vault image",
+				Properties: map[string]spec.Schema{
+					"image": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"image"},
+			},
+		},
+		Dependencies: []string{},
+	}
+}
+
 func schema_operator_apis_core_v1alpha1_VaultStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -1518,171 +1683,6 @@ func schema_operator_apis_core_v1alpha1_VaultStatus(ref common.ReferenceCallback
 						},
 					},
 				},
-			},
-		},
-		Dependencies: []string{},
-	}
-}
-
-func schema_operator_apis_core_v1alpha1_VaultserverVersion(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "VaultserverVersion defines a vaultserver version.",
-				Properties: map[string]spec.Schema{
-					"kind": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"apiVersion": {
-						SchemaProps: spec.SchemaProps{
-							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"metadata": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
-						},
-					},
-					"spec": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.VaultserverVersionSpec"),
-						},
-					},
-				},
-			},
-		},
-		Dependencies: []string{
-			"github.com/kubevault/operator/apis/core/v1alpha1.VaultserverVersionSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
-	}
-}
-
-func schema_operator_apis_core_v1alpha1_VaultserverVersionList(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "VaultserverVersionList is a list of VaultserverVersions",
-				Properties: map[string]spec.Schema{
-					"kind": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"apiVersion": {
-						SchemaProps: spec.SchemaProps{
-							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"metadata": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
-						},
-					},
-					"items": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Items is a list of VaultserverVersion CRD objects",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Ref: ref("github.com/kubevault/operator/apis/core/v1alpha1.VaultserverVersion"),
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		Dependencies: []string{
-			"github.com/kubevault/operator/apis/core/v1alpha1.VaultserverVersion", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
-	}
-}
-
-func schema_operator_apis_core_v1alpha1_VaultserverVersionSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "VaultserverVersionSpec is the spec for postgres version",
-				Properties: map[string]spec.Schema{
-					"version": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Version",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"vault": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Vault Image",
-							Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.VaultserverVersionVault"),
-						},
-					},
-					"unsealer": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Unsealer Image",
-							Ref:         ref("github.com/kubevault/operator/apis/core/v1alpha1.VaultserverVersionUnsealer"),
-						},
-					},
-					"deprecated": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Deprecated versions usable but regarded as obsolete and best avoided, typically due to having been superseded.",
-							Type:        []string{"boolean"},
-							Format:      "",
-						},
-					},
-				},
-				Required: []string{"version", "vault", "unsealer"},
-			},
-		},
-		Dependencies: []string{
-			"github.com/kubevault/operator/apis/core/v1alpha1.VaultserverVersionUnsealer", "github.com/kubevault/operator/apis/core/v1alpha1.VaultserverVersionVault"},
-	}
-}
-
-func schema_operator_apis_core_v1alpha1_VaultserverVersionUnsealer(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "VaultserverVersionUnsealer is the image for the vault unsealer",
-				Properties: map[string]spec.Schema{
-					"image": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-				},
-				Required: []string{"image"},
-			},
-		},
-		Dependencies: []string{},
-	}
-}
-
-func schema_operator_apis_core_v1alpha1_VaultserverVersionVault(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "VaultserverVersionVault is the vault image",
-				Properties: map[string]spec.Schema{
-					"image": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-				},
-				Required: []string{"image"},
 			},
 		},
 		Dependencies: []string{},

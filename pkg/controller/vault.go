@@ -55,7 +55,7 @@ type vaultSrv struct {
 }
 
 func NewVault(vs *api.VaultServer, kc kubernetes.Interface, vc cs.Interface) (Vault, error) {
-	version, err := vc.CoreV1alpha1().VaultserverVersions().Get(string(vs.Spec.Version), metav1.GetOptions{})
+	version, err := vc.CoreV1alpha1().VaultServerVersions().Get(string(vs.Spec.Version), metav1.GetOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get vault server version")
 	}

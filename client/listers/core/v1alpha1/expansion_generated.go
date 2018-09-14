@@ -26,6 +26,6 @@ type VaultServerListerExpansion interface{}
 // VaultServerNamespaceLister.
 type VaultServerNamespaceListerExpansion interface{}
 
-// VaultserverVersionListerExpansion allows custom methods to be added to
-// VaultserverVersionLister.
-type VaultserverVersionListerExpansion interface{}
+// VaultServerVersionListerExpansion allows custom methods to be added to
+// VaultServerVersionLister.
+type VaultServerVersionListerExpansion interface{}

@@ -26,8 +26,8 @@ import (
 type Interface interface {
 	// VaultServers returns a VaultServerInformer.
 	VaultServers() VaultServerInformer
-	// VaultserverVersions returns a VaultserverVersionInformer.
-	VaultserverVersions() VaultserverVersionInformer
+	// VaultServerVersions returns a VaultServerVersionInformer.
+	VaultServerVersions() VaultServerVersionInformer
 }
 
 type version struct {
@@ -46,7 +46,7 @@ func (v *version) VaultServers() VaultServerInformer {
 	return &vaultServerInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
-// VaultserverVersions returns a VaultserverVersionInformer.
-func (v *version) VaultserverVersions() VaultserverVersionInformer {
-	return &vaultserverVersionInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
+// VaultServerVersions returns a VaultServerVersionInformer.
+func (v *version) VaultServerVersions() VaultServerVersionInformer {
+	return &vaultServerVersionInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
 }
