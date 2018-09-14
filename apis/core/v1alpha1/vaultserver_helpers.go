@@ -35,10 +35,6 @@ func (v *VaultServer) SetDefaults() bool {
 		vs.Nodes = 1
 		changed = true
 	}
-	if len(vs.BaseImage) == 0 {
-		vs.BaseImage = defaultBaseImage
-		changed = true
-	}
 	if len(vs.Version) == 0 {
 		vs.Version = defaultVersion
 		changed = true

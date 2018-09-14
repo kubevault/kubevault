@@ -73,3 +73,51 @@ func (c VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDef
 		},
 	}, setNameSchema)
 }
+
+func (c VaultserverVersion) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+	return crdutils.NewCustomResourceDefinition(crdutils.Config{
+		Group:         SchemeGroupVersion.Group,
+		Plural:        ResourceVaultserverVersions,
+		Singular:      ResourceVaultserverVersion,
+		Kind:          ResourceKindVaultserverVersion,
+		ShortNames:    []string{"vsv"},
+		Categories:    []string{"vault", "appscode", "all"},
+		ResourceScope: string(apiextensions.ClusterScoped),
+		Versions: []apiextensions.CustomResourceDefinitionVersion{
+			{
+				Name:    SchemeGroupVersion.Version,
+				Served:  true,
+				Storage: true,
+			},
+		},
+		Labels: crdutils.Labels{
+			LabelsMap: map[string]string{"app": "vault"},
+		},
+		SpecDefinitionName:      "github.com/kubevault/operator/apis/core/v1alpha1.VaultServerVersion",
+		EnableValidation:        true,
+		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
+		EnableStatusSubresource: false,
+		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
+			{
+				Name:     "Version",
+				Type:     "string",
+				JSONPath: ".spec.version",
+			},
+			{
+				Name:     "VaultImage",
+				Type:     "string",
+				JSONPath: ".spec.vault.image",
+			},
+			{
+				Name:     "UnsealerImage",
+				Type:     "string",
+				JSONPath: ".spec.unsealer.image",
+			},
+			{
+				Name:     "Age",
+				Type:     "date",
+				JSONPath: ".metadata.creationTimestamp",
+			},
+		},
+	})
+}

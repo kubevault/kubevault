@@ -34,7 +34,7 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 	var cont corev1.Container
 
 	for _, c := range pt.Spec.Containers {
-		if c.Name == util.VaultUnsealerImageName() {
+		if c.Name == util.VaultUnsealerContainerName() {
 			cont = c
 		}
 	}

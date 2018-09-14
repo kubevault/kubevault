@@ -50,6 +50,9 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	By("Using test namespace " + root.Namespace())
 
+	err = root.CreateVaultserverVersion()
+	Expect(err).NotTo(HaveOccurred())
+
 	if options.StartAPIServer {
 		// still not implemented
 		By("Not implemented")
@@ -70,4 +73,6 @@ var _ = AfterSuite(func() {
 		//root.KAClient.ApiregistrationV1beta1().APIServices().Delete("v1alpha1.admission.stash.appscode.com", meta.DeleteInBackground())
 	}
 	root.DeleteNamespace()
+	err := root.DeleteVaultserverVersion()
+	Expect(err).NotTo(HaveOccurred())
 })

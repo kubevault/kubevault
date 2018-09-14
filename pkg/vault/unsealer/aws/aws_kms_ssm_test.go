@@ -15,7 +15,7 @@ func TestOptions_Apply(t *testing.T) {
 		"--aws.kms-key-id=test-key",
 	}
 	cont := corev1.Container{
-		Name: util.VaultUnsealerImageName(),
+		Name: util.VaultUnsealerContainerName(),
 	}
 	pt := &corev1.PodTemplateSpec{
 		Spec: corev1.PodSpec{

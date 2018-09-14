@@ -8,8 +8,7 @@ import (
 )
 
 const (
-	vaultImage        = "vault"
-	vaultImageVersion = "0.10.4"
+	vaultVersion = "v0.11.1"
 )
 
 func (f *Invocation) VaultServer(node int32, bs api.BackendStorageSpec) *api.VaultServer {
@@ -18,14 +17,13 @@ func (f *Invocation) VaultServer(node int32, bs api.BackendStorageSpec) *api.Vau
 			Name:      rand.WithUniqSuffix("vault-test"),
 			Namespace: f.namespace,
 			Labels: map[string]string{
-				"app": f.app,
+				"test": f.app,
 			},
 		},
 		Spec: api.VaultServerSpec{
-			Nodes:     node,
-			BaseImage: vaultImage,
-			Version:   vaultImageVersion,
-			Backend:   bs,
+			Nodes:   node,
+			Version: vaultVersion,
+			Backend: bs,
 		},
 	}
 }
@@ -33,7 +31,6 @@ func (f *Invocation) VaultServer(node int32, bs api.BackendStorageSpec) *api.Vau
 func (f *Invocation) VaultServerWithUnsealer(node int32, bs api.BackendStorageSpec, us api.UnsealerSpec) *api.VaultServer {
 	vs := f.VaultServer(node, bs)
 	vs.Spec.Unsealer = &us
-
 	return vs
 }
 

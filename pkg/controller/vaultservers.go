@@ -100,7 +100,7 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 			}
 		}
 
-		v, err := NewVault(vs, c.kubeClient)
+		v, err := NewVault(vs, c.kubeClient, c.extClient)
 		if err != nil {
 			return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)
 		}

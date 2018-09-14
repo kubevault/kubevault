@@ -64,18 +64,18 @@ var _ = Describe("VaultServer", func() {
 					return true
 				}
 				return false
-			}, timeOut, pollingInterval).Should(BeTrue())
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("vault tls secret (%s/%s) should exists", namespace, name))
 		}
 
 		checkForSecretCreated = func(name, namespace string) {
-			By(fmt.Sprintf("Waiting for vault tls secret (%s/%s) to create", namespace, name))
+			By(fmt.Sprintf("Waiting for vault secret (%s/%s) to create", namespace, name))
 			Eventually(func() bool {
 				_, err := f.KubeClient.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
 				if err == nil {
 					return true
 				}
 				return false
-			}, timeOut, pollingInterval).Should(BeTrue())
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("secret (%s/%s) should exists", namespace, name))
 		}
 
 		checkForSecretDeleted = func(name, namespace string) {
@@ -83,7 +83,7 @@ var _ = Describe("VaultServer", func() {
 			Eventually(func() bool {
 				_, err := f.KubeClient.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
-			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("secret %s should be deleted", name))
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("secret (%s/%s) should be deleted", namespace, name))
 		}
 
 		checkForVaultConfigMapCreated = func(name, namespace string) {
@@ -97,7 +97,7 @@ var _ = Describe("VaultServer", func() {
 					return true
 				}
 				return false
-			}, timeOut, pollingInterval).Should(BeTrue())
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("configMap (%s/%s) should exists", namespace, name))
 		}
 
 		checkForVaultConfigMapDeleted = func(name, namespace string) {
@@ -105,7 +105,7 @@ var _ = Describe("VaultServer", func() {
 			Eventually(func() bool {
 				_, err := f.KubeClient.CoreV1().ConfigMaps(namespace).Get(name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
-			}, timeOut, pollingInterval).Should(BeTrue())
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("configMap (%s/%s) should not exists", namespace, name))
 		}
 
 		checkForVaultDeploymentCreatedOrUpdated = func(name, namespace string, vs *api.VaultServer) {
@@ -116,7 +116,7 @@ var _ = Describe("VaultServer", func() {
 					return *d.Spec.Replicas == vs.Spec.Nodes
 				}
 				return false
-			}, timeOut, pollingInterval).Should(BeTrue())
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("deployment (%s/%s) replicas should be equal to v.spec.nodes", namespace, name))
 		}
 
 		checkForVaultDeploymentDeleted = func(name, namespace string) {
@@ -124,7 +124,7 @@ var _ = Describe("VaultServer", func() {
 			Eventually(func() bool {
 				_, err := f.KubeClient.AppsV1beta1().Deployments(namespace).Get(name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
-			}, timeOut, pollingInterval).Should(BeTrue())
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("deployment (%s/%s) should not exists", namespace, name))
 		}
 
 		checkForVaultServerCreated = func(name, namespace string) {
@@ -132,7 +132,7 @@ var _ = Describe("VaultServer", func() {
 			Eventually(func() bool {
 				_, err := f.VaultServerClient.CoreV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 				return err == nil
-			}, timeOut, pollingInterval).Should(BeTrue())
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("vaultserver (%s/%s) should exists", namespace, name))
 		}
 
 		checkForVaultServerDeleted = func(name, namespace string) {
@@ -140,7 +140,7 @@ var _ = Describe("VaultServer", func() {
 			Eventually(func() bool {
 				_, err := f.VaultServerClient.CoreV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
-			}, timeOut, pollingInterval).Should(BeTrue())
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("vaultserver (%s/%s) should not exists", namespace, name))
 		}
 
 		shouldCreateVaultServer = func(vs *api.VaultServer) {
@@ -152,6 +152,7 @@ var _ = Describe("VaultServer", func() {
 			checkForVaultTLSSecretCreated(vs.TLSSecretName(), vs.Namespace)
 			checkForVaultConfigMapCreated(vs.ConfigMapName(), vs.Namespace)
 			checkForVaultDeploymentCreatedOrUpdated(vs.Name, vs.Namespace, vs)
+			By("vault server created")
 		}
 
 		shouldUpdateVaultServerReplica = func(replicas int32, vs *api.VaultServer) {
@@ -178,7 +179,7 @@ var _ = Describe("VaultServer", func() {
 					}
 				}
 				return false
-			}, timeOut, pollingInterval).Should(BeTrue())
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("number of unseal pods should be equal to v.spec.nodes"))
 		}
 	)
 
@@ -370,16 +371,30 @@ var _ = Describe("VaultServer", func() {
 	Describe("Deleting vault resources", func() {
 		Context("using inmem as backend", func() {
 			var (
-				err error
-				vs  *api.VaultServer
+				vs *api.VaultServer
 			)
 
 			BeforeEach(func() {
-				vs = f.VaultServer(3, backendInmem)
+				unsealer := api.UnsealerSpec{
+					SecretShares:    4,
+					SecretThreshold: 2,
+					InsecureTLS:     true,
+					Mode: api.ModeSpec{
+						KubernetesSecret: &api.KubernetesSecretSpec{
+							SecretName: "k8s-inmem-keys-12341",
+						},
+					},
+				}
+
+				vs = f.VaultServerWithUnsealer(1, backendInmem, unsealer)
+
 				shouldCreateVaultServer(vs)
 			})
 			AfterEach(func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
+
+				f.DeleteSecret("k8s-inmem-keys-12341", vs.Namespace)
+				checkForSecretDeleted("k8s-inmem-keys-12341", vs.Namespace)
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
 				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
@@ -388,30 +403,37 @@ var _ = Describe("VaultServer", func() {
 			})
 
 			It("should keep the number of pods same as specification, after deleting some pods", func() {
-				Eventually(func() bool {
-					vs, err = f.VaultServerClient.CoreV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
-					if kerrors.IsNotFound(err) {
-						return false
-					} else {
-						return len(vs.Status.UpdatedNodes) == int(vs.Spec.Nodes)
-					}
-				}, timeOut, pollingInterval).Should(BeTrue())
 
-				p := rand.Int() % int(vs.Spec.Nodes)
-
-				err = f.DeletePod(vs.Status.UpdatedNodes[p], vs.Namespace)
-				Expect(err).NotTo(HaveOccurred())
+				pods, err := f.KubeClient.CoreV1().Pods(vs.Namespace).List(metav1.ListOptions{
+					LabelSelector: labels.SelectorFromSet(vs.OffshootSelectors()).String(),
+				})
+				Expect(err).NotTo(HaveOccurred(), "list vault pods")
 
 				Eventually(func() bool {
 					pods, err := f.KubeClient.CoreV1().Pods(vs.Namespace).List(metav1.ListOptions{
-						LabelSelector: labels.SelectorFromSet(vs.OffshootLabels()).String(),
+						LabelSelector: labels.SelectorFromSet(vs.OffshootSelectors()).String(),
 					})
 					if kerrors.IsNotFound(err) {
 						return false
 					} else {
 						return len(pods.Items) == int(vs.Spec.Nodes)
 					}
-				}, timeOut, pollingInterval).Should(BeTrue())
+				}, timeOut, pollingInterval).Should(BeTrue(), "number of pods should be equal to v.spce.nodes")
+
+				p := rand.Int() % int(len(pods.Items))
+
+				err = f.DeletePod(pods.Items[p].Name, vs.Namespace)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(func() bool {
+					pods, err := f.KubeClient.CoreV1().Pods(vs.Namespace).List(metav1.ListOptions{
+						LabelSelector: labels.SelectorFromSet(vs.OffshootSelectors()).String(),
+					})
+					if kerrors.IsNotFound(err) {
+						return false
+					} else {
+						return len(pods.Items) == int(vs.Spec.Nodes)
+					}
+				}, timeOut, pollingInterval).Should(BeTrue(), "number of pods should be equal to v.spce.nodes")
 			})
 
 		})
@@ -425,11 +447,25 @@ var _ = Describe("VaultServer", func() {
 			)
 
 			BeforeEach(func() {
-				vs = f.VaultServer(3, backendInmem)
+				unsealer := api.UnsealerSpec{
+					SecretShares:    4,
+					SecretThreshold: 2,
+					InsecureTLS:     true,
+					Mode: api.ModeSpec{
+						KubernetesSecret: &api.KubernetesSecretSpec{
+							SecretName: "k8s-inmem-keys-123411",
+						},
+					},
+				}
+
+				vs = f.VaultServerWithUnsealer(1, backendInmem, unsealer)
 				shouldCreateVaultServer(vs)
 			})
 			AfterEach(func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
+
+				f.DeleteSecret("k8s-inmem-keys-123411", vs.Namespace)
+				checkForSecretDeleted("k8s-inmem-keys-123411", vs.Namespace)
 
 				checkForVaultServerDeleted(vs.Name, vs.Namespace)
 				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
@@ -437,17 +473,17 @@ var _ = Describe("VaultServer", func() {
 				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
-			It("status should contain 3 updated pods and 3 sealed pods", func() {
+			It("status should contain 1 updated pods and 1 unseal pods", func() {
 				Eventually(func() bool {
 					vs, err = f.VaultServerClient.CoreV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
 					if kerrors.IsNotFound(err) {
 						return false
 					} else {
-						return !vs.Status.Initialized &&
-							len(vs.Status.UpdatedNodes) == 3 &&
-							len(vs.Status.VaultStatus.Sealed) == 3
+						return vs.Status.Initialized &&
+							len(vs.Status.UpdatedNodes) == 1 &&
+							len(vs.Status.VaultStatus.Unsealed) == 1
 					}
-				}, timeOut, pollingInterval).Should(BeTrue())
+				}, timeOut, pollingInterval).Should(BeTrue(), "status should contain 1 updated pods and 1 unseal pods")
 			})
 		})
 	})

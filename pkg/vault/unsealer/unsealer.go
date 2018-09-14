@@ -23,8 +23,9 @@ type Unsealer interface {
 }
 
 type unsealerSrv struct {
-	unsealer Unsealer
 	*api.UnsealerSpec
+	unsealer Unsealer
+	image    string
 }
 
 func newUnsealer(s *api.UnsealerSpec) (Unsealer, error) {
@@ -41,7 +42,7 @@ func newUnsealer(s *api.UnsealerSpec) (Unsealer, error) {
 	}
 }
 
-func NewUnsealerService(s *api.UnsealerSpec) (Unsealer, error) {
+func NewUnsealerService(s *api.UnsealerSpec, image string) (Unsealer, error) {
 	if s == nil {
 		return nil, nil
 	}
@@ -51,8 +52,9 @@ func NewUnsealerService(s *api.UnsealerSpec) (Unsealer, error) {
 		return nil, errors.Wrap(err, "failed to create unsealer service")
 	}
 	return &unsealerSrv{
-		unslr,
-		s,
+		UnsealerSpec: s,
+		image:        image,
+		unsealer:     unslr,
 	}, nil
 }
 
@@ -67,8 +69,8 @@ func (u *unsealerSrv) Apply(pt *corev1.PodTemplateSpec) error {
 	var args []string
 	vautlCACertFile := "/etc/vault/tls/ca.crt"
 	cont := corev1.Container{
-		Name:  util.VaultUnsealerImageName(),
-		Image: "nightfury1204/vault-unsealer:canary",
+		Name:  util.VaultUnsealerContainerName(),
+		Image: u.image,
 	}
 	args = append(args,
 		"run",
