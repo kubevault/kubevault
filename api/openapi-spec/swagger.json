@@ -1455,12 +1455,12 @@
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/azure.html\n\nAzureSpec defines configuration to set up Google Cloud Storage as backend storage in vault",
       "required": [
         "accountName",
-        "accountKey",
+        "accountKeySecret",
         "container"
       ],
       "properties": {
-        "accountKey": {
-          "description": "Specifies the Azure Storage account key.",
+        "accountKeySecret": {
+          "description": "Specifies the secret containing Azure Storage account key. secret data:\n\t- account_key:\u003cvalue\u003e",
           "type": "string"
         },
         "accountName": {

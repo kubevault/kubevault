@@ -422,9 +422,9 @@ func schema_operator_apis_core_v1alpha1_AzureSpec(ref common.ReferenceCallback) 
 							Format:      "",
 						},
 					},
-					"accountKey": {
+					"accountKeySecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the Azure Storage account key.",
+							Description: "Specifies the secret containing Azure Storage account key. secret data:\n\t- account_key:<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -444,7 +444,7 @@ func schema_operator_apis_core_v1alpha1_AzureSpec(ref common.ReferenceCallback) 
 						},
 					},
 				},
-				Required: []string{"accountName", "accountKey", "container"},
+				Required: []string{"accountName", "accountKeySecret", "container"},
 			},
 		},
 		Dependencies: []string{},

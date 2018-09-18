@@ -338,8 +338,9 @@ spec:
 
                     AzureSpec defines configuration to set up Google Cloud Storage as backend storage in vault
                   properties:
-                    accountKey:
-                      description: Specifies the Azure Storage account key.
+                    accountKeySecret:
+                      description: "Specifies the secret containing Azure Storage
+                        account key. secret data:\n\t- account_key:<value>"
                       type: string
                     accountName:
                       description: Specifies the Azure Storage account name.
@@ -355,7 +356,7 @@ spec:
                       type: integer
                   required:
                   - accountName
-                  - accountKey
+                  - accountKeySecret
                   - container
                 dynamoDB:
                   description: |-

@@ -279,8 +279,10 @@ type AzureSpec struct {
 	// Specifies the Azure Storage account name.
 	AccountName string `json:"accountName"`
 
-	// Specifies the Azure Storage account key.
-	AccountKey string `json:"accountKey"`
+	// Specifies the secret containing Azure Storage account key.
+	// secret data:
+	//	- account_key:<value>
+	AccountKeySecret string `json:"accountKeySecret"`
 
 	// Specifies the Azure Storage Blob container name.
 	Container string `json:"container"`

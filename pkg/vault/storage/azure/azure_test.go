@@ -11,7 +11,6 @@ import (
 func TestOptions_GetStorageConfig(t *testing.T) {
 	opts, err := NewOptions(api.AzureSpec{
 		AccountName: "ac",
-		AccountKey:  "key",
 		Container:   "vault",
 		MaxParallel: 111,
 	})
@@ -20,7 +19,6 @@ func TestOptions_GetStorageConfig(t *testing.T) {
 	out := `
 storage "azure" {
 accountName = "ac"
-accountKey = "key"
 container = "vault"
 max_parallel = 111
 }

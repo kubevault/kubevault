@@ -782,7 +782,8 @@ var _ = Describe("VaultServer", func() {
 		)
 
 		const (
-			azureCredSecret = "test-azure-cred"
+			azureCredSecret  = "test-azure-cred"
+			azureAcKeySecret = "test-azure-ac-key"
 		)
 
 		Context("using azure storage backend", func() {
@@ -811,14 +812,24 @@ var _ = Describe("VaultServer", func() {
 						"client-secret": []byte(clientSecret),
 					},
 				}
-
 				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
+
+				acSr := corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      azureAcKeySecret,
+						Namespace: f.Namespace(),
+					},
+					Data: map[string][]byte{
+						"account_key": []byte(accountKey),
+					},
+				}
+				Expect(f.CreateSecret(acSr)).NotTo(HaveOccurred())
 
 				azure := api.BackendStorageSpec{
 					Azure: &api.AzureSpec{
-						AccountName: accountName,
-						AccountKey:  accountKey,
-						Container:   "vault",
+						AccountName:      accountName,
+						AccountKeySecret: azureAcKeySecret,
+						Container:        "vault",
 					},
 				}
 
@@ -841,6 +852,8 @@ var _ = Describe("VaultServer", func() {
 			AfterEach(func() {
 				Expect(f.DeleteSecret(azureCredSecret, vs.Namespace)).NotTo(HaveOccurred())
 				checkForSecretDeleted(azureCredSecret, vs.Namespace)
+				Expect(f.DeleteSecret(azureAcKeySecret, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(azureAcKeySecret, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 

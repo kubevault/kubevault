@@ -8,6 +8,10 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+const (
+	AzureAccountKeyEnv = "AZURE_ACCOUNT_KEY"
+)
+
 var azureStorageFmt = `
 storage "azure" {
 %s
@@ -25,6 +29,19 @@ func NewOptions(s api.AzureSpec) (*Options, error) {
 }
 
 func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+	if o.AccountKeySecret != "" {
+		pt.Spec.Containers[0].Env = append(pt.Spec.Containers[0].Env, corev1.EnvVar{
+			Name: AzureAccountKeyEnv,
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: &corev1.SecretKeySelector{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: o.AccountKeySecret,
+					},
+					Key: "account_key",
+				},
+			},
+		})
+	}
 	return nil
 }
 
@@ -39,9 +56,6 @@ func (o *Options) GetStorageConfig() (string, error) {
 	params := []string{}
 	if o.AccountName != "" {
 		params = append(params, fmt.Sprintf(`accountName = "%s"`, o.AccountName))
-	}
-	if o.AccountKey != "" {
-		params = append(params, fmt.Sprintf(`accountKey = "%s"`, o.AccountKey))
 	}
 	if o.Container != "" {
 		params = append(params, fmt.Sprintf(`container = "%s"`, o.Container))
