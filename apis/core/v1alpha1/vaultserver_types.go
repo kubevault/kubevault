@@ -330,7 +330,7 @@ type MySQLSpec struct {
 
 	// Specifies the name of the secret containing the CA certificate to connect using TLS.
 	// secret data:
-	//	- ca=<ca_cert>
+	//	- tls_ca_file=<ca_cert>
 	TLSCASecret string `json:"tlsCASecret,omitempty"`
 
 	//  Specifies the maximum number of concurrent requests to take place.

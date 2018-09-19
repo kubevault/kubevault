@@ -69,7 +69,7 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 					SecretName: o.TLSCASecret,
 					Items: []corev1.KeyToPath{
 						{
-							Key:  "ca",
+							Key:  "tls_ca_file",
 							Path: "ca.crt",
 						},
 					},
