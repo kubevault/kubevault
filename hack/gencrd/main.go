@@ -32,6 +32,7 @@ func generateCRDDefinitions() {
 
 	crds := []*crd_api.CustomResourceDefinition{
 		v1alpha1.VaultServer{}.CustomResourceDefinition(),
+		v1alpha1.VaultServerVersion{}.CustomResourceDefinition(),
 	}
 	for _, crd := range crds {
 		filename := filepath.Join(gort.GOPath(), "/src/github.com/kubevault/operator/api/crds", crd.Spec.Names.Singular+".yaml")

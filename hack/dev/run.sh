@@ -1,5 +1,5 @@
 #!/bin/bash
-set -xe
+set -eou pipefail
 
 GOPATH=$(go env GOPATH)
 REPO_ROOT="$GOPATH/src/github.com/kubevault/operator"
@@ -91,7 +91,9 @@ while test $# -gt 0; do
 done
 
 # !!! WARNING !!! Never do this in prod cluster
-kubectl create clusterrolebinding serviceaccounts-cluster-admin --clusterrole=cluster-admin --user=system:anonymous || true
+kubectl create clusterrolebinding anonymous-cluster-admin --clusterrole=cluster-admin --user=system:anonymous || true
+
+kubectl create -R -f $REPO_ROOT/api/crds || true
 
 cat $REPO_ROOT/hack/deploy/catalog/vaultserver.yaml | $ONESSL envsubst | kubectl apply -f -
 cat $REPO_ROOT/hack/dev/apiregistration.yaml | envsubst | kubectl apply -f -
