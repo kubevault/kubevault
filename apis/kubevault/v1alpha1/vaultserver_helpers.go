@@ -33,21 +33,6 @@ func (v VaultServer) TLSSecretName() string {
 	return v.OffshootName() + "-vault-tls"
 }
 
-// SetDefaults sets the default values for the vault spec and returns true if the spec was changed
-func (v *VaultServer) SetDefaults() bool {
-	changed := false
-	vs := &v.Spec
-	if vs.Nodes == 0 {
-		vs.Nodes = 1
-		changed = true
-	}
-	if len(vs.Version) == 0 {
-		vs.Version = defaultVersion
-		changed = true
-	}
-	return changed
-}
-
 func (v VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crdutils.NewCustomResourceDefinition(crdutils.Config{
 		Group:         SchemeGroupVersion.Group,

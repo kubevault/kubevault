@@ -80,19 +80,6 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 
 		glog.Infof("Sync/Add/Update for VaultServer %s/%s\n", vs.Namespace, vs.Name)
 
-		// TODO : initializer or validation/mutating webhook
-		// will be deprecated
-		changed := vs.SetDefaults()
-		if changed {
-			_, _, err = patchutil.CreateOrPatchVaultServer(c.extClient.KubevaultV1alpha1(), vs.ObjectMeta, func(v *api.VaultServer) *api.VaultServer {
-				v.SetDefaults()
-				return v
-			})
-			if err != nil {
-				return errors.Wrap(err, "unable to patch vaultServer")
-			}
-		}
-
 		v, err := NewVault(vs, c.kubeClient, c.extClient)
 		if err != nil {
 			return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)

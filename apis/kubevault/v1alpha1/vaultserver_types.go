@@ -13,9 +13,6 @@ const (
 	ResourceKindVaultServer = "VaultServer"
 	ResourceVaultServer     = "vaultserver"
 	ResourceVaultServers    = "vaultservers"
-
-	// version format is "<upstream-version>-<our-version>"
-	defaultVersion = "0.10.0"
 )
 
 type ClusterPhase string
