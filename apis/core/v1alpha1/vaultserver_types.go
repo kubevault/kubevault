@@ -449,6 +449,8 @@ type UnsealerSpec struct {
 	InsecureTLS bool `json:"insecureTLS,omitempty"`
 
 	// Secret name containing self signed ca cert of vault
+	// secret data:
+	//	- ca.crt=<value>
 	VaultCASecret string `json:"vaultCASecret,omitempty"`
 
 	// should the root token be stored in the key store (default true)

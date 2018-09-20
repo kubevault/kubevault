@@ -513,7 +513,7 @@ spec:
                       type: string
                     tlsCASecret:
                       description: "Specifies the name of the secret containing the
-                        CA certificate to connect using TLS. secret data:\n\t- ca=<ca_cert>"
+                        CA certificate to connect using TLS. secret data:\n\t- tls_ca_file=<ca_cert>"
                       type: string
                     userCredentialSecret:
                       description: "Specifies the MySQL username and password to connect
@@ -4031,7 +4031,8 @@ spec:
                     true)
                   type: boolean
                 vaultCASecret:
-                  description: Secret name containing self signed ca cert of vault
+                  description: "Secret name containing self signed ca cert of vault
+                    secret data:\n\t- ca.crt=<value>"
                   type: string
             version:
               description: Version of Vault server to be deployed.

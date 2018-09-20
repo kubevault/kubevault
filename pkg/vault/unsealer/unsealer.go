@@ -95,7 +95,7 @@ func (u *unsealerSrv) Apply(pt *corev1.PodTemplateSpec) error {
 		args = append(args, fmt.Sprintf("--overwrite-existing=true"))
 	}
 
-	if u.VaultCASecret != "" {
+	if u.InsecureTLS == false && u.VaultCASecret != "" {
 		args = append(args, fmt.Sprintf("--ca-cert-file=%s", vautlCACertFile))
 
 		pt.Spec.Volumes = kutilcorev1.UpsertVolume(pt.Spec.Volumes, corev1.Volume{

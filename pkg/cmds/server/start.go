@@ -34,6 +34,7 @@ func NewStashOptions(out, errOut io.Writer) *StashOptions {
 		StdErr:             errOut,
 	}
 	o.RecommendedOptions.Etcd = nil
+	o.RecommendedOptions.Admission = nil
 
 	return o
 }
@@ -67,13 +68,13 @@ func (o StashOptions) Config() (*server.StashConfig, error) {
 	serverConfig.OpenAPIConfig.IgnorePrefixes = []string{
 		"/swaggerapi",
 		"/apis/admission.kubevault.com/v1alpha1/vaultservers",
-		"/apis/admission.kubevault.com/v1alpha1/deployments",
-		"/apis/admission.kubevault.com/v1alpha1/daemonsets",
-		"/apis/admission.kubevault.com/v1alpha1/statefulsets",
-		"/apis/admission.kubevault.com/v1alpha1/replicationcontrollers",
-		"/apis/admission.kubevault.com/v1alpha1/replicasets",
-		"/apis/admission.kubevault.com/v1alpha1/jobs",
-		"/apis/admission.kubevault.com/v1alpha1/cronjobs",
+		//"/apis/admission.kubevault.com/v1alpha1/deployments",
+		//"/apis/admission.kubevault.com/v1alpha1/daemonsets",
+		//"/apis/admission.kubevault.com/v1alpha1/statefulsets",
+		//"/apis/admission.kubevault.com/v1alpha1/replicationcontrollers",
+		//"/apis/admission.kubevault.com/v1alpha1/replicasets",
+		//"/apis/admission.kubevault.com/v1alpha1/jobs",
+		//"/apis/admission.kubevault.com/v1alpha1/cronjobs",
 	}
 
 	extraConfig := controller.NewConfig(serverConfig.ClientConfig)

@@ -9,6 +9,7 @@ import (
 	"github.com/kubevault/operator/apis/extensions"
 	"github.com/kubevault/operator/apis/extensions/install"
 	"github.com/kubevault/operator/apis/extensions/v1alpha1"
+	vsadmission "github.com/kubevault/operator/pkg/admission"
 	"github.com/kubevault/operator/pkg/controller"
 	snapregistry "github.com/kubevault/operator/pkg/registry/vaultsecret"
 	admission "k8s.io/api/admission/v1beta1"
@@ -96,7 +97,9 @@ func (c completedConfig) New() (*StashServer, error) {
 	if err != nil {
 		return nil, err
 	}
-	admissionHooks := []hooks.AdmissionHook{}
+	admissionHooks := []hooks.AdmissionHook{
+		&vsadmission.VaultServerValidator{},
+	}
 
 	s := &StashServer{
 		GenericAPIServer: genericServer,

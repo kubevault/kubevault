@@ -879,7 +879,7 @@ func schema_operator_apis_core_v1alpha1_MySQLSpec(ref common.ReferenceCallback) 
 					},
 					"tlsCASecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the name of the secret containing the CA certificate to connect using TLS. secret data:\n\t- ca=<ca_cert>",
+							Description: "Specifies the name of the secret containing the CA certificate to connect using TLS. secret data:\n\t- tls_ca_file=<ca_cert>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1166,7 +1166,7 @@ func schema_operator_apis_core_v1alpha1_UnsealerSpec(ref common.ReferenceCallbac
 					},
 					"vaultCASecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Secret name containing self signed ca cert of vault",
+							Description: "Secret name containing self signed ca cert of vault secret data:\n\t- ca.crt=<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},

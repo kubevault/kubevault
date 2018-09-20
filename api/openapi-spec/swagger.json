@@ -1727,7 +1727,7 @@
           "type": "string"
         },
         "tlsCASecret": {
-          "description": "Specifies the name of the secret containing the CA certificate to connect using TLS. secret data:\n\t- ca=\u003cca_cert\u003e",
+          "description": "Specifies the name of the secret containing the CA certificate to connect using TLS. secret data:\n\t- tls_ca_file=\u003cca_cert\u003e",
           "type": "string"
         },
         "userCredentialSecret": {
@@ -1904,7 +1904,7 @@
           "type": "boolean"
         },
         "vaultCASecret": {
-          "description": "Secret name containing self signed ca cert of vault",
+          "description": "Secret name containing self signed ca cert of vault secret data:\n\t- ca.crt=\u003cvalue\u003e",
           "type": "string"
         }
       }
