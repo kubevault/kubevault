@@ -10,8 +10,8 @@ import (
 	"github.com/appscode/kutil/tools/portforward"
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
-	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/core/v1alpha1/util"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -98,7 +98,7 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 	// TODO : handle upgrades when pods from two replicaset can co-exist :(
 	opt := metav1.ListOptions{LabelSelector: labels.SelectorFromSet(sel).String()}
 
-	version, err := c.extClient.CoreV1alpha1().VaultServerVersions().Get(string(v.Spec.Version), metav1.GetOptions{})
+	version, err := c.extClient.KubevaultV1alpha1().VaultServerVersions().Get(string(v.Spec.Version), metav1.GetOptions{})
 	if err != nil {
 		glog.Errorf("vault status monitor: failed to get vault server version(%s): %v", v.Spec.Version, err)
 		return
@@ -172,7 +172,7 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 
 // updateVaultCRStatus updates the status field of the Vault CR.
 func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespace string, status *api.VaultServerStatus) (*api.VaultServer, error) {
-	vault, err := c.extClient.CoreV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
+	vault, err := c.extClient.KubevaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		key := namespace + "/" + name
 		if cancel, ok := c.ctxCancels[key]; ok {
@@ -185,7 +185,7 @@ func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespa
 	}
 
 	// TODO : flag for useSubresource?
-	vault, err = patchutil.UpdateVaultServerStatus(c.extClient.CoreV1alpha1(), vault, func(s *api.VaultServerStatus) *api.VaultServerStatus {
+	vault, err = patchutil.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vault, func(s *api.VaultServerStatus) *api.VaultServerStatus {
 		*s = *status
 		return s
 	}, api.EnableStatusSubresource)

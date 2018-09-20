@@ -5,20 +5,20 @@ import (
 	"path/filepath"
 	"time"
 
-	kutilcorev1 "github.com/appscode/kutil/core/v1"
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	core_util "github.com/appscode/kutil/core/v1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/unsealer/aws"
 	"github.com/kubevault/operator/pkg/vault/unsealer/azure"
 	"github.com/kubevault/operator/pkg/vault/unsealer/google"
 	"github.com/kubevault/operator/pkg/vault/unsealer/kubernetes"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 )
 
 type Unsealer interface {
-	Apply(pt *corev1.PodTemplateSpec) error
+	Apply(pt *core.PodTemplateSpec) error
 	GetRBAC(namespace string) []rbac.Role
 }
 
@@ -61,14 +61,14 @@ func NewUnsealerService(s *api.UnsealerSpec, image string) (Unsealer, error) {
 // Apply will do:
 // 	- add unsealer container for vault
 //	- add additional env, volume mounts etc if required
-func (u *unsealerSrv) Apply(pt *corev1.PodTemplateSpec) error {
+func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 	if u == nil {
 		return nil
 	}
 
 	var args []string
 	vautlCACertFile := "/etc/vault/tls/ca.crt"
-	cont := corev1.Container{
+	cont := core.Container{
 		Name:  util.VaultUnsealerContainerName,
 		Image: u.image,
 	}
@@ -98,23 +98,23 @@ func (u *unsealerSrv) Apply(pt *corev1.PodTemplateSpec) error {
 	if u.InsecureTLS == false && u.VaultCASecret != "" {
 		args = append(args, fmt.Sprintf("--ca-cert-file=%s", vautlCACertFile))
 
-		pt.Spec.Volumes = kutilcorev1.UpsertVolume(pt.Spec.Volumes, corev1.Volume{
+		pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, core.Volume{
 			Name: "vaultCA",
-			VolumeSource: corev1.VolumeSource{
-				Secret: &corev1.SecretVolumeSource{
+			VolumeSource: core.VolumeSource{
+				Secret: &core.SecretVolumeSource{
 					SecretName: u.VaultCASecret,
 				},
 			},
 		})
 
-		cont.VolumeMounts = kutilcorev1.UpsertVolumeMount(cont.VolumeMounts, corev1.VolumeMount{
+		cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{
 			Name:      "vaultCA",
 			MountPath: filepath.Dir(vautlCACertFile),
 		})
 	}
 
 	cont.Args = append(cont.Args, args...)
-	pt.Spec.Containers = kutilcorev1.UpsertContainer(pt.Spec.Containers, cont)
+	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)
 	err := u.unsealer.Apply(pt)
 	if err != nil {
 		return err

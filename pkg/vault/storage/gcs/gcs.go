@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	core "k8s.io/api/core/v1"
 )
 
 var gcsStorageFmt = `
@@ -31,23 +31,23 @@ func NewOptions(s api.GcsSpec) (*Options, error) {
 	}, nil
 }
 
-func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	if o.CredentialSecret != "" {
-		pt.Spec.Volumes = append(pt.Spec.Volumes, corev1.Volume{
+		pt.Spec.Volumes = append(pt.Spec.Volumes, core.Volume{
 			Name: GoogleCredentialVolume,
-			VolumeSource: corev1.VolumeSource{
-				Secret: &corev1.SecretVolumeSource{
+			VolumeSource: core.VolumeSource{
+				Secret: &core.SecretVolumeSource{
 					SecretName: o.CredentialSecret,
 				},
 			},
 		})
 
-		pt.Spec.Containers[0].VolumeMounts = append(pt.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
+		pt.Spec.Containers[0].VolumeMounts = append(pt.Spec.Containers[0].VolumeMounts, core.VolumeMount{
 			Name:      GoogleCredentialVolume,
 			MountPath: filepath.Dir(GoogleCredentialFile),
 		})
 
-		pt.Spec.Containers[0].Env = append(pt.Spec.Containers[0].Env, corev1.EnvVar{
+		pt.Spec.Containers[0].Env = append(pt.Spec.Containers[0].Env, core.EnvVar{
 			Name:  GoogleCredentialEnv,
 			Value: GoogleCredentialFile,
 		})

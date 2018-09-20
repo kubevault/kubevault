@@ -24,8 +24,8 @@ import (
 	time "time"
 
 	versioned "github.com/kubevault/operator/client/clientset/versioned"
-	core "github.com/kubevault/operator/client/informers/externalversions/core"
 	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
+	kubevault "github.com/kubevault/operator/client/informers/externalversions/kubevault"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -172,9 +172,9 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	Core() core.Interface
+	Kubevault() kubevault.Interface
 }
 
-func (f *sharedInformerFactory) Core() core.Interface {
-	return core.New(f, f.namespace, f.tweakListOptions)
+func (f *sharedInformerFactory) Kubevault() kubevault.Interface {
+	return kubevault.New(f, f.namespace, f.tweakListOptions)
 }

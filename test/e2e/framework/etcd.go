@@ -5,8 +5,8 @@ import (
 
 	"github.com/appscode/go/crypto/rand"
 	. "github.com/onsi/gomega"
-	apps "k8s.io/api/apps/v1beta1"
-	corev1 "k8s.io/api/core/v1"
+	apps "k8s.io/api/apps/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -21,23 +21,23 @@ func (f *Framework) DeployEtcd() (string, error) {
 		"app": rand.WithUniqSuffix("test-etcd"),
 	}
 
-	srv := corev1.Service{
+	srv := core.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: f.namespace,
 			Name:      etcdServiceName,
 		},
-		Spec: corev1.ServiceSpec{
+		Spec: core.ServiceSpec{
 			Selector: label,
-			Ports: []corev1.ServicePort{
+			Ports: []core.ServicePort{
 				{
 					Name:       "client",
-					Protocol:   corev1.ProtocolTCP,
+					Protocol:   core.ProtocolTCP,
 					Port:       2379,
 					TargetPort: intstr.FromInt(2379),
 				},
 				{
 					Name:       "peer",
-					Protocol:   corev1.ProtocolTCP,
+					Protocol:   core.ProtocolTCP,
 					Port:       2380,
 					TargetPort: intstr.FromInt(2380),
 				},
@@ -48,7 +48,7 @@ func (f *Framework) DeployEtcd() (string, error) {
 	clientUrl := fmt.Sprintf("http://%s.%s.svc:2379", etcdServiceName, f.namespace)
 	peerUrl := fmt.Sprintf("http://%s.%s.svc:2380", etcdServiceName, f.namespace)
 
-	etcdCont := corev1.Container{
+	etcdCont := core.Container{
 		Name:  "etcd",
 		Image: "quay.io/coreos/etcd:v3.2.13",
 		Command: []string{
@@ -63,19 +63,19 @@ func (f *Framework) DeployEtcd() (string, error) {
 			fmt.Sprintf("--advertise-client-urls=%s", clientUrl),
 			fmt.Sprintf("--initial-cluster=$(MY_POD_NAME)=%s", peerUrl),
 		},
-		Env: []corev1.EnvVar{
+		Env: []core.EnvVar{
 			{
 				Name: "MY_POD_NAMESPACE",
-				ValueFrom: &corev1.EnvVarSource{
-					FieldRef: &corev1.ObjectFieldSelector{
+				ValueFrom: &core.EnvVarSource{
+					FieldRef: &core.ObjectFieldSelector{
 						FieldPath: "metadata.namespace",
 					},
 				},
 			},
 			{
 				Name: "MY_POD_NAME",
-				ValueFrom: &corev1.EnvVarSource{
-					FieldRef: &corev1.ObjectFieldSelector{
+				ValueFrom: &core.EnvVarSource{
+					FieldRef: &core.ObjectFieldSelector{
 						FieldPath: "metadata.name",
 					},
 				},
@@ -93,12 +93,12 @@ func (f *Framework) DeployEtcd() (string, error) {
 			Selector: &metav1.LabelSelector{
 				MatchLabels: label,
 			},
-			Template: corev1.PodTemplateSpec{
+			Template: core.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: label,
 				},
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
+				Spec: core.PodSpec{
+					Containers: []core.Container{
 						etcdCont,
 					},
 				},

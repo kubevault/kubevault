@@ -5,17 +5,15 @@ import (
 	"io"
 	"net"
 
-	"github.com/kubevault/operator/apis/extensions/v1alpha1"
 	"github.com/kubevault/operator/pkg/controller"
 	"github.com/kubevault/operator/pkg/server"
 	"github.com/spf13/pflag"
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
-	openapinamer "k8s.io/apiserver/pkg/endpoints/openapi"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 )
 
-const defaultEtcdPathPrefix = "/registry/core.kubevault.com"
+const defaultEtcdPathPrefix = "/registry/kubevault.com"
 
 type StashOptions struct {
 	RecommendedOptions *genericoptions.RecommendedOptions
@@ -59,22 +57,9 @@ func (o StashOptions) Config() (*server.StashConfig, error) {
 	}
 
 	serverConfig := genericapiserver.NewRecommendedConfig(server.Codecs)
+	serverConfig.EnableMetrics = true
 	if err := o.RecommendedOptions.ApplyTo(serverConfig, server.Scheme); err != nil {
 		return nil, err
-	}
-	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(v1alpha1.GetOpenAPIDefinitions, openapinamer.NewDefinitionNamer(server.Scheme))
-	serverConfig.OpenAPIConfig.Info.Title = "vault-operator"
-	serverConfig.OpenAPIConfig.Info.Version = v1alpha1.SchemeGroupVersion.Version
-	serverConfig.OpenAPIConfig.IgnorePrefixes = []string{
-		"/swaggerapi",
-		"/apis/admission.kubevault.com/v1alpha1/vaultservers",
-		//"/apis/admission.kubevault.com/v1alpha1/deployments",
-		//"/apis/admission.kubevault.com/v1alpha1/daemonsets",
-		//"/apis/admission.kubevault.com/v1alpha1/statefulsets",
-		//"/apis/admission.kubevault.com/v1alpha1/replicationcontrollers",
-		//"/apis/admission.kubevault.com/v1alpha1/replicasets",
-		//"/apis/admission.kubevault.com/v1alpha1/jobs",
-		//"/apis/admission.kubevault.com/v1alpha1/cronjobs",
 	}
 
 	extraConfig := controller.NewConfig(serverConfig.ClientConfig)

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	core "k8s.io/api/core/v1"
 )
 
 var fileStorageFmt = `
@@ -24,7 +24,7 @@ func NewOptions(s api.FileSpec) (*Options, error) {
 	}, nil
 }
 
-func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	return nil
 }
 

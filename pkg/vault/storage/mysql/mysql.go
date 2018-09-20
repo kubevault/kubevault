@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -60,14 +60,14 @@ func NewOptions(kubeClient kubernetes.Interface, namespace string, s api.MySQLSp
 	}, nil
 }
 
-func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	if o.TLSCASecret != "" {
-		pt.Spec.Volumes = append(pt.Spec.Volumes, corev1.Volume{
+		pt.Spec.Volumes = append(pt.Spec.Volumes, core.Volume{
 			Name: "mysql-tls",
-			VolumeSource: corev1.VolumeSource{
-				Secret: &corev1.SecretVolumeSource{
+			VolumeSource: core.VolumeSource{
+				Secret: &core.SecretVolumeSource{
 					SecretName: o.TLSCASecret,
-					Items: []corev1.KeyToPath{
+					Items: []core.KeyToPath{
 						{
 							Key:  "tls_ca_file",
 							Path: "ca.crt",
@@ -77,7 +77,7 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 			},
 		})
 
-		pt.Spec.Containers[0].VolumeMounts = append(pt.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
+		pt.Spec.Containers[0].VolumeMounts = append(pt.Spec.Containers[0].VolumeMounts, core.VolumeMount{
 			Name:      "mysql-tls",
 			MountPath: filepath.Dir(MySQLTLSCAFile),
 		})

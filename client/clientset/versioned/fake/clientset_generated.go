@@ -20,10 +20,8 @@ package fake
 
 import (
 	clientset "github.com/kubevault/operator/client/clientset/versioned"
-	corev1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/core/v1alpha1"
-	fakecorev1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/core/v1alpha1/fake"
-	extensionsv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/extensions/v1alpha1"
-	fakeextensionsv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/extensions/v1alpha1/fake"
+	kubevaultv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
+	fakekubevaultv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -73,22 +71,12 @@ func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 
 var _ clientset.Interface = &Clientset{}
 
-// CoreV1alpha1 retrieves the CoreV1alpha1Client
-func (c *Clientset) CoreV1alpha1() corev1alpha1.CoreV1alpha1Interface {
-	return &fakecorev1alpha1.FakeCoreV1alpha1{Fake: &c.Fake}
+// KubevaultV1alpha1 retrieves the KubevaultV1alpha1Client
+func (c *Clientset) KubevaultV1alpha1() kubevaultv1alpha1.KubevaultV1alpha1Interface {
+	return &fakekubevaultv1alpha1.FakeKubevaultV1alpha1{Fake: &c.Fake}
 }
 
-// Core retrieves the CoreV1alpha1Client
-func (c *Clientset) Core() corev1alpha1.CoreV1alpha1Interface {
-	return &fakecorev1alpha1.FakeCoreV1alpha1{Fake: &c.Fake}
-}
-
-// ExtensionsV1alpha1 retrieves the ExtensionsV1alpha1Client
-func (c *Clientset) ExtensionsV1alpha1() extensionsv1alpha1.ExtensionsV1alpha1Interface {
-	return &fakeextensionsv1alpha1.FakeExtensionsV1alpha1{Fake: &c.Fake}
-}
-
-// Extensions retrieves the ExtensionsV1alpha1Client
-func (c *Clientset) Extensions() extensionsv1alpha1.ExtensionsV1alpha1Interface {
-	return &fakeextensionsv1alpha1.FakeExtensionsV1alpha1{Fake: &c.Fake}
+// Kubevault retrieves the KubevaultV1alpha1Client
+func (c *Clientset) Kubevault() kubevaultv1alpha1.KubevaultV1alpha1Interface {
+	return &fakekubevaultv1alpha1.FakeKubevaultV1alpha1{Fake: &c.Fake}
 }

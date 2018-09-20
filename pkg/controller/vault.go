@@ -7,16 +7,16 @@ import (
 	core_util "github.com/appscode/kutil/core/v1"
 	"github.com/appscode/kutil/tools/certstore"
 	"github.com/golang/glog"
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	"github.com/kubevault/operator/pkg/vault/storage"
 	"github.com/kubevault/operator/pkg/vault/unsealer"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
+	apps "k8s.io/api/apps/v1"
+	core "k8s.io/api/core/v1"
+	rbac "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
@@ -35,15 +35,15 @@ const (
 )
 
 type Vault interface {
-	GetServerTLS() (*corev1.Secret, error)
-	GetConfig() (*corev1.ConfigMap, error)
-	Apply(pt *corev1.PodTemplateSpec) error
-	GetService() *corev1.Service
-	GetDeployment(pt *corev1.PodTemplateSpec) *appsv1.Deployment
-	GetServiceAccount() *corev1.ServiceAccount
-	GetRBACRoles() []rbacv1.Role
-	GetPodTemplate(c corev1.Container, saName string) *corev1.PodTemplateSpec
-	GetContainer() corev1.Container
+	GetServerTLS() (*core.Secret, error)
+	GetConfig() (*core.ConfigMap, error)
+	Apply(pt *core.PodTemplateSpec) error
+	GetService() *core.Service
+	GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment
+	GetServiceAccount() *core.ServiceAccount
+	GetRBACRoles() []rbac.Role
+	GetPodTemplate(c core.Container, saName string) *core.PodTemplateSpec
+	GetContainer() core.Container
 }
 
 type vaultSrv struct {
@@ -55,7 +55,7 @@ type vaultSrv struct {
 }
 
 func NewVault(vs *api.VaultServer, kc kubernetes.Interface, vc cs.Interface) (Vault, error) {
-	version, err := vc.CoreV1alpha1().VaultServerVersions().Get(string(vs.Spec.Version), metav1.GetOptions{})
+	version, err := vc.KubevaultV1alpha1().VaultServerVersions().Get(string(vs.Spec.Version), metav1.GetOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get vault server version")
 	}
@@ -89,7 +89,7 @@ func NewVault(vs *api.VaultServer, kc kubernetes.Interface, vc cs.Interface) (Va
 //
 // if user provide TLS secrets, then it will be used.
 // Otherwise self signed certificates will be used
-func (v *vaultSrv) GetServerTLS() (*corev1.Secret, error) {
+func (v *vaultSrv) GetServerTLS() (*core.Secret, error) {
 	tls := v.vs.Spec.TLS
 	if tls != nil && tls.TLSSecret != "" {
 		sr, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(tls.TLSSecret, metav1.GetOptions{})
@@ -127,7 +127,7 @@ func (v *vaultSrv) GetServerTLS() (*corev1.Secret, error) {
 		return nil, errors.Wrap(err, "vault server create crt/key pair error")
 	}
 
-	tlsSr := &corev1.Secret{
+	tlsSr := &core.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      tlsSecretName,
 			Namespace: v.vs.Namespace,
@@ -147,7 +147,7 @@ func (v *vaultSrv) GetServerTLS() (*corev1.Secret, error) {
 // - listener config
 // - storage config
 // - user provided extra config
-func (v *vaultSrv) GetConfig() (*corev1.ConfigMap, error) {
+func (v *vaultSrv) GetConfig() (*core.ConfigMap, error) {
 	configMapName := v.vs.ConfigMapName()
 	cfgData := util.GetListenerConfig()
 
@@ -157,7 +157,7 @@ func (v *vaultSrv) GetConfig() (*corev1.ConfigMap, error) {
 	}
 	cfgData = fmt.Sprintf("%s\n%s", cfgData, storageCfg)
 
-	configM := &corev1.ConfigMap{
+	configM := &core.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      configMapName,
 			Namespace: v.vs.Namespace,
@@ -173,7 +173,7 @@ func (v *vaultSrv) GetConfig() (*corev1.ConfigMap, error) {
 // - add secret volume mount for tls secret
 // - add configMap volume mount for vault config
 // - add extra env, volume mount, unsealer contianer etc
-func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
+func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 	if pt == nil {
 		return errors.New("podTempleSpec is nil")
 	}
@@ -181,7 +181,7 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 	// Add init container
 	// this init container will append user provided configuration
 	// file to the controller provided configuration file
-	initCont := corev1.Container{
+	initCont := core.Container{
 		Name:    util.VaultInitContainerName,
 		Image:   "busybox",
 		Command: []string{"/bin/sh"},
@@ -197,25 +197,25 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 	}
 
 	initCont.VolumeMounts = core_util.UpsertVolumeMount(initCont.VolumeMounts,
-		corev1.VolumeMount{
+		core.VolumeMount{
 			Name:      "config",
 			MountPath: filepath.Dir(util.VaultConfigFile),
-		}, corev1.VolumeMount{
+		}, core.VolumeMount{
 			Name:      "controller-config",
 			MountPath: "/etc/vault/controller",
 		})
 
 	pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes,
-		corev1.Volume{
+		core.Volume{
 			Name: "config",
-			VolumeSource: corev1.VolumeSource{
-				EmptyDir: &corev1.EmptyDirVolumeSource{},
+			VolumeSource: core.VolumeSource{
+				EmptyDir: &core.EmptyDirVolumeSource{},
 			},
-		}, corev1.Volume{
+		}, core.Volume{
 			Name: "controller-config",
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
+			VolumeSource: core.VolumeSource{
+				ConfigMap: &core.ConfigMapVolumeSource{
+					LocalObjectReference: core.LocalObjectReference{
 						Name: v.vs.ConfigMapName(),
 					},
 				},
@@ -223,12 +223,12 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 		})
 
 	if v.vs.Spec.ConfigSource != nil {
-		initCont.VolumeMounts = core_util.UpsertVolumeMount(initCont.VolumeMounts, corev1.VolumeMount{
+		initCont.VolumeMounts = core_util.UpsertVolumeMount(initCont.VolumeMounts, core.VolumeMount{
 			Name:      "user-config",
 			MountPath: "/etc/vault/user",
 		})
 
-		pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, corev1.Volume{
+		pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, core.Volume{
 			Name:         "user-config",
 			VolumeSource: *v.vs.Spec.ConfigSource,
 		})
@@ -239,26 +239,26 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 		tlsSecret = v.vs.Spec.TLS.TLSSecret
 	}
 
-	pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, corev1.Volume{
+	pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, core.Volume{
 		Name: vaultTLSAssetVolumeName,
-		VolumeSource: corev1.VolumeSource{
-			Secret: &corev1.SecretVolumeSource{
+		VolumeSource: core.VolumeSource{
+			Secret: &core.SecretVolumeSource{
 				SecretName: tlsSecret,
 			},
 		},
 	})
 
-	var cont corev1.Container
+	var cont core.Container
 	for _, c := range pt.Spec.Containers {
 		if c.Name == util.VaultContainerName {
 			cont = c
 		}
 	}
 
-	cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, corev1.VolumeMount{
+	cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{
 		Name:      vaultTLSAssetVolumeName,
 		MountPath: util.VaultTLSAssetDir,
-	}, corev1.VolumeMount{
+	}, core.VolumeMount{
 		Name:      "config",
 		MountPath: filepath.Dir(util.VaultConfigFile),
 	})
@@ -280,25 +280,25 @@ func (v *vaultSrv) Apply(pt *corev1.PodTemplateSpec) error {
 	return nil
 }
 
-func (v *vaultSrv) GetService() *corev1.Service {
-	return &corev1.Service{
+func (v *vaultSrv) GetService() *core.Service {
+	return &core.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        v.vs.OffshootName(),
 			Namespace:   v.vs.Namespace,
 			Labels:      v.vs.OffshootLabels(),
 			Annotations: v.vs.Spec.ServiceTemplate.Annotations,
 		},
-		Spec: corev1.ServiceSpec{
+		Spec: core.ServiceSpec{
 			Selector: v.vs.OffshootSelectors(),
-			Ports: []corev1.ServicePort{
+			Ports: []core.ServicePort{
 				{
 					Name:     "vault-port",
-					Protocol: corev1.ProtocolTCP,
+					Protocol: core.ProtocolTCP,
 					Port:     VaultPort,
 				},
 				{
 					Name:     "cluster-port",
-					Protocol: corev1.ProtocolTCP,
+					Protocol: core.ProtocolTCP,
 					Port:     VaultClusterPort,
 				},
 			},
@@ -313,21 +313,21 @@ func (v *vaultSrv) GetService() *corev1.Service {
 	}
 }
 
-func (v *vaultSrv) GetDeployment(pt *corev1.PodTemplateSpec) *appsv1.Deployment {
-	return &appsv1.Deployment{
+func (v *vaultSrv) GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment {
+	return &apps.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        v.vs.OffshootName(),
 			Namespace:   v.vs.Namespace,
 			Labels:      v.vs.OffshootLabels(),
 			Annotations: v.vs.Spec.PodTemplate.Controller.Annotations,
 		},
-		Spec: appsv1.DeploymentSpec{
+		Spec: apps.DeploymentSpec{
 			Replicas: &v.vs.Spec.Nodes,
 			Selector: &metav1.LabelSelector{MatchLabels: v.vs.OffshootSelectors()},
 			Template: *pt,
-			Strategy: appsv1.DeploymentStrategy{
-				Type: appsv1.RollingUpdateDeploymentStrategyType,
-				RollingUpdate: &appsv1.RollingUpdateDeployment{
+			Strategy: apps.DeploymentStrategy{
+				Type: apps.RollingUpdateDeploymentStrategyType,
+				RollingUpdate: &apps.RollingUpdateDeployment{
 					MaxUnavailable: func(a intstr.IntOrString) *intstr.IntOrString { return &a }(intstr.FromInt(1)),
 					MaxSurge:       func(a intstr.IntOrString) *intstr.IntOrString { return &a }(intstr.FromInt(1)),
 				},
@@ -336,8 +336,8 @@ func (v *vaultSrv) GetDeployment(pt *corev1.PodTemplateSpec) *appsv1.Deployment 
 	}
 }
 
-func (v *vaultSrv) GetServiceAccount() *corev1.ServiceAccount {
-	return &corev1.ServiceAccount{
+func (v *vaultSrv) GetServiceAccount() *core.ServiceAccount {
+	return &core.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      v.vs.OffshootName(),
 			Namespace: v.vs.Namespace,
@@ -346,8 +346,8 @@ func (v *vaultSrv) GetServiceAccount() *corev1.ServiceAccount {
 	}
 }
 
-func (v *vaultSrv) GetRBACRoles() []rbacv1.Role {
-	var roles []rbacv1.Role
+func (v *vaultSrv) GetRBACRoles() []rbac.Role {
+	var roles []rbac.Role
 	labels := v.vs.OffshootLabels()
 	if v.unslr != nil {
 		rList := v.unslr.GetRBAC(v.vs.Namespace)
@@ -359,16 +359,16 @@ func (v *vaultSrv) GetRBACRoles() []rbacv1.Role {
 	return roles
 }
 
-func (v *vaultSrv) GetPodTemplate(c corev1.Container, saName string) *corev1.PodTemplateSpec {
-	return &corev1.PodTemplateSpec{
+func (v *vaultSrv) GetPodTemplate(c core.Container, saName string) *core.PodTemplateSpec {
+	return &core.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        v.vs.Name,
 			Labels:      v.vs.OffshootSelectors(),
 			Namespace:   v.vs.Namespace,
 			Annotations: v.vs.Spec.PodTemplate.Annotations,
 		},
-		Spec: corev1.PodSpec{
-			Containers: []corev1.Container{
+		Spec: core.PodSpec{
+			Containers: []core.Container{
 				c,
 			},
 			ServiceAccountName: saName,
@@ -384,8 +384,8 @@ func (v *vaultSrv) GetPodTemplate(c corev1.Container, saName string) *corev1.Pod
 	}
 }
 
-func (v *vaultSrv) GetContainer() corev1.Container {
-	return corev1.Container{
+func (v *vaultSrv) GetContainer() core.Container {
+	return core.Container{
 		Name:  util.VaultContainerName,
 		Image: v.image,
 		Command: []string{
@@ -393,7 +393,7 @@ func (v *vaultSrv) GetContainer() corev1.Container {
 			"server",
 			"-config=" + util.VaultConfigFile,
 		},
-		Env: []corev1.EnvVar{
+		Env: []core.EnvVar{
 			{
 				Name:  EnvVaultAddr,
 				Value: util.VaultServiceURL(v.vs.Name, v.vs.Namespace, VaultPort),
@@ -403,26 +403,26 @@ func (v *vaultSrv) GetContainer() corev1.Container {
 				Value: util.VaultServiceURL(v.vs.Name, v.vs.Namespace, VaultClusterPort),
 			},
 		},
-		SecurityContext: &corev1.SecurityContext{
-			Capabilities: &corev1.Capabilities{
+		SecurityContext: &core.SecurityContext{
+			Capabilities: &core.Capabilities{
 				// Vault requires mlock syscall to work.
 				// Without this it would fail "Error initializing core: Failed to lock memory: cannot allocate memory"
-				Add: []corev1.Capability{"IPC_LOCK"},
+				Add: []core.Capability{"IPC_LOCK"},
 			},
 		},
-		Ports: []corev1.ContainerPort{{
+		Ports: []core.ContainerPort{{
 			Name:          "vault-port",
 			ContainerPort: int32(VaultPort),
 		}, {
 			Name:          "cluster-port",
 			ContainerPort: int32(VaultClusterPort),
 		}},
-		ReadinessProbe: &corev1.Probe{
-			Handler: corev1.Handler{
-				HTTPGet: &corev1.HTTPGetAction{
+		ReadinessProbe: &core.Probe{
+			Handler: core.Handler{
+				HTTPGet: &core.HTTPGetAction{
 					Path:   "/v1/sys/health",
 					Port:   intstr.FromInt(VaultPort),
-					Scheme: corev1.URISchemeHTTPS,
+					Scheme: core.URISchemeHTTPS,
 				},
 			},
 			InitialDelaySeconds: 10,

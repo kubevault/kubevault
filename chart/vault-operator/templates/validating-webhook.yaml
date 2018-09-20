@@ -21,7 +21,7 @@ webhooks:
     - CREATE
     - UPDATE
     apiGroups:
-    - core.kubevault.com
+    - kubevault.com
     apiVersions:
     - "*"
     resources:

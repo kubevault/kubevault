@@ -9,15 +9,15 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-cleanhttp"
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/controller"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/kubevault/operator/test/e2e/framework"
 	"github.com/ncw/swift"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	corev1 "k8s.io/api/core/v1"
-	kerrors "k8s.io/apimachinery/pkg/api/errors"
+	core "k8s.io/api/core/v1"
+	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 )
@@ -82,7 +82,7 @@ var _ = Describe("VaultServer", func() {
 			By(fmt.Sprintf("Waiting for secret (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
 				_, err := f.KubeClient.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
-				return kerrors.IsNotFound(err)
+				return kerr.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("secret (%s/%s) should be deleted", namespace, name))
 		}
 
@@ -104,7 +104,7 @@ var _ = Describe("VaultServer", func() {
 			By(fmt.Sprintf("Waiting for vault configMap (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
 				_, err := f.KubeClient.CoreV1().ConfigMaps(namespace).Get(name, metav1.GetOptions{})
-				return kerrors.IsNotFound(err)
+				return kerr.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("configMap (%s/%s) should not exists", namespace, name))
 		}
 
@@ -123,14 +123,14 @@ var _ = Describe("VaultServer", func() {
 			By(fmt.Sprintf("Waiting for vault deployment (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
 				_, err := f.KubeClient.AppsV1beta1().Deployments(namespace).Get(name, metav1.GetOptions{})
-				return kerrors.IsNotFound(err)
+				return kerr.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("deployment (%s/%s) should not exists", namespace, name))
 		}
 
 		checkForVaultServerCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault server (%s/%s) to create", namespace, name))
 			Eventually(func() bool {
-				_, err := f.VaultServerClient.CoreV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.VaultServerClient.KubevaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("vaultserver (%s/%s) should exists", namespace, name))
 		}
@@ -138,8 +138,8 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultServerDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault server (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
-				_, err := f.VaultServerClient.CoreV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
-				return kerrors.IsNotFound(err)
+				_, err := f.VaultServerClient.KubevaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
+				return kerr.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("vaultserver (%s/%s) should not exists", namespace, name))
 		}
 
@@ -171,7 +171,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultIsUnsealed = func(vs *api.VaultServer) {
 			By("Checking whether vault is unsealed")
 			Eventually(func() bool {
-				v, err := f.VaultServerClient.CoreV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
+				v, err := f.VaultServerClient.KubevaultV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
 				if err == nil {
 					if len(v.Status.VaultStatus.Unsealed) == int(vs.Spec.Nodes) {
 						By(fmt.Sprintf("Unseal-pods: %v", v.Status.VaultStatus.Unsealed))
@@ -251,7 +251,7 @@ var _ = Describe("VaultServer", func() {
 				data, err := ioutil.ReadFile(credFile)
 				Expect(err).NotTo(HaveOccurred())
 
-				sr := corev1.Secret{
+				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      secretName,
 						Namespace: f.Namespace(),
@@ -306,7 +306,7 @@ var _ = Describe("VaultServer", func() {
 
 				vs = f.VaultServer(1, s3)
 
-				sr := corev1.Secret{
+				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      awsCredSecret,
 						Namespace: vs.Namespace,
@@ -413,7 +413,7 @@ var _ = Describe("VaultServer", func() {
 					pods, err := f.KubeClient.CoreV1().Pods(vs.Namespace).List(metav1.ListOptions{
 						LabelSelector: labels.SelectorFromSet(vs.OffshootSelectors()).String(),
 					})
-					if kerrors.IsNotFound(err) {
+					if kerr.IsNotFound(err) {
 						return false
 					} else {
 						return len(pods.Items) == int(vs.Spec.Nodes)
@@ -428,7 +428,7 @@ var _ = Describe("VaultServer", func() {
 					pods, err := f.KubeClient.CoreV1().Pods(vs.Namespace).List(metav1.ListOptions{
 						LabelSelector: labels.SelectorFromSet(vs.OffshootSelectors()).String(),
 					})
-					if kerrors.IsNotFound(err) {
+					if kerr.IsNotFound(err) {
 						return false
 					} else {
 						return len(pods.Items) == int(vs.Spec.Nodes)
@@ -475,8 +475,8 @@ var _ = Describe("VaultServer", func() {
 
 			It("status should contain 1 updated pods and 1 unseal pods", func() {
 				Eventually(func() bool {
-					vs, err = f.VaultServerClient.CoreV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
-					if kerrors.IsNotFound(err) {
+					vs, err = f.VaultServerClient.KubevaultV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
+					if kerr.IsNotFound(err) {
 						return false
 					} else {
 						return vs.Status.Initialized &&
@@ -597,7 +597,7 @@ var _ = Describe("VaultServer", func() {
 					Expect(err).NotTo(HaveOccurred())
 				}
 
-				sr := corev1.Secret{
+				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      swiftCredSecret,
 						Namespace: f.Namespace(),
@@ -651,7 +651,7 @@ var _ = Describe("VaultServer", func() {
 				data, err := ioutil.ReadFile(credFile)
 				Expect(err).NotTo(HaveOccurred())
 
-				sr := corev1.Secret{
+				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      secretName,
 						Namespace: f.Namespace(),
@@ -742,7 +742,7 @@ var _ = Describe("VaultServer", func() {
 
 				vs = f.VaultServerWithUnsealer(1, s3, unsealer)
 
-				sr := corev1.Secret{
+				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      awsCredSecret,
 						Namespace: vs.Namespace,
@@ -802,7 +802,7 @@ var _ = Describe("VaultServer", func() {
 				Expect(accountName != "").To(BeTrue())
 				Expect(accountKey != "").To(BeTrue())
 
-				sr := corev1.Secret{
+				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      azureCredSecret,
 						Namespace: f.Namespace(),
@@ -814,7 +814,7 @@ var _ = Describe("VaultServer", func() {
 				}
 				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
 
-				acSr := corev1.Secret{
+				acSr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      azureAcKeySecret,
 						Namespace: f.Namespace(),
@@ -885,7 +885,7 @@ var _ = Describe("VaultServer", func() {
 				url, err := f.DeployPostgresSQL()
 				Expect(err).NotTo(HaveOccurred())
 
-				sr := corev1.Secret{
+				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      connectionUrlSecret,
 						Namespace: f.Namespace(),
@@ -957,7 +957,7 @@ var _ = Describe("VaultServer", func() {
 				url, err := f.DeployMySQL()
 				Expect(err).NotTo(HaveOccurred())
 
-				sr := corev1.Secret{
+				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      mysqlCredSecret,
 						Namespace: f.Namespace(),
@@ -1085,7 +1085,7 @@ var _ = Describe("VaultServer", func() {
 					Skip("dynamodb test is skipped")
 				}
 
-				sr := corev1.Secret{
+				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      awsCredSecret,
 						Namespace: f.Namespace(),

@@ -14,7 +14,7 @@ source "$REPO_ROOT/hack/libbuild/common/lib.sh"
 source "$REPO_ROOT/hack/libbuild/common/kubevault_image.sh"
 
 APPSCODE_ENV=${APPSCODE_ENV:-dev}
-IMG=operator
+IMG=vault-operator
 
 DIST=$GOPATH/src/github.com/kubevault/operator/dist
 mkdir -p $DIST

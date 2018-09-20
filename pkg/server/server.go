@@ -6,12 +6,8 @@ import (
 
 	hooks "github.com/appscode/kubernetes-webhook-util/admission/v1beta1"
 	admissionreview "github.com/appscode/kubernetes-webhook-util/registry/admissionreview/v1beta1"
-	"github.com/kubevault/operator/apis/extensions"
-	"github.com/kubevault/operator/apis/extensions/install"
-	"github.com/kubevault/operator/apis/extensions/v1alpha1"
 	vsadmission "github.com/kubevault/operator/pkg/admission"
 	"github.com/kubevault/operator/pkg/controller"
-	snapregistry "github.com/kubevault/operator/pkg/registry/vaultsecret"
 	admission "k8s.io/api/admission/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -28,7 +24,6 @@ var (
 )
 
 func init() {
-	install.Install(Scheme)
 	admission.AddToScheme(Scheme)
 
 	// we need to add the options to empty v1
@@ -153,17 +148,6 @@ func (c completedConfig) New() (*StashServer, error) {
 				return admissionHook.Initialize(c.ExtraConfig.ClientConfig, context.StopCh)
 			},
 		)
-	}
-
-	{
-		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(extensions.GroupName, Scheme, metav1.ParameterCodec, Codecs)
-		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[v1alpha1.ResourceVaultSecrets] = snapregistry.NewREST(c.ExtraConfig.ClientConfig)
-		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
-
-		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
-			return nil, err
-		}
 	}
 
 	return s, nil

@@ -6,8 +6,8 @@ import (
 
 	"github.com/appscode/go/crypto/rand"
 	. "github.com/onsi/gomega"
-	apps "k8s.io/api/apps/v1beta1"
-	corev1 "k8s.io/api/core/v1"
+	apps "k8s.io/api/apps/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -22,17 +22,17 @@ func (f *Framework) DeployMySQL() (string, error) {
 		"app": rand.WithUniqSuffix("test-mysql"),
 	}
 
-	srv := corev1.Service{
+	srv := core.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: f.namespace,
 			Name:      mysqlServiceName,
 		},
-		Spec: corev1.ServiceSpec{
+		Spec: core.ServiceSpec{
 			Selector: label,
-			Ports: []corev1.ServicePort{
+			Ports: []core.ServicePort{
 				{
 					Name:       "tcp",
-					Protocol:   corev1.ProtocolTCP,
+					Protocol:   core.ProtocolTCP,
 					Port:       3306,
 					TargetPort: intstr.FromInt(3306),
 				},
@@ -42,24 +42,24 @@ func (f *Framework) DeployMySQL() (string, error) {
 
 	url := fmt.Sprintf("%s.%s.svc:3306", mysqlServiceName, f.namespace)
 
-	mysqlCont := corev1.Container{
+	mysqlCont := core.Container{
 		Name:            "mysql",
 		Image:           "mysql:5.6",
 		ImagePullPolicy: "IfNotPresent",
-		Env: []corev1.EnvVar{
+		Env: []core.EnvVar{
 			{
 				Name:  "MYSQL_ROOT_PASSWORD",
 				Value: "root",
 			},
 		},
-		Ports: []corev1.ContainerPort{
+		Ports: []core.ContainerPort{
 			{
 				Name:          "mysql",
-				Protocol:      corev1.ProtocolTCP,
+				Protocol:      core.ProtocolTCP,
 				ContainerPort: 3306,
 			},
 		},
-		VolumeMounts: []corev1.VolumeMount{
+		VolumeMounts: []core.VolumeMount{
 			{
 				MountPath: "/var/lib/mysql/data/pgdata",
 				Name:      "data",
@@ -77,19 +77,19 @@ func (f *Framework) DeployMySQL() (string, error) {
 			Selector: &metav1.LabelSelector{
 				MatchLabels: label,
 			},
-			Template: corev1.PodTemplateSpec{
+			Template: core.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: label,
 				},
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
+				Spec: core.PodSpec{
+					Containers: []core.Container{
 						mysqlCont,
 					},
-					Volumes: []corev1.Volume{
+					Volumes: []core.Volume{
 						{
 							Name: "data",
-							VolumeSource: corev1.VolumeSource{
-								EmptyDir: &corev1.EmptyDirVolumeSource{},
+							VolumeSource: core.VolumeSource{
+								EmptyDir: &core.EmptyDirVolumeSource{},
 							},
 						},
 					},

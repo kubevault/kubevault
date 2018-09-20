@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	core "k8s.io/api/core/v1"
 )
 
 const (
@@ -36,20 +36,20 @@ func NewOptions(s api.EtcdSpec) (*Options, error) {
 // Apply will do:
 // - If TLSSecretName is provided, then add volume for etcd tls
 // - If CredentialSecretName is provided, then set environment variable
-func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	etcdTLSAssetVolume := "vault-etcd-tls"
 	if o.TLSSecretName != "" {
 		// mount tls secret
-		pt.Spec.Volumes = append(pt.Spec.Volumes, corev1.Volume{
+		pt.Spec.Volumes = append(pt.Spec.Volumes, core.Volume{
 			Name: etcdTLSAssetVolume,
-			VolumeSource: corev1.VolumeSource{
-				Secret: &corev1.SecretVolumeSource{
+			VolumeSource: core.VolumeSource{
+				Secret: &core.SecretVolumeSource{
 					SecretName: o.TLSSecretName,
 				},
 			},
 		})
 
-		pt.Spec.Containers[0].VolumeMounts = append(pt.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
+		pt.Spec.Containers[0].VolumeMounts = append(pt.Spec.Containers[0].VolumeMounts, core.VolumeMount{
 			Name:      etcdTLSAssetVolume,
 			MountPath: EtcdTLSAssetDir,
 			ReadOnly:  true,
@@ -59,22 +59,22 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 	if o.CredentialSecretName != "" {
 		// set env variable ETCD_USERNAME and ETCD_PASSWORD
 		pt.Spec.Containers[0].Env = append(pt.Spec.Containers[0].Env,
-			corev1.EnvVar{
+			core.EnvVar{
 				Name: "ETCD_USERNAME",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
+				ValueFrom: &core.EnvVarSource{
+					SecretKeyRef: &core.SecretKeySelector{
+						LocalObjectReference: core.LocalObjectReference{
 							Name: o.CredentialSecretName,
 						},
 						Key: "username",
 					},
 				},
 			},
-			corev1.EnvVar{
+			core.EnvVar{
 				Name: "ETCD_PASSWORD",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
+				ValueFrom: &core.EnvVarSource{
+					SecretKeyRef: &core.SecretKeySelector{
+						LocalObjectReference: core.LocalObjectReference{
 							Name: o.CredentialSecretName,
 						},
 						Key: "password",

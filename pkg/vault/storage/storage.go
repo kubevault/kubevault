@@ -1,7 +1,7 @@
 package storage
 
 import (
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/storage/azure"
 	"github.com/kubevault/operator/pkg/vault/storage/dynamodb"
 	"github.com/kubevault/operator/pkg/vault/storage/etcd"
@@ -13,12 +13,12 @@ import (
 	"github.com/kubevault/operator/pkg/vault/storage/s3"
 	"github.com/kubevault/operator/pkg/vault/storage/swift"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
 type Storage interface {
-	Apply(pt *corev1.PodTemplateSpec) error
+	Apply(pt *core.PodTemplateSpec) error
 	GetStorageConfig() (string, error)
 }
 

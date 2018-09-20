@@ -121,7 +121,7 @@ See here.
 We will deploy `my-vault` on `default` namespace. We will configure it for etcd storage backend which is already running on kubernetes cluster. We will use `kubernetes secret` for auto initializing and unsealing. 
 
 ```yaml
-apiVersion: "core.kubevault.com/v1alpha1"
+apiVersion: "kubevault.com/v1alpha1"
 kind: "VaultServer"
 metadata:
   name: "my-vault"
@@ -159,7 +159,7 @@ secret "vault-etcd-tls" created
 Create vault server:
 ```console
 $ cat vault-crd.yaml
-apiVersion: "core.kubevault.com/v1alpha1"
+apiVersion: "kubevault.com/v1alpha1"
 kind: "VaultServer"
 metadata:
   name: "my-vault"
@@ -185,7 +185,7 @@ $ kubectl apply -f vault-crd.yaml
 vaultserver "my-vault" created
 
 $ kubectl get vaultservers/my-vault -o yaml
-apiVersion: core.kubevault.com/v1alpha1
+apiVersion: kubevault.com/v1alpha1
 kind: VaultServer
 metadata:
   name: my-vault

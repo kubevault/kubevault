@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	core "k8s.io/api/core/v1"
 )
 
 var s3StorageFmt = `
@@ -28,24 +28,24 @@ func NewOptions(s api.S3Spec) (*Options, error) {
 //	- AWS_ACCESS_KEY_ID
 //	- AWS_SECRET_ACCESS_KEY
 //  - AWS_SESSION_TOKEN
-func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
-	envs := []corev1.EnvVar{}
+func (o *Options) Apply(pt *core.PodTemplateSpec) error {
+	envs := []core.EnvVar{}
 	if o.CredentialSecret != "" {
-		envs = append(envs, corev1.EnvVar{
+		envs = append(envs, core.EnvVar{
 			Name: "AWS_ACCESS_KEY_ID",
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
+			ValueFrom: &core.EnvVarSource{
+				SecretKeyRef: &core.SecretKeySelector{
+					LocalObjectReference: core.LocalObjectReference{
 						Name: o.CredentialSecret,
 					},
 					Key: "access_key",
 				},
 			},
-		}, corev1.EnvVar{
+		}, core.EnvVar{
 			Name: "AWS_SECRET_ACCESS_KEY",
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
+			ValueFrom: &core.EnvVarSource{
+				SecretKeyRef: &core.SecretKeySelector{
+					LocalObjectReference: core.LocalObjectReference{
 						Name: o.CredentialSecret,
 					},
 					Key: "secret_key",
@@ -54,11 +54,11 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 		})
 	}
 	if o.SessionTokenSecret != "" {
-		envs = append(envs, corev1.EnvVar{
+		envs = append(envs, core.EnvVar{
 			Name: "AWS_SESSION_TOKEN",
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
+			ValueFrom: &core.EnvVarSource{
+				SecretKeyRef: &core.SecretKeySelector{
+					LocalObjectReference: core.LocalObjectReference{
 						Name: o.SessionTokenSecret,
 					},
 					Key: "session_token",

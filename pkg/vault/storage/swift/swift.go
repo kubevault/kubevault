@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	core "k8s.io/api/core/v1"
 )
 
 var swiftStorageFmt = `
@@ -24,24 +24,24 @@ func NewOptions(s api.SwiftSpec) (*Options, error) {
 	}, nil
 }
 
-func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	if o.CredentialSecret != "" {
-		var envs []corev1.EnvVar
-		envs = append(envs, corev1.EnvVar{
+		var envs []core.EnvVar
+		envs = append(envs, core.EnvVar{
 			Name: "OS_USERNAME",
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
+			ValueFrom: &core.EnvVarSource{
+				SecretKeyRef: &core.SecretKeySelector{
+					LocalObjectReference: core.LocalObjectReference{
 						Name: o.CredentialSecret,
 					},
 					Key: "username",
 				},
 			},
-		}, corev1.EnvVar{
+		}, core.EnvVar{
 			Name: "OS_PASSWORD",
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
+			ValueFrom: &core.EnvVarSource{
+				SecretKeyRef: &core.SecretKeySelector{
+					LocalObjectReference: core.LocalObjectReference{
 						Name: o.CredentialSecret,
 					},
 					Key: "password",
@@ -50,11 +50,11 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 		})
 
 		if o.AuthTokenSecret != "" {
-			envs = append(envs, corev1.EnvVar{
+			envs = append(envs, core.EnvVar{
 				Name: "OS_AUTH_TOKEN",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
+				ValueFrom: &core.EnvVarSource{
+					SecretKeyRef: &core.SecretKeySelector{
+						LocalObjectReference: core.LocalObjectReference{
 							Name: o.AuthTokenSecret,
 						},
 						Key: "auth_token",

@@ -26,7 +26,6 @@ spec:
         args:
         - run
         - --v=3
-        - --rbac=${VAULT_OPERATOR_ENABLE_RBAC}
         - --secure-port=8443
         - --audit-log-path=-
         - --tls-cert-file=/var/serving-cert/tls.crt
@@ -86,3 +85,20 @@ spec:
     targetPort: 8443
   selector:
     app: vault-operator
+---
+# register as aggregated apiserver
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1alpha1.admission.kubevault.com
+  labels:
+    app: vault-operator
+spec:
+  caBundle: ${SERVICE_SERVING_CERT_CA}
+  group: admission.kubevault.com
+  groupPriorityMinimum: 1000
+  versionPriority: 15
+  service:
+    name: vault-operator
+    namespace: ${VAULT_OPERATOR_NAMESPACE}
+  version: v1alpha1

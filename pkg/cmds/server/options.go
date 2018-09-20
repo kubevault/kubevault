@@ -4,7 +4,7 @@ import (
 	"flag"
 	"time"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	"github.com/kubevault/operator/pkg/controller"
 	"github.com/kubevault/operator/pkg/docker"
