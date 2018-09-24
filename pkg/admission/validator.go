@@ -89,7 +89,7 @@ func (v *VaultServerValidator) Admit(req *admission.AdmissionRequest) *admission
 			oldVs := oldObject.(*api.VaultServer).DeepCopy()
 
 			if err := validateUpdate(vs, oldVs, req.Kind.Kind); err != nil {
-				return hookapi.StatusBadRequest(fmt.Errorf("%v", err))
+				return hookapi.StatusBadRequest(err)
 			}
 		}
 		// validate vaultserver specs

@@ -182,9 +182,10 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 	// this init container will append user provided configuration
 	// file to the controller provided configuration file
 	initCont := core.Container{
-		Name:    util.VaultInitContainerName,
-		Image:   "busybox",
-		Command: []string{"/bin/sh"},
+		Name:            util.VaultInitContainerName,
+		Image:           "busybox",
+		ImagePullPolicy: core.PullIfNotPresent,
+		Command:         []string{"/bin/sh"},
 		Args: []string{
 			"-c",
 			`set -e

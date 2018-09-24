@@ -14,7 +14,7 @@ spec:
   - JSONPath: .spec.version
     name: Version
     type: string
-  - JSONPath: .status.vaultStatus
+  - JSONPath: .status.phase
     name: Status
     type: string
   - JSONPath: .metadata.creationTimestamp

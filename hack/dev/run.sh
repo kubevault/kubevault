@@ -104,7 +104,7 @@ rm -f ./onessl
 $REPO_ROOT/hack/make.py
 
 if [ "$VAULT_OPERATOR_E2E_TEST" = false ]; then # don't run operator while run this script from test
-vault-operator run --v=4 \
+vault-operator run --v=3 \
   --secure-port=8443 \
   --enable-status-subresource=true \
   --kubeconfig="$HOME/.kube/config" \

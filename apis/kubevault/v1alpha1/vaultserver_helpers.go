@@ -70,7 +70,7 @@ func (v VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDef
 			{
 				Name:     "Status",
 				Type:     "string",
-				JSONPath: ".status.vaultStatus",
+				JSONPath: ".status.phase",
 			},
 			{
 				Name:     "Age",

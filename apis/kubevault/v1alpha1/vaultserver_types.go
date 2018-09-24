@@ -15,13 +15,6 @@ const (
 	ResourceVaultServers    = "vaultservers"
 )
 
-type ClusterPhase string
-
-const (
-	ClusterPhaseInitial ClusterPhase = ""
-	ClusterPhaseRunning              = "Running"
-)
-
 // +genclient
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -73,6 +66,15 @@ type VaultServerList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []VaultServer `json:"items,omitempty"`
 }
+
+type ClusterPhase string
+
+const (
+	ClusterPhaseProcessing    ClusterPhase = "Processing"
+	ClusterPhaseUnInitialized ClusterPhase = "Uninitialized"
+	ClusterPhaseRunning       ClusterPhase = "Running"
+	ClusterPhaseSealed        ClusterPhase = "Sealed"
+)
 
 type VaultServerStatus struct {
 	// observedGeneration is the most recent generation observed for this resource. It corresponds to the
