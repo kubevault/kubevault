@@ -26,7 +26,7 @@ rules:
   resources:
   - deployments
   - statefulsets
-  verbs: ["get", "list", "watch", "patch"]
+  verbs: ["create","get", "list", "watch", "patch"]
 - apiGroups:
   - batch
   resources:
@@ -47,11 +47,12 @@ rules:
 - apiGroups: [""]
   resources:
   - configmaps
-  verbs: ["create", "update", "get", "delete"]
+  verbs: ["create", "update", "get", "delete", "patch"]
 - apiGroups: [""]
   resources:
   - secrets
-  verbs: ["get"]
+  - services
+  verbs: ["create", "update", "get", "delete", "patch"]
 - apiGroups: [""]
   resources:
   - events
