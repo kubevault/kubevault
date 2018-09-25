@@ -15,7 +15,7 @@ import (
 
 const defaultEtcdPathPrefix = "/registry/kubevault.com"
 
-type StashOptions struct {
+type VaultServerOptions struct {
 	RecommendedOptions *genericoptions.RecommendedOptions
 	ExtraOptions       *ExtraOptions
 
@@ -23,8 +23,8 @@ type StashOptions struct {
 	StdErr io.Writer
 }
 
-func NewStashOptions(out, errOut io.Writer) *StashOptions {
-	o := &StashOptions{
+func NewVaultServerOptions(out, errOut io.Writer) *VaultServerOptions {
+	o := &VaultServerOptions{
 		// TODO we will nil out the etcd storage options.  This requires a later level of k8s.io/apiserver
 		RecommendedOptions: genericoptions.NewRecommendedOptions(defaultEtcdPathPrefix, server.Codecs.LegacyCodec(admissionv1beta1.SchemeGroupVersion)),
 		ExtraOptions:       NewExtraOptions(),
@@ -37,20 +37,20 @@ func NewStashOptions(out, errOut io.Writer) *StashOptions {
 	return o
 }
 
-func (o StashOptions) AddFlags(fs *pflag.FlagSet) {
+func (o VaultServerOptions) AddFlags(fs *pflag.FlagSet) {
 	o.RecommendedOptions.AddFlags(fs)
 	o.ExtraOptions.AddFlags(fs)
 }
 
-func (o StashOptions) Validate(args []string) error {
+func (o VaultServerOptions) Validate(args []string) error {
 	return nil
 }
 
-func (o *StashOptions) Complete() error {
+func (o *VaultServerOptions) Complete() error {
 	return nil
 }
 
-func (o StashOptions) Config() (*server.StashConfig, error) {
+func (o VaultServerOptions) Config() (*server.VaultServerConfig, error) {
 	// TODO have a "real" external address
 	if err := o.RecommendedOptions.SecureServing.MaybeDefaultWithSelfSignedCerts("localhost", nil, []net.IP{net.ParseIP("127.0.0.1")}); err != nil {
 		return nil, fmt.Errorf("error creating self-signed certificates: %v", err)
@@ -67,14 +67,14 @@ func (o StashOptions) Config() (*server.StashConfig, error) {
 		return nil, err
 	}
 
-	config := &server.StashConfig{
+	config := &server.VaultServerConfig{
 		GenericConfig: serverConfig,
 		ExtraConfig:   extraConfig,
 	}
 	return config, nil
 }
 
-func (o StashOptions) Run(stopCh <-chan struct{}) error {
+func (o VaultServerOptions) Run(stopCh <-chan struct{}) error {
 	config, err := o.Config()
 	if err != nil {
 		return err

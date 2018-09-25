@@ -96,7 +96,7 @@ kubectl create clusterrolebinding anonymous-cluster-admin --clusterrole=cluster-
 kubectl create -R -f $REPO_ROOT/api/crds || true
 
 cat $REPO_ROOT/hack/deploy/catalog/vaultserver.yaml | $ONESSL envsubst | kubectl apply -f -
-cat $REPO_ROOT/hack/dev/apiregistration.yaml | envsubst | kubectl apply -f -
+cat $REPO_ROOT/hack/dev/apiregistration.yaml | $ONESSL envsubst | kubectl apply -f -
 cat $REPO_ROOT/hack/deploy/validating-webhook.yaml | $ONESSL envsubst | kubectl apply -f -
 # cat $REPO_ROOT/hack/deploy/mutating-webhook.yaml | $ONESSL envsubst | kubectl apply -f -
 rm -f ./onessl

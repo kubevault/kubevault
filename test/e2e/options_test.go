@@ -6,7 +6,9 @@ import (
 
 	"github.com/appscode/go/flags"
 	logs "github.com/appscode/go/log/golog"
+	"github.com/kubevault/operator/client/clientset/versioned/scheme"
 	"github.com/kubevault/operator/pkg/cmds/server"
+	clientSetScheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/util/homedir"
 )
 
@@ -28,8 +30,10 @@ var (
 )
 
 func init() {
+	scheme.AddToScheme(clientSetScheme.Scheme)
+
 	options.AddGoFlags(flag.CommandLine)
-	flag.StringVar(&options.KubeConfig, "kubeconfig", "", "Path to kubeconfig file with authorization information (the master location is set by the master flag).")
+	flag.StringVar(&options.KubeConfig, "kubeconfig", options.KubeConfig, "Path to kubeconfig file with authorization information (the master location is set by the master flag).")
 	flag.StringVar(&options.KubeContext, "kube-context", "", "Name of kube context")
 	flag.BoolVar(&options.StartAPIServer, "webhook", options.StartAPIServer, "Start API server for webhook")
 	flag.BoolVar(&options.RunDynamoDBTest, "run-dynamodb-test", options.RunDynamoDBTest, "Run dynamoDB test")

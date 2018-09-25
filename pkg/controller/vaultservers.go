@@ -4,16 +4,12 @@ import (
 	"context"
 
 	"github.com/appscode/go/encoding/json/types"
-	"github.com/appscode/kubernetes-webhook-util/admission"
-	hooks "github.com/appscode/kubernetes-webhook-util/admission/v1beta1"
-	webhook "github.com/appscode/kubernetes-webhook-util/admission/v1beta1/generic"
 	apps_util "github.com/appscode/kutil/apps/v1"
 	core_util "github.com/appscode/kutil/core/v1"
 	meta_util "github.com/appscode/kutil/meta"
 	rbac_util "github.com/appscode/kutil/rbac/v1"
 	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
-	"github.com/kubevault/operator/apis/kubevault"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"github.com/kubevault/operator/pkg/vault/util"
@@ -22,32 +18,8 @@ import (
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes"
 )
-
-func (c *VaultController) NewVaultServerWebhook() hooks.AdmissionHook {
-	return webhook.NewGenericWebhook(
-		schema.GroupVersionResource{
-			Group:    "admission.kubevault.com",
-			Version:  "v1alpha1",
-			Resource: "vaultservers",
-		},
-		"vaultserver",
-		[]string{kubevault.GroupName},
-		api.SchemeGroupVersion.WithKind("VaultServer"),
-		nil,
-		&admission.ResourceHandlerFuncs{
-			CreateFunc: func(obj runtime.Object) (runtime.Object, error) {
-				return nil, obj.(*api.VaultServer).IsValid()
-			},
-			UpdateFunc: func(oldObj, newObj runtime.Object) (runtime.Object, error) {
-				return nil, newObj.(*api.VaultServer).IsValid()
-			},
-		},
-	)
-}
 
 func (c *VaultController) initVaultServerWatcher() {
 	c.vsInformer = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Informer()

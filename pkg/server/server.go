@@ -41,18 +41,18 @@ func init() {
 	)
 }
 
-type StashConfig struct {
+type VaultServerConfig struct {
 	GenericConfig *genericapiserver.RecommendedConfig
 	ExtraConfig   *controller.Config
 }
 
-// StashServer contains state for a Kubernetes cluster master/api server.
-type StashServer struct {
+// VaultServer contains state for a Kubernetes cluster master/api server.
+type VaultServer struct {
 	GenericAPIServer *genericapiserver.GenericAPIServer
 	Controller       *controller.VaultController
 }
 
-func (op *StashServer) Run(stopCh <-chan struct{}) error {
+func (op *VaultServer) Run(stopCh <-chan struct{}) error {
 	go op.Controller.RunInformers(stopCh)
 	return op.GenericAPIServer.PrepareRun().Run(stopCh)
 }
@@ -68,7 +68,7 @@ type CompletedConfig struct {
 }
 
 // Complete fills in any fields not set that are required to have valid data. It's mutating the receiver.
-func (c *StashConfig) Complete() CompletedConfig {
+func (c *VaultServerConfig) Complete() CompletedConfig {
 	completedCfg := completedConfig{
 		c.GenericConfig.Complete(),
 		c.ExtraConfig,
@@ -82,9 +82,9 @@ func (c *StashConfig) Complete() CompletedConfig {
 	return CompletedConfig{&completedCfg}
 }
 
-// New returns a new instance of StashServer from the given config.
-func (c completedConfig) New() (*StashServer, error) {
-	genericServer, err := c.GenericConfig.New("stash-apiserver", genericapiserver.NewEmptyDelegate()) // completion is done in Complete, no need for a second time
+// New returns a new instance of VaultServer from the given config.
+func (c completedConfig) New() (*VaultServer, error) {
+	genericServer, err := c.GenericConfig.New("vault-apiserver", genericapiserver.NewEmptyDelegate()) // completion is done in Complete, no need for a second time
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (c completedConfig) New() (*StashServer, error) {
 		&vsadmission.VaultServerValidator{},
 	}
 
-	s := &StashServer{
+	s := &VaultServer{
 		GenericAPIServer: genericServer,
 		Controller:       ctrl,
 	}
