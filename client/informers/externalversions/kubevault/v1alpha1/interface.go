@@ -24,6 +24,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
+	// VaultPolicies returns a VaultPolicyInformer.
+	VaultPolicies() VaultPolicyInformer
 	// VaultServers returns a VaultServerInformer.
 	VaultServers() VaultServerInformer
 }
@@ -37,6 +39,11 @@ type version struct {
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakListOptions internalinterfaces.TweakListOptionsFunc) Interface {
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
+}
+
+// VaultPolicies returns a VaultPolicyInformer.
+func (v *version) VaultPolicies() VaultPolicyInformer {
+	return &vaultPolicyInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // VaultServers returns a VaultServerInformer.
