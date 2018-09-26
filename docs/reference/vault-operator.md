@@ -1,17 +1,17 @@
 ---
 title: Vault-Operator
 menu:
-  product_steward_0.1.0-alpha.0:
+  product_vault-operator_0.1.0:
     identifier: vault-operator
     name: Vault-Operator
     parent: reference
     weight: 0
 
-product_name: steward
-left_menu: product_steward_0.1.0-alpha.0
+product_name: vault-operator
+left_menu: product_vault-operator_0.1.0
 section_menu_id: reference
 aliases:
-  - products/steward/0.1.0-alpha.0/reference/
+  - products/vault-operator/0.1.0/reference/
 
 ---
 ## vault-operator

@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	version = "0.1.0-alpha.0"
+	version = "0.1.0"
 )
 
 var (
@@ -24,30 +24,30 @@ var (
 title: Reference
 description: Steward CLI Reference
 menu:
-  product_steward_{{ .Version }}:
+  product_vault-operator_{{ .Version }}:
     identifier: reference
     name: Reference
     weight: 1000
-left_menu: product_steward_{{ .Version }}
+left_menu: product_vault-operator_{{ .Version }}
 ---
 `))
 
 	_ = template.Must(tplFrontMatter.New("cmd").Parse(`---
 title: {{ .Name }}
 menu:
-  product_steward_{{ .Version }}:
+  product_vault-operator_{{ .Version }}:
     identifier: {{ .ID }}
     name: {{ .Name }}
     parent: reference
 {{- if .RootCmd }}
     weight: 0
 {{ end }}
-product_name: steward
-left_menu: product_steward_{{ .Version }}
+product_name: vault-operator
+left_menu: product_vault-operator_{{ .Version }}
 section_menu_id: reference
 {{- if .RootCmd }}
 aliases:
-  - products/steward/{{ .Version }}/reference/
+  - products/vault-operator/{{ .Version }}/reference/
 {{ end }}
 ---
 `))
