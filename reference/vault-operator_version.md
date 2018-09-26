@@ -1,12 +1,12 @@
 ---
 title: Vault-Operator Version
 menu:
-  product_steward_0.1.0-alpha.0:
+  product_vault-operator_0.1.0:
     identifier: vault-operator-version
     name: Vault-Operator Version
     parent: reference
-product_name: steward
-left_menu: product_steward_0.1.0-alpha.0
+product_name: vault-operator
+left_menu: product_vault-operator_0.1.0
 section_menu_id: reference
 ---
 ## vault-operator version
