@@ -18,6 +18,7 @@ rules:
   - validatingwebhookconfigurations
   verbs: ["get","list"]
 - apiGroups:
+- apiGroups:
   - kubevault.com
   resources: ["*"]
   verbs: ["*"]
@@ -25,58 +26,30 @@ rules:
   - apps
   resources:
   - deployments
-  - statefulsets
-  verbs: ["create","get", "list", "watch", "patch"]
-- apiGroups:
-  - batch
-  resources:
-  - jobs
-  - cronjobs
-  verbs: ["get", "list", "watch", "create", "delete", "patch"]
-- apiGroups:
-  - extensions
-  resources:
-  - replicasets
-  - daemonsets
-  verbs: ["get", "list", "watch", "patch"]
-- apiGroups: [""]
-  resources:
-  - namespaces
-  - replicationcontrollers
-  verbs: ["get", "list", "watch", "patch"]
+  verbs: ["create","get", "update", "patch"]
 - apiGroups: [""]
   resources:
   - configmaps
-  verbs: ["create", "update", "get", "delete", "patch"]
-- apiGroups: [""]
-  resources:
   - secrets
   - services
-  verbs: ["create", "update", "get", "delete", "patch"]
+  - serviceaccounts
+  verbs: ["create", "update", "get", "patch"]
 - apiGroups: [""]
   resources:
   - events
   verbs: ["create"]
 - apiGroups: [""]
   resources:
-  - nodes
-  verbs: ["list"]
-- apiGroups: [""]
-  resources:
   - pods
   - pods/exec
-  verbs: ["get", "create", "list", "delete", "deletecollection"]
-- apiGroups: [""]
-  resources:
-  - serviceaccounts
-  verbs: ["get", "create", "patch", "delete"]
+  verbs: ["get", "create", "list"]
 - apiGroups:
   - rbac.authorization.k8s.io
   resources:
   - clusterroles
   - roles
   - rolebindings
-  verbs: ["get", "create", "delete", "patch"]
+  verbs: ["get", "update", "create", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

@@ -26,26 +26,17 @@ rules:
   resources: ["*"]
   verbs: ["*"]
 - apiGroups:
-  - extensions
-  resources:
-  - replicasets
-  - daemonsets
-  verbs: ["list", "watch", "update"]
-- apiGroups:
   - apps
   resources:
   - deployments
-  - statefulsets
-  verbs: ["list", "watch", "update"]
+  verbs: ["create","get", "update", "patch"]
 - apiGroups: [""]
   resources:
-  - namespaces
-  - replicationcontrollers
-  verbs: ["list", "watch", "update"]
-- apiGroups: [""]
-  resources:
+  - configmaps
   - secrets
-  verbs: ["get"]
+  - services
+  - serviceaccounts
+  verbs: ["create", "update", "get", "patch"]
 - apiGroups: [""]
   resources:
   - events
@@ -53,5 +44,13 @@ rules:
 - apiGroups: [""]
   resources:
   - pods
-  verbs: ["list", delete"]
+  - pods/exec
+  verbs: ["get", "create", "list"]
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  - roles
+  - rolebindings
+  verbs: ["get", "update", "create", "patch"]
 {{ end }}
