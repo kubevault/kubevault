@@ -46,10 +46,14 @@ The following table lists the configurable parameters of the Vault chart and the
 | Parameter                             | Description                                                        | Default            |
 | ------------------------------------- | ------------------------------------------------------------------ | ------------------ |
 | `replicaCount`                        | Number of Vault operator replicas to create (only 1 is supported)  | `1`                |
-| `operator.registry`                   | Docker registry used to pull Vault operator image                  | `vault-operator`   |
-| `operator.repository`                 | Vault operator container image                                     | `pack-operator`    |
-| `operator.tag`                        | Vault operator container image tag                                 | `canary`           |
-| `imagePullPolicy`                     | container image pull policy                                        | `IfNotPresent`     |
+| `operator.registry`                   | Docker registry used to pull Vault operator image                  | `kubevault`        |
+| `operator.repository`                 | Vault operator container image                                     | `vault-operator`   |
+| `operator.tag`                        | Vault operator container image tag                                 | `0.1.0`            |
+| `cleaner.registry`                    | Docker registry used to pull Webhook cleaner image                 | `appcode`          |
+| `cleaner.repository`                  | Webhook cleaner container image                                    | `kubectl`          |
+| `cleaner.tag`                         | Webhook cleaner container image tag                                | `v1.11`            |
+| `imagePullSecrets`                    | Specify image pull secrets                                         | `nil` (does not add image pull secrets to deployed pods) |
+| `imagePullPolicy`                     | Image pull policy                                                  | `IfNotPresent`     |
 | `criticalAddon`                       | If true, installs Vault operator as critical addon                 | `false`            |
 | `logLevel`                            | Log level for operator                                             | `3`                |
 | `affinity`                            | Affinity rules for pod assignment                                  | `{}`               |
