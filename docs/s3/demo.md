@@ -87,7 +87,7 @@ See here.
 We will deploy `my-vault` on `default` namespace. We will configure it for s3 backend. We will use `awsKmsSsm` for auto initializing and unsealing. We already created a s3 bucket `test-vault-s3` in `us-west-1` region.
 
 ```yaml
-apiVersion: "core.kubevault.com/v1alpha1"
+apiVersion: "kubevault.com/v1alpha1"
 kind: "VaultServer"
 metadata:
   name: "my-vault"
@@ -113,7 +113,7 @@ spec:
 Create vault server:
 ```console
 $ cat vault-crd.yaml
-apiVersion: "core.kubevault.com/v1alpha1"
+apiVersion: "kubevault.com/v1alpha1"
 kind: "VaultServer"
 metadata:
   name: "my-vault"
@@ -140,7 +140,7 @@ vaultserver "my-vault" created
 ```
 ```console
 $ kubectl get vaultservers/my-vault -o yaml
-apiVersion: core.kubevault.com/v1alpha1
+apiVersion: kubevault.com/v1alpha1
 kind: VaultServer
 metadata:
   name: my-vault

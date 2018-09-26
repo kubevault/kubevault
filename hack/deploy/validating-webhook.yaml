@@ -5,7 +5,7 @@ metadata:
   labels:
     app: vault-operator
 webhooks:
-- name: restic.admission.kubevault.com
+- name: vaultservers.admission.kubevault.com
   clientConfig:
     service:
       namespace: default
@@ -17,7 +17,7 @@ webhooks:
     - CREATE
     - UPDATE
     apiGroups:
-    - core.kubevault.com
+    - kubevault.com
     apiVersions:
     - "*"
     resources:

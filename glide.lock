@@ -1,5 +1,5 @@
-hash: 90018810845fd184e6a2a4c01a5c96068fdf5627d91c66cc869bd7dc94b467a5
-updated: 2018-09-10T19:35:00.086182741-07:00
+hash: 51c5ab99f6734e13044e2fa01a51252e7bf4b372434d41722912ec3072327714
+updated: 2018-09-25T12:54:28.554264524+06:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -22,26 +22,27 @@ imports:
   - net
   - runtime
   - sets
-  - strings
   - types
   - version
+- name: github.com/appscode/go-version
+  version: 0dcf3ac121c7c30e035b41ba9f652d1ce5994242
 - name: github.com/appscode/jsonpatch
-  version: 1359b374de83fa14fd58ab10aa8ea4935f84d249
+  version: 5af499cf01c842bfdd7761a433fc90525ccd6836
 - name: github.com/appscode/kubernetes-webhook-util
   version: cb010279d0a6d1885e6316f78cf3ef682fca7a42
   subpackages:
   - admission
   - admission/v1beta1
   - admission/v1beta1/generic
-  - apis/workload/v1
   - registry/admissionreview/v1beta1
   - runtime/serializer/versioning
 - name: github.com/appscode/kutil
-  version: 6a61b0d2df81e2d5b4764bee574eb43a9a954a5a
+  version: bd70cefb33397b4c196aca7e33cab656755e195e
   subpackages:
   - apiextensions/v1beta1
   - apps/v1
   - core/v1
+  - discovery
   - meta
   - openapi
   - rbac/v1
@@ -103,6 +104,10 @@ imports:
   - quantile
 - name: github.com/blang/semver
   version: b38d23b8782a487059e8fc8773e9a5b228a77cb6
+- name: github.com/codegangsta/inject
+  version: 33e0aa1cb7c019ccc3fbe049a8262a6403d30504
+- name: github.com/codeskyblue/go-sh
+  version: cf804ac79dffabb6b16342e24362cc744afc144f
 - name: github.com/coreos/etcd
   version: 95a726a27e09030f9ccbd9982a1508f5a6d25ada
   subpackages:
@@ -218,7 +223,7 @@ imports:
 - name: github.com/evanphx/json-patch
   version: afac545df32f2287a079e2dfb7ba2745a643747e
 - name: github.com/fatih/structs
-  version: ebf56d35bba727c68ac77f56f2fcf90b181851aa
+  version: 4966fc68f5b7593aafa6cbbba2d65ec6e1416047
 - name: github.com/ghodss/yaml
   version: 73d445a93680fa1a78ae23a5839bad48f32ba1ee
 - name: github.com/go-ini/ini
@@ -258,7 +263,7 @@ imports:
 - name: github.com/google/btree
   version: 7d79101e329e5a3adf994758c578dab82b90c017
 - name: github.com/google/go-cmp
-  version: 3af367b6b30c263d47e8895973edcca9a49cf029
+  version: 97aa668b73e764ccdd786bc3ccd2edffe621150e
   subpackages:
   - cmp
   - cmp/internal/diff
@@ -357,6 +362,26 @@ imports:
   version: 05fbef0ca5da472bbf96c9322b84a53edc03c9fd
 - name: github.com/NYTimes/gziphandler
   version: 56545f4a5d46df9a6648819d1664c3a03a13ffdb
+- name: github.com/onsi/ginkgo
+  version: fa5fabab2a1bfbd924faf4c067d07ae414e2aedf
+  subpackages:
+  - config
+  - internal/codelocation
+  - internal/containernode
+  - internal/failer
+  - internal/leafnodes
+  - internal/remote
+  - internal/spec
+  - internal/spec_iterator
+  - internal/specrunner
+  - internal/suite
+  - internal/testingtproxy
+  - internal/writer
+  - reporters
+  - reporters/stenographer
+  - reporters/stenographer/support/go-colorable
+  - reporters/stenographer/support/go-isatty
+  - types
 - name: github.com/onsi/gomega
   version: 62bff4df71bdbc266561a0caee19f0594b17c240
   subpackages:
@@ -438,6 +463,10 @@ imports:
   - doc
 - name: github.com/spf13/pflag
   version: 583c0c0531f06d5278b7d917446061adc344b5cd
+- name: github.com/stretchr/testify
+  version: f35b8ab0b5a2cef36673838d662e249dd9c94686
+  subpackages:
+  - assert
 - name: github.com/ugorji/go
   version: ded73eae5db7e7a0ef6f55aace87a2873c5d2b74
   subpackages:
@@ -657,7 +686,7 @@ imports:
   - third_party/forked/golang/netutil
   - third_party/forked/golang/reflect
 - name: k8s.io/apiserver
-  version: 9970aee1898bc65beb8f3829b2ddf8e191777f78
+  version: dea48c5b25a85e0fa07fec5bd5b8ec8fcaae6653
   repo: https://github.com/pharmer/apiserver.git
   vcs: git
   subpackages:
@@ -982,31 +1011,7 @@ imports:
 testImports:
 - name: github.com/ncw/swift
   version: 7854abff473c41fdde529ebe4cf7db6334dd61ce
-- name: github.com/onsi/ginkgo
-  version: fa5fabab2a1bfbd924faf4c067d07ae414e2aedf
-  subpackages:
-  - config
-  - internal/codelocation
-  - internal/containernode
-  - internal/failer
-  - internal/leafnodes
-  - internal/remote
-  - internal/spec
-  - internal/spec_iterator
-  - internal/specrunner
-  - internal/suite
-  - internal/testingtproxy
-  - internal/writer
-  - reporters
-  - reporters/stenographer
-  - reporters/stenographer/support/go-colorable
-  - reporters/stenographer/support/go-isatty
-  - types
 - name: github.com/pmezard/go-difflib
   version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
   subpackages:
   - difflib
-- name: github.com/stretchr/testify
-  version: f35b8ab0b5a2cef36673838d662e249dd9c94686
-  subpackages:
-  - assert

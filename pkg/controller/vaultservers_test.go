@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"testing"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	cfake "github.com/kubevault/operator/client/clientset/versioned/fake"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
@@ -17,82 +17,82 @@ import (
 )
 
 type vaultFake struct {
-	sr                *corev1.Secret
-	cm                *corev1.ConfigMap
+	sr                *core.Secret
+	cm                *core.ConfigMap
 	dp                *appsv1.Deployment
-	sa                *corev1.ServiceAccount
-	svc               *corev1.Service
+	sa                *core.ServiceAccount
+	svc               *core.Service
 	roles             []rbac.Role
-	pt                *corev1.PodTemplateSpec
-	cnt               corev1.Container
+	pt                *core.PodTemplateSpec
+	cnt               core.Container
 	ErrInGetServerTLS bool
 	ErrInGetConfig    bool
 	ErrInApply        bool
 }
 
-func (v *vaultFake) GetServerTLS() (*corev1.Secret, error) {
+func (v *vaultFake) GetServerTLS() (*core.Secret, error) {
 	if v.ErrInGetServerTLS {
 		return nil, fmt.Errorf("error")
 	}
 	return v.sr, nil
 }
-func (v *vaultFake) GetConfig() (*corev1.ConfigMap, error) {
+func (v *vaultFake) GetConfig() (*core.ConfigMap, error) {
 	if v.ErrInGetConfig {
 		return nil, fmt.Errorf("error")
 	}
 	return v.cm, nil
 }
-func (v *vaultFake) Apply(pt *corev1.PodTemplateSpec) error {
+func (v *vaultFake) Apply(pt *core.PodTemplateSpec) error {
 	if v.ErrInApply {
 		return fmt.Errorf("error")
 	}
 	return nil
 }
-func (v *vaultFake) GetService() *corev1.Service {
+func (v *vaultFake) GetService() *core.Service {
 	return v.svc
 }
-func (v *vaultFake) GetDeployment(pt *corev1.PodTemplateSpec) *appsv1.Deployment {
+func (v *vaultFake) GetDeployment(pt *core.PodTemplateSpec) *appsv1.Deployment {
 	return v.dp
 }
-func (v *vaultFake) GetServiceAccount() *corev1.ServiceAccount {
+func (v *vaultFake) GetServiceAccount() *core.ServiceAccount {
 	return v.sa
 }
 func (v *vaultFake) GetRBACRoles() []rbac.Role {
 	return v.roles
 }
-func (v *vaultFake) GetPodTemplate(c corev1.Container, saName string) *corev1.PodTemplateSpec {
+func (v *vaultFake) GetPodTemplate(c core.Container, saName string) *core.PodTemplateSpec {
 	return v.pt
 }
-func (v *vaultFake) GetContainer() corev1.Container {
+func (v *vaultFake) GetContainer() core.Container {
 	return v.cnt
 }
 
 func TestReconcileVault(t *testing.T) {
 	vfk := vaultFake{
-		sr: &corev1.Secret{
+		sr: &core.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "sr-test",
 				Namespace: "test",
 			},
 		},
-		cm: &corev1.ConfigMap{
+		cm: &core.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "sa-test",
 				Namespace: "test",
 			},
 		},
-		sa: &corev1.ServiceAccount{
+		sa: &core.ServiceAccount{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "sa-test",
 				Namespace: "test",
 			},
 		},
-		cnt: corev1.Container{},
-		pt:  &corev1.PodTemplateSpec{},
+		cnt: core.Container{},
+		pt:  &core.PodTemplateSpec{},
 		dp: &appsv1.Deployment{
 			ObjectMeta: getVaultObjectMeta(1),
 		},
-		svc: &corev1.Service{
+		svc: &core.Service{
 			ObjectMeta: getVaultObjectMeta(1),
 		},
 		roles: []rbac.Role{},
@@ -169,21 +169,21 @@ func TestReconcileVault(t *testing.T) {
 
 func TestDeployVault(t *testing.T) {
 	vfk := vaultFake{
-		sa: &corev1.ServiceAccount{
+		sa: &core.ServiceAccount{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "sa-test",
 				Namespace: "test",
 			},
 		},
-		cnt: corev1.Container{},
-		pt:  &corev1.PodTemplateSpec{},
+		cnt: core.Container{},
+		pt:  &core.PodTemplateSpec{},
 		dp: &appsv1.Deployment{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "dp-test",
 				Namespace: "test",
 			},
 		},
-		svc: &corev1.Service{
+		svc: &core.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "svc-test",
 				Namespace: "test",
@@ -246,7 +246,7 @@ func TestCreateRoleAndRoleBinding(t *testing.T) {
 	demoRole := rbac.Role{
 		Rules: []rbac.PolicyRule{
 			{
-				APIGroups: []string{corev1.GroupName},
+				APIGroups: []string{core.GroupName},
 				Resources: []string{"secret"},
 				Verbs:     []string{"*"},
 			},

@@ -54,7 +54,7 @@ See here.
 We will deploy `my-vault` on `default` namespace. We will configure it for Azure Storage Container backend. We will use `azureKeyVault` for auto initializing and unsealing. 
 
 ```yaml
-apiVersion: "core.kubevault.com/v1alpha1"
+apiVersion: "kubevault.com/v1alpha1"
 kind: "VaultServer"
 metadata:
   name: "my-vault"
@@ -93,7 +93,7 @@ metadata:
 Create vault server:
 ```console
 $ cat vault-crd.yaml
-apiVersion: "core.kubevault.com/v1alpha1"
+apiVersion: "kubevault.com/v1alpha1"
 kind: "VaultServer"
 metadata:
   name: "my-vault"
@@ -121,7 +121,7 @@ $ kubectl apply -f vault-crd.yaml
 vaultserver "my-vault" created
 
 $ kubectl get vaultservers/my-vault -o yaml
-apiVersion: core.kubevault.com/v1alpha1
+apiVersion: kubevault.com/v1alpha1
 kind: VaultServer
 metadata:
   name: my-vault

@@ -1,7 +1,7 @@
 package inmem
 
 import (
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 )
 
 var inmenStorage = `
@@ -15,7 +15,7 @@ func NewOptions() (*Options, error) {
 	return &Options{}, nil
 }
 
-func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	return nil
 }
 

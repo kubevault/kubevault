@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
+	ka "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
 )
 
 const (
@@ -45,7 +46,10 @@ var _ = BeforeSuite(func() {
 	ctrl, err := ctrlConfig.New()
 	Expect(err).NotTo(HaveOccurred())
 
-	root = framework.New(ctrlConfig.KubeClient, ctrlConfig.ExtClient, nil, options.StartAPIServer, clientConfig, options.RunDynamoDBTest)
+	kaClient := ka.NewForConfigOrDie(clientConfig)
+	Expect(err).NotTo(HaveOccurred())
+
+	root = framework.New(ctrlConfig.KubeClient, ctrlConfig.ExtClient, kaClient, options.StartAPIServer, clientConfig, options.RunDynamoDBTest)
 	err = root.CreateNamespace()
 	Expect(err).NotTo(HaveOccurred())
 	By("Using test namespace " + root.Namespace())
@@ -54,8 +58,10 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 
 	if options.StartAPIServer {
-		// still not implemented
-		By("Not implemented")
+		go root.StartAPIServerAndOperator(clientConfig, options.KubeConfig, options.ExtraOptions)
+		root.EventuallyAPIServerReady().Should(Succeed())
+		// let's API server be warmed up
+		time.Sleep(time.Second * 5)
 	} else {
 		// Now let's start the controller
 		go ctrl.RunInformers(nil)
@@ -65,12 +71,8 @@ var _ = BeforeSuite(func() {
 
 var _ = AfterSuite(func() {
 	if options.StartAPIServer {
-		//By("Cleaning API server and Webhook stuff")
-		//root.KubeClient.AdmissionregistrationV1beta1().MutatingWebhookConfigurations().Delete("admission.stash.appscode.com", meta.DeleteInBackground())
-		//root.KubeClient.AdmissionregistrationV1beta1().ValidatingWebhookConfigurations().Delete("admission.stash.appscode.com", meta.DeleteInBackground())
-		//root.KubeClient.CoreV1().Endpoints(root.Namespace()).Delete("stash-local-apiserver", meta.DeleteInBackground())
-		//root.KubeClient.CoreV1().Services(root.Namespace()).Delete("stash-local-apiserver", meta.DeleteInBackground())
-		//root.KAClient.ApiregistrationV1beta1().APIServices().Delete("v1alpha1.admission.stash.appscode.com", meta.DeleteInBackground())
+		By("Cleaning API server and Webhook stuff")
+		root.CleanAdmissionConfigs()
 	}
 	root.DeleteNamespace()
 	err := root.DeleteVaultserverVersion()

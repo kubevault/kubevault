@@ -3,9 +3,9 @@ package util
 import (
 	"testing"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/stretchr/testify/assert"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -18,14 +18,14 @@ func TestEnsureOwnerRefToObject(t *testing.T) {
 		},
 	}
 
-	sPointer := &corev1.Secret{
+	sPointer := &core.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "hi",
 			Namespace: "hi",
 			UID:       "1234",
 		},
 	}
-	s := corev1.Secret{
+	s := core.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "hi",
 			Namespace: "hi",

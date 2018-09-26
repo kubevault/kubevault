@@ -3,10 +3,10 @@ package google
 import (
 	"testing"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/stretchr/testify/assert"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 )
 
 func TestOptions_Apply(t *testing.T) {
@@ -18,12 +18,12 @@ func TestOptions_Apply(t *testing.T) {
 		"--google.kms-key-ring=r-key",
 		"--google.kms-crypto-key=c-key",
 	}
-	cont := corev1.Container{
+	cont := core.Container{
 		Name: util.VaultUnsealerContainerName,
 	}
-	pt := &corev1.PodTemplateSpec{
-		Spec: corev1.PodSpec{
-			Containers: []corev1.Container{cont},
+	pt := &core.PodTemplateSpec{
+		Spec: core.PodSpec{
+			Containers: []core.Container{cont},
 		},
 	}
 

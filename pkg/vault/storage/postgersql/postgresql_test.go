@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/stretchr/testify/assert"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 )
@@ -14,7 +14,7 @@ import (
 func TestOptions_GetStorageConfig(t *testing.T) {
 	kClient := kfake.NewSimpleClientset()
 	ns := "test"
-	sr := corev1.Secret{
+	sr := core.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "url",
 			Namespace: ns,

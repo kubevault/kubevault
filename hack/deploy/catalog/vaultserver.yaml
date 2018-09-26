@@ -1,0 +1,13 @@
+apiVersion:  kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.1"
+  labels:
+    app: vault-operator
+spec:
+  version: "0.11.1"
+  deprecated: false
+  vault:
+    image: "vault:0.11.1"
+  unsealer:
+    image: "${VAULT_OPERATOR_DOCKER_REGISTRY}/vault-unsealer:canary"

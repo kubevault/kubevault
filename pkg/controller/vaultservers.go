@@ -4,56 +4,28 @@ import (
 	"context"
 
 	"github.com/appscode/go/encoding/json/types"
-	"github.com/appscode/kubernetes-webhook-util/admission"
-	hooks "github.com/appscode/kubernetes-webhook-util/admission/v1beta1"
-	webhook "github.com/appscode/kubernetes-webhook-util/admission/v1beta1/generic"
 	apps_util "github.com/appscode/kutil/apps/v1"
 	core_util "github.com/appscode/kutil/core/v1"
 	meta_util "github.com/appscode/kutil/meta"
 	rbac_util "github.com/appscode/kutil/rbac/v1"
 	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
-	"github.com/kubevault/operator/apis/core"
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
-	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/core/v1alpha1/util"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes"
 )
 
-func (c *VaultController) NewVaultServerWebhook() hooks.AdmissionHook {
-	return webhook.NewGenericWebhook(
-		schema.GroupVersionResource{
-			Group:    "admission.kubevault.com",
-			Version:  "v1alpha1",
-			Resource: "vaultservers",
-		},
-		"vaultserver",
-		[]string{core.GroupName},
-		api.SchemeGroupVersion.WithKind("VaultServer"),
-		nil,
-		&admission.ResourceHandlerFuncs{
-			CreateFunc: func(obj runtime.Object) (runtime.Object, error) {
-				return nil, obj.(*api.VaultServer).IsValid()
-			},
-			UpdateFunc: func(oldObj, newObj runtime.Object) (runtime.Object, error) {
-				return nil, newObj.(*api.VaultServer).IsValid()
-			},
-		},
-	)
-}
-
 func (c *VaultController) initVaultServerWatcher() {
-	c.vsInformer = c.extInformerFactory.Core().V1alpha1().VaultServers().Informer()
+	c.vsInformer = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New("VaultServer", c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
 	c.vsInformer.AddEventHandler(queue.NewObservableHandler(c.vsQueue.GetQueue(), api.EnableStatusSubresource))
-	c.vsLister = c.extInformerFactory.Core().V1alpha1().VaultServers().Lister()
+	c.vsLister = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Lister()
 }
 
 // runVaultSeverInjector gets the vault server object indexed by the key from cache
@@ -80,19 +52,6 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 
 		glog.Infof("Sync/Add/Update for VaultServer %s/%s\n", vs.Namespace, vs.Name)
 
-		// TODO : initializer or validation/mutating webhook
-		// will be deprecated
-		changed := vs.SetDefaults()
-		if changed {
-			_, _, err = patchutil.CreateOrPatchVaultServer(c.extClient.CoreV1alpha1(), vs.ObjectMeta, func(v *api.VaultServer) *api.VaultServer {
-				v.SetDefaults()
-				return v
-			})
-			if err != nil {
-				return errors.Wrap(err, "unable to patch vaultServer")
-			}
-		}
-
 		v, err := NewVault(vs, c.kubeClient, c.extClient)
 		if err != nil {
 			return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)
@@ -117,7 +76,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 		status.Conditions = []api.VaultServerCondition{
 			{
 				Type:    api.VaultServerConditionFailure,
-				Status:  corev1.ConditionTrue,
+				Status:  core.ConditionTrue,
 				Reason:  "FailedToCreateVaultTLSSecret",
 				Message: err.Error(),
 			},
@@ -135,7 +94,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 		status.Conditions = []api.VaultServerCondition{
 			{
 				Type:    api.VaultServerConditionFailure,
-				Status:  corev1.ConditionTrue,
+				Status:  core.ConditionTrue,
 				Reason:  "FailedToCreateVaultConfig",
 				Message: err.Error(),
 			},
@@ -153,7 +112,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 		status.Conditions = []api.VaultServerCondition{
 			{
 				Type:    api.VaultServerConditionFailure,
-				Status:  corev1.ConditionTrue,
+				Status:  core.ConditionTrue,
 				Reason:  "FailedToDeployVault",
 				Message: err.Error(),
 			},
@@ -238,7 +197,7 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 }
 
 func (c *VaultController) updatedVaultServerStatus(status *api.VaultServerStatus, vs *api.VaultServer) error {
-	_, err := patchutil.UpdateVaultServerStatus(c.extClient.CoreV1alpha1(), vs, func(s *api.VaultServerStatus) *api.VaultServerStatus {
+	_, err := patchutil.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vs, func(s *api.VaultServerStatus) *api.VaultServerStatus {
 		s = status
 		return s
 	})
@@ -249,8 +208,8 @@ func (c *VaultController) updatedVaultServerStatus(status *api.VaultServerStatus
 }
 
 // ensureServiceAccount creates/patches service account
-func ensureServiceAccount(kc kubernetes.Interface, vs *api.VaultServer, sa *corev1.ServiceAccount) error {
-	_, _, err := core_util.CreateOrPatchServiceAccount(kc, sa.ObjectMeta, func(in *corev1.ServiceAccount) *corev1.ServiceAccount {
+func ensureServiceAccount(kc kubernetes.Interface, vs *api.VaultServer, sa *core.ServiceAccount) error {
+	_, _, err := core_util.CreateOrPatchServiceAccount(kc, sa.ObjectMeta, func(in *core.ServiceAccount) *core.ServiceAccount {
 		in.Labels = core_util.UpsertMap(in.Labels, sa.Labels)
 		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
 		return in
@@ -291,8 +250,8 @@ func ensureDeployment(kc kubernetes.Interface, vs *api.VaultServer, d *appsv1.De
 }
 
 // ensureService creates/patches service
-func ensureService(kc kubernetes.Interface, vs *api.VaultServer, svc *corev1.Service) error {
-	_, _, err := core_util.CreateOrPatchService(kc, svc.ObjectMeta, func(in *corev1.Service) *corev1.Service {
+func ensureService(kc kubernetes.Interface, vs *api.VaultServer, svc *core.Service) error {
+	_, _, err := core_util.CreateOrPatchService(kc, svc.ObjectMeta, func(in *core.Service) *core.Service {
 		in.Labels = core_util.UpsertMap(in.Labels, svc.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, svc.Annotations)
 
@@ -365,8 +324,8 @@ func ensureRoleAndRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, role
 }
 
 // ensureSecret creates/patches secret
-func ensureSecret(kc kubernetes.Interface, vs *api.VaultServer, s *corev1.Secret) error {
-	_, _, err := core_util.CreateOrPatchSecret(kc, s.ObjectMeta, func(in *corev1.Secret) *corev1.Secret {
+func ensureSecret(kc kubernetes.Interface, vs *api.VaultServer, s *core.Secret) error {
+	_, _, err := core_util.CreateOrPatchSecret(kc, s.ObjectMeta, func(in *core.Secret) *core.Secret {
 		in.Labels = core_util.UpsertMap(in.Labels, s.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, s.Annotations)
 		in.Data = s.Data
@@ -377,8 +336,8 @@ func ensureSecret(kc kubernetes.Interface, vs *api.VaultServer, s *corev1.Secret
 }
 
 // ensureConfigMap creates/patches configMap
-func ensureConfigMap(kc kubernetes.Interface, vs *api.VaultServer, cm *corev1.ConfigMap) error {
-	_, _, err := core_util.CreateOrPatchConfigMap(kc, cm.ObjectMeta, func(in *corev1.ConfigMap) *corev1.ConfigMap {
+func ensureConfigMap(kc kubernetes.Interface, vs *api.VaultServer, cm *core.ConfigMap) error {
+	_, _, err := core_util.CreateOrPatchConfigMap(kc, cm.ObjectMeta, func(in *core.ConfigMap) *core.ConfigMap {
 		in.Labels = core_util.UpsertMap(in.Labels, cm.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, cm.Annotations)
 		in.Data = cm.Data

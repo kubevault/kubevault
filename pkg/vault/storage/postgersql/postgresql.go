@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -48,7 +48,7 @@ func NewOptions(kubeClient kubernetes.Interface, ns string, s api.PostgreSQLSpec
 	}, nil
 }
 
-func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	return nil
 }
 

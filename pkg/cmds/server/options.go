@@ -4,7 +4,7 @@ import (
 	"flag"
 	"time"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	"github.com/kubevault/operator/pkg/controller"
 	"github.com/kubevault/operator/pkg/docker"
@@ -44,7 +44,7 @@ func (s *ExtraOptions) AddGoFlags(fs *flag.FlagSet) {
 }
 
 func (s *ExtraOptions) AddFlags(fs *pflag.FlagSet) {
-	pfs := flag.NewFlagSet("stash", flag.ExitOnError)
+	pfs := flag.NewFlagSet("vault-server", flag.ExitOnError)
 	s.AddGoFlags(pfs)
 	fs.AddGoFlagSet(pfs)
 }

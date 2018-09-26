@@ -10,7 +10,7 @@ import (
 )
 
 func NewCmdRun(out, errOut io.Writer, stopCh <-chan struct{}) *cobra.Command {
-	o := server.NewStashOptions(out, errOut)
+	o := server.NewVaultServerOptions(out, errOut)
 
 	cmd := &cobra.Command{
 		Use:               "run",

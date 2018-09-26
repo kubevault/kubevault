@@ -3,7 +3,7 @@ package aws
 import (
 	"testing"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"

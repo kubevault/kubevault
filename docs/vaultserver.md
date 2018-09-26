@@ -3,7 +3,7 @@
 Vault operator will deploy vault according to `VaultServer` CRD specification.
 
 ```yaml
-apiVersion: "core.kubevault.com/v1alpha1"
+apiVersion: "kubevault.com/v1alpha1"
 kind: "VaultServer"
 metadata:
   name: <name>
@@ -17,7 +17,7 @@ status:
 VaultServer Spec contains the configuration about how to deploy vault in kubernetes cluster.
 
 ```yaml
-apiVersion: "core.kubevault.com/v1alpha1"
+apiVersion: "kubevault.com/v1alpha1"
 kind: "VaultServer"
 metadata:
   name: <name>

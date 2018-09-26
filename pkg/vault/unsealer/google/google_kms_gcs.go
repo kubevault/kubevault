@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	kutilcorev1 "github.com/appscode/kutil/core/v1"
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	core_util "github.com/appscode/kutil/core/v1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -63,7 +63,7 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 	cont.Args = append(cont.Args, args...)
 
 	if o.CredentialSecret != "" {
-		pt.Spec.Volumes = kutilcorev1.UpsertVolume(pt.Spec.Volumes, corev1.Volume{
+		pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, corev1.Volume{
 			Name: GoogleCredentialVolume,
 			VolumeSource: corev1.VolumeSource{
 				Secret: &corev1.SecretVolumeSource{
@@ -72,18 +72,18 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 			},
 		})
 
-		cont.VolumeMounts = kutilcorev1.UpsertVolumeMount(cont.VolumeMounts, corev1.VolumeMount{
+		cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, corev1.VolumeMount{
 			Name:      GoogleCredentialVolume,
 			MountPath: filepath.Dir(GoogleCredentialFile),
 		})
 
-		cont.Env = kutilcorev1.UpsertEnvVars(cont.Env, corev1.EnvVar{
+		cont.Env = core_util.UpsertEnvVars(cont.Env, corev1.EnvVar{
 			Name:  GoogleCredentialEnv,
 			Value: GoogleCredentialFile,
 		})
 	}
 
-	pt.Spec.Containers = kutilcorev1.UpsertContainer(pt.Spec.Containers, cont)
+	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)
 	return nil
 }
 

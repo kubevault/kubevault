@@ -11,8 +11,8 @@ import (
 	_ "github.com/lib/pq"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
-	apps "k8s.io/api/apps/v1beta1"
-	corev1 "k8s.io/api/core/v1"
+	apps "k8s.io/api/apps/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -28,17 +28,17 @@ func (f *Framework) DeployPostgresSQL() (string, error) {
 		"app": rand.WithUniqSuffix("test-postgresql"),
 	}
 
-	srv := corev1.Service{
+	srv := core.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: f.namespace,
 			Name:      postgresqlServiceName,
 		},
-		Spec: corev1.ServiceSpec{
+		Spec: core.ServiceSpec{
 			Selector: label,
-			Ports: []corev1.ServicePort{
+			Ports: []core.ServicePort{
 				{
 					Name:       "tcp",
-					Protocol:   corev1.ProtocolTCP,
+					Protocol:   core.ProtocolTCP,
 					Port:       5432,
 					TargetPort: intstr.FromInt(5432),
 				},
@@ -48,11 +48,11 @@ func (f *Framework) DeployPostgresSQL() (string, error) {
 
 	url := fmt.Sprintf("%s.%s.svc:5432", postgresqlServiceName, f.namespace)
 
-	postgresqlCont := corev1.Container{
+	postgresqlCont := core.Container{
 		Name:            "postgres",
 		Image:           "postgres:9.6.2",
 		ImagePullPolicy: "IfNotPresent",
-		Env: []corev1.EnvVar{
+		Env: []core.EnvVar{
 			{
 				Name:  "POSTGRES_USER",
 				Value: "postgres",
@@ -71,30 +71,30 @@ func (f *Framework) DeployPostgresSQL() (string, error) {
 			},
 			{
 				Name: "POD_IP",
-				ValueFrom: &corev1.EnvVarSource{
-					FieldRef: &corev1.ObjectFieldSelector{
+				ValueFrom: &core.EnvVarSource{
+					FieldRef: &core.ObjectFieldSelector{
 						FieldPath: "status.podIP",
 					},
 				},
 			},
 		},
-		Ports: []corev1.ContainerPort{
+		Ports: []core.ContainerPort{
 			{
 				Name:          "postgresql",
-				Protocol:      corev1.ProtocolTCP,
+				Protocol:      core.ProtocolTCP,
 				ContainerPort: 5432,
 			},
 		},
-		VolumeMounts: []corev1.VolumeMount{
+		VolumeMounts: []core.VolumeMount{
 			{
 				MountPath: "/var/lib/postgresql/data/pgdata",
 				Name:      "data",
 				SubPath:   "postgresgl-db",
 			},
 		},
-		ReadinessProbe: &corev1.Probe{
-			Handler: corev1.Handler{
-				Exec: &corev1.ExecAction{
+		ReadinessProbe: &core.Probe{
+			Handler: core.Handler{
+				Exec: &core.ExecAction{
 					Command: []string{
 						"sh",
 						"-c",
@@ -119,19 +119,19 @@ func (f *Framework) DeployPostgresSQL() (string, error) {
 			Selector: &metav1.LabelSelector{
 				MatchLabels: label,
 			},
-			Template: corev1.PodTemplateSpec{
+			Template: core.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: label,
 				},
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
+				Spec: core.PodSpec{
+					Containers: []core.Container{
 						postgresqlCont,
 					},
-					Volumes: []corev1.Volume{
+					Volumes: []core.Volume{
 						{
 							Name: "data",
-							VolumeSource: corev1.VolumeSource{
-								EmptyDir: &corev1.EmptyDirVolumeSource{},
+							VolumeSource: core.VolumeSource{
+								EmptyDir: &core.EmptyDirVolumeSource{},
 							},
 						},
 					},
@@ -178,7 +178,7 @@ func (f *Framework) DeployPostgresSQL() (string, error) {
 	return url, nil
 }
 
-func (f *Framework) setupPostgreSQL(pod corev1.Pod) error {
+func (f *Framework) setupPostgreSQL(pod core.Pod) error {
 
 	portFwd := portforward.NewTunnel(f.KubeClient.CoreV1().RESTClient(), f.ClientConfig, pod.GetNamespace(), pod.GetName(), 5432)
 	defer portFwd.Close()

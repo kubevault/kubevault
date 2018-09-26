@@ -4,8 +4,12 @@ import (
 	"fmt"
 	"strings"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	core "k8s.io/api/core/v1"
+)
+
+const (
+	AzureAccountKeyEnv = "AZURE_ACCOUNT_KEY"
 )
 
 var azureStorageFmt = `
@@ -24,11 +28,24 @@ func NewOptions(s api.AzureSpec) (*Options, error) {
 	}, nil
 }
 
-func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+func (o *Options) Apply(pt *core.PodTemplateSpec) error {
+	if o.AccountKeySecret != "" {
+		pt.Spec.Containers[0].Env = append(pt.Spec.Containers[0].Env, core.EnvVar{
+			Name: AzureAccountKeyEnv,
+			ValueFrom: &core.EnvVarSource{
+				SecretKeyRef: &core.SecretKeySelector{
+					LocalObjectReference: core.LocalObjectReference{
+						Name: o.AccountKeySecret,
+					},
+					Key: "account_key",
+				},
+			},
+		})
+	}
 	return nil
 }
 
-func (o *Options) GetSecrets(namespace string) ([]corev1.Secret, error) {
+func (o *Options) GetSecrets(namespace string) ([]core.Secret, error) {
 	return nil, nil
 }
 
@@ -39,9 +56,6 @@ func (o *Options) GetStorageConfig() (string, error) {
 	params := []string{}
 	if o.AccountName != "" {
 		params = append(params, fmt.Sprintf(`accountName = "%s"`, o.AccountName))
-	}
-	if o.AccountKey != "" {
-		params = append(params, fmt.Sprintf(`accountKey = "%s"`, o.AccountKey))
 	}
 	if o.Container != "" {
 		params = append(params, fmt.Sprintf(`container = "%s"`, o.Container))

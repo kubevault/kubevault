@@ -14,7 +14,7 @@ source "$REPO_ROOT/hack/libbuild/common/lib.sh"
 source "$REPO_ROOT/hack/libbuild/common/kubevault_image.sh"
 
 APPSCODE_ENV=${APPSCODE_ENV:-dev}
-IMG=operator
+IMG=vault-operator
 
 DIST=$GOPATH/src/github.com/kubevault/operator/dist
 mkdir -p $DIST
@@ -52,7 +52,7 @@ COPY vault-operator /usr/bin/vault-operator
 USER nobody:nobody
 ENTRYPOINT ["vault-operator"]
 EOL
-  local cmd="docker build -t $DOCKER_REGISTRY/$IMG:$TAG ."
+  local cmd="docker build --pull -t $DOCKER_REGISTRY/$IMG:$TAG ."
   echo $cmd; $cmd
 
   rm vault-operator Dockerfile

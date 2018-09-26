@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"testing"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/storage"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/stretchr/testify/assert"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -35,7 +35,7 @@ func (s *storageFake) GetStorageConfig() (string, error) {
 	return s.config, nil
 }
 
-func (s *storageFake) Apply(pt *corev1.PodTemplateSpec) error {
+func (s *storageFake) Apply(pt *core.PodTemplateSpec) error {
 	if s.ErrInApply {
 		return fmt.Errorf("error")
 	}
@@ -46,7 +46,7 @@ type unsealerFake struct {
 	ErrInApply bool
 }
 
-func (u *unsealerFake) Apply(pt *corev1.PodTemplateSpec) error {
+func (u *unsealerFake) Apply(pt *core.PodTemplateSpec) error {
 	if u.ErrInApply {
 		return fmt.Errorf("error")
 	}
@@ -74,8 +74,8 @@ func getConfigData(t *testing.T, extraConfig string, storageCfg string) string {
 	return cfg
 }
 
-func getConfigMap(meta metav1.ObjectMeta, data string) *corev1.ConfigMap {
-	return &corev1.ConfigMap{
+func getConfigMap(meta metav1.ObjectMeta, data string) *core.ConfigMap {
+	return &core.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      meta.Name + "-config",
 			Namespace: meta.Namespace,
@@ -86,28 +86,28 @@ func getConfigMap(meta metav1.ObjectMeta, data string) *corev1.ConfigMap {
 	}
 }
 
-func createConfigMap(t *testing.T, client kubernetes.Interface, cm *corev1.ConfigMap) {
+func createConfigMap(t *testing.T, client kubernetes.Interface, cm *core.ConfigMap) {
 	_, err := client.CoreV1().ConfigMaps(cm.Namespace).Create(cm)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func deleteConfigMap(t *testing.T, client kubernetes.Interface, cm *corev1.ConfigMap) {
+func deleteConfigMap(t *testing.T, client kubernetes.Interface, cm *core.ConfigMap) {
 	err := client.CoreV1().ConfigMaps(cm.Namespace).Delete(cm.Name, &metav1.DeleteOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func createSecret(t *testing.T, client kubernetes.Interface, s *corev1.Secret) {
+func createSecret(t *testing.T, client kubernetes.Interface, s *core.Secret) {
 	_, err := client.CoreV1().Secrets(s.Namespace).Create(s)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func deleteSecret(t *testing.T, client kubernetes.Interface, s *corev1.Secret) {
+func deleteSecret(t *testing.T, client kubernetes.Interface, s *core.Secret) {
 	err := client.CoreV1().Secrets(s.Namespace).Delete(s.Name, &metav1.DeleteOptions{})
 	if err != nil {
 		t.Fatal(err)
@@ -181,7 +181,7 @@ func TestGetServerTLS(t *testing.T) {
 	testData := []struct {
 		name        string
 		vs          *api.VaultServer
-		extraSecret *corev1.Secret
+		extraSecret *core.Secret
 		expectErr   bool
 	}{
 		{
@@ -189,7 +189,7 @@ func TestGetServerTLS(t *testing.T) {
 			vs: &api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(1),
 			},
-			extraSecret: &corev1.Secret{
+			extraSecret: &core.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: api.VaultServer{
 						ObjectMeta: getVaultObjectMeta(1),
@@ -209,7 +209,7 @@ func TestGetServerTLS(t *testing.T) {
 					},
 				},
 			},
-			extraSecret: &corev1.Secret{
+			extraSecret: &core.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "vault-tls-cred",
 					Namespace: getVaultObjectMeta(1).Namespace,
@@ -268,7 +268,7 @@ func TestApply(t *testing.T) {
 	testData := []struct {
 		name      string
 		vs        *api.VaultServer
-		pt        *corev1.PodTemplateSpec
+		pt        *core.PodTemplateSpec
 		unslr     *unsealerFake
 		strg      *storageFake
 		expectErr bool
@@ -278,7 +278,7 @@ func TestApply(t *testing.T) {
 			vs: &api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(1),
 			},
-			pt:        &corev1.PodTemplateSpec{},
+			pt:        &core.PodTemplateSpec{},
 			unslr:     &ufake,
 			strg:      &sfake,
 			expectErr: false,
@@ -288,7 +288,7 @@ func TestApply(t *testing.T) {
 			vs: &api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(1),
 			},
-			pt:        &corev1.PodTemplateSpec{},
+			pt:        &core.PodTemplateSpec{},
 			unslr:     &ufake,
 			strg:      func(s storageFake) *storageFake { s.ErrInApply = true; return &s }(sfake),
 			expectErr: true,
@@ -298,7 +298,7 @@ func TestApply(t *testing.T) {
 			vs: &api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(1),
 			},
-			pt:        &corev1.PodTemplateSpec{},
+			pt:        &core.PodTemplateSpec{},
 			unslr:     func(u unsealerFake) *unsealerFake { u.ErrInApply = true; return &u }(ufake),
 			strg:      &sfake,
 			expectErr: true,

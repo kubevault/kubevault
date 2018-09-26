@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -15,7 +15,7 @@ func VaultServiceURL(name, namespace string, port int) string {
 }
 
 // PodDNSName constructs the dns name on which a pod can be addressed
-func PodDNSName(p corev1.Pod) string {
+func PodDNSName(p core.Pod) string {
 	podIP := strings.Replace(p.Status.PodIP, ".", "-", -1)
 	return fmt.Sprintf("%s.%s.pod", podIP, p.Namespace)
 }

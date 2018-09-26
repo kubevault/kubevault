@@ -1,8 +1,11 @@
 #!/bin/bash
 set -eou pipefail
 
-crds=(vaultservers)
-apiServices=(v1alpha1.admission v1alpha1.extensions)
+crds=(
+  vaultservers
+  vaultserverversions
+)
+apiServices=(v1alpha1.admission)
 
 echo "checking kubeconfig context"
 kubectl config current-context || {
@@ -66,19 +69,19 @@ else
   # ref: https://stackoverflow.com/a/27776822/244009
   case "$(uname -s)" in
     Darwin)
-      curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.3.0/onessl-darwin-amd64
+      curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.7.0/onessl-darwin-amd64
       chmod +x onessl
       export ONESSL=./onessl
       ;;
 
     Linux)
-      curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.3.0/onessl-linux-amd64
+      curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.7.0/onessl-linux-amd64
       chmod +x onessl
       export ONESSL=./onessl
       ;;
 
     CYGWIN* | MINGW32* | MSYS*)
-      curl -fsSL -o onessl.exe https://github.com/kubepack/onessl/releases/download/0.3.0/onessl-windows-amd64.exe
+      curl -fsSL -o onessl.exe https://github.com/kubepack/onessl/releases/download/0.7.0/onessl-windows-amd64.exe
       chmod +x onessl.exe
       export ONESSL=./onessl.exe
       ;;
@@ -94,10 +97,10 @@ fi
 
 export VAULT_OPERATOR_NAMESPACE=kube-system
 export VAULT_OPERATOR_SERVICE_ACCOUNT=vault-operator
-export VAULT_OPERATOR_ENABLE_RBAC=true
 export VAULT_OPERATOR_RUN_ON_MASTER=0
 export VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK=false
 export VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK=false
+export VAULT_OPERATOR_CATALOG=${VAULT_OPERATOR_CATALOG:-all}
 export VAULT_OPERATOR_DOCKER_REGISTRY=kubevault
 export VAULT_OPERATOR_IMAGE_TAG=canary
 export VAULT_OPERATOR_IMAGE_PULL_SECRET=
@@ -119,7 +122,7 @@ fi
 KUBE_APISERVER_VERSION=$(kubectl version -o=json | $ONESSL jsonpath '{.serverVersion.gitVersion}')
 $ONESSL semver --check='<1.9.0' $KUBE_APISERVER_VERSION || {
   export VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK=true
-  export VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK=true
+  export VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK=false
 }
 $ONESSL semver --check='<1.11.0' $KUBE_APISERVER_VERSION || { export VAULT_OPERATOR_ENABLE_STATUS_SUBRESOURCE=true; }
 
@@ -131,7 +134,6 @@ show_help() {
   echo "options:"
   echo "-h, --help                         show brief help"
   echo "-n, --namespace=NAMESPACE          specify namespace (default: kube-system)"
-  echo "    --rbac                         create RBAC roles and bindings (default: true)"
   echo "    --docker-registry              docker registry used to pull Vault images (default: kubevault)"
   echo "    --image-pull-secret            name of secret used to pull Vault images"
   echo "    --run-on-master                run Vault operator on master"
@@ -139,6 +141,7 @@ show_help() {
   echo "    --enable-mutating-webhook      enable/disable mutating webhooks for Vault operator"
   echo "    --enable-status-subresource    If enabled, uses status sub resource for crds"
   echo "    --enable-analytics             send usage events to Google Analytics (default: true)"
+  echo "    --install-catalog              installs Vault server version catalog (default: all)"
   echo "    --uninstall                    uninstall Vault operator"
   echo "    --purge                        purges Vault operator crd objects and crds"
 }
@@ -200,13 +203,12 @@ while test $# -gt 0; do
       fi
       shift
       ;;
-    --rbac*)
+    --install-catalog*)
+      shift
       val=$(echo $1 | sed -e 's/^[^=]*=//g')
       if [ "$val" = "false" ]; then
-        export VAULT_OPERATOR_SERVICE_ACCOUNT=default
-        export VAULT_OPERATOR_ENABLE_RBAC=false
+        export VAULT_OPERATOR_CATALOG=false
       fi
-      shift
       ;;
     --run-on-master)
       export VAULT_OPERATOR_RUN_ON_MASTER=1
@@ -221,6 +223,7 @@ while test $# -gt 0; do
       shift
       ;;
     *)
+      echo "Error: unknown flag:" $1
       show_help
       exit 1
       ;;
@@ -229,23 +232,23 @@ done
 
 if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
   # delete webhooks and apiservices
-  kubectl delete validatingwebhookconfiguration -l app=vault || true
-  kubectl delete mutatingwebhookconfiguration -l app=vault || true
-  kubectl delete apiservice -l app=vault
-  # delete vault operator
-  kubectl delete deployment -l app=vault --namespace $VAULT_OPERATOR_NAMESPACE
-  kubectl delete service -l app=vault --namespace $VAULT_OPERATOR_NAMESPACE
-  kubectl delete secret -l app=vault --namespace $VAULT_OPERATOR_NAMESPACE
+  kubectl delete validatingwebhookconfiguration -l app=vault-operator || true
+  kubectl delete mutatingwebhookconfiguration -l app=vault-operator || true
+  kubectl delete apiservice -l app=vault-operator
+  # delete Vault operator
+  kubectl delete deployment -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
+  kubectl delete service -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
+  kubectl delete secret -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
   # delete RBAC objects, if --rbac flag was used.
-  kubectl delete serviceaccount -l app=vault --namespace $VAULT_OPERATOR_NAMESPACE
-  kubectl delete clusterrolebindings -l app=vault
-  kubectl delete clusterrole -l app=vault
-  kubectl delete rolebindings -l app=vault --namespace $VAULT_OPERATOR_NAMESPACE
-  kubectl delete role -l app=vault --namespace $VAULT_OPERATOR_NAMESPACE
+  kubectl delete serviceaccount -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
+  kubectl delete clusterrolebindings -l app=vault-operator
+  kubectl delete clusterrole -l app=vault-operator
+  kubectl delete rolebindings -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
+  kubectl delete role -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
 
-  echo "waiting for vault operator pod to stop running"
+  echo "waiting for Vault operator pod to stop running"
   for (( ; ; )); do
-    pods=($(kubectl get pods --namespace $VAULT_OPERATOR_NAMESPACE -l app=vault -o jsonpath='{range .items[*]}{.metadata.name} {end}'))
+    pods=($(kubectl get pods --namespace $VAULT_OPERATOR_NAMESPACE -l app=vault-operator -o jsonpath='{range .items[*]}{.metadata.name} {end}'))
     total=${#pods[*]}
     if [ $total -eq 0 ]; then
       break
@@ -256,29 +259,35 @@ if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
   # https://github.com/kubernetes/kubernetes/issues/60538
   if [ "$VAULT_OPERATOR_PURGE" -eq 1 ]; then
     for crd in "${crds[@]}"; do
-      pairs=($(kubectl get ${crd}.core.kubevault.com --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name} {.metadata.namespace} {end}' || true))
+      pairs=($(kubectl get ${crd}.kubevault.com --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name} {.metadata.namespace} {end}' || true))
       total=${#pairs[*]}
 
       # save objects
       if [ $total -gt 0 ]; then
         echo "dumping ${crd} objects into ${crd}.yaml"
-        kubectl get ${crd}.core.kubevault.com --all-namespaces -o yaml >${crd}.yaml
+        kubectl get ${crd}.kubevault.com --all-namespaces -o yaml >${crd}.yaml
       fi
 
-      for ((i = 0; i < $total; i += 2)); do
+      for ((i = 0; i < $total; i++)); do
         name=${pairs[$i]}
-        namespace=${pairs[$i + 1]}
+        namespace="default"
+        if [ ${#crd} -lt 8 ] || [ ${crd: -8} != "versions" ]; then
+          namespace=${pairs[$i + 1]}
+          i+=1
+        fi
+        # remove finalizers
+        kubectl patch ${crd}.kubevault.com $name -n $namespace -p '{"metadata":{"finalizers":[]}}' --type=merge || true
         # delete crd object
         echo "deleting ${crd} $namespace/$name"
-        kubectl delete ${crd}.core.kubevault.com $name -n $namespace
+        kubectl delete ${crd}.kubevault.com $name -n $namespace --ignore-not-found=true
       done
 
       # delete crd
-      kubectl delete crd ${crd}.core.kubevault.com || true
+      kubectl delete crd ${crd}.kubevault.com --ignore-not-found=true
     done
 
     # delete user roles
-    kubectl delete clusterroles kubevault:operator:edit kubevault:operator:view
+    kubectl delete clusterroles kubevault:core:edit kubevault:core:view --ignore-not-found=true
   fi
 
   echo
@@ -319,23 +328,19 @@ export TLS_SERVING_KEY=$(cat server.key | $ONESSL base64)
 
 ${SCRIPT_LOCATION}hack/deploy/operator.yaml | $ONESSL envsubst | kubectl apply -f -
 
-if [ "$VAULT_OPERATOR_ENABLE_RBAC" = true ]; then
-  ${SCRIPT_LOCATION}hack/deploy/service-account.yaml | $ONESSL envsubst | kubectl apply -f -
-  ${SCRIPT_LOCATION}hack/deploy/rbac-list.yaml | $ONESSL envsubst | kubectl auth reconcile -f -
-  ${SCRIPT_LOCATION}hack/deploy/user-roles.yaml | $ONESSL envsubst | kubectl auth reconcile -f -
-fi
+${SCRIPT_LOCATION}hack/deploy/service-account.yaml | $ONESSL envsubst | kubectl apply -f -
+${SCRIPT_LOCATION}hack/deploy/rbac-list.yaml | $ONESSL envsubst | kubectl auth reconcile -f -
+${SCRIPT_LOCATION}hack/deploy/user-roles.yaml | $ONESSL envsubst | kubectl auth reconcile -f -
 
 if [ "$VAULT_OPERATOR_RUN_ON_MASTER" -eq 1 ]; then
   kubectl patch deploy vault-operator -n $VAULT_OPERATOR_NAMESPACE \
     --patch="$(${SCRIPT_LOCATION}hack/deploy/run-on-master.yaml)"
 fi
 
-if [ "$VAULT_OPERATOR_ENABLE_APISERVER" = true ]; then
-  ${SCRIPT_LOCATION}hack/deploy/apiservices.yaml | $ONESSL envsubst | kubectl apply -f -
-fi
 if [ "$VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK" = true ]; then
   ${SCRIPT_LOCATION}hack/deploy/validating-webhook.yaml | $ONESSL envsubst | kubectl apply -f -
 fi
+
 if [ "$VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK" = true ]; then
   ${SCRIPT_LOCATION}hack/deploy/mutating-webhook.yaml | $ONESSL envsubst | kubectl apply -f -
 fi
@@ -350,7 +355,7 @@ $ONESSL wait-until-ready deployment vault-operator --namespace $VAULT_OPERATOR_N
 if [ "$VAULT_OPERATOR_ENABLE_APISERVER" = true ]; then
   echo "waiting until Vault operator apiservice is available"
   for api in "${apiServices[@]}"; do
-    $ONESSL wait-until-ready apiservice ${api}.admission.kubevault.com || {
+    $ONESSL wait-until-ready apiservice ${api}.kubevault.com || {
       echo "Vault operator apiservice $api failed to be ready"
       exit 1
     }
@@ -359,11 +364,16 @@ fi
 
 echo "waiting until Vault operator crds are ready"
 for crd in "${crds[@]}"; do
-  $ONESSL wait-until-ready crd ${crd}.core.kubevault.com || {
+  $ONESSL wait-until-ready crd ${crd}.kubevault.com || {
     echo "$crd crd failed to be ready"
     exit 1
   }
 done
+
+if [ "$VAULT_OPERATOR_CATALOG" = "all" ] || [ "$VAULT_OPERATOR_CATALOG" = "vaultserver" ]; then
+  echo "installing Vault server catalog"
+  ${SCRIPT_LOCATION}hack/deploy/catalog/vaultserver.yaml | $ONESSL envsubst | kubectl apply -f -
+fi
 
 echo
 echo "Successfully installed Vault operator in $VAULT_OPERATOR_NAMESPACE namespace!"

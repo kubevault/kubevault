@@ -3,11 +3,11 @@ package kubernetes
 import (
 	"fmt"
 
-	kutilcorev1 "github.com/appscode/kutil/core/v1"
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	core_util "github.com/appscode/kutil/core/v1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -26,13 +26,13 @@ func NewOptions(s api.KubernetesSecretSpec) (*Options, error) {
 	}, nil
 }
 
-func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	if pt == nil {
 		return errors.New("podTempleSpec is nil")
 	}
 
 	var args []string
-	var cont corev1.Container
+	var cont core.Container
 
 	for _, c := range pt.Spec.Containers {
 		if c.Name == util.VaultUnsealerContainerName {
@@ -47,7 +47,7 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 	}
 
 	cont.Args = append(cont.Args, args...)
-	pt.Spec.Containers = kutilcorev1.UpsertContainer(pt.Spec.Containers, cont)
+	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)
 	return nil
 }
 
@@ -62,7 +62,7 @@ func (o *Options) GetRBAC(namespace string) []rbac.Role {
 		},
 		Rules: []rbac.PolicyRule{
 			{
-				APIGroups: []string{corev1.GroupName},
+				APIGroups: []string{core.GroupName},
 				Resources: []string{"secrets"},
 				Verbs:     []string{"create", "get", "update", "patch"},
 			},

@@ -6,11 +6,8 @@ import (
 
 	hooks "github.com/appscode/kubernetes-webhook-util/admission/v1beta1"
 	admissionreview "github.com/appscode/kubernetes-webhook-util/registry/admissionreview/v1beta1"
-	"github.com/kubevault/operator/apis/extensions"
-	"github.com/kubevault/operator/apis/extensions/install"
-	"github.com/kubevault/operator/apis/extensions/v1alpha1"
+	vsadmission "github.com/kubevault/operator/pkg/admission"
 	"github.com/kubevault/operator/pkg/controller"
-	snapregistry "github.com/kubevault/operator/pkg/registry/vaultsecret"
 	admission "k8s.io/api/admission/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -27,7 +24,6 @@ var (
 )
 
 func init() {
-	install.Install(Scheme)
 	admission.AddToScheme(Scheme)
 
 	// we need to add the options to empty v1
@@ -45,18 +41,18 @@ func init() {
 	)
 }
 
-type StashConfig struct {
+type VaultServerConfig struct {
 	GenericConfig *genericapiserver.RecommendedConfig
 	ExtraConfig   *controller.Config
 }
 
-// StashServer contains state for a Kubernetes cluster master/api server.
-type StashServer struct {
+// VaultServer contains state for a Kubernetes cluster master/api server.
+type VaultServer struct {
 	GenericAPIServer *genericapiserver.GenericAPIServer
 	Controller       *controller.VaultController
 }
 
-func (op *StashServer) Run(stopCh <-chan struct{}) error {
+func (op *VaultServer) Run(stopCh <-chan struct{}) error {
 	go op.Controller.RunInformers(stopCh)
 	return op.GenericAPIServer.PrepareRun().Run(stopCh)
 }
@@ -72,7 +68,7 @@ type CompletedConfig struct {
 }
 
 // Complete fills in any fields not set that are required to have valid data. It's mutating the receiver.
-func (c *StashConfig) Complete() CompletedConfig {
+func (c *VaultServerConfig) Complete() CompletedConfig {
 	completedCfg := completedConfig{
 		c.GenericConfig.Complete(),
 		c.ExtraConfig,
@@ -86,9 +82,9 @@ func (c *StashConfig) Complete() CompletedConfig {
 	return CompletedConfig{&completedCfg}
 }
 
-// New returns a new instance of StashServer from the given config.
-func (c completedConfig) New() (*StashServer, error) {
-	genericServer, err := c.GenericConfig.New("stash-apiserver", genericapiserver.NewEmptyDelegate()) // completion is done in Complete, no need for a second time
+// New returns a new instance of VaultServer from the given config.
+func (c completedConfig) New() (*VaultServer, error) {
+	genericServer, err := c.GenericConfig.New("vault-apiserver", genericapiserver.NewEmptyDelegate()) // completion is done in Complete, no need for a second time
 	if err != nil {
 		return nil, err
 	}
@@ -96,9 +92,11 @@ func (c completedConfig) New() (*StashServer, error) {
 	if err != nil {
 		return nil, err
 	}
-	admissionHooks := []hooks.AdmissionHook{}
+	admissionHooks := []hooks.AdmissionHook{
+		&vsadmission.VaultServerValidator{},
+	}
 
-	s := &StashServer{
+	s := &VaultServer{
 		GenericAPIServer: genericServer,
 		Controller:       ctrl,
 	}
@@ -150,17 +148,6 @@ func (c completedConfig) New() (*StashServer, error) {
 				return admissionHook.Initialize(c.ExtraConfig.ClientConfig, context.StopCh)
 			},
 		)
-	}
-
-	{
-		apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(extensions.GroupName, Scheme, metav1.ParameterCodec, Codecs)
-		v1alpha1storage := map[string]rest.Storage{}
-		v1alpha1storage[v1alpha1.ResourceVaultSecrets] = snapregistry.NewREST(c.ExtraConfig.ClientConfig)
-		apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
-
-		if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
-			return nil, err
-		}
 	}
 
 	return s, nil

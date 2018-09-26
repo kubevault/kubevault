@@ -1,7 +1,7 @@
 package docker
 
 const (
-	ACRegistry = "soter"
+	ACRegistry = "kubevault"
 	ImageStash = "vault-operator"
 )
 

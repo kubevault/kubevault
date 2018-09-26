@@ -44,7 +44,7 @@
         }
       }
     },
-    "/apis/core.kubevault.com/": {
+    "/apis/kubevault.com/": {
       "get": {
         "description": "get information of a group",
         "consumes": [
@@ -61,9 +61,9 @@
           "https"
         ],
         "tags": [
-          "coreKubevaultCom"
+          "kubevaultCom"
         ],
-        "operationId": "getCoreKubevaultComAPIGroup",
+        "operationId": "getKubevaultComAPIGroup",
         "responses": {
           "200": {
             "description": "OK",
@@ -74,7 +74,7 @@
         }
       }
     },
-    "/apis/core.kubevault.com/v1alpha1/": {
+    "/apis/kubevault.com/v1alpha1/": {
       "get": {
         "description": "get available resources",
         "consumes": [
@@ -91,9 +91,9 @@
           "https"
         ],
         "tags": [
-          "coreKubevaultCom_v1alpha1"
+          "kubevaultCom_v1alpha1"
         ],
-        "operationId": "getCoreKubevaultComV1alpha1APIResources",
+        "operationId": "getKubevaultComV1alpha1APIResources",
         "responses": {
           "200": {
             "description": "OK",
@@ -104,7 +104,7 @@
         }
       }
     },
-    "/apis/core.kubevault.com/v1alpha1/namespaces/{namespace}/vaultservers": {
+    "/apis/kubevault.com/v1alpha1/namespaces/{namespace}/vaultservers": {
       "get": {
         "description": "list or watch objects of kind VaultServer",
         "consumes": [
@@ -121,9 +121,9 @@
           "https"
         ],
         "tags": [
-          "coreKubevaultCom_v1alpha1"
+          "kubevaultCom_v1alpha1"
         ],
-        "operationId": "listCoreKubevaultComV1alpha1NamespacedVaultServer",
+        "operationId": "listKubevaultComV1alpha1NamespacedVaultServer",
         "parameters": [
           {
             "uniqueItems": true,
@@ -186,13 +186,13 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServerList"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerList"
             }
           }
         },
         "x-kubernetes-action": "list",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -211,16 +211,16 @@
           "https"
         ],
         "tags": [
-          "coreKubevaultCom_v1alpha1"
+          "kubevaultCom_v1alpha1"
         ],
-        "operationId": "createCoreKubevaultComV1alpha1NamespacedVaultServer",
+        "operationId": "createKubevaultComV1alpha1NamespacedVaultServer",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServer"
             }
           }
         ],
@@ -228,25 +228,25 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServer"
             }
           },
           "201": {
             "description": "Created",
             "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServer"
             }
           },
           "202": {
             "description": "Accepted",
             "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServer"
             }
           }
         },
         "x-kubernetes-action": "post",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -265,9 +265,9 @@
           "https"
         ],
         "tags": [
-          "coreKubevaultCom_v1alpha1"
+          "kubevaultCom_v1alpha1"
         ],
-        "operationId": "deleteCoreKubevaultComV1alpha1CollectionNamespacedVaultServer",
+        "operationId": "deleteKubevaultComV1alpha1CollectionNamespacedVaultServer",
         "parameters": [
           {
             "uniqueItems": true,
@@ -336,7 +336,7 @@
         },
         "x-kubernetes-action": "deletecollection",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -359,7 +359,7 @@
         }
       ]
     },
-    "/apis/core.kubevault.com/v1alpha1/namespaces/{namespace}/vaultservers/{name}": {
+    "/apis/kubevault.com/v1alpha1/namespaces/{namespace}/vaultservers/{name}": {
       "get": {
         "description": "read the specified VaultServer",
         "consumes": [
@@ -374,20 +374,20 @@
           "https"
         ],
         "tags": [
-          "coreKubevaultCom_v1alpha1"
+          "kubevaultCom_v1alpha1"
         ],
-        "operationId": "readCoreKubevaultComV1alpha1NamespacedVaultServer",
+        "operationId": "readKubevaultComV1alpha1NamespacedVaultServer",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServer"
             }
           }
         },
         "x-kubernetes-action": "get",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -406,16 +406,16 @@
           "https"
         ],
         "tags": [
-          "coreKubevaultCom_v1alpha1"
+          "kubevaultCom_v1alpha1"
         ],
-        "operationId": "replaceCoreKubevaultComV1alpha1NamespacedVaultServer",
+        "operationId": "replaceKubevaultComV1alpha1NamespacedVaultServer",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServer"
             }
           }
         ],
@@ -423,19 +423,19 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServer"
             }
           },
           "201": {
             "description": "Created",
             "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServer"
             }
           }
         },
         "x-kubernetes-action": "put",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -454,9 +454,9 @@
           "https"
         ],
         "tags": [
-          "coreKubevaultCom_v1alpha1"
+          "kubevaultCom_v1alpha1"
         ],
-        "operationId": "deleteCoreKubevaultComV1alpha1NamespacedVaultServer",
+        "operationId": "deleteKubevaultComV1alpha1NamespacedVaultServer",
         "parameters": [
           {
             "name": "body",
@@ -498,7 +498,7 @@
         },
         "x-kubernetes-action": "delete",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -519,9 +519,9 @@
           "https"
         ],
         "tags": [
-          "coreKubevaultCom_v1alpha1"
+          "kubevaultCom_v1alpha1"
         ],
-        "operationId": "patchCoreKubevaultComV1alpha1NamespacedVaultServer",
+        "operationId": "patchKubevaultComV1alpha1NamespacedVaultServer",
         "parameters": [
           {
             "name": "body",
@@ -536,13 +536,13 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServer"
             }
           }
         },
         "x-kubernetes-action": "patch",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -573,7 +573,7 @@
         }
       ]
     },
-    "/apis/core.kubevault.com/v1alpha1/vaultservers": {
+    "/apis/kubevault.com/v1alpha1/vaultservers": {
       "get": {
         "description": "list or watch objects of kind VaultServer",
         "consumes": [
@@ -590,20 +590,20 @@
           "https"
         ],
         "tags": [
-          "coreKubevaultCom_v1alpha1"
+          "kubevaultCom_v1alpha1"
         ],
-        "operationId": "listCoreKubevaultComV1alpha1VaultServerForAllNamespaces",
+        "operationId": "listKubevaultComV1alpha1VaultServerForAllNamespaces",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServerList"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerList"
             }
           }
         },
         "x-kubernetes-action": "list",
         "x-kubernetes-group-version-kind": {
-          "group": "core.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
@@ -674,9 +674,9 @@
         }
       ]
     },
-    "/apis/core.kubevault.com/v1alpha1/watch/namespaces/{namespace}/vaultservers": {
+    "/apis/kubevault.com/v1alpha1/vaultserverversions": {
       "get": {
-        "description": "watch individual changes to a list of VaultServer",
+        "description": "list or watch objects of kind VaultServerVersion",
         "consumes": [
           "*/*"
         ],
@@ -691,488 +691,84 @@
           "https"
         ],
         "tags": [
-          "coreKubevaultCom_v1alpha1"
+          "kubevaultCom_v1alpha1"
         ],
-        "operationId": "watchCoreKubevaultComV1alpha1NamespacedVaultServerList",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.WatchEvent"
-            }
+        "operationId": "listKubevaultComV1alpha1VaultServerVersion",
+        "parameters": [
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.",
+            "name": "continue",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "A selector to restrict the list of returned objects by their fields. Defaults to everything.",
+            "name": "fieldSelector",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "boolean",
+            "description": "If true, partially initialized resources are included in the response.",
+            "name": "includeUninitialized",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
+            "name": "labelSelector",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "integer",
+            "description": "limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.\n\nThe server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.",
+            "name": "resourceVersion",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "integer",
+            "description": "Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.",
+            "name": "timeoutSeconds",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "boolean",
+            "description": "Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.",
+            "name": "watch",
+            "in": "query"
           }
-        },
-        "x-kubernetes-action": "watchlist",
-        "x-kubernetes-group-version-kind": {
-          "group": "core.kubevault.com",
-          "version": "v1alpha1",
-          "kind": "VaultServer"
-        }
-      },
-      "parameters": [
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.",
-          "name": "continue",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "A selector to restrict the list of returned objects by their fields. Defaults to everything.",
-          "name": "fieldSelector",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "boolean",
-          "description": "If true, partially initialized resources are included in the response.",
-          "name": "includeUninitialized",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
-          "name": "labelSelector",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "integer",
-          "description": "limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.\n\nThe server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.",
-          "name": "limit",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "object name and auth scope, such as for teams and projects",
-          "name": "namespace",
-          "in": "path",
-          "required": true
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "If 'true', then the output is pretty printed.",
-          "name": "pretty",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.",
-          "name": "resourceVersion",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "integer",
-          "description": "Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.",
-          "name": "timeoutSeconds",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "boolean",
-          "description": "Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.",
-          "name": "watch",
-          "in": "query"
-        }
-      ]
-    },
-    "/apis/core.kubevault.com/v1alpha1/watch/namespaces/{namespace}/vaultservers/{name}": {
-      "get": {
-        "description": "watch changes to an object of kind VaultServer",
-        "consumes": [
-          "*/*"
         ],
-        "produces": [
-          "application/json",
-          "application/yaml",
-          "application/vnd.kubernetes.protobuf",
-          "application/json;stream=watch",
-          "application/vnd.kubernetes.protobuf;stream=watch"
-        ],
-        "schemes": [
-          "https"
-        ],
-        "tags": [
-          "coreKubevaultCom_v1alpha1"
-        ],
-        "operationId": "watchCoreKubevaultComV1alpha1NamespacedVaultServer",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.WatchEvent"
-            }
-          }
-        },
-        "x-kubernetes-action": "watch",
-        "x-kubernetes-group-version-kind": {
-          "group": "core.kubevault.com",
-          "version": "v1alpha1",
-          "kind": "VaultServer"
-        }
-      },
-      "parameters": [
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.",
-          "name": "continue",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "A selector to restrict the list of returned objects by their fields. Defaults to everything.",
-          "name": "fieldSelector",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "boolean",
-          "description": "If true, partially initialized resources are included in the response.",
-          "name": "includeUninitialized",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
-          "name": "labelSelector",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "integer",
-          "description": "limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.\n\nThe server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.",
-          "name": "limit",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "name of the VaultServer",
-          "name": "name",
-          "in": "path",
-          "required": true
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "object name and auth scope, such as for teams and projects",
-          "name": "namespace",
-          "in": "path",
-          "required": true
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "If 'true', then the output is pretty printed.",
-          "name": "pretty",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.",
-          "name": "resourceVersion",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "integer",
-          "description": "Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.",
-          "name": "timeoutSeconds",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "boolean",
-          "description": "Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.",
-          "name": "watch",
-          "in": "query"
-        }
-      ]
-    },
-    "/apis/core.kubevault.com/v1alpha1/watch/vaultservers": {
-      "get": {
-        "description": "watch individual changes to a list of VaultServer",
-        "consumes": [
-          "*/*"
-        ],
-        "produces": [
-          "application/json",
-          "application/yaml",
-          "application/vnd.kubernetes.protobuf",
-          "application/json;stream=watch",
-          "application/vnd.kubernetes.protobuf;stream=watch"
-        ],
-        "schemes": [
-          "https"
-        ],
-        "tags": [
-          "coreKubevaultCom_v1alpha1"
-        ],
-        "operationId": "watchCoreKubevaultComV1alpha1VaultServerListForAllNamespaces",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.WatchEvent"
-            }
-          }
-        },
-        "x-kubernetes-action": "watchlist",
-        "x-kubernetes-group-version-kind": {
-          "group": "core.kubevault.com",
-          "version": "v1alpha1",
-          "kind": "VaultServer"
-        }
-      },
-      "parameters": [
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.",
-          "name": "continue",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "A selector to restrict the list of returned objects by their fields. Defaults to everything.",
-          "name": "fieldSelector",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "boolean",
-          "description": "If true, partially initialized resources are included in the response.",
-          "name": "includeUninitialized",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
-          "name": "labelSelector",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "integer",
-          "description": "limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.\n\nThe server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.",
-          "name": "limit",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "If 'true', then the output is pretty printed.",
-          "name": "pretty",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.",
-          "name": "resourceVersion",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "integer",
-          "description": "Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.",
-          "name": "timeoutSeconds",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "boolean",
-          "description": "Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.",
-          "name": "watch",
-          "in": "query"
-        }
-      ]
-    },
-    "/apis/extensions.kubevault.com/": {
-      "get": {
-        "description": "get information of a group",
-        "consumes": [
-          "application/json",
-          "application/yaml",
-          "application/vnd.kubernetes.protobuf"
-        ],
-        "produces": [
-          "application/json",
-          "application/yaml",
-          "application/vnd.kubernetes.protobuf"
-        ],
-        "schemes": [
-          "https"
-        ],
-        "tags": [
-          "extensionsKubevaultCom"
-        ],
-        "operationId": "getExtensionsKubevaultComAPIGroup",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.APIGroup"
-            }
-          }
-        }
-      }
-    },
-    "/apis/extensions.kubevault.com/v1alpha1/": {
-      "get": {
-        "description": "get available resources",
-        "consumes": [
-          "application/json",
-          "application/yaml",
-          "application/vnd.kubernetes.protobuf"
-        ],
-        "produces": [
-          "application/json",
-          "application/yaml",
-          "application/vnd.kubernetes.protobuf"
-        ],
-        "schemes": [
-          "https"
-        ],
-        "tags": [
-          "extensionsKubevaultCom_v1alpha1"
-        ],
-        "operationId": "getExtensionsKubevaultComV1alpha1APIResources",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.APIResourceList"
-            }
-          }
-        }
-      }
-    },
-    "/apis/extensions.kubevault.com/v1alpha1/namespaces/{namespace}/vaultsecrets": {
-      "get": {
-        "description": "list objects of kind VaultSecret",
-        "consumes": [
-          "*/*"
-        ],
-        "produces": [
-          "application/json",
-          "application/yaml",
-          "application/vnd.kubernetes.protobuf",
-          "application/json;stream=watch",
-          "application/vnd.kubernetes.protobuf;stream=watch"
-        ],
-        "schemes": [
-          "https"
-        ],
-        "tags": [
-          "extensionsKubevaultCom_v1alpha1"
-        ],
-        "operationId": "listExtensionsKubevaultComV1alpha1NamespacedVaultSecret",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecretList"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersionList"
             }
           }
         },
         "x-kubernetes-action": "list",
         "x-kubernetes-group-version-kind": {
-          "group": "extensions.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
-          "kind": "VaultSecret"
+          "kind": "VaultServerVersion"
         }
       },
-      "parameters": [
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.",
-          "name": "continue",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "A selector to restrict the list of returned objects by their fields. Defaults to everything.",
-          "name": "fieldSelector",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "boolean",
-          "description": "If true, partially initialized resources are included in the response.",
-          "name": "includeUninitialized",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
-          "name": "labelSelector",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "integer",
-          "description": "limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.\n\nThe server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.",
-          "name": "limit",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "object name and auth scope, such as for teams and projects",
-          "name": "namespace",
-          "in": "path",
-          "required": true
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "If 'true', then the output is pretty printed.",
-          "name": "pretty",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.",
-          "name": "resourceVersion",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "integer",
-          "description": "Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.",
-          "name": "timeoutSeconds",
-          "in": "query"
-        },
-        {
-          "uniqueItems": true,
-          "type": "boolean",
-          "description": "Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.",
-          "name": "watch",
-          "in": "query"
-        }
-      ]
-    },
-    "/apis/extensions.kubevault.com/v1alpha1/namespaces/{namespace}/vaultsecrets/{name}": {
-      "get": {
-        "description": "read the specified VaultSecret",
+      "post": {
+        "description": "create a VaultServerVersion",
         "consumes": [
           "*/*"
         ],
@@ -1185,26 +781,181 @@
           "https"
         ],
         "tags": [
-          "extensionsKubevaultCom_v1alpha1"
+          "kubevaultCom_v1alpha1"
         ],
-        "operationId": "readExtensionsKubevaultComV1alpha1NamespacedVaultSecret",
+        "operationId": "createKubevaultComV1alpha1VaultServerVersion",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersion"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecret"
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersion"
+            }
+          },
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersion"
+            }
+          },
+          "202": {
+            "description": "Accepted",
+            "schema": {
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersion"
+            }
+          }
+        },
+        "x-kubernetes-action": "post",
+        "x-kubernetes-group-version-kind": {
+          "group": "kubevault.com",
+          "version": "v1alpha1",
+          "kind": "VaultServerVersion"
+        }
+      },
+      "delete": {
+        "description": "delete collection of VaultServerVersion",
+        "consumes": [
+          "*/*"
+        ],
+        "produces": [
+          "application/json",
+          "application/yaml",
+          "application/vnd.kubernetes.protobuf"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "kubevaultCom_v1alpha1"
+        ],
+        "operationId": "deleteKubevaultComV1alpha1CollectionVaultServerVersion",
+        "parameters": [
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.",
+            "name": "continue",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "A selector to restrict the list of returned objects by their fields. Defaults to everything.",
+            "name": "fieldSelector",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "boolean",
+            "description": "If true, partially initialized resources are included in the response.",
+            "name": "includeUninitialized",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
+            "name": "labelSelector",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "integer",
+            "description": "limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.\n\nThe server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.",
+            "name": "resourceVersion",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "integer",
+            "description": "Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.",
+            "name": "timeoutSeconds",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "boolean",
+            "description": "Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.",
+            "name": "watch",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Status"
+            }
+          }
+        },
+        "x-kubernetes-action": "deletecollection",
+        "x-kubernetes-group-version-kind": {
+          "group": "kubevault.com",
+          "version": "v1alpha1",
+          "kind": "VaultServerVersion"
+        }
+      },
+      "parameters": [
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "If 'true', then the output is pretty printed.",
+          "name": "pretty",
+          "in": "query"
+        }
+      ]
+    },
+    "/apis/kubevault.com/v1alpha1/vaultserverversions/{name}": {
+      "get": {
+        "description": "read the specified VaultServerVersion",
+        "consumes": [
+          "*/*"
+        ],
+        "produces": [
+          "application/json",
+          "application/yaml",
+          "application/vnd.kubernetes.protobuf"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "kubevaultCom_v1alpha1"
+        ],
+        "operationId": "readKubevaultComV1alpha1VaultServerVersion",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersion"
             }
           }
         },
         "x-kubernetes-action": "get",
         "x-kubernetes-group-version-kind": {
-          "group": "extensions.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
-          "kind": "VaultSecret"
+          "kind": "VaultServerVersion"
         }
       },
-      "delete": {
-        "description": "delete a VaultSecret",
+      "put": {
+        "description": "replace the specified VaultServerVersion",
         "consumes": [
           "*/*"
         ],
@@ -1217,9 +968,57 @@
           "https"
         ],
         "tags": [
-          "extensionsKubevaultCom_v1alpha1"
+          "kubevaultCom_v1alpha1"
         ],
-        "operationId": "deleteExtensionsKubevaultComV1alpha1NamespacedVaultSecret",
+        "operationId": "replaceKubevaultComV1alpha1VaultServerVersion",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersion"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersion"
+            }
+          },
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersion"
+            }
+          }
+        },
+        "x-kubernetes-action": "put",
+        "x-kubernetes-group-version-kind": {
+          "group": "kubevault.com",
+          "version": "v1alpha1",
+          "kind": "VaultServerVersion"
+        }
+      },
+      "delete": {
+        "description": "delete a VaultServerVersion",
+        "consumes": [
+          "*/*"
+        ],
+        "produces": [
+          "application/json",
+          "application/yaml",
+          "application/vnd.kubernetes.protobuf"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "kubevaultCom_v1alpha1"
+        ],
+        "operationId": "deleteKubevaultComV1alpha1VaultServerVersion",
         "parameters": [
           {
             "name": "body",
@@ -1261,25 +1060,61 @@
         },
         "x-kubernetes-action": "delete",
         "x-kubernetes-group-version-kind": {
-          "group": "extensions.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
-          "kind": "VaultSecret"
+          "kind": "VaultServerVersion"
+        }
+      },
+      "patch": {
+        "description": "partially update the specified VaultServerVersion",
+        "consumes": [
+          "application/json-patch+json",
+          "application/merge-patch+json",
+          "application/strategic-merge-patch+json"
+        ],
+        "produces": [
+          "application/json",
+          "application/yaml",
+          "application/vnd.kubernetes.protobuf"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "kubevaultCom_v1alpha1"
+        ],
+        "operationId": "patchKubevaultComV1alpha1VaultServerVersion",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Patch"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersion"
+            }
+          }
+        },
+        "x-kubernetes-action": "patch",
+        "x-kubernetes-group-version-kind": {
+          "group": "kubevault.com",
+          "version": "v1alpha1",
+          "kind": "VaultServerVersion"
         }
       },
       "parameters": [
         {
           "uniqueItems": true,
           "type": "string",
-          "description": "name of the VaultSecret",
+          "description": "name of the VaultServerVersion",
           "name": "name",
-          "in": "path",
-          "required": true
-        },
-        {
-          "uniqueItems": true,
-          "type": "string",
-          "description": "object name and auth scope, such as for teams and projects",
-          "name": "namespace",
           "in": "path",
           "required": true
         },
@@ -1292,9 +1127,9 @@
         }
       ]
     },
-    "/apis/extensions.kubevault.com/v1alpha1/vaultsecrets": {
+    "/apis/kubevault.com/v1alpha1/watch/namespaces/{namespace}/vaultservers": {
       "get": {
-        "description": "list objects of kind VaultSecret",
+        "description": "watch individual changes to a list of VaultServer",
         "consumes": [
           "*/*"
         ],
@@ -1309,22 +1144,22 @@
           "https"
         ],
         "tags": [
-          "extensionsKubevaultCom_v1alpha1"
+          "kubevaultCom_v1alpha1"
         ],
-        "operationId": "listExtensionsKubevaultComV1alpha1VaultSecretForAllNamespaces",
+        "operationId": "watchKubevaultComV1alpha1NamespacedVaultServerList",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecretList"
+              "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.WatchEvent"
             }
           }
         },
-        "x-kubernetes-action": "list",
+        "x-kubernetes-action": "watchlist",
         "x-kubernetes-group-version-kind": {
-          "group": "extensions.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
-          "kind": "VaultSecret"
+          "kind": "VaultServer"
         }
       },
       "parameters": [
@@ -1362,6 +1197,442 @@
           "description": "limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.\n\nThe server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.",
           "name": "limit",
           "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "object name and auth scope, such as for teams and projects",
+          "name": "namespace",
+          "in": "path",
+          "required": true
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "If 'true', then the output is pretty printed.",
+          "name": "pretty",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.",
+          "name": "resourceVersion",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "integer",
+          "description": "Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.",
+          "name": "timeoutSeconds",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.",
+          "name": "watch",
+          "in": "query"
+        }
+      ]
+    },
+    "/apis/kubevault.com/v1alpha1/watch/namespaces/{namespace}/vaultservers/{name}": {
+      "get": {
+        "description": "watch changes to an object of kind VaultServer",
+        "consumes": [
+          "*/*"
+        ],
+        "produces": [
+          "application/json",
+          "application/yaml",
+          "application/vnd.kubernetes.protobuf",
+          "application/json;stream=watch",
+          "application/vnd.kubernetes.protobuf;stream=watch"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "kubevaultCom_v1alpha1"
+        ],
+        "operationId": "watchKubevaultComV1alpha1NamespacedVaultServer",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.WatchEvent"
+            }
+          }
+        },
+        "x-kubernetes-action": "watch",
+        "x-kubernetes-group-version-kind": {
+          "group": "kubevault.com",
+          "version": "v1alpha1",
+          "kind": "VaultServer"
+        }
+      },
+      "parameters": [
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.",
+          "name": "continue",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "A selector to restrict the list of returned objects by their fields. Defaults to everything.",
+          "name": "fieldSelector",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "If true, partially initialized resources are included in the response.",
+          "name": "includeUninitialized",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
+          "name": "labelSelector",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "integer",
+          "description": "limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.\n\nThe server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.",
+          "name": "limit",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "name of the VaultServer",
+          "name": "name",
+          "in": "path",
+          "required": true
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "object name and auth scope, such as for teams and projects",
+          "name": "namespace",
+          "in": "path",
+          "required": true
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "If 'true', then the output is pretty printed.",
+          "name": "pretty",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.",
+          "name": "resourceVersion",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "integer",
+          "description": "Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.",
+          "name": "timeoutSeconds",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.",
+          "name": "watch",
+          "in": "query"
+        }
+      ]
+    },
+    "/apis/kubevault.com/v1alpha1/watch/vaultservers": {
+      "get": {
+        "description": "watch individual changes to a list of VaultServer",
+        "consumes": [
+          "*/*"
+        ],
+        "produces": [
+          "application/json",
+          "application/yaml",
+          "application/vnd.kubernetes.protobuf",
+          "application/json;stream=watch",
+          "application/vnd.kubernetes.protobuf;stream=watch"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "kubevaultCom_v1alpha1"
+        ],
+        "operationId": "watchKubevaultComV1alpha1VaultServerListForAllNamespaces",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.WatchEvent"
+            }
+          }
+        },
+        "x-kubernetes-action": "watchlist",
+        "x-kubernetes-group-version-kind": {
+          "group": "kubevault.com",
+          "version": "v1alpha1",
+          "kind": "VaultServer"
+        }
+      },
+      "parameters": [
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.",
+          "name": "continue",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "A selector to restrict the list of returned objects by their fields. Defaults to everything.",
+          "name": "fieldSelector",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "If true, partially initialized resources are included in the response.",
+          "name": "includeUninitialized",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
+          "name": "labelSelector",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "integer",
+          "description": "limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.\n\nThe server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.",
+          "name": "limit",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "If 'true', then the output is pretty printed.",
+          "name": "pretty",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.",
+          "name": "resourceVersion",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "integer",
+          "description": "Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.",
+          "name": "timeoutSeconds",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.",
+          "name": "watch",
+          "in": "query"
+        }
+      ]
+    },
+    "/apis/kubevault.com/v1alpha1/watch/vaultserverversions": {
+      "get": {
+        "description": "watch individual changes to a list of VaultServerVersion",
+        "consumes": [
+          "*/*"
+        ],
+        "produces": [
+          "application/json",
+          "application/yaml",
+          "application/vnd.kubernetes.protobuf",
+          "application/json;stream=watch",
+          "application/vnd.kubernetes.protobuf;stream=watch"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "kubevaultCom_v1alpha1"
+        ],
+        "operationId": "watchKubevaultComV1alpha1VaultServerVersionList",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.WatchEvent"
+            }
+          }
+        },
+        "x-kubernetes-action": "watchlist",
+        "x-kubernetes-group-version-kind": {
+          "group": "kubevault.com",
+          "version": "v1alpha1",
+          "kind": "VaultServerVersion"
+        }
+      },
+      "parameters": [
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.",
+          "name": "continue",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "A selector to restrict the list of returned objects by their fields. Defaults to everything.",
+          "name": "fieldSelector",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "If true, partially initialized resources are included in the response.",
+          "name": "includeUninitialized",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
+          "name": "labelSelector",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "integer",
+          "description": "limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.\n\nThe server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.",
+          "name": "limit",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "If 'true', then the output is pretty printed.",
+          "name": "pretty",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "When specified with a watch call, shows changes that occur after that particular version of a resource. Defaults to changes from the beginning of history. When specified for list: - if unset, then the result is returned from remote storage based on quorum-read flag; - if it's 0, then we simply return what we currently have in cache, no guarantee; - if set to non zero, then the result is at least as fresh as given rv.",
+          "name": "resourceVersion",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "integer",
+          "description": "Timeout for the list/watch call. This limits the duration of the call, regardless of any activity or inactivity.",
+          "name": "timeoutSeconds",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion.",
+          "name": "watch",
+          "in": "query"
+        }
+      ]
+    },
+    "/apis/kubevault.com/v1alpha1/watch/vaultserverversions/{name}": {
+      "get": {
+        "description": "watch changes to an object of kind VaultServerVersion",
+        "consumes": [
+          "*/*"
+        ],
+        "produces": [
+          "application/json",
+          "application/yaml",
+          "application/vnd.kubernetes.protobuf",
+          "application/json;stream=watch",
+          "application/vnd.kubernetes.protobuf;stream=watch"
+        ],
+        "schemes": [
+          "https"
+        ],
+        "tags": [
+          "kubevaultCom_v1alpha1"
+        ],
+        "operationId": "watchKubevaultComV1alpha1VaultServerVersion",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.WatchEvent"
+            }
+          }
+        },
+        "x-kubernetes-action": "watch",
+        "x-kubernetes-group-version-kind": {
+          "group": "kubevault.com",
+          "version": "v1alpha1",
+          "kind": "VaultServerVersion"
+        }
+      },
+      "parameters": [
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "The continue option should be set when retrieving more results from the server. Since this value is server defined, clients may only use the continue value from a previous query result with identical query parameters (except for the value of continue) and the server may reject a continue value it does not recognize. If the specified continue value is no longer valid whether due to expiration (generally five to fifteen minutes) or a configuration change on the server the server will respond with a 410 ResourceExpired error indicating the client must restart their list without the continue field. This field is not supported when watch is true. Clients may start a watch from the last resourceVersion value returned by the server and not miss any modifications.",
+          "name": "continue",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "A selector to restrict the list of returned objects by their fields. Defaults to everything.",
+          "name": "fieldSelector",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "If true, partially initialized resources are included in the response.",
+          "name": "includeUninitialized",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
+          "name": "labelSelector",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "integer",
+          "description": "limit is a maximum number of responses to return for a list call. If more items exist, the server will set the `continue` field on the list metadata to a value that can be used with the same initial query to retrieve the next set of results. Setting a limit may return fewer than the requested amount of items (up to zero items) in the event all requested objects are filtered out and clients should only use the presence of the continue field to determine whether more results are available. Servers may choose not to support the limit argument and will return all of the available results. If limit is specified and the continue field is empty, clients may assume that no more results are available. This field is not supported if watch is true.\n\nThe server guarantees that the objects returned when using continue will be identical to issuing a single list call without a limit - that is, no objects created, modified, or deleted after the first request is issued will be included in any subsequent continued requests. This is sometimes referred to as a consistent snapshot, and ensures that a client that is using limit to receive smaller chunks of a very large result can ensure they see all possible objects. If objects are updated during a chunked list the version of the object that was present at the time the first list result was calculated is returned.",
+          "name": "limit",
+          "in": "query"
+        },
+        {
+          "uniqueItems": true,
+          "type": "string",
+          "description": "name of the VaultServerVersion",
+          "name": "name",
+          "in": "path",
+          "required": true
         },
         {
           "uniqueItems": true,
@@ -1399,7 +1670,7 @@
       "description": "IntHash represents as int64 Generation and string Hash. It is json serialized into \u003cint64\u003e$\u003chash_string\u003e.",
       "type": "string"
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.AwsKmsSsmSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.AwsKmsSsmSpec": {
       "description": "AwsKmsSsmSpec contain the fields that required to unseal vault using aws kms ssm",
       "required": [
         "kmsKeyID"
@@ -1418,7 +1689,7 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.AzureKeyVault": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.AzureKeyVault": {
       "description": "AzureKeyVault contain the fields that required to unseal vault using azure key vault",
       "required": [
         "vaultBaseUrl",
@@ -1451,16 +1722,16 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.AzureSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.AzureSpec": {
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/azure.html\n\nAzureSpec defines configuration to set up Google Cloud Storage as backend storage in vault",
       "required": [
         "accountName",
-        "accountKey",
+        "accountKeySecret",
         "container"
       ],
       "properties": {
-        "accountKey": {
-          "description": "Specifies the Azure Storage account key.",
+        "accountKeySecret": {
+          "description": "Specifies the secret containing Azure Storage account key. secret data:\n\t- account_key:\u003cvalue\u003e",
           "type": "string"
         },
         "accountName": {
@@ -1478,43 +1749,43 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.BackendStorageSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.BackendStorageSpec": {
       "description": "BackendStorageSpec defines storage backend configuration of vault",
       "properties": {
         "azure": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.AzureSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.AzureSpec"
         },
         "dynamoDB": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.DynamoDBSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.DynamoDBSpec"
         },
         "etcd": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.EtcdSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.EtcdSpec"
         },
         "file": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.FileSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.FileSpec"
         },
         "gcs": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.GcsSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.GcsSpec"
         },
         "inmem": {
           "description": "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
           "type": "boolean"
         },
         "mySQL": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.MySQLSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.MySQLSpec"
         },
         "postgreSQL": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.PostgreSQLSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.PostgreSQLSpec"
         },
         "s3": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.S3Spec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.S3Spec"
         },
         "swift": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.SwiftSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.SwiftSpec"
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.DynamoDBSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.DynamoDBSpec": {
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/dynamodb.html\n\nDynamoDBSpec defines configuration to set up DynamoDB Storage as backend storage in vault",
       "required": [
         "readCapacity"
@@ -1561,7 +1832,7 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.EtcdSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.EtcdSpec": {
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html\n\nEtcdSpec defines configuration to set up etcd as backend storage in vault",
       "properties": {
         "address": {
@@ -1598,7 +1869,7 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.FileSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.FileSpec": {
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/filesystem.html\n\nFileSpec defines configuration to set up File system Storage as backend storage in vault",
       "required": [
         "path"
@@ -1610,7 +1881,7 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.GcsSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.GcsSpec": {
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html\n\nGcsSpec defines configuration to set up Google Cloud Storage as backend storage in vault",
       "required": [
         "bucket"
@@ -1639,7 +1910,7 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.GoogleKmsGcsSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.GoogleKmsGcsSpec": {
       "description": "GoogleKmsGcsSpec contain the fields that required to unseal vault using google kms",
       "required": [
         "kmsCryptoKey",
@@ -1675,7 +1946,7 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.KubernetesSecretSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.KubernetesSecretSpec": {
       "description": "KubernetesSecretSpec contain the fields that required to unseal using kubernetes secret",
       "required": [
         "secretName"
@@ -1686,24 +1957,24 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.ModeSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.ModeSpec": {
       "description": "ModeSpec contain unseal mechanism",
       "properties": {
         "awsKmsSsm": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.AwsKmsSsmSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.AwsKmsSsmSpec"
         },
         "azureKeyVault": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.AzureKeyVault"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.AzureKeyVault"
         },
         "googleKmsGcs": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.GoogleKmsGcsSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.GoogleKmsGcsSpec"
         },
         "kubernetesSecret": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.KubernetesSecretSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.KubernetesSecretSpec"
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.MySQLSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.MySQLSpec": {
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/mysql.html\n\nMySQLSpec defines configuration to set up MySQL Storage as backend storage in vault",
       "required": [
         "userCredentialSecret"
@@ -1727,7 +1998,7 @@
           "type": "string"
         },
         "tlsCASecret": {
-          "description": "Specifies the name of the secret containing the CA certificate to connect using TLS. secret data:\n\t- ca=\u003cca_cert\u003e",
+          "description": "Specifies the name of the secret containing the CA certificate to connect using TLS. secret data:\n\t- tls_ca_file=\u003cca_cert\u003e",
           "type": "string"
         },
         "userCredentialSecret": {
@@ -1736,7 +2007,7 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.PostgreSQLSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.PostgreSQLSpec": {
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/postgresql.html\n\nPostgreSQLSpec defines configuration to set up PostgreSQL storage as backend storage in vault",
       "required": [
         "connectionUrlSecret"
@@ -1757,7 +2028,7 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.S3Spec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.S3Spec": {
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/s3.html\n\nS3Spec defines configuration to set up Amazon S3 Storage as backend storage in vault",
       "required": [
         "bucket"
@@ -1798,7 +2069,7 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.SwiftSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.SwiftSpec": {
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/swift.html\n\nSwiftSpec defines configuration to set up Swift Storage as backend storage in vault",
       "required": [
         "authUrl",
@@ -1857,7 +2128,7 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.TLSPolicy": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.TLSPolicy": {
       "description": "TLSPolicy defines the TLS policy of the vault nodes If this is not set, operator will auto-gen TLS assets and secrets.",
       "required": [
         "tlsSecret"
@@ -1869,7 +2140,7 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.UnsealerSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.UnsealerSpec": {
       "description": "UnsealerSpec contain the configuration for auto vault initialize/unseal",
       "properties": {
         "insecureTLS": {
@@ -1878,7 +2149,7 @@
         },
         "mode": {
           "description": "mode contains unseal mechanism",
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.ModeSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.ModeSpec"
         },
         "overwriteExisting": {
           "description": "overwrite existing unseal keys and root tokens, possibly dangerous!",
@@ -1904,12 +2175,12 @@
           "type": "boolean"
         },
         "vaultCASecret": {
-          "description": "Secret name containing self signed ca cert of vault",
+          "description": "Secret name containing self signed ca cert of vault secret data:\n\t- ca.crt=\u003cvalue\u003e",
           "type": "string"
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.VaultServer": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServer": {
       "properties": {
         "apiVersion": {
           "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
@@ -1923,21 +2194,21 @@
           "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta"
         },
         "spec": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServerSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerSpec"
         },
         "status": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServerStatus"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerStatus"
         }
       },
       "x-kubernetes-group-version-kind": [
         {
-          "group": "core.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServer"
         }
       ]
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.VaultServerCondition": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerCondition": {
       "description": "VaultServerCondition describes the state of a VaultServer at a certain point.",
       "properties": {
         "message": {
@@ -1958,7 +2229,7 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.VaultServerList": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerList": {
       "properties": {
         "apiVersion": {
           "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
@@ -1967,7 +2238,7 @@
         "items": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServer"
+            "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServer"
           }
         },
         "kind": {
@@ -1980,13 +2251,13 @@
       },
       "x-kubernetes-group-version-kind": [
         {
-          "group": "core.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
           "kind": "VaultServerList"
         }
       ]
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.VaultServerSpec": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerSpec": {
       "required": [
         "version",
         "backend"
@@ -1994,7 +2265,7 @@
       "properties": {
         "backend": {
           "description": "backend storage configuration for vault",
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.BackendStorageSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.BackendStorageSpec"
         },
         "configSource": {
           "description": "Name of the ConfigMap for Vault's configuration In this configMap contain extra config for vault ConfigSource is an optional field to provide extra configuration for vault. File name should be 'vault.hcl'. If specified, this file will be appended to the controller configuration file.",
@@ -2015,11 +2286,11 @@
         },
         "tls": {
           "description": "TLS policy of vault nodes",
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.TLSPolicy"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.TLSPolicy"
         },
         "unsealer": {
           "description": "Unsealer configuration for vault",
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.UnsealerSpec"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.UnsealerSpec"
         },
         "version": {
           "description": "Version of Vault server to be deployed.",
@@ -2027,7 +2298,7 @@
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.VaultServerStatus": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerStatus": {
       "properties": {
         "clientPort": {
           "description": "ClientPort is the port for vault client to access. It's the same on client LB service and vault nodes.",
@@ -2038,7 +2309,7 @@
           "description": "Represents the latest available observations of a VaultServer current state.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultServerCondition"
+            "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerCondition"
           }
         },
         "initialized": {
@@ -2066,11 +2337,115 @@
         },
         "vaultStatus": {
           "description": "VaultStatus is the set of Vault node specific statuses: Active, Standby, and Sealed",
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.core.v1alpha1.VaultStatus"
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultStatus"
         }
       }
     },
-    "com.github.kubevault.operator.apis.core.v1alpha1.VaultStatus": {
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersion": {
+      "description": "VaultServerVersion defines a vaultserver version.",
+      "properties": {
+        "apiVersion": {
+          "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+          "type": "string"
+        },
+        "kind": {
+          "description": "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta"
+        },
+        "spec": {
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersionSpec"
+        }
+      },
+      "x-kubernetes-group-version-kind": [
+        {
+          "group": "kubevault.com",
+          "version": "v1alpha1",
+          "kind": "VaultServerVersion"
+        }
+      ]
+    },
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersionList": {
+      "description": "VaultServerVersionList is a list of VaultserverVersions",
+      "properties": {
+        "apiVersion": {
+          "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+          "type": "string"
+        },
+        "items": {
+          "description": "Items is a list of VaultServerVersion CRD objects",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersion"
+          }
+        },
+        "kind": {
+          "description": "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ListMeta"
+        }
+      },
+      "x-kubernetes-group-version-kind": [
+        {
+          "group": "kubevault.com",
+          "version": "v1alpha1",
+          "kind": "VaultServerVersionList"
+        }
+      ]
+    },
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersionSpec": {
+      "description": "VaultServerVersionSpec is the spec for postgres version",
+      "required": [
+        "version",
+        "vault",
+        "unsealer"
+      ],
+      "properties": {
+        "deprecated": {
+          "description": "Deprecated versions usable but regarded as obsolete and best avoided, typically due to having been superseded.",
+          "type": "boolean"
+        },
+        "unsealer": {
+          "description": "Unsealer Image",
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersionUnsealer"
+        },
+        "vault": {
+          "description": "Vault Image",
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersionVault"
+        },
+        "version": {
+          "description": "Version",
+          "type": "string"
+        }
+      }
+    },
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersionUnsealer": {
+      "description": "VaultServerVersionUnsealer is the image for the vault unsealer",
+      "required": [
+        "image"
+      ],
+      "properties": {
+        "image": {
+          "type": "string"
+        }
+      }
+    },
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerVersionVault": {
+      "description": "VaultServerVersionVault is the vault image",
+      "required": [
+        "image"
+      ],
+      "properties": {
+        "image": {
+          "type": "string"
+        }
+      }
+    },
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultStatus": {
       "properties": {
         "active": {
           "description": "PodName of the active Vault node. Active node is unsealed. Only active node can serve requests. Vault service only points to the active node.",
@@ -2096,101 +2471,6 @@
           "items": {
             "type": "string"
           }
-        }
-      }
-    },
-    "com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecret": {
-      "properties": {
-        "apiVersion": {
-          "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
-          "type": "string"
-        },
-        "data": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string",
-            "format": "byte"
-          }
-        },
-        "kind": {
-          "description": "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
-          "type": "string"
-        },
-        "metadata": {
-          "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta"
-        },
-        "status": {
-          "$ref": "#/definitions/com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecretStatus"
-        }
-      },
-      "x-kubernetes-group-version-kind": [
-        {
-          "group": "extensions.kubevault.com",
-          "version": "v1alpha1",
-          "kind": "VaultSecret"
-        }
-      ]
-    },
-    "com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecretList": {
-      "properties": {
-        "apiVersion": {
-          "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
-          "type": "string"
-        },
-        "items": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecret"
-          }
-        },
-        "kind": {
-          "description": "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
-          "type": "string"
-        },
-        "metadata": {
-          "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.ListMeta"
-        }
-      },
-      "x-kubernetes-group-version-kind": [
-        {
-          "group": "extensions.kubevault.com",
-          "version": "v1alpha1",
-          "kind": "VaultSecretList"
-        }
-      ]
-    },
-    "com.github.kubevault.operator.apis.extensions.v1alpha1.VaultSecretStatus": {
-      "required": [
-        "tree",
-        "paths",
-        "hostname",
-        "username",
-        "uid",
-        "gid"
-      ],
-      "properties": {
-        "gid": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "hostname": {
-          "type": "string"
-        },
-        "paths": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "tree": {
-          "type": "string"
-        },
-        "uid": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "username": {
-          "type": "string"
         }
       }
     },
@@ -4241,12 +4521,7 @@
           "kind": "DeleteOptions"
         },
         {
-          "group": "core.kubevault.com",
-          "version": "v1alpha1",
-          "kind": "DeleteOptions"
-        },
-        {
-          "group": "extensions.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
           "kind": "DeleteOptions"
         }
@@ -4558,7 +4833,7 @@
           "kind": "Status"
         },
         {
-          "group": "core.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
           "kind": "Status"
         }
@@ -4641,12 +4916,7 @@
           "kind": "WatchEvent"
         },
         {
-          "group": "core.kubevault.com",
-          "version": "v1alpha1",
-          "kind": "WatchEvent"
-        },
-        {
-          "group": "extensions.kubevault.com",
+          "group": "kubevault.com",
           "version": "v1alpha1",
           "kind": "WatchEvent"
         }

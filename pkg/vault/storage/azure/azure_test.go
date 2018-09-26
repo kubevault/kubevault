@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestOptions_GetStorageConfig(t *testing.T) {
 	opts, err := NewOptions(api.AzureSpec{
 		AccountName: "ac",
-		AccountKey:  "key",
 		Container:   "vault",
 		MaxParallel: 111,
 	})
@@ -20,7 +19,6 @@ func TestOptions_GetStorageConfig(t *testing.T) {
 	out := `
 storage "azure" {
 accountName = "ac"
-accountKey = "key"
 container = "vault"
 max_parallel = 111
 }

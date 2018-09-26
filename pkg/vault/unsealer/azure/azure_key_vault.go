@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"path/filepath"
 
-	kutilcorev1 "github.com/appscode/kutil/core/v1"
-	api "github.com/kubevault/operator/apis/core/v1alpha1"
+	core_util "github.com/appscode/kutil/core/v1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 )
 
@@ -26,13 +26,13 @@ func NewOptions(s api.AzureKeyVault) (*Options, error) {
 	}, nil
 }
 
-func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	if pt == nil {
 		return errors.New("podTempleSpec is nil")
 	}
 
 	var args []string
-	var cont corev1.Container
+	var cont core.Container
 
 	for _, c := range pt.Spec.Containers {
 		if c.Name == util.VaultUnsealerContainerName {
@@ -54,24 +54,24 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 		args = append(args, fmt.Sprintf("--azure.use-managed-identity=true"))
 	}
 
-	var envs []corev1.EnvVar
+	var envs []core.EnvVar
 
 	if o.AADClientSecret != "" {
-		envs = append(envs, corev1.EnvVar{
+		envs = append(envs, core.EnvVar{
 			Name: "AZURE_CLIENT_ID",
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
+			ValueFrom: &core.EnvVarSource{
+				SecretKeyRef: &core.SecretKeySelector{
+					LocalObjectReference: core.LocalObjectReference{
 						Name: o.AADClientSecret,
 					},
 					Key: "client-id",
 				},
 			},
-		}, corev1.EnvVar{
+		}, core.EnvVar{
 			Name: "AZURE_CLIENT_SECRET",
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
+			ValueFrom: &core.EnvVarSource{
+				SecretKeyRef: &core.SecretKeySelector{
+					LocalObjectReference: core.LocalObjectReference{
 						Name: o.AADClientSecret,
 					},
 					Key: "client-secret",
@@ -81,11 +81,11 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 	}
 
 	if o.ClientCertSecret != "" {
-		envs = append(envs, corev1.EnvVar{
+		envs = append(envs, core.EnvVar{
 			Name: "AZURE_CLIENT_CERT_PASSWORD",
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
+			ValueFrom: &core.EnvVarSource{
+				SecretKeyRef: &core.SecretKeySelector{
+					LocalObjectReference: core.LocalObjectReference{
 						Name: o.ClientCertSecret,
 					},
 					Key: "client-cert-password",
@@ -95,12 +95,12 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 
 		volumeName := "azure-client-cert"
 
-		pt.Spec.Volumes = kutilcorev1.UpsertVolume(pt.Spec.Volumes, corev1.Volume{
+		pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, core.Volume{
 			Name: volumeName,
-			VolumeSource: corev1.VolumeSource{
-				Secret: &corev1.SecretVolumeSource{
+			VolumeSource: core.VolumeSource{
+				Secret: &core.SecretVolumeSource{
 					SecretName: o.ClientCertSecret,
-					Items: []corev1.KeyToPath{
+					Items: []core.KeyToPath{
 						{
 							Key:  "client-cert",
 							Path: "client.crt",
@@ -112,7 +112,7 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 
 		certFilePath := "/etc/vault/unsealer/azure/cert/client.crt"
 
-		cont.VolumeMounts = kutilcorev1.UpsertVolumeMount(cont.VolumeMounts, corev1.VolumeMount{
+		cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{
 			Name:      volumeName,
 			MountPath: filepath.Dir(certFilePath),
 		})
@@ -121,8 +121,8 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 	}
 
 	cont.Args = append(cont.Args, args...)
-	cont.Env = kutilcorev1.UpsertEnvVars(cont.Env, envs...)
-	pt.Spec.Containers = kutilcorev1.UpsertContainer(pt.Spec.Containers, cont)
+	cont.Env = core_util.UpsertEnvVars(cont.Env, envs...)
+	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)
 	return nil
 }
 

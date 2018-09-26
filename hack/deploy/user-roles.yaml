@@ -1,13 +1,13 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: kubevault:operator:edit
+  name: kubevault:core:edit
   labels:
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
 rules:
 - apiGroups:
-  - core.kubevault.com
+  - kubevault.com
   resources:
   - vaultservers
   verbs:
@@ -23,12 +23,12 @@ rules:
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: kubevault:operator:view
+  name: kubevault:core:view
   labels:
     rbac.authorization.k8s.io/aggregate-to-view: "true"
 rules:
 - apiGroups:
-  - core.kubevault.com
+  - kubevault.com
   resources:
   - vaultservers
   verbs:

@@ -5,7 +5,7 @@ metadata:
   creationTimestamp: null
   labels:
     app: vault
-  name: vaultservers.core.kubevault.com
+  name: vaultservers.kubevault.com
 spec:
   additionalPrinterColumns:
   - JSONPath: .spec.nodes
@@ -14,13 +14,13 @@ spec:
   - JSONPath: .spec.version
     name: Version
     type: string
-  - JSONPath: .status.vaultStatus
+  - JSONPath: .status.phase
     name: Status
     type: string
   - JSONPath: .metadata.creationTimestamp
     name: Age
     type: date
-  group: core.kubevault.com
+  group: kubevault.com
   names:
     categories:
     - vault
@@ -338,8 +338,9 @@ spec:
 
                     AzureSpec defines configuration to set up Google Cloud Storage as backend storage in vault
                   properties:
-                    accountKey:
-                      description: Specifies the Azure Storage account key.
+                    accountKeySecret:
+                      description: "Specifies the secret containing Azure Storage
+                        account key. secret data:\n\t- account_key:<value>"
                       type: string
                     accountName:
                       description: Specifies the Azure Storage account name.
@@ -355,7 +356,7 @@ spec:
                       type: integer
                   required:
                   - accountName
-                  - accountKey
+                  - accountKeySecret
                   - container
                 dynamoDB:
                   description: |-
@@ -512,7 +513,7 @@ spec:
                       type: string
                     tlsCASecret:
                       description: "Specifies the name of the secret containing the
-                        CA certificate to connect using TLS. secret data:\n\t- ca=<ca_cert>"
+                        CA certificate to connect using TLS. secret data:\n\t- tls_ca_file=<ca_cert>"
                       type: string
                     userCredentialSecret:
                       description: "Specifies the MySQL username and password to connect
@@ -4030,7 +4031,8 @@ spec:
                     true)
                   type: boolean
                 vaultCASecret:
-                  description: Secret name containing self signed ca cert of vault
+                  description: "Secret name containing self signed ca cert of vault
+                    secret data:\n\t- ca.crt=<value>"
                   type: string
             version:
               description: Version of Vault server to be deployed.
