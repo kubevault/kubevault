@@ -166,11 +166,9 @@ To see the detailed configuration options, visit [here](https://github.com/kubev
 If you are installing Vault operator on a GKE cluster, you will need cluster admin permissions to install Vault operator. Run the following command to grant admin permision to the cluster.
 
 ```console
-# get current google identity
-$ gcloud info | grep Account
-Account: [user@example.org]
-
-$ kubectl create clusterrolebinding cluster-admin-binding --clusterrole=cluster-admin --user=user@example.org
+$ kubectl create clusterrolebinding "cluster-admin-$(whoami)" \
+  --clusterrole=cluster-admin \
+  --user="$(gcloud config get-value core/account)"
 ```
 
 
