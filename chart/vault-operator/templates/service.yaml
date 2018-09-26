@@ -10,10 +10,10 @@ metadata:
     heritage: "{{ .Release.Service }}"
 spec:
   ports:
-  - name: pushgateway
-    port: 56789
-    protocol: TCP
-    targetPort: pushgateway
+  # Port used to expose admission webhook apiserver
+  - name: admission
+    port: 443
+    targetPort: 8443
   selector:
     app: "{{ template "vault-operator.name" . }}"
     release: "{{ .Release.Name }}"

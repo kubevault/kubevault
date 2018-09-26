@@ -8,10 +8,16 @@ metadata:
     app: "{{ template "vault-operator.name" . }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
-  initializers:
-    pending: []
+{{- if .Values.annotations }}
+  annotations:
+{{ toYaml .Values.annotations | indent 4 }}
+{{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: "{{ template "vault-operator.name" . }}"
+      release: "{{ .Release.Name }}"
   template:
     metadata:
       labels:
@@ -22,23 +28,52 @@ spec:
         scheduler.alpha.kubernetes.io/critical-pod: ''
 {{- end }}
     spec:
-      serviceAccountName: {{ if .Values.rbac.create }}{{ template "vault-operator.fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
+      serviceAccountName: {{ template "vault-operator.serviceAccountName" . }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 6 }}
+      {{- end }}
       containers:
-      - args:
-        - run
-        - --v={{ .Values.logLevel }}
-        image: {{ .Values.operator.image }}:{{ .Values.operator.tag }}
+      - name: operator
+        image: {{ .Values.operator.registry }}/{{ .Values.operator.repository }}:{{ .Values.operator.tag }}
         imagePullPolicy: {{ .Values.imagePullPolicy  }}
-        {{- if .Values.imagePullSecrets }}
-        imagePullSecrets:
-{{ toYaml .Values.imagePullSecrets | indent 8 }}
-        {{- end }}
-        name: operator
+        args:
+        - run
+        - --v=3
+        - --secure-port=8443
+        - --audit-log-path=-
+        - --tls-cert-file=/var/serving-cert/tls.crt
+        - --tls-private-key-file=/var/serving-cert/tls.key
+        - --enable-status-subresource={{ .Values.apiserver.enableStatusSubresource }}
+        - --enable-analytics={{ .Values.enableAnalytics }}
         ports:
-        - containerPort: 56790
-          name: http
-          protocol: TCP
-        terminationMessagePolicy: File
+        - containerPort: 8443
+        volumeMounts:
+        - mountPath: /var/serving-cert
+          name: serving-cert
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+        livenessProbe:
+          failureThreshold: 8
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 15
+        resources:
+          requests:
+            cpu: "100m"
+      volumes:
+      - name: serving-cert
+        secret:
+          defaultMode: 420
+          secretName: {{ template "vault-operator.fullname" . }}-apiserver-cert
 {{- if or .Values.tolerations (and .Values.criticalAddon (eq .Release.Namespace "kube-system")) }}
       tolerations:
 {{- if .Values.tolerations }}

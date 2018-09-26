@@ -32,11 +32,6 @@ spec:
         - --tls-private-key-file=/var/serving-cert/tls.key
         - --enable-status-subresource=${VAULT_OPERATOR_ENABLE_STATUS_SUBRESOURCE}
         - --enable-analytics=${VAULT_OPERATOR_ENABLE_ANALYTICS}
-        env:
-          - name: VAULT_ADDR
-            value: http://vault-server:8200
-          - name: VAULT_TOKEN
-            value: 3e4a5ba1-kube-422b-d1db-844979cab098
         ports:
         - containerPort: 8443
         volumeMounts:
@@ -47,6 +42,19 @@ spec:
             path: /healthz
             port: 8443
             scheme: HTTPS
+        livenessProbe:
+          failureThreshold: 8
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 15
+        resources:
+          requests:
+            cpu: "100m"
       volumes:
       - name: serving-cert
         secret:

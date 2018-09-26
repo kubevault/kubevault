@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-cleaner
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "{{ template "vault-operator.name" . }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 120
+  template:
+    spec:
+      serviceAccountName: {{ template "vault-operator.serviceAccountName" . }}
+      containers:
+      - name: busybox
+        image: {{ .Values.cleaner.registry }}/{{ .Values.cleaner.repository }}:{{ .Values.cleaner.tag }}
+        command:
+          - sh
+          - -c
+          - "sleep 2; kubectl delete validatingwebhookconfigurations admission.kubevault.com || true"
+        imagePullPolicy: IfNotPresent
+      restartPolicy: Never

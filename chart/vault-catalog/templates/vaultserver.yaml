@@ -1,0 +1,18 @@
+{{ if .Values.catalog.etcd }}
+apiVersion:  kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.1"
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "{{ template "vault-catalog.name" . }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  version: "0.11.1"
+  deprecated: false
+  vault:
+    image: "vault:0.11.1"
+  unsealer:
+    image: "{{ .Values.dockerRegistry }}/vault-unsealer:canary"
+{{ end }}

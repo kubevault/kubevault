@@ -8,8 +8,11 @@ metadata:
     app: "{{ template "vault-operator.name" . }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
 webhooks:
-- name: vaultserver.admission.kubevault.com
+- name: vaultservers.admission.kubevault.com
   clientConfig:
     service:
       namespace: default
@@ -25,6 +28,6 @@ webhooks:
     apiVersions:
     - "*"
     resources:
-    - restics
+    - vaultservers
   failurePolicy: Fail
 {{ end }}
