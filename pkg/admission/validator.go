@@ -9,7 +9,6 @@ import (
 	meta_util "github.com/appscode/kutil/meta"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
-	"github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
 	"github.com/pkg/errors"
 	admission "k8s.io/api/admission/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,8 +27,6 @@ type VaultServerValidator struct {
 }
 
 var _ hookapi.AdmissionHook = &VaultServerValidator{}
-
-var forbiddenEnvVars = []string{}
 
 func (v *VaultServerValidator) Resource() (plural schema.GroupVersionResource, singular string) {
 	return schema.GroupVersionResource{
@@ -93,7 +90,7 @@ func (v *VaultServerValidator) Admit(req *admission.AdmissionRequest) *admission
 			}
 		}
 		// validate vaultserver specs
-		if err = ValidateVaultServer(v.client, v.extClient.KubevaultV1alpha1(), obj.(*api.VaultServer)); err != nil {
+		if err = ValidateVaultServer(v.client, v.extClient, obj.(*api.VaultServer)); err != nil {
 			return hookapi.StatusForbidden(err)
 		}
 	}
@@ -103,11 +100,11 @@ func (v *VaultServerValidator) Admit(req *admission.AdmissionRequest) *admission
 
 // ValidateVaultServer checks if the object satisfies all the requirements.
 // It is not method of Interface, because it is referenced from controller package too.
-func ValidateVaultServer(client kubernetes.Interface, extClient v1alpha1.KubevaultV1alpha1Interface, vs *api.VaultServer) error {
+func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs *api.VaultServer) error {
 	if vs.Spec.Version == "" {
 		return errors.New(`'spec.version' is missing`)
 	}
-	if _, err := extClient.VaultServerVersions().Get(string(vs.Spec.Version), metav1.GetOptions{}); err != nil {
+	if _, err := extClient.CatalogV1alpha1().VaultServerVersions().Get(string(vs.Spec.Version), metav1.GetOptions{}); err != nil {
 		return err
 	}
 

@@ -24,6 +24,7 @@ import (
 	time "time"
 
 	versioned "github.com/kubevault/operator/client/clientset/versioned"
+	catalog "github.com/kubevault/operator/client/informers/externalversions/catalog"
 	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
 	kubevault "github.com/kubevault/operator/client/informers/externalversions/kubevault"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -172,7 +173,12 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
+	Catalog() catalog.Interface
 	Kubevault() kubevault.Interface
+}
+
+func (f *sharedInformerFactory) Catalog() catalog.Interface {
+	return catalog.New(f, f.namespace, f.tweakListOptions)
 }
 
 func (f *sharedInformerFactory) Kubevault() kubevault.Interface {
