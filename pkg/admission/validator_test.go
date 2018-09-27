@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	meta_util "github.com/appscode/kutil/meta"
+	catalog "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	extfake "github.com/kubevault/operator/client/clientset/versioned/fake"
 	clientsetscheme "github.com/kubevault/operator/client/clientset/versioned/scheme"
@@ -19,7 +20,7 @@ import (
 const namespace = "test-ns"
 
 var (
-	vsVersion = api.VaultServerVersion{
+	vsVersion = catalog.VaultServerVersion{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "1.11.1",
 			Namespace: namespace,
@@ -418,7 +419,7 @@ func TestValidateVaultServer(t *testing.T) {
 
 			extC := extfake.NewSimpleClientset(&vsVersion)
 
-			err := ValidateVaultServer(kc, extC.KubevaultV1alpha1(), c.vs)
+			err := ValidateVaultServer(kc, extC, c.vs)
 			if c.expectErr {
 				assert.NotNil(t, err, "expected error")
 			} else {
