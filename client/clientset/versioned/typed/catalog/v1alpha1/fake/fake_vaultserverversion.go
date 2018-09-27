@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -30,12 +30,12 @@ import (
 
 // FakeVaultServerVersions implements VaultServerVersionInterface
 type FakeVaultServerVersions struct {
-	Fake *FakeKubevaultV1alpha1
+	Fake *FakeCatalogV1alpha1
 }
 
-var vaultserverversionsResource = schema.GroupVersionResource{Group: "kubevault.com", Version: "v1alpha1", Resource: "vaultserverversions"}
+var vaultserverversionsResource = schema.GroupVersionResource{Group: "catalog.kubevault.com", Version: "v1alpha1", Resource: "vaultserverversions"}
 
-var vaultserverversionsKind = schema.GroupVersionKind{Group: "kubevault.com", Version: "v1alpha1", Kind: "VaultServerVersion"}
+var vaultserverversionsKind = schema.GroupVersionKind{Group: "catalog.kubevault.com", Version: "v1alpha1", Kind: "VaultServerVersion"}
 
 // Get takes name of the vaultServerVersion, and returns the corresponding vaultServerVersion object, and an error if there is any.
 func (c *FakeVaultServerVersions) Get(name string, options v1.GetOptions) (result *v1alpha1.VaultServerVersion, err error) {

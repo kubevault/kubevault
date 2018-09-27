@@ -9,8 +9,9 @@ import (
 	"github.com/appscode/kutil/tools/portforward"
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
+	"github.com/kubevault/operator/apis"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
+	cs_util "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -69,7 +70,7 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.V
 	// TODO : handle upgrades when pods from two replicaset can co-exist :(
 	opt := metav1.ListOptions{LabelSelector: labels.SelectorFromSet(sel).String()}
 
-	version, err := c.extClient.KubevaultV1alpha1().VaultServerVersions().Get(string(v.Spec.Version), metav1.GetOptions{})
+	version, err := c.extClient.CatalogV1alpha1().VaultServerVersions().Get(string(v.Spec.Version), metav1.GetOptions{})
 	if err != nil {
 		glog.Errorf("vault status monitor: failed to get vault server version(%s): %v", v.Spec.Version, err)
 		return
@@ -164,10 +165,10 @@ func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespa
 	}
 
 	// TODO : flag for useSubresource?
-	vault, err = patchutil.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vault, func(s *api.VaultServerStatus) *api.VaultServerStatus {
+	vault, err = cs_util.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vault, func(s *api.VaultServerStatus) *api.VaultServerStatus {
 		*s = *status
 		return s
-	}, api.EnableStatusSubresource)
+	}, apis.EnableStatusSubresource)
 	return vault, err
 }
 

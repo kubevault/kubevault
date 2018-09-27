@@ -10,6 +10,7 @@ import (
 	rbac_util "github.com/appscode/kutil/rbac/v1"
 	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
+	"github.com/kubevault/operator/apis"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"github.com/kubevault/operator/pkg/vault/util"
@@ -24,7 +25,7 @@ import (
 func (c *VaultController) initVaultServerWatcher() {
 	c.vsInformer = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New("VaultServer", c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
-	c.vsInformer.AddEventHandler(queue.NewObservableHandler(c.vsQueue.GetQueue(), api.EnableStatusSubresource))
+	c.vsInformer.AddEventHandler(queue.NewObservableHandler(c.vsQueue.GetQueue(), apis.EnableStatusSubresource))
 	c.vsLister = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Lister()
 }
 

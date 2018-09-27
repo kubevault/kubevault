@@ -21,7 +21,8 @@ package externalversions
 import (
 	"fmt"
 
-	v1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
+	kubevault_v1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -52,11 +53,13 @@ func (f *genericInformer) Lister() cache.GenericLister {
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
-	// Group=kubevault.com, Version=v1alpha1
-	case v1alpha1.SchemeGroupVersion.WithResource("vaultservers"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Kubevault().V1alpha1().VaultServers().Informer()}, nil
+	// Group=catalog.kubevault.com, Version=v1alpha1
 	case v1alpha1.SchemeGroupVersion.WithResource("vaultserverversions"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Kubevault().V1alpha1().VaultServerVersions().Informer()}, nil
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Catalog().V1alpha1().VaultServerVersions().Informer()}, nil
+
+		// Group=kubevault.com, Version=v1alpha1
+	case kubevault_v1alpha1.SchemeGroupVersion.WithResource("vaultservers"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Kubevault().V1alpha1().VaultServers().Informer()}, nil
 
 	}
 

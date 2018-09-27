@@ -2,8 +2,8 @@
 set -eou pipefail
 
 crds=(
-  vaultservers
-  vaultserverversions
+  vaultservers.kubevault.com
+  vaultserverversions.catalog.kubevault.com
 )
 apiServices=(v1alpha1.admission)
 
@@ -259,13 +259,13 @@ if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
   # https://github.com/kubernetes/kubernetes/issues/60538
   if [ "$VAULT_OPERATOR_PURGE" -eq 1 ]; then
     for crd in "${crds[@]}"; do
-      pairs=($(kubectl get ${crd}.kubevault.com --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name} {.metadata.namespace} {end}' || true))
+      pairs=($(kubectl get ${crd} --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name} {.metadata.namespace} {end}' || true))
       total=${#pairs[*]}
 
       # save objects
       if [ $total -gt 0 ]; then
         echo "dumping ${crd} objects into ${crd}.yaml"
-        kubectl get ${crd}.kubevault.com --all-namespaces -o yaml >${crd}.yaml
+        kubectl get ${crd} --all-namespaces -o yaml >${crd}.yaml
       fi
 
       for ((i = 0; i < $total; i++)); do
@@ -276,14 +276,14 @@ if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
           i+=1
         fi
         # remove finalizers
-        kubectl patch ${crd}.kubevault.com $name -n $namespace -p '{"metadata":{"finalizers":[]}}' --type=merge || true
+        kubectl patch ${crd} $name -n $namespace -p '{"metadata":{"finalizers":[]}}' --type=merge || true
         # delete crd object
         echo "deleting ${crd} $namespace/$name"
-        kubectl delete ${crd}.kubevault.com $name -n $namespace --ignore-not-found=true
+        kubectl delete ${crd} $name -n $namespace --ignore-not-found=true
       done
 
       # delete crd
-      kubectl delete crd ${crd}.kubevault.com --ignore-not-found=true
+      kubectl delete crd ${crd} --ignore-not-found=true
     done
 
     # delete user roles
@@ -364,7 +364,7 @@ fi
 
 echo "waiting until Vault operator crds are ready"
 for crd in "${crds[@]}"; do
-  $ONESSL wait-until-ready crd ${crd}.kubevault.com || {
+  $ONESSL wait-until-ready crd ${crd} || {
     echo "$crd crd failed to be ready"
     exit 1
   }

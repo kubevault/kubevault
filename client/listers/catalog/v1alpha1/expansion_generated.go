@@ -18,10 +18,6 @@ limitations under the License.
 
 package v1alpha1
 
-// VaultServerListerExpansion allows custom methods to be added to
-// VaultServerLister.
-type VaultServerListerExpansion interface{}
-
-// VaultServerNamespaceListerExpansion allows custom methods to be added to
-// VaultServerNamespaceLister.
-type VaultServerNamespaceListerExpansion interface{}
+// VaultServerVersionListerExpansion allows custom methods to be added to
+// VaultServerVersionLister.
+type VaultServerVersionListerExpansion interface{}

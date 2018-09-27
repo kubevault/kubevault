@@ -1,7 +1,7 @@
 package framework
 
 import (
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	api "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -20,10 +20,10 @@ func (f *Framework) CreateVaultserverVersion() error {
 			},
 		},
 	}
-	_, err := f.VaultServerClient.KubevaultV1alpha1().VaultServerVersions().Create(v)
+	_, err := f.VaultServerClient.CatalogV1alpha1().VaultServerVersions().Create(v)
 	return err
 }
 
 func (f *Framework) DeleteVaultserverVersion() error {
-	return f.VaultServerClient.KubevaultV1alpha1().VaultServerVersions().Delete(vaultVersion, deleteInForeground())
+	return f.VaultServerClient.CatalogV1alpha1().VaultServerVersions().Delete(vaultVersion, deleteInForeground())
 }

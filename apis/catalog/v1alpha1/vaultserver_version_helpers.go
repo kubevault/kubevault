@@ -28,7 +28,7 @@ func (v VaultServerVersion) CustomResourceDefinition() *apiextensions.CustomReso
 		Labels: crdutils.Labels{
 			LabelsMap: map[string]string{"app": "vault"},
 		},
-		SpecDefinitionName:      "github.com/kubevault/operator/apis/kubevault/v1alpha1.VaultServerVersion",
+		SpecDefinitionName:      "github.com/kubevault/operator/apis/catalog/v1alpha1.VaultServerVersion",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
 		EnableStatusSubresource: false,
@@ -39,7 +39,7 @@ func (v VaultServerVersion) CustomResourceDefinition() *apiextensions.CustomReso
 				JSONPath: ".spec.version",
 			},
 			{
-				Name:     "VaultImage",
+				Name:     "VAULT_IMAGE",
 				Type:     "string",
 				JSONPath: ".spec.vault.image",
 			},

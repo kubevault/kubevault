@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/appscode/go/log"
 	gort "github.com/appscode/go/runtime"
@@ -10,17 +11,19 @@ import (
 	"github.com/appscode/kutil/openapi"
 	"github.com/go-openapi/spec"
 	"github.com/golang/glog"
-	"github.com/kubevault/operator/apis/kubevault/install"
-	"github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	"github.com/kubevault/operator/apis"
+	cataloginstall "github.com/kubevault/operator/apis/catalog/install"
+	catalogv1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
+	vaultinstall "github.com/kubevault/operator/apis/kubevault/install"
+	vaultv1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	crd_api "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/kube-openapi/pkg/common"
-	"path/filepath"
 )
 
 func generateCRDDefinitions() {
-	v1alpha1.EnableStatusSubresource = true
+	apis.EnableStatusSubresource = true
 
 	filename := gort.GOPath() + "/src/github.com/kubevault/operator/apis/kubevault/v1alpha1/crds.yaml"
 	os.Remove(filename)
@@ -31,8 +34,8 @@ func generateCRDDefinitions() {
 	}
 
 	crds := []*crd_api.CustomResourceDefinition{
-		v1alpha1.VaultServer{}.CustomResourceDefinition(),
-		v1alpha1.VaultServerVersion{}.CustomResourceDefinition(),
+		vaultv1alpha1.VaultServer{}.CustomResourceDefinition(),
+		catalogv1alpha1.VaultServerVersion{}.CustomResourceDefinition(),
 	}
 	for _, crd := range crds {
 		filename := filepath.Join(gort.GOPath(), "/src/github.com/kubevault/operator/api/crds", crd.Spec.Names.Singular+".yaml")
@@ -51,7 +54,8 @@ func generateSwaggerJson() {
 		Codecs = serializer.NewCodecFactory(Scheme)
 	)
 
-	install.Install(Scheme)
+	vaultinstall.Install(Scheme)
+	cataloginstall.Install(Scheme)
 
 	apispec, err := openapi.RenderOpenAPISpec(openapi.Config{
 		Scheme: Scheme,
@@ -70,11 +74,12 @@ func generateSwaggerJson() {
 			},
 		},
 		OpenAPIDefinitions: []common.GetOpenAPIDefinitions{
-			v1alpha1.GetOpenAPIDefinitions,
+			vaultv1alpha1.GetOpenAPIDefinitions,
+			catalogv1alpha1.GetOpenAPIDefinitions,
 		},
 		Resources: []openapi.TypeInfo{
-			{v1alpha1.SchemeGroupVersion, v1alpha1.ResourceVaultServers, v1alpha1.ResourceKindVaultServer, true},
-			{v1alpha1.SchemeGroupVersion, v1alpha1.ResourceVaultServerVersions, v1alpha1.ResourceKindVaultServerVersion, false},
+			{vaultv1alpha1.SchemeGroupVersion, vaultv1alpha1.ResourceVaultServers, vaultv1alpha1.ResourceKindVaultServer, true},
+			{catalogv1alpha1.SchemeGroupVersion, catalogv1alpha1.ResourceVaultServerVersions, catalogv1alpha1.ResourceKindVaultServerVersion, false},
 		},
 	})
 	if err != nil {

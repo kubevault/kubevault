@@ -7,7 +7,8 @@ import (
 	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
 	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	catalogapi "github.com/kubevault/operator/apis/catalog/v1alpha1"
+	vaultapi "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	vaultinformers "github.com/kubevault/operator/client/informers/externalversions"
 	vault_listers "github.com/kubevault/operator/client/listers/kubevault/v1alpha1"
@@ -44,8 +45,8 @@ type VaultController struct {
 
 func (c *VaultController) ensureCustomResourceDefinitions() error {
 	crds := []*crd_api.CustomResourceDefinition{
-		api.VaultServer{}.CustomResourceDefinition(),
-		api.VaultServerVersion{}.CustomResourceDefinition(),
+		vaultapi.VaultServer{}.CustomResourceDefinition(),
+		catalogapi.VaultServerVersion{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }

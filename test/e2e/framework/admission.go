@@ -10,7 +10,7 @@ import (
 
 	discovery_util "github.com/appscode/kutil/discovery"
 	shell "github.com/codeskyblue/go-sh"
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	"github.com/kubevault/operator/apis"
 	srvr "github.com/kubevault/operator/pkg/cmds/server"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -45,7 +45,7 @@ func (f *Framework) StartAPIServerAndOperator(config *restclient.Config, kubeCon
 	serverVersion, err := discovery_util.GetBaseVersion(discClient)
 	Expect(err).NotTo(HaveOccurred())
 	if strings.Compare(serverVersion, "1.11") >= 0 {
-		api.EnableStatusSubresource = true
+		apis.EnableStatusSubresource = true
 	}
 
 	sh := shell.NewSession()

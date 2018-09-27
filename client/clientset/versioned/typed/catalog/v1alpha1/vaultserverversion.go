@@ -19,7 +19,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	scheme "github.com/kubevault/operator/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
@@ -52,7 +52,7 @@ type vaultServerVersions struct {
 }
 
 // newVaultServerVersions returns a VaultServerVersions
-func newVaultServerVersions(c *KubevaultV1alpha1Client) *vaultServerVersions {
+func newVaultServerVersions(c *CatalogV1alpha1Client) *vaultServerVersions {
 	return &vaultServerVersions{
 		client: c.RESTClient(),
 	}
