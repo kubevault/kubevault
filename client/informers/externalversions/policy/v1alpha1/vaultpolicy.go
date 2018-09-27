@@ -21,10 +21,10 @@ package v1alpha1
 import (
 	time "time"
 
-	kubevault_v1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	policy_v1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
 	versioned "github.com/kubevault/operator/client/clientset/versioned"
 	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/kubevault/operator/client/listers/kubevault/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/client/listers/policy/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -61,16 +61,16 @@ func NewFilteredVaultPolicyInformer(client versioned.Interface, namespace string
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.KubevaultV1alpha1().VaultPolicies(namespace).List(options)
+				return client.PolicyV1alpha1().VaultPolicies(namespace).List(options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.KubevaultV1alpha1().VaultPolicies(namespace).Watch(options)
+				return client.PolicyV1alpha1().VaultPolicies(namespace).Watch(options)
 			},
 		},
-		&kubevault_v1alpha1.VaultPolicy{},
+		&policy_v1alpha1.VaultPolicy{},
 		resyncPeriod,
 		indexers,
 	)
@@ -81,7 +81,7 @@ func (f *vaultPolicyInformer) defaultInformer(client versioned.Interface, resync
 }
 
 func (f *vaultPolicyInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&kubevault_v1alpha1.VaultPolicy{}, f.defaultInformer)
+	return f.factory.InformerFor(&policy_v1alpha1.VaultPolicy{}, f.defaultInformer)
 }
 
 func (f *vaultPolicyInformer) Lister() v1alpha1.VaultPolicyLister {

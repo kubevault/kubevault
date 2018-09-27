@@ -24,7 +24,7 @@ import (
 
 func (c *VaultController) initVaultServerWatcher() {
 	c.vsInformer = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Informer()
-	c.vsQueue = queue.New("VaultServer", c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
+	c.vsQueue = queue.New(api.ResourceKindVaultServer, c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
 	c.vsInformer.AddEventHandler(queue.NewObservableHandler(c.vsQueue.GetQueue(), apis.EnableStatusSubresource))
 	c.vsLister = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Lister()
 }

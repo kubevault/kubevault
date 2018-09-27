@@ -5,7 +5,7 @@ metadata:
   creationTimestamp: null
   labels:
     app: vault
-  name: vaultpolicies.kubevault.com
+  name: vaultpolicies.policy.kubevault.com
 spec:
   additionalPrinterColumns:
   - JSONPath: .status.status
@@ -14,7 +14,7 @@ spec:
   - JSONPath: .metadata.creationTimestamp
     name: Age
     type: date
-  group: kubevault.com
+  group: policy.kubevault.com
   names:
     categories:
     - vault
@@ -27,8 +27,6 @@ spec:
     - vp
     singular: vaultpolicy
   scope: Namespaced
-  subresources:
-    status: {}
   validation:
     openAPIV3Schema:
       properties:
@@ -329,12 +327,34 @@ spec:
                   capabilities = ["create", "read", "update", "delete", "list"]
                 }
               type: string
-            replace:
-              description: If Replace is true, then existing policy will be replaced
-                Otherwise, this policy will be appended to the existing policy
-              type: boolean
+            vault:
+              description: Vault contains the information that necessary to talk with
+                vault
+              properties:
+                address:
+                  description: Specifies the address of the vault server, e.g:'http://127.0.0.1:8200'
+                  type: string
+                clientTLSSecret:
+                  description: "Name of the secret containing the client.srt and client.key
+                    secret data:\n\t- client.crt: <value>\n\t- client.srt: <value>"
+                  type: string
+                server_ca_secret:
+                  description: "Name of the secret containing the ca cert to verify
+                    vault server secret data:\n\t- ca.crt:<value>"
+                  type: string
+                skipTLSVerification:
+                  description: To skip tls verification for vault server
+                  type: boolean
+                tokenSecret:
+                  description: "Name of the secret containing the vault token access
+                    permission: secret data:\n\t- token:<value>"
+                  type: string
+              required:
+              - address
+              - tokenSecret
           required:
           - policy
+          - vault
         status:
           properties:
             conditions:

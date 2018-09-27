@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -30,13 +30,13 @@ import (
 
 // FakeVaultPolicies implements VaultPolicyInterface
 type FakeVaultPolicies struct {
-	Fake *FakeKubevaultV1alpha1
+	Fake *FakePolicyV1alpha1
 	ns   string
 }
 
-var vaultpoliciesResource = schema.GroupVersionResource{Group: "kubevault.com", Version: "v1alpha1", Resource: "vaultpolicies"}
+var vaultpoliciesResource = schema.GroupVersionResource{Group: "policy.kubevault.com", Version: "v1alpha1", Resource: "vaultpolicies"}
 
-var vaultpoliciesKind = schema.GroupVersionKind{Group: "kubevault.com", Version: "v1alpha1", Kind: "VaultPolicy"}
+var vaultpoliciesKind = schema.GroupVersionKind{Group: "policy.kubevault.com", Version: "v1alpha1", Kind: "VaultPolicy"}
 
 // Get takes name of the vaultPolicy, and returns the corresponding vaultPolicy object, and an error if there is any.
 func (c *FakeVaultPolicies) Get(name string, options v1.GetOptions) (result *v1alpha1.VaultPolicy, err error) {

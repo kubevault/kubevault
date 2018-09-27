@@ -24,6 +24,8 @@ import (
 	fakecatalogv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/catalog/v1alpha1/fake"
 	kubevaultv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
 	fakekubevaultv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/fake"
+	policyv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1"
+	fakepolicyv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -91,4 +93,14 @@ func (c *Clientset) KubevaultV1alpha1() kubevaultv1alpha1.KubevaultV1alpha1Inter
 // Kubevault retrieves the KubevaultV1alpha1Client
 func (c *Clientset) Kubevault() kubevaultv1alpha1.KubevaultV1alpha1Interface {
 	return &fakekubevaultv1alpha1.FakeKubevaultV1alpha1{Fake: &c.Fake}
+}
+
+// PolicyV1alpha1 retrieves the PolicyV1alpha1Client
+func (c *Clientset) PolicyV1alpha1() policyv1alpha1.PolicyV1alpha1Interface {
+	return &fakepolicyv1alpha1.FakePolicyV1alpha1{Fake: &c.Fake}
+}
+
+// Policy retrieves the PolicyV1alpha1Client
+func (c *Clientset) Policy() policyv1alpha1.PolicyV1alpha1Interface {
+	return &fakepolicyv1alpha1.FakePolicyV1alpha1{Fake: &c.Fake}
 }

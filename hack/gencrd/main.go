@@ -16,6 +16,8 @@ import (
 	catalogv1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	vaultinstall "github.com/kubevault/operator/apis/kubevault/install"
 	vaultv1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	policyv1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
+	policyinstall "github.com/kubevault/operator/apis/policy/install"
 	crd_api "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
@@ -36,7 +38,7 @@ func generateCRDDefinitions() {
 	crds := []*crd_api.CustomResourceDefinition{
 		vaultv1alpha1.VaultServer{}.CustomResourceDefinition(),
 		catalogv1alpha1.VaultServerVersion{}.CustomResourceDefinition(),
-		vaultv1alpha1.VaultPolicy{}.CustomResourceDefinition(),
+		policyv1alpha1.VaultPolicy{}.CustomResourceDefinition(),
 	}
 	for _, crd := range crds {
 		filename := filepath.Join(gort.GOPath(), "/src/github.com/kubevault/operator/api/crds", crd.Spec.Names.Singular+".yaml")
@@ -57,6 +59,7 @@ func generateSwaggerJson() {
 
 	vaultinstall.Install(Scheme)
 	cataloginstall.Install(Scheme)
+	policyinstall.Install(Scheme)
 
 	apispec, err := openapi.RenderOpenAPISpec(openapi.Config{
 		Scheme: Scheme,
@@ -77,11 +80,12 @@ func generateSwaggerJson() {
 		OpenAPIDefinitions: []common.GetOpenAPIDefinitions{
 			vaultv1alpha1.GetOpenAPIDefinitions,
 			catalogv1alpha1.GetOpenAPIDefinitions,
+			policyv1alpha1.GetOpenAPIDefinitions,
 		},
 		Resources: []openapi.TypeInfo{
 			{vaultv1alpha1.SchemeGroupVersion, vaultv1alpha1.ResourceVaultServers, vaultv1alpha1.ResourceKindVaultServer, true},
 			{catalogv1alpha1.SchemeGroupVersion, catalogv1alpha1.ResourceVaultServerVersions, catalogv1alpha1.ResourceKindVaultServerVersion, false},
-			{vaultv1alpha1.SchemeGroupVersion, vaultv1alpha1.ResourceVaultPolicies, vaultv1alpha1.ResourceKindVaultPolicy, true},
+			{policyv1alpha1.SchemeGroupVersion, policyv1alpha1.ResourceVaultPolicies, policyv1alpha1.ResourceKindVaultPolicy, true},
 		},
 	})
 	if err != nil {

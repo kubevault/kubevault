@@ -6,6 +6,10 @@ import (
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
 
+func (v VaultPolicy) GetKey() string {
+	return v.Namespace + "/" + v.Name
+}
+
 func (v VaultPolicy) OffshootName() string {
 	return v.Name
 }
@@ -40,7 +44,7 @@ func (v VaultPolicy) CustomResourceDefinition() *apiextensions.CustomResourceDef
 		Labels: crdutils.Labels{
 			LabelsMap: map[string]string{"app": "vault"},
 		},
-		SpecDefinitionName:      "github.com/kubevault/operator/apis/kubevault/v1alpha1.VaultPolicy",
+		SpecDefinitionName:      "github.com/kubevault/operator/apis/policy/v1alpha1.VaultPolicy",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
 		EnableStatusSubresource: EnableStatusSubresource,

@@ -19,22 +19,22 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )
 
-type FakeKubevaultV1alpha1 struct {
+type FakePolicyV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeKubevaultV1alpha1) VaultServers(namespace string) v1alpha1.VaultServerInterface {
-	return &FakeVaultServers{c, namespace}
+func (c *FakePolicyV1alpha1) VaultPolicies(namespace string) v1alpha1.VaultPolicyInterface {
+	return &FakeVaultPolicies{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *FakeKubevaultV1alpha1) RESTClient() rest.Interface {
+func (c *FakePolicyV1alpha1) RESTClient() rest.Interface {
 	var ret *rest.RESTClient
 	return ret
 }
