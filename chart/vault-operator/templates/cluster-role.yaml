@@ -14,17 +14,19 @@ rules:
   resources:
   - customresourcedefinitions
   verbs:
-  - "*"
+  - '*'
 - apiGroups:
   - admissionregistration.k8s.io
   resources:
   - mutatingwebhookconfigurations
   - validatingwebhookconfigurations
-  verbs: ["get","list"]
+  verbs: ["get", "list"]
 - apiGroups:
   - kubevault.com
-  resources: ["*"]
-  verbs: ["*"]
+  - catalog.kubevault.com
+  resources:
+  - '*'
+  verbs: ['*']
 - apiGroups:
   - apps
   resources:
