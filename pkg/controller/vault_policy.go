@@ -48,7 +48,7 @@ func (c *VaultController) runVaultPolicyInjector(key string) error {
 
 		if vPolicy.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(vPolicy.ObjectMeta, VaultPolicyFinalizer) {
-				go c.runPolicyFinalizer(vPolicy, 1*time.Minute, 10*time.Second)
+				go c.runPolicyFinalizer(vPolicy, 1*time.Minute, 5*time.Second)
 			}
 		} else {
 			if !core_util.HasFinalizer(vPolicy.ObjectMeta, VaultPolicyFinalizer) {
