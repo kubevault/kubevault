@@ -9,9 +9,11 @@ import (
 	"github.com/golang/glog"
 	catalogapi "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	vaultapi "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	policyapi "github.com/kubevault/operator/apis/policy/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	vaultinformers "github.com/kubevault/operator/client/informers/externalversions"
 	vault_listers "github.com/kubevault/operator/client/listers/kubevault/v1alpha1"
+	policy_listers "github.com/kubevault/operator/client/listers/policy/v1alpha1"
 	crd_api "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/runtime"
@@ -38,15 +40,25 @@ type VaultController struct {
 	kubeInformerFactory informers.SharedInformerFactory
 	extInformerFactory  vaultinformers.SharedInformerFactory
 
+	// for VaultServer
 	vsQueue    *queue.Worker
 	vsInformer cache.SharedIndexInformer
 	vsLister   vault_listers.VaultServerLister
+
+	// for VaultPolicy
+	vplcyQueue    *queue.Worker
+	vplcyInformer cache.SharedIndexInformer
+	vplcyLister   policy_listers.VaultPolicyLister
+
+	// Contain the currently processing finalizer
+	finalizerInfo *mapFinalizer
 }
 
 func (c *VaultController) ensureCustomResourceDefinitions() error {
 	crds := []*crd_api.CustomResourceDefinition{
 		vaultapi.VaultServer{}.CustomResourceDefinition(),
 		catalogapi.VaultServerVersion{}.CustomResourceDefinition(),
+		policyapi.VaultPolicy{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }
@@ -65,7 +77,11 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 		}
 	}
 
-	c.vsQueue.Run(stopCh)
+	// For VaultServer
+	go c.vsQueue.Run(stopCh)
+
+	//For VaultPolicy
+	go c.vplcyQueue.Run(stopCh)
 
 	<-stopCh
 	glog.Info("Stopping Vault operator")

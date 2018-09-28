@@ -54,6 +54,7 @@ func (c *Config) New() (*VaultController, error) {
 		config:              c.config,
 		restConfig:          c.ClientConfig,
 		ctxCancels:          make(map[string]context.CancelFunc),
+		finalizerInfo:       NewMapFinalizer(),
 		kubeClient:          c.KubeClient,
 		extClient:           c.ExtClient,
 		crdClient:           c.CRDClient,
@@ -66,6 +67,9 @@ func (c *Config) New() (*VaultController, error) {
 		return nil, err
 	}
 
+	// For VaultServer
 	ctrl.initVaultServerWatcher()
+	// For VaultPolicy
+	ctrl.initVaultPolicyWatcher()
 	return ctrl, nil
 }
