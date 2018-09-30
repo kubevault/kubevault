@@ -49,7 +49,7 @@ The following table lists the configurable parameters of the Vault chart and the
 | `operator.registry`                   | Docker registry used to pull Vault operator image                  | `kubevault`        |
 | `operator.repository`                 | Vault operator container image                                     | `vault-operator`   |
 | `operator.tag`                        | Vault operator container image tag                                 | `0.1.0`            |
-| `cleaner.registry`                    | Docker registry used to pull Webhook cleaner image                 | `appcode`          |
+| `cleaner.registry`                    | Docker registry used to pull Webhook cleaner image                 | `appscode`         |
 | `cleaner.repository`                  | Webhook cleaner container image                                    | `kubectl`          |
 | `cleaner.tag`                         | Webhook cleaner container image tag                                | `v1.11`            |
 | `imagePullSecrets`                    | Specify image pull secrets                                         | `nil` (does not add image pull secrets to deployed pods) |
@@ -64,10 +64,10 @@ The following table lists the configurable parameters of the Vault chart and the
 | `serviceAccount.name`                 | Service account to be used. If not set and `serviceAccount.create` is `true`, a name is generated using the fullname template | `` |
 | `apioperator.groupPriorityMinimum`    | The minimum priority the group should have.                        | 10000              |
 | `apioperator.versionPriority`         | The ordering of this API inside of the group.                      | 15                 |
-| `apioperator.enableValidatingWebhook` | Enable validating webhooks for Kubernetes workloads                | false              |
-| `apioperator.enableMutatingWebhook`   | Enable mutating webhooks for Kubernetes workloads                  | false              |
-| `apioperator.ca`                      | CA certificate used by main Kubernetes api operator                | ``                 |
-| `apiserver.enableStatusSubresource`   | If true, uses status sub resource for crds                         | `false`            |
+| `apioperator.enableValidatingWebhook` | Enable validating webhooks for Kubernetes workloads                | true               |
+| `apioperator.enableMutatingWebhook`   | Enable mutating webhooks for Kubernetes workloads                  | true               |
+| `apioperator.ca`                      | CA certificate used by main Kubernetes api operator                | `not-ca-cert`      |
+| `apiserver.disableStatusSubresource`  | If true, disables status sub resource for crds. Otherwise enables based on Kubernetes version | `false`            |
 | `enableAnalytics`                     | Send usage events to Google Analytics                              | `true`             |
 
 
