@@ -115,46 +115,26 @@ NAME                    CHART VERSION APP VERSION   DESCRIPTION
 appscode/vault-operator 0.1.0         0.1.0         Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
 appscode/vault-catalog  0.1.0         0.1.0         Vault Catalog by AppsCode - Catalog for vault versions
 
-# Step 1(a): Kubernetes 1.9.x - 1.10.x
+# Step 1: Install vault-operator chart
 $ helm install appscode/vault-operator --name vault-operator --version 0.1.0 \
-  --namespace kube-system \
-  --set apiserver.ca="$(onessl get kube-ca)" \
-  --set apiserver.enableValidatingWebhook=true
-
-# Step 1(b): Kubernetes 1.11.0 or later
-$ helm install appscode/vault-operator --name vault-operator --version 0.1.0 \
-  --namespace kube-system \
-  --set apiserver.ca="$(onessl get kube-ca)" \
-  --set apiserver.enableValidatingWebhook=true \
-  --set apiserver.enableStatusSubresource=true
+  --namespace kube-system
 
 # Step 2: wait until crds are registered
 $ kubectl get crds -l app=vault -w
-NAME                               AGE
-vaultservers.kubevault.com         12s
-vaultserverversions.kubevault.com   8s
+NAME                                        AGE
+vaultservers.kubevault.com                  12s
+vaultserverversions.catalog.kubevault.com    8s
 
 # Step 3: Install catalog of Vault versions
 $ helm install appscode/vault-catalog --name vault-catalog
-```
 
-To install `onessl`, run the following commands:
+# Step 3(a): Install catalog of Vault versions
+$ helm install appscode/vault-catalog --name vault-catalog --version 0.1.0 \
+  --namespace kube-system
 
-```console
-# Mac OSX amd64:
-curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.7.0/onessl-darwin-amd64 \
-  && chmod +x onessl \
-  && sudo mv onessl /usr/local/bin/
-
-# Linux amd64:
-curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.7.0/onessl-linux-amd64 \
-  && chmod +x onessl \
-  && sudo mv onessl /usr/local/bin/
-
-# Linux arm64:
-curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.7.0/onessl-linux-arm64 \
-  && chmod +x onessl \
-  && sudo mv onessl /usr/local/bin/
+# Step 3(b): Or, if previously installed, upgrade catalog of Vault versions
+$ helm upgrade vault-catalog appscode/vault-catalog --version 0.1.0 \
+  --namespace kube-system
 ```
 
 To see the detailed configuration options, visit [here](https://github.com/kubevault/operator/tree/master/chart/vault-operator).
