@@ -73,3 +73,7 @@ import:
   version: 1c05540f6879653db88113bc4a2b70aec4bd491f
 - package: golang.org/x/sys
   version: 95c6576299259db960f6c5b9b69ea52422860fce
+- package: google.golang.org/genproto
+  version: 09f6ed296fc66555a25fe4ce95173148778dfa85
+- package: github.com/golang/protobuf
+  version: b4deda0973fb4c70b50d226b1af49f3da59f5265

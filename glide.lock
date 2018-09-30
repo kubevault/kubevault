@@ -1,5 +1,5 @@
-hash: 705291dc837a1d27145b86eed26d2b218076226a21b2ccd783b04dddf38006cf
-updated: 2018-09-30T05:29:37.755644895-07:00
+hash: 7354afe2e5395994eb8411b021e8ad08b89d2e8faf5daea12071bbef2219b8a1
+updated: 2018-09-30T05:50:48.343113245-07:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -240,7 +240,7 @@ imports:
   subpackages:
   - lru
 - name: github.com/golang/protobuf
-  version: 4bd1920723d7b7c925de087aa32e2187708897f7
+  version: b4deda0973fb4c70b50d226b1af49f3da59f5265
   subpackages:
   - jsonpb
   - proto
@@ -248,6 +248,7 @@ imports:
   - ptypes
   - ptypes/any
   - ptypes/duration
+  - ptypes/struct
   - ptypes/timestamp
 - name: github.com/golang/snappy
   version: d9eb7a3d35ec988b8585d4a0068e462c27d28380
