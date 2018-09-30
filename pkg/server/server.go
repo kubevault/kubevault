@@ -53,7 +53,7 @@ type VaultServer struct {
 }
 
 func (op *VaultServer) Run(stopCh <-chan struct{}) error {
-	go op.Controller.RunInformers(stopCh)
+	go op.Controller.Run(stopCh)
 	return op.GenericAPIServer.PrepareRun().Run(stopCh)
 }
 
