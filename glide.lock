@@ -1,5 +1,5 @@
 hash: 705291dc837a1d27145b86eed26d2b218076226a21b2ccd783b04dddf38006cf
-updated: 2018-09-30T04:52:57.606874636-07:00
+updated: 2018-09-30T05:29:37.755644895-07:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -36,6 +36,7 @@ imports:
 - name: github.com/appscode/kutil
   version: 8098faaaba7e4781cbaecf630c8583be1b58d36c
   subpackages:
+  - admissionregistration/v1beta1
   - apiextensions/v1beta1
   - apps/v1
   - core/v1
@@ -48,6 +49,7 @@ imports:
   - tools/clientcmd
   - tools/portforward
   - tools/queue
+  - tools/watch
 - name: github.com/appscode/mergo
   version: 9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4
 - name: github.com/appscode/ocutil

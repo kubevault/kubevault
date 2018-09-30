@@ -182,7 +182,7 @@ func (c *VaultController) getVaultStatus(p *corev1.Pod, tlsConfig *vaultapi.TLSC
 	if !meta_util.PossiblyInCluster() {
 		// if not incluster mode, use port forwarding to access pod
 
-		portFwd := portforward.NewTunnel(c.kubeClient.CoreV1().RESTClient(), c.restConfig, p.Namespace, p.Name, 8200)
+		portFwd := portforward.NewTunnel(c.kubeClient.CoreV1().RESTClient(), c.clientConfig, p.Namespace, p.Name, 8200)
 		defer portFwd.Close()
 
 		err := portFwd.ForwardPort()
