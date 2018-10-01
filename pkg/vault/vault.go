@@ -34,10 +34,10 @@ func NewClient(kc kubernetes.Interface, namespace string, v *api.Vault) (*vaulta
 	}
 
 	if sr.Data == nil {
-		return nil, errors.Errorf("vault token is not found in secret %s/%s")
+		return nil, errors.Errorf("vault token is not found in secret %s/%s", namespace, v.TokenSecret)
 	}
 	if _, ok := sr.Data["token"]; !ok {
-		return nil, errors.Errorf("vault token is not found in secret %s/%s")
+		return nil, errors.Errorf("vault token is not found in secret %s/%s", namespace, v.TokenSecret)
 	}
 	cl.SetToken(string(sr.Data["token"]))
 

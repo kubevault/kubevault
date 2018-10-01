@@ -48,7 +48,10 @@ func (c *VaultController) runVaultPolicyInjector(key string) error {
 
 		if vPolicy.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(vPolicy.ObjectMeta, VaultPolicyFinalizer) {
+				// Finalize VaultPolicy
 				go c.runPolicyFinalizer(vPolicy, 1*time.Minute, 5*time.Second)
+			} else {
+				glog.Infoln("Finalizer not found for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
 			}
 		} else {
 			if !core_util.HasFinalizer(vPolicy.ObjectMeta, VaultPolicyFinalizer) {
@@ -136,25 +139,33 @@ func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy, tim
 		return
 	}
 
+	glog.Infof("Processing finalizer for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
 	// Add key to finalizerInfo, it will prevent other go routine to processing for this VaultPolicy
 	c.finalizerInfo.Add(key)
 	stopCh := time.After(timeout)
+	timeOutOccured := false
 	for {
 		select {
 		case <-stopCh:
-			break
+			timeOutOccured = true
 		default:
+		}
+
+		if timeOutOccured {
+			break
 		}
 
 		// finalize policy
 		if err := finalizePolicy(c.extClient.PolicyV1alpha1(), c.kubeClient, vPolicy); err == nil {
 			glog.Infof("For VaultPolicy %s/%s: successfully removed policy from vault", vPolicy.Namespace, vPolicy.Name)
 			break
+		} else {
+			glog.Infof("For VaultPolicy %s/%s: %v", vPolicy.Namespace, vPolicy.Name, err)
 		}
 
 		select {
 		case <-stopCh:
-			break
+			timeOutOccured = true
 		case <-time.After(interval):
 		}
 	}
@@ -171,6 +182,7 @@ func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy, tim
 	}
 	// Delete key from finalizer info as processing is done
 	c.finalizerInfo.Delete(key)
+	glog.Infof("Removed finalizer for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
 }
 
 // finalizePolicy will delete the policy in vault

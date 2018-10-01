@@ -46,9 +46,8 @@ type VaultPolicyList struct {
 type PolicyStatus string
 
 const (
-	PolicySuccess    PolicyStatus = "Success"
-	PolicyFailed     PolicyStatus = "Failed"
-	PolicyProcessing PolicyStatus = "Processing"
+	PolicySuccess PolicyStatus = "Success"
+	PolicyFailed  PolicyStatus = "Failed"
 )
 
 type VaultPolicyStatus struct {

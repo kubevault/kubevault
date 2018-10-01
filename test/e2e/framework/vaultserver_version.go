@@ -20,10 +20,10 @@ func (f *Framework) CreateVaultserverVersion() error {
 			},
 		},
 	}
-	_, err := f.VaultServerClient.CatalogV1alpha1().VaultServerVersions().Create(v)
+	_, err := f.CSClient.CatalogV1alpha1().VaultServerVersions().Create(v)
 	return err
 }
 
 func (f *Framework) DeleteVaultserverVersion() error {
-	return f.VaultServerClient.CatalogV1alpha1().VaultServerVersions().Delete(vaultVersion, deleteInForeground())
+	return f.CSClient.CatalogV1alpha1().VaultServerVersions().Delete(vaultVersion, deleteInForeground())
 }

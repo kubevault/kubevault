@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
 	"time"
 
 	"github.com/appscode/pat"

@@ -30,14 +30,13 @@ const (
 var _ = Describe("VaultServer", func() {
 	var (
 		f *framework.Invocation
-		// vs *api.VaultServer
 	)
 
 	BeforeEach(func() {
 		f = root.Invoke()
 	})
 	AfterEach(func() {
-		time.Sleep(30 * time.Second)
+		time.Sleep(10 * time.Second)
 	})
 
 	var (
@@ -130,7 +129,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultServerCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault server (%s/%s) to create", namespace, name))
 			Eventually(func() bool {
-				_, err := f.VaultServerClient.KubevaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.KubevaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("vaultserver (%s/%s) should exists", namespace, name))
 		}
@@ -138,7 +137,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultServerDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault server (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
-				_, err := f.VaultServerClient.KubevaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.KubevaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 				return kerr.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("vaultserver (%s/%s) should not exists", namespace, name))
 		}
@@ -171,7 +170,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultIsUnsealed = func(vs *api.VaultServer) {
 			By("Checking whether vault is unsealed")
 			Eventually(func() bool {
-				v, err := f.VaultServerClient.KubevaultV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
+				v, err := f.CSClient.KubevaultV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
 				if err == nil {
 					if len(v.Status.VaultStatus.Unsealed) == int(vs.Spec.Nodes) {
 						By(fmt.Sprintf("Unseal-pods: %v", v.Status.VaultStatus.Unsealed))
@@ -475,7 +474,7 @@ var _ = Describe("VaultServer", func() {
 
 			It("status should contain 1 updated pods and 1 unseal pods", func() {
 				Eventually(func() bool {
-					vs, err = f.VaultServerClient.KubevaultV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
+					vs, err = f.CSClient.KubevaultV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
 					if kerr.IsNotFound(err) {
 						return false
 					} else {
