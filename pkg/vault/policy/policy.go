@@ -9,7 +9,7 @@ import (
 )
 
 type Policy interface {
-	PutPolicy(name string, policy string) error
+	EnsurePolicy(name string, policy string) error
 	DeletePolicy(name string) error
 }
 
@@ -32,10 +32,10 @@ func NewPolicyClientForVault(kc kubernetes.Interface, p *api.VaultPolicy) (Polic
 	}, nil
 }
 
-// PutPolicy creates or updates the policy
+// EnsurePolicy creates or updates the policy
 // it's safe to call multiple times.
 // https://www.vaultproject.io/api/system/policy.html#create-update-policy
-func (v *vPolicy) PutPolicy(name string, policy string) error {
+func (v *vPolicy) EnsurePolicy(name string, policy string) error {
 	return v.client.Sys().PutPolicy(name, policy)
 }
 

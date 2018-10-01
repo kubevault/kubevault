@@ -28,7 +28,7 @@ func NewFakeVaultServer() *httptest.Server {
 	return httptest.NewServer(m)
 }
 
-func TestVPolicy_PutPolicy(t *testing.T) {
+func TestVPolicy_EnsurePolicy(t *testing.T) {
 	plcy := `
 	 path "secret/*" {
 	   capabilities = ["create", "read", "update", "delete", "list"]
@@ -65,7 +65,7 @@ func TestVPolicy_PutPolicy(t *testing.T) {
 					client: vc,
 				}
 
-				err = vp.PutPolicy(c.name, c.policy)
+				err = vp.EnsurePolicy(c.name, c.policy)
 				if !c.expectErr {
 					assert.Nil(t, err, "failed to put policy")
 				} else {

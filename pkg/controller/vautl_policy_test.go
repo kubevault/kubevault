@@ -21,7 +21,7 @@ type fakePolicy struct {
 	errInPutPolicy bool
 }
 
-func (f *fakePolicy) PutPolicy(n, p string) error {
+func (f *fakePolicy) EnsurePolicy(n, p string) error {
 	if f.errInPutPolicy {
 		return errors.New("error")
 	}
@@ -103,7 +103,7 @@ func TestReconcilePolicy(t *testing.T) {
 			expectErr:    false,
 		},
 		{
-			testName:     "reconcile unsuccessful, error occure in PutPolicy",
+			testName:     "reconcile unsuccessful, error occure in EnsurePolicy",
 			vPolicy:      simpleVaultPolicy(),
 			pClient:      &fakePolicy{errInPutPolicy: true},
 			expectStatus: string(policyapi.PolicyFailed),
