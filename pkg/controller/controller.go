@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	reg_util "github.com/appscode/kutil/admissionregistration/v1beta1"
 	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
 	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
@@ -26,7 +27,7 @@ import (
 
 type VaultController struct {
 	config
-	restConfig *rest.Config
+	clientConfig *rest.Config
 
 	// ctxCancels stores vault clusters' contexts that are used to
 	// cancel their goroutines when they are deleted
@@ -61,6 +62,16 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 		policyapi.VaultPolicy{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
+}
+
+func (c *VaultController) Run(stopCh <-chan struct{}) {
+	go c.RunInformers(stopCh)
+
+	cancel, _ := reg_util.SyncValidatingWebhookCABundle(c.clientConfig, validatingWebhook)
+
+	<-stopCh
+
+	cancel()
 }
 
 func (c *VaultController) RunInformers(stopCh <-chan struct{}) {

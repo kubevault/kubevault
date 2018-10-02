@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/appscode/go/log/golog"
+	reg_util "github.com/appscode/kutil/admissionregistration/v1beta1"
 	"github.com/appscode/kutil/discovery"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	vaultinformers "github.com/kubevault/operator/client/informers/externalversions"
@@ -17,10 +18,13 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+const (
+	validatingWebhook = "admission.kubevault.com"
+)
+
 var (
 	AnalyticsClientID string
 	EnableAnalytics   = true
-	LoggerOptions     golog.Options
 )
 
 type config struct {
@@ -57,7 +61,7 @@ func (c *Config) New() (*VaultController, error) {
 	}
 	ctrl := &VaultController{
 		config:              c.config,
-		restConfig:          c.ClientConfig,
+		clientConfig:        c.ClientConfig,
 		ctxCancels:          make(map[string]context.CancelFunc),
 		finalizerInfo:       NewMapFinalizer(),
 		kubeClient:          c.KubeClient,
@@ -69,6 +73,9 @@ func (c *Config) New() (*VaultController, error) {
 	}
 
 	if err := ctrl.ensureCustomResourceDefinitions(); err != nil {
+		return nil, err
+	}
+	if err := reg_util.UpdateValidatingWebhookCABundle(ctrl.clientConfig, validatingWebhook); err != nil {
 		return nil, err
 	}
 

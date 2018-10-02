@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/appscode/go/log/golog"
 	v "github.com/appscode/go/version"
 	"github.com/appscode/kutil/tools/analytics"
 	"github.com/jpillora/go-ogle-analytics"
@@ -42,7 +41,6 @@ func NewRootCmd() *cobra.Command {
 			}
 			scheme.AddToScheme(clientsetscheme.Scheme)
 			scheme.AddToScheme(legacyscheme.Scheme)
-			controller.LoggerOptions = golog.ParseFlags(c.Flags())
 		},
 	}
 	rootCmd.PersistentFlags().AddGoFlagSet(flag.CommandLine)

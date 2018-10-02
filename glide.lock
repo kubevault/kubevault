@@ -1,5 +1,5 @@
-hash: 53c888badd48526239534753d2781757cf59bb0649034f8a53a7d72277d65c32
-updated: 2018-10-01T18:11:02.286702583-07:00
+hash: 00ceab6c44bb14744b159d714ab35a28384f11f8fb7171951cc6411ee05a0323
+updated: 2018-10-01T21:18:57.05721073-07:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -37,6 +37,7 @@ imports:
 - name: github.com/appscode/kutil
   version: e112e5a5d9bf8321f07a89cc35a4ec6ce4c0be72
   subpackages:
+  - admissionregistration/v1beta1
   - apiextensions/v1beta1
   - apps/v1
   - core/v1
@@ -49,6 +50,7 @@ imports:
   - tools/clientcmd
   - tools/portforward
   - tools/queue
+  - tools/watch
 - name: github.com/appscode/mergo
   version: 9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4
 - name: github.com/appscode/ocutil
@@ -328,7 +330,7 @@ imports:
 - name: github.com/jpillora/go-ogle-analytics
   version: 14b04e0594ef6a9fd943363b135656f0ec8c9d0e
 - name: github.com/json-iterator/go
-  version: f2b4162afba35581b6d4a50d3b8f34e33c144682
+  version: 1624edc4454b8682399def8740d46db5e4362ba4
 - name: github.com/lib/pq
   version: 4ded0e9383f75c197b3a2aaa6d590ac52df6fd79
   subpackages:
@@ -755,7 +757,9 @@ imports:
   - plugin/pkg/authenticator/token/webhook
   - plugin/pkg/authorizer/webhook
 - name: k8s.io/client-go
-  version: 2cefa64ff137e128daeddbd1775cd775708a05bf
+  version: 805859b028aa45844e5d3b699d1dfad9eed753ad
+  repo: https://github.com/pharmer/client-go.git
+  vcs: git
   subpackages:
   - discovery
   - discovery/fake

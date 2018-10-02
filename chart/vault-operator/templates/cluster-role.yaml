@@ -13,35 +13,39 @@ rules:
   - apiextensions.k8s.io
   resources:
   - customresourcedefinitions
-  verbs:
-  - "*"
+  verbs: ["*"]
 - apiGroups:
   - admissionregistration.k8s.io
   resources:
   - mutatingwebhookconfigurations
   - validatingwebhookconfigurations
-  verbs: ["get","list"]
+  verbs: ["delete", "list", "watch", "patch"]
 - apiGroups:
   - kubevault.com
-  resources: ["*"]
+  - catalog.kubevault.com
+  resources:
+  - "*"
   verbs: ["*"]
 - apiGroups:
   - apps
   resources:
   - deployments
   verbs: ["create","get", "update", "patch"]
-- apiGroups: [""]
+- apiGroups:
+  - ""
   resources:
   - configmaps
   - secrets
   - services
   - serviceaccounts
   verbs: ["create", "update", "get", "patch"]
-- apiGroups: [""]
+- apiGroups:
+  - ""
   resources:
   - events
   verbs: ["create"]
-- apiGroups: [""]
+- apiGroups:
+  - ""
   resources:
   - pods
   - pods/exec
