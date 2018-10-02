@@ -23,7 +23,8 @@ imagePullPolicy: IfNotPresent
 ## Installs voyager operator as critical addon
 ## https://kubernetes.io/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/
 criticalAddon: false
-## Log level for kubepack
+
+## Log level for operator
 logLevel: 3
 
 ## Node labels for pod assignment
