@@ -3,6 +3,7 @@ package v1alpha1
 import (
 	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
 	meta_util "github.com/appscode/kutil/meta"
+	"github.com/kubevault/operator/apis"
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
 
@@ -47,7 +48,7 @@ func (v VaultPolicy) CustomResourceDefinition() *apiextensions.CustomResourceDef
 		SpecDefinitionName:      "github.com/kubevault/operator/apis/policy/v1alpha1.VaultPolicy",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
-		EnableStatusSubresource: EnableStatusSubresource,
+		EnableStatusSubresource: apis.EnableStatusSubresource,
 		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
 			{
 				Name:     "Status",
@@ -60,7 +61,7 @@ func (v VaultPolicy) CustomResourceDefinition() *apiextensions.CustomResourceDef
 				JSONPath: ".metadata.creationTimestamp",
 			},
 		},
-	}, setNameSchema)
+	}, apis.SetNameSchema)
 }
 
 func (v VaultPolicy) IsValid() error {
