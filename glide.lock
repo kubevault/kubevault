@@ -1,5 +1,5 @@
-hash: 7354afe2e5395994eb8411b021e8ad08b89d2e8faf5daea12071bbef2219b8a1
-updated: 2018-09-30T05:50:48.343113245-07:00
+hash: 00ceab6c44bb14744b159d714ab35a28384f11f8fb7171951cc6411ee05a0323
+updated: 2018-10-01T21:18:57.05721073-07:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -23,9 +23,10 @@ imports:
   - runtime
   - sets
   - types
+  - util/errors
   - version
 - name: github.com/appscode/go-version
-  version: 0dcf3ac121c7c30e035b41ba9f652d1ce5994242
+  version: 7aba545c679b0f45679eeb406dc662d2c8a04c26
 - name: github.com/appscode/jsonpatch
   version: 5af499cf01c842bfdd7761a433fc90525ccd6836
 - name: github.com/appscode/kubernetes-webhook-util
@@ -34,7 +35,7 @@ imports:
   - admission/v1beta1
   - registry/admissionreview/v1beta1
 - name: github.com/appscode/kutil
-  version: 8098faaaba7e4781cbaecf630c8583be1b58d36c
+  version: e112e5a5d9bf8321f07a89cc35a4ec6ce4c0be72
   subpackages:
   - admissionregistration/v1beta1
   - apiextensions/v1beta1
@@ -956,6 +957,8 @@ imports:
   subpackages:
   - api/v1
 testImports:
+- name: github.com/appscode/pat
+  version: 48ff78925b7955367d8a048fc2b5cec8efadf8d3
 - name: github.com/ncw/swift
   version: 7854abff473c41fdde529ebe4cf7db6334dd61ce
 - name: github.com/pmezard/go-difflib

@@ -1,8 +1,6 @@
 package framework
 
 import (
-	"fmt"
-
 	vaultapi "github.com/hashicorp/vault/api"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -17,10 +15,16 @@ func deleteInForeground() *metav1.DeleteOptions {
 	return &metav1.DeleteOptions{PropagationPolicy: &policy}
 }
 
-func GetVaultClient(addr, port string) (*vaultapi.Client, error) {
+func GetVaultClient(addr, token string) (*vaultapi.Client, error) {
 	cfg := vaultapi.DefaultConfig()
-	podURL := fmt.Sprintf("https://%s:%s", addr, port)
-	cfg.Address = podURL
-	cfg.ConfigureTLS(nil)
-	return vaultapi.NewClient(cfg)
+	cfg.Address = addr
+	cfg.ConfigureTLS(&vaultapi.TLSConfig{
+		Insecure: true,
+	})
+	vc, err := vaultapi.NewClient(cfg)
+	if err != nil {
+		return nil, err
+	}
+	vc.SetToken(token)
+	return vc, nil
 }

@@ -83,8 +83,6 @@ type VaultServerStatus struct {
 	ObservedGeneration *types.IntHash `json:"observedGeneration,omitempty"`
 
 	// Phase indicates the state this Vault cluster jumps in.
-	// Phase goes as one way as below:
-	//   Initial -> Running
 	Phase ClusterPhase `json:"phase,omitempty"`
 
 	// Initialized indicates if the Vault service is initialized.

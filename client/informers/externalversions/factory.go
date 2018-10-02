@@ -27,6 +27,7 @@ import (
 	catalog "github.com/kubevault/operator/client/informers/externalversions/catalog"
 	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
 	kubevault "github.com/kubevault/operator/client/informers/externalversions/kubevault"
+	policy "github.com/kubevault/operator/client/informers/externalversions/policy"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -175,6 +176,7 @@ type SharedInformerFactory interface {
 
 	Catalog() catalog.Interface
 	Kubevault() kubevault.Interface
+	Policy() policy.Interface
 }
 
 func (f *sharedInformerFactory) Catalog() catalog.Interface {
@@ -183,4 +185,8 @@ func (f *sharedInformerFactory) Catalog() catalog.Interface {
 
 func (f *sharedInformerFactory) Kubevault() kubevault.Interface {
 	return kubevault.New(f, f.namespace, f.tweakListOptions)
+}
+
+func (f *sharedInformerFactory) Policy() policy.Interface {
+	return policy.New(f, f.namespace, f.tweakListOptions)
 }

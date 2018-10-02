@@ -4077,9 +4077,7 @@ spec:
               - format: int64
                 type: integer
             phase:
-              description: |-
-                Phase indicates the state this Vault cluster jumps in. Phase goes as one way as below:
-                  Initial -> Running
+              description: Phase indicates the state this Vault cluster jumps in.
               type: string
             serviceName:
               description: ServiceName is the LB service for accessing vault nodes.

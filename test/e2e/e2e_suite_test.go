@@ -54,6 +54,10 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	By("Using test namespace " + root.Namespace())
 
+	By("Deploying vault...")
+	err = root.InitialSetup()
+	Expect(err).NotTo(HaveOccurred())
+
 	err = root.CreateVaultserverVersion()
 	Expect(err).NotTo(HaveOccurred())
 
@@ -74,6 +78,9 @@ var _ = AfterSuite(func() {
 		By("Cleaning API server and Webhook stuff")
 		root.CleanAdmissionConfigs()
 	}
+
+	Expect(root.Cleanup()).NotTo(HaveOccurred())
+	By("Deleting Namespace...")
 	root.DeleteNamespace()
 	err := root.DeleteVaultserverVersion()
 	Expect(err).NotTo(HaveOccurred())

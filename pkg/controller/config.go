@@ -4,7 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/appscode/go/log/golog"
 	reg_util "github.com/appscode/kutil/admissionregistration/v1beta1"
+	"github.com/appscode/kutil/discovery"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	vaultinformers "github.com/kubevault/operator/client/informers/externalversions"
 	"github.com/kubevault/operator/pkg/eventer"
@@ -50,6 +52,10 @@ func NewConfig(clientConfig *rest.Config) *Config {
 }
 
 func (c *Config) New() (*VaultController, error) {
+	if err := discovery.IsDefaultSupportedVersion(c.KubeClient); err != nil {
+		return nil, err
+	}
+
 	tweakListOptions := func(opt *metav1.ListOptions) {
 		opt.IncludeUninitialized = true
 	}
@@ -57,6 +63,7 @@ func (c *Config) New() (*VaultController, error) {
 		config:              c.config,
 		clientConfig:        c.ClientConfig,
 		ctxCancels:          make(map[string]context.CancelFunc),
+		finalizerInfo:       NewMapFinalizer(),
 		kubeClient:          c.KubeClient,
 		extClient:           c.ExtClient,
 		crdClient:           c.CRDClient,
@@ -72,6 +79,9 @@ func (c *Config) New() (*VaultController, error) {
 		return nil, err
 	}
 
+	// For VaultServer
 	ctrl.initVaultServerWatcher()
+	// For VaultPolicy
+	ctrl.initVaultPolicyWatcher()
 	return ctrl, nil
 }
