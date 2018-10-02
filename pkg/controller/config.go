@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/appscode/go/log/golog"
+	"github.com/appscode/kutil/discovery"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	vaultinformers "github.com/kubevault/operator/client/informers/externalversions"
 	"github.com/kubevault/operator/pkg/eventer"
@@ -47,6 +48,10 @@ func NewConfig(clientConfig *rest.Config) *Config {
 }
 
 func (c *Config) New() (*VaultController, error) {
+	if err := discovery.IsDefaultSupportedVersion(c.KubeClient); err != nil {
+		return nil, err
+	}
+
 	tweakListOptions := func(opt *metav1.ListOptions) {
 		opt.IncludeUninitialized = true
 	}

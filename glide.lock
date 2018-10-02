@@ -1,5 +1,5 @@
-hash: 9d5b3fbc2948fd877dba5ab8699edd0211679a741331396b98bf654c6638e4d3
-updated: 2018-10-01T06:19:23.133010935-07:00
+hash: 53c888badd48526239534753d2781757cf59bb0649034f8a53a7d72277d65c32
+updated: 2018-10-01T18:11:02.286702583-07:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -35,7 +35,7 @@ imports:
   - admission/v1beta1
   - registry/admissionreview/v1beta1
 - name: github.com/appscode/kutil
-  version: 8098faaaba7e4781cbaecf630c8583be1b58d36c
+  version: e112e5a5d9bf8321f07a89cc35a4ec6ce4c0be72
   subpackages:
   - apiextensions/v1beta1
   - apps/v1
@@ -239,7 +239,7 @@ imports:
   subpackages:
   - lru
 - name: github.com/golang/protobuf
-  version: aa810b61a9c79d51363740d207bb46cf8e620ed5
+  version: b4deda0973fb4c70b50d226b1af49f3da59f5265
   subpackages:
   - jsonpb
   - proto
