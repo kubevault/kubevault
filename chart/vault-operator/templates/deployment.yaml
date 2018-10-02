@@ -42,7 +42,7 @@ spec:
         imagePullPolicy: {{ .Values.imagePullPolicy  }}
         args:
         - run
-        - --v=3
+        - --v={{ .Values.logLevel }}
         - --secure-port=8443
         - --audit-log-path=-
         - --tls-cert-file=/var/serving-cert/tls.crt
