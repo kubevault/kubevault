@@ -75,3 +75,5 @@ import:
   version: 95c6576299259db960f6c5b9b69ea52422860fce
 - package: github.com/golang/protobuf
   version: v1.1.0
+- package: github.com/davecgh/go-spew
+  version: 1.1.0

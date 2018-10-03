@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/appscode/go/log/golog"
 	reg_util "github.com/appscode/kutil/admissionregistration/v1beta1"
 	"github.com/appscode/kutil/discovery"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
