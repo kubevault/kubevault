@@ -19,33 +19,47 @@ type PolicyBinding interface {
 	Delete(name string) error
 }
 
-func NewPolicyBindingClient(c cs.Interface, kc kubernetes.Interface, p *api.VaultPolicyBinding) (PolicyBinding, error) {
-	if len(p.Spec.Policies) == 0 {
+func NewPolicyBindingClient(c cs.Interface, kc kubernetes.Interface, pBind *api.VaultPolicyBinding) (PolicyBinding, error) {
+	if pBind == nil {
+		return nil, errors.New("VaultPolicyBinding is nil")
+	}
+	if len(pBind.Spec.Policies) == 0 {
 		return nil, errors.New(".spec.policies must be non empty")
 	}
 
-	vPlcy, err := c.PolicyV1alpha1().VaultPolicies(p.Namespace).Get(p.Spec.Policies[0], metav1.GetOptions{})
-	if err != nil {
-		return nil, err
+	pb := &pBinding{
+		saNames:      pBind.Spec.ServiceAccountNames,
+		saNamespaces: pBind.Spec.ServiceAccountNamespaces,
+		ttl:          pBind.Spec.TTL,
+		maxTTL:       pBind.Spec.MaxTTL,
+		period:       pBind.Spec.Period,
 	}
 
-	vc, err := vault.NewClient(kc, p.Namespace, vPlcy.Spec.Vault)
+	var vaultCfg *api.Vault
+	// check whether VaultPolicy exists
+	for _, pName := range pBind.Spec.Policies {
+		plcy, err := c.PolicyV1alpha1().VaultPolicies(pBind.Namespace).Get(pName, metav1.GetOptions{})
+		if err != nil {
+			return nil, errors.Wrap(err, "for .spec.policies")
+		}
+		if vaultCfg == nil {
+			// take vault connection config from policy
+			vaultCfg = plcy.Spec.Vault
+		}
+		// add vault policy name
+		// VaultPolicy.OffshootName() is used to create policy in vault
+		pb.policies = append(pb.policies, plcy.OffshootName())
+	}
+
+	var err error
+	pb.vClient, err = vault.NewClient(kc, pBind.Namespace, vaultCfg)
 	if err != nil {
 		return nil, err
-	}
-	pb := &PBind{
-		vClient:      vc,
-		policies:     p.Spec.Policies,
-		saNames:      p.Spec.ServiceAccountNames,
-		saNamespaces: p.Spec.ServiceAccountNamespaces,
-		ttl:          p.Spec.TTL,
-		maxTTL:       p.Spec.MaxTTL,
-		period:       p.Spec.Period,
 	}
 	return pb, nil
 }
 
-type PBind struct {
+type pBinding struct {
 	vClient      *vautlapi.Client
 	policies     []string
 	saNames      []string
@@ -57,7 +71,7 @@ type PBind struct {
 
 // create or update policy binding
 // it's safe to call it multiple times
-func (p *PBind) Ensure(name string) error {
+func (p *pBinding) Ensure(name string) error {
 	path := fmt.Sprintf("/v1/auth/kubernetes/role/%s", name)
 	req := p.vClient.NewRequest("POST", path)
 	payload := map[string]interface{}{
@@ -83,7 +97,7 @@ func (p *PBind) Ensure(name string) error {
 
 // delete policy binding
 // it's safe to call it, even if 'name' doesn't exist in vault
-func (p *PBind) Delete(name string) error {
+func (p *pBinding) Delete(name string) error {
 	path := fmt.Sprintf("/v1/auth/kubernetes/role/%s", name)
 	req := p.vClient.NewRequest("DELETE", path)
 	_, err := p.vClient.RawRequest(req)

@@ -80,6 +80,9 @@ func NewFakeVaultServer() *httptest.Server {
 	m.Del("/v1/sys/policy/ok", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
+	m.Del("/v1/sys/policy/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
 	m.Del("/v1/sys/policy/simple", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))

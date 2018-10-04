@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	goodPBind = &PBind{
+	goodPBind = &pBinding{
 		policies:     []string{"test,hi"},
 		saNames:      []string{"test1,test2"},
 		saNamespaces: []string{"test3,test4"},
@@ -21,7 +21,7 @@ var (
 		maxTTL:       "100",
 		period:       "100",
 	}
-	badPBind = &PBind{}
+	badPBind = &pBinding{}
 )
 
 func isKeyValExist(store map[string]interface{}, key string, val interface{}) bool {
@@ -124,7 +124,7 @@ func TestEnsure(t *testing.T) {
 	cases := []struct {
 		testName  string
 		name      string
-		pb        *PBind
+		pb        *pBinding
 		expectErr bool
 	}{
 		{
@@ -167,7 +167,7 @@ func TestDelete(t *testing.T) {
 	cases := []struct {
 		testName  string
 		name      string
-		pb        *PBind
+		pb        *pBinding
 		expectErr bool
 	}{
 		{

@@ -26,7 +26,7 @@ var _ = Describe("VaultPolicy", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("VaultPolicy (%s/%s) should not exists", namespace, name))
 		}
 		IsPolicyExistInVault = func(p *api.VaultPolicy) {
-			By(fmt.Sprintf("checking policy(%s) exists in vault", p.Name))
+			By(fmt.Sprintf("checking policy(%s) exists in vault", p.OffshootName()))
 			Eventually(func() bool {
 				sr, err := f.KubeClient.CoreV1().Secrets(p.Namespace).Get(p.Spec.Vault.TokenSecret, metav1.GetOptions{})
 				if err != nil {
@@ -36,12 +36,12 @@ var _ = Describe("VaultPolicy", func() {
 				if err != nil {
 					return false
 				}
-				_, err = vc.Sys().GetPolicy(p.Name)
+				_, err = vc.Sys().GetPolicy(p.OffshootName())
 				return err == nil
-			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("policy(%s) should exists in vault", p.Name))
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("policy(%s) should exists in vault", p.OffshootName()))
 		}
 		IsPolicyUpdatedInVault = func(p *api.VaultPolicy, plcy string) {
-			By(fmt.Sprintf("checking policy(%s) exists in vault", p.Name))
+			By(fmt.Sprintf("checking policy(%s) exists in vault", p.OffshootName()))
 			Eventually(func() bool {
 				sr, err := f.KubeClient.CoreV1().Secrets(p.Namespace).Get(p.Spec.Vault.TokenSecret, metav1.GetOptions{})
 				if err != nil {
@@ -51,10 +51,9 @@ var _ = Describe("VaultPolicy", func() {
 				if err != nil {
 					return false
 				}
-				p, err := vc.Sys().GetPolicy(p.Name)
-				By(p)
+				p, err := vc.Sys().GetPolicy(p.OffshootName())
 				return err == nil && p == plcy
-			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("policy(%s) should exists in vault", p.Name))
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("policy(%s) should exists in vault", p.OffshootName()))
 		}
 	)
 
@@ -119,7 +118,7 @@ var _ = Describe("VaultPolicy", func() {
 			})
 		})
 
-		Context("Delete contianing invalid vauld address", func() {
+		Context("Delete, containing invalid vault address", func() {
 			var (
 				vPolicy *api.VaultPolicy
 			)

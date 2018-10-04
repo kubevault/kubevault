@@ -86,7 +86,7 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 
 	// create or update policy
 	// its safe to call multiple times
-	err := pClient.EnsurePolicy(vPolicy.Name, vPolicy.Spec.Policy)
+	err := pClient.EnsurePolicy(vPolicy.OffshootName(), vPolicy.Spec.Policy)
 	if err != nil {
 		status.Status = policyapi.PolicyFailed
 		status.Conditions = []policyapi.PolicyCondition{
@@ -198,5 +198,5 @@ func finalizePolicy(pc policycs.PolicyV1alpha1Interface, kc kubernetes.Interface
 	if err != nil {
 		return err
 	}
-	return pClient.DeletePolicy(vPolicy.Name)
+	return pClient.DeletePolicy(vPolicy.OffshootName())
 }
