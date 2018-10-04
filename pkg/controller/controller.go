@@ -51,6 +51,11 @@ type VaultController struct {
 	vplcyInformer cache.SharedIndexInformer
 	vplcyLister   policy_listers.VaultPolicyLister
 
+	// for VaultPolicyBinding
+	vplcyBindingQueue    *queue.Worker
+	vplcyBindingInformer cache.SharedIndexInformer
+	vplcyBindingLister   policy_listers.VaultPolicyBindingLister
+
 	// Contain the currently processing finalizer
 	finalizerInfo *mapFinalizer
 }
@@ -60,6 +65,7 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 		vaultapi.VaultServer{}.CustomResourceDefinition(),
 		catalogapi.VaultServerVersion{}.CustomResourceDefinition(),
 		policyapi.VaultPolicy{}.CustomResourceDefinition(),
+		policyapi.VaultPolicyBinding{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }
@@ -93,6 +99,9 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 
 	//For VaultPolicy
 	go c.vplcyQueue.Run(stopCh)
+
+	//For VaultPolicyBinding
+	go c.vplcyBindingQueue.Run(stopCh)
 
 	<-stopCh
 	glog.Info("Stopping Vault operator")

@@ -201,7 +201,7 @@ func (c *VaultController) updatedVaultServerStatus(status *api.VaultServerStatus
 	_, err := patchutil.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vs, func(s *api.VaultServerStatus) *api.VaultServerStatus {
 		s = status
 		return s
-	})
+	}, apis.EnableStatusSubresource)
 	if err != nil {
 		return err
 	}

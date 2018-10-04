@@ -32,7 +32,7 @@ func (c *VaultController) initVaultPolicyWatcher() {
 }
 
 // runVaultPolicyInjector gets the vault policy object indexed by the key from cache
-// and initializes, reconciles or garbage collects the vault polciy as needed.
+// and initializes, reconciles or garbage collects the vault policy as needed.
 func (c *VaultController) runVaultPolicyInjector(key string) error {
 	obj, exists, err := c.vplcyInformer.GetIndexer().GetByKey(key)
 	if err != nil {
@@ -121,7 +121,7 @@ func (c *VaultController) updatePolicyStatus(status *policyapi.VaultPolicyStatus
 	_, err := patchutil.UpdateVaultPolicyStatus(c.extClient.PolicyV1alpha1(), vPolicy, func(s *policyapi.VaultPolicyStatus) *policyapi.VaultPolicyStatus {
 		s = status
 		return s
-	})
+	}, apis.EnableStatusSubresource)
 	return err
 }
 

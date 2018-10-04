@@ -82,5 +82,7 @@ func (c *Config) New() (*VaultController, error) {
 	ctrl.initVaultServerWatcher()
 	// For VaultPolicy
 	ctrl.initVaultPolicyWatcher()
+	// For VaultPolicyBinding
+	ctrl.initVaultPolicyBindingWatcher()
 	return ctrl, nil
 }
