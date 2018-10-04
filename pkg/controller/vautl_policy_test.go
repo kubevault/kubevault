@@ -83,6 +83,9 @@ func NewFakeVaultServer() *httptest.Server {
 	m.Del("/v1/sys/policy/simple", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
+	m.Del("/v1/auth/kubernetes/role/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
 
 	return httptest.NewServer(m)
 }
