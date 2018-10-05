@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
+	appcatfake "kmodules.xyz/custom-resources/client/clientset/versioned/fake"
 )
 
 type fakePBind struct {
@@ -97,7 +98,8 @@ func TestReconcilePolicyBinding(t *testing.T) {
 func TestFinalizePolicyBinding(t *testing.T) {
 	srv := NewFakeVaultServer()
 	defer srv.Close()
-
+	vApp := vaultAppBinding(srv.URL, vaultTokenSecret().Name)
+	appc := appcatfake.NewSimpleClientset(vApp)
 	kc := kfake.NewSimpleClientset(vaultTokenSecret())
 
 	cases := []struct {
@@ -108,8 +110,8 @@ func TestFinalizePolicyBinding(t *testing.T) {
 	}{
 		{
 			testName:  "no error, valid VaultPolicyBinding",
-			vPolicy:   validVaultPolicy(srv.URL, vaultTokenSecret().Name),
-			vPBind:    validVaultPolicyBinding(validVaultPolicy(srv.URL, vaultTokenSecret().Name).Name),
+			vPolicy:   validVaultPolicy(vApp),
+			vPBind:    validVaultPolicyBinding(validVaultPolicy(vApp).Name),
 			expectErr: false,
 		},
 		{
@@ -143,7 +145,13 @@ func TestFinalizePolicyBinding(t *testing.T) {
 				c.vPBind = simpleVaultPolicyBinding()
 			}
 
-			err := finalizePolicyBinding(cs, kc, c.vPBind)
+			ctrl := &VaultController{
+				kubeClient:       kc,
+				extClient:        cs,
+				appCatalogClient: appc.AppcatalogV1alpha1(),
+			}
+
+			err := ctrl.finalizePolicyBinding(c.vPBind)
 			if c.expectErr {
 				assert.NotNil(t, err)
 			} else {
@@ -156,12 +164,15 @@ func TestFinalizePolicyBinding(t *testing.T) {
 func TestRunPolicyBindingFinalizer(t *testing.T) {
 	srv := NewFakeVaultServer()
 	defer srv.Close()
+	vApp := vaultAppBinding(srv.URL, vaultTokenSecret().Name)
+	appc := appcatfake.NewSimpleClientset(vApp)
 	ctrl := &VaultController{
 		extClient: csfake.NewSimpleClientset(simpleVaultPolicyBinding(),
-			validVaultPolicy(srv.URL, vaultTokenSecret().Name),
-			validVaultPolicyBinding(validVaultPolicy(srv.URL, vaultTokenSecret().Name).Name)),
-		kubeClient:    kfake.NewSimpleClientset(vaultTokenSecret()),
-		finalizerInfo: NewMapFinalizer(),
+			validVaultPolicy(vApp),
+			validVaultPolicyBinding(validVaultPolicy(vApp).Name)),
+		kubeClient:       kfake.NewSimpleClientset(vaultTokenSecret()),
+		appCatalogClient: appc.AppcatalogV1alpha1(),
+		finalizerInfo:    NewMapFinalizer(),
 	}
 	ctrl.finalizerInfo.Add(simpleVaultPolicyBinding().GetKey())
 
@@ -172,7 +183,7 @@ func TestRunPolicyBindingFinalizer(t *testing.T) {
 	}{
 		{
 			testName:  "remove finalizer successfully, valid VaultPolicyBinding",
-			vPBind:    validVaultPolicyBinding(validVaultPolicy(srv.URL, vaultTokenSecret().Name).Name),
+			vPBind:    validVaultPolicyBinding(validVaultPolicy(vApp).Name),
 			completed: true,
 		},
 		{

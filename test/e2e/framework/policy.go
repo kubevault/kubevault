@@ -5,6 +5,7 @@ import (
 	api "github.com/kubevault/operator/apis/policy/v1alpha1"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 func (f *Invocation) VaultPolicy(policy, vAddr, tokenSecret string) *api.VaultPolicy {
@@ -17,12 +18,8 @@ func (f *Invocation) VaultPolicy(policy, vAddr, tokenSecret string) *api.VaultPo
 			},
 		},
 		Spec: api.VaultPolicySpec{
-			Vault: &api.Vault{
-				SkipTLSVerification: true,
-				Address:             vAddr,
-				TokenSecret:         tokenSecret,
-			},
-			Policy: policy,
+			VaultAppRef: &appcat.AppReference{},
+			Policy:      policy,
 		},
 	}
 }

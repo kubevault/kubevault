@@ -329,34 +329,49 @@ spec:
                   capabilities = ["create", "read", "update", "delete", "list"]
                 }
               type: string
-            vault:
-              description: Vault contains the information that necessary to talk with
-                vault
+            vaultAppRef:
               properties:
-                address:
-                  description: Specifies the address of the vault server, e.g:'http://127.0.0.1:8200'
+                name:
+                  description: '`name` is the name of the app. Required'
                   type: string
-                clientTLSSecret:
-                  description: "Name of the secret containing the client.srt and client.key
-                    secret data:\n\t- client.crt: <value>\n\t- client.srt: <value>"
+                namespace:
+                  description: '`namespace` is the namespace of the app. Required'
                   type: string
-                server_ca_secret:
-                  description: "Name of the secret containing the ca cert to verify
-                    vault server secret data:\n\t- ca.crt:<value>"
-                  type: string
-                skipTLSVerification:
-                  description: To skip tls verification for vault server
-                  type: boolean
-                tokenSecret:
-                  description: "Name of the secret containing the vault token access
-                    permission: secret data:\n\t- token:<value>"
-                  type: string
+                parameters:
+                  description: "RawExtension is used to hold extensions in external
+                    versions.\n\nTo use this, make a field which has RawExtension
+                    as its type in your external, versioned struct, and Object in
+                    your internal struct. You also need to register your various plugin
+                    types.\n\n// Internal package: type MyAPIObject struct {\n\truntime.TypeMeta
+                    `json:\",inline\"`\n\tMyPlugin runtime.Object `json:\"myPlugin\"`\n}
+                    type PluginA struct {\n\tAOption string `json:\"aOption\"`\n}\n\n//
+                    External package: type MyAPIObject struct {\n\truntime.TypeMeta
+                    `json:\",inline\"`\n\tMyPlugin runtime.RawExtension `json:\"myPlugin\"`\n}
+                    type PluginA struct {\n\tAOption string `json:\"aOption\"`\n}\n\n//
+                    On the wire, the JSON will look something like this: {\n\t\"kind\":\"MyAPIObject\",\n\t\"apiVersion\":\"v1\",\n\t\"myPlugin\":
+                    {\n\t\t\"kind\":\"PluginA\",\n\t\t\"aOption\":\"foo\",\n\t},\n}\n\nSo
+                    what happens? Decode first uses json or yaml to unmarshal the
+                    serialized data into your external MyAPIObject. That causes the
+                    raw JSON to be stored, but not unpacked. The next step is to copy
+                    (using pkg/conversion) into the internal struct. The runtime package's
+                    DefaultScheme has conversion functions installed which will unpack
+                    the JSON stored in RawExtension, turning it into the correct object
+                    type, and storing it in the Object. (TODO: In the case where the
+                    object is of an unknown type, a runtime.Unknown object will be
+                    created and stored.)"
+                  properties:
+                    Raw:
+                      description: Raw is the underlying serialization of this object.
+                      format: byte
+                      type: string
+                  required:
+                  - Raw
               required:
-              - address
-              - tokenSecret
+              - namespace
+              - name
           required:
           - policy
-          - vault
+          - vaultAppRef
         status:
           properties:
             conditions:

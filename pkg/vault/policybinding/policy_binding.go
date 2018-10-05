@@ -3,13 +3,15 @@ package policybinding
 import (
 	"fmt"
 
-	vautlapi "github.com/hashicorp/vault/api"
+	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubevault/operator/apis/policy/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	"github.com/kubevault/operator/pkg/vault"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
 
 type PolicyBinding interface {
@@ -19,7 +21,7 @@ type PolicyBinding interface {
 	Delete(name string) error
 }
 
-func NewPolicyBindingClient(c cs.Interface, kc kubernetes.Interface, pBind *api.VaultPolicyBinding) (PolicyBinding, error) {
+func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Interface, kc kubernetes.Interface, pBind *api.VaultPolicyBinding) (PolicyBinding, error) {
 	if pBind == nil {
 		return nil, errors.New("VaultPolicyBinding is nil")
 	}
@@ -35,16 +37,22 @@ func NewPolicyBindingClient(c cs.Interface, kc kubernetes.Interface, pBind *api.
 		period:       pBind.Spec.Period,
 	}
 
-	var vaultCfg *api.Vault
+	var vaultRef *appcat.AppReference
 	// check whether VaultPolicy exists
 	for _, pName := range pBind.Spec.Policies {
 		plcy, err := c.PolicyV1alpha1().VaultPolicies(pBind.Namespace).Get(pName, metav1.GetOptions{})
 		if err != nil {
 			return nil, errors.Wrap(err, "for .spec.policies")
 		}
-		if vaultCfg == nil {
-			// take vault connection config from policy
-			vaultCfg = plcy.Spec.Vault
+		if vaultRef == nil {
+			// take vault connection reference from policy
+			vaultRef = plcy.Spec.VaultAppRef
+		} else {
+			// all policy should refer the same vault
+			vr := plcy.Spec.VaultAppRef
+			if vr == nil || vr.Name != vaultRef.Name || vr.Namespace != vaultRef.Namespace {
+				return nil, errors.New("all policy should refer the same vault")
+			}
 		}
 		// add vault policy name
 		// VaultPolicy.OffshootName() is used to create policy in vault
@@ -52,7 +60,7 @@ func NewPolicyBindingClient(c cs.Interface, kc kubernetes.Interface, pBind *api.
 	}
 
 	var err error
-	pb.vClient, err = vault.NewClient(kc, pBind.Namespace, vaultCfg)
+	pb.vClient, err = vault.NewClient(kc, appc, vaultRef)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +68,7 @@ func NewPolicyBindingClient(c cs.Interface, kc kubernetes.Interface, pBind *api.
 }
 
 type pBinding struct {
-	vClient      *vautlapi.Client
+	vClient      *vaultapi.Client
 	policies     []string
 	saNames      []string
 	saNamespaces []string

@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/pflag"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	"k8s.io/client-go/kubernetes"
+	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
 
 type ExtraOptions struct {
@@ -67,6 +68,9 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 		return err
 	}
 	if cfg.CRDClient, err = crd_cs.NewForConfig(cfg.ClientConfig); err != nil {
+		return err
+	}
+	if cfg.AppCatalogClient, err = appcat_cs.NewForConfig(cfg.ClientConfig); err != nil {
 		return err
 	}
 	return nil

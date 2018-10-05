@@ -18,7 +18,6 @@ spec:
   names:
     categories:
     - vault
-    - policy-binding
     - appscode
     - all
     kind: VaultPolicyBinding

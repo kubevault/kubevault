@@ -33,7 +33,7 @@ func (v VaultPolicyBinding) CustomResourceDefinition() *apiextensions.CustomReso
 		Singular:      ResourceVaultPolicyBindings,
 		Kind:          ResourceKindVaultPolicyBinding,
 		ShortNames:    []string{"vpb"},
-		Categories:    []string{"vault", "policy-binding", "appscode", "all"},
+		Categories:    []string{"vault", "appscode", "all"},
 		ResourceScope: string(apiextensions.NamespaceScoped),
 		Versions: []apiextensions.CustomResourceDefinitionVersion{
 			{

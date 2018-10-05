@@ -10,14 +10,12 @@ import (
 	"github.com/golang/glog"
 	"github.com/kubevault/operator/apis"
 	policyapi "github.com/kubevault/operator/apis/policy/v1alpha1"
-	cs "github.com/kubevault/operator/client/clientset/versioned"
 	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
 	pbinding "github.com/kubevault/operator/pkg/vault/policybinding"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -65,7 +63,7 @@ func (c *VaultController) runVaultPolicyBindingInjector(key string) error {
 				}
 			}
 
-			pBClient, err := pbinding.NewPolicyBindingClient(c.extClient, c.kubeClient, vPBind)
+			pBClient, err := pbinding.NewPolicyBindingClient(c.extClient, c.appCatalogClient, c.kubeClient, vPBind)
 			if err != nil {
 				return errors.Wrapf(err, "for VaultPolicyBinding %s/%s", vPBind.Namespace, vPBind.Name)
 			}
@@ -155,7 +153,7 @@ func (c *VaultController) runPolicyBindingFinalizer(vPBind *policyapi.VaultPolic
 		}
 
 		// finalize policy binding
-		if err := finalizePolicyBinding(c.extClient, c.kubeClient, vPBind); err == nil {
+		if err := c.finalizePolicyBinding(vPBind); err == nil {
 			glog.Infof("For VaultPolicyBinding %s/%s: successfully removed policy from vault", vPBind.Namespace, vPBind.Name)
 			break
 		} else {
@@ -185,15 +183,15 @@ func (c *VaultController) runPolicyBindingFinalizer(vPBind *policyapi.VaultPolic
 }
 
 // finalizePolicyBinding will delete the policy in vault
-func finalizePolicyBinding(c cs.Interface, kc kubernetes.Interface, vPBind *policyapi.VaultPolicyBinding) error {
-	out, err := c.PolicyV1alpha1().VaultPolicyBindings(vPBind.Namespace).Get(vPBind.Name, metav1.GetOptions{})
+func (c *VaultController) finalizePolicyBinding(vPBind *policyapi.VaultPolicyBinding) error {
+	out, err := c.extClient.PolicyV1alpha1().VaultPolicyBindings(vPBind.Namespace).Get(vPBind.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
 		return err
 	}
 
-	pBClient, err := pbinding.NewPolicyBindingClient(c, kc, out)
+	pBClient, err := pbinding.NewPolicyBindingClient(c.extClient, c.appCatalogClient, c.kubeClient, out)
 	if err != nil {
 		return err
 	}

@@ -1,5 +1,5 @@
-hash: ebb9d986c9af5e4b03e4cebf5bcd1cf3318db5916deb937ff076a89d65579b30
-updated: 2018-10-02T12:43:01.608170723+06:00
+hash: 1ea4abdcecd5da793bce45e00b627eb8134e4963beb77b4c4941a8401b1f0340
+updated: 2018-10-05T16:35:33.431953793+06:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -35,7 +35,7 @@ imports:
   - admission/v1beta1
   - registry/admissionreview/v1beta1
 - name: github.com/appscode/kutil
-  version: e112e5a5d9bf8321f07a89cc35a4ec6ce4c0be72
+  version: d6914a165524f1ec2009f2f7c5901ab4223ab3d5
   subpackages:
   - admissionregistration/v1beta1
   - apiextensions/v1beta1
@@ -765,6 +765,7 @@ imports:
   subpackages:
   - discovery
   - discovery/fake
+  - dynamic
   - informers
   - informers/admissionregistration
   - informers/admissionregistration/v1alpha1
@@ -952,8 +953,20 @@ imports:
   version: a4529464e4629c21224b3d52edfe0ea91b072862
   subpackages:
   - pkg/api/legacyscheme
+- name: kmodules.xyz/custom-resources
+  version: c4335a2fa9b1d61c2d2edeee8fa1a9bf732abceb
+  repo: https://github.com/kmodules/custom-resources.git
+  vcs: git
+  subpackages:
+  - apis/appcatalog
+  - apis/appcatalog/v1alpha1
+  - client/clientset/versioned
+  - client/clientset/versioned/fake
+  - client/clientset/versioned/scheme
+  - client/clientset/versioned/typed/appcatalog/v1alpha1
+  - client/clientset/versioned/typed/appcatalog/v1alpha1/fake
 - name: kmodules.xyz/offshoot-api
-  version: 855b730d52eafc29c891f4e184cca154999c014b
+  version: 19332f50ff9b7d684402d5a9e604815391f5900b
   repo: https://github.com/kmodules/offshoot-api.git
   vcs: git
   subpackages:
