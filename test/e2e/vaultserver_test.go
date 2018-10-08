@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	timeOut         = 10 * time.Minute
+	timeOut         = 5 * time.Minute
 	pollingInterval = 10 * time.Second
 )
 

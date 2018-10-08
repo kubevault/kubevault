@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 var _ = Describe("VaultPolicy", func() {
@@ -28,11 +29,23 @@ var _ = Describe("VaultPolicy", func() {
 		IsPolicyExistInVault = func(p *api.VaultPolicy) {
 			By(fmt.Sprintf("checking policy(%s) exists in vault", p.OffshootName()))
 			Eventually(func() bool {
-				sr, err := f.KubeClient.CoreV1().Secrets(p.Namespace).Get(p.Spec.Vault.TokenSecret, metav1.GetOptions{})
+				vApp, err := f.GetAppBinding(p.Spec.VaultAppRef.Name, p.Spec.VaultAppRef.Namespace)
 				if err != nil {
 					return false
 				}
-				vc, err := framework.GetVaultClient(p.Spec.Vault.Address, string(sr.Data["token"]))
+				sr, err := f.KubeClient.CoreV1().Secrets(p.Namespace).Get(vApp.Spec.Secret.Name, metav1.GetOptions{})
+				if err != nil {
+					return false
+				}
+				var addr string
+				cfg := vApp.Spec.ClientConfig
+				if cfg.URL != nil {
+					addr = *cfg.URL
+				} else {
+					Expect(len(cfg.Ports) == 1).NotTo(BeTrue(), "number of port is zero or more than one")
+					addr = fmt.Sprintf("%s.%s.svc:%d", cfg.Service.Name, vApp.Namespace, cfg.Ports[0].Port)
+				}
+				vc, err := framework.GetVaultClient(addr, string(sr.Data["token"]))
 				if err != nil {
 					return false
 				}
@@ -43,11 +56,23 @@ var _ = Describe("VaultPolicy", func() {
 		IsPolicyUpdatedInVault = func(p *api.VaultPolicy, plcy string) {
 			By(fmt.Sprintf("checking policy(%s) exists in vault", p.OffshootName()))
 			Eventually(func() bool {
-				sr, err := f.KubeClient.CoreV1().Secrets(p.Namespace).Get(p.Spec.Vault.TokenSecret, metav1.GetOptions{})
+				vApp, err := f.GetAppBinding(p.Spec.VaultAppRef.Name, p.Spec.VaultAppRef.Namespace)
 				if err != nil {
 					return false
 				}
-				vc, err := framework.GetVaultClient(p.Spec.Vault.Address, string(sr.Data["token"]))
+				sr, err := f.KubeClient.CoreV1().Secrets(p.Namespace).Get(vApp.Spec.Secret.Name, metav1.GetOptions{})
+				if err != nil {
+					return false
+				}
+				var addr string
+				cfg := vApp.Spec.ClientConfig
+				if cfg.URL != nil {
+					addr = *cfg.URL
+				} else {
+					Expect(len(cfg.Ports) == 1).NotTo(BeTrue(), "number of port is zero or more than one")
+					addr = fmt.Sprintf("%s.%s.svc:%d", cfg.Service.Name, vApp.Namespace, cfg.Ports[0].Port)
+				}
+				vc, err := framework.GetVaultClient(addr, string(sr.Data["token"]))
 				if err != nil {
 					return false
 				}
@@ -64,7 +89,7 @@ var _ = Describe("VaultPolicy", func() {
 		time.Sleep(5 * time.Second)
 	})
 
-	Describe("Create and Update VaultPolicy", func() {
+	FDescribe("Create and Update VaultPolicy", func() {
 		Context("Create", func() {
 			var (
 				vPolicy *api.VaultPolicy
@@ -72,7 +97,7 @@ var _ = Describe("VaultPolicy", func() {
 
 			BeforeEach(func() {
 				plcy := "{}"
-				vPolicy = f.VaultPolicy(plcy, f.VaultUrl, framework.VaultTokenSecret)
+				vPolicy = f.VaultPolicy(plcy, f.VaultAppRef)
 			})
 			AfterEach(func() {
 				Expect(f.DeleteVaultPolicy(vPolicy.ObjectMeta)).NotTo(HaveOccurred())
@@ -96,7 +121,7 @@ var _ = Describe("VaultPolicy", func() {
 				plcy := `path "secret/*" {
 			   		capabilities = ["create", "read", "update", "delete", "list"]
 	 			}`
-				vPolicy = f.VaultPolicy(plcy, f.VaultUrl, framework.VaultTokenSecret)
+				vPolicy = f.VaultPolicy(plcy, f.VaultAppRef)
 				_, err := f.CreateVaultPolicy(vPolicy)
 				Expect(err).NotTo(HaveOccurred())
 				IsPolicyExistInVault(vPolicy)
@@ -127,7 +152,10 @@ var _ = Describe("VaultPolicy", func() {
 				plcy := `path "secret/*" {
 			   		capabilities = ["create", "read", "update", "delete", "list"]
 	 			}`
-				vPolicy = f.VaultPolicy(plcy, "https://invalid.com:8200", framework.VaultTokenSecret)
+				vPolicy = f.VaultPolicy(plcy, &appcat.AppReference{
+					Name:      "invalid",
+					Namespace: f.Namespace(),
+				})
 				_, err := f.CreateVaultPolicy(vPolicy)
 				Expect(err).NotTo(HaveOccurred())
 				time.Sleep(1 * time.Second)

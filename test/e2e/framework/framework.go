@@ -14,6 +14,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	ka "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
 
 const (
@@ -24,16 +26,17 @@ const (
 type Framework struct {
 	KubeClient      kubernetes.Interface
 	CSClient        cs.Interface
+	AppcatClient    appcat_cs.AppcatalogV1alpha1Interface
 	KAClient        ka.Interface
 	namespace       string
 	CertStore       *certstore.CertStore
 	WebhookEnabled  bool
 	ClientConfig    *rest.Config
 	RunDynamoDBTest bool
-	VaultUrl        string
+	VaultAppRef     *appcat.AppReference
 }
 
-func New(kubeClient kubernetes.Interface, extClient cs.Interface, kaClient ka.Interface, webhookEnabled bool, clientConfig *rest.Config, runDynamoDBTest bool) *Framework {
+func New(kubeClient kubernetes.Interface, extClient cs.Interface, appc appcat_cs.AppcatalogV1alpha1Interface, kaClient ka.Interface, webhookEnabled bool, clientConfig *rest.Config, runDynamoDBTest bool) *Framework {
 	store, err := certstore.NewCertStore(afero.NewMemMapFs(), filepath.Join("", "pki"))
 	Expect(err).NotTo(HaveOccurred())
 
@@ -43,6 +46,7 @@ func New(kubeClient kubernetes.Interface, extClient cs.Interface, kaClient ka.In
 	return &Framework{
 		KubeClient:      kubeClient,
 		CSClient:        extClient,
+		AppcatClient:    appc,
 		KAClient:        kaClient,
 		namespace:       rand.WithUniqSuffix("test-vault"),
 		CertStore:       store,
@@ -54,11 +58,11 @@ func New(kubeClient kubernetes.Interface, extClient cs.Interface, kaClient ka.In
 
 func (f *Framework) InitialSetup() error {
 	var err error
-	f.VaultUrl, err = f.DeployVault()
+	f.VaultAppRef, err = f.DeployVault()
 	if err != nil {
 		return err
 	}
-	fmt.Println(f.VaultUrl)
+	fmt.Println(f.VaultAppRef)
 	return nil
 }
 
