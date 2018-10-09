@@ -49,7 +49,7 @@ func (c *VaultController) runVaultPolicyInjector(key string) error {
 				// Finalize VaultPolicy
 				go c.runPolicyFinalizer(vPolicy, 1*time.Minute, 5*time.Second)
 			} else {
-				glog.Infoln("Finalizer not found for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
+				glog.Infof("Finalizer not found for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
 			}
 		} else {
 			if !core_util.HasFinalizer(vPolicy.ObjectMeta, VaultPolicyFinalizer) {

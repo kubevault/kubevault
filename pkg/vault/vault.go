@@ -118,7 +118,7 @@ func getAddress(app *appcat.AppBinding) (string, error) {
 				return "", errors.New("url scheme is not specified")
 			}
 
-			addr := fmt.Sprintf("%s://%s:%d", cfg.Scheme, host, port)
+			addr := fmt.Sprintf("%s://%s:%d", strings.ToLower(cfg.Scheme), host, port)
 			if cfg.Service.Path != nil {
 				addr = filepath.Join(addr, *cfg.Service.Path)
 			}

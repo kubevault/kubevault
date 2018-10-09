@@ -1,5 +1,5 @@
 hash: 1ea4abdcecd5da793bce45e00b627eb8134e4963beb77b4c4941a8401b1f0340
-updated: 2018-10-08T14:38:40.25168841+06:00
+updated: 2018-10-09T10:29:38.025184206+06:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -35,7 +35,7 @@ imports:
   - admission/v1beta1
   - registry/admissionreview/v1beta1
 - name: github.com/appscode/kutil
-  version: cad796a750d7b905cdccdff9c85f333607757cbf
+  version: 76382d5913229f319bd4558a60b80605de9fa63c
   subpackages:
   - admissionregistration/v1beta1
   - apiextensions/v1beta1
@@ -647,6 +647,7 @@ imports:
   - pkg/util/httpstream/spdy
   - pkg/util/intstr
   - pkg/util/json
+  - pkg/util/jsonmergepatch
   - pkg/util/mergepatch
   - pkg/util/net
   - pkg/util/rand
@@ -965,6 +966,7 @@ imports:
   - client/clientset/versioned/scheme
   - client/clientset/versioned/typed/appcatalog/v1alpha1
   - client/clientset/versioned/typed/appcatalog/v1alpha1/fake
+  - client/clientset/versioned/typed/appcatalog/v1alpha1/util
 - name: kmodules.xyz/offshoot-api
   version: 19332f50ff9b7d684402d5a9e604815391f5900b
   repo: https://github.com/kmodules/offshoot-api.git

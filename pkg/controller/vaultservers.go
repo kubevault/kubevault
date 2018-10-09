@@ -69,6 +69,7 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 // reconcileVault reconciles the vault cluster's state to the spec specified by v
 // by preparing the TLS secrets, deploying vault cluster,
 // and finally updating the vault deployment if needed.
+// It also creates AppBinding containing vault connection configuration
 func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 	status := vs.Status
 
@@ -115,6 +116,24 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 				Type:    api.VaultServerConditionFailure,
 				Status:  core.ConditionTrue,
 				Reason:  "FailedToDeployVault",
+				Message: err.Error(),
+			},
+		}
+
+		err2 := c.updatedVaultServerStatus(&status, vs)
+		if err2 != nil {
+			return errors.Wrap(err2, "failed to update status")
+		}
+		return errors.Wrap(err, "failed to deploy vault")
+	}
+
+	err = c.ensureAppBinding(vs, v)
+	if err != nil {
+		status.Conditions = []api.VaultServerCondition{
+			{
+				Type:    api.VaultServerConditionFailure,
+				Status:  core.ConditionTrue,
+				Reason:  "FailedToCreateAppBinding",
 				Message: err.Error(),
 			},
 		}
