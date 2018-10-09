@@ -13303,14 +13303,14 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_ClientConfig(ref common.Re
 							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.ServiceReference"),
 						},
 					},
-					"InsecureSkipTLSVerify": {
+					"insecureSkipTLSVerify": {
 						SchemaProps: spec.SchemaProps{
 							Description: "InsecureSkipTLSVerify disables TLS certificate verification when communicating with this app. This is strongly discouraged.  You should use the CABundle instead.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
-					"CABundle": {
+					"caBundle": {
 						SchemaProps: spec.SchemaProps{
 							Description: "CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate of this app.",
 							Type:        []string{"string"},
@@ -13336,8 +13336,14 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_ClientConfig(ref common.Re
 							},
 						},
 					},
+					"scheme": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies which scheme to use, for example: http, https If specified, then it will applied as prefix in this format: scheme:// If not specified, then nothing will be prefixed",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
-				Required: []string{"InsecureSkipTLSVerify"},
 			},
 		},
 		Dependencies: []string{

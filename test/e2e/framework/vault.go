@@ -149,7 +149,6 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 			ClientConfig: appcat.ClientConfig{
 				URL: &url,
 				InsecureSkipTLSVerify: true,
-				CABundle:              []byte("CA"),
 			},
 		},
 	})

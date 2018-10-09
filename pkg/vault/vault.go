@@ -58,30 +58,12 @@ func NewClient(kc kubernetes.Interface, appc appcat_cs.AppcatalogV1alpha1Interfa
 }
 
 func newVaultConfig(kc kubernetes.Interface, vApp *appcat.AppBinding) (*vaultapi.Config, error) {
+	var err error
 	clientCfg := vApp.Spec.ClientConfig
 	cfg := vaultapi.DefaultConfig()
-	if clientCfg.URL == nil {
-		if clientCfg.Service != nil {
-			host := fmt.Sprintf("%s.%s.svc", clientCfg.Service.Name, vApp.Namespace)
-			var port int32
-			for _, p := range clientCfg.Ports {
-				if strings.ToLower(p.Name) == "client" {
-					port = p.Port
-				}
-			}
-			if port == 0 {
-				return nil, errors.New("client port for vault doesn't provided")
-			}
-			addr := fmt.Sprintf("%s:%d", host, port)
-			if clientCfg.Service.Path != nil {
-				addr = filepath.Join(addr, *clientCfg.Service.Path)
-			}
-			cfg.Address = addr
-		} else {
-			return nil, errors.New("vault address is not found")
-		}
-	} else {
-		cfg.Address = *clientCfg.URL
+	cfg.Address, err = getAddress(vApp)
+	if err != nil {
+		return nil, err
 	}
 
 	clientTLSConfig := cfg.HttpClient.Transport.(*http.Transport).TLSClientConfig
@@ -98,7 +80,6 @@ func newVaultConfig(kc kubernetes.Interface, vApp *appcat.AppBinding) (*vaultapi
 		}
 	}
 
-	var err error
 	clientTLSConfig.ServerName, err = getHostName(cfg.Address)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get hostname from url %s", cfg.Address)
@@ -113,4 +94,39 @@ func getHostName(addr string) (string, error) {
 		return "", errors.WithStack(err)
 	}
 	return u.Hostname(), nil
+}
+
+func getAddress(app *appcat.AppBinding) (string, error) {
+	cfg := app.Spec.ClientConfig
+	if cfg.URL == nil {
+		if cfg.Service != nil {
+			host := fmt.Sprintf("%s.%s.svc", cfg.Service.Name, app.Namespace)
+			var port int32
+			if len(cfg.Ports) == 1 {
+				port = cfg.Ports[0].Port
+			} else {
+				for _, p := range cfg.Ports {
+					if strings.ToLower(p.Name) == "client" {
+						port = p.Port
+					}
+				}
+			}
+			if port == 0 {
+				return "", errors.New("client port for vault doesn't provided")
+			}
+			if cfg.Scheme == "" {
+				return "", errors.New("url scheme is not specified")
+			}
+
+			addr := fmt.Sprintf("%s://%s:%d", cfg.Scheme, host, port)
+			if cfg.Service.Path != nil {
+				addr = filepath.Join(addr, *cfg.Service.Path)
+			}
+			return addr, nil
+		} else {
+			return "", errors.New("vault address is not found")
+		}
+	} else {
+		return *cfg.URL, nil
+	}
 }

@@ -4,6 +4,7 @@ metadata:
   name: kubevault:core:admin
   labels:
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
+rules:
 - apiGroups:
   - kubevault.com
   - catalog.kubevault.com

@@ -91,16 +91,21 @@ type ClientConfig struct {
 
 	// InsecureSkipTLSVerify disables TLS certificate verification when communicating with this app.
 	// This is strongly discouraged.  You should use the CABundle instead.
-	InsecureSkipTLSVerify bool
+	InsecureSkipTLSVerify bool `json:"insecureSkipTLSVerify,omitempty"`
 
 	// CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate of this app.
 	// +optional
-	CABundle []byte
+	CABundle []byte `json:"caBundle,omitempty"`
 
 	// The list of ports that are exposed by this app.
 	// +patchMergeKey=port
 	// +patchStrategy=merge
 	Ports []AppPort `json:"ports,omitempty" patchStrategy:"merge" patchMergeKey:"port"`
+
+	// Specifies which scheme to use, for example: http, https
+	// If specified, then it will applied as prefix in this format: scheme://
+	// If not specified, then nothing will be prefixed
+	Scheme string `json:"scheme,omitempty"`
 }
 
 // ServiceReference holds a reference to Service.legacy.k8s.io

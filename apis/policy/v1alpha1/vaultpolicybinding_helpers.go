@@ -30,7 +30,7 @@ func (v VaultPolicyBinding) CustomResourceDefinition() *apiextensions.CustomReso
 	return crdutils.NewCustomResourceDefinition(crdutils.Config{
 		Group:         SchemeGroupVersion.Group,
 		Plural:        ResourceVaultPolicyBindings,
-		Singular:      ResourceVaultPolicyBindings,
+		Singular:      ResourceVaultPolicyBinding,
 		Kind:          ResourceKindVaultPolicyBinding,
 		ShortNames:    []string{"vpb"},
 		Categories:    []string{"vault", "appscode", "all"},

@@ -5,6 +5,7 @@ import (
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 )
 
 const (
@@ -43,7 +44,11 @@ func (f *Framework) GetVaultServer(obj *api.VaultServer) (*api.VaultServer, erro
 }
 
 func (f *Framework) UpdateVaultServer(obj *api.VaultServer) (*api.VaultServer, error) {
-	return f.CSClient.KubevaultV1alpha1().VaultServers(obj.Namespace).Update(obj)
+	vs, _, err := patchutil.PatchVaultServer(f.CSClient.KubevaultV1alpha1(), obj, func(vs *api.VaultServer) *api.VaultServer {
+		vs.Spec = obj.Spec
+		return vs
+	})
+	return vs, err
 }
 
 func (f *Framework) DeleteVaultServer(meta metav1.ObjectMeta) error {

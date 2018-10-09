@@ -1,5 +1,5 @@
 hash: 1ea4abdcecd5da793bce45e00b627eb8134e4963beb77b4c4941a8401b1f0340
-updated: 2018-10-05T17:51:32.999182424+06:00
+updated: 2018-10-08T14:38:40.25168841+06:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -35,7 +35,7 @@ imports:
   - admission/v1beta1
   - registry/admissionreview/v1beta1
 - name: github.com/appscode/kutil
-  version: d6914a165524f1ec2009f2f7c5901ab4223ab3d5
+  version: cad796a750d7b905cdccdff9c85f333607757cbf
   subpackages:
   - admissionregistration/v1beta1
   - apiextensions/v1beta1
@@ -262,10 +262,6 @@ imports:
   - cmp/internal/diff
   - cmp/internal/function
   - cmp/internal/value
-- name: github.com/google/go-querystring
-  version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
-  subpackages:
-  - query
 - name: github.com/google/gofuzz
   version: 44d81051d367757e1c7c6a5a86423ece9afcf63c
 - name: github.com/google/uuid
@@ -456,8 +452,6 @@ imports:
   version: ded73eae5db7e7a0ef6f55aace87a2873c5d2b74
   subpackages:
   - codec
-- name: github.com/xanzy/go-gitlab
-  version: b3618c7c81a14bc59d49e181d9ce7dbab91f148c
 - name: github.com/yudai/gojsondiff
   version: 0525c875b75ca60b9e67ddc44496aa16f21066b0
   subpackages:
@@ -960,7 +954,7 @@ imports:
   subpackages:
   - pkg/api/legacyscheme
 - name: kmodules.xyz/custom-resources
-  version: c4335a2fa9b1d61c2d2edeee8fa1a9bf732abceb
+  version: be9753da9238b6ff27adaf745d2c9c903310d6ed
   repo: https://github.com/kmodules/custom-resources.git
   vcs: git
   subpackages:

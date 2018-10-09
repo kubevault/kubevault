@@ -3,7 +3,6 @@ package v1beta1
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/appscode/kutil"
 	watchtools "github.com/appscode/kutil/tools/watch"
@@ -91,7 +90,7 @@ func TryUpdateValidatingWebhookConfiguration(c kubernetes.Interface, name string
 	return
 }
 
-func UpdateValidatingWebhookCABundle(config *rest.Config, name string, extraConditions ...watchtools.ConditionFunc) error {
+func UpdateValidatingWebhookCABundle(config *rest.Config, webhookConfigName string, extraConditions ...watchtools.ConditionFunc) error {
 	ctx := context.Background()
 	ctx, cancel := context.WithTimeout(ctx, kutil.GCTimeout)
 	defer cancel()
@@ -104,17 +103,16 @@ func UpdateValidatingWebhookCABundle(config *rest.Config, name string, extraCond
 	kc := kubernetes.NewForConfigOrDie(config)
 	lw := &cache.ListWatch{
 		ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
-			options.FieldSelector = fields.OneTermEqualSelector(kutil.ObjectNameField, name).String()
+			options.FieldSelector = fields.OneTermEqualSelector(kutil.ObjectNameField, webhookConfigName).String()
 			return kc.AdmissionregistrationV1beta1().ValidatingWebhookConfigurations().List(options)
 		},
 		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
-			options.FieldSelector = fields.OneTermEqualSelector(kutil.ObjectNameField, name).String()
+			options.FieldSelector = fields.OneTermEqualSelector(kutil.ObjectNameField, webhookConfigName).String()
 			return kc.AdmissionregistrationV1beta1().ValidatingWebhookConfigurations().Watch(options)
 		},
 	}
 
-	var conditions = make([]watchtools.ConditionFunc, 0, len(extraConditions)+2)
-	conditions = append(conditions,
+	var conditions = append([]watchtools.ConditionFunc{
 		func(event watch.Event) (bool, error) {
 			switch event.Type {
 			case watch.Deleted:
@@ -133,14 +131,8 @@ func UpdateValidatingWebhookCABundle(config *rest.Config, name string, extraCond
 			default:
 				return false, fmt.Errorf("unexpected event type: %v", event.Type)
 			}
-		})
-	if len(extraConditions) > 0 {
-		conditions = append(conditions, func(event watch.Event) (bool, error) {
-			time.Sleep(kutil.RetryTimeout)
-			return true, nil
-		})
-		conditions = append(conditions, extraConditions...)
-	}
+		},
+	}, extraConditions...)
 
 	_, err = watchtools.UntilWithSync(ctx,
 		lw,
@@ -151,7 +143,7 @@ func UpdateValidatingWebhookCABundle(config *rest.Config, name string, extraCond
 	return err
 }
 
-func SyncValidatingWebhookCABundle(config *rest.Config, name string) (cancel context.CancelFunc, err error) {
+func SyncValidatingWebhookCABundle(config *rest.Config, webhookConfigName string) (cancel context.CancelFunc, err error) {
 	ctx := context.Background()
 	ctx, cancel = context.WithCancel(ctx)
 
@@ -163,11 +155,11 @@ func SyncValidatingWebhookCABundle(config *rest.Config, name string) (cancel con
 	kc := kubernetes.NewForConfigOrDie(config)
 	lw := &cache.ListWatch{
 		ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
-			options.FieldSelector = fields.OneTermEqualSelector(kutil.ObjectNameField, name).String()
+			options.FieldSelector = fields.OneTermEqualSelector(kutil.ObjectNameField, webhookConfigName).String()
 			return kc.AdmissionregistrationV1beta1().ValidatingWebhookConfigurations().List(options)
 		},
 		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
-			options.FieldSelector = fields.OneTermEqualSelector(kutil.ObjectNameField, name).String()
+			options.FieldSelector = fields.OneTermEqualSelector(kutil.ObjectNameField, webhookConfigName).String()
 			return kc.AdmissionregistrationV1beta1().ValidatingWebhookConfigurations().Watch(options)
 		},
 	}

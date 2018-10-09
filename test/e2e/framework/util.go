@@ -15,16 +15,20 @@ func deleteInForeground() *metav1.DeleteOptions {
 	return &metav1.DeleteOptions{PropagationPolicy: &policy}
 }
 
-func GetVaultClient(addr, token string) (*vaultapi.Client, error) {
-	cfg := vaultapi.DefaultConfig()
-	cfg.Address = addr
-	cfg.ConfigureTLS(&vaultapi.TLSConfig{
-		Insecure: true,
-	})
-	vc, err := vaultapi.NewClient(cfg)
+func EnsureKubernetesAuth(vc *vaultapi.Client) error {
+	authList, err := vc.Sys().ListAuth()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	vc.SetToken(token)
-	return vc, nil
+	for _, v := range authList {
+		if v.Type == "kubernetes" {
+			// kubernetes auth already enabled
+			return nil
+		}
+	}
+
+	err = vc.Sys().EnableAuthWithOptions("kubernetes", &vaultapi.EnableAuthOptions{
+		Type: "kubernetes",
+	})
+	return err
 }
