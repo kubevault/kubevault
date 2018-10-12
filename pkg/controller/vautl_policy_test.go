@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/appscode/pat"
+	"github.com/kubevault/operator/apis"
 	policyapi "github.com/kubevault/operator/apis/policy/v1alpha1"
 	csfake "github.com/kubevault/operator/client/clientset/versioned/fake"
 	"github.com/kubevault/operator/pkg/vault/policy"
@@ -17,7 +18,6 @@ import (
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcatfake "kmodules.xyz/custom-resources/client/clientset/versioned/fake"
-	"github.com/kubevault/operator/apis"
 )
 
 type fakePolicy struct {
