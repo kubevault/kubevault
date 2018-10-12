@@ -11,6 +11,9 @@ import (
 	"github.com/appscode/pat"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
+	core "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 const authResp = `
@@ -93,21 +96,28 @@ func TestAuth_Login(t *testing.T) {
 
 func TestLogin(t *testing.T) {
 	addr := os.Getenv("VAULT_ADDR")
-	jwt := os.Getenv("JWT")
-	role := os.Getenv("ROLE")
+	jwt := os.Getenv("K8S_JWT")
+	role := os.Getenv("VAULT_ROLE")
 	if addr == "" || jwt == "" || role == "" {
 		t.Skip()
 	}
-	vc, err := vaultapi.NewClient(vaultapi.DefaultConfig())
-	vc.SetAddress(addr)
+
+	au, err := New(&appcat.AppBinding{
+		Spec: appcat.AppBindingSpec{
+			ClientConfig: appcat.ClientConfig{
+				URL: &addr,
+			},
+			Parameters: &runtime.RawExtension{
+				Raw: []byte(fmt.Sprintf(`{ "role" : "%s"}`, role)),
+			},
+		},
+	}, &core.Secret{
+		Data: map[string][]byte{
+			"token": []byte(jwt),
+		},
+	})
 	if !assert.Nil(t, err) {
 		return
-	}
-
-	au := &auth{
-		vClient: vc,
-		jwt:     jwt,
-		role:    role,
 	}
 
 	token, err := au.Login()

@@ -20,6 +20,7 @@ package fake
 
 import (
 	catalogv1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
+	configv1alpha1 "github.com/kubevault/operator/apis/config/v1alpha1"
 	kubevaultv1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	policyv1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -53,6 +54,7 @@ func init() {
 // correctly.
 func AddToScheme(scheme *runtime.Scheme) {
 	catalogv1alpha1.AddToScheme(scheme)
+	configv1alpha1.AddToScheme(scheme)
 	kubevaultv1alpha1.AddToScheme(scheme)
 	policyv1alpha1.AddToScheme(scheme)
 }

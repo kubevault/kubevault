@@ -17,6 +17,7 @@ import (
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcatfake "kmodules.xyz/custom-resources/client/clientset/versioned/fake"
+	"github.com/kubevault/operator/apis"
 )
 
 type fakePolicy struct {
@@ -88,7 +89,7 @@ func vaultTokenSecret() *core.Secret {
 			Name:      "vault",
 			Namespace: "test",
 		},
-		Type: "kubevault.com/token",
+		Type: apis.SecretTypeTokenAuth,
 		Data: map[string][]byte{
 			"token": []byte("root"),
 		},

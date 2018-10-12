@@ -21,7 +21,7 @@ docker run --rm -ti -u $(id -u):$(id -g) \
   appscode/gengo:release-1.11 "$DOCKER_CODEGEN_PKG"/generate-groups.sh "deepcopy,client,informer,lister" \
   github.com/kubevault/operator/client \
   github.com/kubevault/operator/apis \
-  "kubevault:v1alpha1 catalog:v1alpha1 policy:v1alpha1" \
+  "kubevault:v1alpha1 catalog:v1alpha1 config:v1alpha1 policy:v1alpha1" \
   --go-header-file "$DOCKER_REPO_ROOT/hack/gengo/boilerplate.go.txt"
 
 # Generate openapi

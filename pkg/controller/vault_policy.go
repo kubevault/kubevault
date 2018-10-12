@@ -84,7 +84,7 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 
 	// create or update policy
 	// its safe to call multiple times
-	err := pClient.EnsurePolicy(vPolicy.OffshootName(), vPolicy.Spec.Policy)
+	err := pClient.EnsurePolicy(vPolicy.PolicyName(), vPolicy.Spec.Policy)
 	if err != nil {
 		status.Status = policyapi.PolicyFailed
 		status.Conditions = []policyapi.PolicyCondition{
@@ -196,5 +196,5 @@ func (c *VaultController) finalizePolicy(vPolicy *policyapi.VaultPolicy) error {
 	if err != nil {
 		return err
 	}
-	return pClient.DeletePolicy(vPolicy.OffshootName())
+	return pClient.DeletePolicy(vPolicy.PolicyName())
 }

@@ -28,26 +28,26 @@ var _ = Describe("VaultPolicy", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("VaultPolicy (%s/%s) should not exists", namespace, name))
 		}
 		IsPolicyExistInVault = func(p *api.VaultPolicy) {
-			By(fmt.Sprintf("checking policy(%s) exists in vault", p.OffshootName()))
+			By(fmt.Sprintf("checking policy(%s) exists in vault", p.PolicyName()))
 			Eventually(func() bool {
 				vc, err := vault.NewClient(f.KubeClient, f.AppcatClient, f.VaultAppRef)
 				if err != nil {
 					return false
 				}
-				_, err = vc.Sys().GetPolicy(p.OffshootName())
+				_, err = vc.Sys().GetPolicy(p.PolicyName())
 				return err == nil
-			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("policy(%s) should exists in vault", p.OffshootName()))
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("policy(%s) should exists in vault", p.PolicyName()))
 		}
 		IsPolicyUpdatedInVault = func(p *api.VaultPolicy, plcy string) {
-			By(fmt.Sprintf("checking policy(%s) exists in vault", p.OffshootName()))
+			By(fmt.Sprintf("checking policy(%s) exists in vault", p.PolicyName()))
 			Eventually(func() bool {
 				vc, err := vault.NewClient(f.KubeClient, f.AppcatClient, f.VaultAppRef)
 				if err != nil {
 					return false
 				}
-				p, err := vc.Sys().GetPolicy(p.OffshootName())
+				p, err := vc.Sys().GetPolicy(p.PolicyName())
 				return err == nil && p == plcy
-			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("policy(%s) should exists in vault", p.OffshootName()))
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("policy(%s) should exists in vault", p.PolicyName()))
 		}
 		IsVaultPolicyBindingDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for VaultPolicyBinding (%s/%s) to delete", namespace, name))

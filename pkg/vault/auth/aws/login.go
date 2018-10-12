@@ -11,6 +11,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/helper/awsutil"
+	"github.com/kubevault/operator/apis"
+	config "github.com/kubevault/operator/apis/config/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/auth/types"
 	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
@@ -25,11 +27,6 @@ type auth struct {
 	creds       *credentials.Credentials
 	headerValue string
 	role        string
-}
-
-type params struct {
-	Role        string `json:"role"`
-	HeaderValue string `json:"header_value,omitempty"`
 }
 
 // links : https://www.vaultproject.io/docs/auth/aws.html
@@ -49,18 +46,18 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
-	accessKeyID, ok := secret.Data["access_key_id"]
+	accessKeyID, ok := secret.Data[apis.AWSAuthAccessKeyIDKey]
 	if !ok {
 		return nil, errors.New("access_key_id is missing")
 	}
-	secretAccessKey, ok := secret.Data["secret_access_key"]
+	secretAccessKey, ok := secret.Data[apis.AWSAuthAccessSecretKey]
 	if !ok {
 		return nil, errors.New("secret_access_key is missing")
 	}
-	securityToken := secret.Data["security_token"]
+	securityToken := secret.Data[apis.AWSAuthSecurityTokenKey]
 
-	var p params
-	err = json.Unmarshal(vApp.Spec.Parameters.Raw, &p)
+	var cf config.AWSAuthConfiguration
+	err = json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal parameters")
 	}
@@ -73,8 +70,8 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	return &auth{
 		vClient:     vc,
 		creds:       creds,
-		role:        string(p.Role),
-		headerValue: string(p.HeaderValue),
+		role:        string(cf.Role),
+		headerValue: string(cf.HeaderValue),
 	}, nil
 }
 

@@ -20,6 +20,7 @@ package versioned
 
 import (
 	catalogv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/catalog/v1alpha1"
+	configv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/config/v1alpha1"
 	kubevaultv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
 	policyv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1"
 	discovery "k8s.io/client-go/discovery"
@@ -32,6 +33,9 @@ type Interface interface {
 	CatalogV1alpha1() catalogv1alpha1.CatalogV1alpha1Interface
 	// Deprecated: please explicitly pick a version if possible.
 	Catalog() catalogv1alpha1.CatalogV1alpha1Interface
+	ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface
+	// Deprecated: please explicitly pick a version if possible.
+	Config() configv1alpha1.ConfigV1alpha1Interface
 	KubevaultV1alpha1() kubevaultv1alpha1.KubevaultV1alpha1Interface
 	// Deprecated: please explicitly pick a version if possible.
 	Kubevault() kubevaultv1alpha1.KubevaultV1alpha1Interface
@@ -45,6 +49,7 @@ type Interface interface {
 type Clientset struct {
 	*discovery.DiscoveryClient
 	catalogV1alpha1   *catalogv1alpha1.CatalogV1alpha1Client
+	configV1alpha1    *configv1alpha1.ConfigV1alpha1Client
 	kubevaultV1alpha1 *kubevaultv1alpha1.KubevaultV1alpha1Client
 	policyV1alpha1    *policyv1alpha1.PolicyV1alpha1Client
 }
@@ -58,6 +63,17 @@ func (c *Clientset) CatalogV1alpha1() catalogv1alpha1.CatalogV1alpha1Interface {
 // Please explicitly pick a version.
 func (c *Clientset) Catalog() catalogv1alpha1.CatalogV1alpha1Interface {
 	return c.catalogV1alpha1
+}
+
+// ConfigV1alpha1 retrieves the ConfigV1alpha1Client
+func (c *Clientset) ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface {
+	return c.configV1alpha1
+}
+
+// Deprecated: Config retrieves the default version of ConfigClient.
+// Please explicitly pick a version.
+func (c *Clientset) Config() configv1alpha1.ConfigV1alpha1Interface {
+	return c.configV1alpha1
 }
 
 // KubevaultV1alpha1 retrieves the KubevaultV1alpha1Client
@@ -102,6 +118,10 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	if err != nil {
 		return nil, err
 	}
+	cs.configV1alpha1, err = configv1alpha1.NewForConfig(&configShallowCopy)
+	if err != nil {
+		return nil, err
+	}
 	cs.kubevaultV1alpha1, err = kubevaultv1alpha1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
@@ -123,6 +143,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
 	cs.catalogV1alpha1 = catalogv1alpha1.NewForConfigOrDie(c)
+	cs.configV1alpha1 = configv1alpha1.NewForConfigOrDie(c)
 	cs.kubevaultV1alpha1 = kubevaultv1alpha1.NewForConfigOrDie(c)
 	cs.policyV1alpha1 = policyv1alpha1.NewForConfigOrDie(c)
 
@@ -134,6 +155,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
 	cs.catalogV1alpha1 = catalogv1alpha1.New(c)
+	cs.configV1alpha1 = configv1alpha1.New(c)
 	cs.kubevaultV1alpha1 = kubevaultv1alpha1.New(c)
 	cs.policyV1alpha1 = policyv1alpha1.New(c)
 

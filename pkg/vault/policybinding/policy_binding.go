@@ -55,8 +55,8 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 			}
 		}
 		// add vault policy name
-		// VaultPolicy.OffshootName() is used to create policy in vault
-		pb.policies = append(pb.policies, plcy.OffshootName())
+		// VaultPolicy.PolicyName() is used to create policy in vault
+		pb.policies = append(pb.policies, plcy.PolicyName())
 	}
 
 	var err error

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	vaultapi "github.com/hashicorp/vault/api"
+	config "github.com/kubevault/operator/apis/config/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/auth/types"
 	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
@@ -16,10 +17,6 @@ import (
 type auth struct {
 	vClient *vaultapi.Client
 	name    string
-}
-
-type params struct {
-	Name string `json:"name,omitempty"`
 }
 
 // links : https://www.vaultproject.io/docs/auth/aws.html
@@ -33,7 +30,7 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	clientTLSConfig := cfg.HttpClient.Transport.(*http.Transport).TLSClientConfig
 	clientTLSConfig.InsecureSkipVerify = true
 	clientTLSConfig.GetClientCertificate = func(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
-		cert, err := tls.X509KeyPair(secret.Data["tls.crt"], secret.Data["tls.key"])
+		cert, err := tls.X509KeyPair(secret.Data[core.TLSCertKey], secret.Data[core.TLSPrivateKeyKey])
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
@@ -45,9 +42,9 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
-	var p params
+	var cf config.CertAuthConfiguration
 	if vApp.Spec.Parameters != nil {
-		err = json.Unmarshal(vApp.Spec.Parameters.Raw, &p)
+		err = json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to unmarshal parameters")
 		}
@@ -55,7 +52,7 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 
 	return &auth{
 		vClient: vc,
-		name:    p.Name,
+		name:    cf.Name,
 	}, nil
 }
 

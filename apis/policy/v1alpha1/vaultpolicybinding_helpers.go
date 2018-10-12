@@ -11,8 +11,12 @@ func (v VaultPolicyBinding) GetKey() string {
 	return v.Namespace + "/" + v.Name
 }
 
-func (v VaultPolicyBinding) OffshootName() string {
-	return "vpb" + v.ClusterName + "-" + v.Namespace + "-" + v.Name
+func (v VaultPolicyBinding) PolicyBindingName() string {
+	cluster := "-"
+	if v.ClusterName != "" {
+		cluster = v.ClusterName
+	}
+	return "k8s." + cluster + "." + v.Namespace + "." + v.Name
 }
 
 func (v VaultPolicyBinding) OffshootSelectors() map[string]string {

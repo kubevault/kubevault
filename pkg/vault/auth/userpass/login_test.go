@@ -93,8 +93,8 @@ func TestAuth_Login(t *testing.T) {
 
 func TestLogin(t *testing.T) {
 	addr := os.Getenv("VAULT_ADDR")
-	user := os.Getenv("USER")
-	pass := os.Getenv("PASSWORD")
+	user := os.Getenv("VAULT_USERNAME")
+	pass := os.Getenv("VAULT_PASSWORD")
 	if addr == "" || user == "" || pass == "" {
 		t.Skip()
 	}

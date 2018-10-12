@@ -83,7 +83,7 @@ func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBi
 
 	// create or update policy
 	// it's safe to call multiple times
-	err := pBClient.Ensure(vPBind.OffshootName())
+	err := pBClient.Ensure(vPBind.PolicyBindingName())
 	if err != nil {
 		status.Status = policyapi.PolicyBindingFailed
 		status.Conditions = []policyapi.PolicyBindingCondition{
@@ -195,5 +195,5 @@ func (c *VaultController) finalizePolicyBinding(vPBind *policyapi.VaultPolicyBin
 	if err != nil {
 		return err
 	}
-	return pBClient.Delete(vPBind.OffshootName())
+	return pBClient.Delete(vPBind.PolicyBindingName())
 }

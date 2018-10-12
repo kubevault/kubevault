@@ -1,6 +1,7 @@
 package token
 
 import (
+	"github.com/kubevault/operator/apis"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 )
@@ -10,7 +11,7 @@ type auth struct {
 }
 
 func New(secret *core.Secret) (*auth, error) {
-	token, ok := secret.Data["token"]
+	token, ok := secret.Data[apis.TokenAuthTokenKey]
 	if !ok {
 		return nil, errors.New("token is missing")
 	}

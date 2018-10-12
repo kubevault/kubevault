@@ -97,7 +97,7 @@ func TestLogin(t *testing.T) {
 	addr := os.Getenv("VAULT_ADDR")
 	accessKey := os.Getenv("AWS_ACCESS_KEY")
 	secretKey := os.Getenv("AWS_SECRET_KEY")
-	role := os.Getenv("ROLE")
+	role := os.Getenv("VAULT_ROLE")
 	if addr == "" || accessKey == "" || secretKey == "" || role == "" {
 		t.Skip()
 	}

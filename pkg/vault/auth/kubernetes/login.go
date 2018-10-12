@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	vaultapi "github.com/hashicorp/vault/api"
+	config "github.com/kubevault/operator/apis/config/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/auth/types"
 	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
@@ -15,10 +16,6 @@ type auth struct {
 	vClient *vaultapi.Client
 	jwt     string
 	role    string
-}
-
-type params struct {
-	Role string `json:"role"`
 }
 
 func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
@@ -36,20 +33,20 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
-	jwt, ok := secret.Data["token"]
+	jwt, ok := secret.Data[core.ServiceAccountTokenKey]
 	if !ok {
 		return nil, errors.New("jwt is missing")
 	}
 
-	var p params
-	err = json.Unmarshal(vApp.Spec.Parameters.Raw, &p)
+	var cf config.KubernetesAuthConfiguration
+	err = json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal parameters")
 	}
 	return &auth{
 		vClient: vc,
 		jwt:     string(jwt),
-		role:    p.Role,
+		role:    cf.Role,
 	}, nil
 }
 

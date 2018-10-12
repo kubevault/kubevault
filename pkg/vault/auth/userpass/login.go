@@ -29,11 +29,11 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
-	user, ok := secret.Data["username"]
+	user, ok := secret.Data[core.BasicAuthUsernameKey]
 	if !ok {
 		return nil, errors.New("username is missing")
 	}
-	pass, ok := secret.Data["password"]
+	pass, ok := secret.Data[core.BasicAuthPasswordKey]
 	if !ok {
 		return nil, errors.New("password is missing")
 	}

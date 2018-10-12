@@ -1,12 +1,14 @@
 package auth
 
 import (
+	"github.com/kubevault/operator/apis"
 	awsauth "github.com/kubevault/operator/pkg/vault/auth/aws"
 	certauth "github.com/kubevault/operator/pkg/vault/auth/cert"
 	k8sauth "github.com/kubevault/operator/pkg/vault/auth/kubernetes"
 	tokenauth "github.com/kubevault/operator/pkg/vault/auth/token"
 	basicauth "github.com/kubevault/operator/pkg/vault/auth/userpass"
 	"github.com/pkg/errors"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -31,17 +33,18 @@ func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding) (AuthInterface, e
 		return nil, err
 	}
 
-	if secret.Type == "kubernetes.io/basic-auth" {
+	switch secret.Type {
+	case core.SecretTypeBasicAuth:
 		return basicauth.New(vApp, secret)
-	} else if secret.Type == "kubevault.com/service-account" {
-		return k8sauth.New(vApp, secret)
-	} else if secret.Type == "kubevault.com/token" {
-		return tokenauth.New(secret)
-	} else if secret.Type == "kubevault.com/aws" {
-		return awsauth.New(vApp, secret)
-	} else if secret.Type == "kubernetes.io/tls" {
+	case core.SecretTypeTLS:
 		return certauth.New(vApp, secret)
-	} else {
+	case core.SecretTypeServiceAccountToken:
+		return k8sauth.New(vApp, secret)
+	case apis.SecretTypeTokenAuth:
+		return tokenauth.New(secret)
+	case apis.SecretTypeAWSAuth:
+		return awsauth.New(vApp, secret)
+	default:
 		return nil, errors.New("Invalid/Unsupported secret type")
 	}
 }
