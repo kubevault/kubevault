@@ -6,6 +6,7 @@ import (
 	"github.com/kubevault/operator/pkg/vault"
 	"github.com/pkg/errors"
 	"k8s.io/client-go/kubernetes"
+	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
 
 type Policy interface {
@@ -17,12 +18,12 @@ type vPolicy struct {
 	client *vaultapi.Client
 }
 
-func NewPolicyClientForVault(kc kubernetes.Interface, p *api.VaultPolicy) (Policy, error) {
+func NewPolicyClientForVault(kc kubernetes.Interface, appc appcat_cs.AppcatalogV1alpha1Interface, p *api.VaultPolicy) (Policy, error) {
 	if p == nil {
-		return nil, errors.New(".spec.vault is nil")
+		return nil, errors.New("VaultPolicy is nil")
 	}
 
-	vc, err := vault.NewClient(kc, p.Namespace, p.Spec.Vault)
+	vc, err := vault.NewClient(kc, appc, p.Spec.VaultAppRef)
 	if err != nil {
 		return nil, err
 	}

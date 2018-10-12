@@ -23,6 +23,8 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
 
 type VaultController struct {
@@ -33,10 +35,11 @@ type VaultController struct {
 	// cancel their goroutines when they are deleted
 	ctxCancels map[string]context.CancelFunc
 
-	kubeClient kubernetes.Interface
-	extClient  cs.Interface
-	crdClient  crd_cs.ApiextensionsV1beta1Interface
-	recorder   record.EventRecorder
+	kubeClient       kubernetes.Interface
+	extClient        cs.Interface
+	appCatalogClient appcat_cs.AppcatalogV1alpha1Interface
+	crdClient        crd_cs.ApiextensionsV1beta1Interface
+	recorder         record.EventRecorder
 
 	kubeInformerFactory informers.SharedInformerFactory
 	extInformerFactory  vaultinformers.SharedInformerFactory
@@ -51,6 +54,11 @@ type VaultController struct {
 	vplcyInformer cache.SharedIndexInformer
 	vplcyLister   policy_listers.VaultPolicyLister
 
+	// for VaultPolicyBinding
+	vplcyBindingQueue    *queue.Worker
+	vplcyBindingInformer cache.SharedIndexInformer
+	vplcyBindingLister   policy_listers.VaultPolicyBindingLister
+
 	// Contain the currently processing finalizer
 	finalizerInfo *mapFinalizer
 }
@@ -60,6 +68,8 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 		vaultapi.VaultServer{}.CustomResourceDefinition(),
 		catalogapi.VaultServerVersion{}.CustomResourceDefinition(),
 		policyapi.VaultPolicy{}.CustomResourceDefinition(),
+		policyapi.VaultPolicyBinding{}.CustomResourceDefinition(),
+		appcat.AppBinding{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }
@@ -93,6 +103,9 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 
 	//For VaultPolicy
 	go c.vplcyQueue.Run(stopCh)
+
+	//For VaultPolicyBinding
+	go c.vplcyBindingQueue.Run(stopCh)
 
 	<-stopCh
 	glog.Info("Stopping Vault operator")

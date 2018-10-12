@@ -34,6 +34,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&VaultPolicy{},
 		&VaultPolicyList{},
+		&VaultPolicyBinding{},
+		&VaultPolicyBindingList{},
 	)
 
 	scheme.AddKnownTypes(SchemeGroupVersion,

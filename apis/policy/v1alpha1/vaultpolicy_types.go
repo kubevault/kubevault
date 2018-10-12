@@ -4,6 +4,7 @@ import (
 	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 const (
@@ -31,8 +32,9 @@ type VaultPolicySpec struct {
 	// }
 	Policy string `json:"policy"`
 
-	// Vault contains the information that necessary to talk with vault
-	Vault *Vault `json:"vault"`
+	// Vault contains the reference of kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppBinding
+	// which contains information to communicate with vault
+	VaultAppRef *appcat.AppReference `json:"vaultAppRef"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -83,30 +85,4 @@ type PolicyCondition struct {
 
 	// A human readable message indicating details about the transition.
 	Message string `json:"message,omitempty"`
-}
-
-// Vault contains the information that necessary to talk with vault
-type Vault struct {
-	// Specifies the address of the vault server, e.g:'http://127.0.0.1:8200'
-	Address string `json:"address"`
-
-	// Name of the secret containing the vault token
-	// access permission:
-	// secret data:
-	//	- token:<value>
-	TokenSecret string `json:"tokenSecret"`
-
-	// To skip tls verification for vault server
-	SkipTLSVerification bool `json:"skipTLSVerification,omitempty"`
-
-	// Name of the secret containing the ca cert to verify vault server
-	// secret data:
-	//	- ca.crt:<value>
-	ServerCASecret string `json:"server_ca_secret,omitempty"`
-
-	// Name of the secret containing the client.srt and client.key
-	// secret data:
-	//	- client.crt: <value>
-	//	- client.srt: <value>
-	ClientTLSSecret string `json:"clientTLSSecret,omitempty"`
 }

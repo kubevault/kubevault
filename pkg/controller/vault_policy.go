@@ -10,14 +10,12 @@ import (
 	"github.com/golang/glog"
 	"github.com/kubevault/operator/apis"
 	policyapi "github.com/kubevault/operator/apis/policy/v1alpha1"
-	policycs "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1"
 	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
 	"github.com/kubevault/operator/pkg/vault/policy"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
 const (
@@ -32,7 +30,7 @@ func (c *VaultController) initVaultPolicyWatcher() {
 }
 
 // runVaultPolicyInjector gets the vault policy object indexed by the key from cache
-// and initializes, reconciles or garbage collects the vault polciy as needed.
+// and initializes, reconciles or garbage collects the vault policy as needed.
 func (c *VaultController) runVaultPolicyInjector(key string) error {
 	obj, exists, err := c.vplcyInformer.GetIndexer().GetByKey(key)
 	if err != nil {
@@ -51,7 +49,7 @@ func (c *VaultController) runVaultPolicyInjector(key string) error {
 				// Finalize VaultPolicy
 				go c.runPolicyFinalizer(vPolicy, 1*time.Minute, 5*time.Second)
 			} else {
-				glog.Infoln("Finalizer not found for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
+				glog.Infof("Finalizer not found for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
 			}
 		} else {
 			if !core_util.HasFinalizer(vPolicy.ObjectMeta, VaultPolicyFinalizer) {
@@ -65,7 +63,7 @@ func (c *VaultController) runVaultPolicyInjector(key string) error {
 				}
 			}
 
-			pClient, err := policy.NewPolicyClientForVault(c.kubeClient, vPolicy)
+			pClient, err := policy.NewPolicyClientForVault(c.kubeClient, c.appCatalogClient, vPolicy)
 			if err != nil {
 				return errors.Wrapf(err, "for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
 			}
@@ -86,7 +84,7 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 
 	// create or update policy
 	// its safe to call multiple times
-	err := pClient.EnsurePolicy(vPolicy.Name, vPolicy.Spec.Policy)
+	err := pClient.EnsurePolicy(vPolicy.PolicyName(), vPolicy.Spec.Policy)
 	if err != nil {
 		status.Status = policyapi.PolicyFailed
 		status.Conditions = []policyapi.PolicyCondition{
@@ -121,7 +119,7 @@ func (c *VaultController) updatePolicyStatus(status *policyapi.VaultPolicyStatus
 	_, err := patchutil.UpdateVaultPolicyStatus(c.extClient.PolicyV1alpha1(), vPolicy, func(s *policyapi.VaultPolicyStatus) *policyapi.VaultPolicyStatus {
 		s = status
 		return s
-	})
+	}, apis.EnableStatusSubresource)
 	return err
 }
 
@@ -156,7 +154,7 @@ func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy, tim
 		}
 
 		// finalize policy
-		if err := finalizePolicy(c.extClient.PolicyV1alpha1(), c.kubeClient, vPolicy); err == nil {
+		if err := c.finalizePolicy(vPolicy); err == nil {
 			glog.Infof("For VaultPolicy %s/%s: successfully removed policy from vault", vPolicy.Namespace, vPolicy.Name)
 			break
 		} else {
@@ -186,17 +184,17 @@ func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy, tim
 }
 
 // finalizePolicy will delete the policy in vault
-func finalizePolicy(pc policycs.PolicyV1alpha1Interface, kc kubernetes.Interface, vPolicy *policyapi.VaultPolicy) error {
-	out, err := pc.VaultPolicies(vPolicy.Namespace).Get(vPolicy.Name, metav1.GetOptions{})
+func (c *VaultController) finalizePolicy(vPolicy *policyapi.VaultPolicy) error {
+	out, err := c.extClient.PolicyV1alpha1().VaultPolicies(vPolicy.Namespace).Get(vPolicy.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
 		return err
 	}
 
-	pClient, err := policy.NewPolicyClientForVault(kc, out)
+	pClient, err := policy.NewPolicyClientForVault(c.kubeClient, c.appCatalogClient, out)
 	if err != nil {
 		return err
 	}
-	return pClient.DeletePolicy(vPolicy.Name)
+	return pClient.DeletePolicy(vPolicy.PolicyName())
 }

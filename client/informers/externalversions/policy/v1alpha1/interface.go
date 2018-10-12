@@ -26,6 +26,8 @@ import (
 type Interface interface {
 	// VaultPolicies returns a VaultPolicyInformer.
 	VaultPolicies() VaultPolicyInformer
+	// VaultPolicyBindings returns a VaultPolicyBindingInformer.
+	VaultPolicyBindings() VaultPolicyBindingInformer
 }
 
 type version struct {
@@ -42,4 +44,9 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 // VaultPolicies returns a VaultPolicyInformer.
 func (v *version) VaultPolicies() VaultPolicyInformer {
 	return &vaultPolicyInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// VaultPolicyBindings returns a VaultPolicyBindingInformer.
+func (v *version) VaultPolicyBindings() VaultPolicyBindingInformer {
+	return &vaultPolicyBindingInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

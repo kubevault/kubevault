@@ -1,6 +1,8 @@
 package v1alpha1
 
 import (
+	"fmt"
+
 	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
 	meta_util "github.com/appscode/kutil/meta"
 	"github.com/kubevault/operator/apis"
@@ -11,8 +13,12 @@ func (v VaultPolicy) GetKey() string {
 	return v.Namespace + "/" + v.Name
 }
 
-func (v VaultPolicy) OffshootName() string {
-	return v.Name
+func (v VaultPolicy) PolicyName() string {
+	cluster := "-"
+	if v.ClusterName != "" {
+		cluster = v.ClusterName
+	}
+	return fmt.Sprintf("k8s.%s.%s.%s", cluster, v.Namespace, v.Name)
 }
 
 func (v VaultPolicy) OffshootSelectors() map[string]string {

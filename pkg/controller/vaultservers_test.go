@@ -14,6 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/tools/record"
+	appcatfake "kmodules.xyz/custom-resources/client/clientset/versioned/fake"
 )
 
 type vaultFake struct {
@@ -73,6 +74,11 @@ func TestReconcileVault(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "sr-test",
 				Namespace: "test",
+			},
+			Data: map[string][]byte{
+				"ca.crt":     []byte("ca"),
+				"server.crt": []byte("srv"),
+				"server.key": []byte("srv"),
 			},
 		},
 		cm: &core.ConfigMap{
@@ -145,10 +151,11 @@ func TestReconcileVault(t *testing.T) {
 	for _, test := range testData {
 		t.Run(test.name, func(t *testing.T) {
 			vaultCtrl := VaultController{
-				kubeClient: kfake.NewSimpleClientset(),
-				recorder:   record.NewFakeRecorder(0),
-				ctxCancels: map[string]context.CancelFunc{},
-				extClient:  cfake.NewSimpleClientset(),
+				kubeClient:       kfake.NewSimpleClientset(),
+				recorder:         record.NewFakeRecorder(0),
+				ctxCancels:       map[string]context.CancelFunc{},
+				extClient:        cfake.NewSimpleClientset(),
+				appCatalogClient: appcatfake.NewSimpleClientset().AppcatalogV1alpha1(),
 			}
 
 			// to ignore monitorAndUpdateStatus

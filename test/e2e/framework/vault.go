@@ -7,13 +7,13 @@ import (
 	"time"
 
 	"github.com/appscode/go/crypto/rand"
-	vaultapi "github.com/hashicorp/vault/api"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	apps "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 var (
@@ -30,33 +30,33 @@ const (
 //	- create service
 //	- create deployment
 //	- create vault token secret
-func (f *Framework) DeployVault() (string, error) {
+func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 	label := map[string]string{
 		"app": rand.WithUniqSuffix("test-vault"),
 	}
 
-	srv := corev1.Service{
+	srv := core.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: f.namespace,
 			Name:      vaultServiceName,
 		},
-		Spec: corev1.ServiceSpec{
+		Spec: core.ServiceSpec{
 			Selector: label,
-			Ports: []corev1.ServicePort{
+			Ports: []core.ServicePort{
 				{
 					Name:     "http",
-					Protocol: corev1.ProtocolTCP,
+					Protocol: core.ProtocolTCP,
 					Port:     8200,
 					NodePort: nodePort,
 				},
 			},
-			Type: corev1.ServiceTypeNodePort,
+			Type: core.ServiceTypeNodePort,
 		},
 	}
 
 	err := f.CreateService(srv)
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to create service(%s/%s)", srv.Namespace, srv.Name)
+		return nil, errors.Wrapf(err, "failed to create service(%s/%s)", srv.Namespace, srv.Name)
 	}
 
 	d := apps.Deployment{
@@ -69,12 +69,12 @@ func (f *Framework) DeployVault() (string, error) {
 			Selector: &metav1.LabelSelector{
 				MatchLabels: label,
 			},
-			Template: corev1.PodTemplateSpec{
+			Template: core.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: label,
 				},
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
+				Spec: core.PodSpec{
+					Containers: []core.Container{
 						{
 							Name:  "vault",
 							Image: "vault:0.10.3",
@@ -83,7 +83,7 @@ func (f *Framework) DeployVault() (string, error) {
 								"-dev",
 								"-dev-root-token-id=root",
 							},
-							Ports: []corev1.ContainerPort{
+							Ports: []core.ContainerPort{
 								{
 									Name:          "http",
 									ContainerPort: 8200,
@@ -99,11 +99,11 @@ func (f *Framework) DeployVault() (string, error) {
 
 	_, err = f.CreateDeployment(d)
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to create deployment(%s/%s)", d.Namespace, d.Name)
+		return nil, errors.Wrapf(err, "failed to create deployment(%s/%s)", d.Namespace, d.Name)
 	}
 
 	Eventually(func() bool {
-		if obj, err := f.KubeClient.AppsV1beta1().Deployments(f.namespace).Get(d.GetName(), metav1.GetOptions{}); err == nil {
+		if obj, err := f.KubeClient.AppsV1().Deployments(f.namespace).Get(d.GetName(), metav1.GetOptions{}); err == nil {
 			return *obj.Spec.Replicas == obj.Status.ReadyReplicas
 		}
 		return false
@@ -111,11 +111,12 @@ func (f *Framework) DeployVault() (string, error) {
 
 	time.Sleep(10 * time.Second)
 
-	sr := &corev1.Secret{
+	sr := &core.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      VaultTokenSecret,
 			Namespace: f.namespace,
 		},
+		Type: "kubevault.com/token",
 		Data: map[string][]byte{
 			"token": []byte("root"),
 		},
@@ -123,16 +124,39 @@ func (f *Framework) DeployVault() (string, error) {
 
 	_, err = f.KubeClient.CoreV1().Secrets(f.namespace).Create(sr)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	nodePortIP, err := f.getNodePortIP(label)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	url := fmt.Sprintf("http://%s:%d", nodePortIP, nodePort)
 
-	return url, nil
+	appRef := &appcat.AppReference{
+		Name:      rand.WithUniqSuffix("vault-ref"),
+		Namespace: f.namespace,
+	}
+
+	err = f.CreateAppBinding(&appcat.AppBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      appRef.Name,
+			Namespace: f.namespace,
+		},
+		Spec: appcat.AppBindingSpec{
+			Secret: &core.LocalObjectReference{
+				VaultTokenSecret,
+			},
+			ClientConfig: appcat.ClientConfig{
+				URL: &url,
+				InsecureSkipTLSVerify: true,
+			},
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return appRef, nil
 }
 
 func (f *Framework) DeleteVault() error {
@@ -146,25 +170,13 @@ func (f *Framework) DeleteVault() error {
 		return err
 	}
 
-	err = f.DeleteDeployment(vaultDeploymentName, f.namespace)
-	return err
-}
-
-func (f *Framework) GetVaultClient() (*vaultapi.Client, error) {
-	cfg := vaultapi.DefaultConfig()
-	cfg.Address = f.VaultUrl
-	cfg.ConfigureTLS(&vaultapi.TLSConfig{
-		Insecure: true,
-	})
-
-	cl, err := vaultapi.NewClient(cfg)
+	err = f.DeleteAppBinding(f.VaultAppRef.Name, f.namespace)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	cl.SetToken("root")
-
-	return cl, nil
+	err = f.DeleteDeployment(vaultDeploymentName, f.namespace)
+	return err
 }
 
 func (f *Framework) getNodePortIP(label map[string]string) (string, error) {
@@ -186,7 +198,7 @@ func (f *Framework) getNodePortIP(label map[string]string) (string, error) {
 		}
 
 		for _, addr := range node.Status.Addresses {
-			if addr.Type == corev1.NodeExternalIP {
+			if addr.Type == core.NodeExternalIP {
 				return addr.Address, nil
 			}
 		}

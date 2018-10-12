@@ -76,6 +76,10 @@ while test $# -gt 0; do
       fi
       shift
       ;;
+    --docker-registry*)
+      export VAULT_OPERATOR_DOCKER_REGISTRY=$(echo $1 | sed -e 's/^[^=]*=//g')
+      shift
+      ;;
     --test*)
       val=$(echo $1 | sed -e 's/^[^=]*=//g')
       if [ "$val" = "true" ]; then

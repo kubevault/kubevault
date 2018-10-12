@@ -28,6 +28,7 @@ import (
 type PolicyV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	VaultPoliciesGetter
+	VaultPolicyBindingsGetter
 }
 
 // PolicyV1alpha1Client is used to interact with features provided by the policy.kubevault.com group.
@@ -37,6 +38,10 @@ type PolicyV1alpha1Client struct {
 
 func (c *PolicyV1alpha1Client) VaultPolicies(namespace string) VaultPolicyInterface {
 	return newVaultPolicies(c, namespace)
+}
+
+func (c *PolicyV1alpha1Client) VaultPolicyBindings(namespace string) VaultPolicyBindingInterface {
+	return newVaultPolicyBindings(c, namespace)
 }
 
 // NewForConfig creates a new PolicyV1alpha1Client for the given config.

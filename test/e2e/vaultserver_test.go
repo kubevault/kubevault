@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	timeOut         = 10 * time.Minute
+	timeOut         = 5 * time.Minute
 	pollingInterval = 10 * time.Second
 )
 
@@ -110,7 +110,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultDeploymentCreatedOrUpdated = func(name, namespace string, vs *api.VaultServer) {
 			By(fmt.Sprintf("Waiting for vault deployment (%s/%s) to create/update", namespace, name))
 			Eventually(func() bool {
-				d, err := f.KubeClient.AppsV1beta1().Deployments(namespace).Get(name, metav1.GetOptions{})
+				d, err := f.KubeClient.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
 				if err == nil {
 					return *d.Spec.Replicas == vs.Spec.Nodes
 				}
@@ -121,7 +121,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultDeploymentDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault deployment (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
-				_, err := f.KubeClient.AppsV1beta1().Deployments(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.KubeClient.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
 				return kerr.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("deployment (%s/%s) should not exists", namespace, name))
 		}
@@ -142,6 +142,22 @@ var _ = Describe("VaultServer", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("vaultserver (%s/%s) should not exists", namespace, name))
 		}
 
+		checkForAppBindingCreated = func(name, namespace string) {
+			By(fmt.Sprintf("Waiting for AppBinding (%s/%s) to create", namespace, name))
+			Eventually(func() bool {
+				_, err := f.AppcatClient.AppBindings(namespace).Get(name, metav1.GetOptions{})
+				return err == nil
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("AppBinding (%s/%s) should exists", namespace, name))
+		}
+
+		checkForAppBindingDeleted = func(name, namespace string) {
+			By(fmt.Sprintf("Waiting for AppBinding (%s/%s) to delete", namespace, name))
+			Eventually(func() bool {
+				_, err := f.AppcatClient.AppBindings(namespace).Get(name, metav1.GetOptions{})
+				return kerr.IsNotFound(err)
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("AppBinding (%s/%s) should not exists", namespace, name))
+		}
+
 		shouldCreateVaultServer = func(vs *api.VaultServer) {
 			By("Creating vault server")
 			_, err := f.CreateVaultServer(vs)
@@ -151,6 +167,7 @@ var _ = Describe("VaultServer", func() {
 			checkForVaultTLSSecretCreated(vs.TLSSecretName(), vs.Namespace)
 			checkForVaultConfigMapCreated(vs.ConfigMapName(), vs.Namespace)
 			checkForVaultDeploymentCreatedOrUpdated(vs.Name, vs.Namespace, vs)
+			checkForAppBindingCreated(vs.Name, vs.Namespace)
 			By("vault server created")
 		}
 
@@ -161,8 +178,14 @@ var _ = Describe("VaultServer", func() {
 
 			By("Updating replica number")
 			vs.Spec.Nodes = replicas
-			_, err = f.UpdateVaultServer(vs)
+			vs, err = f.UpdateVaultServer(vs)
 			Expect(err).NotTo(HaveOccurred())
+
+			time.Sleep(3 * time.Second)
+			By("Getting update vault server")
+			vs, err = f.GetVaultServer(vs)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(vs.Spec.Nodes == replicas).To(BeTrue(), "should match replicas")
 
 			checkForVaultDeploymentCreatedOrUpdated(vs.Name, vs.Namespace, vs)
 		}
@@ -180,6 +203,14 @@ var _ = Describe("VaultServer", func() {
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("number of unseal pods should be equal to v.spec.nodes"))
 		}
+
+		checkForVaultServerCleanup = func(vs *api.VaultServer) {
+			checkForVaultServerDeleted(vs.Name, vs.Namespace)
+			checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
+			checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
+			checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+			checkForAppBindingDeleted(vs.Name, vs.Namespace)
+		}
 	)
 
 	Describe("Creating vault server for", func() {
@@ -195,11 +226,7 @@ var _ = Describe("VaultServer", func() {
 			AfterEach(func() {
 				err := f.DeleteVaultServer(vs.ObjectMeta)
 				Expect(err).NotTo(HaveOccurred())
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+				checkForVaultServerCleanup(vs)
 			})
 
 			It("should create vault server", func() {
@@ -229,11 +256,7 @@ var _ = Describe("VaultServer", func() {
 
 				err = f.DeleteVaultServer(vs.ObjectMeta)
 				Expect(err).NotTo(HaveOccurred())
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+				checkForVaultServerCleanup(vs)
 			})
 
 			It("should create vault server", func() {
@@ -277,11 +300,7 @@ var _ = Describe("VaultServer", func() {
 				checkForSecretDeleted(secretName, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+				checkForVaultServerCleanup(vs)
 			})
 
 			It("should create vault server", func() {
@@ -321,15 +340,10 @@ var _ = Describe("VaultServer", func() {
 
 			AfterEach(func() {
 				Expect(f.DeleteSecret(awsCredSecret, vs.Namespace)).NotTo(HaveOccurred())
-
 				checkForSecretDeleted(awsCredSecret, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+				checkForVaultServerCleanup(vs)
 			})
 
 			It("should create vault server", func() {
@@ -350,11 +364,7 @@ var _ = Describe("VaultServer", func() {
 			})
 			AfterEach(func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+				checkForVaultServerCleanup(vs)
 			})
 
 			It("should update replica number to 1", func() {
@@ -391,14 +401,10 @@ var _ = Describe("VaultServer", func() {
 			})
 			AfterEach(func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
+				checkForVaultServerCleanup(vs)
 
 				f.DeleteSecret("k8s-inmem-keys-12341", vs.Namespace)
 				checkForSecretDeleted("k8s-inmem-keys-12341", vs.Namespace)
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
 			It("should keep the number of pods same as specification, after deleting some pods", func() {
@@ -462,14 +468,10 @@ var _ = Describe("VaultServer", func() {
 			})
 			AfterEach(func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
+				checkForVaultServerCleanup(vs)
 
 				f.DeleteSecret("k8s-inmem-keys-123411", vs.Namespace)
 				checkForSecretDeleted("k8s-inmem-keys-123411", vs.Namespace)
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			})
 
 			It("status should contain 1 updated pods and 1 unseal pods", func() {
@@ -512,13 +514,10 @@ var _ = Describe("VaultServer", func() {
 
 		AfterEach(func() {
 			f.DeleteVaultServer(vs.ObjectMeta)
+			checkForVaultServerCleanup(vs)
+
 			err := f.DeleteSecret(secretName, vs.Namespace)
 			Expect(err).NotTo(HaveOccurred())
-
-			checkForVaultServerDeleted(vs.Name, vs.Namespace)
-			checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-			checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-			checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 		})
 
 		Context("using inmem backend", func() {
@@ -692,11 +691,7 @@ var _ = Describe("VaultServer", func() {
 				checkForSecretDeleted(secretName, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+				checkForVaultServerCleanup(vs)
 			})
 
 			It("should create vault server", func() {
@@ -760,11 +755,7 @@ var _ = Describe("VaultServer", func() {
 				checkForSecretDeleted(awsCredSecret, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+				checkForVaultServerCleanup(vs)
 			})
 
 			It("should create vault server", func() {
@@ -855,11 +846,7 @@ var _ = Describe("VaultServer", func() {
 				checkForSecretDeleted(azureAcKeySecret, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+				checkForVaultServerCleanup(vs)
 			})
 
 			It("should create vault server", func() {
@@ -927,11 +914,7 @@ var _ = Describe("VaultServer", func() {
 				checkForSecretDeleted(connectionUrlSecret, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+				checkForVaultServerCleanup(vs)
 			})
 
 			It("should create vault server", func() {
@@ -1000,11 +983,7 @@ var _ = Describe("VaultServer", func() {
 				checkForSecretDeleted(mysqlCredSecret, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+				checkForVaultServerCleanup(vs)
 			})
 
 			It("should create vault server", func() {
@@ -1050,11 +1029,7 @@ var _ = Describe("VaultServer", func() {
 				checkForSecretDeleted(k8sSecretName, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+				checkForVaultServerCleanup(vs)
 			})
 
 			It("should create vault server", func() {
@@ -1130,11 +1105,7 @@ var _ = Describe("VaultServer", func() {
 				checkForSecretDeleted(awsCredSecret, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
-
-				checkForVaultServerDeleted(vs.Name, vs.Namespace)
-				checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-				checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-				checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+				checkForVaultServerCleanup(vs)
 			})
 
 			It("should create vault server", func() {

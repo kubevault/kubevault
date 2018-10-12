@@ -22,6 +22,8 @@ import (
 	clientset "github.com/kubevault/operator/client/clientset/versioned"
 	catalogv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/catalog/v1alpha1"
 	fakecatalogv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/catalog/v1alpha1/fake"
+	configv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/config/v1alpha1"
+	fakeconfigv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/config/v1alpha1/fake"
 	kubevaultv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
 	fakekubevaultv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/fake"
 	policyv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1"
@@ -83,6 +85,16 @@ func (c *Clientset) CatalogV1alpha1() catalogv1alpha1.CatalogV1alpha1Interface {
 // Catalog retrieves the CatalogV1alpha1Client
 func (c *Clientset) Catalog() catalogv1alpha1.CatalogV1alpha1Interface {
 	return &fakecatalogv1alpha1.FakeCatalogV1alpha1{Fake: &c.Fake}
+}
+
+// ConfigV1alpha1 retrieves the ConfigV1alpha1Client
+func (c *Clientset) ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface {
+	return &fakeconfigv1alpha1.FakeConfigV1alpha1{Fake: &c.Fake}
+}
+
+// Config retrieves the ConfigV1alpha1Client
+func (c *Clientset) Config() configv1alpha1.ConfigV1alpha1Interface {
+	return &fakeconfigv1alpha1.FakeConfigV1alpha1{Fake: &c.Fake}
 }
 
 // KubevaultV1alpha1 retrieves the KubevaultV1alpha1Client

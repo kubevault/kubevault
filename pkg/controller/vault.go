@@ -26,7 +26,7 @@ import (
 const (
 	EnvVaultAddr            = "VAULT_API_ADDR"
 	EnvVaultClusterAddr     = "VAULT_CLUSTER_ADDR"
-	VaultPort               = 8200
+	VaultClientPort         = 8200
 	VaultClusterPort        = 8201
 	vaultTLSAssetVolumeName = "vault-tls-secret"
 	CaCertName              = "ca.crt"
@@ -293,12 +293,12 @@ func (v *vaultSrv) GetService() *core.Service {
 			Selector: v.vs.OffshootSelectors(),
 			Ports: []core.ServicePort{
 				{
-					Name:     "vault-port",
+					Name:     "client",
 					Protocol: core.ProtocolTCP,
-					Port:     VaultPort,
+					Port:     VaultClientPort,
 				},
 				{
-					Name:     "cluster-port",
+					Name:     "cluster",
 					Protocol: core.ProtocolTCP,
 					Port:     VaultClusterPort,
 				},
@@ -397,7 +397,7 @@ func (v *vaultSrv) GetContainer() core.Container {
 		Env: []core.EnvVar{
 			{
 				Name:  EnvVaultAddr,
-				Value: util.VaultServiceURL(v.vs.Name, v.vs.Namespace, VaultPort),
+				Value: util.VaultServiceURL(v.vs.Name, v.vs.Namespace, VaultClientPort),
 			},
 			{
 				Name:  EnvVaultClusterAddr,
@@ -413,7 +413,7 @@ func (v *vaultSrv) GetContainer() core.Container {
 		},
 		Ports: []core.ContainerPort{{
 			Name:          "vault-port",
-			ContainerPort: int32(VaultPort),
+			ContainerPort: int32(VaultClientPort),
 		}, {
 			Name:          "cluster-port",
 			ContainerPort: int32(VaultClusterPort),
@@ -422,7 +422,7 @@ func (v *vaultSrv) GetContainer() core.Container {
 			Handler: core.Handler{
 				HTTPGet: &core.HTTPGetAction{
 					Path:   "/v1/sys/health",
-					Port:   intstr.FromInt(VaultPort),
+					Port:   intstr.FromInt(VaultClientPort),
 					Scheme: core.URISchemeHTTPS,
 				},
 			},

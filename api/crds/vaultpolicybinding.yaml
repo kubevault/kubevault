@@ -5,7 +5,7 @@ metadata:
   creationTimestamp: null
   labels:
     app: vault
-  name: vaultpolicybindings.kubevault.com
+  name: vaultpolicybindings.policy.kubevault.com
 spec:
   additionalPrinterColumns:
   - JSONPath: .status.status
@@ -14,11 +14,10 @@ spec:
   - JSONPath: .metadata.creationTimestamp
     name: Age
     type: date
-  group: kubevault.com
+  group: policy.kubevault.com
   names:
     categories:
     - vault
-    - policy binding
     - appscode
     - all
     kind: VaultPolicyBinding
@@ -321,7 +320,44 @@ spec:
 
                 Populated by the system. Read-only. More info: http://kubernetes.io/docs/user-guide/identifiers#uids
               type: string
-        spec: {}
+        spec:
+          description: 'links: https://www.vaultproject.io/api/auth/kubernetes/index.html#parameters-1'
+          properties:
+            TTL:
+              description: Specifies the TTL period of tokens issued using this role
+                in seconds.
+              type: string
+            maxTTL:
+              description: Specifies the maximum allowed lifetime of tokens issued
+                in seconds using this role.
+              type: string
+            period:
+              description: If set, indicates that the token generated using this role
+                should never expire. The token should be renewed within the duration
+                specified by this value. At each renewal, the token's TTL will be
+                set to the value of this parameter.
+              type: string
+            policies:
+              description: Specifies the names of the VaultPolicy
+              items:
+                type: string
+              type: array
+            serviceAccountNames:
+              description: Specifies the names of the service account to bind with
+                policy
+              items:
+                type: string
+              type: array
+            serviceAccountNamespaces:
+              description: Specifies the namespaces of the service account
+              items:
+                type: string
+              type: array
+          required:
+          - policies
+          - serviceAccountNames
+          - serviceAccountNamespaces
+          - TTL
         status:
           properties:
             conditions:

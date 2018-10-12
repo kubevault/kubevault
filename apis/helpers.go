@@ -2,6 +2,7 @@ package apis
 
 import (
 	"github.com/go-openapi/spec"
+	core "k8s.io/api/core/v1"
 	"k8s.io/kube-openapi/pkg/common"
 )
 
@@ -23,3 +24,24 @@ func SetNameSchema(openapiSpec map[string]common.OpenAPIDefinition) {
 		},
 	}
 }
+
+const (
+	// required fields:
+	// - Secret.Data["token"] - a vault token
+	SecretTypeTokenAuth core.SecretType = "kubevault.com/token"
+
+	// required for SecretTypeTokenAut
+	TokenAuthTokenKey = "token"
+
+	// required fields:
+	// - Secret.Data["access_key_id"] - aws access key id
+	// - Secret.Data["secret_access_key"] - aws access secret key
+	SecretTypeAWSAuth core.SecretType = "kubevault.com/aws"
+
+	// required for SecretTypeAWSAuth
+	AWSAuthAccessKeyIDKey = "access_key_id"
+	// required for SecretTypeAWSAuth
+	AWSAuthAccessSecretKey = "secret_access_key"
+	// optional for SecretTypeAWSAuth
+	AWSAuthSecurityTokenKey = "security_token"
+)

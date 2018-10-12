@@ -25,3 +25,11 @@ type VaultPolicyListerExpansion interface{}
 // VaultPolicyNamespaceListerExpansion allows custom methods to be added to
 // VaultPolicyNamespaceLister.
 type VaultPolicyNamespaceListerExpansion interface{}
+
+// VaultPolicyBindingListerExpansion allows custom methods to be added to
+// VaultPolicyBindingLister.
+type VaultPolicyBindingListerExpansion interface{}
+
+// VaultPolicyBindingNamespaceListerExpansion allows custom methods to be added to
+// VaultPolicyBindingNamespaceLister.
+type VaultPolicyBindingNamespaceListerExpansion interface{}

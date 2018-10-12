@@ -19,6 +19,8 @@ rules:
 - apiGroups:
   - kubevault.com
   - catalog.kubevault.com
+  - policy.kubevault.com
+  - appcatalog.appscode.com
   resources:
   - "*"
   verbs: ["*"]
@@ -35,6 +37,11 @@ rules:
   - services
   - serviceaccounts
   verbs: ["create", "update", "get", "patch"]
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs: ["list"]
 - apiGroups:
   - ""
   resources:

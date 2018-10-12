@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/appscode/go/log/golog"
 	reg_util "github.com/appscode/kutil/admissionregistration/v1beta1"
 	"github.com/appscode/kutil/discovery"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
@@ -16,6 +15,7 @@ import (
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
 
 const (
@@ -39,10 +39,11 @@ type config struct {
 type Config struct {
 	config
 
-	ClientConfig *rest.Config
-	KubeClient   kubernetes.Interface
-	ExtClient    cs.Interface
-	CRDClient    crd_cs.ApiextensionsV1beta1Interface
+	ClientConfig     *rest.Config
+	KubeClient       kubernetes.Interface
+	ExtClient        cs.Interface
+	CRDClient        crd_cs.ApiextensionsV1beta1Interface
+	AppCatalogClient appcat_cs.AppcatalogV1alpha1Interface
 }
 
 func NewConfig(clientConfig *rest.Config) *Config {
@@ -67,6 +68,7 @@ func (c *Config) New() (*VaultController, error) {
 		kubeClient:          c.KubeClient,
 		extClient:           c.ExtClient,
 		crdClient:           c.CRDClient,
+		appCatalogClient:    c.AppCatalogClient,
 		kubeInformerFactory: informers.NewFilteredSharedInformerFactory(c.KubeClient, c.ResyncPeriod, core.NamespaceAll, tweakListOptions),
 		extInformerFactory:  vaultinformers.NewSharedInformerFactory(c.ExtClient, c.ResyncPeriod),
 		recorder:            eventer.NewEventRecorder(c.KubeClient, "vault-controller"),
@@ -83,5 +85,7 @@ func (c *Config) New() (*VaultController, error) {
 	ctrl.initVaultServerWatcher()
 	// For VaultPolicy
 	ctrl.initVaultPolicyWatcher()
+	// For VaultPolicyBinding
+	ctrl.initVaultPolicyBindingWatcher()
 	return ctrl, nil
 }

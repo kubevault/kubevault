@@ -3431,6 +3431,162 @@ spec:
                         required:
                         - name
                       type: array
+                    lifecycle:
+                      description: Lifecycle describes actions that the management
+                        system should take in response to container lifecycle events.
+                        For the PostStart and PreStop lifecycle handlers, management
+                        of the container blocks until the action is complete, unless
+                        the container process fails, in which case the handler is
+                        aborted.
+                      properties:
+                        postStart:
+                          description: Handler defines a specific action that should
+                            be taken
+                          properties:
+                            exec:
+                              description: ExecAction describes a "run in container"
+                                action.
+                              properties:
+                                command:
+                                  description: Command is the command line to execute
+                                    inside the container, the working directory for
+                                    the command  is root ('/') in the container's
+                                    filesystem. The command is simply exec'd, it is
+                                    not run inside a shell, so traditional shell instructions
+                                    ('|', etc) won't work. To use a shell, you need
+                                    to explicitly call out to that shell. Exit status
+                                    of 0 is treated as live/healthy and non-zero is
+                                    unhealthy.
+                                  items:
+                                    type: string
+                                  type: array
+                            httpGet:
+                              description: HTTPGetAction describes an action based
+                                on HTTP Get requests.
+                              properties:
+                                host:
+                                  description: Host name to connect to, defaults to
+                                    the pod IP. You probably want to set "Host" in
+                                    httpHeaders instead.
+                                  type: string
+                                httpHeaders:
+                                  description: Custom headers to set in the request.
+                                    HTTP allows repeated headers.
+                                  items:
+                                    description: HTTPHeader describes a custom header
+                                      to be used in HTTP probes
+                                    properties:
+                                      name:
+                                        description: The header field name
+                                        type: string
+                                      value:
+                                        description: The header field value
+                                        type: string
+                                    required:
+                                    - name
+                                    - value
+                                  type: array
+                                path:
+                                  description: Path to access on the HTTP server.
+                                  type: string
+                                port:
+                                  oneOf:
+                                  - type: string
+                                  - type: integer
+                                scheme:
+                                  description: Scheme to use for connecting to the
+                                    host. Defaults to HTTP.
+                                  type: string
+                              required:
+                              - port
+                            tcpSocket:
+                              description: TCPSocketAction describes an action based
+                                on opening a socket
+                              properties:
+                                host:
+                                  description: 'Optional: Host name to connect to,
+                                    defaults to the pod IP.'
+                                  type: string
+                                port:
+                                  oneOf:
+                                  - type: string
+                                  - type: integer
+                              required:
+                              - port
+                        preStop:
+                          description: Handler defines a specific action that should
+                            be taken
+                          properties:
+                            exec:
+                              description: ExecAction describes a "run in container"
+                                action.
+                              properties:
+                                command:
+                                  description: Command is the command line to execute
+                                    inside the container, the working directory for
+                                    the command  is root ('/') in the container's
+                                    filesystem. The command is simply exec'd, it is
+                                    not run inside a shell, so traditional shell instructions
+                                    ('|', etc) won't work. To use a shell, you need
+                                    to explicitly call out to that shell. Exit status
+                                    of 0 is treated as live/healthy and non-zero is
+                                    unhealthy.
+                                  items:
+                                    type: string
+                                  type: array
+                            httpGet:
+                              description: HTTPGetAction describes an action based
+                                on HTTP Get requests.
+                              properties:
+                                host:
+                                  description: Host name to connect to, defaults to
+                                    the pod IP. You probably want to set "Host" in
+                                    httpHeaders instead.
+                                  type: string
+                                httpHeaders:
+                                  description: Custom headers to set in the request.
+                                    HTTP allows repeated headers.
+                                  items:
+                                    description: HTTPHeader describes a custom header
+                                      to be used in HTTP probes
+                                    properties:
+                                      name:
+                                        description: The header field name
+                                        type: string
+                                      value:
+                                        description: The header field value
+                                        type: string
+                                    required:
+                                    - name
+                                    - value
+                                  type: array
+                                path:
+                                  description: Path to access on the HTTP server.
+                                  type: string
+                                port:
+                                  oneOf:
+                                  - type: string
+                                  - type: integer
+                                scheme:
+                                  description: Scheme to use for connecting to the
+                                    host. Defaults to HTTP.
+                                  type: string
+                              required:
+                              - port
+                            tcpSocket:
+                              description: TCPSocketAction describes an action based
+                                on opening a socket
+                              properties:
+                                host:
+                                  description: 'Optional: Host name to connect to,
+                                    defaults to the pod IP.'
+                                  type: string
+                                port:
+                                  oneOf:
+                                  - type: string
+                                  - type: integer
+                              required:
+                              - port
                     livenessProbe:
                       description: Probe describes a health check to be performed
                         against a container to determine whether it is alive or ready
@@ -3881,6 +4037,37 @@ spec:
                         feature." More info: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/'
                       items:
                         type: string
+                      type: array
+                    ports:
+                      description: 'The list of ports that are exposed by this service.
+                        More info: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies'
+                      items:
+                        description: ServicePort contains information on service's
+                          port.
+                        properties:
+                          name:
+                            description: The name of this port within the service.
+                              This must be a DNS_LABEL. All ports within a ServiceSpec
+                              must have unique names. This maps to the 'Name' field
+                              in EndpointPort objects. Optional if only one ServicePort
+                              is defined on this service.
+                            type: string
+                          nodePort:
+                            description: 'The port on each node on which this service
+                              is exposed when type=NodePort or LoadBalancer. Usually
+                              assigned by the system. If specified, it will be allocated
+                              to the service if unused or else creation of the service
+                              will fail. Default is to auto-allocate a port if the
+                              ServiceType of this Service requires one. More info:
+                              https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport'
+                            format: int32
+                            type: integer
+                          port:
+                            description: The port that will be exposed by this service.
+                            format: int32
+                            type: integer
+                        required:
+                        - port
                       type: array
                     type:
                       description: 'type determines how the Service is exposed. Defaults

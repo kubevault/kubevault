@@ -5,9 +5,10 @@ import (
 	api "github.com/kubevault/operator/apis/policy/v1alpha1"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
-func (f *Invocation) VaultPolicy(policy, vAddr, tokenSecret string) *api.VaultPolicy {
+func (f *Invocation) VaultPolicy(policy string, ref *appcat.AppReference) *api.VaultPolicy {
 	return &api.VaultPolicy{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      rand.WithUniqSuffix("vault-policy"),
@@ -17,12 +18,8 @@ func (f *Invocation) VaultPolicy(policy, vAddr, tokenSecret string) *api.VaultPo
 			},
 		},
 		Spec: api.VaultPolicySpec{
-			Vault: &api.Vault{
-				SkipTLSVerification: true,
-				Address:             vAddr,
-				TokenSecret:         tokenSecret,
-			},
-			Policy: policy,
+			VaultAppRef: ref,
+			Policy:      policy,
 		},
 	}
 }
