@@ -313,7 +313,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppBinding":           schema_custom_resources_apis_appcatalog_v1alpha1_AppBinding(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppBindingList":       schema_custom_resources_apis_appcatalog_v1alpha1_AppBindingList(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppBindingSpec":       schema_custom_resources_apis_appcatalog_v1alpha1_AppBindingSpec(ref),
-		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppPort":              schema_custom_resources_apis_appcatalog_v1alpha1_AppPort(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference":         schema_custom_resources_apis_appcatalog_v1alpha1_AppReference(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.ClientConfig":         schema_custom_resources_apis_appcatalog_v1alpha1_ClientConfig(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.ServiceReference":     schema_custom_resources_apis_appcatalog_v1alpha1_ServiceReference(ref),
@@ -13700,7 +13699,7 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_AppBindingSpec(ref common.
 							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
-					"defaultParameters": {
+					"parameters": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Parameters is a set of the parameters to be used to connect to the app. The inline YAML/JSON payload to be translated into equivalent JSON object.\n\nThe Parameters field is NOT secret or secured in any way and should NEVER be used to hold sensitive information. To set parameters that contain secret information, you should ALWAYS store that information in a Secret.",
 							Ref:         ref("k8s.io/apimachinery/pkg/runtime.RawExtension"),
@@ -13712,34 +13711,6 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_AppBindingSpec(ref common.
 		},
 		Dependencies: []string{
 			"k8s.io/api/core/v1.LocalObjectReference", "k8s.io/apimachinery/pkg/runtime.RawExtension", "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.ClientConfig"},
-	}
-}
-
-func schema_custom_resources_apis_appcatalog_v1alpha1_AppPort(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "AppPort contains information on app's port.",
-				Properties: map[string]spec.Schema{
-					"name": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The name of this port within the app. All ports within an AppBindingSpec must have unique names.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"port": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The port that will be exposed by this app.",
-							Type:        []string{"integer"},
-							Format:      "int32",
-						},
-					},
-				},
-				Required: []string{"name", "port"},
-			},
-		},
-		Dependencies: []string{},
 	}
 }
 
@@ -13810,37 +13781,11 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_ClientConfig(ref common.Re
 							Format:      "byte",
 						},
 					},
-					"ports": {
-						VendorExtensible: spec.VendorExtensible{
-							Extensions: spec.Extensions{
-								"x-kubernetes-patch-merge-key": "port",
-								"x-kubernetes-patch-strategy":  "merge",
-							},
-						},
-						SchemaProps: spec.SchemaProps{
-							Description: "The list of ports that are exposed by this app.",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppPort"),
-									},
-								},
-							},
-						},
-					},
-					"scheme": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Specifies which scheme to use, for example: http, https If specified, then it will applied as prefix in this format: scheme:// If not specified, then nothing will be prefixed",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppPort", "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.ServiceReference"},
+			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.ServiceReference"},
 	}
 }
 
@@ -13850,11 +13795,25 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_ServiceReference(ref commo
 			SchemaProps: spec.SchemaProps{
 				Description: "ServiceReference holds a reference to Service.legacy.k8s.io",
 				Properties: map[string]spec.Schema{
+					"scheme": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies which scheme to use, for example: http, https If specified, then it will applied as prefix in this format: scheme:// If not specified, then nothing will be prefixed",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"name": {
 						SchemaProps: spec.SchemaProps{
 							Description: "`name` is the name of the service. Required",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"port": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The port that will be exposed by this app.",
+							Type:        []string{"integer"},
+							Format:      "int32",
 						},
 					},
 					"path": {
@@ -13865,7 +13824,7 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_ServiceReference(ref commo
 						},
 					},
 				},
-				Required: []string{"name"},
+				Required: []string{"scheme", "name", "port"},
 			},
 		},
 		Dependencies: []string{},

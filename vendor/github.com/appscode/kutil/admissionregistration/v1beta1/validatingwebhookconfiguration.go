@@ -92,7 +92,7 @@ func TryUpdateValidatingWebhookConfiguration(c kubernetes.Interface, name string
 
 func UpdateValidatingWebhookCABundle(config *rest.Config, webhookConfigName string, extraConditions ...watchtools.ConditionFunc) error {
 	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, kutil.GCTimeout)
+	ctx, cancel := context.WithTimeout(ctx, kutil.ReadinessTimeout)
 	defer cancel()
 
 	err := rest.LoadTLSFiles(config)
@@ -118,7 +118,7 @@ func UpdateValidatingWebhookCABundle(config *rest.Config, webhookConfigName stri
 			case watch.Deleted:
 				return false, nil
 			case watch.Error:
-				return false, errors.Wrap(err, "error watching")
+				return false, errors.New("error watching")
 			case watch.Added, watch.Modified:
 				cur := event.Object.(*reg.ValidatingWebhookConfiguration)
 				_, _, err := PatchValidatingWebhookConfiguration(kc, cur, func(in *reg.ValidatingWebhookConfiguration) *reg.ValidatingWebhookConfiguration {
@@ -127,6 +127,9 @@ func UpdateValidatingWebhookCABundle(config *rest.Config, webhookConfigName stri
 					}
 					return in
 				})
+				if err != nil {
+					glog.Warning(err)
+				}
 				return err == nil, err
 			default:
 				return false, fmt.Errorf("unexpected event type: %v", event.Type)
@@ -174,7 +177,7 @@ func SyncValidatingWebhookCABundle(config *rest.Config, webhookConfigName string
 			case watch.Deleted:
 				return false, nil
 			case watch.Error:
-				return false, errors.Wrap(err, "error watching")
+				return false, errors.New("error watching")
 			case watch.Added, watch.Modified:
 				cur := event.Object.(*reg.ValidatingWebhookConfiguration)
 				_, _, err := PatchValidatingWebhookConfiguration(kc, cur, func(in *reg.ValidatingWebhookConfiguration) *reg.ValidatingWebhookConfiguration {
@@ -183,7 +186,10 @@ func SyncValidatingWebhookCABundle(config *rest.Config, webhookConfigName string
 					}
 					return in
 				})
-				return false, err // continue
+				if err != nil {
+					glog.Warning(err)
+				}
+				return false, nil // continue
 			default:
 				return false, fmt.Errorf("unexpected event type: %v", event.Type)
 			}

@@ -1,5 +1,5 @@
 hash: 1ea4abdcecd5da793bce45e00b627eb8134e4963beb77b4c4941a8401b1f0340
-updated: 2018-10-09T10:29:38.025184206+06:00
+updated: 2018-10-11T12:07:32.062931481+06:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -35,10 +35,11 @@ imports:
   - admission/v1beta1
   - registry/admissionreview/v1beta1
 - name: github.com/appscode/kutil
-  version: 76382d5913229f319bd4558a60b80605de9fa63c
+  version: cbd53e2bd56256ebdbc5d9e2b33e68dfebcc5f7c
   subpackages:
   - admissionregistration/v1beta1
   - apiextensions/v1beta1
+  - apiregistration/v1beta1
   - apps/v1
   - core/v1
   - discovery
@@ -216,7 +217,7 @@ imports:
 - name: github.com/evanphx/json-patch
   version: afac545df32f2287a079e2dfb7ba2745a643747e
 - name: github.com/fatih/structs
-  version: 4966fc68f5b7593aafa6cbbba2d65ec6e1416047
+  version: 878a968ab22548362a09bdb3322f98b00f470d46
 - name: github.com/ghodss/yaml
   version: 73d445a93680fa1a78ae23a5839bad48f32ba1ee
 - name: github.com/go-ini/ini
@@ -316,6 +317,7 @@ imports:
   version: 533003e27840d9646cb4e7d23b3a113895da1dd0
   subpackages:
   - api
+  - helper/awsutil
   - helper/compressutil
   - helper/hclutil
   - helper/jsonutil
@@ -955,7 +957,7 @@ imports:
   subpackages:
   - pkg/api/legacyscheme
 - name: kmodules.xyz/custom-resources
-  version: be9753da9238b6ff27adaf745d2c9c903310d6ed
+  version: ad163b0888db79656ef85ffea3c2661cad8c4f5e
   repo: https://github.com/kmodules/custom-resources.git
   vcs: git
   subpackages:

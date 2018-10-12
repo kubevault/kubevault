@@ -116,6 +116,7 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 			Name:      VaultTokenSecret,
 			Namespace: f.namespace,
 		},
+		Type: "kubevault.com/token",
 		Data: map[string][]byte{
 			"token": []byte("root"),
 		},

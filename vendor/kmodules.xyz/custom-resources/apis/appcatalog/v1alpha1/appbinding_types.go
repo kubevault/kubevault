@@ -48,7 +48,7 @@ type AppBindingSpec struct {
 	// in a Secret.
 	//
 	// +optional
-	DefaultParameters *runtime.RawExtension `json:"defaultParameters,omitempty"`
+	Parameters *runtime.RawExtension `json:"parameters,omitempty"`
 }
 
 type AppType string
@@ -96,38 +96,26 @@ type ClientConfig struct {
 	// CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate of this app.
 	// +optional
 	CABundle []byte `json:"caBundle,omitempty"`
-
-	// The list of ports that are exposed by this app.
-	// +patchMergeKey=port
-	// +patchStrategy=merge
-	Ports []AppPort `json:"ports,omitempty" patchStrategy:"merge" patchMergeKey:"port"`
-
-	// Specifies which scheme to use, for example: http, https
-	// If specified, then it will applied as prefix in this format: scheme://
-	// If not specified, then nothing will be prefixed
-	Scheme string `json:"scheme,omitempty"`
 }
 
 // ServiceReference holds a reference to Service.legacy.k8s.io
 type ServiceReference struct {
+	// Specifies which scheme to use, for example: http, https
+	// If specified, then it will applied as prefix in this format: scheme://
+	// If not specified, then nothing will be prefixed
+	Scheme string `json:"scheme"`
+
 	// `name` is the name of the service.
 	// Required
 	Name string `json:"name"`
+
+	// The port that will be exposed by this app.
+	Port int32 `json:"port"`
 
 	// `path` is an optional URL path which will be sent in any request to
 	// this service.
 	// +optional
 	Path *string `json:"path,omitempty"`
-}
-
-// AppPort contains information on app's port.
-type AppPort struct {
-	// The name of this port within the app. All ports within
-	// an AppBindingSpec must have unique names.
-	Name string `json:"name"`
-
-	// The port that will be exposed by this app.
-	Port int32 `json:"port"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

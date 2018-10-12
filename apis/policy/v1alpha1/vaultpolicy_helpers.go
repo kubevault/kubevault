@@ -12,7 +12,7 @@ func (v VaultPolicy) GetKey() string {
 }
 
 func (v VaultPolicy) OffshootName() string {
-	return v.Namespace + "-" + v.Name
+	return "vp" + v.ClusterName + "-" + v.Namespace + "-" + v.Name
 }
 
 func (v VaultPolicy) OffshootSelectors() map[string]string {

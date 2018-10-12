@@ -28,15 +28,9 @@ func (c *VaultController) ensureAppBinding(vs *api.VaultServer, v Vault) error {
 		in.Spec.ClientConfig.Service = &appcat.ServiceReference{
 			Name: v.GetService().Name,
 		}
-		in.Spec.ClientConfig.Scheme = "https"
+		in.Spec.ClientConfig.Service.Scheme = "https"
 		in.Spec.ClientConfig.CABundle = caBundle
-		in.Spec.ClientConfig.Ports = append(in.Spec.ClientConfig.Ports, appcat.AppPort{
-			Name: "client",
-			Port: VaultClientPort,
-		}, appcat.AppPort{
-			Name: "cluster",
-			Port: VaultClusterPort,
-		})
+		in.Spec.ClientConfig.Service.Port = VaultClientPort
 		util.EnsureOwnerRefToObject(in.GetObjectMeta(), util.AsOwner(vs))
 		return in
 	})

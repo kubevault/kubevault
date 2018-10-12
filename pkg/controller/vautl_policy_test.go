@@ -88,6 +88,7 @@ func vaultTokenSecret() *core.Secret {
 			Name:      "vault",
 			Namespace: "test",
 		},
+		Type: "kubevault.com/token",
 		Data: map[string][]byte{
 			"token": []byte("root"),
 		},

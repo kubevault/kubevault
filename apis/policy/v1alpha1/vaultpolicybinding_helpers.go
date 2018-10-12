@@ -12,7 +12,7 @@ func (v VaultPolicyBinding) GetKey() string {
 }
 
 func (v VaultPolicyBinding) OffshootName() string {
-	return v.Namespace + "-" + v.Name
+	return "vpb" + v.ClusterName + "-" + v.Namespace + "-" + v.Name
 }
 
 func (v VaultPolicyBinding) OffshootSelectors() map[string]string {
