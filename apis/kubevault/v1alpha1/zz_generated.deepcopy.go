@@ -78,84 +78,48 @@ func (in *BackendStorageSpec) DeepCopyInto(out *BackendStorageSpec) {
 	*out = *in
 	if in.Etcd != nil {
 		in, out := &in.Etcd, &out.Etcd
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(EtcdSpec)
-			**out = **in
-		}
+		*out = new(EtcdSpec)
+		**out = **in
 	}
 	if in.Gcs != nil {
 		in, out := &in.Gcs, &out.Gcs
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(GcsSpec)
-			**out = **in
-		}
+		*out = new(GcsSpec)
+		**out = **in
 	}
 	if in.S3 != nil {
 		in, out := &in.S3, &out.S3
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(S3Spec)
-			**out = **in
-		}
+		*out = new(S3Spec)
+		**out = **in
 	}
 	if in.Azure != nil {
 		in, out := &in.Azure, &out.Azure
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(AzureSpec)
-			**out = **in
-		}
+		*out = new(AzureSpec)
+		**out = **in
 	}
 	if in.PostgreSQL != nil {
 		in, out := &in.PostgreSQL, &out.PostgreSQL
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(PostgreSQLSpec)
-			**out = **in
-		}
+		*out = new(PostgreSQLSpec)
+		**out = **in
 	}
 	if in.MySQL != nil {
 		in, out := &in.MySQL, &out.MySQL
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(MySQLSpec)
-			**out = **in
-		}
+		*out = new(MySQLSpec)
+		**out = **in
 	}
 	if in.File != nil {
 		in, out := &in.File, &out.File
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(FileSpec)
-			**out = **in
-		}
+		*out = new(FileSpec)
+		**out = **in
 	}
 	if in.DynamoDB != nil {
 		in, out := &in.DynamoDB, &out.DynamoDB
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(DynamoDBSpec)
-			**out = **in
-		}
+		*out = new(DynamoDBSpec)
+		**out = **in
 	}
 	if in.Swift != nil {
 		in, out := &in.Swift, &out.Swift
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(SwiftSpec)
-			**out = **in
-		}
+		*out = new(SwiftSpec)
+		**out = **in
 	}
 	return
 }
@@ -271,39 +235,23 @@ func (in *ModeSpec) DeepCopyInto(out *ModeSpec) {
 	*out = *in
 	if in.KubernetesSecret != nil {
 		in, out := &in.KubernetesSecret, &out.KubernetesSecret
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(KubernetesSecretSpec)
-			**out = **in
-		}
+		*out = new(KubernetesSecretSpec)
+		**out = **in
 	}
 	if in.GoogleKmsGcs != nil {
 		in, out := &in.GoogleKmsGcs, &out.GoogleKmsGcs
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(GoogleKmsGcsSpec)
-			**out = **in
-		}
+		*out = new(GoogleKmsGcsSpec)
+		**out = **in
 	}
 	if in.AwsKmsSsm != nil {
 		in, out := &in.AwsKmsSsm, &out.AwsKmsSsm
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(AwsKmsSsmSpec)
-			**out = **in
-		}
+		*out = new(AwsKmsSsmSpec)
+		**out = **in
 	}
 	if in.AzureKeyVault != nil {
 		in, out := &in.AzureKeyVault, &out.AzureKeyVault
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(AzureKeyVault)
-			**out = **in
-		}
+		*out = new(AzureKeyVault)
+		**out = **in
 	}
 	return
 }
@@ -497,31 +445,19 @@ func (in *VaultServerSpec) DeepCopyInto(out *VaultServerSpec) {
 	*out = *in
 	if in.ConfigSource != nil {
 		in, out := &in.ConfigSource, &out.ConfigSource
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(v1.VolumeSource)
-			(*in).DeepCopyInto(*out)
-		}
+		*out = new(v1.VolumeSource)
+		(*in).DeepCopyInto(*out)
 	}
 	if in.TLS != nil {
 		in, out := &in.TLS, &out.TLS
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(TLSPolicy)
-			**out = **in
-		}
+		*out = new(TLSPolicy)
+		**out = **in
 	}
 	in.Backend.DeepCopyInto(&out.Backend)
 	if in.Unsealer != nil {
 		in, out := &in.Unsealer, &out.Unsealer
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = new(UnsealerSpec)
-			(*in).DeepCopyInto(*out)
-		}
+		*out = new(UnsealerSpec)
+		(*in).DeepCopyInto(*out)
 	}
 	in.PodTemplate.DeepCopyInto(&out.PodTemplate)
 	in.ServiceTemplate.DeepCopyInto(&out.ServiceTemplate)
@@ -543,11 +479,7 @@ func (in *VaultServerStatus) DeepCopyInto(out *VaultServerStatus) {
 	*out = *in
 	if in.ObservedGeneration != nil {
 		in, out := &in.ObservedGeneration, &out.ObservedGeneration
-		if *in == nil {
-			*out = nil
-		} else {
-			*out = (*in).DeepCopy()
-		}
+		*out = (*in).DeepCopy()
 	}
 	in.VaultStatus.DeepCopyInto(&out.VaultStatus)
 	if in.UpdatedNodes != nil {
