@@ -340,12 +340,7 @@ func DialOpen(d Dialer, name string) (_ driver.Conn, err error) {
 		return nil, err
 	}
 
-	err = cn.ssl(o)
-	if err != nil {
-		return nil, err
-	}
-
-	// cn.startup panics on error. Make sure we don't leak cn.c.
+	// cn.ssl and cn.startup panic on error. Make sure we don't leak cn.c.
 	panicking := true
 	defer func() {
 		if panicking {
@@ -353,6 +348,7 @@ func DialOpen(d Dialer, name string) (_ driver.Conn, err error) {
 		}
 	}()
 
+	cn.ssl(o)
 	cn.buf = bufio.NewReader(cn.c)
 	cn.startup(o)
 
@@ -1033,35 +1029,30 @@ func (cn *conn) recv1() (t byte, r *readBuf) {
 	return t, r
 }
 
-func (cn *conn) ssl(o values) error {
-	upgrade, err := ssl(o)
-	if err != nil {
-		return err
-	}
-
+func (cn *conn) ssl(o values) {
+	upgrade := ssl(o)
 	if upgrade == nil {
 		// Nothing to do
-		return nil
+		return
 	}
 
 	w := cn.writeBuf(0)
 	w.int32(80877103)
-	if err = cn.sendStartupPacket(w); err != nil {
-		return err
+	if err := cn.sendStartupPacket(w); err != nil {
+		panic(err)
 	}
 
 	b := cn.scratch[:1]
-	_, err = io.ReadFull(cn.c, b)
+	_, err := io.ReadFull(cn.c, b)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	if b[0] != 'S' {
-		return ErrSSLNotSupported
+		panic(ErrSSLNotSupported)
 	}
 
-	cn.c, err = upgrade(cn.c)
-	return err
+	cn.c = upgrade(cn.c)
 }
 
 // isDriverSetting returns true iff a setting is purely for configuring the

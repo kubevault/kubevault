@@ -21,7 +21,7 @@ package v1alpha1
 import (
 	time "time"
 
-	policy_v1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
+	policyv1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
 	versioned "github.com/kubevault/operator/client/clientset/versioned"
 	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
 	v1alpha1 "github.com/kubevault/operator/client/listers/policy/v1alpha1"
@@ -70,7 +70,7 @@ func NewFilteredVaultPolicyBindingInformer(client versioned.Interface, namespace
 				return client.PolicyV1alpha1().VaultPolicyBindings(namespace).Watch(options)
 			},
 		},
-		&policy_v1alpha1.VaultPolicyBinding{},
+		&policyv1alpha1.VaultPolicyBinding{},
 		resyncPeriod,
 		indexers,
 	)
@@ -81,7 +81,7 @@ func (f *vaultPolicyBindingInformer) defaultInformer(client versioned.Interface,
 }
 
 func (f *vaultPolicyBindingInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&policy_v1alpha1.VaultPolicyBinding{}, f.defaultInformer)
+	return f.factory.InformerFor(&policyv1alpha1.VaultPolicyBinding{}, f.defaultInformer)
 }
 
 func (f *vaultPolicyBindingInformer) Lister() v1alpha1.VaultPolicyBindingLister {

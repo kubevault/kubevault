@@ -109,7 +109,7 @@ func TestLogin(t *testing.T) {
 		},
 		Spec: appcat.AppBindingSpec{
 			ClientConfig: appcat.ClientConfig{
-				URL: &addr,
+				URL:                   &addr,
 				InsecureSkipTLSVerify: true,
 			},
 			Secret: &core.LocalObjectReference{

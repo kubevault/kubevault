@@ -21,7 +21,7 @@ package v1alpha1
 import (
 	time "time"
 
-	catalog_v1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
+	catalogv1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	versioned "github.com/kubevault/operator/client/clientset/versioned"
 	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
 	v1alpha1 "github.com/kubevault/operator/client/listers/catalog/v1alpha1"
@@ -69,7 +69,7 @@ func NewFilteredVaultServerVersionInformer(client versioned.Interface, resyncPer
 				return client.CatalogV1alpha1().VaultServerVersions().Watch(options)
 			},
 		},
-		&catalog_v1alpha1.VaultServerVersion{},
+		&catalogv1alpha1.VaultServerVersion{},
 		resyncPeriod,
 		indexers,
 	)
@@ -80,7 +80,7 @@ func (f *vaultServerVersionInformer) defaultInformer(client versioned.Interface,
 }
 
 func (f *vaultServerVersionInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&catalog_v1alpha1.VaultServerVersion{}, f.defaultInformer)
+	return f.factory.InformerFor(&catalogv1alpha1.VaultServerVersion{}, f.defaultInformer)
 }
 
 func (f *vaultServerVersionInformer) Lister() v1alpha1.VaultServerVersionLister {

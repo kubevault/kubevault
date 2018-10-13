@@ -21,7 +21,7 @@ package v1alpha1
 import (
 	time "time"
 
-	kubevault_v1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	kubevaultv1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	versioned "github.com/kubevault/operator/client/clientset/versioned"
 	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
 	v1alpha1 "github.com/kubevault/operator/client/listers/kubevault/v1alpha1"
@@ -70,7 +70,7 @@ func NewFilteredVaultServerInformer(client versioned.Interface, namespace string
 				return client.KubevaultV1alpha1().VaultServers(namespace).Watch(options)
 			},
 		},
-		&kubevault_v1alpha1.VaultServer{},
+		&kubevaultv1alpha1.VaultServer{},
 		resyncPeriod,
 		indexers,
 	)
@@ -81,7 +81,7 @@ func (f *vaultServerInformer) defaultInformer(client versioned.Interface, resync
 }
 
 func (f *vaultServerInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&kubevault_v1alpha1.VaultServer{}, f.defaultInformer)
+	return f.factory.InformerFor(&kubevaultv1alpha1.VaultServer{}, f.defaultInformer)
 }
 
 func (f *vaultServerInformer) Lister() v1alpha1.VaultServerLister {

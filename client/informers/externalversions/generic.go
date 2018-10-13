@@ -22,8 +22,8 @@ import (
 	"fmt"
 
 	v1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
-	kubevault_v1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	policy_v1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
+	kubevaultv1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	policyv1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -59,13 +59,13 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Catalog().V1alpha1().VaultServerVersions().Informer()}, nil
 
 		// Group=kubevault.com, Version=v1alpha1
-	case kubevault_v1alpha1.SchemeGroupVersion.WithResource("vaultservers"):
+	case kubevaultv1alpha1.SchemeGroupVersion.WithResource("vaultservers"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Kubevault().V1alpha1().VaultServers().Informer()}, nil
 
 		// Group=policy.kubevault.com, Version=v1alpha1
-	case policy_v1alpha1.SchemeGroupVersion.WithResource("vaultpolicies"):
+	case policyv1alpha1.SchemeGroupVersion.WithResource("vaultpolicies"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Policy().V1alpha1().VaultPolicies().Informer()}, nil
-	case policy_v1alpha1.SchemeGroupVersion.WithResource("vaultpolicybindings"):
+	case policyv1alpha1.SchemeGroupVersion.WithResource("vaultpolicybindings"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Policy().V1alpha1().VaultPolicyBindings().Informer()}, nil
 
 	}
