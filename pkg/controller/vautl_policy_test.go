@@ -59,7 +59,7 @@ func vaultAppBinding(vAddr, tokenSecret string) *appcat.AppBinding {
 				Name: tokenSecret,
 			},
 			ClientConfig: appcat.ClientConfig{
-				URL:                   &vAddr,
+				URL: &vAddr,
 				InsecureSkipTLSVerify: true,
 			},
 		},

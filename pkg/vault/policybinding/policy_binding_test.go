@@ -20,6 +20,7 @@ var (
 		ttl:          "100",
 		maxTTL:       "100",
 		period:       "100",
+		path:         "kubernetes",
 	}
 	badPBind = &pBinding{}
 )
@@ -100,7 +101,13 @@ func NewFakeVaultServer() *httptest.Server {
 		}
 		w.WriteHeader(http.StatusOK)
 	}))
+	m.Post("/v1/auth/test/role/try", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
 	m.Del("/v1/auth/kubernetes/role/ok", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+	m.Del("/v1/auth/test/role/try", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 	m.Del("/v1/auth/kubernetes/role/err", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -131,6 +138,12 @@ func TestEnsure(t *testing.T) {
 			testName:  "no error",
 			name:      "ok",
 			pb:        goodPBind,
+			expectErr: false,
+		},
+		{
+			testName:  "no error, auth enabled in different path",
+			name:      "try",
+			pb:        func(p pBinding) *pBinding { p.path = "test"; return &p }(*goodPBind),
 			expectErr: false,
 		},
 		{
@@ -174,6 +187,12 @@ func TestDelete(t *testing.T) {
 			testName:  "no error",
 			name:      "ok",
 			pb:        goodPBind,
+			expectErr: false,
+		},
+		{
+			testName:  "no error, auth enabled in different path",
+			name:      "try",
+			pb:        func(p pBinding) *pBinding { p.path = "test"; return &p }(*goodPBind),
 			expectErr: false,
 		},
 		{

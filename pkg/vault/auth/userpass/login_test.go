@@ -36,6 +36,19 @@ func NewFakeVaultServer() *httptest.Server {
 		}
 		w.WriteHeader(http.StatusBadRequest)
 	}))
+	m.Post("/v1/auth/test/login/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var v map[string]interface{}
+		defer r.Body.Close()
+		json.NewDecoder(r.Body).Decode(&v)
+		if val, ok := v["password"]; ok {
+			if val.(string) == "try" {
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte(authResp))
+				return
+			}
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	}))
 
 	return httptest.NewServer(m)
 }
@@ -61,6 +74,17 @@ func TestAuth_Login(t *testing.T) {
 				vClient: vc,
 				user:    "test",
 				pass:    "good",
+				path:    "userpass",
+			},
+			expectErr: false,
+		},
+		{
+			testName: "login success, auth is enabled in another path",
+			au: &auth{
+				vClient: vc,
+				user:    "test",
+				pass:    "try",
+				path:    "test",
 			},
 			expectErr: false,
 		},
@@ -70,6 +94,7 @@ func TestAuth_Login(t *testing.T) {
 				vClient: vc,
 				user:    "test",
 				pass:    "bad",
+				path:    "userpass",
 			},
 			expectErr: true,
 		},

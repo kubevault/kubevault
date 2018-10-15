@@ -3,6 +3,7 @@ package aws
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -27,6 +28,7 @@ type auth struct {
 	creds       *credentials.Credentials
 	headerValue string
 	role        string
+	path        string
 }
 
 // links : https://www.vaultproject.io/docs/auth/aws.html
@@ -61,6 +63,7 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal parameters")
 	}
+	cf.SetDefaults()
 
 	creds, err := retrieveCreds(string(accessKeyID), string(secretAccessKey), string(securityToken))
 	if err != nil {
@@ -70,14 +73,16 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	return &auth{
 		vClient:     vc,
 		creds:       creds,
-		role:        string(cf.Role),
-		headerValue: string(cf.HeaderValue),
+		role:        cf.Role,
+		headerValue: cf.HeaderValue,
+		path:        cf.AuthPath,
 	}, nil
 }
 
 // Login will log into vault and return client token
 func (a *auth) Login() (string, error) {
-	req := a.vClient.NewRequest("POST", "/v1/auth/aws/login")
+	path := fmt.Sprintf("/v1/auth/%s/login", a.path)
+	req := a.vClient.NewRequest("POST", path)
 
 	loginData, err := a.generateLoginData()
 	if err != nil {

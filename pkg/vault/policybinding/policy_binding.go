@@ -35,7 +35,9 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 		ttl:          pBind.Spec.TTL,
 		maxTTL:       pBind.Spec.MaxTTL,
 		period:       pBind.Spec.Period,
+		path:         pBind.Spec.AuthPath,
 	}
+	pb.setDefaults()
 
 	var vaultRef *appcat.AppReference
 	// check whether VaultPolicy exists
@@ -75,12 +77,19 @@ type pBinding struct {
 	ttl          string
 	maxTTL       string
 	period       string
+	path         string
+}
+
+func (p *pBinding) setDefaults() {
+	if p.path == "" {
+		p.path = "kubernetes"
+	}
 }
 
 // create or update policy binding
 // it's safe to call it multiple times
 func (p *pBinding) Ensure(name string) error {
-	path := fmt.Sprintf("/v1/auth/kubernetes/role/%s", name)
+	path := fmt.Sprintf("/v1/auth/%s/role/%s", p.path, name)
 	req := p.vClient.NewRequest("POST", path)
 	payload := map[string]interface{}{
 		"bound_service_account_names":      p.saNames,
@@ -106,7 +115,7 @@ func (p *pBinding) Ensure(name string) error {
 // delete policy binding
 // it's safe to call it, even if 'name' doesn't exist in vault
 func (p *pBinding) Delete(name string) error {
-	path := fmt.Sprintf("/v1/auth/kubernetes/role/%s", name)
+	path := fmt.Sprintf("/v1/auth/%s/role/%s", p.path, name)
 	req := p.vClient.NewRequest("DELETE", path)
 	_, err := p.vClient.RawRequest(req)
 	if err != nil {

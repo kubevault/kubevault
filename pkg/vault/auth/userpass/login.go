@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	vaultapi "github.com/hashicorp/vault/api"
+	config "github.com/kubevault/operator/apis/config/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/auth/types"
 	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
@@ -16,6 +17,7 @@ type auth struct {
 	vClient *vaultapi.Client
 	user    string
 	pass    string
+	path    string
 }
 
 func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
@@ -37,16 +39,27 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	if !ok {
 		return nil, errors.New("password is missing")
 	}
+
+	var cf config.UserPassAuthConfiguration
+	if vApp.Spec.Parameters != nil {
+		err = json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to unmarshal parameters")
+		}
+	}
+	cf.SetDefaults()
+
 	return &auth{
 		vClient: vc,
 		user:    string(user),
 		pass:    string(pass),
+		path:    cf.AuthPath,
 	}, nil
 }
 
 // Login will log into vault and return client token
 func (a *auth) Login() (string, error) {
-	path := fmt.Sprintf("/v1/auth/userpass/login/%s", a.user)
+	path := fmt.Sprintf("/v1/auth/%s/login/%s", a.path, a.user)
 	req := a.vClient.NewRequest("POST", path)
 	payload := map[string]interface{}{
 		"password": a.pass,

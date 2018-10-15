@@ -15,4 +15,8 @@ type KubernetesAuthConfiguration struct {
 
 	// Name of the role against which the login is being attempted.
 	Role string `json:"role"`
+
+	// Specifies the path where kubernetes auth is enabled
+	// default : kubernetes
+	AuthPath string `json:"authPath,omitempty"`
 }

@@ -3,6 +3,7 @@ package cert
 import (
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	vaultapi "github.com/hashicorp/vault/api"
@@ -17,6 +18,7 @@ import (
 type auth struct {
 	vClient *vaultapi.Client
 	name    string
+	path    string
 }
 
 // links : https://www.vaultproject.io/docs/auth/aws.html
@@ -49,16 +51,19 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 			return nil, errors.Wrap(err, "failed to unmarshal parameters")
 		}
 	}
+	cf.SetDefaults()
 
 	return &auth{
 		vClient: vc,
 		name:    cf.Name,
+		path:    cf.AuthPath,
 	}, nil
 }
 
 // Login will log into vault and return client token
 func (a *auth) Login() (string, error) {
-	req := a.vClient.NewRequest("POST", "/v1/auth/cert/login")
+	path := fmt.Sprintf("/v1/auth/%s/login", a.path)
+	req := a.vClient.NewRequest("POST", path)
 	payload := map[string]interface{}{
 		"name": a.name,
 	}

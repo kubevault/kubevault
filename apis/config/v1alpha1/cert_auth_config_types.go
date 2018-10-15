@@ -18,4 +18,8 @@ type CertAuthConfiguration struct {
 	// defaults to trying all certificate roles and returning
 	// any one that matches.
 	Name string `json:"name,omitempty"`
+
+	// Specifies the path where cert auth is enabled
+	// default : cert
+	AuthPath string `json:"authPath,omitempty"`
 }
