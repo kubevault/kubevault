@@ -582,6 +582,13 @@ func schema_operator_apis_policy_v1alpha1_VaultPolicyBindingSpec(ref common.Refe
 			SchemaProps: spec.SchemaProps{
 				Description: "links: https://www.vaultproject.io/api/auth/kubernetes/index.html#parameters-1",
 				Properties: map[string]spec.Schema{
+					"authPath": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path where kubernetes auth is enabled default : kubernetes",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"policies": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the names of the VaultPolicy",

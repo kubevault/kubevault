@@ -23,7 +23,7 @@ func (v VaultPolicyBinding) PolicyBindingName() string {
 
 func (v VaultPolicyBinding) OffshootSelectors() map[string]string {
 	return map[string]string{
-		"app":                  "vault",
+		"app": "vault",
 		"vault_policy_binding": v.Name,
 	}
 }
@@ -72,4 +72,14 @@ func (v VaultPolicyBinding) CustomResourceDefinition() *apiextensions.CustomReso
 
 func (v VaultPolicyBinding) IsValid() error {
 	return nil
+}
+
+func (v *VaultPolicyBinding) SetDefaults() {
+	if v == nil {
+		return
+	}
+
+	if v.Spec.AuthPath == "" {
+		v.Spec.AuthPath = "kubernetes"
+	}
 }

@@ -24,4 +24,8 @@ type AWSAuthConfiguration struct {
 
 	// Specifies the header value that required if X-Vault-AWS-IAM-Server-ID Header is set
 	HeaderValue string `json:"headerValue,omitempty"`
+
+	// Specifies the path where aws auth is enabled
+	// default : aws
+	AuthPath string `json:"authPath,omitempty"`
 }

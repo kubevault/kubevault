@@ -40,6 +40,19 @@ func NewFakeVaultServer() *httptest.Server {
 		}
 		w.WriteHeader(http.StatusBadRequest)
 	}))
+	m.Post("/v1/auth/test/login/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var v map[string]interface{}
+		defer r.Body.Close()
+		json.NewDecoder(r.Body).Decode(&v)
+		if val, ok := v["role"]; ok {
+			if val.(string) == "try" {
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte(authResp))
+				return
+			}
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	}))
 
 	return httptest.NewServer(m)
 }
@@ -64,6 +77,16 @@ func TestAuth_Login(t *testing.T) {
 			au: &auth{
 				vClient: vc,
 				role:    "good",
+				path:    "aws",
+			},
+			expectErr: false,
+		},
+		{
+			testName: "login success, auth enabled in another path",
+			au: &auth{
+				vClient: vc,
+				role:    "try",
+				path:    "test",
 			},
 			expectErr: false,
 		},
@@ -72,6 +95,7 @@ func TestAuth_Login(t *testing.T) {
 			au: &auth{
 				vClient: vc,
 				role:    "bad",
+				path:    "aws",
 			},
 			expectErr: true,
 		},
@@ -109,7 +133,7 @@ func TestLogin(t *testing.T) {
 		},
 		Spec: appcat.AppBindingSpec{
 			ClientConfig: appcat.ClientConfig{
-				URL:                   &addr,
+				URL: &addr,
 				InsecureSkipTLSVerify: true,
 			},
 			Secret: &core.LocalObjectReference{
