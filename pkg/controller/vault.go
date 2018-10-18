@@ -40,8 +40,9 @@ type Vault interface {
 	Apply(pt *core.PodTemplateSpec) error
 	GetService() *core.Service
 	GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment
-	GetServiceAccount() *core.ServiceAccount
-	GetRBACRoles() []rbac.Role
+	GetServiceAccounts() []core.ServiceAccount
+	GetRBACRolesAndRoleBindings() ([]rbac.Role, []rbac.RoleBinding)
+	GetRBACClusterRoleBinding() rbac.ClusterRoleBinding
 	GetPodTemplate(c core.Container, saName string) *core.PodTemplateSpec
 	GetContainer() core.Container
 }
@@ -337,27 +338,87 @@ func (v *vaultSrv) GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment {
 	}
 }
 
-func (v *vaultSrv) GetServiceAccount() *core.ServiceAccount {
-	return &core.ServiceAccount{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      v.vs.OffshootName(),
-			Namespace: v.vs.Namespace,
-			Labels:    v.vs.OffshootLabels(),
+func (v *vaultSrv) GetServiceAccounts() []core.ServiceAccount {
+	return []core.ServiceAccount{
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      v.vs.ServiceAccountForUnsealer(),
+				Namespace: v.vs.Namespace,
+				Labels:    v.vs.OffshootLabels(),
+			},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      v.vs.ServiceAccountForPolicyController(),
+				Namespace: v.vs.Namespace,
+				Labels:    v.vs.OffshootLabels(),
+			},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      v.vs.ServiceAccountForTokenReviewer(),
+				Namespace: v.vs.Namespace,
+				Labels:    v.vs.OffshootLabels(),
+			},
 		},
 	}
 }
 
-func (v *vaultSrv) GetRBACRoles() []rbac.Role {
+func (v *vaultSrv) GetRBACRolesAndRoleBindings() ([]rbac.Role, []rbac.RoleBinding) {
 	var roles []rbac.Role
+	var rbindings []rbac.RoleBinding
 	labels := v.vs.OffshootLabels()
 	if v.unslr != nil {
-		rList := v.unslr.GetRBAC(v.vs.Namespace)
+		rList := v.unslr.GetRBAC(v.vs.Name, v.vs.Namespace)
 		for _, r := range rList {
 			r.Labels = core_util.UpsertMap(r.Labels, labels)
 			roles = append(roles, r)
+
+			// create corresponding role binding
+			rb := rbac.RoleBinding{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      r.Name,
+					Namespace: r.Namespace,
+					Labels:    r.Labels,
+				},
+				RoleRef: rbac.RoleRef{
+					APIGroup: rbac.GroupName,
+					Kind:     "Role",
+					Name:     r.Name,
+				},
+				Subjects: []rbac.Subject{
+					{
+						Kind:      rbac.ServiceAccountKind,
+						Name:      v.vs.ServiceAccountForUnsealer(),
+						Namespace: v.vs.Namespace,
+					},
+				},
+			}
+			rbindings = append(rbindings, rb)
 		}
 	}
-	return roles
+	return roles, rbindings
+}
+
+func (v *vaultSrv) GetRBACClusterRoleBinding() rbac.ClusterRoleBinding {
+	return rbac.ClusterRoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      v.vs.Name + "-k8s-token-reviewer",
+			Namespace: v.vs.Namespace,
+		},
+		RoleRef: rbac.RoleRef{
+			APIGroup: rbac.GroupName,
+			Kind:     "ClusterRole",
+			Name:     "system:auth-delegator",
+		},
+		Subjects: []rbac.Subject{
+			{
+				Kind:      rbac.ServiceAccountKind,
+				Name:      v.vs.ServiceAccountForTokenReviewer(),
+				Namespace: v.vs.Namespace,
+			},
+		},
+	}
 }
 
 func (v *vaultSrv) GetPodTemplate(c core.Container, saName string) *core.PodTemplateSpec {

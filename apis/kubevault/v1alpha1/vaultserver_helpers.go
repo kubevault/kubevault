@@ -15,6 +15,18 @@ func (v VaultServer) OffshootName() string {
 	return v.Name
 }
 
+func (v VaultServer) ServiceAccountForUnsealer() string {
+	return v.Name + "-unsealer"
+}
+
+func (v VaultServer) ServiceAccountForTokenReviewer() string {
+	return v.Name + "-k8s-token-reviewer"
+}
+
+func (v VaultServer) ServiceAccountForPolicyController() string {
+	return v.Name + "-policy-controller"
+}
+
 func (v VaultServer) OffshootSelectors() map[string]string {
 	return map[string]string{
 		"app":           "vault",

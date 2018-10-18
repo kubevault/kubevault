@@ -19,7 +19,7 @@ import (
 
 type Unsealer interface {
 	Apply(pt *core.PodTemplateSpec) error
-	GetRBAC(namespace string) []rbac.Role
+	GetRBAC(prefix, namespace string) []rbac.Role
 }
 
 type unsealerSrv struct {
@@ -123,9 +123,9 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 }
 
 // GetRBAC return rbac roles required by unsealer
-func (u *unsealerSrv) GetRBAC(namespace string) []rbac.Role {
+func (u *unsealerSrv) GetRBAC(prefix, namespace string) []rbac.Role {
 	if u == nil {
 		return nil
 	}
-	return u.unsealer.GetRBAC(namespace)
+	return u.unsealer.GetRBAC(prefix, namespace)
 }
