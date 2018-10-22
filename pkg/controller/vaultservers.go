@@ -52,14 +52,18 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 
 		glog.Infof("Sync/Add/Update for VaultServer %s/%s\n", vs.Namespace, vs.Name)
 
-		v, err := NewVault(vs, c.kubeClient, c.extClient)
-		if err != nil {
-			return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)
-		}
+		if vs.DeletionTimestamp != nil {
+			return nil
+		} else {
+			v, err := NewVault(vs, c.clientConfig, c.kubeClient, c.extClient)
+			if err != nil {
+				return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)
+			}
 
-		err = c.reconcileVault(vs, v)
-		if err != nil {
-			return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)
+			err = c.reconcileVault(vs, v)
+			if err != nil {
+				return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)
+			}
 		}
 	}
 	return nil
@@ -190,21 +194,8 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 		}
 	}
 
-	podT := v.GetPodTemplate(v.GetContainer(), vs.ServiceAccountForUnsealer())
-
-	err := v.Apply(podT)
-	if err != nil {
-		return err
-	}
-
-	d := v.GetDeployment(podT)
-	err = ensureDeployment(c.kubeClient, vs, d)
-	if err != nil {
-		return err
-	}
-
 	svc := v.GetService()
-	err = ensureService(c.kubeClient, vs, svc)
+	err := ensureService(c.kubeClient, vs, svc)
 	if err != nil {
 		return err
 	}
@@ -217,6 +208,21 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 
 	cRB := v.GetRBACClusterRoleBinding()
 	err = ensurClusterRoleBinding(c.kubeClient, vs, cRB)
+	if err != nil {
+		return err
+	}
+
+	// apply changes to PodTemplate after creating service accounts
+	// because unsealer use token reviewer jwt to enable kubernetes auth
+
+	podT := v.GetPodTemplate(v.GetContainer(), vs.ServiceAccountForUnsealer())
+	err = v.Apply(podT)
+	if err != nil {
+		return err
+	}
+
+	d := v.GetDeployment(podT)
+	err = ensureDeployment(c.kubeClient, vs, d)
 	if err != nil {
 		return err
 	}

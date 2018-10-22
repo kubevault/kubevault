@@ -442,13 +442,12 @@ type UnsealerSpec struct {
 	// overwrite existing unseal keys and root tokens, possibly dangerous!
 	OverwriteExisting bool `json:"overwriteExisting,omitempty"`
 
-	// To skip tls verification when communicating with vault server
-	InsecureTLS bool `json:"insecureTLS,omitempty"`
+	// InsecureSkipTLSVerify disables TLS certificate verification
+	InsecureSkipTLSVerify bool `json:"insecureSkipTLSVerify,omitempty"`
 
-	// Secret name containing self signed ca cert of vault
-	// secret data:
-	//	- ca.crt=<value>
-	VaultCASecret string `json:"vaultCASecret,omitempty"`
+	// CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate.
+	// +optional
+	CABundle []byte `json:"caBundle,omitempty"`
 
 	// should the root token be stored in the key store (default true)
 	StoreRootToken bool `json:"storeRootToken,omitempty"`

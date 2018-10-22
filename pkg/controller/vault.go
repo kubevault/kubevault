@@ -20,6 +20,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/util/cert"
 )
 
@@ -55,7 +56,7 @@ type vaultSrv struct {
 	image      string
 }
 
-func NewVault(vs *api.VaultServer, kc kubernetes.Interface, vc cs.Interface) (Vault, error) {
+func NewVault(vs *api.VaultServer, config *rest.Config, kc kubernetes.Interface, vc cs.Interface) (Vault, error) {
 	version, err := vc.CatalogV1alpha1().VaultServerVersions().Get(string(vs.Spec.Version), metav1.GetOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get vault server version")
@@ -68,7 +69,7 @@ func NewVault(vs *api.VaultServer, kc kubernetes.Interface, vc cs.Interface) (Va
 	}
 
 	// it is not required to have unsealer
-	unslr, err := unsealer.NewUnsealerService(vs.Spec.Unsealer, version.Spec.Unsealer.Image)
+	unslr, err := unsealer.NewUnsealerService(config, vs, version.Spec.Unsealer.Image)
 	if err != nil {
 		return nil, err
 	}

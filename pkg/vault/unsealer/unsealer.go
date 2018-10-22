@@ -2,19 +2,26 @@ package unsealer
 
 import (
 	"fmt"
-	"path/filepath"
 	"time"
 
 	core_util "github.com/appscode/kutil/core/v1"
+	"github.com/golang/glog"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	sa_util "github.com/kubevault/operator/pkg/util"
 	"github.com/kubevault/operator/pkg/vault/unsealer/aws"
 	"github.com/kubevault/operator/pkg/vault/unsealer/azure"
 	"github.com/kubevault/operator/pkg/vault/unsealer/google"
-	"github.com/kubevault/operator/pkg/vault/unsealer/kubernetes"
+	k8s "github.com/kubevault/operator/pkg/vault/unsealer/kubernetes"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+)
+
+const (
+	K8sTokenReviewerJwtEnv = "K8S_TOKEN_REVIEWER_JWT"
 )
 
 type Unsealer interface {
@@ -23,14 +30,16 @@ type Unsealer interface {
 }
 
 type unsealerSrv struct {
-	*api.UnsealerSpec
-	unsealer Unsealer
-	image    string
+	restConfig *rest.Config
+	kc         kubernetes.Interface
+	vs         *api.VaultServer
+	unsealer   Unsealer
+	image      string
 }
 
 func newUnsealer(s *api.UnsealerSpec) (Unsealer, error) {
 	if s.Mode.KubernetesSecret != nil {
-		return kubernetes.NewOptions(*s.Mode.KubernetesSecret)
+		return k8s.NewOptions(*s.Mode.KubernetesSecret)
 	} else if s.Mode.GoogleKmsGcs != nil {
 		return google.NewOptions(*s.Mode.GoogleKmsGcs)
 	} else if s.Mode.AwsKmsSsm != nil {
@@ -42,19 +51,30 @@ func newUnsealer(s *api.UnsealerSpec) (Unsealer, error) {
 	}
 }
 
-func NewUnsealerService(s *api.UnsealerSpec, image string) (Unsealer, error) {
-	if s == nil {
+func NewUnsealerService(restConfig *rest.Config, vs *api.VaultServer, image string) (Unsealer, error) {
+	if vs == nil {
+		return nil, errors.New("VaultServer is nil")
+	}
+	if vs.Spec.Unsealer == nil {
+		glog.Infoln(".spec.unsealer is nil")
 		return nil, nil
 	}
 
-	unslr, err := newUnsealer(s)
+	unslr, err := newUnsealer(vs.Spec.Unsealer)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create unsealer service")
 	}
+
+	kc, err := kubernetes.NewForConfig(restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create kubernetes client")
+	}
 	return &unsealerSrv{
-		UnsealerSpec: s,
-		image:        image,
-		unsealer:     unslr,
+		restConfig: restConfig,
+		vs:         vs,
+		kc:         kc,
+		image:      image,
+		unsealer:   unslr,
 	}, nil
 }
 
@@ -67,7 +87,8 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 	}
 
 	var args []string
-	vautlCACertFile := "/etc/vault/tls/ca.crt"
+
+	unslr := u.vs.Spec.Unsealer
 	cont := core.Container{
 		Name:  util.VaultUnsealerContainerName,
 		Image: u.image,
@@ -77,45 +98,62 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 		"--v=3",
 	)
 
-	if u.SecretShares != 0 {
-		args = append(args, fmt.Sprintf("--secret-shares=%d", u.SecretShares))
+	if unslr.SecretShares != 0 {
+		args = append(args, fmt.Sprintf("--secret-shares=%d", unslr.SecretShares))
 	}
-	if u.SecretThreshold != 0 {
-		args = append(args, fmt.Sprintf("--secret-threshold=%d", u.SecretThreshold))
+	if unslr.SecretThreshold != 0 {
+		args = append(args, fmt.Sprintf("--secret-threshold=%d", unslr.SecretThreshold))
 	}
 
-	if u.RetryPeriodSeconds != 0 {
-		p := time.Second * u.RetryPeriodSeconds
+	if unslr.RetryPeriodSeconds != 0 {
+		p := time.Second * unslr.RetryPeriodSeconds
 		args = append(args, fmt.Sprintf("--retry-period=%s", p.String()))
 	}
-	if u.InsecureTLS == true {
-		args = append(args, fmt.Sprintf("--insecure-tls=true"))
+	if unslr.InsecureSkipTLSVerify == true {
+		args = append(args, fmt.Sprintf("--insecure-skip-tls-verify=true"))
 	}
-	if u.OverwriteExisting == true {
+	if unslr.OverwriteExisting == true {
 		args = append(args, fmt.Sprintf("--overwrite-existing=true"))
 	}
 
-	if u.InsecureTLS == false && u.VaultCASecret != "" {
-		args = append(args, fmt.Sprintf("--ca-cert-file=%s", vautlCACertFile))
-
-		pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, core.Volume{
-			Name: "vaultCA",
-			VolumeSource: core.VolumeSource{
-				Secret: &core.SecretVolumeSource{
-					SecretName: u.VaultCASecret,
-				},
-			},
-		})
-
-		cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{
-			Name:      "vaultCA",
-			MountPath: filepath.Dir(vautlCACertFile),
-		})
+	if unslr.InsecureSkipTLSVerify == false && len(unslr.CABundle) != 0 {
+		args = append(args, fmt.Sprintf("--ca-cert=%s", unslr.CABundle))
 	}
+
+	// Add kubernetes auth flags
+	args = append(args, fmt.Sprintf("--auth.k8s-host=%s", u.restConfig.Host))
+
+	err := rest.LoadTLSFiles(u.restConfig)
+	if err != nil {
+		return errors.Wrap(err, "fialed to TLS files from rest config for kubernetes auth")
+	}
+	args = append(args, fmt.Sprintf("--auth.k8s-ca-cert=%s", u.restConfig.CAData))
+
+	// Add env for kubernetes auth
+	secretName, err := sa_util.TryGetJwtTokenSecretNameFromServiceAccount(u.kc, u.vs.ServiceAccountForTokenReviewer(), u.vs.Namespace, 2*time.Second, 30*time.Second)
+	if err != nil {
+		return errors.Wrapf(err, "failed to get jwt token secret name of service account(%s/%s)", u.vs.Namespace, u.vs.ServiceAccountForTokenReviewer())
+	}
+	cont.Env = core_util.UpsertEnvVars(cont.Env, core.EnvVar{
+		Name: K8sTokenReviewerJwtEnv,
+		ValueFrom: &core.EnvVarSource{
+			SecretKeyRef: &core.SecretKeySelector{
+				LocalObjectReference: core.LocalObjectReference{
+					Name: secretName,
+				},
+				Key: core.ServiceAccountTokenKey,
+			},
+		},
+	})
+
+	// Add flags for policy
+	args = append(args, fmt.Sprintf("--policy.name=%s", u.vs.ServiceAccountForPolicyController()))
+	args = append(args, fmt.Sprintf("--policy.service-account-name=%s", u.vs.ServiceAccountForPolicyController()))
+	args = append(args, fmt.Sprintf("--policy.service-account-namespace=%s", u.vs.Namespace))
 
 	cont.Args = append(cont.Args, args...)
 	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)
-	err := u.unsealer.Apply(pt)
+	err = u.unsealer.Apply(pt)
 	if err != nil {
 		return err
 	}

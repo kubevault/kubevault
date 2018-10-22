@@ -4089,9 +4089,13 @@ spec:
             unsealer:
               description: UnsealerSpec contain the configuration for auto vault initialize/unseal
               properties:
-                insecureTLS:
-                  description: To skip tls verification when communicating with vault
-                    server
+                caBundle:
+                  description: CABundle is a PEM encoded CA bundle which will be used
+                    to validate the serving certificate.
+                  format: byte
+                  type: string
+                insecureSkipTLSVerify:
+                  description: InsecureSkipTLSVerify disables TLS certificate verification
                   type: boolean
                 mode:
                   description: ModeSpec contain unseal mechanism
@@ -4205,10 +4209,6 @@ spec:
                   description: should the root token be stored in the key store (default
                     true)
                   type: boolean
-                vaultCASecret:
-                  description: "Secret name containing self signed ca cert of vault
-                    secret data:\n\t- ca.crt=<value>"
-                  type: string
             version:
               description: Version of Vault server to be deployed.
               type: string

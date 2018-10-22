@@ -4213,8 +4213,13 @@
     "com.github.kubevault.operator.apis.kubevault.v1alpha1.UnsealerSpec": {
       "description": "UnsealerSpec contain the configuration for auto vault initialize/unseal",
       "properties": {
-        "insecureTLS": {
-          "description": "To skip tls verification when communicating with vault server",
+        "caBundle": {
+          "description": "CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate.",
+          "type": "string",
+          "format": "byte"
+        },
+        "insecureSkipTLSVerify": {
+          "description": "InsecureSkipTLSVerify disables TLS certificate verification",
           "type": "boolean"
         },
         "mode": {
@@ -4243,10 +4248,6 @@
         "storeRootToken": {
           "description": "should the root token be stored in the key store (default true)",
           "type": "boolean"
-        },
-        "vaultCASecret": {
-          "description": "Secret name containing self signed ca cert of vault secret data:\n\t- ca.crt=\u003cvalue\u003e",
-          "type": "string"
         }
       }
     },

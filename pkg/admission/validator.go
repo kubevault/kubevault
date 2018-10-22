@@ -296,16 +296,9 @@ func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs
 		if unslr.SecretThreshold > unslr.SecretShares {
 			return errors.New("spec.unsealer.secretShares must be greater than spec.unsealer.secretThreshold")
 		}
-		if unslr.InsecureTLS == false {
-			if unslr.VaultCASecret != "" {
-				err := validateSecret(client, unslr.VaultCASecret, vs.Namespace, []string{
-					"ca.crt",
-				})
-				if err != nil {
-					return errors.Wrap(err, "for spec.unsealer.vaultCASecret")
-				}
-			} else {
-				return errors.New("spec.unsealer.insecureTLS is false and spec.unsealer.vaultCASecret is empty")
+		if unslr.InsecureSkipTLSVerify == false {
+			if len(unslr.CABundle) == 0 {
+				return errors.New("spec.unsealer.insecureSkipTLSVerify is false and spec.unsealer.caBundle is empty")
 			}
 		}
 

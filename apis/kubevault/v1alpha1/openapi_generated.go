@@ -1190,18 +1190,18 @@ func schema_operator_apis_kubevault_v1alpha1_UnsealerSpec(ref common.ReferenceCa
 							Format:      "",
 						},
 					},
-					"insecureTLS": {
+					"insecureSkipTLSVerify": {
 						SchemaProps: spec.SchemaProps{
-							Description: "To skip tls verification when communicating with vault server",
+							Description: "InsecureSkipTLSVerify disables TLS certificate verification",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
-					"vaultCASecret": {
+					"caBundle": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Secret name containing self signed ca cert of vault secret data:\n\t- ca.crt=<value>",
+							Description: "CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate.",
 							Type:        []string{"string"},
-							Format:      "",
+							Format:      "byte",
 						},
 					},
 					"storeRootToken": {
