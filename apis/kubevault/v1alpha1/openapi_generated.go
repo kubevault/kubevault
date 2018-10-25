@@ -34,6 +34,9 @@ import (
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
 		"github.com/appscode/go/encoding/json/types.IntHash":                         schema_go_encoding_json_types_IntHash(ref),
+		"github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthConfig":           schema_operator_apis_kubevault_v1alpha1_AuthConfig(ref),
+		"github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthMethod":           schema_operator_apis_kubevault_v1alpha1_AuthMethod(ref),
+		"github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthMethodStatus":     schema_operator_apis_kubevault_v1alpha1_AuthMethodStatus(ref),
 		"github.com/kubevault/operator/apis/kubevault/v1alpha1.AwsKmsSsmSpec":        schema_operator_apis_kubevault_v1alpha1_AwsKmsSsmSpec(ref),
 		"github.com/kubevault/operator/apis/kubevault/v1alpha1.AzureKeyVault":        schema_operator_apis_kubevault_v1alpha1_AzureKeyVault(ref),
 		"github.com/kubevault/operator/apis/kubevault/v1alpha1.AzureSpec":            schema_operator_apis_kubevault_v1alpha1_AzureSpec(ref),
@@ -349,6 +352,186 @@ func schema_go_encoding_json_types_IntHash(ref common.ReferenceCallback) common.
 				Format:      types.IntHash{}.OpenAPISchemaFormat(),
 			},
 		},
+	}
+}
+
+func schema_operator_apis_kubevault_v1alpha1_AuthConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Properties: map[string]spec.Schema{
+					"defaultLeaseTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The default lease duration, specified as a string duration like \"5s\" or \"30m\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"maxLeaseTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The maximum lease duration, specified as a string duration like \"5s\" or \"30m\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"pluginName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The name of the plugin in the plugin catalog to use.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"auditNonHMACRequestKeys": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of keys that will not be HMAC'd by audit devices in the request data object.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"auditNonHMACResponseKeys": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of keys that will not be HMAC'd by audit devices in the response data object.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"listingVisibility": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Speficies whether to show this mount in the UI-specific listing endpoint.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"passthroughRequestHeaders": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of headers to whitelist and pass from the request to the backend.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{},
+	}
+}
+
+func schema_operator_apis_kubevault_v1alpha1_AuthMethod(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "AuthMethod contains the information to enable vault auth method links: https://www.vaultproject.io/api/system/auth.html",
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "\n Specifies the name of the authentication method type, such as \"github\" or \"token\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path in which to enable the auth method. Default value is the same as the 'type'",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies a human-friendly description of the auth method.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"config": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies configuration options for this auth method.",
+							Ref:         ref("github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthConfig"),
+						},
+					},
+					"pluginName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the name of the auth plugin to use based from the name in the plugin catalog. Applies only to plugin methods.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"local": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies if the auth method is a local only. Local auth methods are not replicated nor (if a secondary) removed by replication.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"type", "path"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthConfig"},
+	}
+}
+
+func schema_operator_apis_kubevault_v1alpha1_AuthMethodStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "AuthMethodStatus specifies the status of the auth method maintained by the auth method controller",
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "\n Specifies the name of the authentication method type, such as \"github\" or \"token\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path in which to enable the auth method.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies whether auth method is enabled or not",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"reason": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the reason why failed to enable auth method",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"type", "path", "status"},
+			},
+		},
+		Dependencies: []string{},
 	}
 }
 
@@ -1395,6 +1578,19 @@ func schema_operator_apis_kubevault_v1alpha1_VaultServerSpec(ref common.Referenc
 							Ref:         ref("github.com/kubevault/operator/apis/kubevault/v1alpha1.UnsealerSpec"),
 						},
 					},
+					"authMethods": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the list of auth methods to enable",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthMethod"),
+									},
+								},
+							},
+						},
+					},
 					"podTemplate": {
 						SchemaProps: spec.SchemaProps{
 							Description: "PodTemplate is an optional configuration for pods used to run vault",
@@ -1412,7 +1608,7 @@ func schema_operator_apis_kubevault_v1alpha1_VaultServerSpec(ref common.Referenc
 			},
 		},
 		Dependencies: []string{
-			"github.com/kubevault/operator/apis/kubevault/v1alpha1.BackendStorageSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.TLSPolicy", "github.com/kubevault/operator/apis/kubevault/v1alpha1.UnsealerSpec", "k8s.io/api/core/v1.VolumeSource", "kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec", "kmodules.xyz/offshoot-api/api/v1.ServiceTemplateSpec"},
+			"github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthMethod", "github.com/kubevault/operator/apis/kubevault/v1alpha1.BackendStorageSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.TLSPolicy", "github.com/kubevault/operator/apis/kubevault/v1alpha1.UnsealerSpec", "k8s.io/api/core/v1.VolumeSource", "kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec", "kmodules.xyz/offshoot-api/api/v1.ServiceTemplateSpec"},
 	}
 }
 
@@ -1488,11 +1684,24 @@ func schema_operator_apis_kubevault_v1alpha1_VaultServerStatus(ref common.Refere
 							},
 						},
 					},
+					"authMethodStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Status of the vault auth methods",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthMethodStatus"),
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/appscode/go/encoding/json/types.IntHash", "github.com/kubevault/operator/apis/kubevault/v1alpha1.VaultServerCondition", "github.com/kubevault/operator/apis/kubevault/v1alpha1.VaultStatus"},
+			"github.com/appscode/go/encoding/json/types.IntHash", "github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthMethodStatus", "github.com/kubevault/operator/apis/kubevault/v1alpha1.VaultServerCondition", "github.com/kubevault/operator/apis/kubevault/v1alpha1.VaultStatus"},
 	}
 }
 

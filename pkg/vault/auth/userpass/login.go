@@ -42,7 +42,11 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 
 	var cf config.UserPassAuthConfiguration
 	if vApp.Spec.Parameters != nil {
-		err = json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
+		raw, err := vaultuitl.UnQuoteJson(string(vApp.Spec.Parameters.Raw))
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to unquote json")
+		}
+		err = json.Unmarshal([]byte(raw), &cf)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to unmarshal parameters")
 		}

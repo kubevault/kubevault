@@ -50,6 +50,9 @@ type VaultServerSpec struct {
 	// Unsealer configuration for vault
 	Unsealer *UnsealerSpec `json:"unsealer,omitempty"`
 
+	// Specifies the list of auth methods to enable
+	AuthMethods []AuthMethod `json:"authMethods,omitempty"`
+
 	// PodTemplate is an optional configuration for pods used to run vault
 	// +optional
 	PodTemplate ofst.PodTemplateSpec `json:"podTemplate,omitempty"`
@@ -104,6 +107,9 @@ type VaultServerStatus struct {
 
 	// Represents the latest available observations of a VaultServer current state.
 	Conditions []VaultServerCondition `json:"conditions,omitempty"`
+
+	// Status of the vault auth methods
+	AuthMethodStatus []AuthMethodStatus `json:"authMethodStatus,omitempty"`
 }
 
 type VaultServerConditionType string
@@ -532,4 +538,75 @@ type AzureKeyVault struct {
 
 	// Use managed service identity for the virtual machine
 	UseManagedIdentity bool `json:"useManagedIdentity,omitempty"`
+}
+
+// AuthMethod contains the information to enable vault auth method
+// links: https://www.vaultproject.io/api/system/auth.html
+type AuthMethod struct {
+	//  Specifies the name of the authentication method type, such as "github" or "token".
+	Type string `json:"type"`
+
+	// Specifies the path in which to enable the auth method.
+	// Default value is the same as the 'type'
+	Path string `json:"path"`
+
+	// Specifies a human-friendly description of the auth method.
+	Description string `json:"description,omitempty"`
+
+	// Specifies configuration options for this auth method.
+	Config *AuthConfig `json:"config,omitempty"`
+
+	// Specifies the name of the auth plugin to use based from the name in the plugin catalog.
+	// Applies only to plugin methods.
+	PluginName string `json:"pluginName,omitempty"`
+
+	// Specifies if the auth method is a local only. Local auth methods are not replicated nor (if a secondary) removed by replication.
+	Local bool `json:"local,omitempty"`
+}
+
+type AuthMethodEnableDisableStatus string
+
+const (
+	AuthMethodEnableSucceeded  AuthMethodEnableDisableStatus = "EnableSucceeded"
+	AuthMethodEnableFailed     AuthMethodEnableDisableStatus = "EnableFailed"
+	AuthMethodDisableSucceeded AuthMethodEnableDisableStatus = "DisableSucceeded"
+	AuthMethodDisableFailed    AuthMethodEnableDisableStatus = "DisableFailed"
+)
+
+// AuthMethodStatus specifies the status of the auth method maintained by the auth method controller
+type AuthMethodStatus struct {
+	//  Specifies the name of the authentication method type, such as "github" or "token".
+	Type string `json:"type"`
+
+	// Specifies the path in which to enable the auth method.
+	Path string `json:"path"`
+
+	// Specifies whether auth method is enabled or not
+	Status AuthMethodEnableDisableStatus `json:"status"`
+
+	// Specifies the reason why failed to enable auth method
+	Reason string `json:"reason,omitempty"`
+}
+
+type AuthConfig struct {
+	// The default lease duration, specified as a string duration like "5s" or "30m".
+	DefaultLeaseTTL string `json:"defaultLeaseTTL,omitempty"`
+
+	// The maximum lease duration, specified as a string duration like "5s" or "30m".
+	MaxLeaseTTL string `json:"maxLeaseTTL,omitempty"`
+
+	// The name of the plugin in the plugin catalog to use.
+	PluginName string `json:"pluginName,omitempty"`
+
+	// List of keys that will not be HMAC'd by audit devices in the request data object.
+	AuditNonHMACRequestKeys []string `json:"auditNonHMACRequestKeys,omitempty""`
+
+	// List of keys that will not be HMAC'd by audit devices in the response data object.
+	AuditNonHMACResponseKeys []string `json:"auditNonHMACResponseKeys,omitempty"`
+
+	// Speficies whether to show this mount in the UI-specific listing endpoint.
+	ListingVisibility string `json:"listingVisibility,omitempty"`
+
+	// List of headers to whitelist and pass from the request to the backend.
+	PassthroughRequestHeaders []string `json:"passthroughRequestHeaders,omitempty"`
 }

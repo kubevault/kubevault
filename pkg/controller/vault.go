@@ -406,6 +406,7 @@ func (v *vaultSrv) GetRBACClusterRoleBinding() rbac.ClusterRoleBinding {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      v.vs.Name + "-k8s-token-reviewer",
 			Namespace: v.vs.Namespace,
+			Labels:    v.vs.OffshootLabels(),
 		},
 		RoleRef: rbac.RoleRef{
 			APIGroup: rbac.GroupName,

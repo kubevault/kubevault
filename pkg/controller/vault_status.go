@@ -20,10 +20,6 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
-const (
-	caFileDir = ".pki"
-)
-
 // monitorAndUpdateStatus monitors the vault service and replicas statuses, and
 // updates the status resource in the vault CR item.
 func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.VaultServer) {
@@ -155,8 +151,8 @@ func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespa
 	vault, err := c.extClient.KubevaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		key := namespace + "/" + name
-		if cancel, ok := c.ctxCancels[key]; ok {
-			cancel()
+		if ctxWithcancel, ok := c.ctxCancels[key]; ok {
+			ctxWithcancel.Cancel()
 			delete(c.ctxCancels, key)
 		}
 		return nil, err

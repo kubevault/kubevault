@@ -27,6 +27,26 @@ func (v VaultServer) ServiceAccountForPolicyController() string {
 	return v.Name + "-policy-controller"
 }
 
+func (v VaultServer) ServiceAccountForAuthMethodController() string {
+	return v.Name + "-auth-method-controller"
+}
+
+func (v VaultServer) PolicyNameForPolicyController() string {
+	return v.Name + "-policy-controller"
+}
+
+func (v VaultServer) PolicyNameForAuthMethodController() string {
+	return v.Name + "-auth-method-controller"
+}
+
+func (v VaultServer) AppBindingNameForAuthMethodController() string {
+	return v.Name + "-auth-method-controller"
+}
+
+func (v VaultServer) AppBindingNameForPolicyController() string {
+	return v.Name + "-policy-controller"
+}
+
 func (v VaultServer) OffshootSelectors() map[string]string {
 	return map[string]string{
 		"app":           "vault",

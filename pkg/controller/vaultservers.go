@@ -42,8 +42,8 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 		glog.Warningf("VaultServer %s does not exist anymore\n", key)
 
 		// stop vault status monitor
-		if cancel, ok := c.ctxCancels[key]; ok {
-			cancel()
+		if ctxWithCancel, ok := c.ctxCancels[key]; ok {
+			ctxWithCancel.Cancel()
 			delete(c.ctxCancels, key)
 		}
 
@@ -130,7 +130,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 		return errors.Wrap(err, "failed to deploy vault")
 	}
 
-	err = c.ensureAppBinding(vs, v)
+	err = c.ensureAppBindings(vs, v)
 	if err != nil {
 		status.Conditions = []api.VaultServerCondition{
 			{
@@ -157,11 +157,19 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 
 	// Add vault monitor to watch vault seal or unseal status
 	key := vs.GetKey()
-	if _, ok := c.ctxCancels[key]; !ok {
+	ctxWithCancel, ok := c.ctxCancels[key]
+	if !ok {
 		ctx, cancel := context.WithCancel(context.Background())
-		c.ctxCancels[key] = cancel
+		c.ctxCancels[key] = CtxWithCancel{
+			Ctx:    ctx,
+			Cancel: cancel,
+		}
 		go c.monitorAndUpdateStatus(ctx, vs)
+		c.reconcileAuthMethods(vs, ctx)
+	} else {
+		c.reconcileAuthMethods(vs, ctxWithCancel.Ctx)
 	}
+
 	return nil
 }
 

@@ -53,7 +53,7 @@ func (u *unsealerFake) Apply(pt *core.PodTemplateSpec) error {
 	return nil
 }
 
-func (u *unsealerFake) GetRBAC(namespace string) []rbacv1.Role {
+func (u *unsealerFake) GetRBAC(prefix, namespace string) []rbacv1.Role {
 	return nil
 }
 
