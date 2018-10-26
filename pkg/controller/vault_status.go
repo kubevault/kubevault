@@ -45,6 +45,7 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.Vau
 		}
 		if latest != nil {
 			v = latest
+			s = v.Status
 		}
 
 		select {
@@ -162,7 +163,13 @@ func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespa
 
 	// TODO : flag for useSubresource?
 	vault, err = cs_util.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vault, func(s *api.VaultServerStatus) *api.VaultServerStatus {
-		*s = *status
+		s.VaultStatus.Active = status.VaultStatus.Active
+		s.VaultStatus.Standby = status.VaultStatus.Standby
+		s.VaultStatus.Sealed = status.VaultStatus.Sealed
+		s.VaultStatus.Unsealed = status.VaultStatus.Unsealed
+		s.Initialized = status.Initialized
+		s.UpdatedNodes = status.UpdatedNodes
+		s.Phase = status.Phase
 		return s
 	}, apis.EnableStatusSubresource)
 	return vault, err

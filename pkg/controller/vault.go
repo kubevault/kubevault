@@ -362,6 +362,13 @@ func (v *vaultSrv) GetServiceAccounts() []core.ServiceAccount {
 				Labels:    v.vs.OffshootLabels(),
 			},
 		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      v.vs.ServiceAccountForAuthMethodController(),
+				Namespace: v.vs.Namespace,
+				Labels:    v.vs.OffshootLabels(),
+			},
+		},
 	}
 }
 

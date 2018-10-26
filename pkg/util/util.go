@@ -3,6 +3,7 @@ package util
 import (
 	"time"
 
+	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -31,11 +32,13 @@ func TryGetJwtTokenSecretNameFromServiceAccount(kc kubernetes.Interface, name st
 		secretName, err = GetJwtTokenSecretNameFromServiceAccount(kc, name, namespace)
 		if err == nil {
 			return true, nil
+		} else {
+			glog.Errorf("trying to get jwt token secret name from service account %s/%s: %s", namespace, name, err)
 		}
 		return false, nil
 	})
 	if err2 != nil {
 		return "", errors.Wrap(err, err2.Error())
 	}
-	return secretName, err
+	return secretName, err2
 }

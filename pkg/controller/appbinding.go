@@ -116,7 +116,7 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 		Namespace: vs.Namespace,
 	}
 
-	// use policy controller service account for vault authentication
+	// use auth method controller service account for vault authentication
 	secretName, err = sa_util.TryGetJwtTokenSecretNameFromServiceAccount(c.kubeClient, vs.ServiceAccountForAuthMethodController(), vs.Namespace, 2*time.Second, 30*time.Second)
 	if err != nil {
 		return errors.Wrapf(err, "failed to get jwt token secret name of service account(%s/%s)", vs.Namespace, vs.ServiceAccountForAuthMethodController())

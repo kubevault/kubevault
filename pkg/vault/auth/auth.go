@@ -30,7 +30,8 @@ func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding) (AuthInterface, e
 
 	secret, err := kc.CoreV1().Secrets(vApp.Namespace).Get(vApp.Spec.Secret.Name, metav1.GetOptions{})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "failed to get secret %s/%s", vApp.Namespace, vApp.Spec.Secret.Name)
+
 	}
 
 	switch secret.Type {

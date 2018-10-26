@@ -23,12 +23,12 @@ import (
 )
 
 const PolicyForAuthController = `
-path "/sys/auth" {
-  capabilities = ["read", "list"]
+path "sys/auth" {
+  capabilities = ["read", "list", ]
 }
 
-path "/sys/auth/*" {
-  capabilities = ["create", "read", "update", "delete"]
+path "sys/auth/*" {
+  capabilities = ["sudo", "create", "read", "update", "delete"]
 }
 `
 
