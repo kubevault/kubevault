@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	vaultapi "github.com/hashicorp/vault/api"
+	"github.com/kubevault/operator/apis"
 	config "github.com/kubevault/operator/apis/config/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/auth/types"
 	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
@@ -14,6 +15,8 @@ import (
 	core "k8s.io/api/core/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
+
+const CertDefaultAuthPath = "cert"
 
 type auth struct {
 	vClient *vaultapi.Client
@@ -44,7 +47,7 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
-	var cf config.CertAuthConfiguration
+	var cf config.VaultServerConfiguration
 	if vApp.Spec.Parameters != nil {
 		raw, err := vaultuitl.UnQuoteJson(string(vApp.Spec.Parameters.Raw))
 		if err != nil {
@@ -55,12 +58,16 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 			return nil, errors.Wrap(err, "failed to unmarshal parameters")
 		}
 	}
-	cf.SetDefaults()
+
+	authPath := CertDefaultAuthPath
+	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
+		authPath = val
+	}
 
 	return &auth{
 		vClient: vc,
-		name:    cf.Name,
-		path:    cf.AuthPath,
+		name:    cf.PolicyControllerRole,
+		path:    authPath,
 	}, nil
 }
 

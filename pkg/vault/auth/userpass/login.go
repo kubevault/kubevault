@@ -5,13 +5,15 @@ import (
 	"fmt"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	config "github.com/kubevault/operator/apis/config/v1alpha1"
+	"github.com/kubevault/operator/apis"
 	"github.com/kubevault/operator/pkg/vault/auth/types"
 	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
+
+const UserPassDefaultAuthPath = "userpass"
 
 type auth struct {
 	vClient *vaultapi.Client
@@ -40,24 +42,16 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.New("password is missing")
 	}
 
-	var cf config.UserPassAuthConfiguration
-	if vApp.Spec.Parameters != nil {
-		raw, err := vaultuitl.UnQuoteJson(string(vApp.Spec.Parameters.Raw))
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to unquote json")
-		}
-		err = json.Unmarshal([]byte(raw), &cf)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to unmarshal parameters")
-		}
+	authPath := UserPassDefaultAuthPath
+	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
+		authPath = val
 	}
-	cf.SetDefaults()
 
 	return &auth{
 		vClient: vc,
 		user:    string(user),
 		pass:    string(pass),
-		path:    cf.AuthPath,
+		path:    authPath,
 	}, nil
 }
 

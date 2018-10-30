@@ -1,16 +1,19 @@
-package kubernetes
+package serviceaccount
 
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	"github.com/kubevault/operator/apis"
 	config "github.com/kubevault/operator/apis/config/v1alpha1"
+	sa_util "github.com/kubevault/operator/pkg/util"
 	"github.com/kubevault/operator/pkg/vault/auth/types"
 	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
@@ -23,7 +26,7 @@ type auth struct {
 	path    string
 }
 
-func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
+func New(kc kubernetes.Interface, vApp *appcat.AppBinding) (*auth, error) {
 	if vApp.Spec.Parameters == nil {
 		return nil, errors.New("parameters are not provided")
 	}
@@ -38,11 +41,6 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
-	jwt, ok := secret.Data[core.ServiceAccountTokenKey]
-	if !ok {
-		return nil, errors.New("jwt is missing")
-	}
-
 	var cf config.VaultServerConfiguration
 	raw, err := vaultuitl.UnQuoteJson(string(vApp.Spec.Parameters.Raw))
 	if err != nil {
@@ -53,16 +51,38 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to unmarshal parameters")
 	}
 
-	authPath := KubernetesDefaultAuthPath
-	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
-		authPath = val
+	if cf.ServiceAccountName == "" {
+		return nil, errors.Wrap(err, "service account is not found")
+	}
+
+	secretName, err := sa_util.TryGetJwtTokenSecretNameFromServiceAccount(kc, cf.ServiceAccountName, vApp.Namespace, 2*time.Second, 30*time.Second)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get jwt token secret name of service account %s/%s", vApp.Namespace, cf.ServiceAccountName)
+	}
+
+	secret, err := kc.CoreV1().Secrets(vApp.Namespace).Get(secretName, metav1.GetOptions{})
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get secret %s/%s", vApp.Namespace, secretName)
+
+	}
+
+	jwt, ok := secret.Data[core.ServiceAccountTokenKey]
+	if !ok {
+		return nil, errors.New("jwt is missing")
+	}
+
+	if cf.AuthPath == "" {
+		cf.AuthPath = KubernetesDefaultAuthPath
+	}
+	if cf.PolicyControllerRole == "" {
+		return nil, errors.Wrap(err, "policyControllerRole is empty")
 	}
 
 	return &auth{
 		vClient: vc,
 		jwt:     string(jwt),
 		role:    cf.PolicyControllerRole,
-		path:    authPath,
+		path:    cf.AuthPath,
 	}, nil
 }
 

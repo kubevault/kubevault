@@ -15,20 +15,12 @@ func (v VaultServer) OffshootName() string {
 	return v.Name
 }
 
-func (v VaultServer) ServiceAccountForUnsealer() string {
-	return v.Name + "-unsealer"
+func (v VaultServer) ServiceAccountName() string {
+	return v.Name
 }
 
 func (v VaultServer) ServiceAccountForTokenReviewer() string {
 	return v.Name + "-k8s-token-reviewer"
-}
-
-func (v VaultServer) ServiceAccountForPolicyController() string {
-	return v.Name + "-policy-controller"
-}
-
-func (v VaultServer) ServiceAccountForAuthMethodController() string {
-	return v.Name + "-auth-method-controller"
 }
 
 func (v VaultServer) PolicyNameForPolicyController() string {
@@ -39,12 +31,8 @@ func (v VaultServer) PolicyNameForAuthMethodController() string {
 	return v.Name + "-auth-method-controller"
 }
 
-func (v VaultServer) AppBindingNameForAuthMethodController() string {
-	return v.Name + "-auth-method-controller"
-}
-
-func (v VaultServer) AppBindingNameForPolicyController() string {
-	return v.Name + "-policy-controller"
+func (v VaultServer) AppBindingName() string {
+	return v.Name
 }
 
 func (v VaultServer) OffshootSelectors() map[string]string {

@@ -25,6 +25,8 @@ type VaultPolicyBinding struct {
 
 // links: https://www.vaultproject.io/api/auth/kubernetes/index.html#parameters-1
 type VaultPolicyBindingSpec struct {
+	roleName string `json:"roleName,omitempty"`
+
 	// Specifies the path where kubernetes auth is enabled
 	// default : kubernetes
 	AuthPath string `json:"authPath,omitempty"`

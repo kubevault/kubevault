@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"time"
@@ -10,6 +11,7 @@ import (
 	core_util "github.com/appscode/kutil/core/v1"
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
+	vaultconfig "github.com/kubevault/operator/apis/config/v1alpha1"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	policyapi "github.com/kubevault/operator/apis/policy/v1alpha1"
 	vaultcs "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
@@ -19,7 +21,10 @@ import (
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
 
 const PolicyForAuthController = `
@@ -67,10 +72,7 @@ func (c *VaultController) reconcileAuthMethods(vs *api.VaultServer, ctx context.
 	}
 
 	// enable or disable auth method based on .spec.authMethods and .status.authMethodStatus
-	vc, err := vault.NewClient(c.kubeClient, c.appCatalogClient, &appcat.AppReference{
-		Name:      vs.AppBindingNameForAuthMethodController(),
-		Namespace: vs.Namespace,
-	})
+	vc, err := newVaultClientForAuthMethodController(c.kubeClient, c.appCatalogClient, vs)
 	if err != nil {
 		glog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
 		return
@@ -105,7 +107,7 @@ func vaultPolicyForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy {
 		},
 		Spec: policyapi.VaultPolicySpec{
 			VaultAppRef: &appcat.AppReference{
-				Name:      vs.AppBindingNameForPolicyController(),
+				Name:      vs.AppBindingName(),
 				Namespace: vs.Namespace,
 			},
 			Policy: PolicyForAuthController,
@@ -123,7 +125,7 @@ func vaultPolicyBindingForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy
 		},
 		Spec: policyapi.VaultPolicyBindingSpec{
 			AuthPath:                 "kubernetes",
-			ServiceAccountNames:      []string{vs.ServiceAccountForAuthMethodController()},
+			ServiceAccountNames:      []string{vs.ServiceAccountName()},
 			ServiceAccountNamespaces: []string{vs.Namespace},
 			Policies:                 []string{vs.PolicyNameForAuthMethodController()},
 			TTL:                      "24h",
@@ -324,4 +326,30 @@ func waitUntilVaultPolicyBindingIsReady(c policycs.PolicyV1alpha1Interface, vpb 
 		return false, nil
 	}, stopCh)
 	return err
+}
+
+func newVaultClientForAuthMethodController(kc kubernetes.Interface, appc appcat_cs.AppcatalogV1alpha1Interface, vs *api.VaultServer) (*vaultapi.Client, error) {
+	conf, err := json.Marshal(vaultconfig.VaultServerConfiguration{
+		ServiceAccountName:   vs.ServiceAccountName(),
+		PolicyControllerRole: vaultPolicyBindingForAuthMethod(vs).PolicyBindingName(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// without this it got validation error
+	// containing double guote in json causes this problem
+	params, err := json.Marshal(string(conf))
+	if err != nil {
+		return nil, err
+	}
+
+	vApp, err := appc.AppBindings(vs.Namespace).Get(vs.AppBindingName(), metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	vApp.Spec.Parameters = &runtime.RawExtension{
+		Raw: params,
+	}
+	return vault.NewClientWithAppBinding(kc, vApp)
 }

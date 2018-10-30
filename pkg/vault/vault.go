@@ -21,6 +21,14 @@ func NewClient(kc kubernetes.Interface, appc appcat_cs.AppcatalogV1alpha1Interfa
 		return nil, err
 	}
 
+	return NewClientWithAppBinding(kc, vApp)
+}
+
+func NewClientWithAppBinding(kc kubernetes.Interface, vApp *appcat.AppBinding) (*vaultapi.Client, error) {
+	if vApp == nil {
+		return nil, errors.New("AppBinding is nil")
+	}
+
 	auth, err := vaultauth.NewAuth(kc, vApp)
 	if err != nil {
 		return nil, err

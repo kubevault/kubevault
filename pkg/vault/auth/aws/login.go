@@ -21,7 +21,10 @@ import (
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
-const iamServerIdHeader = "X-Vault-AWS-IAM-Server-ID"
+const (
+	iamServerIdHeader  = "X-Vault-AWS-IAM-Server-ID"
+	AWSDefaultAuthPath = "aws"
+)
 
 type auth struct {
 	vClient     *vaultapi.Client
@@ -58,7 +61,7 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	}
 	securityToken := secret.Data[apis.AWSAuthSecurityTokenKey]
 
-	var cf config.AWSAuthConfiguration
+	var cf config.VaultServerConfiguration
 	raw, err := vaultuitl.UnQuoteJson(string(vApp.Spec.Parameters.Raw))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unquote json")
@@ -67,7 +70,20 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal parameters")
 	}
-	cf.SetDefaults()
+
+	authPath := AWSDefaultAuthPath
+	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
+		authPath = val
+	}
+
+	var headerValue string
+	if val, ok := secret.Annotations[apis.AWSHeaderValueKey]; ok && len(val) > 0 {
+		headerValue = val
+	}
+
+	if cf.PolicyControllerRole == "" {
+		return nil, errors.Wrap(err, "policyControllerRole is empty")
+	}
 
 	creds, err := retrieveCreds(string(accessKeyID), string(secretAccessKey), string(securityToken))
 	if err != nil {
@@ -77,9 +93,9 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	return &auth{
 		vClient:     vc,
 		creds:       creds,
-		role:        cf.Role,
-		headerValue: cf.HeaderValue,
-		path:        cf.AuthPath,
+		role:        cf.PolicyControllerRole,
+		headerValue: headerValue,
+		path:        authPath,
 	}, nil
 }
 

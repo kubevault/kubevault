@@ -148,7 +148,7 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 
 	// Add flags for policy
 	args = append(args, fmt.Sprintf("--policy.name=%s", u.vs.PolicyNameForPolicyController()))
-	args = append(args, fmt.Sprintf("--policy.service-account-name=%s", u.vs.ServiceAccountForPolicyController()))
+	args = append(args, fmt.Sprintf("--policy.service-account-name=%s", u.vs.ServiceAccountName()))
 	args = append(args, fmt.Sprintf("--policy.service-account-namespace=%s", u.vs.Namespace))
 
 	cont.Args = append(cont.Args, args...)

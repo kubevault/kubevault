@@ -223,7 +223,7 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 	// apply changes to PodTemplate after creating service accounts
 	// because unsealer use token reviewer jwt to enable kubernetes auth
 
-	podT := v.GetPodTemplate(v.GetContainer(), vs.ServiceAccountForUnsealer())
+	podT := v.GetPodTemplate(v.GetContainer(), vs.ServiceAccountName())
 	err = v.Apply(podT)
 	if err != nil {
 		return err

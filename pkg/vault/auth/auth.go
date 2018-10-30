@@ -1,12 +1,17 @@
 package auth
 
 import (
+	"encoding/json"
+
 	"github.com/kubevault/operator/apis"
+	config "github.com/kubevault/operator/apis/config/v1alpha1"
 	awsauth "github.com/kubevault/operator/pkg/vault/auth/aws"
 	certauth "github.com/kubevault/operator/pkg/vault/auth/cert"
 	k8sauth "github.com/kubevault/operator/pkg/vault/auth/kubernetes"
+	saauth "github.com/kubevault/operator/pkg/vault/auth/serviceaccount"
 	tokenauth "github.com/kubevault/operator/pkg/vault/auth/token"
 	basicauth "github.com/kubevault/operator/pkg/vault/auth/userpass"
+	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -24,6 +29,26 @@ func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding) (AuthInterface, e
 	if vApp == nil {
 		return nil, errors.New("vault AppBinding is not provided")
 	}
+
+	// if ServiceAccountName exits in .spec.parameters, then use s/a authentication
+	// otherwise use secret
+
+	if vApp.Spec.Parameters.Raw != nil {
+		var cf config.VaultServerConfiguration
+		raw, err := vaultuitl.UnQuoteJson(string(vApp.Spec.Parameters.Raw))
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to unquote json")
+		}
+		err = json.Unmarshal([]byte(raw), &cf)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to unmarshal parameters")
+		}
+
+		if cf.ServiceAccountName != "" {
+			return saauth.New(kc, vApp)
+		}
+	}
+
 	if vApp.Spec.Secret == nil {
 		return nil, errors.New("secret is not provided")
 	}

@@ -12,14 +12,21 @@ const (
 type VaultServerConfiguration struct {
 	metav1.TypeMeta `json:",inline,omitempty"`
 
+	// Specifies the service account name
+	ServiceAccountName string `json:"serviceAccountName,omitempty"`
+
 	// Specifies the service account name for token reviewer
 	// It has system:auth-delegator permission
 	// It's jwt token is used on vault kubernetes auth config
 	TokenReviewerServiceAccountName string `json:"tokenReviewerServiceAccountName,omitempty"`
 
-	// Specifies the service account name for policy controller
+	// Specifies the vault role name for policy controller
 	// It has permission to create policy in vault
-	PolicyControllerServiceAccountName string `json:"policyControllerServiceAccountName,omitempty"`
+	PolicyControllerRole string `json:"policyControllerRole,omitempty"`
+
+	// Specifies the vault role name for auth controller
+	// It has permission to enable/disable auth method in vault
+	AuthMethodControllerRole string `json:"authMethodControllerRole,omitempty"`
 
 	// Specifies to use pod service account for vault csi driver
 	UsePodServiceAccountForCSIDriver bool `json:"usePodServiceAccountForCsiDriver,omitempty"`

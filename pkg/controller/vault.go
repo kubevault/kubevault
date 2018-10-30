@@ -343,14 +343,7 @@ func (v *vaultSrv) GetServiceAccounts() []core.ServiceAccount {
 	return []core.ServiceAccount{
 		{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      v.vs.ServiceAccountForUnsealer(),
-				Namespace: v.vs.Namespace,
-				Labels:    v.vs.OffshootLabels(),
-			},
-		},
-		{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      v.vs.ServiceAccountForPolicyController(),
+				Name:      v.vs.ServiceAccountName(),
 				Namespace: v.vs.Namespace,
 				Labels:    v.vs.OffshootLabels(),
 			},
@@ -358,13 +351,6 @@ func (v *vaultSrv) GetServiceAccounts() []core.ServiceAccount {
 		{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      v.vs.ServiceAccountForTokenReviewer(),
-				Namespace: v.vs.Namespace,
-				Labels:    v.vs.OffshootLabels(),
-			},
-		},
-		{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      v.vs.ServiceAccountForAuthMethodController(),
 				Namespace: v.vs.Namespace,
 				Labels:    v.vs.OffshootLabels(),
 			},
@@ -397,7 +383,7 @@ func (v *vaultSrv) GetRBACRolesAndRoleBindings() ([]rbac.Role, []rbac.RoleBindin
 				Subjects: []rbac.Subject{
 					{
 						Kind:      rbac.ServiceAccountKind,
-						Name:      v.vs.ServiceAccountForUnsealer(),
+						Name:      v.vs.ServiceAccountName(),
 						Namespace: v.vs.Namespace,
 					},
 				},

@@ -4713,6 +4713,9 @@
             "type": "string"
           }
         },
+        "roleName": {
+          "type": "string"
+        },
         "serviceAccountNames": {
           "description": "Specifies the names of the service account to bind with policy",
           "type": "array",
