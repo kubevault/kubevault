@@ -1,7 +1,6 @@
 API rule violation: names_match,github.com/appscode/go/encoding/json/types,IntHash,generation
 API rule violation: names_match,github.com/appscode/go/encoding/json/types,IntHash,hash
 API rule violation: names_match,github.com/kubevault/operator/apis/policy/v1alpha1,VaultPolicyBindingSpec,TTL
-API rule violation: names_match,github.com/kubevault/operator/apis/policy/v1alpha1,VaultPolicyBindingSpec,roleName
 API rule violation: names_match,k8s.io/api/core/v1,AzureDiskVolumeSource,DataDiskURI
 API rule violation: names_match,k8s.io/api/core/v1,ContainerStatus,LastTerminationState
 API rule violation: names_match,k8s.io/api/core/v1,DaemonEndpoint,Port

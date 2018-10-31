@@ -5,7 +5,7 @@ crds=(
   vaultservers.kubevault.com
   vaultserverversions.catalog.kubevault.com
 )
-apiServices=(v1alpha1.admission)
+apiServices=(v1alpha1.admission v1alpha1.mutators)
 
 echo "checking kubeconfig context"
 kubectl config current-context || {
@@ -122,7 +122,7 @@ fi
 KUBE_APISERVER_VERSION=$(kubectl version -o=json | $ONESSL jsonpath '{.serverVersion.gitVersion}')
 $ONESSL semver --check='<1.9.0' $KUBE_APISERVER_VERSION || {
   export VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK=true
-  export VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK=false
+  export VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK=true
 }
 $ONESSL semver --check='<1.11.0' $KUBE_APISERVER_VERSION || { export VAULT_OPERATOR_ENABLE_STATUS_SUBRESOURCE=true; }
 
