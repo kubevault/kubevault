@@ -11,7 +11,6 @@ import (
 	saauth "github.com/kubevault/operator/pkg/vault/auth/serviceaccount"
 	tokenauth "github.com/kubevault/operator/pkg/vault/auth/token"
 	basicauth "github.com/kubevault/operator/pkg/vault/auth/userpass"
-	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,11 +34,7 @@ func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding) (AuthInterface, e
 
 	if vApp.Spec.Parameters.Raw != nil {
 		var cf config.VaultServerConfiguration
-		raw, err := vaultuitl.UnQuoteJson(string(vApp.Spec.Parameters.Raw))
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to unquote json")
-		}
-		err = json.Unmarshal([]byte(raw), &cf)
+		err := json.Unmarshal([]byte(vApp.Spec.Parameters.Raw), &cf)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to unmarshal parameters")
 		}

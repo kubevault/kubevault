@@ -53,7 +53,6 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 	if err != nil {
 		return err
 	}
-	dataConf, _ = json.Marshal(string(dataConf))
 	_, _, err = appcat_util.CreateOrPatchAppBinding(c.appCatalogClient, meta, func(in *appcat.AppBinding) *appcat.AppBinding {
 		in.Labels = vs.OffshootLabels()
 		in.Spec.ClientConfig = vClientConf
