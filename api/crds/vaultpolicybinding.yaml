@@ -364,7 +364,6 @@ spec:
           - policies
           - serviceAccountNames
           - serviceAccountNamespaces
-          - TTL
         status:
           properties:
             conditions:

@@ -474,8 +474,6 @@ spec:
                         per second on the table.
                       format: int32
                       type: integer
-                  required:
-                  - readCapacity
                 etcd:
                   description: |-
                     vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html
@@ -513,6 +511,8 @@ spec:
                       description: Specifies the secret name that contains tls_ca_file,
                         tls_cert_file and tls_key_file for etcd communication
                       type: string
+                  required:
+                  - address
                 file:
                   description: |-
                     vault doc: https://www.vaultproject.io/docs/configuration/storage/filesystem.html

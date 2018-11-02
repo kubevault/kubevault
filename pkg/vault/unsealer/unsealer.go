@@ -22,8 +22,8 @@ import (
 
 const (
 	K8sTokenReviewerJwtEnv = "K8S_TOKEN_REVIEWER_JWT"
-	timeout = 30*time.Second
-	timeInterval = 2*time.Second
+	timeout                = 30 * time.Second
+	timeInterval           = 2 * time.Second
 )
 
 type Unsealer interface {

@@ -45,7 +45,7 @@ func New(kc kubernetes.Interface, vApp *appcat.AppBinding) (*auth, error) {
 	}
 
 	var cf config.VaultServerConfiguration
-	err = json.Unmarshal([]byte(vApp.Spec.Parameters.Raw), &cf)
+	err = json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal parameters")
 	}

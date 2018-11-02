@@ -5,10 +5,10 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
-	core "k8s.io/api/core/v1"
 )
 
 // https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#token-controller
@@ -32,8 +32,8 @@ func GetJwtTokenSecretFromServiceAccount(kc kubernetes.Interface, name, namespac
 
 func TryGetJwtTokenSecretNameFromServiceAccount(kc kubernetes.Interface, name string, namespace string, interval time.Duration, timeout time.Duration) (*core.Secret, error) {
 	var (
-		err        error
-		secret		*core.Secret
+		err    error
+		secret *core.Secret
 	)
 	err2 := wait.PollImmediate(interval, timeout, func() (done bool, err error) {
 		secret, err = GetJwtTokenSecretFromServiceAccount(kc, name, namespace)

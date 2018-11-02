@@ -25,10 +25,12 @@ type VaultPolicyBinding struct {
 
 // links: https://www.vaultproject.io/api/auth/kubernetes/index.html#parameters-1
 type VaultPolicyBindingSpec struct {
+	// +optional
 	RoleName string `json:"roleName,omitempty"`
 
 	// Specifies the path where kubernetes auth is enabled
 	// default : kubernetes
+	// +optional
 	AuthPath string `json:"authPath,omitempty"`
 
 	// Specifies the names of the VaultPolicy
@@ -41,14 +43,17 @@ type VaultPolicyBindingSpec struct {
 	ServiceAccountNamespaces []string `json:"serviceAccountNamespaces"`
 
 	//Specifies the TTL period of tokens issued using this role in seconds.
-	TTL string `json:"TTL,omiempty"`
+	// +optional
+	TTL string `json:"TTL,omitempty"`
 
 	//Specifies the maximum allowed lifetime of tokens issued in seconds using this role.
+	// +optional
 	MaxTTL string `json:"maxTTL,omitempty"`
 
 	// If set, indicates that the token generated using this role should never expire.
 	// The token should be renewed within the duration specified by this value.
 	// At each renewal, the token's TTL will be set to the value of this parameter.
+	// +optional
 	Period string `json:"period,omitempty"`
 }
 
@@ -80,9 +85,11 @@ type VaultPolicyBindingStatus struct {
 	ObservedGeneration *types.IntHash `json:"observedGeneration,omitempty"`
 
 	// Status indicates whether successfully bind the policy to service account in vault or not or in progress
+	// +optional
 	Status PolicyBindingStatus `json:"status,omitempty"`
 
 	// Represents the latest available observations of a VaultPolicyBinding.
+	// +optional
 	Conditions []PolicyBindingCondition `json:"conditions,omitempty"`
 }
 
@@ -96,14 +103,18 @@ const (
 // PolicyBindingCondition describes the state of a VaultPolicyBinding at a certain point.
 type PolicyBindingCondition struct {
 	// Type of PolicyBindingCondition condition.
+	// +optional
 	Type PolicyBindingConditionType `json:"type,omitempty"`
 
 	// Status of the condition, one of True, False, Unknown.
+	// +optional
 	Status core.ConditionStatus `json:"status,omitempty"`
 
 	// The reason for the condition's.
+	// +optional
 	Reason string `json:"reason,omitempty"`
 
 	// A human readable message indicating details about the transition.
+	// +optional
 	Message string `json:"message,omitempty"`
 }

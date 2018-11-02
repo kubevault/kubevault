@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	iamServerIdHeader  = "X-Vault-AWS-IAM-Server-ID"
+	iamServerIdHeader = "X-Vault-AWS-IAM-Server-ID"
 )
 
 type auth struct {

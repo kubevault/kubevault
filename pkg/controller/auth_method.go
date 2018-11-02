@@ -341,19 +341,12 @@ func newVaultClientForAuthMethodController(kc kubernetes.Interface, appc appcat_
 		return nil, err
 	}
 
-	// without this it got validation error
-	// containing double guote in json causes this problem
-	params, err := json.Marshal(string(conf))
-	if err != nil {
-		return nil, err
-	}
-
 	vApp, err := appc.AppBindings(vs.Namespace).Get(vs.AppBindingName(), metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	vApp.Spec.Parameters = &runtime.RawExtension{
-		Raw: params,
+		Raw: conf,
 	}
 	return vault.NewClientWithAppBinding(kc, vApp)
 }

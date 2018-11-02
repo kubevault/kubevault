@@ -19,9 +19,9 @@ import (
 )
 
 const (
-	VaultPolicyFinalizer = "policy.kubevault.com"
-	timeoutForFinalizer = 1*time.Minute
-	timeIntervalForFinalizer = 5*time.Second
+	VaultPolicyFinalizer     = "policy.kubevault.com"
+	timeoutForFinalizer      = 1 * time.Minute
+	timeIntervalForFinalizer = 5 * time.Second
 )
 
 func (c *VaultController) initVaultPolicyWatcher() {

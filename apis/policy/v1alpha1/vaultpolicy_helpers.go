@@ -10,7 +10,7 @@ import (
 )
 
 func (v VaultPolicy) GetKey() string {
-	return v.Namespace + "/" + v.Name
+	return ResourceVaultPolicy + "/" + v.Namespace + "/" + v.Name
 }
 
 func (v VaultPolicy) PolicyName() string {
