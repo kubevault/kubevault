@@ -98,12 +98,12 @@ spec:
 apiVersion: apiregistration.k8s.io/v1beta1
 kind: APIService
 metadata:
-  name: v1alpha1.admission.kubevault.com
+  name: v1alpha1.validators.kubevault.com
   labels:
     app: vault-operator
 spec:
   caBundle: ${SERVICE_SERVING_CERT_CA}
-  group: admission.kubevault.com
+  group: validators.kubevault.com
   groupPriorityMinimum: 1000
   versionPriority: 15
   service:

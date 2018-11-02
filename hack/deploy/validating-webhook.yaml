@@ -1,16 +1,16 @@
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: ValidatingWebhookConfiguration
 metadata:
-  name: admission.kubevault.com
+  name: validators.kubevault.com
   labels:
     app: vault-operator
 webhooks:
-- name: vaultservers.admission.kubevault.com
+- name: vaultservers.validators.kubevault.com
   clientConfig:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/admission.kubevault.com/v1alpha1/vaultservers
+      path: /apis/validators.kubevault.com/v1alpha1/vaultservers
     caBundle: ${KUBE_CA}
   rules:
   - operations:

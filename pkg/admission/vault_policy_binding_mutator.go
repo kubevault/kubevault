@@ -12,6 +12,11 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+const (
+	mutatorGroup   = "mutators.kubevault.com"
+	mutatorVersion = "v1alpha1"
+)
+
 type PolicyBindingMutator struct {
 	lock        sync.RWMutex
 	initialized bool
@@ -21,8 +26,8 @@ var _ hookapi.AdmissionHook = &PolicyBindingMutator{}
 
 func (a *PolicyBindingMutator) Resource() (plural schema.GroupVersionResource, singular string) {
 	return schema.GroupVersionResource{
-			Group:    "mutators.kubevault.com",
-			Version:  "v1alpha1",
+			Group:    mutatorGroup,
+			Version:  mutatorVersion,
 			Resource: api.ResourceVaultPolicyBindings,
 		},
 		api.ResourceVaultPolicyBinding

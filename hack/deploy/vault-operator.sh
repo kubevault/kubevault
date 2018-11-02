@@ -5,7 +5,7 @@ crds=(
   vaultservers.kubevault.com
   vaultserverversions.catalog.kubevault.com
 )
-apiServices=(v1alpha1.admission v1alpha1.mutators)
+apiServices=(v1alpha1.validators v1alpha1.mutators)
 
 echo "checking kubeconfig context"
 kubectl config current-context || {

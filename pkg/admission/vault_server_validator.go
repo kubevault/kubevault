@@ -19,6 +19,11 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+const (
+	validatorGroup   = "validators.kubevault.com"
+	validatorVersion = "v1alpha1"
+)
+
 type VaultServerValidator struct {
 	client      kubernetes.Interface
 	extClient   cs.Interface
@@ -30,11 +35,11 @@ var _ hookapi.AdmissionHook = &VaultServerValidator{}
 
 func (v *VaultServerValidator) Resource() (plural schema.GroupVersionResource, singular string) {
 	return schema.GroupVersionResource{
-			Group:    "admission.kubevault.com",
-			Version:  "v1alpha1",
-			Resource: "vaultservers",
+			Group:    validatorGroup,
+			Version:  validatorVersion,
+			Resource: api.ResourceVaultServers,
 		},
-		"vaultserver"
+		api.ResourceVaultServer
 }
 
 func (v *VaultServerValidator) Initialize(config *rest.Config, stopCh <-chan struct{}) error {

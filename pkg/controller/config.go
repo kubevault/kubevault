@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	validatingWebhook = "admission.kubevault.com"
+	validatingWebhook = "validators.kubevault.com"
 )
 
 var (
