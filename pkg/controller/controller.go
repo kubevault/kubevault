@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"context"
 	"fmt"
 
 	reg_util "github.com/appscode/kutil/admissionregistration/v1beta1"
@@ -33,7 +32,7 @@ type VaultController struct {
 
 	// ctxCancels stores vault clusters' contexts that are used to
 	// cancel their goroutines when they are deleted
-	ctxCancels map[string]context.CancelFunc
+	ctxCancels map[string]CtxWithCancel
 
 	kubeClient       kubernetes.Interface
 	extClient        cs.Interface

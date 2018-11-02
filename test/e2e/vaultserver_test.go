@@ -27,7 +27,7 @@ const (
 	pollingInterval = 10 * time.Second
 )
 
-var _ = Describe("VaultServer", func() {
+var _ = FDescribe("VaultServer", func() {
 	var (
 		f *framework.Invocation
 	)
@@ -385,9 +385,9 @@ var _ = Describe("VaultServer", func() {
 
 			BeforeEach(func() {
 				unsealer := api.UnsealerSpec{
-					SecretShares:    4,
-					SecretThreshold: 2,
-					InsecureTLS:     true,
+					SecretShares:          4,
+					SecretThreshold:       2,
+					InsecureSkipTLSVerify: true,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
 							SecretName: "k8s-inmem-keys-12341",
@@ -453,9 +453,9 @@ var _ = Describe("VaultServer", func() {
 
 			BeforeEach(func() {
 				unsealer := api.UnsealerSpec{
-					SecretShares:    4,
-					SecretThreshold: 2,
-					InsecureTLS:     true,
+					SecretShares:          4,
+					SecretThreshold:       2,
+					InsecureSkipTLSVerify: true,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
 							SecretName: "k8s-inmem-keys-123411",
@@ -501,9 +501,9 @@ var _ = Describe("VaultServer", func() {
 
 		BeforeEach(func() {
 			unseal = &api.UnsealerSpec{
-				SecretShares:    4,
-				SecretThreshold: 2,
-				InsecureTLS:     true,
+				SecretShares:          4,
+				SecretThreshold:       2,
+				InsecureSkipTLSVerify: true,
 				Mode: api.ModeSpec{
 					KubernetesSecret: &api.KubernetesSecretSpec{
 						SecretName: secretName,
@@ -668,9 +668,9 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:    4,
-					SecretThreshold: 2,
-					InsecureTLS:     true,
+					SecretShares:          4,
+					SecretThreshold:       2,
+					InsecureSkipTLSVerify: true,
 					Mode: api.ModeSpec{
 						GoogleKmsGcs: &api.GoogleKmsGcsSpec{
 							Bucket:           "vault-test-bucket",
@@ -722,9 +722,9 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:    4,
-					SecretThreshold: 2,
-					InsecureTLS:     true,
+					SecretShares:          4,
+					SecretThreshold:       2,
+					InsecureSkipTLSVerify: true,
 					Mode: api.ModeSpec{
 						AwsKmsSsm: &api.AwsKmsSsmSpec{
 							KmsKeyID:         "65ed2c85-4915-4e82-be47-d56ccaa8019b",
@@ -824,9 +824,9 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:    4,
-					SecretThreshold: 2,
-					InsecureTLS:     true,
+					SecretShares:          4,
+					SecretThreshold:       2,
+					InsecureSkipTLSVerify: true,
 					Mode: api.ModeSpec{
 						AzureKeyVault: &api.AzureKeyVault{
 							VaultBaseUrl:    "https://vault-test-1204.vault.azure.net/",
@@ -890,9 +890,9 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:    4,
-					SecretThreshold: 2,
-					InsecureTLS:     true,
+					SecretShares:          4,
+					SecretThreshold:       2,
+					InsecureSkipTLSVerify: true,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
 							SecretName: k8sSecretName,
@@ -960,9 +960,9 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:    4,
-					SecretThreshold: 2,
-					InsecureTLS:     true,
+					SecretShares:          4,
+					SecretThreshold:       2,
+					InsecureSkipTLSVerify: true,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
 							SecretName: k8sSecretName,
@@ -1011,9 +1011,9 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:    4,
-					SecretThreshold: 2,
-					InsecureTLS:     true,
+					SecretShares:          4,
+					SecretThreshold:       2,
+					InsecureSkipTLSVerify: true,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
 							SecretName: k8sSecretName,
@@ -1085,9 +1085,9 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:    4,
-					SecretThreshold: 2,
-					InsecureTLS:     true,
+					SecretShares:          4,
+					SecretThreshold:       2,
+					InsecureSkipTLSVerify: true,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
 							SecretName: "k8s-dynamodb-keys-1234",

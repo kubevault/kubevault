@@ -1,0 +1,25 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: mutators.kubevault.com
+  labels:
+    app: vault-operator
+webhooks:
+- name: vaultpolicybindings.mutators.kubevault.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/mutators.kubevault.com/v1alpha1/vaultpolicybindings
+    caBundle: ${KUBE_CA}
+  rules:
+  - operations:
+    - CREATE
+    - UPDATE
+    apiGroups:
+    - policy.kubevault.com
+    apiVersions:
+    - "*"
+    resources:
+    - vaultpolicybindings
+  failurePolicy: Fail

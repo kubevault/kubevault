@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"sync"
 )
 
@@ -35,4 +36,9 @@ func (f *mapFinalizer) Delete(key string) {
 	f.lock.Lock()
 	defer f.lock.Unlock()
 	delete(f.keys, key)
+}
+
+type CtxWithCancel struct {
+	Ctx    context.Context
+	Cancel context.CancelFunc
 }

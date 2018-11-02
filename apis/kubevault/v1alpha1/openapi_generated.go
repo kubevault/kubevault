@@ -27,6 +27,7 @@ import (
 	spec "github.com/go-openapi/spec"
 	resource "k8s.io/apimachinery/pkg/api/resource"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	runtime "k8s.io/apimachinery/pkg/runtime"
 	intstr "k8s.io/apimachinery/pkg/util/intstr"
 	common "k8s.io/kube-openapi/pkg/common"
 )
@@ -34,6 +35,9 @@ import (
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
 		"github.com/appscode/go/encoding/json/types.IntHash":                         schema_go_encoding_json_types_IntHash(ref),
+		"github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthConfig":           schema_operator_apis_kubevault_v1alpha1_AuthConfig(ref),
+		"github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthMethod":           schema_operator_apis_kubevault_v1alpha1_AuthMethod(ref),
+		"github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthMethodStatus":     schema_operator_apis_kubevault_v1alpha1_AuthMethodStatus(ref),
 		"github.com/kubevault/operator/apis/kubevault/v1alpha1.AwsKmsSsmSpec":        schema_operator_apis_kubevault_v1alpha1_AwsKmsSsmSpec(ref),
 		"github.com/kubevault/operator/apis/kubevault/v1alpha1.AzureKeyVault":        schema_operator_apis_kubevault_v1alpha1_AzureKeyVault(ref),
 		"github.com/kubevault/operator/apis/kubevault/v1alpha1.AzureSpec":            schema_operator_apis_kubevault_v1alpha1_AzureSpec(ref),
@@ -352,6 +356,186 @@ func schema_go_encoding_json_types_IntHash(ref common.ReferenceCallback) common.
 	}
 }
 
+func schema_operator_apis_kubevault_v1alpha1_AuthConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Properties: map[string]spec.Schema{
+					"defaultLeaseTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The default lease duration, specified as a string duration like \"5s\" or \"30m\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"maxLeaseTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The maximum lease duration, specified as a string duration like \"5s\" or \"30m\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"pluginName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The name of the plugin in the plugin catalog to use.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"auditNonHMACRequestKeys": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of keys that will not be HMAC'd by audit devices in the request data object.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"auditNonHMACResponseKeys": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of keys that will not be HMAC'd by audit devices in the response data object.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"listingVisibility": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Speficies whether to show this mount in the UI-specific listing endpoint.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"passthroughRequestHeaders": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of headers to whitelist and pass from the request to the backend.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{},
+	}
+}
+
+func schema_operator_apis_kubevault_v1alpha1_AuthMethod(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "AuthMethod contains the information to enable vault auth method links: https://www.vaultproject.io/api/system/auth.html",
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "\n Specifies the name of the authentication method type, such as \"github\" or \"token\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path in which to enable the auth method. Default value is the same as the 'type'",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies a human-friendly description of the auth method.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"config": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies configuration options for this auth method.",
+							Ref:         ref("github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthConfig"),
+						},
+					},
+					"pluginName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the name of the auth plugin to use based from the name in the plugin catalog. Applies only to plugin methods.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"local": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies if the auth method is a local only. Local auth methods are not replicated nor (if a secondary) removed by replication.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"type", "path"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthConfig"},
+	}
+}
+
+func schema_operator_apis_kubevault_v1alpha1_AuthMethodStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "AuthMethodStatus specifies the status of the auth method maintained by the auth method controller",
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "\n Specifies the name of the authentication method type, such as \"github\" or \"token\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path in which to enable the auth method.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies whether auth method is enabled or not",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"reason": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the reason why failed to enable auth method",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"type", "path", "status"},
+			},
+		},
+		Dependencies: []string{},
+	}
+}
+
 func schema_operator_apis_kubevault_v1alpha1_AwsKmsSsmSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -620,7 +804,6 @@ func schema_operator_apis_kubevault_v1alpha1_DynamoDBSpec(ref common.ReferenceCa
 						},
 					},
 				},
-				Required: []string{"readCapacity"},
 			},
 		},
 		Dependencies: []string{},
@@ -690,6 +873,7 @@ func schema_operator_apis_kubevault_v1alpha1_EtcdSpec(ref common.ReferenceCallba
 						},
 					},
 				},
+				Required: []string{"address"},
 			},
 		},
 		Dependencies: []string{},
@@ -1190,18 +1374,18 @@ func schema_operator_apis_kubevault_v1alpha1_UnsealerSpec(ref common.ReferenceCa
 							Format:      "",
 						},
 					},
-					"insecureTLS": {
+					"insecureSkipTLSVerify": {
 						SchemaProps: spec.SchemaProps{
-							Description: "To skip tls verification when communicating with vault server",
+							Description: "InsecureSkipTLSVerify disables TLS certificate verification",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
-					"vaultCASecret": {
+					"caBundle": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Secret name containing self signed ca cert of vault secret data:\n\t- ca.crt=<value>",
+							Description: "CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate.",
 							Type:        []string{"string"},
-							Format:      "",
+							Format:      "byte",
 						},
 					},
 					"storeRootToken": {
@@ -1395,6 +1579,19 @@ func schema_operator_apis_kubevault_v1alpha1_VaultServerSpec(ref common.Referenc
 							Ref:         ref("github.com/kubevault/operator/apis/kubevault/v1alpha1.UnsealerSpec"),
 						},
 					},
+					"authMethods": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the list of auth methods to enable",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthMethod"),
+									},
+								},
+							},
+						},
+					},
 					"podTemplate": {
 						SchemaProps: spec.SchemaProps{
 							Description: "PodTemplate is an optional configuration for pods used to run vault",
@@ -1412,7 +1609,7 @@ func schema_operator_apis_kubevault_v1alpha1_VaultServerSpec(ref common.Referenc
 			},
 		},
 		Dependencies: []string{
-			"github.com/kubevault/operator/apis/kubevault/v1alpha1.BackendStorageSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.TLSPolicy", "github.com/kubevault/operator/apis/kubevault/v1alpha1.UnsealerSpec", "k8s.io/api/core/v1.VolumeSource", "kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec", "kmodules.xyz/offshoot-api/api/v1.ServiceTemplateSpec"},
+			"github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthMethod", "github.com/kubevault/operator/apis/kubevault/v1alpha1.BackendStorageSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.TLSPolicy", "github.com/kubevault/operator/apis/kubevault/v1alpha1.UnsealerSpec", "k8s.io/api/core/v1.VolumeSource", "kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec", "kmodules.xyz/offshoot-api/api/v1.ServiceTemplateSpec"},
 	}
 }
 
@@ -1488,11 +1685,24 @@ func schema_operator_apis_kubevault_v1alpha1_VaultServerStatus(ref common.Refere
 							},
 						},
 					},
+					"authMethodStatus": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Status of the vault auth methods",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthMethodStatus"),
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/appscode/go/encoding/json/types.IntHash", "github.com/kubevault/operator/apis/kubevault/v1alpha1.VaultServerCondition", "github.com/kubevault/operator/apis/kubevault/v1alpha1.VaultStatus"},
+			"github.com/appscode/go/encoding/json/types.IntHash", "github.com/kubevault/operator/apis/kubevault/v1alpha1.AuthMethodStatus", "github.com/kubevault/operator/apis/kubevault/v1alpha1.VaultServerCondition", "github.com/kubevault/operator/apis/kubevault/v1alpha1.VaultStatus"},
 	}
 }
 
@@ -14345,19 +14555,10 @@ func schema_k8sio_apimachinery_pkg_runtime_RawExtension(ref common.ReferenceCall
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Description: "RawExtension is used to hold extensions in external versions.\n\nTo use this, make a field which has RawExtension as its type in your external, versioned struct, and Object in your internal struct. You also need to register your various plugin types.\n\n// Internal package: type MyAPIObject struct {\n\truntime.TypeMeta `json:\",inline\"`\n\tMyPlugin runtime.Object `json:\"myPlugin\"`\n} type PluginA struct {\n\tAOption string `json:\"aOption\"`\n}\n\n// External package: type MyAPIObject struct {\n\truntime.TypeMeta `json:\",inline\"`\n\tMyPlugin runtime.RawExtension `json:\"myPlugin\"`\n} type PluginA struct {\n\tAOption string `json:\"aOption\"`\n}\n\n// On the wire, the JSON will look something like this: {\n\t\"kind\":\"MyAPIObject\",\n\t\"apiVersion\":\"v1\",\n\t\"myPlugin\": {\n\t\t\"kind\":\"PluginA\",\n\t\t\"aOption\":\"foo\",\n\t},\n}\n\nSo what happens? Decode first uses json or yaml to unmarshal the serialized data into your external MyAPIObject. That causes the raw JSON to be stored, but not unpacked. The next step is to copy (using pkg/conversion) into the internal struct. The runtime package's DefaultScheme has conversion functions installed which will unpack the JSON stored in RawExtension, turning it into the correct object type, and storing it in the Object. (TODO: In the case where the object is of an unknown type, a runtime.Unknown object will be created and stored.)",
-				Properties: map[string]spec.Schema{
-					"Raw": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Raw is the underlying serialization of this object.",
-							Type:        []string{"string"},
-							Format:      "byte",
-						},
-					},
-				},
-				Required: []string{"Raw"},
+				Type:        runtime.RawExtension{}.OpenAPISchemaType(),
+				Format:      runtime.RawExtension{}.OpenAPISchemaFormat(),
 			},
 		},
-		Dependencies: []string{},
 	}
 }
 

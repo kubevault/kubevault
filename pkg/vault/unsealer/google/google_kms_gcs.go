@@ -88,6 +88,6 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 }
 
 // GetRBAC returns required rbac roles
-func (o *Options) GetRBAC(namespace string) []rbac.Role {
+func (o *Options) GetRBAC(prefix, namespace string) []rbac.Role {
 	return nil
 }

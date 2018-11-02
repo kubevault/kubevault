@@ -3740,6 +3740,106 @@
         }
       }
     },
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.AuthConfig": {
+      "properties": {
+        "auditNonHMACRequestKeys": {
+          "description": "List of keys that will not be HMAC'd by audit devices in the request data object.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "auditNonHMACResponseKeys": {
+          "description": "List of keys that will not be HMAC'd by audit devices in the response data object.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "defaultLeaseTTL": {
+          "description": "The default lease duration, specified as a string duration like \"5s\" or \"30m\".",
+          "type": "string"
+        },
+        "listingVisibility": {
+          "description": "Speficies whether to show this mount in the UI-specific listing endpoint.",
+          "type": "string"
+        },
+        "maxLeaseTTL": {
+          "description": "The maximum lease duration, specified as a string duration like \"5s\" or \"30m\".",
+          "type": "string"
+        },
+        "passthroughRequestHeaders": {
+          "description": "List of headers to whitelist and pass from the request to the backend.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pluginName": {
+          "description": "The name of the plugin in the plugin catalog to use.",
+          "type": "string"
+        }
+      }
+    },
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.AuthMethod": {
+      "description": "AuthMethod contains the information to enable vault auth method links: https://www.vaultproject.io/api/system/auth.html",
+      "required": [
+        "type",
+        "path"
+      ],
+      "properties": {
+        "config": {
+          "description": "Specifies configuration options for this auth method.",
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.AuthConfig"
+        },
+        "description": {
+          "description": "Specifies a human-friendly description of the auth method.",
+          "type": "string"
+        },
+        "local": {
+          "description": "Specifies if the auth method is a local only. Local auth methods are not replicated nor (if a secondary) removed by replication.",
+          "type": "boolean"
+        },
+        "path": {
+          "description": "Specifies the path in which to enable the auth method. Default value is the same as the 'type'",
+          "type": "string"
+        },
+        "pluginName": {
+          "description": "Specifies the name of the auth plugin to use based from the name in the plugin catalog. Applies only to plugin methods.",
+          "type": "string"
+        },
+        "type": {
+          "description": "\n Specifies the name of the authentication method type, such as \"github\" or \"token\".",
+          "type": "string"
+        }
+      }
+    },
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.AuthMethodStatus": {
+      "description": "AuthMethodStatus specifies the status of the auth method maintained by the auth method controller",
+      "required": [
+        "type",
+        "path",
+        "status"
+      ],
+      "properties": {
+        "path": {
+          "description": "Specifies the path in which to enable the auth method.",
+          "type": "string"
+        },
+        "reason": {
+          "description": "Specifies the reason why failed to enable auth method",
+          "type": "string"
+        },
+        "status": {
+          "description": "Specifies whether auth method is enabled or not",
+          "type": "string"
+        },
+        "type": {
+          "description": "\n Specifies the name of the authentication method type, such as \"github\" or \"token\".",
+          "type": "string"
+        }
+      }
+    },
     "com.github.kubevault.operator.apis.kubevault.v1alpha1.AwsKmsSsmSpec": {
       "description": "AwsKmsSsmSpec contain the fields that required to unseal vault using aws kms ssm",
       "required": [
@@ -3857,9 +3957,6 @@
     },
     "com.github.kubevault.operator.apis.kubevault.v1alpha1.DynamoDBSpec": {
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/dynamodb.html\n\nDynamoDBSpec defines configuration to set up DynamoDB Storage as backend storage in vault",
-      "required": [
-        "readCapacity"
-      ],
       "properties": {
         "credentialSecret": {
           "description": "Specifies the secret name containing AWS access key and AWS secret key secret data:\n\t- access_key=\u003cvalue\u003e\n - secret_key=\u003cvalue\u003e",
@@ -3904,6 +4001,9 @@
     },
     "com.github.kubevault.operator.apis.kubevault.v1alpha1.EtcdSpec": {
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html\n\nEtcdSpec defines configuration to set up etcd as backend storage in vault",
+      "required": [
+        "address"
+      ],
       "properties": {
         "address": {
           "description": "Specifies the addresses of the etcd instances",
@@ -4213,8 +4313,13 @@
     "com.github.kubevault.operator.apis.kubevault.v1alpha1.UnsealerSpec": {
       "description": "UnsealerSpec contain the configuration for auto vault initialize/unseal",
       "properties": {
-        "insecureTLS": {
-          "description": "To skip tls verification when communicating with vault server",
+        "caBundle": {
+          "description": "CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate.",
+          "type": "string",
+          "format": "byte"
+        },
+        "insecureSkipTLSVerify": {
+          "description": "InsecureSkipTLSVerify disables TLS certificate verification",
           "type": "boolean"
         },
         "mode": {
@@ -4243,10 +4348,6 @@
         "storeRootToken": {
           "description": "should the root token be stored in the key store (default true)",
           "type": "boolean"
-        },
-        "vaultCASecret": {
-          "description": "Secret name containing self signed ca cert of vault secret data:\n\t- ca.crt=\u003cvalue\u003e",
-          "type": "string"
         }
       }
     },
@@ -4333,6 +4434,13 @@
         "backend"
       ],
       "properties": {
+        "authMethods": {
+          "description": "Specifies the list of auth methods to enable",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.AuthMethod"
+          }
+        },
         "backend": {
           "description": "backend storage configuration for vault",
           "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.BackendStorageSpec"
@@ -4370,6 +4478,13 @@
     },
     "com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServerStatus": {
       "properties": {
+        "authMethodStatus": {
+          "description": "Status of the vault auth methods",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.AuthMethodStatus"
+          }
+        },
         "clientPort": {
           "description": "ClientPort is the port for vault client to access. It's the same on client LB service and vault nodes.",
           "type": "integer",
@@ -4571,8 +4686,7 @@
       "required": [
         "policies",
         "serviceAccountNames",
-        "serviceAccountNamespaces",
-        "TTL"
+        "serviceAccountNamespaces"
       ],
       "properties": {
         "TTL": {
@@ -4597,6 +4711,9 @@
           "items": {
             "type": "string"
           }
+        },
+        "roleName": {
+          "type": "string"
         },
         "serviceAccountNames": {
           "description": "Specifies the names of the service account to bind with policy",
@@ -7187,16 +7304,7 @@
     },
     "io.k8s.apimachinery.pkg.runtime.RawExtension": {
       "description": "RawExtension is used to hold extensions in external versions.\n\nTo use this, make a field which has RawExtension as its type in your external, versioned struct, and Object in your internal struct. You also need to register your various plugin types.\n\n// Internal package: type MyAPIObject struct {\n\truntime.TypeMeta `json:\",inline\"`\n\tMyPlugin runtime.Object `json:\"myPlugin\"`\n} type PluginA struct {\n\tAOption string `json:\"aOption\"`\n}\n\n// External package: type MyAPIObject struct {\n\truntime.TypeMeta `json:\",inline\"`\n\tMyPlugin runtime.RawExtension `json:\"myPlugin\"`\n} type PluginA struct {\n\tAOption string `json:\"aOption\"`\n}\n\n// On the wire, the JSON will look something like this: {\n\t\"kind\":\"MyAPIObject\",\n\t\"apiVersion\":\"v1\",\n\t\"myPlugin\": {\n\t\t\"kind\":\"PluginA\",\n\t\t\"aOption\":\"foo\",\n\t},\n}\n\nSo what happens? Decode first uses json or yaml to unmarshal the serialized data into your external MyAPIObject. That causes the raw JSON to be stored, but not unpacked. The next step is to copy (using pkg/conversion) into the internal struct. The runtime package's DefaultScheme has conversion functions installed which will unpack the JSON stored in RawExtension, turning it into the correct object type, and storing it in the Object. (TODO: In the case where the object is of an unknown type, a runtime.Unknown object will be created and stored.)",
-      "required": [
-        "Raw"
-      ],
-      "properties": {
-        "Raw": {
-          "description": "Raw is the underlying serialization of this object.",
-          "type": "string",
-          "format": "byte"
-        }
-      }
+      "type": "object"
     },
     "io.k8s.apimachinery.pkg.util.intstr.IntOrString": {
       "description": "IntOrString is a type that can hold an int32 or a string.  When used in JSON or YAML marshalling and unmarshalling, it produces or consumes the inner type.  This allows you to have, for example, a JSON field that can accept a name or number.",

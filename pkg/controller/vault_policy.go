@@ -19,7 +19,9 @@ import (
 )
 
 const (
-	VaultPolicyFinalizer = "policy.kubevault.com"
+	VaultPolicyFinalizer     = "policy.kubevault.com"
+	timeoutForFinalizer      = 1 * time.Minute
+	timeIntervalForFinalizer = 5 * time.Second
 )
 
 func (c *VaultController) initVaultPolicyWatcher() {
@@ -47,7 +49,7 @@ func (c *VaultController) runVaultPolicyInjector(key string) error {
 		if vPolicy.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(vPolicy.ObjectMeta, VaultPolicyFinalizer) {
 				// Finalize VaultPolicy
-				go c.runPolicyFinalizer(vPolicy, 1*time.Minute, 5*time.Second)
+				go c.runPolicyFinalizer(vPolicy, timeoutForFinalizer, timeIntervalForFinalizer)
 			} else {
 				glog.Infof("Finalizer not found for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
 			}

@@ -59,9 +59,11 @@ type VaultPolicyStatus struct {
 	ObservedGeneration *types.IntHash `json:"observedGeneration,omitempty"`
 
 	// Status indicates whether the policy successfully applied in vault or not or in progress
+	// +optional
 	Status PolicyStatus `json:"status,omitempty"`
 
 	// Represents the latest available observations of a VaultPolicy.
+	// +optional
 	Conditions []PolicyCondition `json:"conditions,omitempty"`
 }
 
@@ -75,14 +77,18 @@ const (
 // PolicyCondition describes the state of a VaultPolicy at a certain point.
 type PolicyCondition struct {
 	// Type of PolicyCondition condition.
+	// +optional
 	Type PolicyConditionType `json:"type,omitempty"`
 
 	// Status of the condition, one of True, False, Unknown.
+	// +optional
 	Status core.ConditionStatus `json:"status,omitempty"`
 
 	// The reason for the condition's.
+	// +optional
 	Reason string `json:"reason,omitempty"`
 
 	// A human readable message indicating details about the transition.
+	// +optional
 	Message string `json:"message,omitempty"`
 }

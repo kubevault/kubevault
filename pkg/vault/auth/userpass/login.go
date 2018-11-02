@@ -5,7 +5,8 @@ import (
 	"fmt"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	config "github.com/kubevault/operator/apis/config/v1alpha1"
+	"github.com/kubevault/operator/apis"
+	vsapi "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/auth/types"
 	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
@@ -40,20 +41,16 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.New("password is missing")
 	}
 
-	var cf config.UserPassAuthConfiguration
-	if vApp.Spec.Parameters != nil {
-		err = json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to unmarshal parameters")
-		}
+	authPath := string(vsapi.AuthTypeUserPass)
+	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
+		authPath = val
 	}
-	cf.SetDefaults()
 
 	return &auth{
 		vClient: vc,
 		user:    string(user),
 		pass:    string(pass),
-		path:    cf.AuthPath,
+		path:    authPath,
 	}, nil
 }
 

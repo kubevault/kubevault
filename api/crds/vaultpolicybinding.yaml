@@ -347,6 +347,8 @@ spec:
               items:
                 type: string
               type: array
+            roleName:
+              type: string
             serviceAccountNames:
               description: Specifies the names of the service account to bind with
                 policy
@@ -362,7 +364,6 @@ spec:
           - policies
           - serviceAccountNames
           - serviceAccountNamespaces
-          - TTL
         status:
           properties:
             conditions:

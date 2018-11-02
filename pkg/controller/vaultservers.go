@@ -18,7 +18,6 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -43,8 +42,8 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 		glog.Warningf("VaultServer %s does not exist anymore\n", key)
 
 		// stop vault status monitor
-		if cancel, ok := c.ctxCancels[key]; ok {
-			cancel()
+		if ctxWithCancel, ok := c.ctxCancels[key]; ok {
+			ctxWithCancel.Cancel()
 			delete(c.ctxCancels, key)
 		}
 
@@ -53,14 +52,18 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 
 		glog.Infof("Sync/Add/Update for VaultServer %s/%s\n", vs.Namespace, vs.Name)
 
-		v, err := NewVault(vs, c.kubeClient, c.extClient)
-		if err != nil {
-			return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)
-		}
+		if vs.DeletionTimestamp != nil {
+			return nil
+		} else {
+			v, err := NewVault(vs, c.clientConfig, c.kubeClient, c.extClient)
+			if err != nil {
+				return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)
+			}
 
-		err = c.reconcileVault(vs, v)
-		if err != nil {
-			return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)
+			err = c.reconcileVault(vs, v)
+			if err != nil {
+				return errors.Wrapf(err, "for VaultServer %s/%s", vs.Namespace, vs.Name)
+			}
 		}
 	}
 	return nil
@@ -127,7 +130,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 		return errors.Wrap(err, "failed to deploy vault")
 	}
 
-	err = c.ensureAppBinding(vs, v)
+	err = c.ensureAppBindings(vs, v)
 	if err != nil {
 		status.Conditions = []api.VaultServerCondition{
 			{
@@ -154,11 +157,19 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 
 	// Add vault monitor to watch vault seal or unseal status
 	key := vs.GetKey()
-	if _, ok := c.ctxCancels[key]; !ok {
+	ctxWithCancel, ok := c.ctxCancels[key]
+	if !ok {
 		ctx, cancel := context.WithCancel(context.Background())
-		c.ctxCancels[key] = cancel
+		c.ctxCancels[key] = CtxWithCancel{
+			Ctx:    ctx,
+			Cancel: cancel,
+		}
 		go c.monitorAndUpdateStatus(ctx, vs)
+		c.reconcileAuthMethods(vs, ctx)
+	} else {
+		c.reconcileAuthMethods(vs, ctxWithCancel.Ctx)
 	}
+
 	return nil
 }
 
@@ -181,16 +192,38 @@ func (c *VaultController) CreateVaultConfig(vs *api.VaultServer, v Vault) error 
 // - create service account for vault pod
 // - create deployment
 // - create service
-// - create rbac role and rolebinding
+// - create rbac role, rolebinding and cluster rolebinding
 func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
-	sa := v.GetServiceAccount()
-	err := ensureServiceAccount(c.kubeClient, vs, sa)
+	saList := v.GetServiceAccounts()
+	for _, sa := range saList {
+		err := ensureServiceAccount(c.kubeClient, vs, &sa)
+		if err != nil {
+			return err
+		}
+	}
+
+	svc := v.GetService()
+	err := ensureService(c.kubeClient, vs, svc)
 	if err != nil {
 		return err
 	}
 
-	podT := v.GetPodTemplate(v.GetContainer(), sa.Name)
+	rList, rBList := v.GetRBACRolesAndRoleBindings()
+	err = ensureRoleAndRoleBinding(c.kubeClient, vs, rList, rBList)
+	if err != nil {
+		return err
+	}
 
+	cRB := v.GetRBACClusterRoleBinding()
+	err = ensurClusterRoleBinding(c.kubeClient, vs, cRB)
+	if err != nil {
+		return err
+	}
+
+	// apply changes to PodTemplate after creating service accounts
+	// because unsealer use token reviewer jwt to enable kubernetes auth
+
+	podT := v.GetPodTemplate(v.GetContainer(), vs.ServiceAccountName())
 	err = v.Apply(podT)
 	if err != nil {
 		return err
@@ -198,18 +231,6 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 
 	d := v.GetDeployment(podT)
 	err = ensureDeployment(c.kubeClient, vs, d)
-	if err != nil {
-		return err
-	}
-
-	svc := v.GetService()
-	err = ensureService(c.kubeClient, vs, svc)
-	if err != nil {
-		return err
-	}
-
-	roles := v.GetRBACRoles()
-	err = ensureRoleAndRoleBinding(c.kubeClient, vs, roles, sa.Name)
 	if err != nil {
 		return err
 	}
@@ -299,9 +320,7 @@ func ensureService(kc kubernetes.Interface, vs *api.VaultServer, svc *core.Servi
 }
 
 // ensureRoleAndRoleBinding creates or patches rbac role and rolebinding
-func ensureRoleAndRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, roles []rbac.Role, saName string) error {
-	labels := vs.OffshootLabels()
-
+func ensureRoleAndRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, roles []rbac.Role, rBindings []rbac.RoleBinding) error {
 	for _, role := range roles {
 		_, _, err := rbac_util.CreateOrPatchRole(kc, role.ObjectMeta, func(in *rbac.Role) *rbac.Role {
 			in.Labels = core_util.UpsertMap(in.Labels, role.Labels)
@@ -313,31 +332,18 @@ func ensureRoleAndRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, role
 		if err != nil {
 			return errors.Wrapf(err, "failed to create rbac role %s/%s", role.Namespace, role.Name)
 		}
+	}
 
-		rObj := metav1.ObjectMeta{
-			Name:      role.Name,
-			Namespace: vs.Namespace,
-			Labels:    labels,
-		}
-		_, _, err = rbac_util.CreateOrPatchRoleBinding(kc, rObj, func(in *rbac.RoleBinding) *rbac.RoleBinding {
-			in.Labels = core_util.UpsertMap(in.Labels, rObj.Labels)
-			in.RoleRef = rbac.RoleRef{
-				APIGroup: rbac.GroupName,
-				Kind:     "Role",
-				Name:     role.Name,
-			}
-			in.Subjects = []rbac.Subject{
-				{
-					Kind:      rbac.ServiceAccountKind,
-					Name:      saName,
-					Namespace: vs.Namespace,
-				},
-			}
+	for _, rb := range rBindings {
+		_, _, err := rbac_util.CreateOrPatchRoleBinding(kc, rb.ObjectMeta, func(in *rbac.RoleBinding) *rbac.RoleBinding {
+			in.Labels = core_util.UpsertMap(in.Labels, rb.Labels)
+			in.RoleRef = rb.RoleRef
+			in.Subjects = rb.Subjects
 			util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
 			return in
 		})
 		if err != nil {
-			return errors.Wrapf(err, "failed to create rbac role binding %s/%s", rObj.Namespace, rObj.Name)
+			return errors.Wrapf(err, "failed to create rbac role binding %s/%s", rb.Namespace, rb.Name)
 		}
 	}
 	return nil
@@ -365,4 +371,19 @@ func ensureConfigMap(kc kubernetes.Interface, vs *api.VaultServer, cm *core.Conf
 		return in
 	})
 	return err
+}
+
+// ensurClusterRoleBinding creates or patches rbac ClusterRoleBinding
+func ensurClusterRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, cRBinding rbac.ClusterRoleBinding) error {
+	_, _, err := rbac_util.CreateOrPatchClusterRoleBinding(kc, cRBinding.ObjectMeta, func(in *rbac.ClusterRoleBinding) *rbac.ClusterRoleBinding {
+		in.Labels = core_util.UpsertMap(in.Labels, cRBinding.Labels)
+		in.RoleRef = cRBinding.RoleRef
+		in.Subjects = cRBinding.Subjects
+		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		return in
+	})
+	if err != nil {
+		return errors.Wrapf(err, "failed to create rbac role %s/%s", cRBinding.Namespace, cRBinding.Name)
+	}
+	return nil
 }

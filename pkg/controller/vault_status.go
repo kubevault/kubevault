@@ -20,10 +20,6 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
-const (
-	caFileDir = ".pki"
-)
-
 // monitorAndUpdateStatus monitors the vault service and replicas statuses, and
 // updates the status resource in the vault CR item.
 func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.VaultServer) {
@@ -49,6 +45,7 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.Vau
 		}
 		if latest != nil {
 			v = latest
+			s = v.Status
 		}
 
 		select {
@@ -155,8 +152,8 @@ func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespa
 	vault, err := c.extClient.KubevaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		key := namespace + "/" + name
-		if cancel, ok := c.ctxCancels[key]; ok {
-			cancel()
+		if ctxWithcancel, ok := c.ctxCancels[key]; ok {
+			ctxWithcancel.Cancel()
 			delete(c.ctxCancels, key)
 		}
 		return nil, err
@@ -166,7 +163,13 @@ func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespa
 
 	// TODO : flag for useSubresource?
 	vault, err = cs_util.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vault, func(s *api.VaultServerStatus) *api.VaultServerStatus {
-		*s = *status
+		s.VaultStatus.Active = status.VaultStatus.Active
+		s.VaultStatus.Standby = status.VaultStatus.Standby
+		s.VaultStatus.Sealed = status.VaultStatus.Sealed
+		s.VaultStatus.Unsealed = status.VaultStatus.Unsealed
+		s.Initialized = status.Initialized
+		s.UpdatedNodes = status.UpdatedNodes
+		s.Phase = status.Phase
 		return s
 	}, apis.EnableStatusSubresource)
 	return vault, err

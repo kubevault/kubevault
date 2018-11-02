@@ -1,5 +1,5 @@
 hash: 2347d359406a991a051e97882534c2de0ab89297442aee269bd27883d35b98f4
-updated: 2018-10-13T12:29:57.162709109-07:00
+updated: 2018-11-01T15:20:43.771333907+06:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -9,7 +9,7 @@ imports:
   - compute/metadata
   - internal
 - name: github.com/appscode/go
-  version: 0499c350ad263174dc8c1e3006b2d3300ff398e6
+  version: a6d58457b39324ead2ffb1f24be7a0a638c9f112
   subpackages:
   - analytics
   - context
@@ -25,6 +25,7 @@ imports:
   - types
   - util/errors
   - version
+  - wait
 - name: github.com/appscode/go-version
   version: 7aba545c679b0f45679eeb406dc662d2c8a04c26
 - name: github.com/appscode/jsonpatch
@@ -35,7 +36,7 @@ imports:
   - admission/v1beta1
   - registry/admissionreview/v1beta1
 - name: github.com/appscode/kutil
-  version: 303298aa86dad096fed4c49ba117700e506eca2c
+  version: 3ea05651189cbff8994265360eb150d4c3513859
   subpackages:
   - admissionregistration/v1beta1
   - apiextensions/v1beta1
@@ -239,7 +240,7 @@ imports:
 - name: github.com/go-openapi/jsonreference
   version: 13c6e3589ad90f49bd3e3bbe2c2cb3d7a4142272
 - name: github.com/go-openapi/spec
-  version: 1de3e0542de65ad8d75452a595886fdd0befb363
+  version: 7abd5745472fff5eb3685386d5fb8bf38683154d
 - name: github.com/go-openapi/swag
   version: f3f9494671f93fcff853e3c6e9e948b3eb71e590
 - name: github.com/gogo/protobuf
@@ -269,7 +270,7 @@ imports:
 - name: github.com/google/btree
   version: 7d79101e329e5a3adf994758c578dab82b90c017
 - name: github.com/google/go-cmp
-  version: 875f8df8b7965f1eac1098d36d677f807ac0b49e
+  version: 97aa668b73e764ccdd786bc3ccd2edffe621150e
   subpackages:
   - cmp
   - cmp/internal/diff
@@ -444,7 +445,8 @@ imports:
 - name: github.com/ryanuber/go-glob
   version: 256dc444b735e061061cf46c809487313d5b0065
 - name: github.com/sergi/go-diff
-  version: 97b2266dfe4bd4ea1b81a463322f04f8b724801e
+  version: 24e2351369ec4949b2ed0dc5c477afdd4c4034e8
+  repo: https://github.com/sergi/go-diff
   subpackages:
   - diffmatchpatch
 - name: github.com/shurcooL/sanitized_anchor_name
@@ -470,11 +472,12 @@ imports:
   subpackages:
   - codec
 - name: github.com/yudai/gojsondiff
-  version: 7b1b7adf999dab73a6eb02669c3d82dbb27a3dd6
+  version: 0525c875b75ca60b9e67ddc44496aa16f21066b0
   subpackages:
   - formatter
 - name: github.com/yudai/golcs
   version: d1c525dea8ce39ea9a783d33cf08932305373f2c
+  repo: https://github.com/yudai/golcs
 - name: golang.org/x/crypto
   version: de0752318171da717af4ce24d0a2e8626afaeb11
   subpackages:
@@ -536,7 +539,7 @@ imports:
   subpackages:
   - rate
 - name: google.golang.org/appengine
-  version: ae0ab99deb4dc413a2b4bd6c8bdd0eb67f1e4d06
+  version: 12d5545dc1cfa6047a286d5e853841b6471f4c19
   subpackages:
   - internal
   - internal/app_identity
@@ -550,8 +553,9 @@ imports:
 - name: google.golang.org/genproto
   version: 09f6ed296fc66555a25fe4ce95173148778dfa85
   subpackages:
-  - googleapis/api/annotations
   - googleapis/rpc/status
+- name: google.golang.org/genproto/googleapis/api/annotations
+  version: 09f6ed296fc66555a25fe4ce95173148778dfa85
 - name: google.golang.org/grpc
   version: 5b3c4e850e90a4cf6a20ebd46c8b32a0a3afcb9e
   subpackages:
@@ -621,7 +625,7 @@ imports:
   - pkg/client/clientset/clientset/scheme
   - pkg/client/clientset/clientset/typed/apiextensions/v1beta1
 - name: k8s.io/apimachinery
-  version: 8d7a0c3d7f0948197f384288363dfe20cd1f00e4
+  version: 00edbc532482e56a75224c794deaa1366dd292cb
   repo: https://github.com/kmodules/apimachinery.git
   vcs: git
   subpackages:
@@ -985,7 +989,7 @@ imports:
   subpackages:
   - pkg/api/legacyscheme
 - name: kmodules.xyz/custom-resources
-  version: 043b10a889fd23491f5f4ed5f91a3220f83dd96e
+  version: 6d398bd2d81b1d6a811ad026c1dd24f1564a1f3c
   repo: https://github.com/kmodules/custom-resources.git
   vcs: git
   subpackages:
@@ -1007,7 +1011,7 @@ testImports:
 - name: github.com/appscode/pat
   version: 48ff78925b7955367d8a048fc2b5cec8efadf8d3
 - name: github.com/ncw/swift
-  version: 6f907bcc698fc1d24fa918255b18c6c5668b8b2b
+  version: 6f342da371d063863f2f354f183e4ab0ef72d287
 - name: github.com/pmezard/go-difflib
   version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
   subpackages:

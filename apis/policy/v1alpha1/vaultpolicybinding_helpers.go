@@ -10,10 +10,14 @@ import (
 )
 
 func (v VaultPolicyBinding) GetKey() string {
-	return v.Namespace + "/" + v.Name
+	return ResourceVaultPolicyBinding + "/" + v.Namespace + "/" + v.Name
 }
 
 func (v VaultPolicyBinding) PolicyBindingName() string {
+	if v.Spec.RoleName != "" {
+		return v.Spec.RoleName
+	}
+
 	cluster := "-"
 	if v.ClusterName != "" {
 		cluster = v.ClusterName
@@ -23,7 +27,7 @@ func (v VaultPolicyBinding) PolicyBindingName() string {
 
 func (v VaultPolicyBinding) OffshootSelectors() map[string]string {
 	return map[string]string{
-		"app": "vault",
+		"app":                  "vault",
 		"vault_policy_binding": v.Name,
 	}
 }
@@ -77,6 +81,10 @@ func (v VaultPolicyBinding) IsValid() error {
 func (v *VaultPolicyBinding) SetDefaults() {
 	if v == nil {
 		return
+	}
+
+	if v.Spec.RoleName == "" {
+		v.Spec.RoleName = v.PolicyBindingName()
 	}
 
 	if v.Spec.AuthPath == "" {

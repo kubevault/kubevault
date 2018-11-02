@@ -123,6 +123,9 @@ func TestLogin(t *testing.T) {
 	addr := os.Getenv("VAULT_ADDR")
 	jwt := os.Getenv("K8S_JWT")
 	role := os.Getenv("VAULT_ROLE")
+	addr = "http://127.0.0.1:8200"
+	jwt = "hi.hello.u"
+	role = "empty"
 	if addr == "" || jwt == "" || role == "" {
 		t.Skip()
 	}
@@ -133,7 +136,7 @@ func TestLogin(t *testing.T) {
 				URL: &addr,
 			},
 			Parameters: &runtime.RawExtension{
-				Raw: []byte(fmt.Sprintf(`{ "role" : "%s"}`, role)),
+				Raw: []byte(fmt.Sprintf(`{"role":"%s"}`, role)),
 			},
 		},
 	}, &core.Secret{

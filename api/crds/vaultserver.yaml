@@ -329,6 +329,75 @@ spec:
               type: string
         spec:
           properties:
+            authMethods:
+              description: Specifies the list of auth methods to enable
+              items:
+                description: 'AuthMethod contains the information to enable vault
+                  auth method links: https://www.vaultproject.io/api/system/auth.html'
+                properties:
+                  config:
+                    properties:
+                      auditNonHMACRequestKeys:
+                        description: List of keys that will not be HMAC'd by audit
+                          devices in the request data object.
+                        items:
+                          type: string
+                        type: array
+                      auditNonHMACResponseKeys:
+                        description: List of keys that will not be HMAC'd by audit
+                          devices in the response data object.
+                        items:
+                          type: string
+                        type: array
+                      defaultLeaseTTL:
+                        description: The default lease duration, specified as a string
+                          duration like "5s" or "30m".
+                        type: string
+                      listingVisibility:
+                        description: Speficies whether to show this mount in the UI-specific
+                          listing endpoint.
+                        type: string
+                      maxLeaseTTL:
+                        description: The maximum lease duration, specified as a string
+                          duration like "5s" or "30m".
+                        type: string
+                      passthroughRequestHeaders:
+                        description: List of headers to whitelist and pass from the
+                          request to the backend.
+                        items:
+                          type: string
+                        type: array
+                      pluginName:
+                        description: The name of the plugin in the plugin catalog
+                          to use.
+                        type: string
+                  description:
+                    description: Specifies a human-friendly description of the auth
+                      method.
+                    type: string
+                  local:
+                    description: Specifies if the auth method is a local only. Local
+                      auth methods are not replicated nor (if a secondary) removed
+                      by replication.
+                    type: boolean
+                  path:
+                    description: Specifies the path in which to enable the auth method.
+                      Default value is the same as the 'type'
+                    type: string
+                  pluginName:
+                    description: Specifies the name of the auth plugin to use based
+                      from the name in the plugin catalog. Applies only to plugin
+                      methods.
+                    type: string
+                  type:
+                    description: |2-
+
+                       Specifies the name of the authentication method type, such as "github" or "token".
+                    type: string
+                required:
+                - type
+                - path
+              type: array
             backend:
               description: BackendStorageSpec defines storage backend configuration
                 of vault
@@ -405,8 +474,6 @@ spec:
                         per second on the table.
                       format: int32
                       type: integer
-                  required:
-                  - readCapacity
                 etcd:
                   description: |-
                     vault doc: https://www.vaultproject.io/docs/configuration/storage/etcd.html
@@ -444,6 +511,8 @@ spec:
                       description: Specifies the secret name that contains tls_ca_file,
                         tls_cert_file and tls_key_file for etcd communication
                       type: string
+                  required:
+                  - address
                 file:
                   description: |-
                     vault doc: https://www.vaultproject.io/docs/configuration/storage/filesystem.html
@@ -4089,9 +4158,13 @@ spec:
             unsealer:
               description: UnsealerSpec contain the configuration for auto vault initialize/unseal
               properties:
-                insecureTLS:
-                  description: To skip tls verification when communicating with vault
-                    server
+                caBundle:
+                  description: CABundle is a PEM encoded CA bundle which will be used
+                    to validate the serving certificate.
+                  format: byte
+                  type: string
+                insecureSkipTLSVerify:
+                  description: InsecureSkipTLSVerify disables TLS certificate verification
                   type: boolean
                 mode:
                   description: ModeSpec contain unseal mechanism
@@ -4205,10 +4278,6 @@ spec:
                   description: should the root token be stored in the key store (default
                     true)
                   type: boolean
-                vaultCASecret:
-                  description: "Secret name containing self signed ca cert of vault
-                    secret data:\n\t- ca.crt=<value>"
-                  type: string
             version:
               description: Version of Vault server to be deployed.
               type: string
@@ -4217,6 +4286,31 @@ spec:
           - backend
         status:
           properties:
+            authMethodStatus:
+              description: Status of the vault auth methods
+              items:
+                description: AuthMethodStatus specifies the status of the auth method
+                  maintained by the auth method controller
+                properties:
+                  path:
+                    description: Specifies the path in which to enable the auth method.
+                    type: string
+                  reason:
+                    description: Specifies the reason why failed to enable auth method
+                    type: string
+                  status:
+                    description: Specifies whether auth method is enabled or not
+                    type: string
+                  type:
+                    description: |2-
+
+                       Specifies the name of the authentication method type, such as "github" or "token".
+                    type: string
+                required:
+                - type
+                - path
+                - status
+              type: array
             clientPort:
               description: ClientPort is the port for vault client to access. It's
                 the same on client LB service and vault nodes.

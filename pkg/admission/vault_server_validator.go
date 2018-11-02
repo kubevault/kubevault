@@ -19,6 +19,11 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+const (
+	validatorGroup   = "validators.kubevault.com"
+	validatorVersion = "v1alpha1"
+)
+
 type VaultServerValidator struct {
 	client      kubernetes.Interface
 	extClient   cs.Interface
@@ -30,11 +35,11 @@ var _ hookapi.AdmissionHook = &VaultServerValidator{}
 
 func (v *VaultServerValidator) Resource() (plural schema.GroupVersionResource, singular string) {
 	return schema.GroupVersionResource{
-			Group:    "admission.kubevault.com",
-			Version:  "v1alpha1",
-			Resource: "vaultservers",
+			Group:    validatorGroup,
+			Version:  validatorVersion,
+			Resource: api.ResourceVaultServers,
 		},
-		"vaultserver"
+		api.ResourceVaultServer
 }
 
 func (v *VaultServerValidator) Initialize(config *rest.Config, stopCh <-chan struct{}) error {
@@ -296,16 +301,9 @@ func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs
 		if unslr.SecretThreshold > unslr.SecretShares {
 			return errors.New("spec.unsealer.secretShares must be greater than spec.unsealer.secretThreshold")
 		}
-		if unslr.InsecureTLS == false {
-			if unslr.VaultCASecret != "" {
-				err := validateSecret(client, unslr.VaultCASecret, vs.Namespace, []string{
-					"ca.crt",
-				})
-				if err != nil {
-					return errors.Wrap(err, "for spec.unsealer.vaultCASecret")
-				}
-			} else {
-				return errors.New("spec.unsealer.insecureTLS is false and spec.unsealer.vaultCASecret is empty")
+		if unslr.InsecureSkipTLSVerify == false {
+			if len(unslr.CABundle) == 0 {
+				return errors.New("spec.unsealer.insecureSkipTLSVerify is false and spec.unsealer.caBundle is empty")
 			}
 		}
 

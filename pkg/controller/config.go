@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"context"
 	"time"
 
 	reg_util "github.com/appscode/kutil/admissionregistration/v1beta1"
@@ -19,7 +18,7 @@ import (
 )
 
 const (
-	validatingWebhook = "admission.kubevault.com"
+	validatingWebhook = "validators.kubevault.com"
 )
 
 var (
@@ -63,7 +62,7 @@ func (c *Config) New() (*VaultController, error) {
 	ctrl := &VaultController{
 		config:              c.config,
 		clientConfig:        c.ClientConfig,
-		ctxCancels:          make(map[string]context.CancelFunc),
+		ctxCancels:          make(map[string]CtxWithCancel),
 		finalizerInfo:       NewMapFinalizer(),
 		kubeClient:          c.KubeClient,
 		extClient:           c.ExtClient,

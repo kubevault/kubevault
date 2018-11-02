@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/vault/helper/awsutil"
 	"github.com/kubevault/operator/apis"
 	config "github.com/kubevault/operator/apis/config/v1alpha1"
+	vsapi "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/auth/types"
 	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
@@ -21,7 +22,9 @@ import (
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
-const iamServerIdHeader = "X-Vault-AWS-IAM-Server-ID"
+const (
+	iamServerIdHeader = "X-Vault-AWS-IAM-Server-ID"
+)
 
 type auth struct {
 	vClient     *vaultapi.Client
@@ -58,12 +61,25 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	}
 	securityToken := secret.Data[apis.AWSAuthSecurityTokenKey]
 
-	var cf config.AWSAuthConfiguration
-	err = json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
+	var cf config.VaultServerConfiguration
+	err = json.Unmarshal([]byte(vApp.Spec.Parameters.Raw), &cf)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal parameters")
 	}
-	cf.SetDefaults()
+
+	authPath := string(vsapi.AuthTypeAws)
+	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
+		authPath = val
+	}
+
+	var headerValue string
+	if val, ok := secret.Annotations[apis.AWSHeaderValueKey]; ok && len(val) > 0 {
+		headerValue = val
+	}
+
+	if cf.PolicyControllerRole == "" {
+		return nil, errors.Wrap(err, "policyControllerRole is empty")
+	}
 
 	creds, err := retrieveCreds(string(accessKeyID), string(secretAccessKey), string(securityToken))
 	if err != nil {
@@ -73,9 +89,9 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	return &auth{
 		vClient:     vc,
 		creds:       creds,
-		role:        cf.Role,
-		headerValue: cf.HeaderValue,
-		path:        cf.AuthPath,
+		role:        cf.PolicyControllerRole,
+		headerValue: headerValue,
+		path:        authPath,
 	}, nil
 }
 

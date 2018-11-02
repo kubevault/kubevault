@@ -26,6 +26,9 @@ func SetNameSchema(openapiSpec map[string]common.OpenAPIDefinition) {
 }
 
 const (
+	// Specifies the path where auth is enabled
+	AuthPathKey = "kubevault.com/auth-path"
+
 	// required fields:
 	// - Secret.Data["token"] - a vault token
 	SecretTypeTokenAuth core.SecretType = "kubevault.com/token"
@@ -36,6 +39,10 @@ const (
 	// required fields:
 	// - Secret.Data["access_key_id"] - aws access key id
 	// - Secret.Data["secret_access_key"] - aws access secret key
+	//
+	// optional fields:
+	// - Secret.Annotations["kubevault.com/aws.header-value"] - specifies the header value that required if X-Vault-AWS-IAM-Server-ID Header is set
+	// - Secret.Annotations["kubevault.com/auth-path"] - Specifies the path where aws auth is enabled
 	SecretTypeAWSAuth core.SecretType = "kubevault.com/aws"
 
 	// required for SecretTypeAWSAuth
@@ -44,4 +51,8 @@ const (
 	AWSAuthAccessSecretKey = "secret_access_key"
 	// optional for SecretTypeAWSAuth
 	AWSAuthSecurityTokenKey = "security_token"
+
+	// Specifies the header value that required if X-Vault-AWS-IAM-Server-ID Header is set
+	// optional for annotation for  SecretTypeAWSAuth
+	AWSHeaderValueKey = "kubevault.com/aws.header-value"
 )

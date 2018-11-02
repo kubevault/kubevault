@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -55,11 +54,14 @@ func (v *vaultFake) GetService() *core.Service {
 func (v *vaultFake) GetDeployment(pt *core.PodTemplateSpec) *appsv1.Deployment {
 	return v.dp
 }
-func (v *vaultFake) GetServiceAccount() *core.ServiceAccount {
-	return v.sa
+func (v *vaultFake) GetServiceAccounts() []core.ServiceAccount {
+	return []core.ServiceAccount{*v.sa}
 }
-func (v *vaultFake) GetRBACRoles() []rbac.Role {
-	return v.roles
+func (v *vaultFake) GetRBACRolesAndRoleBindings() ([]rbac.Role, []rbac.RoleBinding) {
+	return v.roles, nil
+}
+func (v *vaultFake) GetRBACClusterRoleBinding() rbac.ClusterRoleBinding {
+	return rbac.ClusterRoleBinding{}
 }
 func (v *vaultFake) GetPodTemplate(c core.Container, saName string) *core.PodTemplateSpec {
 	return v.pt
@@ -153,13 +155,13 @@ func TestReconcileVault(t *testing.T) {
 			vaultCtrl := VaultController{
 				kubeClient:       kfake.NewSimpleClientset(),
 				recorder:         record.NewFakeRecorder(0),
-				ctxCancels:       map[string]context.CancelFunc{},
+				ctxCancels:       map[string]CtxWithCancel{},
 				extClient:        cfake.NewSimpleClientset(),
 				appCatalogClient: appcatfake.NewSimpleClientset().AppcatalogV1alpha1(),
 			}
 
 			// to ignore monitorAndUpdateStatus
-			vaultCtrl.ctxCancels[test.vs.Name] = func() {}
+			vaultCtrl.ctxCancels[test.vs.Name] = CtxWithCancel{}
 
 			err := vaultCtrl.reconcileVault(test.vs, test.vfake)
 			if test.expectErr {
@@ -307,7 +309,7 @@ func TestCreateRoleAndRoleBinding(t *testing.T) {
 				assert.Nil(t, err)
 			}
 
-			err := ensureRoleAndRoleBinding(vaultCtrl.kubeClient, vs, test.roles, "try")
+			err := ensureRoleAndRoleBinding(vaultCtrl.kubeClient, vs, test.roles, nil)
 			if test.expectErr {
 				assert.NotNil(t, err)
 			} else {
