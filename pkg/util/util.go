@@ -52,8 +52,5 @@ func TryGetJwtTokenSecretNameFromServiceAccount(kc kubernetes.Interface, name st
 	if err2 != nil {
 		return nil, errors.Wrap(err, err2.Error())
 	}
-	if secret == nil {
-		return nil, errors.New("token secret not found")
-	}
 	return secret, nil
 }
