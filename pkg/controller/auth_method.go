@@ -27,7 +27,7 @@ import (
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
 
-const PolicyForAuthController = `
+const policyForAuthController = `
 path "sys/auth" {
   capabilities = ["read", "list", ]
 }
@@ -36,6 +36,10 @@ path "sys/auth/*" {
   capabilities = ["sudo", "create", "read", "update", "delete"]
 }
 `
+
+const (
+	ttlForAuthMethod = "24h"
+)
 
 // tasks:
 //	- create VaultPolicy and VaultPolicyBinding, it will not create those until vault is ready
@@ -110,7 +114,7 @@ func vaultPolicyForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy {
 				Name:      vs.AppBindingName(),
 				Namespace: vs.Namespace,
 			},
-			Policy: PolicyForAuthController,
+			Policy: policyForAuthController,
 		},
 	}
 	return plcy
@@ -124,13 +128,13 @@ func vaultPolicyBindingForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy
 			Labels:    vs.OffshootLabels(),
 		},
 		Spec: policyapi.VaultPolicyBindingSpec{
-			AuthPath:                 "kubernetes",
+			AuthPath:                 string(api.AuthTypeKubernetes),
 			ServiceAccountNames:      []string{vs.ServiceAccountName()},
 			ServiceAccountNamespaces: []string{vs.Namespace},
 			Policies:                 []string{vs.PolicyNameForAuthMethodController()},
-			TTL:                      "24h",
-			Period:                   "24h",
-			MaxTTL:                   "24h",
+			TTL:                      ttlForAuthMethod,
+			Period:                   ttlForAuthMethod,
+			MaxTTL:                   ttlForAuthMethod,
 		},
 	}
 	return pb

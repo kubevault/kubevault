@@ -22,6 +22,8 @@ import (
 
 const (
 	K8sTokenReviewerJwtEnv = "K8S_TOKEN_REVIEWER_JWT"
+	timeout = 30*time.Second
+	timeInterval = 2*time.Second
 )
 
 type Unsealer interface {
@@ -130,16 +132,16 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 	args = append(args, fmt.Sprintf("--auth.k8s-ca-cert=%s", u.restConfig.CAData))
 
 	// Add env for kubernetes auth
-	secretName, err := sa_util.TryGetJwtTokenSecretNameFromServiceAccount(u.kc, u.vs.ServiceAccountForTokenReviewer(), u.vs.Namespace, 2*time.Second, 30*time.Second)
+	secret, err := sa_util.TryGetJwtTokenSecretNameFromServiceAccount(u.kc, u.vs.ServiceAccountForTokenReviewer(), u.vs.Namespace, timeInterval, timeout)
 	if err != nil {
-		return errors.Wrapf(err, "failed to get jwt token secret name of service account(%s/%s)", u.vs.Namespace, u.vs.ServiceAccountForTokenReviewer())
+		return errors.Wrapf(err, "failed to get jwt token secret of service account(%s/%s)", u.vs.Namespace, u.vs.ServiceAccountForTokenReviewer())
 	}
 	cont.Env = core_util.UpsertEnvVars(cont.Env, core.EnvVar{
 		Name: K8sTokenReviewerJwtEnv,
 		ValueFrom: &core.EnvVarSource{
 			SecretKeyRef: &core.SecretKeySelector{
 				LocalObjectReference: core.LocalObjectReference{
-					Name: secretName,
+					Name: secret.Name,
 				},
 				Key: core.ServiceAccountTokenKey,
 			},

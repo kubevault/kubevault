@@ -11,10 +11,9 @@ import (
 	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
+	vsapi "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
-
-const KubernetesDefaultAuthPath = "kubernetes"
 
 type auth struct {
 	vClient *vaultapi.Client
@@ -49,7 +48,7 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to unmarshal parameters")
 	}
 
-	authPath := KubernetesDefaultAuthPath
+	authPath := string(vsapi.AuthTypeKubernetes)
 	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
 		authPath = val
 	}

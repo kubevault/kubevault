@@ -11,9 +11,8 @@ import (
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	vsapi "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 )
-
-const UserPassDefaultAuthPath = "userpass"
 
 type auth struct {
 	vClient *vaultapi.Client
@@ -42,7 +41,7 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.New("password is missing")
 	}
 
-	authPath := UserPassDefaultAuthPath
+	authPath := string(vsapi.AuthTypeUserPass)
 	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
 		authPath = val
 	}

@@ -47,7 +47,7 @@ func (c *VaultController) runVaultPolicyBindingInjector(key string) error {
 		if vPBind.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(vPBind.ObjectMeta, VaultPolicyBindingFinalizer) {
 				// Finalize VaultPolicyBinding
-				go c.runPolicyBindingFinalizer(vPBind, 1*time.Minute, 5*time.Second)
+				go c.runPolicyBindingFinalizer(vPBind,timeoutForFinalizer, timeIntervalForFinalizer)
 			} else {
 				glog.Infof("Finalizer not found for VaultPolicyBinding %s/%s", vPBind.Namespace, vPBind.Name)
 			}

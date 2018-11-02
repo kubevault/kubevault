@@ -540,6 +540,15 @@ type AzureKeyVault struct {
 	UseManagedIdentity bool `json:"useManagedIdentity,omitempty"`
 }
 
+type AuthMethodType string
+
+const (
+	AuthTypeKubernetes AuthMethodType = "kubernetes"
+	AuthTypeAws AuthMethodType = "aws"
+	AuthTypeUserPass AuthMethodType = "userpass"
+	AuthTypeCert AuthMethodType = "cert"
+)
+
 // AuthMethod contains the information to enable vault auth method
 // links: https://www.vaultproject.io/api/system/auth.html
 type AuthMethod struct {

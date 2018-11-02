@@ -11,6 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_util "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/util"
+	core "k8s.io/api/core/v1"
 )
 
 func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error {
@@ -31,7 +32,7 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 	vClientConf := appcat.ClientConfig{
 		Service: &appcat.ServiceReference{
 			Name:   v.GetService().Name,
-			Scheme: "https",
+			Scheme: string(core.URISchemeHTTPS),
 			Port:   VaultClientPort,
 		},
 		CABundle: caBundle,
@@ -43,7 +44,7 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 			Kind:       vaultconfig.ResourceKindVaultServerConfiguration,
 		},
 		UsePodServiceAccountForCSIDriver: true,
-		AuthPath:                        "kubernetes",
+		AuthPath:                        string(api.AuthTypeKubernetes),
 		ServiceAccountName:              vs.ServiceAccountName(),
 		PolicyControllerRole:            vs.PolicyNameForPolicyController(),
 		AuthMethodControllerRole:        vaultPolicyBindingForAuthMethod(vs).PolicyBindingName(),

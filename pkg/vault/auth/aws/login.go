@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/vault/helper/awsutil"
 	"github.com/kubevault/operator/apis"
 	config "github.com/kubevault/operator/apis/config/v1alpha1"
+	vsapi "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/auth/types"
 	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
@@ -23,7 +24,6 @@ import (
 
 const (
 	iamServerIdHeader  = "X-Vault-AWS-IAM-Server-ID"
-	AWSDefaultAuthPath = "aws"
 )
 
 type auth struct {
@@ -67,7 +67,7 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to unmarshal parameters")
 	}
 
-	authPath := AWSDefaultAuthPath
+	authPath := string(vsapi.AuthTypeAws)
 	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
 		authPath = val
 	}

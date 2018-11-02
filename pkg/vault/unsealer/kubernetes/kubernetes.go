@@ -57,7 +57,7 @@ func (o *Options) GetRBAC(prefix, namespace string) []rbac.Role {
 
 	role := rbac.Role{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      prefix + "-vault-unsealer-k8s-secret-access",
+			Name:      prefix + "-unsealer-secret-reader",
 			Namespace: namespace,
 		},
 		Rules: []rbac.PolicyRule{
