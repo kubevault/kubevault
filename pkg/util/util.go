@@ -6,6 +6,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
+	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
@@ -22,11 +23,15 @@ func GetJwtTokenSecretFromServiceAccount(kc kubernetes.Interface, name, namespac
 		return nil, errors.New("token secret still haven't created yet")
 	} else {
 		// get secret
-		sr, err := kc.CoreV1().Secrets(namespace).Get(sa.Secrets[0].Name, metav1.GetOptions{})
-		if err != nil {
-			return nil, err
+		for _, s := range sa.Secrets {
+			sr, err := kc.CoreV1().Secrets(namespace).Get(s.Name, metav1.GetOptions{})
+			if err == nil {
+				return sr, nil
+			} else if !kerr.IsNotFound(err) {
+				return nil, err
+			}
 		}
-		return sr, nil
+		return nil, errors.New("token secret is not available")
 	}
 }
 
@@ -46,6 +51,9 @@ func TryGetJwtTokenSecretNameFromServiceAccount(kc kubernetes.Interface, name st
 	})
 	if err2 != nil {
 		return nil, errors.Wrap(err, err2.Error())
+	}
+	if secret == nil {
+		return nil, errors.New("token secret not found")
 	}
 	return secret, nil
 }
