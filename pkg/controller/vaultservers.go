@@ -47,6 +47,12 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 			delete(c.ctxCancels, key)
 		}
 
+		// stop auth method controller go routine if have any
+		if ctxWithCancel, ok := c.authMethodCtx[key]; ok {
+			ctxWithCancel.Cancel()
+			delete(c.authMethodCtx, key)
+		}
+
 	} else {
 		vs := obj.(*api.VaultServer).DeepCopy()
 
@@ -157,18 +163,17 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 
 	// Add vault monitor to watch vault seal or unseal status
 	key := vs.GetKey()
-	ctxWithCancel, ok := c.ctxCancels[key]
-	if !ok {
+	if _, ok := c.ctxCancels[key]; !ok {
 		ctx, cancel := context.WithCancel(context.Background())
 		c.ctxCancels[key] = CtxWithCancel{
 			Ctx:    ctx,
 			Cancel: cancel,
 		}
 		go c.monitorAndUpdateStatus(ctx, vs)
-		c.reconcileAuthMethods(vs, ctx)
-	} else {
-		c.reconcileAuthMethods(vs, ctxWithCancel.Ctx)
 	}
+
+	// Run auth method reconcile
+	c.runAuthMethodsReconcile(vs)
 
 	return nil
 }
