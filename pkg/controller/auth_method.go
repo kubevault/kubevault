@@ -45,8 +45,17 @@ const (
 //	- create VaultPolicy and VaultPolicyBinding, it will not create those until vault is ready
 //  - enable or disable auth methods in vault
 func (c *VaultController) reconcileAuthMethods(vs *api.VaultServer, ctx context.Context) {
+	if vs == nil {
+		glog.Errorf("VaultServer is nil")
+		return
+	}
+
 	var err error
 	vs, err = waitUntilVaultServerIsReady(c.extClient.KubevaultV1alpha1(), vs, ctx.Done())
+	if err!=nil {
+		glog.Errorf("error when wating for VaultServer to get ready: %s",err)
+		return
+	}
 
 	vp := vaultPolicyForAuthMethod(vs)
 	err = ensureVaultPolicy(c.extClient.PolicyV1alpha1(), vp, vs)

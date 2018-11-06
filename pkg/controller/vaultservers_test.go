@@ -262,6 +262,17 @@ func TestCreateRoleAndRoleBinding(t *testing.T) {
 		},
 	}
 
+	demoRBinding := rbac.RoleBinding{
+		Subjects: []rbac.Subject{
+			{
+				Name: "test",
+				Kind: "test.kind",
+				Namespace: "test.ns",
+				APIGroup: "api.test",
+			},
+		},
+	}
+
 	vs := &api.VaultServer{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "try",
@@ -273,32 +284,40 @@ func TestCreateRoleAndRoleBinding(t *testing.T) {
 		testName           string
 		preCreatedRole     []rbac.Role
 		roles              []rbac.Role
+		roleBindings              []rbac.RoleBinding
 		expectErr          bool
 		expectRoles        []string
 		expectRoleBindings []string
 	}{
 		{
-			"create 2 rbac role and rolebinding",
-			nil,
-			[]rbac.Role{
+			testName:"create 2 rbac role and rolebinding",
+			preCreatedRole :nil,
+			roles:[]rbac.Role{
 				func(r *rbac.Role) rbac.Role { r.SetName("test1"); r.SetNamespace(vs.Namespace); return *r }(&demoRole),
 				func(r *rbac.Role) rbac.Role { r.SetName("test2"); r.SetNamespace(vs.Namespace); return *r }(&demoRole),
 			},
-			false,
-			[]string{"test1", "test2"},
-			[]string{"test1", "test2"},
+			roleBindings:[]rbac.RoleBinding{
+				func(r *rbac.RoleBinding) rbac.RoleBinding { r.SetName("test1"); r.SetNamespace(vs.Namespace); return *r }(&demoRBinding),
+				func(r *rbac.RoleBinding) rbac.RoleBinding { r.SetName("test2"); r.SetNamespace(vs.Namespace); return *r }(&demoRBinding),
+			},
+			expectErr: false,
+			expectRoles: []string{"test1", "test2"},
+			expectRoleBindings: []string{"test1", "test2"},
 		},
 		{
-			"create 1 rbac role and rolebinding, but role already exists",
-			[]rbac.Role{
+			testName:"create 1 rbac role and rolebinding, but role already exists",
+			preCreatedRole: []rbac.Role{
 				func(r *rbac.Role) rbac.Role { r.SetName("test3"); r.SetNamespace(vs.Namespace); return *r }(&demoRole),
 			},
-			[]rbac.Role{
+			roles:[]rbac.Role{
 				func(r *rbac.Role) rbac.Role { r.SetName("test3"); r.SetNamespace(vs.Namespace); return *r }(&demoRole),
 			},
-			false,
-			[]string{"test3"},
-			[]string{"test3"},
+			roleBindings:[]rbac.RoleBinding{
+				func(r *rbac.RoleBinding) rbac.RoleBinding { r.SetName("test3"); r.SetNamespace(vs.Namespace); return *r }(&demoRBinding),
+			},
+			expectErr:false,
+			expectRoles:[]string{"test3"},
+			expectRoleBindings: []string{"test3"},
 		},
 	}
 
@@ -309,7 +328,7 @@ func TestCreateRoleAndRoleBinding(t *testing.T) {
 				assert.Nil(t, err)
 			}
 
-			err := ensureRoleAndRoleBinding(vaultCtrl.kubeClient, vs, test.roles, nil)
+			err := ensureRoleAndRoleBinding(vaultCtrl.kubeClient, vs, test.roles, test.roleBindings)
 			if test.expectErr {
 				assert.NotNil(t, err)
 			} else {
