@@ -13,3 +13,4 @@ spec:
     image: "kubevault/vault-unsealer:0.1.0"
   exporter:
     image: "kubevault/vault-exporter:canary"
+
