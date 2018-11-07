@@ -112,14 +112,14 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 		args = append(args, fmt.Sprintf("--retry-period=%s", p.String()))
 	}
 	if unslr.InsecureSkipTLSVerify == true {
-		args = append(args, fmt.Sprintf("--insecure-skip-tls-verify=true"))
+		args = append(args, fmt.Sprintf("--vault.insecure-skip-tls-verify=true"))
 	}
 	if unslr.OverwriteExisting == true {
 		args = append(args, fmt.Sprintf("--overwrite-existing=true"))
 	}
 
 	if unslr.InsecureSkipTLSVerify == false && len(unslr.CABundle) != 0 {
-		args = append(args, fmt.Sprintf("--ca-cert=%s", unslr.CABundle))
+		args = append(args, fmt.Sprintf("--vault.address=%s", unslr.CABundle))
 	}
 
 	// Add kubernetes auth flags
@@ -127,7 +127,7 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 
 	err := rest.LoadTLSFiles(u.restConfig)
 	if err != nil {
-		return errors.Wrap(err, "fialed to TLS files from rest config for kubernetes auth")
+		return errors.Wrap(err, "failed to load TLS files from rest config for kubernetes auth")
 	}
 	args = append(args, fmt.Sprintf("--auth.k8s-ca-cert=%s", u.restConfig.CAData))
 
@@ -149,9 +149,9 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 	})
 
 	// Add flags for policy
-	args = append(args, fmt.Sprintf("--policy.name=%s", u.vs.PolicyNameForPolicyController()))
-	args = append(args, fmt.Sprintf("--policy.service-account-name=%s", u.vs.ServiceAccountName()))
-	args = append(args, fmt.Sprintf("--policy.service-account-namespace=%s", u.vs.Namespace))
+	args = append(args, fmt.Sprintf("--policy-manager.name=%s", u.vs.PolicyNameForPolicyController()))
+	args = append(args, fmt.Sprintf("--policy-manager.service-account-name=%s", u.vs.ServiceAccountName()))
+	args = append(args, fmt.Sprintf("--policy-manager.service-account-namespace=%s", u.vs.Namespace))
 
 	cont.Args = append(cont.Args, args...)
 	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)
