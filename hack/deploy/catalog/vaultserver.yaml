@@ -12,4 +12,4 @@ spec:
   unsealer:
     image: "nightfury1204/vault-unsealer:prev"
   exporter:
-    image: "sanjid/statsd-exporter:latest"
+    image: "kubevault/vault-exporter:fork"
