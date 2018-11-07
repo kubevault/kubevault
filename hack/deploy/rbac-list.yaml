@@ -48,6 +48,11 @@ rules:
   - events
   verbs: ["create"]
 - apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs: ["*"]
+- apiGroups:
   - ""
   resources:
   - pods

@@ -10,4 +10,6 @@ spec:
   vault:
     image: "vault:0.11.1"
   unsealer:
-    image: "${VAULT_OPERATOR_DOCKER_REGISTRY}/vault-unsealer:canary"
+    image: "nightfury1204/vault-unsealer:prev"
+  exporter:
+    image: "sanjid/statsd-exporter:latest"

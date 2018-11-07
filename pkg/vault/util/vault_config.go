@@ -11,6 +11,7 @@ const (
 	VaultContainerName         = "vault"
 	VaultUnsealerContainerName = "vault-unsealer"
 	VaultInitContainerName     = "vault-config"
+	VaultExporterContainerName = "vault-exporter"
 )
 
 const (

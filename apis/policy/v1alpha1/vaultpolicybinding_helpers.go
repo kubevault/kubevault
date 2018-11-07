@@ -27,7 +27,7 @@ func (v VaultPolicyBinding) PolicyBindingName() string {
 
 func (v VaultPolicyBinding) OffshootSelectors() map[string]string {
 	return map[string]string{
-		"app": "vault",
+		"app":                  "vault",
 		"vault_policy_binding": v.Name,
 	}
 }

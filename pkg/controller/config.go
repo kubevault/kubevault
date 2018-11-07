@@ -5,6 +5,7 @@ import (
 
 	reg_util "github.com/appscode/kutil/admissionregistration/v1beta1"
 	"github.com/appscode/kutil/discovery"
+	pcm "github.com/coreos/prometheus-operator/pkg/client/monitoring/v1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	vaultinformers "github.com/kubevault/operator/client/informers/externalversions"
 	"github.com/kubevault/operator/pkg/eventer"
@@ -43,6 +44,7 @@ type Config struct {
 	ExtClient        cs.Interface
 	CRDClient        crd_cs.ApiextensionsV1beta1Interface
 	AppCatalogClient appcat_cs.AppcatalogV1alpha1Interface
+	PromClient       pcm.MonitoringV1Interface
 }
 
 func NewConfig(clientConfig *rest.Config) *Config {
@@ -68,6 +70,7 @@ func (c *Config) New() (*VaultController, error) {
 		kubeClient:          c.KubeClient,
 		extClient:           c.ExtClient,
 		crdClient:           c.CRDClient,
+		promClient:          c.PromClient,
 		appCatalogClient:    c.AppCatalogClient,
 		kubeInformerFactory: informers.NewFilteredSharedInformerFactory(c.KubeClient, c.ResyncPeriod, core.NamespaceAll, tweakListOptions),
 		extInformerFactory:  vaultinformers.NewSharedInformerFactory(c.ExtClient, c.ResyncPeriod),

@@ -1,5 +1,5 @@
-hash: 2347d359406a991a051e97882534c2de0ab89297442aee269bd27883d35b98f4
-updated: 2018-11-01T15:20:43.771333907+06:00
+hash: 302c8897ca56fb2f61e2bf2cd8e932d2b420e0a62fb7017f2d36149840fccc2f
+updated: 2018-11-07T11:01:06.045487999+06:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -200,6 +200,12 @@ imports:
   subpackages:
   - daemon
   - journal
+- name: github.com/coreos/prometheus-operator
+  version: b9bfccafc646c76bd9b1ebf209ea528fde37f2e3
+  repo: https://github.com/kmodules/prometheus-operator.git
+  vcs: git
+  subpackages:
+  - pkg/client/monitoring/v1
 - name: github.com/cpuguy83/go-md2man
   version: 20f5889cbdc3c73dbd2862796665e7c465ade7d1
   subpackages:
@@ -240,7 +246,7 @@ imports:
 - name: github.com/go-openapi/jsonreference
   version: 13c6e3589ad90f49bd3e3bbe2c2cb3d7a4142272
 - name: github.com/go-openapi/spec
-  version: 7abd5745472fff5eb3685386d5fb8bf38683154d
+  version: 1de3e0542de65ad8d75452a595886fdd0befb363
 - name: github.com/go-openapi/swag
   version: f3f9494671f93fcff853e3c6e9e948b3eb71e590
 - name: github.com/gogo/protobuf
@@ -270,7 +276,7 @@ imports:
 - name: github.com/google/btree
   version: 7d79101e329e5a3adf994758c578dab82b90c017
 - name: github.com/google/go-cmp
-  version: 97aa668b73e764ccdd786bc3ccd2edffe621150e
+  version: 3af367b6b30c263d47e8895973edcca9a49cf029
   subpackages:
   - cmp
   - cmp/internal/diff
@@ -363,7 +369,7 @@ imports:
   subpackages:
   - pbutil
 - name: github.com/mitchellh/go-homedir
-  version: ae18d6b8b3205b561c79e8e5f69bff09736185f4
+  version: d682a8f0cf139663a984ff12528da460ca963de9
 - name: github.com/mitchellh/mapstructure
   version: 53818660ed4955e899c0bcafa97299a388bd7c8e
 - name: github.com/modern-go/concurrent
@@ -472,7 +478,7 @@ imports:
   subpackages:
   - codec
 - name: github.com/yudai/gojsondiff
-  version: 0525c875b75ca60b9e67ddc44496aa16f21066b0
+  version: e21612694bdd50975f93cd5eaccb457477128e28
   subpackages:
   - formatter
 - name: github.com/yudai/golcs
@@ -539,7 +545,7 @@ imports:
   subpackages:
   - rate
 - name: google.golang.org/appengine
-  version: 12d5545dc1cfa6047a286d5e853841b6471f4c19
+  version: 4f7eeb5305a4ba1966344836ba4af9996b7b4e05
   subpackages:
   - internal
   - internal/app_identity
@@ -553,9 +559,8 @@ imports:
 - name: google.golang.org/genproto
   version: 09f6ed296fc66555a25fe4ce95173148778dfa85
   subpackages:
+  - googleapis/api/annotations
   - googleapis/rpc/status
-- name: google.golang.org/genproto/googleapis/api/annotations
-  version: 09f6ed296fc66555a25fe4ce95173148778dfa85
 - name: google.golang.org/grpc
   version: 5b3c4e850e90a4cf6a20ebd46c8b32a0a3afcb9e
   subpackages:
@@ -788,6 +793,7 @@ imports:
 - name: k8s.io/client-go
   version: 1638f8970cefaa404ff3a62950f88b08292b2696
   subpackages:
+  - deprecated-dynamic
   - discovery
   - discovery/fake
   - dynamic
@@ -1001,6 +1007,15 @@ imports:
   - client/clientset/versioned/typed/appcatalog/v1alpha1
   - client/clientset/versioned/typed/appcatalog/v1alpha1/fake
   - client/clientset/versioned/typed/appcatalog/v1alpha1/util
+- name: kmodules.xyz/monitoring-agent-api
+  version: 1153fe9fb110258b685ac5a718bc84c719a38b4a
+  repo: https://github.com/kmodules/monitoring-agent-api.git
+  vcs: git
+  subpackages:
+  - agents
+  - agents/coreosprometheusoperator
+  - agents/prometheusbuiltin
+  - api/v1
 - name: kmodules.xyz/offshoot-api
   version: 5fe79fb4d96949b8d85410ca8af200226a676aac
   repo: https://github.com/kmodules/offshoot-api.git

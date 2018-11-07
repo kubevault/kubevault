@@ -6,6 +6,7 @@ import (
 	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	mona "kmodules.xyz/monitoring-agent-api/api/v1"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
 )
 
@@ -57,6 +58,10 @@ type VaultServerSpec struct {
 	// Specifies the list of auth methods to enable
 	// +optional
 	AuthMethods []AuthMethod `json:"authMethods,omitempty"`
+
+	// Monitor is used monitor database instance
+	// +optional
+	Monitor *mona.AgentSpec `json:"monitor,omitempty"`
 
 	// PodTemplate is an optional configuration for pods used to run vault
 	// +optional

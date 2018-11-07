@@ -36,6 +36,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 	return map[string]common.OpenAPIDefinition{
 		"github.com/appscode/go/encoding/json/types.IntHash":                             schema_go_encoding_json_types_IntHash(ref),
 		"github.com/kubevault/operator/apis/catalog/v1alpha1.VaultServerVersion":         schema_operator_apis_catalog_v1alpha1_VaultServerVersion(ref),
+		"github.com/kubevault/operator/apis/catalog/v1alpha1.VaultServerVersionExporter": schema_operator_apis_catalog_v1alpha1_VaultServerVersionExporter(ref),
 		"github.com/kubevault/operator/apis/catalog/v1alpha1.VaultServerVersionList":     schema_operator_apis_catalog_v1alpha1_VaultServerVersionList(ref),
 		"github.com/kubevault/operator/apis/catalog/v1alpha1.VaultServerVersionSpec":     schema_operator_apis_catalog_v1alpha1_VaultServerVersionSpec(ref),
 		"github.com/kubevault/operator/apis/catalog/v1alpha1.VaultServerVersionUnsealer": schema_operator_apis_catalog_v1alpha1_VaultServerVersionUnsealer(ref),
@@ -373,6 +374,26 @@ func schema_operator_apis_catalog_v1alpha1_VaultServerVersion(ref common.Referen
 	}
 }
 
+func schema_operator_apis_catalog_v1alpha1_VaultServerVersionExporter(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "VaultServerVersionExporter is the image for the vault exporter",
+				Properties: map[string]spec.Schema{
+					"image": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"image"},
+			},
+		},
+		Dependencies: []string{},
+	}
+}
+
 func schema_operator_apis_catalog_v1alpha1_VaultServerVersionList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -444,6 +465,12 @@ func schema_operator_apis_catalog_v1alpha1_VaultServerVersionSpec(ref common.Ref
 							Ref:         ref("github.com/kubevault/operator/apis/catalog/v1alpha1.VaultServerVersionUnsealer"),
 						},
 					},
+					"exporter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Exporter Image",
+							Ref:         ref("github.com/kubevault/operator/apis/catalog/v1alpha1.VaultServerVersionExporter"),
+						},
+					},
 					"deprecated": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Deprecated versions usable but regarded as obsolete and best avoided, typically due to having been superseded.",
@@ -452,11 +479,11 @@ func schema_operator_apis_catalog_v1alpha1_VaultServerVersionSpec(ref common.Ref
 						},
 					},
 				},
-				Required: []string{"version", "vault", "unsealer"},
+				Required: []string{"version", "vault", "unsealer", "exporter"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/kubevault/operator/apis/catalog/v1alpha1.VaultServerVersionUnsealer", "github.com/kubevault/operator/apis/catalog/v1alpha1.VaultServerVersionVault"},
+			"github.com/kubevault/operator/apis/catalog/v1alpha1.VaultServerVersionExporter", "github.com/kubevault/operator/apis/catalog/v1alpha1.VaultServerVersionUnsealer", "github.com/kubevault/operator/apis/catalog/v1alpha1.VaultServerVersionVault"},
 	}
 }
 
