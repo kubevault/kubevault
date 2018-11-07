@@ -31,6 +31,8 @@ From here you can learn all about Vault operator's architecture and how to deplo
 - [Setup](/docs/setup/). Setup contains instructions for installing
   the Vault operator in various cloud providers.
 
+- [Monitoring](/docs/monitoring). Monitoring contains instructions for setup prometheus with vault server
+
 - [Guides](/docs/guides/). Guides show you how to perform tasks with Vault operator.
 
 - [Reference](/docs/reference/). Detailed exhaustive lists of
