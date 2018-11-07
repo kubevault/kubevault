@@ -32,7 +32,7 @@ func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding) (AuthInterface, e
 	// if ServiceAccountName exits in .spec.parameters, then use s/a authentication
 	// otherwise use secret
 
-	if vApp.Spec.Parameters.Raw != nil {
+	if vApp.Spec.Parameters != nil && vApp.Spec.Parameters.Raw != nil {
 		var cf config.VaultServerConfiguration
 		err := json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
 		if err != nil {

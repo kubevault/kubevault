@@ -60,6 +60,10 @@ type VaultController struct {
 
 	// Contain the currently processing finalizer
 	finalizerInfo *mapFinalizer
+
+	// authMethodCtx stores auth method controller contexts that are used to
+	// cancel their goroutines when they are not needed
+	authMethodCtx map[string]CtxWithCancel
 }
 
 func (c *VaultController) ensureCustomResourceDefinitions() error {

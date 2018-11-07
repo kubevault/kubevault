@@ -64,6 +64,7 @@ func (c *Config) New() (*VaultController, error) {
 		clientConfig:        c.ClientConfig,
 		ctxCancels:          make(map[string]CtxWithCancel),
 		finalizerInfo:       NewMapFinalizer(),
+		authMethodCtx:       make(map[string]CtxWithCancel),
 		kubeClient:          c.KubeClient,
 		extClient:           c.ExtClient,
 		crdClient:           c.CRDClient,

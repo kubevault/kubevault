@@ -8,6 +8,7 @@ import (
 	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -61,7 +62,11 @@ func (f *Framework) UpdateVaultServer(obj *api.VaultServer) (*api.VaultServer, e
 }
 
 func (f *Framework) DeleteVaultServer(meta metav1.ObjectMeta) error {
-	return f.CSClient.KubevaultV1alpha1().VaultServers(meta.Namespace).Delete(meta.Name, deleteInBackground())
+	err := f.CSClient.KubevaultV1alpha1().VaultServers(meta.Namespace).Delete(meta.Name, deleteInBackground())
+	if kerr.IsNotFound(err) {
+		return nil
+	}
+	return err
 }
 
 func (f *Framework) EventuallyVaultServer(meta metav1.ObjectMeta) GomegaAsyncAssertion {

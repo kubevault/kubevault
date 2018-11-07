@@ -41,12 +41,44 @@ const (
 	ttlForAuthMethod = "24h"
 )
 
+func (c *VaultController) runAuthMethodsReconcile(vs *api.VaultServer) {
+	if vs == nil {
+		glog.Errorln("VaultServer is nil")
+		return
+	}
+
+	key := vs.GetKey()
+	ctx, cancel := context.WithCancel(context.Background())
+	ctxCancel := CtxWithCancel{
+		Ctx:    ctx,
+		Cancel: cancel,
+	}
+
+	if ctx, ok := c.authMethodCtx[key]; ok {
+		// stop previous infinitely running go routine if have any
+		ctx.Cancel()
+	}
+
+	// run a new go routine for updated auth methods
+	c.authMethodCtx[key] = ctxCancel
+	go c.reconcileAuthMethods(vs, ctxCancel.Ctx)
+}
+
 // tasks:
 //	- create VaultPolicy and VaultPolicyBinding, it will not create those until vault is ready
 //  - enable or disable auth methods in vault
 func (c *VaultController) reconcileAuthMethods(vs *api.VaultServer, ctx context.Context) {
+	if vs == nil {
+		glog.Errorf("VaultServer is nil")
+		return
+	}
+
 	var err error
 	vs, err = waitUntilVaultServerIsReady(c.extClient.KubevaultV1alpha1(), vs, ctx.Done())
+	if err != nil {
+		glog.Errorf("error when wating for VaultServer to get ready: %s", err)
+		return
+	}
 
 	vp := vaultPolicyForAuthMethod(vs)
 	err = ensureVaultPolicy(c.extClient.PolicyV1alpha1(), vp, vs)

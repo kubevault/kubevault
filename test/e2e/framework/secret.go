@@ -5,6 +5,7 @@ import (
 
 	. "github.com/onsi/gomega"
 	core "k8s.io/api/core/v1"
+	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -26,7 +27,11 @@ func (f *Framework) CreateSecretWithData(name, namespace string, data map[string
 }
 
 func (f *Framework) DeleteSecret(name, namespace string) error {
-	return f.KubeClient.CoreV1().Secrets(namespace).Delete(name, deleteInForeground())
+	err := f.KubeClient.CoreV1().Secrets(namespace).Delete(name, deleteInForeground())
+	if kerr.IsNotFound(err) {
+		return nil
+	}
+	return err
 }
 
 func (f *Framework) EventuallySecret(name, namespace string) GomegaAsyncAssertion {
