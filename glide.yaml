@@ -81,3 +81,11 @@ import:
   version: release-9.0
 - package: golang.org/x/crypto
   version: de0752318171da717af4ce24d0a2e8626afaeb11
+- package: kmodules.xyz/monitoring-agent-api
+  repo: https://github.com/kmodules/monitoring-agent-api.git
+  vcs: git
+  version: release-9.0
+- package: github.com/coreos/prometheus-operator
+  repo: https://github.com/kmodules/prometheus-operator.git
+  vcs: git
+  version: k-1.12

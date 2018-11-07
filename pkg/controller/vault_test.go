@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
+	"github.com/kubevault/operator/pkg/vault/exporter"
 	"github.com/kubevault/operator/pkg/vault/storage"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/stretchr/testify/assert"
@@ -42,6 +43,16 @@ func (s *storageFake) Apply(pt *core.PodTemplateSpec) error {
 	return nil
 }
 
+type exporterFake struct{}
+
+func (exp *exporterFake) Apply(pt *core.PodTemplateSpec) error {
+	return nil
+}
+
+func (exp *exporterFake) GetTelemetryConfig() (string, error) {
+	return "", nil
+}
+
 type unsealerFake struct {
 	ErrInApply bool
 }
@@ -65,12 +76,12 @@ func getVaultObjectMeta(i int) metav1.ObjectMeta {
 	}
 }
 
-func getConfigData(t *testing.T, extraConfig string, storageCfg string) string {
+func getConfigData(t *testing.T, extraConfig string, storageCfg string, exptrCfg string) string {
 	cfg := util.GetListenerConfig()
 	if len(extraConfig) != 0 {
 		cfg = fmt.Sprintf("%s\n%s", cfg, extraConfig)
 	}
-	cfg = fmt.Sprintf("%s\n%s", cfg, storageCfg)
+	cfg = fmt.Sprintf("%s\n%s\n%s", cfg, storageCfg, exptrCfg)
 	return cfg
 }
 
@@ -128,6 +139,7 @@ storage "test"{
 		name            string
 		vs              api.VaultServer
 		storage         storage.Storage
+		exporter        exporter.Exporter
 		exptErr         bool
 		exptConfigMData map[string]string
 	}{
@@ -140,8 +152,9 @@ storage "test"{
 				config:          storageCfg,
 				ErrInGetStrgCfg: false,
 			},
+			exporter:        &exporterFake{},
 			exptErr:         false,
-			exptConfigMData: map[string]string{filepath.Base(util.VaultConfigFile): getConfigData(t, "", storageCfg)},
+			exptConfigMData: map[string]string{filepath.Base(util.VaultConfigFile): getConfigData(t, "", storageCfg, "")},
 		},
 		{
 			name: "expected error, error when getting storage config",
@@ -152,6 +165,7 @@ storage "test"{
 				config:          storageCfg,
 				ErrInGetStrgCfg: true,
 			},
+			exporter:        &exporterFake{},
 			exptErr:         true,
 			exptConfigMData: nil,
 		},
@@ -163,6 +177,7 @@ storage "test"{
 				kubeClient: kfake.NewSimpleClientset(),
 				vs:         &test.vs,
 				strg:       test.storage,
+				exprtr:     test.exporter,
 			}
 			cm, err := v.GetConfig()
 			if test.exptErr {
@@ -311,6 +326,7 @@ func TestApply(t *testing.T) {
 				kubeClient: kfake.NewSimpleClientset(),
 				vs:         test.vs,
 				strg:       test.strg,
+				exprtr:     &exporterFake{},
 				unslr:      test.unslr,
 			}
 

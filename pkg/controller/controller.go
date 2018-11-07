@@ -6,6 +6,7 @@ import (
 	reg_util "github.com/appscode/kutil/admissionregistration/v1beta1"
 	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
 	"github.com/appscode/kutil/tools/queue"
+	pcm "github.com/coreos/prometheus-operator/pkg/client/monitoring/v1"
 	"github.com/golang/glog"
 	catalogapi "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	vaultapi "github.com/kubevault/operator/apis/kubevault/v1alpha1"
@@ -39,6 +40,8 @@ type VaultController struct {
 	appCatalogClient appcat_cs.AppcatalogV1alpha1Interface
 	crdClient        crd_cs.ApiextensionsV1beta1Interface
 	recorder         record.EventRecorder
+	// Prometheus client
+	promClient pcm.MonitoringV1Interface
 
 	kubeInformerFactory informers.SharedInformerFactory
 	extInformerFactory  vaultinformers.SharedInformerFactory

@@ -1835,6 +1835,7 @@ spec:
                       type: string
                   required:
                   - volumePath
+            monitor: {}
             nodes:
               description: 'Number of nodes to deploy for a Vault deployment. Default:
                 1.'

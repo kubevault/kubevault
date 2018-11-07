@@ -18,6 +18,9 @@ func (f *Framework) CreateVaultserverVersion() error {
 			Unsealer: api.VaultServerVersionUnsealer{
 				Image: "nightfury1204/vault-unsealer:canary",
 			},
+			Exporter: api.VaultServerVersionExporter{
+				Image: "sanjid/vault-exporter:canary",
+			},
 		},
 	}
 	_, err := f.CSClient.CatalogV1alpha1().VaultServerVersions().Create(v)

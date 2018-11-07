@@ -9,6 +9,7 @@ import (
 	"github.com/golang/glog"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
+	"github.com/kubevault/operator/pkg/vault/exporter"
 	"github.com/kubevault/operator/pkg/vault/storage"
 	"github.com/kubevault/operator/pkg/vault/unsealer"
 	"github.com/kubevault/operator/pkg/vault/util"
@@ -52,6 +53,7 @@ type vaultSrv struct {
 	vs         *api.VaultServer
 	strg       storage.Storage
 	unslr      unsealer.Unsealer
+	exprtr     exporter.Exporter
 	kubeClient kubernetes.Interface
 	image      string
 }
@@ -74,10 +76,15 @@ func NewVault(vs *api.VaultServer, config *rest.Config, kc kubernetes.Interface,
 		return nil, err
 	}
 
+	exprtr, err := exporter.NewExporter(version.Spec.Exporter.Image)
+	if err != nil {
+		return nil, err
+	}
 	return &vaultSrv{
 		vs:         vs,
 		strg:       strg,
 		unslr:      unslr,
+		exprtr:     exprtr,
 		kubeClient: kc,
 		image:      version.Spec.Vault.Image,
 	}, nil
@@ -157,7 +164,13 @@ func (v *vaultSrv) GetConfig() (*core.ConfigMap, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get storage config")
 	}
-	cfgData = fmt.Sprintf("%s\n%s", cfgData, storageCfg)
+
+	exporterCfg, err := v.exprtr.GetTelemetryConfig()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get exporter config")
+	}
+
+	cfgData = fmt.Sprintf("%s\n%s\n%s", cfgData, storageCfg, exporterCfg)
 
 	configM := &core.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -280,6 +293,12 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 			return errors.WithStack(err)
 		}
 	}
+
+	err = v.exprtr.Apply(pt)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
 	return nil
 }
 
@@ -303,6 +322,12 @@ func (v *vaultSrv) GetService() *core.Service {
 					Name:     "cluster",
 					Protocol: core.ProtocolTCP,
 					Port:     VaultClusterPort,
+				},
+				{
+					Name:       exporter.PrometheusExporterPortName,
+					Protocol:   core.ProtocolTCP,
+					Port:       exporter.VaultExporterFetchMetricsPort,
+					TargetPort: intstr.FromInt(exporter.VaultExporterFetchMetricsPort),
 				},
 			},
 			ClusterIP:                v.vs.Spec.ServiceTemplate.Spec.ClusterIP,
