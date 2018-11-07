@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	rand_util "github.com/appscode/go/crypto/rand"
 	"github.com/hashicorp/go-cleanhttp"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/controller"
@@ -27,7 +28,7 @@ const (
 	pollingInterval = 10 * time.Second
 )
 
-var _ = FDescribe("VaultServer", func() {
+var _ = Describe("VaultServer", func() {
 	var (
 		f *framework.Invocation
 	)
@@ -355,16 +356,31 @@ var _ = FDescribe("VaultServer", func() {
 	Describe("Updating vault server replica for", func() {
 		Context("inmem backend", func() {
 			var (
-				vs *api.VaultServer
+				vs             *api.VaultServer
+				vaultKeySecret string
 			)
 
 			BeforeEach(func() {
-				vs = f.VaultServer(3, backendInmem)
+				vaultKeySecret = rand_util.WithUniqSuffix("v-key")
+				unseal := api.UnsealerSpec{
+					SecretShares:          4,
+					SecretThreshold:       2,
+					InsecureSkipTLSVerify: true,
+					Mode: api.ModeSpec{
+						KubernetesSecret: &api.KubernetesSecretSpec{
+							SecretName: vaultKeySecret,
+						},
+					},
+				}
+				vs = f.VaultServerWithUnsealer(3, backendInmem, unseal)
 				shouldCreateVaultServer(vs)
 			})
 			AfterEach(func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
 				checkForVaultServerCleanup(vs)
+
+				Expect(f.DeleteSecret(vaultKeySecret, vs.Namespace)).NotTo(HaveOccurred(), "delete vault key secret")
+				checkForSecretDeleted(vaultKeySecret, vs.Namespace)
 			})
 
 			It("should update replica number to 1", func() {
@@ -380,17 +396,19 @@ var _ = FDescribe("VaultServer", func() {
 	Describe("Deleting vault resources", func() {
 		Context("using inmem as backend", func() {
 			var (
-				vs *api.VaultServer
+				vs             *api.VaultServer
+				vaultKeySecret string
 			)
 
 			BeforeEach(func() {
+				vaultKeySecret = rand_util.WithUniqSuffix("v-key")
 				unsealer := api.UnsealerSpec{
 					SecretShares:          4,
 					SecretThreshold:       2,
 					InsecureSkipTLSVerify: true,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
-							SecretName: "k8s-inmem-keys-12341",
+							SecretName: vaultKeySecret,
 						},
 					},
 				}
@@ -403,8 +421,8 @@ var _ = FDescribe("VaultServer", func() {
 				f.DeleteVaultServer(vs.ObjectMeta)
 				checkForVaultServerCleanup(vs)
 
-				f.DeleteSecret("k8s-inmem-keys-12341", vs.Namespace)
-				checkForSecretDeleted("k8s-inmem-keys-12341", vs.Namespace)
+				f.DeleteSecret(vaultKeySecret, vs.Namespace)
+				checkForSecretDeleted(vaultKeySecret, vs.Namespace)
 			})
 
 			It("should keep the number of pods same as specification, after deleting some pods", func() {

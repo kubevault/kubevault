@@ -156,6 +156,7 @@ func TestReconcileVault(t *testing.T) {
 				kubeClient:       kfake.NewSimpleClientset(),
 				recorder:         record.NewFakeRecorder(0),
 				ctxCancels:       map[string]CtxWithCancel{},
+				authMethodCtx:    map[string]CtxWithCancel{},
 				extClient:        cfake.NewSimpleClientset(),
 				appCatalogClient: appcatfake.NewSimpleClientset().AppcatalogV1alpha1(),
 			}
@@ -265,10 +266,10 @@ func TestCreateRoleAndRoleBinding(t *testing.T) {
 	demoRBinding := rbac.RoleBinding{
 		Subjects: []rbac.Subject{
 			{
-				Name: "test",
-				Kind: "test.kind",
+				Name:      "test",
+				Kind:      "test.kind",
 				Namespace: "test.ns",
-				APIGroup: "api.test",
+				APIGroup:  "api.test",
 			},
 		},
 	}
@@ -284,39 +285,51 @@ func TestCreateRoleAndRoleBinding(t *testing.T) {
 		testName           string
 		preCreatedRole     []rbac.Role
 		roles              []rbac.Role
-		roleBindings              []rbac.RoleBinding
+		roleBindings       []rbac.RoleBinding
 		expectErr          bool
 		expectRoles        []string
 		expectRoleBindings []string
 	}{
 		{
-			testName:"create 2 rbac role and rolebinding",
-			preCreatedRole :nil,
-			roles:[]rbac.Role{
+			testName:       "create 2 rbac role and rolebinding",
+			preCreatedRole: nil,
+			roles: []rbac.Role{
 				func(r *rbac.Role) rbac.Role { r.SetName("test1"); r.SetNamespace(vs.Namespace); return *r }(&demoRole),
 				func(r *rbac.Role) rbac.Role { r.SetName("test2"); r.SetNamespace(vs.Namespace); return *r }(&demoRole),
 			},
-			roleBindings:[]rbac.RoleBinding{
-				func(r *rbac.RoleBinding) rbac.RoleBinding { r.SetName("test1"); r.SetNamespace(vs.Namespace); return *r }(&demoRBinding),
-				func(r *rbac.RoleBinding) rbac.RoleBinding { r.SetName("test2"); r.SetNamespace(vs.Namespace); return *r }(&demoRBinding),
+			roleBindings: []rbac.RoleBinding{
+				func(r *rbac.RoleBinding) rbac.RoleBinding {
+					r.SetName("test1")
+					r.SetNamespace(vs.Namespace)
+					return *r
+				}(&demoRBinding),
+				func(r *rbac.RoleBinding) rbac.RoleBinding {
+					r.SetName("test2")
+					r.SetNamespace(vs.Namespace)
+					return *r
+				}(&demoRBinding),
 			},
-			expectErr: false,
-			expectRoles: []string{"test1", "test2"},
+			expectErr:          false,
+			expectRoles:        []string{"test1", "test2"},
 			expectRoleBindings: []string{"test1", "test2"},
 		},
 		{
-			testName:"create 1 rbac role and rolebinding, but role already exists",
+			testName: "create 1 rbac role and rolebinding, but role already exists",
 			preCreatedRole: []rbac.Role{
 				func(r *rbac.Role) rbac.Role { r.SetName("test3"); r.SetNamespace(vs.Namespace); return *r }(&demoRole),
 			},
-			roles:[]rbac.Role{
+			roles: []rbac.Role{
 				func(r *rbac.Role) rbac.Role { r.SetName("test3"); r.SetNamespace(vs.Namespace); return *r }(&demoRole),
 			},
-			roleBindings:[]rbac.RoleBinding{
-				func(r *rbac.RoleBinding) rbac.RoleBinding { r.SetName("test3"); r.SetNamespace(vs.Namespace); return *r }(&demoRBinding),
+			roleBindings: []rbac.RoleBinding{
+				func(r *rbac.RoleBinding) rbac.RoleBinding {
+					r.SetName("test3")
+					r.SetNamespace(vs.Namespace)
+					return *r
+				}(&demoRBinding),
 			},
-			expectErr:false,
-			expectRoles:[]string{"test3"},
+			expectErr:          false,
+			expectRoles:        []string{"test3"},
 			expectRoleBindings: []string{"test3"},
 		},
 	}

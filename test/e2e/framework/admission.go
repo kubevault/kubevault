@@ -10,6 +10,7 @@ import (
 
 	discovery_util "github.com/appscode/kutil/discovery"
 	shell "github.com/codeskyblue/go-sh"
+	"github.com/golang/glog"
 	"github.com/kubevault/operator/apis"
 	srvr "github.com/kubevault/operator/pkg/cmds/server"
 	. "github.com/onsi/ginkgo"
@@ -64,19 +65,32 @@ func (f *Framework) StartAPIServerAndOperator(config *restclient.Config, kubeCon
 	Expect(err).ShouldNot(HaveOccurred())
 }
 
+func (f *Framework) isApiSvcReady(apiSvcName string) error {
+	apiSvc, err := f.KAClient.ApiregistrationV1beta1().APIServices().Get(apiSvcName, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	for _, cond := range apiSvc.Status.Conditions {
+		if cond.Type == kapi.Available && cond.Status == kapi.ConditionTrue {
+			glog.Infof("APIService %v status is true", apiSvcName)
+			return nil
+		}
+	}
+	glog.Errorf("APIService %v not ready yet", apiSvcName)
+	return fmt.Errorf("APIService %v not ready yet", apiSvcName)
+}
+
 func (f *Framework) EventuallyAPIServerReady() GomegaAsyncAssertion {
 	return Eventually(
 		func() error {
-			apiservice, err := f.KAClient.ApiregistrationV1beta1().APIServices().Get("v1alpha1.admission.kubevault.com", metav1.GetOptions{})
-			if err != nil {
+			if err := f.isApiSvcReady("v1alpha1.mutators.kubevault.com"); err != nil {
 				return err
 			}
-			for _, cond := range apiservice.Status.Conditions {
-				if cond.Type == kapi.Available && cond.Status == kapi.ConditionTrue && cond.Reason == "Passed" {
-					return nil
-				}
+			if err := f.isApiSvcReady("v1alpha1.validators.kubevault.com"); err != nil {
+				return err
 			}
-			return fmt.Errorf("ApiService not ready yet")
+			time.Sleep(time.Second * 5) // let the resource become available
+			return nil
 		},
 		time.Minute*5,
 		time.Second*2,

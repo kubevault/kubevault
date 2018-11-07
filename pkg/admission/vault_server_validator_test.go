@@ -44,10 +44,10 @@ var (
 		},
 	}
 	unslr = api.UnsealerSpec{
-		SecretShares:    5,
-		SecretThreshold: 3,
-		InsecureSkipTLSVerify:     true,
-		Mode:            api.ModeSpec{},
+		SecretShares:          5,
+		SecretThreshold:       3,
+		InsecureSkipTLSVerify: true,
+		Mode: api.ModeSpec{},
 	}
 )
 
