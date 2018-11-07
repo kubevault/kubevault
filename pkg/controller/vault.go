@@ -294,7 +294,7 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 		}
 	}
 
-	err = v.exprtr.Apply(pt)
+	err = v.exprtr.Apply(pt, v.vs.Spec.Monitor)
 	if err != nil {
 		return errors.WithStack(err)
 	}

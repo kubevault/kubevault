@@ -26,3 +26,6 @@ spec:
       labels:
         app: vault
       interval: 10s
+    resources:
+      requests:
+        storage: 1Gi

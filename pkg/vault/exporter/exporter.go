@@ -7,6 +7,7 @@ import (
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
+	mona "kmodules.xyz/monitoring-agent-api/api/v1"
 )
 
 const (
@@ -16,7 +17,7 @@ const (
 )
 
 type Exporter interface {
-	Apply(pt *core.PodTemplateSpec) error
+	Apply(pt *core.PodTemplateSpec, agent *mona.AgentSpec) error
 	GetTelemetryConfig() (string, error)
 }
 
@@ -32,7 +33,7 @@ func NewExporter(image string) (Exporter, error) {
 	return monitor{image: image}, nil
 }
 
-func (exp monitor) Apply(pt *core.PodTemplateSpec) error {
+func (exp monitor) Apply(pt *core.PodTemplateSpec, agent *mona.AgentSpec) error {
 	if pt == nil {
 		return errors.New("podTempleSpec is nil")
 	}
@@ -53,6 +54,9 @@ func (exp monitor) Apply(pt *core.PodTemplateSpec) error {
 				ContainerPort: VaultExporterFetchMetricsPort,
 			},
 		},
+	}
+	if agent != nil {
+		cont.Resources = agent.Resources
 	}
 
 	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)
