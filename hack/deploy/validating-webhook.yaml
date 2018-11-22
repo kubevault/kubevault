@@ -23,3 +23,29 @@ webhooks:
     resources:
     - vaultservers
   failurePolicy: Fail
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validators.authorization.kubedb.com
+  labels:
+    app: vault-operator
+webhooks:
+- name: databaseaccessrequests.validators.authorization.kubedb.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/validators.authorization.kubedb.com/v1alpha1/databaseaccessrequests
+    caBundle: ${KUBE_CA}
+  rules:
+  - operations:
+    - CREATE
+    - UPDATE
+    apiGroups:
+    - authorization.kubedb.com
+    apiVersions:
+    - "*"
+    resources:
+    - databaseaccessrequests
+  failurePolicy: Fail

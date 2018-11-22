@@ -46,6 +46,7 @@ export KUBE_CA=$($ONESSL get kube-ca | $ONESSL base64)
 export VAULT_OPERATOR_ENABLE_WEBHOOK=true
 export VAULT_OPERATOR_E2E_TEST=false
 export VAULT_OPERATOR_DOCKER_REGISTRY=kubevault
+export VAULT_OPERATOR_ENABLE_SUBRESOURCE=false
 
 while test $# -gt 0; do
   case "$1" in
@@ -87,6 +88,13 @@ while test $# -gt 0; do
       fi
       shift
       ;;
+    --enable-subresource*)
+      val=$(echo $1 | sed -e 's/^[^=]*=//g')
+      if [ "$val" = "true" ]; then
+        export VAULT_OPERATOR_ENABLE_SUBRESOURCE=true
+      fi
+      shift
+      ;;
     *)
       echo $1
       exit 1
@@ -110,7 +118,7 @@ $REPO_ROOT/hack/make.py
 if [ "$VAULT_OPERATOR_E2E_TEST" = false ]; then # don't run operator while run this script from test
 vault-operator run --v=3 \
   --secure-port=8443 \
-  --enable-status-subresource=true \
+  --enable-status-subresource="$VAULT_OPERATOR_ENABLE_SUBRESOURCE" \
   --kubeconfig="$HOME/.kube/config" \
   --authorization-kubeconfig="$HOME/.kube/config" \
   --authentication-kubeconfig="$HOME/.kube/config" \

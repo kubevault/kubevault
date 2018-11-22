@@ -5,6 +5,7 @@ import (
 	"time"
 
 	prom "github.com/coreos/prometheus-operator/pkg/client/monitoring/v1"
+	db_cs "github.com/kubedb/apimachinery/client/clientset/versioned"
 	"github.com/kubevault/operator/apis"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	"github.com/kubevault/operator/pkg/controller"
@@ -82,6 +83,9 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 		return err
 	}
 	if cfg.AppCatalogClient, err = appcat_cs.NewForConfig(cfg.ClientConfig); err != nil {
+		return err
+	}
+	if cfg.DbClient, err = db_cs.NewForConfig(cfg.ClientConfig); err != nil {
 		return err
 	}
 	return nil

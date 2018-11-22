@@ -9,6 +9,7 @@ import (
 	v "github.com/appscode/go/version"
 	"github.com/appscode/kutil/tools/analytics"
 	"github.com/jpillora/go-ogle-analytics"
+	dbscheme "github.com/kubedb/apimachinery/client/clientset/versioned/scheme"
 	"github.com/kubevault/operator/client/clientset/versioned/scheme"
 	"github.com/kubevault/operator/pkg/controller"
 	"github.com/spf13/cobra"
@@ -42,6 +43,7 @@ func NewRootCmd() *cobra.Command {
 			}
 			scheme.AddToScheme(clientsetscheme.Scheme)
 			appcatscheme.AddToScheme(clientsetscheme.Scheme)
+			dbscheme.AddToScheme(clientsetscheme.Scheme)
 			scheme.AddToScheme(legacyscheme.Scheme)
 		},
 	}
