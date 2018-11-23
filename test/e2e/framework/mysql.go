@@ -17,7 +17,7 @@ var (
 	mysqlDeploymentName = rand.WithUniqSuffix("test-mysql-deploy")
 )
 
-func (f *Framework) DeployMySQL() (string, error) {
+func (f *Framework) DeployMySQLForVault() (string, error) {
 	label := map[string]string{
 		"app": rand.WithUniqSuffix("test-mysql"),
 	}
@@ -120,7 +120,7 @@ func (f *Framework) DeployMySQL() (string, error) {
 	return url, nil
 }
 
-func (f *Framework) DeleteMySQL() error {
+func (f *Framework) DeleteMySQLForVault() error {
 	err := f.DeleteService(mysqlServiceName, f.namespace)
 	if err != nil {
 		return err

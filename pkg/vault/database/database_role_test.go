@@ -3,12 +3,12 @@ package database
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/appscode/pat"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
-	"os"
 )
 
 func setupVaultServer() *httptest.Server {

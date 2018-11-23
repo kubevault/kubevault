@@ -9,11 +9,11 @@ import (
 	"github.com/appscode/pat"
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
+	configapi "github.com/kubedb/apimachinery/apis/config/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
-	configapi "github.com/kubedb/apimachinery/apis/config/v1alpha1"
 )
 
 func setupVaultServer() *httptest.Server {
@@ -113,10 +113,10 @@ func TestMySQLRole_CreateConfig(t *testing.T) {
 		},
 		vaultClient:  cl,
 		databasePath: "database",
-		dbConnUrl: "hi.com",
+		dbConnUrl:    "hi.com",
 		config: &configapi.MySQLConfiguration{
 			AllowedRoles: "*",
-			PluginName: "mongo",
+			PluginName:   "mongo",
 		},
 		secret: &corev1.Secret{
 			Data: map[string][]byte{
@@ -228,7 +228,6 @@ func TestMySQLRole_CreateRole(t *testing.T) {
 							Name: "",
 						},
 					},
-
 				},
 				vaultClient:  cl,
 				databasePath: "database",

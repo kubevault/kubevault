@@ -954,7 +954,7 @@ var _ = Describe("VaultServer", func() {
 				mysqlCredSecret = "mysql-cred-1234"
 			)
 			BeforeEach(func() {
-				url, err := f.DeployMySQL()
+				url, err := f.DeployMySQLForVault()
 				Expect(err).NotTo(HaveOccurred())
 
 				sr := core.Secret{
@@ -993,7 +993,7 @@ var _ = Describe("VaultServer", func() {
 
 			AfterEach(func() {
 
-				Expect(f.DeleteMySQL()).NotTo(HaveOccurred())
+				Expect(f.DeleteMySQLForVault()).NotTo(HaveOccurred())
 
 				Expect(f.DeleteSecret(k8sSecretName, vs.Namespace)).NotTo(HaveOccurred())
 				checkForSecretDeleted(k8sSecretName, vs.Namespace)

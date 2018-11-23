@@ -131,9 +131,10 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbRBClient database.Dat
 		cred, err := dbRBClient.GetCredential()
 		if err != nil {
 			status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
-				Type:    RequestFailed,
-				Reason:  "FailedToGetCredential",
-				Message: err.Error(),
+				Type:           RequestFailed,
+				Reason:         "FailedToGetCredential",
+				Message:        err.Error(),
+				LastUpdateTime: metav1.Now(),
 			})
 
 			err2 := c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
@@ -152,9 +153,10 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbRBClient database.Dat
 			}
 
 			status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
-				Type:    RequestFailed,
-				Reason:  "FailedToCreateSecret",
-				Message: err.Error(),
+				Type:           RequestFailed,
+				Reason:         "FailedToCreateSecret",
+				Message:        err.Error(),
+				LastUpdateTime: metav1.Now(),
 			})
 
 			err2 = c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
@@ -182,9 +184,10 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbRBClient database.Dat
 	err := dbRBClient.CreateRole(getSecretAccessRoleName(secretName), ns, secretName)
 	if err != nil {
 		status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
-			Type:    RequestFailed,
-			Reason:  "FailedToCreateRole",
-			Message: err.Error(),
+			Type:           RequestFailed,
+			Reason:         "FailedToCreateRole",
+			Message:        err.Error(),
+			LastUpdateTime: metav1.Now(),
 		})
 
 		err2 := c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
@@ -197,9 +200,10 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbRBClient database.Dat
 	err = dbRBClient.CreateRoleBinding(getSecretAccessRoleName(secretName), ns, getSecretAccessRoleName(secretName), dbAccessReq.Spec.Subjects)
 	if err != nil {
 		status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
-			Type:    RequestFailed,
-			Reason:  "FailedToCreateRoleBinding",
-			Message: err.Error(),
+			Type:           RequestFailed,
+			Reason:         "FailedToCreateRoleBinding",
+			Message:        err.Error(),
+			LastUpdateTime: metav1.Now(),
 		})
 
 		err2 := c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
@@ -217,8 +221,8 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbRBClient database.Dat
 	return nil
 }
 
-func (c *VaultController) updateDatabaseAccessRequestStatus(status *api.DatabaseAccessRequestStatus, mRoleBinding *api.DatabaseAccessRequest) error {
-	_, err := patchutil.UpdateDatabaseAccessRequestStatus(c.dbClient.AuthorizationV1alpha1(), mRoleBinding, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
+func (c *VaultController) updateDatabaseAccessRequestStatus(status *api.DatabaseAccessRequestStatus, dbAReq *api.DatabaseAccessRequest) error {
+	_, err := patchutil.UpdateDatabaseAccessRequestStatus(c.dbClient.AuthorizationV1alpha1(), dbAReq, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
 		s = status
 		return s
 	}, vsapis.EnableStatusSubresource)
@@ -328,8 +332,8 @@ func (c *VaultController) removeDatabaseAccessRequestFinalizer(dbAReq *api.Datab
 	return err
 }
 
-func getDatabaseAccessRequestId(mRoleBinding *api.DatabaseAccessRequest) string {
-	return fmt.Sprintf("%s/%s/%s", api.ResourceDatabaseAccessRequest, mRoleBinding.Namespace, mRoleBinding.Name)
+func getDatabaseAccessRequestId(dbAReq *api.DatabaseAccessRequest) string {
+	return fmt.Sprintf("%s/%s/%s", api.ResourceDatabaseAccessRequest, dbAReq.Namespace, dbAReq.Name)
 }
 
 func getSecretAccessRoleName(name string) string {

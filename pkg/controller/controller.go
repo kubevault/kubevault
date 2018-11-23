@@ -8,10 +8,12 @@ import (
 	"github.com/appscode/kutil/tools/queue"
 	pcm "github.com/coreos/prometheus-operator/pkg/client/monitoring/v1"
 	"github.com/golang/glog"
+	dbapis "github.com/kubedb/apimachinery/apis"
 	dbapi "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
 	db_cs "github.com/kubedb/apimachinery/client/clientset/versioned"
 	dbinformers "github.com/kubedb/apimachinery/client/informers/externalversions"
 	dblisters "github.com/kubedb/apimachinery/client/listers/authorization/v1alpha1"
+	"github.com/kubevault/operator/apis"
 	catalogapi "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	vaultapi "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	policyapi "github.com/kubevault/operator/apis/policy/v1alpha1"
@@ -96,6 +98,8 @@ type VaultController struct {
 }
 
 func (c *VaultController) ensureCustomResourceDefinitions() error {
+	dbapis.EnableStatusSubresource = apis.EnableStatusSubresource
+
 	crds := []*crd_api.CustomResourceDefinition{
 		vaultapi.VaultServer{}.CustomResourceDefinition(),
 		catalogapi.VaultServerVersion{}.CustomResourceDefinition(),
