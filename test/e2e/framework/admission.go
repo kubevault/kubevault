@@ -89,6 +89,9 @@ func (f *Framework) EventuallyAPIServerReady() GomegaAsyncAssertion {
 			if err := f.isApiSvcReady("v1alpha1.validators.kubevault.com"); err != nil {
 				return err
 			}
+			if err := f.isApiSvcReady("v1alpha1.validators.authorization.kubedb.com"); err != nil {
+				return err
+			}
 			time.Sleep(time.Second * 5) // let the resource become available
 			return nil
 		},

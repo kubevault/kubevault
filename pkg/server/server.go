@@ -95,6 +95,7 @@ func (c completedConfig) New() (*VaultServer, error) {
 	admissionHooks := []hooks.AdmissionHook{
 		&vsadmission.VaultServerValidator{},
 		&vsadmission.PolicyBindingMutator{},
+		&vsadmission.DatabaseAccessRequestValidator{},
 	}
 
 	s := &VaultServer{

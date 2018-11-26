@@ -126,7 +126,7 @@ func (c *VaultController) updatePolicyBindingStatus(status *policyapi.VaultPolic
 // After that it will remove the finalizer string from the objectMeta of VaultPolicyBinding
 func (c *VaultController) runPolicyBindingFinalizer(vPBind *policyapi.VaultPolicyBinding, timeout time.Duration, interval time.Duration) {
 	if vPBind == nil {
-		glog.Infoln("VaultPolicyBinding in nil")
+		glog.Infoln("VaultPolicyBinding is nil")
 		return
 	}
 

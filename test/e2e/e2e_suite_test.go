@@ -46,7 +46,7 @@ var _ = BeforeSuite(func() {
 	kaClient := ka.NewForConfigOrDie(clientConfig)
 	Expect(err).NotTo(HaveOccurred())
 
-	root = framework.New(ctrlConfig.KubeClient, ctrlConfig.ExtClient, ctrlConfig.AppCatalogClient, kaClient, options.StartAPIServer, clientConfig, options.RunDynamoDBTest)
+	root = framework.New(ctrlConfig.KubeClient, ctrlConfig.ExtClient, ctrlConfig.AppCatalogClient, ctrlConfig.DbClient, kaClient, options.StartAPIServer, clientConfig, options.RunDynamoDBTest)
 	err = root.CreateNamespace()
 	Expect(err).NotTo(HaveOccurred())
 	By("Using test namespace " + root.Namespace())
@@ -62,7 +62,7 @@ var _ = BeforeSuite(func() {
 		go ctrl.RunInformers(nil)
 	}
 
-	By("Deploying vault...")
+	By("Deploying vault, mongodb, mysql, postgres...")
 	err = root.InitialSetup()
 	Expect(err).NotTo(HaveOccurred())
 

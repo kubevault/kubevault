@@ -8,6 +8,12 @@ import (
 	"github.com/appscode/kutil/tools/queue"
 	pcm "github.com/coreos/prometheus-operator/pkg/client/monitoring/v1"
 	"github.com/golang/glog"
+	dbapis "github.com/kubedb/apimachinery/apis"
+	dbapi "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
+	db_cs "github.com/kubedb/apimachinery/client/clientset/versioned"
+	dbinformers "github.com/kubedb/apimachinery/client/informers/externalversions"
+	dblisters "github.com/kubedb/apimachinery/client/listers/authorization/v1alpha1"
+	"github.com/kubevault/operator/apis"
 	catalogapi "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	vaultapi "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	policyapi "github.com/kubevault/operator/apis/policy/v1alpha1"
@@ -37,6 +43,7 @@ type VaultController struct {
 
 	kubeClient       kubernetes.Interface
 	extClient        cs.Interface
+	dbClient         db_cs.Interface
 	appCatalogClient appcat_cs.AppcatalogV1alpha1Interface
 	crdClient        crd_cs.ApiextensionsV1beta1Interface
 	recorder         record.EventRecorder
@@ -45,6 +52,7 @@ type VaultController struct {
 
 	kubeInformerFactory informers.SharedInformerFactory
 	extInformerFactory  vaultinformers.SharedInformerFactory
+	dbInformerFactory   dbinformers.SharedInformerFactory
 
 	// for VaultServer
 	vsQueue    *queue.Worker
@@ -61,6 +69,26 @@ type VaultController struct {
 	vplcyBindingInformer cache.SharedIndexInformer
 	vplcyBindingLister   policy_listers.VaultPolicyBindingLister
 
+	// PostgresRole
+	pgRoleQueue    *queue.Worker
+	pgRoleInformer cache.SharedIndexInformer
+	pgRoleLister   dblisters.PostgresRoleLister
+
+	// MySQLRole
+	myRoleQueue    *queue.Worker
+	myRoleInformer cache.SharedIndexInformer
+	myRoleLister   dblisters.MySQLRoleLister
+
+	// MongoDBRole
+	mgRoleQueue    *queue.Worker
+	mgRoleInformer cache.SharedIndexInformer
+	mgRoleLister   dblisters.MongoDBRoleLister
+
+	// DatabaseAccessRequest
+	dbAccessQueue    *queue.Worker
+	dbAccessInformer cache.SharedIndexInformer
+	dbAccessLister   dblisters.DatabaseAccessRequestLister
+
 	// Contain the currently processing finalizer
 	finalizerInfo *mapFinalizer
 
@@ -70,12 +98,18 @@ type VaultController struct {
 }
 
 func (c *VaultController) ensureCustomResourceDefinitions() error {
+	dbapis.EnableStatusSubresource = apis.EnableStatusSubresource
+
 	crds := []*crd_api.CustomResourceDefinition{
 		vaultapi.VaultServer{}.CustomResourceDefinition(),
 		catalogapi.VaultServerVersion{}.CustomResourceDefinition(),
 		policyapi.VaultPolicy{}.CustomResourceDefinition(),
 		policyapi.VaultPolicyBinding{}.CustomResourceDefinition(),
 		appcat.AppBinding{}.CustomResourceDefinition(),
+		dbapi.PostgresRole{}.CustomResourceDefinition(),
+		dbapi.MySQLRole{}.CustomResourceDefinition(),
+		dbapi.MongoDBRole{}.CustomResourceDefinition(),
+		dbapi.DatabaseAccessRequest{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }
@@ -96,8 +130,15 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	glog.Info("Starting Vault controller")
 
 	c.extInformerFactory.Start(stopCh)
-
 	for _, v := range c.extInformerFactory.WaitForCacheSync(stopCh) {
+		if !v {
+			runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
+			return
+		}
+	}
+
+	c.dbInformerFactory.Start(stopCh)
+	for _, v := range c.dbInformerFactory.WaitForCacheSync(stopCh) {
 		if !v {
 			runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
 			return
@@ -112,6 +153,14 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 
 	//For VaultPolicyBinding
 	go c.vplcyBindingQueue.Run(stopCh)
+
+	// For DB role
+	go c.pgRoleQueue.Run(stopCh)
+	go c.myRoleQueue.Run(stopCh)
+	go c.mgRoleQueue.Run(stopCh)
+
+	// For DB access request
+	go c.dbAccessQueue.Run(stopCh)
 
 	<-stopCh
 	glog.Info("Stopping Vault operator")

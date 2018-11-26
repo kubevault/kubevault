@@ -6,6 +6,8 @@ import (
 	reg_util "github.com/appscode/kutil/admissionregistration/v1beta1"
 	"github.com/appscode/kutil/discovery"
 	pcm "github.com/coreos/prometheus-operator/pkg/client/monitoring/v1"
+	db_cs "github.com/kubedb/apimachinery/client/clientset/versioned"
+	dbinformers "github.com/kubedb/apimachinery/client/informers/externalversions"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	vaultinformers "github.com/kubevault/operator/client/informers/externalversions"
 	"github.com/kubevault/operator/pkg/eventer"
@@ -45,6 +47,7 @@ type Config struct {
 	CRDClient        crd_cs.ApiextensionsV1beta1Interface
 	AppCatalogClient appcat_cs.AppcatalogV1alpha1Interface
 	PromClient       pcm.MonitoringV1Interface
+	DbClient         db_cs.Interface
 }
 
 func NewConfig(clientConfig *rest.Config) *Config {
@@ -72,8 +75,10 @@ func (c *Config) New() (*VaultController, error) {
 		crdClient:           c.CRDClient,
 		promClient:          c.PromClient,
 		appCatalogClient:    c.AppCatalogClient,
+		dbClient:            c.DbClient,
 		kubeInformerFactory: informers.NewFilteredSharedInformerFactory(c.KubeClient, c.ResyncPeriod, core.NamespaceAll, tweakListOptions),
 		extInformerFactory:  vaultinformers.NewSharedInformerFactory(c.ExtClient, c.ResyncPeriod),
+		dbInformerFactory:   dbinformers.NewSharedInformerFactory(c.DbClient, c.ResyncPeriod),
 		recorder:            eventer.NewEventRecorder(c.KubeClient, "vault-controller"),
 	}
 
@@ -90,5 +95,12 @@ func (c *Config) New() (*VaultController, error) {
 	ctrl.initVaultPolicyWatcher()
 	// For VaultPolicyBinding
 	ctrl.initVaultPolicyBindingWatcher()
+
+	// For DB manager
+	ctrl.initPostgresRoleWatcher()
+	ctrl.initMySQLRoleWatcher()
+	ctrl.initMongoDBRoleWatcher()
+	ctrl.initDatabaseAccessWatcher()
+
 	return ctrl, nil
 }

@@ -6,10 +6,12 @@ import (
 
 	"github.com/appscode/go/flags"
 	logs "github.com/appscode/go/log/golog"
+	dbscheme "github.com/kubedb/apimachinery/client/clientset/versioned/scheme"
 	"github.com/kubevault/operator/client/clientset/versioned/scheme"
 	"github.com/kubevault/operator/pkg/cmds/server"
 	clientSetScheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/util/homedir"
+	appcatscheme "kmodules.xyz/custom-resources/client/clientset/versioned/scheme"
 )
 
 type E2EOptions struct {
@@ -31,6 +33,8 @@ var (
 
 func init() {
 	scheme.AddToScheme(clientSetScheme.Scheme)
+	appcatscheme.AddToScheme(clientSetScheme.Scheme)
+	dbscheme.AddToScheme(clientSetScheme.Scheme)
 
 	options.AddGoFlags(flag.CommandLine)
 	flag.StringVar(&options.KubeConfig, "kubeconfig", options.KubeConfig, "Path to kubeconfig file with authorization information (the master location is set by the master flag).")
