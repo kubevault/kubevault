@@ -1,5 +1,5 @@
-hash: 302c8897ca56fb2f61e2bf2cd8e932d2b420e0a62fb7017f2d36149840fccc2f
-updated: 2018-11-21T17:21:45.68175779+06:00
+hash: c11f1b8e68180523d9f15f46392f5838c6752680ac6586e0142ba95cec613e26
+updated: 2018-11-25T22:03:45.332981209-08:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -36,7 +36,7 @@ imports:
   - admission/v1beta1
   - registry/admissionreview/v1beta1
 - name: github.com/appscode/kutil
-  version: 68433ef84c41b2028786372f2a128932908f7124
+  version: 5e4dc08e9e6e00fcf397b7186a3918dc4dcb9426
   subpackages:
   - admissionregistration/v1beta1
   - apiextensions/v1beta1
@@ -194,9 +194,7 @@ imports:
   - daemon
   - journal
 - name: github.com/coreos/prometheus-operator
-  version: b9bfccafc646c76bd9b1ebf209ea528fde37f2e3
-  repo: https://github.com/kmodules/prometheus-operator.git
-  vcs: git
+  version: 82a6ad2071ff653e38b3b4719ecb789d73f3ab05
   subpackages:
   - pkg/client/monitoring/v1
 - name: github.com/cpuguy83/go-md2man
@@ -239,7 +237,7 @@ imports:
 - name: github.com/go-openapi/jsonreference
   version: 13c6e3589ad90f49bd3e3bbe2c2cb3d7a4142272
 - name: github.com/go-openapi/spec
-  version: 7abd5745472fff5eb3685386d5fb8bf38683154d
+  version: 1de3e0542de65ad8d75452a595886fdd0befb363
 - name: github.com/go-openapi/swag
   version: f3f9494671f93fcff853e3c6e9e948b3eb71e590
 - name: github.com/gogo/protobuf
@@ -265,11 +263,11 @@ imports:
   - ptypes/struct
   - ptypes/timestamp
 - name: github.com/golang/snappy
-  version: 2e65f85255dbc3072edf28d6b5b8efc472979f5a
+  version: d9eb7a3d35ec988b8585d4a0068e462c27d28380
 - name: github.com/google/btree
   version: 7d79101e329e5a3adf994758c578dab82b90c017
 - name: github.com/google/go-cmp
-  version: 97aa668b73e764ccdd786bc3ccd2edffe621150e
+  version: 2248b49eaa8e1c8c0963ee77b40841adbc19d4ca
   subpackages:
   - cmp
   - cmp/internal/diff
@@ -294,6 +292,8 @@ imports:
   - openstack/identity/v3/tokens
   - openstack/utils
   - pagination
+- name: github.com/gorilla/websocket
+  version: 66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d
 - name: github.com/gregjones/httpcache
   version: 787624de3eb7bd915c329cba748687a3b22666a6
   subpackages:
@@ -348,11 +348,10 @@ imports:
 - name: github.com/json-iterator/go
   version: 1624edc4454b8682399def8740d46db5e4362ba4
 - name: github.com/kubedb/apimachinery
-  version: 9c1f06f60a2c0eee3178d48bb5af13b2945b697d
+  version: 2a7cb21fc0d7604e31ae2149d5ee9097fe4340eb
   subpackages:
   - apis
   - apis/authorization
-  - apis/authorization/install
   - apis/authorization/v1alpha1
   - apis/catalog
   - apis/catalog/v1alpha1
@@ -475,16 +474,13 @@ imports:
 - name: github.com/PuerkitoBio/urlesc
   version: 5bd2802263f21d8788851d5305584c82a5c75d7e
 - name: github.com/russross/blackfriday
-  version: 300106c228d52c8941d4b3de6054a6062a86dda3
+  version: 05f3235734ad95d0016f6a23902f06461fcf567a
 - name: github.com/ryanuber/go-glob
   version: 256dc444b735e061061cf46c809487313d5b0065
 - name: github.com/sergi/go-diff
-  version: 24e2351369ec4949b2ed0dc5c477afdd4c4034e8
-  repo: https://github.com/sergi/go-diff
+  version: 97b2266dfe4bd4ea1b81a463322f04f8b724801e
   subpackages:
   - diffmatchpatch
-- name: github.com/shurcooL/sanitized_anchor_name
-  version: 10ef21a441db47d8b13ebcc5fd2310f636973c77
 - name: github.com/sirupsen/logrus
   version: 89742aefa4b206dcf400792f3bd35b542998eb3b
 - name: github.com/spf13/afero
@@ -496,7 +492,7 @@ imports:
   subpackages:
   - doc
 - name: github.com/spf13/pflag
-  version: 583c0c0531f06d5278b7d917446061adc344b5cd
+  version: 298182f68c66c05229eb03ac171abe6e309ee79a
 - name: github.com/stretchr/testify
   version: f35b8ab0b5a2cef36673838d662e249dd9c94686
   subpackages:
@@ -506,12 +502,11 @@ imports:
   subpackages:
   - codec
 - name: github.com/yudai/gojsondiff
-  version: 0525c875b75ca60b9e67ddc44496aa16f21066b0
+  version: 7b1b7adf999dab73a6eb02669c3d82dbb27a3dd6
   subpackages:
   - formatter
 - name: github.com/yudai/golcs
   version: d1c525dea8ce39ea9a783d33cf08932305373f2c
-  repo: https://github.com/yudai/golcs
 - name: golang.org/x/crypto
   version: de0752318171da717af4ce24d0a2e8626afaeb11
   subpackages:
@@ -573,7 +568,7 @@ imports:
   subpackages:
   - rate
 - name: google.golang.org/appengine
-  version: 12d5545dc1cfa6047a286d5e853841b6471f4c19
+  version: 4a4468ece617fc8205e99368fa2200e9d1fad421
   subpackages:
   - internal
   - internal/app_identity
@@ -614,7 +609,7 @@ imports:
 - name: gopkg.in/natefinch/lumberjack.v2
   version: 20b71e5b60d756d3d2f80def009790325acc2b23
 - name: gopkg.in/yaml.v2
-  version: 670d4cfef0544295bc27a114dbac37980d83185a
+  version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
 - name: k8s.io/api
   version: fd83cbc87e7632ccd8bbab63d2b673d4e0c631cc
   subpackages:
