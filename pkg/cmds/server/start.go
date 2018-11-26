@@ -5,6 +5,7 @@ import (
 	"io"
 	"net"
 
+	"github.com/appscode/kutil/tools/clientcmd"
 	"github.com/kubevault/operator/pkg/controller"
 	"github.com/kubevault/operator/pkg/server"
 	"github.com/spf13/pflag"
@@ -61,6 +62,7 @@ func (o VaultServerOptions) Config() (*server.VaultServerConfig, error) {
 	if err := o.RecommendedOptions.ApplyTo(serverConfig, server.Scheme); err != nil {
 		return nil, err
 	}
+	clientcmd.Fix(serverConfig.ClientConfig)
 
 	extraConfig := controller.NewConfig(serverConfig.ClientConfig)
 	if err := o.ExtraOptions.ApplyTo(extraConfig); err != nil {
