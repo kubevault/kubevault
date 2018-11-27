@@ -557,7 +557,6 @@ spec:
                   - bucket
                 inmem:
                   description: 'ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html'
-                  type: boolean
                 mySQL:
                   description: |-
                     vault doc: https://www.vaultproject.io/docs/configuration/storage/mysql.html

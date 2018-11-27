@@ -25,7 +25,7 @@ type Storage interface {
 func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage, error) {
 	s := vs.Spec.Backend
 
-	if s.Inmem {
+	if s.Inmem != nil {
 		return inmem.NewOptions()
 	} else if s.Etcd != nil {
 		return etcd.NewOptions(*s.Etcd)

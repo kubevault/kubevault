@@ -42,7 +42,7 @@ var _ = Describe("VaultServer", func() {
 
 	var (
 		backendInmem = api.BackendStorageSpec{
-			Inmem: true,
+			Inmem: &api.InmemSpec{},
 		}
 	)
 

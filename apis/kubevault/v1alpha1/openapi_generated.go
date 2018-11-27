@@ -47,6 +47,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/kubevault/operator/apis/kubevault/v1alpha1.FileSpec":                schema_operator_apis_kubevault_v1alpha1_FileSpec(ref),
 		"github.com/kubevault/operator/apis/kubevault/v1alpha1.GcsSpec":                 schema_operator_apis_kubevault_v1alpha1_GcsSpec(ref),
 		"github.com/kubevault/operator/apis/kubevault/v1alpha1.GoogleKmsGcsSpec":        schema_operator_apis_kubevault_v1alpha1_GoogleKmsGcsSpec(ref),
+		"github.com/kubevault/operator/apis/kubevault/v1alpha1.InmemSpec":               schema_operator_apis_kubevault_v1alpha1_InmemSpec(ref),
 		"github.com/kubevault/operator/apis/kubevault/v1alpha1.KubernetesSecretSpec":    schema_operator_apis_kubevault_v1alpha1_KubernetesSecretSpec(ref),
 		"github.com/kubevault/operator/apis/kubevault/v1alpha1.ModeSpec":                schema_operator_apis_kubevault_v1alpha1_ModeSpec(ref),
 		"github.com/kubevault/operator/apis/kubevault/v1alpha1.MySQLSpec":               schema_operator_apis_kubevault_v1alpha1_MySQLSpec(ref),
@@ -678,8 +679,7 @@ func schema_operator_apis_kubevault_v1alpha1_BackendStorageSpec(ref common.Refer
 					"inmem": {
 						SchemaProps: spec.SchemaProps{
 							Description: "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
-							Type:        []string{"boolean"},
-							Format:      "",
+							Ref:         ref("github.com/kubevault/operator/apis/kubevault/v1alpha1.InmemSpec"),
 						},
 					},
 					"etcd": {
@@ -731,7 +731,7 @@ func schema_operator_apis_kubevault_v1alpha1_BackendStorageSpec(ref common.Refer
 			},
 		},
 		Dependencies: []string{
-			"github.com/kubevault/operator/apis/kubevault/v1alpha1.AzureSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.DynamoDBSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.FileSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.MySQLSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.PostgreSQLSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.S3Spec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.SwiftSpec"},
+			"github.com/kubevault/operator/apis/kubevault/v1alpha1.AzureSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.DynamoDBSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.EtcdSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.FileSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.GcsSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.InmemSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.MySQLSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.PostgreSQLSpec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.S3Spec", "github.com/kubevault/operator/apis/kubevault/v1alpha1.SwiftSpec"},
 	}
 }
 
@@ -1001,6 +1001,18 @@ func schema_operator_apis_kubevault_v1alpha1_GoogleKmsGcsSpec(ref common.Referen
 					},
 				},
 				Required: []string{"kmsCryptoKey", "kmsKeyRing", "kmsLocation", "kmsProject", "bucket"},
+			},
+		},
+		Dependencies: []string{},
+	}
+}
+
+func schema_operator_apis_kubevault_v1alpha1_InmemSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
+				Properties:  map[string]spec.Schema{},
 			},
 		},
 		Dependencies: []string{},

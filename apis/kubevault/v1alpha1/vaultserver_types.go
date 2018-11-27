@@ -200,7 +200,7 @@ type TLSPolicy struct {
 type BackendStorageSpec struct {
 	// ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html
 	// +optional
-	Inmem bool `json:"inmem,omitempty"`
+	Inmem *InmemSpec `json:"inmem,omitempty"`
 
 	// +optional
 	Etcd *EtcdSpec `json:"etcd,omitempty"`
@@ -228,6 +228,10 @@ type BackendStorageSpec struct {
 
 	// +optional
 	Swift *SwiftSpec `json:"swift,omitempty"`
+}
+
+// ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html
+type InmemSpec struct {
 }
 
 // TODO : set defaults and validation
