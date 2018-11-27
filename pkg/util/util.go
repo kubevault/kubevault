@@ -40,7 +40,7 @@ func TryGetJwtTokenSecretNameFromServiceAccount(kc kubernetes.Interface, name st
 		err    error
 		secret *core.Secret
 	)
-	err2 := wait.PollImmediate(interval, timeout, func() (done bool, err error) {
+	err2 := wait.PollImmediate(interval, timeout, func() (bool, error) {
 		secret, err = GetJwtTokenSecretFromServiceAccount(kc, name, namespace)
 		if err == nil {
 			return true, nil

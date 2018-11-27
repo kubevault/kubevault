@@ -4,8 +4,18 @@ set -eou pipefail
 crds=(
   vaultservers.kubevault.com
   vaultserverversions.catalog.kubevault.com
+  vaultpolicies.policy.kubevault.com
+  vaultpolicybindings.policy.kubevault.com
+  databaseaccessrequests.authorization.kubedb.com
+  mongodbroles.authorization.kubedb.com
+  mysqlroles.authorization.kubedb.com
+  postgresroles.authorization.kubedb.com
 )
-apiServices=(v1alpha1.validators v1alpha1.mutators)
+apiServices=(
+  v1alpha1.validators.kubevault.com
+  v1alpha1.mutators.kubevault.com
+  v1alpha1.validators.authorization.kubedb.com
+)
 
 echo "checking kubeconfig context"
 kubectl config current-context || {
@@ -355,7 +365,7 @@ $ONESSL wait-until-ready deployment vault-operator --namespace $VAULT_OPERATOR_N
 if [ "$VAULT_OPERATOR_ENABLE_APISERVER" = true ]; then
   echo "waiting until Vault operator apiservice is available"
   for api in "${apiServices[@]}"; do
-    $ONESSL wait-until-ready apiservice ${api}.kubevault.com || {
+    $ONESSL wait-until-ready apiservice ${api} || {
       echo "Vault operator apiservice $api failed to be ready"
       exit 1
     }

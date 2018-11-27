@@ -23,7 +23,7 @@ func TestOptions_GetStorageConfig(t *testing.T) {
 	out := `
 storage "dynamodb" {
 endpoint = "endpoint"
-ha_enable = "true"
+ha_enabled = "true"
 region = "us"
 read_capacity = 1
 write_capacity = 1

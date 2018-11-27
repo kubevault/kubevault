@@ -127,7 +127,7 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 		return nil, err
 	}
 
-	nodePortIP, err := f.getNodePortIP(label)
+	nodePortIP, err := f.GetNodePortIP(label)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 				VaultTokenSecret,
 			},
 			ClientConfig: appcat.ClientConfig{
-				URL:                   &url,
+				URL: &url,
 				InsecureSkipTLSVerify: true,
 			},
 		},
@@ -179,7 +179,7 @@ func (f *Framework) DeleteVault() error {
 	return err
 }
 
-func (f *Framework) getNodePortIP(label map[string]string) (string, error) {
+func (f *Framework) GetNodePortIP(label map[string]string) (string, error) {
 	pods, err := f.KubeClient.CoreV1().Pods(f.namespace).List(metav1.ListOptions{
 		LabelSelector: labels.SelectorFromSet(label).String(),
 	})

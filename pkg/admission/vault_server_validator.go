@@ -133,7 +133,7 @@ func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs
 	}
 
 	numOfBackend := 0
-	if vs.Spec.Backend.Inmem == true {
+	if vs.Spec.Backend.Inmem != nil {
 		numOfBackend++
 	}
 	if vs.Spec.Backend.File != nil {

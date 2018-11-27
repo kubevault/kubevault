@@ -47,7 +47,7 @@ var (
 		SecretShares:          5,
 		SecretThreshold:       3,
 		InsecureSkipTLSVerify: true,
-		Mode:                  api.ModeSpec{},
+		Mode: api.ModeSpec{},
 	}
 )
 
@@ -174,7 +174,7 @@ func TestValidateVaultServer(t *testing.T) {
 			testName: "number of backend is more than 1, expect error",
 			vs: func() *api.VaultServer {
 				v := vs
-				v.Spec.Backend = api.BackendStorageSpec{Inmem: true, File: &api.FileSpec{}}
+				v.Spec.Backend = api.BackendStorageSpec{Inmem: &api.InmemSpec{}, File: &api.FileSpec{}}
 				return &v
 			}(),
 			extraSecret: nil,
@@ -229,8 +229,12 @@ func TestValidateVaultServer(t *testing.T) {
 			expectErr:   true,
 		},
 		{
-			testName:    "using inmem, expect no error",
-			vs:          func() *api.VaultServer { v := vs; v.Spec.Backend = api.BackendStorageSpec{Inmem: true}; return &v }(),
+			testName: "using inmem, expect no error",
+			vs: func() *api.VaultServer {
+				v := vs
+				v.Spec.Backend = api.BackendStorageSpec{Inmem: &api.InmemSpec{}}
+				return &v
+			}(),
 			extraSecret: nil,
 			expectErr:   false,
 		},
@@ -701,7 +705,7 @@ func vaultServerWithSwift() (api.VaultServer, []core.Secret) {
 func vaultServerWiitUnsealer(u *api.UnsealerSpec) api.VaultServer {
 	v := vs
 	v.Spec.Backend = api.BackendStorageSpec{
-		Inmem: true,
+		Inmem: &api.InmemSpec{},
 	}
 	v.Spec.Unsealer = u
 	return v
@@ -769,7 +773,7 @@ func unsealerWithAzureKeyVault() (api.UnsealerSpec, []core.Secret) {
 func validVaultServer() api.VaultServer {
 	v := vs
 	v.Spec.Backend = api.BackendStorageSpec{
-		Inmem: true,
+		Inmem: &api.InmemSpec{},
 	}
 	return v
 }

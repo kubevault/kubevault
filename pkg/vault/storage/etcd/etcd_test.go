@@ -28,7 +28,7 @@ func TestGetEtcdConfig(t *testing.T) {
 	out1 := `
 storage "etcd" {
 address = "123"
-ha_enable = "true"
+ha_enabled = "true"
 sync = "true"
 }
 `
@@ -38,7 +38,7 @@ address = "localhost:2379"
 etcd_api = "v3"
 path = "path/"
 discovery_srv = "etcd.com"
-ha_enable = "false"
+ha_enabled = "false"
 sync = "false"
 tls_ca_file = "/etc/vault/storage/etcd/tls/etcd-ca.crt"
 tls_cert_file = "/etc/vault/storage/etcd/tls/etcd-client.crt"

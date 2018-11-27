@@ -109,9 +109,9 @@ func (o *Options) GetStorageConfig() (string, error) {
 		params = append(params, fmt.Sprintf(`discovery_srv = "%s"`, o.DiscoverySrv))
 	}
 	if o.HAEnable {
-		params = append(params, fmt.Sprintf(`ha_enable = "true"`))
+		params = append(params, fmt.Sprintf(`ha_enabled = "true"`))
 	} else {
-		params = append(params, fmt.Sprintf(`ha_enable = "false"`))
+		params = append(params, fmt.Sprintf(`ha_enabled = "false"`))
 	}
 	if o.Sync {
 		params = append(params, fmt.Sprintf(`sync = "true"`))
