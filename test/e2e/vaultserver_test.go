@@ -9,7 +9,9 @@ import (
 	"time"
 
 	rand_util "github.com/appscode/go/crypto/rand"
+	"github.com/golang/glog"
 	"github.com/hashicorp/go-cleanhttp"
+	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/controller"
 	"github.com/kubevault/operator/pkg/vault/util"
@@ -21,6 +23,7 @@ import (
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	ofst "kmodules.xyz/offshoot-api/api/v1"
 )
 
 const (
@@ -211,6 +214,55 @@ var _ = Describe("VaultServer", func() {
 			checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
 			checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			checkForAppBindingDeleted(vs.Name, vs.Namespace)
+		}
+
+		checkForIsVaultHAEnabled = func(vs *api.VaultServer) {
+			By(fmt.Sprintf("Checking is HA enabled in vault(%s/%s)", vs.Namespace, vs.Name))
+			Eventually(func() bool {
+				v, err := f.GetVaultServer(vs)
+				if err == nil {
+					nodeIP, err := f.GetNodePortIP(v.OffshootSelectors())
+					if err == nil {
+						var url string
+						srv, err := f.KubeClient.CoreV1().Services(v.Namespace).Get(v.OffshootName(), metav1.GetOptions{})
+						if err == nil {
+							for _, p := range srv.Spec.Ports {
+								if p.Port == controller.VaultClientPort {
+									url = fmt.Sprintf("https://%s:%d", nodeIP, p.NodePort)
+									break
+								}
+							}
+							if url != "" {
+								By(fmt.Sprintf("vault url: %s", url))
+								cfg := vaultapi.DefaultConfig()
+								cfg.Address = url
+								cfg.ConfigureTLS(&vaultapi.TLSConfig{
+									Insecure: true,
+								})
+								vc, err := vaultapi.NewClient(cfg)
+								if err == nil {
+									status, err := vc.Sys().Leader()
+									if err == nil {
+										return status.HAEnabled
+									} else {
+										glog.Errorln(err)
+									}
+								} else {
+									glog.Errorln(err)
+								}
+							}
+						} else {
+							glog.Errorln(err)
+						}
+					} else {
+						glog.Errorln(err)
+					}
+				} else {
+					glog.Errorln(err)
+				}
+				return false
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("HA should be enabled in vault server (%s/%s)", vs.Namespace, vs.Name))
+
 		}
 	)
 
@@ -1130,6 +1182,73 @@ var _ = Describe("VaultServer", func() {
 				shouldCreateVaultServer(vs)
 
 				checkForVaultIsUnsealed(vs)
+			})
+		})
+	})
+
+	Describe("Vault HA cluster", func() {
+		var (
+			vs     *api.VaultServer
+			unseal *api.UnsealerSpec
+		)
+
+		const (
+			secretName = "test-vault-keys"
+		)
+
+		BeforeEach(func() {
+			unseal = &api.UnsealerSpec{
+				SecretShares:          4,
+				SecretThreshold:       2,
+				InsecureSkipTLSVerify: true,
+				Mode: api.ModeSpec{
+					KubernetesSecret: &api.KubernetesSecretSpec{
+						SecretName: secretName,
+					},
+				},
+			}
+		})
+
+		AfterEach(func() {
+			f.DeleteVaultServer(vs.ObjectMeta)
+			checkForVaultServerCleanup(vs)
+
+			err := f.DeleteSecret(secretName, vs.Namespace)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		Context("using etcd backend", func() {
+			BeforeEach(func() {
+				url, err := f.DeployEtcd()
+				Expect(err).NotTo(HaveOccurred())
+
+				etcd := api.BackendStorageSpec{
+					Etcd: &api.EtcdSpec{
+						EtcdApi:  "v3",
+						Address:  url,
+						HAEnable: true,
+					},
+				}
+
+				vs = f.VaultServerWithUnsealer(1, etcd, *unseal)
+				vs.Spec.ServiceTemplate = ofst.ServiceTemplateSpec{
+					Spec: ofst.ServiceSpec{
+						Type: core.ServiceTypeNodePort,
+					},
+				}
+			})
+
+			AfterEach(func() {
+				err := f.DeleteEtcd()
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("vault should be unsealed", func() {
+				shouldCreateVaultServer(vs)
+
+				checkForSecretCreated(secretName, vs.Namespace)
+				checkForVaultIsUnsealed(vs)
+				checkForIsVaultHAEnabled(vs)
 			})
 		})
 	})
