@@ -10,7 +10,7 @@ import (
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault"
-	"github.com/kubevault/operator/pkg/vault/secret/database"
+	"github.com/kubevault/operator/pkg/vault/secret/engines/database"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
