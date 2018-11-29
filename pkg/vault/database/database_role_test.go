@@ -95,7 +95,6 @@ func TestTry(t *testing.T) {
 
 	d := DBCredManager{
 		vaultClient: cl,
-		path:        "database",
 	}
 
 	err := d.RevokeLease("database/creds/test/33b022a7-7d50-4622-a74e-9c468d1d6e38")

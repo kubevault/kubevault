@@ -2,7 +2,6 @@ package database
 
 import (
 	"encoding/json"
-	"fmt"
 
 	patchutilv1 "github.com/appscode/kutil/core/v1"
 	patchutil "github.com/appscode/kutil/rbac/v1"
@@ -11,6 +10,8 @@ import (
 	crd "github.com/kubedb/apimachinery/client/clientset/versioned"
 	"github.com/kubevault/operator/pkg/vault"
 	vaultcs "github.com/kubevault/operator/pkg/vault"
+	"github.com/kubevault/operator/pkg/vault/secret"
+	"github.com/kubevault/operator/pkg/vault/secret/database"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -21,11 +22,10 @@ import (
 )
 
 type DBCredManager struct {
-	dbAccessReq *api.DatabaseAccessRequest
-	kubeClient  kubernetes.Interface
-	vaultClient *vaultapi.Client
-	path        string
-	roleName    string
+	dbAccessReq  *api.DatabaseAccessRequest
+	kubeClient   kubernetes.Interface
+	vaultClient  *vaultapi.Client
+	secretGetter secret.SecretGetter
 }
 
 func NewDatabaseCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr crd.Interface, dbAR *api.DatabaseAccessRequest) (DatabaseCredentialManager, error) {
@@ -34,11 +34,10 @@ func NewDatabaseCredentialManager(kClient kubernetes.Interface, appClient appcat
 		return nil, err
 	}
 	return &DBCredManager{
-		dbAccessReq: dbAR,
-		roleName:    roleName,
-		kubeClient:  kClient,
-		vaultClient: v,
-		path:        dbPath,
+		dbAccessReq:  dbAR,
+		kubeClient:   kClient,
+		vaultClient:  v,
+		secretGetter: database.NewSecretGetter(v, dbPath, roleName),
 	}, nil
 }
 
@@ -221,21 +220,17 @@ func (d *DBCredManager) RevokeLease(leaseID string) error {
 
 // Gets credential from vault
 func (p *DBCredManager) GetCredential() (*vault.DatabaseCredential, error) {
-	path := fmt.Sprintf("/v1/%s/creds/%s", p.path, p.roleName)
-	req := p.vaultClient.NewRequest("GET", path)
-
-	resp, err := p.vaultClient.RawRequest(req)
+	data, err := p.secretGetter.GetSecret()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get mysql credential")
+		return nil, errors.Wrap(err, "failed to get database credential")
 	}
 
-	cred := vault.DatabaseCredential{}
-
-	err = json.NewDecoder(resp.Body).Decode(&cred)
+	cred := &vault.DatabaseCredential{}
+	err = json.Unmarshal(data, cred)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to decode json from mysql credential response")
 	}
-	return &cred, nil
+	return cred, nil
 }
 
 // asOwner returns an owner reference
