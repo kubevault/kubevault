@@ -10,6 +10,7 @@ import (
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault"
+	"github.com/kubevault/operator/pkg/vault/secret/database"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -109,7 +110,6 @@ func TestCreateSecret(t *testing.T) {
 			dClient: &DBCredManager{
 				dbAccessReq: dbAreq,
 				vaultClient: nil,
-				path:        "database",
 			},
 			cred:         cred,
 			secretName:   "pg-cred",
@@ -121,7 +121,6 @@ func TestCreateSecret(t *testing.T) {
 			dClient: &DBCredManager{
 				dbAccessReq: dbAreq,
 				vaultClient: nil,
-				path:        "database",
 			},
 			cred:         cred,
 			secretName:   "pg-cred",
@@ -179,7 +178,6 @@ func TestCreateRole(t *testing.T) {
 			dClient: &DBCredManager{
 				dbAccessReq: dbAreq,
 				vaultClient: nil,
-				path:        "database",
 			},
 			createRole: false,
 			roleName:   "pg-role",
@@ -191,7 +189,6 @@ func TestCreateRole(t *testing.T) {
 			dClient: &DBCredManager{
 				dbAccessReq: dbAreq,
 				vaultClient: nil,
-				path:        "database",
 			},
 			createRole: true,
 			roleName:   "pg-role",
@@ -260,7 +257,6 @@ func TestCreateRoleBinding(t *testing.T) {
 			dClient: &DBCredManager{
 				dbAccessReq: dbAreq,
 				vaultClient: nil,
-				path:        "database",
 			},
 			createRB:        false,
 			roleName:        "pg-role",
@@ -272,7 +268,6 @@ func TestCreateRoleBinding(t *testing.T) {
 			dClient: &DBCredManager{
 				dbAccessReq: dbAreq,
 				vaultClient: nil,
-				path:        "database",
 			},
 			createRB:        true,
 			roleName:        "pg-role",
@@ -341,7 +336,6 @@ func TestRevokeLease(t *testing.T) {
 			dClient: &DBCredManager{
 				dbAccessReq: dbAreq,
 				vaultClient: cl,
-				path:        "database",
 			},
 			leaseID:     "success",
 			expectedErr: false,
@@ -351,7 +345,6 @@ func TestRevokeLease(t *testing.T) {
 			dClient: &DBCredManager{
 				dbAccessReq: dbAreq,
 				vaultClient: cl,
-				path:        "database",
 			},
 			leaseID:     "error",
 			expectedErr: true,
@@ -416,6 +409,90 @@ func TestDatabaseRoleBinding_IsLeaseExpired(t *testing.T) {
 					}
 					return false
 				})
+			}
+		})
+	}
+}
+
+func TestDBCredManager_GetCredential(t *testing.T) {
+	srv := vaultServer()
+	defer srv.Close()
+
+	cfg := vaultapi.DefaultConfig()
+	cfg.Address = srv.URL
+
+	cl, err := vaultapi.NewClient(cfg)
+	if !assert.Nil(t, err, "failed to create vault client") {
+		return
+	}
+
+	cred := &vault.DatabaseCredential{
+		LeaseID:       "1204",
+		LeaseDuration: 300,
+		Data: struct {
+			Password string `json:"password"`
+			Username string `json:"username"`
+		}{
+			"1234",
+			"nahid",
+		},
+	}
+
+	dbAreq := &api.DatabaseAccessRequest{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "db-req",
+			UID:  "1234",
+		},
+	}
+
+	testData := []struct {
+		testName    string
+		dClient     *DBCredManager
+		cred        *vault.DatabaseCredential
+		expectedErr bool
+	}{
+		{
+			testName: "Successfully get credential",
+			dClient: &DBCredManager{
+				dbAccessReq:  dbAreq,
+				vaultClient:  nil,
+				secretGetter: database.NewSecretGetter(cl, "database", "success"),
+			},
+			cred:        cred,
+			expectedErr: false,
+		},
+		{
+			testName: "failed to get credential, json error",
+			dClient: &DBCredManager{
+				dbAccessReq:  dbAreq,
+				vaultClient:  nil,
+				secretGetter: database.NewSecretGetter(cl, "database", "jsonerror"),
+			},
+			cred:        nil,
+			expectedErr: true,
+		},
+		{
+			testName: "failed to get credential, get error",
+			dClient: &DBCredManager{
+				dbAccessReq:  dbAreq,
+				vaultClient:  nil,
+				secretGetter: database.NewSecretGetter(cl, "database", "geterror"),
+			},
+			cred:        nil,
+			expectedErr: true,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.testName, func(t *testing.T) {
+			d := test.dClient
+			cred, err := d.GetCredential()
+			if test.expectedErr {
+				assert.NotNil(t, err, "error should occur")
+			} else {
+				if assert.Nil(t, err) {
+					assert.Equal(t, *test.cred, *cred, "credential should match")
+				}
 			}
 		})
 	}
