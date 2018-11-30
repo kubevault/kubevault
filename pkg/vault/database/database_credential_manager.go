@@ -11,7 +11,7 @@ import (
 	"github.com/kubevault/operator/pkg/vault"
 	vaultcs "github.com/kubevault/operator/pkg/vault"
 	"github.com/kubevault/operator/pkg/vault/secret"
-	"github.com/kubevault/operator/pkg/vault/secret/database"
+	"github.com/kubevault/operator/pkg/vault/secret/engines/database"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
