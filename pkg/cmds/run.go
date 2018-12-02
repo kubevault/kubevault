@@ -5,6 +5,7 @@ import (
 
 	"github.com/appscode/go/log"
 	v "github.com/appscode/go/version"
+	"github.com/appscode/kutil/tools/cli"
 	"github.com/kubevault/operator/pkg/cmds/server"
 	"github.com/spf13/cobra"
 )
@@ -16,6 +17,9 @@ func NewCmdRun(out, errOut io.Writer, stopCh <-chan struct{}) *cobra.Command {
 		Use:               "run",
 		Short:             "Launch Vault operator",
 		DisableAutoGenTag: true,
+		PreRun: func(c *cobra.Command, args []string) {
+			cli.SendPeriodicAnalytics(c, v.Version.Version)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			log.Infof("Starting operator version %s+%s ...", v.Version.Version, v.Version.CommitHash)
 

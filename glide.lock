@@ -1,5 +1,5 @@
 hash: c11f1b8e68180523d9f15f46392f5838c6752680ac6586e0142ba95cec613e26
-updated: 2018-11-25T22:03:45.332981209-08:00
+updated: 2018-12-01T18:40:08.408232583-08:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -36,7 +36,7 @@ imports:
   - admission/v1beta1
   - registry/admissionreview/v1beta1
 - name: github.com/appscode/kutil
-  version: 5e4dc08e9e6e00fcf397b7186a3918dc4dcb9426
+  version: 239838b6231b8a27a66426e25678351ce50c4cfd
   subpackages:
   - admissionregistration/v1beta1
   - apiextensions/v1beta1
@@ -49,6 +49,7 @@ imports:
   - rbac/v1
   - tools/analytics
   - tools/certstore
+  - tools/cli
   - tools/clientcmd
   - tools/portforward
   - tools/queue
@@ -307,7 +308,7 @@ imports:
 - name: github.com/hashicorp/go-multierror
   version: 886a7fbe3eb1c874d46f623bfa70af45f425b3d1
 - name: github.com/hashicorp/go-retryablehttp
-  version: 4502c0ecdaf0b50d857611af23831260f99be6bf
+  version: dfbae6744eb4c188d26ef53f1d39444c0c68b60c
 - name: github.com/hashicorp/go-rootcerts
   version: 6bb64b370b90e7ef1fa532be9e591a81c3493e00
 - name: github.com/hashicorp/go-sockaddr
@@ -348,7 +349,7 @@ imports:
 - name: github.com/json-iterator/go
   version: 1624edc4454b8682399def8740d46db5e4362ba4
 - name: github.com/kubedb/apimachinery
-  version: 2a7cb21fc0d7604e31ae2149d5ee9097fe4340eb
+  version: 4cebffe1a7709b9b1ed48766040ea6072957be65
   subpackages:
   - apis
   - apis/authorization
