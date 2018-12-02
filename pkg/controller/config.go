@@ -24,11 +24,6 @@ const (
 	validatingWebhook = "validators.kubevault.com"
 )
 
-var (
-	AnalyticsClientID string
-	EnableAnalytics   = true
-)
-
 type config struct {
 	EnableRBAC     bool
 	DockerRegistry string
