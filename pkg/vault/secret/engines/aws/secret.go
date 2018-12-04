@@ -2,7 +2,6 @@ package aws
 
 import (
 	"fmt"
-	"io/ioutil"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/kubevault/operator/pkg/vault/secret"
@@ -60,7 +59,7 @@ func (s *SecretInfo) SetOptions(c *vaultapi.Client, opts map[string]string) erro
 	return nil
 }
 
-func (s *SecretInfo) GetSecret() ([]byte, error) {
+func (s *SecretInfo) GetSecret() (*vaultapi.Secret, error) {
 	if s.Path == "" {
 		return nil, errors.New("aws secret engine path is empty")
 	}
@@ -80,9 +79,9 @@ func (s *SecretInfo) GetSecret() ([]byte, error) {
 	}
 
 	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
+	sr, err := vaultapi.ParseSecret(resp.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to read response body")
+		return nil, errors.Wrap(err, "failed to parse secret from response body")
 	}
-	return data, nil
+	return sr, nil
 }

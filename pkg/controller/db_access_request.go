@@ -127,8 +127,8 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbRBClient database.Dat
 	// check whether lease id exists in .status.lease or not
 	// if does not exist in .status.lease, then get credential
 	if dbAccessReq.Status.Lease == nil {
-		// get database credential
-		cred, err := dbRBClient.GetCredential()
+		// get database credential secret
+		credSecret, err := dbRBClient.GetCredential()
 		if err != nil {
 			status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
 				Type:           RequestFailed,
@@ -145,9 +145,9 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbRBClient database.Dat
 		}
 
 		secretName = rand.WithUniqSuffix(name)
-		err = dbRBClient.CreateSecret(secretName, ns, cred)
+		err = dbRBClient.CreateSecret(secretName, ns, credSecret)
 		if err != nil {
-			err2 := dbRBClient.RevokeLease(cred.LeaseID)
+			err2 := dbRBClient.RevokeLease(credSecret.LeaseID)
 			if err2 != nil {
 				return errors.Wrapf(err2, "failed to revoke lease")
 			}
@@ -168,11 +168,11 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbRBClient database.Dat
 
 		// add lease info in status
 		status.Lease = &api.Lease{
-			ID: cred.LeaseID,
+			ID: credSecret.LeaseID,
 			Duration: metav1.Duration{
-				time.Second * time.Duration(cred.LeaseDuration),
+				time.Second * time.Duration(credSecret.LeaseDuration),
 			},
-			Renewable: cred.Renewable,
+			Renewable: credSecret.Renewable,
 		}
 
 		// assign secret name

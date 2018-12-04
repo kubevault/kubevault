@@ -9,7 +9,6 @@ import (
 	"github.com/appscode/pat"
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
-	"github.com/kubevault/operator/pkg/vault"
 	"github.com/kubevault/operator/pkg/vault/secret/engines/database"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
@@ -78,15 +77,12 @@ func vaultServer() *httptest.Server {
 }
 
 func TestCreateSecret(t *testing.T) {
-	cred := &vault.DatabaseCredential{
+	cred := &vaultapi.Secret{
 		LeaseID:       "1204",
 		LeaseDuration: 300,
-		Data: struct {
-			Password string `json:"password"`
-			Username string `json:"username"`
-		}{
-			"1234",
-			"nahid",
+		Data: map[string]interface{}{
+			"password": "1234",
+			"username": "nahid",
 		},
 	}
 
@@ -100,7 +96,7 @@ func TestCreateSecret(t *testing.T) {
 	testData := []struct {
 		testName     string
 		dClient      *DBCredManager
-		cred         *vault.DatabaseCredential
+		cred         *vaultapi.Secret
 		secretName   string
 		namespace    string
 		createSecret bool
@@ -426,15 +422,12 @@ func TestDBCredManager_GetCredential(t *testing.T) {
 		return
 	}
 
-	cred := &vault.DatabaseCredential{
+	cred := &vaultapi.Secret{
 		LeaseID:       "1204",
 		LeaseDuration: 300,
-		Data: struct {
-			Password string `json:"password"`
-			Username string `json:"username"`
-		}{
-			"1234",
-			"nahid",
+		Data: map[string]interface{}{
+			"password": "1234",
+			"username": "nahid",
 		},
 	}
 
@@ -448,7 +441,7 @@ func TestDBCredManager_GetCredential(t *testing.T) {
 	testData := []struct {
 		testName    string
 		dClient     *DBCredManager
-		cred        *vault.DatabaseCredential
+		cred        *vaultapi.Secret
 		expectedErr bool
 	}{
 		{

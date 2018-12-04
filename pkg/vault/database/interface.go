@@ -1,7 +1,7 @@
 package database
 
 import (
-	"github.com/kubevault/operator/pkg/vault"
+	vaultapi "github.com/hashicorp/vault/api"
 	rbacv1 "k8s.io/api/rbac/v1"
 )
 
@@ -28,10 +28,10 @@ type RoleInterface interface {
 
 type DatabaseCredentialManager interface {
 	// Gets credential from vault
-	GetCredential() (*vault.DatabaseCredential, error)
+	GetCredential() (*vaultapi.Secret, error)
 
 	// Creates a kubernetes secret containing postgres credential
-	CreateSecret(name string, namespace string, credential *vault.DatabaseCredential) error
+	CreateSecret(name string, namespace string, credential *vaultapi.Secret) error
 
 	// Creates kubernetes role
 	CreateRole(name string, namespace string, secretName string) error

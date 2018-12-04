@@ -8,10 +8,10 @@ import (
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
 	crd "github.com/kubedb/apimachinery/client/clientset/versioned"
-	"github.com/kubevault/operator/pkg/vault"
 	vaultcs "github.com/kubevault/operator/pkg/vault"
 	"github.com/kubevault/operator/pkg/vault/secret"
 	"github.com/kubevault/operator/pkg/vault/secret/engines/database"
+	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -88,12 +88,21 @@ func GetVaultClientDBPathAndRole(kClient kubernetes.Interface, appClient appcat_
 }
 
 // Creates a kubernetes secret containing database credential
-func (d *DBCredManager) CreateSecret(name string, namespace string, cred *vault.DatabaseCredential) error {
+func (d *DBCredManager) CreateSecret(name string, namespace string, credSecret *vaultapi.Secret) error {
 	data := map[string][]byte{}
-	if cred != nil {
+	if credSecret != nil {
+		var cred struct {
+			Password string `json:"password"`
+			Username string `json:"username"`
+		}
+
+		err := mapstructure.Decode(credSecret.Data, &cred)
+		if err != nil {
+			return errors.Wrap(err, "failed to parse credential from vault secret")
+		}
 		data = map[string][]byte{
-			"username": []byte(cred.Data.Username),
-			"password": []byte(cred.Data.Password),
+			"username": []byte(cred.Username),
+			"password": []byte(cred.Password),
 		}
 	}
 
@@ -219,18 +228,8 @@ func (d *DBCredManager) RevokeLease(leaseID string) error {
 }
 
 // Gets credential from vault
-func (p *DBCredManager) GetCredential() (*vault.DatabaseCredential, error) {
-	data, err := p.secretGetter.GetSecret()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get database credential")
-	}
-
-	cred := &vault.DatabaseCredential{}
-	err = json.Unmarshal(data, cred)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to decode json from mysql credential response")
-	}
-	return cred, nil
+func (p *DBCredManager) GetCredential() (*vaultapi.Secret, error) {
+	return p.secretGetter.GetSecret()
 }
 
 // asOwner returns an owner reference
