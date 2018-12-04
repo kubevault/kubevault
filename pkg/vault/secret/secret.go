@@ -16,5 +16,5 @@ type SecretManager interface {
 }
 
 type SecretGetter interface {
-	GetSecret() ([]byte, error)
+	GetSecret() (*vaultapi.Secret, error)
 }
