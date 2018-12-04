@@ -23,6 +23,7 @@ import (
 	configv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/config/v1alpha1"
 	kubevaultv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
 	policyv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1"
+	secretenginev1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/secretengine/v1alpha1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
@@ -42,16 +43,20 @@ type Interface interface {
 	PolicyV1alpha1() policyv1alpha1.PolicyV1alpha1Interface
 	// Deprecated: please explicitly pick a version if possible.
 	Policy() policyv1alpha1.PolicyV1alpha1Interface
+	SecretengineV1alpha1() secretenginev1alpha1.SecretengineV1alpha1Interface
+	// Deprecated: please explicitly pick a version if possible.
+	Secretengine() secretenginev1alpha1.SecretengineV1alpha1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	catalogV1alpha1   *catalogv1alpha1.CatalogV1alpha1Client
-	configV1alpha1    *configv1alpha1.ConfigV1alpha1Client
-	kubevaultV1alpha1 *kubevaultv1alpha1.KubevaultV1alpha1Client
-	policyV1alpha1    *policyv1alpha1.PolicyV1alpha1Client
+	catalogV1alpha1      *catalogv1alpha1.CatalogV1alpha1Client
+	configV1alpha1       *configv1alpha1.ConfigV1alpha1Client
+	kubevaultV1alpha1    *kubevaultv1alpha1.KubevaultV1alpha1Client
+	policyV1alpha1       *policyv1alpha1.PolicyV1alpha1Client
+	secretengineV1alpha1 *secretenginev1alpha1.SecretengineV1alpha1Client
 }
 
 // CatalogV1alpha1 retrieves the CatalogV1alpha1Client
@@ -98,6 +103,17 @@ func (c *Clientset) Policy() policyv1alpha1.PolicyV1alpha1Interface {
 	return c.policyV1alpha1
 }
 
+// SecretengineV1alpha1 retrieves the SecretengineV1alpha1Client
+func (c *Clientset) SecretengineV1alpha1() secretenginev1alpha1.SecretengineV1alpha1Interface {
+	return c.secretengineV1alpha1
+}
+
+// Deprecated: Secretengine retrieves the default version of SecretengineClient.
+// Please explicitly pick a version.
+func (c *Clientset) Secretengine() secretenginev1alpha1.SecretengineV1alpha1Interface {
+	return c.secretengineV1alpha1
+}
+
 // Discovery retrieves the DiscoveryClient
 func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 	if c == nil {
@@ -130,6 +146,10 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	if err != nil {
 		return nil, err
 	}
+	cs.secretengineV1alpha1, err = secretenginev1alpha1.NewForConfig(&configShallowCopy)
+	if err != nil {
+		return nil, err
+	}
 
 	cs.DiscoveryClient, err = discovery.NewDiscoveryClientForConfig(&configShallowCopy)
 	if err != nil {
@@ -146,6 +166,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 	cs.configV1alpha1 = configv1alpha1.NewForConfigOrDie(c)
 	cs.kubevaultV1alpha1 = kubevaultv1alpha1.NewForConfigOrDie(c)
 	cs.policyV1alpha1 = policyv1alpha1.NewForConfigOrDie(c)
+	cs.secretengineV1alpha1 = secretenginev1alpha1.NewForConfigOrDie(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
 	return &cs
@@ -158,6 +179,7 @@ func New(c rest.Interface) *Clientset {
 	cs.configV1alpha1 = configv1alpha1.New(c)
 	cs.kubevaultV1alpha1 = kubevaultv1alpha1.New(c)
 	cs.policyV1alpha1 = policyv1alpha1.New(c)
+	cs.secretengineV1alpha1 = secretenginev1alpha1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
 	return &cs
