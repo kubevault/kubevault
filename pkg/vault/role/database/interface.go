@@ -2,11 +2,12 @@ package database
 
 import (
 	vaultapi "github.com/hashicorp/vault/api"
+	"github.com/kubevault/operator/pkg/vault/role"
 	rbacv1 "k8s.io/api/rbac/v1"
 )
 
 type DatabaseRoleInterface interface {
-	RoleInterface
+	role.RoleInterface
 
 	// EnableDatabase enables database secret engine
 	EnableDatabase() error
@@ -16,14 +17,6 @@ type DatabaseRoleInterface interface {
 
 	// DeleteRole deletes role
 	DeleteRole(name string) error
-}
-
-type RoleInterface interface {
-	// CreateConfig creates database configuration
-	CreateConfig() error
-
-	// CreateRole creates role
-	CreateRole() error
 }
 
 type DatabaseCredentialManager interface {

@@ -7,9 +7,10 @@ import (
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
 	vaultcs "github.com/kubevault/operator/pkg/vault"
-	"github.com/kubevault/operator/pkg/vault/database/mongodb"
-	"github.com/kubevault/operator/pkg/vault/database/mysql"
-	"github.com/kubevault/operator/pkg/vault/database/postgres"
+	"github.com/kubevault/operator/pkg/vault/role"
+	"github.com/kubevault/operator/pkg/vault/role/database/mongodb"
+	"github.com/kubevault/operator/pkg/vault/role/database/mysql"
+	"github.com/kubevault/operator/pkg/vault/role/database/postgres"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -22,7 +23,7 @@ const (
 )
 
 type DatabaseRole struct {
-	RoleInterface
+	role.RoleInterface
 	vaultClient *vaultapi.Client
 	path        string
 }

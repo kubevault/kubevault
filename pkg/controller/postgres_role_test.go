@@ -12,7 +12,7 @@ import (
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
 	dbfake "github.com/kubedb/apimachinery/client/clientset/versioned/fake"
 	dbinformers "github.com/kubedb/apimachinery/client/informers/externalversions"
-	"github.com/kubevault/operator/pkg/vault/database"
+	"github.com/kubevault/operator/pkg/vault/role/database"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

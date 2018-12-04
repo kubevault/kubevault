@@ -19,17 +19,17 @@ const (
 
 // AWSRole
 type AWSRole struct {
-	metav1.TypeMeta      `json:",inline,omitempty"`
-	metav1.ObjectMeta    `json:"metadata,omitempty"`
-	Spec   AWSRoleSpec   `json:"spec,omitempty"`
-	Status AWSRoleStatus `json:"status,omitempty"`
+	metav1.TypeMeta   `json:",inline,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+	Spec              AWSRoleSpec   `json:"spec,omitempty"`
+	Status            AWSRoleStatus `json:"status,omitempty"`
 }
 
 type AWSCredentialType string
 
 const (
-	AWSCredentialIAMUser AWSCredentialType = "iam_user"
-	AWSCredentialAssumedRole AWSCredentialType = "assumed_role"
+	AWSCredentialIAMUser         AWSCredentialType = "iam_user"
+	AWSCredentialAssumedRole     AWSCredentialType = "assumed_role"
 	AWSCredentialFederationToken AWSCredentialType = "federation_token"
 )
 
