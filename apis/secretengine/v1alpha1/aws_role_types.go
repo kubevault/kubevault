@@ -68,6 +68,12 @@ type AWSRoleSpec struct {
 	// The max allowed TTL for STS credentials (credentials TTL are capped to max_sts_ttl).
 	// Valid only when credential_type is one of assumed_role or federation_token
 	MaxSTSTTL string `json:"maxSTSTTL,omitempty"`
+
+	// Specifies the IAM policy in JSON format.
+	Policy string `json:"policy,omitempty"`
+
+	// Specifies the full ARN reference to the desired existing policy.
+	Arn string `json:"arn,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -79,6 +85,11 @@ type AWSRoleList struct {
 	// Items is a list of AWSRole objects
 	Items []AWSRole `json:"items,omitempty"`
 }
+
+const (
+	AWSCredentialAccessKeyKey = "access_key"
+	AWSCredentialSecretKeyKey = "secret_key"
+)
 
 // https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials
 // AWSConfig contains information to communicate with AWS
@@ -100,7 +111,7 @@ type AWSConfig struct {
 
 	// Number of max retries the client should use for recoverable errors.
 	// The default (-1) falls back to the AWS SDK's default behavior
-	MaxRetries int `json:"maxRetries,omitempty"`
+	MaxRetries *int `json:"maxRetries,omitempty"`
 
 	LeaseConfig *LeaseConfig `json:"leaseConfig,omitempty"`
 }

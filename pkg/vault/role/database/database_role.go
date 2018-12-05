@@ -172,7 +172,7 @@ func getDatabasePath(c appcat_cs.AppcatalogV1alpha1Interface, ref appcat.AppRefe
 	}
 
 	var cf struct {
-		DatabasePath string `json:"database_Path,omitempty"`
+		DatabasePath string `json:"database_path,omitempty"`
 	}
 
 	if vApp.Spec.Parameters != nil {

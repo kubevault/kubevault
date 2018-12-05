@@ -97,5 +97,8 @@ func (c *Config) New() (*VaultController, error) {
 	ctrl.initMongoDBRoleWatcher()
 	ctrl.initDatabaseAccessWatcher()
 
+	// For AWSRole
+	ctrl.initAWSRoleWatcher()
+
 	return ctrl, nil
 }
