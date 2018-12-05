@@ -1834,7 +1834,41 @@ spec:
                       type: string
                   required:
                   - volumePath
-            monitor: {}
+            monitor:
+              properties:
+                agent:
+                  type: string
+                prometheus:
+                  properties:
+                    interval:
+                      description: Interval at which metrics should be scraped
+                      type: string
+                    labels:
+                      description: Labels are key value pairs that is used to select
+                        Prometheus instance via ServiceMonitor labels.
+                      type: object
+                    namespace:
+                      description: Namespace of Prometheus. Service monitors will
+                        be created in this namespace.
+                      type: string
+                    port:
+                      description: Port number for the exporter side car.
+                      format: int32
+                      type: integer
+                resources:
+                  description: ResourceRequirements describes the compute resource
+                    requirements.
+                  properties:
+                    limits:
+                      description: 'Limits describes the maximum amount of compute
+                        resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                    requests:
+                      description: 'Requests describes the minimum amount of compute
+                        resources required. If Requests is omitted for a container,
+                        it defaults to Limits if that is explicitly specified, otherwise
+                        to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
             nodes:
               description: 'Number of nodes to deploy for a Vault deployment. Default:
                 1.'

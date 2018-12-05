@@ -315,6 +315,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference":            schema_custom_resources_apis_appcatalog_v1alpha1_AppReference(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.ClientConfig":            schema_custom_resources_apis_appcatalog_v1alpha1_ClientConfig(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.ServiceReference":        schema_custom_resources_apis_appcatalog_v1alpha1_ServiceReference(ref),
+		"kmodules.xyz/monitoring-agent-api/api/v1.AgentSpec":                             schema_kmodulesxyz_monitoring_agent_api_api_v1_AgentSpec(ref),
+		"kmodules.xyz/monitoring-agent-api/api/v1.PrometheusSpec":                        schema_kmodulesxyz_monitoring_agent_api_api_v1_PrometheusSpec(ref),
 		"kmodules.xyz/offshoot-api/api/v1.ObjectMeta":                                    schema_kmodulesxyz_offshoot_api_api_v1_ObjectMeta(ref),
 		"kmodules.xyz/offshoot-api/api/v1.PodSpec":                                       schema_kmodulesxyz_offshoot_api_api_v1_PodSpec(ref),
 		"kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec":                               schema_kmodulesxyz_offshoot_api_api_v1_PodTemplateSpec(ref),
@@ -13709,6 +13711,83 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_ServiceReference(ref commo
 					},
 				},
 				Required: []string{"scheme", "name", "port"},
+			},
+		},
+		Dependencies: []string{},
+	}
+}
+
+func schema_kmodulesxyz_monitoring_agent_api_api_v1_AgentSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Properties: map[string]spec.Schema{
+					"agent": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"prometheus": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kmodules.xyz/monitoring-agent-api/api/v1.PrometheusSpec"),
+						},
+					},
+					"resources": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Compute Resources required by the exporter container.",
+							Ref:         ref("k8s.io/api/core/v1.ResourceRequirements"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/api/core/v1.ResourceRequirements", "kmodules.xyz/monitoring-agent-api/api/v1.PrometheusSpec"},
+	}
+}
+
+func schema_kmodulesxyz_monitoring_agent_api_api_v1_PrometheusSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Properties: map[string]spec.Schema{
+					"port": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Port number for the exporter side car.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"namespace": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Namespace of Prometheus. Service monitors will be created in this namespace.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"labels": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Labels are key value pairs that is used to select Prometheus instance via ServiceMonitor labels.",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"interval": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Interval at which metrics should be scraped",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
 			},
 		},
 		Dependencies: []string{},

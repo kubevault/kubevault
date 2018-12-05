@@ -18,6 +18,8 @@ import (
 	vaultv1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	policyinstall "github.com/kubevault/operator/apis/policy/install"
 	policyv1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
+	secretinstall "github.com/kubevault/operator/apis/secretengine/install"
+	secretv1alpha1 "github.com/kubevault/operator/apis/secretengine/v1alpha1"
 	crd_api "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
@@ -40,6 +42,7 @@ func generateCRDDefinitions() {
 		catalogv1alpha1.VaultServerVersion{}.CustomResourceDefinition(),
 		policyv1alpha1.VaultPolicy{}.CustomResourceDefinition(),
 		policyv1alpha1.VaultPolicyBinding{}.CustomResourceDefinition(),
+		secretv1alpha1.AWSRole{}.CustomResourceDefinition(),
 	}
 	for _, crd := range crds {
 		filename := filepath.Join(gort.GOPath(), "/src/github.com/kubevault/operator/api/crds", crd.Spec.Names.Singular+".yaml")
@@ -61,6 +64,7 @@ func generateSwaggerJson() {
 	vaultinstall.Install(Scheme)
 	cataloginstall.Install(Scheme)
 	policyinstall.Install(Scheme)
+	secretinstall.Install(Scheme)
 
 	apispec, err := openapi.RenderOpenAPISpec(openapi.Config{
 		Scheme: Scheme,
@@ -82,12 +86,14 @@ func generateSwaggerJson() {
 			vaultv1alpha1.GetOpenAPIDefinitions,
 			catalogv1alpha1.GetOpenAPIDefinitions,
 			policyv1alpha1.GetOpenAPIDefinitions,
+			secretv1alpha1.GetOpenAPIDefinitions,
 		},
 		Resources: []openapi.TypeInfo{
 			{vaultv1alpha1.SchemeGroupVersion, vaultv1alpha1.ResourceVaultServers, vaultv1alpha1.ResourceKindVaultServer, true},
 			{catalogv1alpha1.SchemeGroupVersion, catalogv1alpha1.ResourceVaultServerVersions, catalogv1alpha1.ResourceKindVaultServerVersion, false},
 			{policyv1alpha1.SchemeGroupVersion, policyv1alpha1.ResourceVaultPolicies, policyv1alpha1.ResourceKindVaultPolicy, true},
 			{policyv1alpha1.SchemeGroupVersion, policyv1alpha1.ResourceVaultPolicyBindings, policyv1alpha1.ResourceKindVaultPolicyBinding, true},
+			{secretv1alpha1.SchemeGroupVersion, secretv1alpha1.ResourceAWSRoles, secretv1alpha1.ResourceKindAWSRole, true},
 		},
 	})
 	if err != nil {

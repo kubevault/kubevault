@@ -148,7 +148,7 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 				VaultTokenSecret,
 			},
 			ClientConfig: appcat.ClientConfig{
-				URL:                   &url,
+				URL: &url,
 				InsecureSkipTLSVerify: true,
 			},
 		},

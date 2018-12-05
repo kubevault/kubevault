@@ -17,10 +17,12 @@ import (
 	catalogapi "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	vaultapi "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	policyapi "github.com/kubevault/operator/apis/policy/v1alpha1"
+	secretengineapi "github.com/kubevault/operator/apis/secretengine/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	vaultinformers "github.com/kubevault/operator/client/informers/externalversions"
 	vault_listers "github.com/kubevault/operator/client/listers/kubevault/v1alpha1"
 	policy_listers "github.com/kubevault/operator/client/listers/policy/v1alpha1"
+	secretengine_listers "github.com/kubevault/operator/client/listers/secretengine/v1alpha1"
 	crd_api "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/runtime"
@@ -84,6 +86,11 @@ type VaultController struct {
 	mgRoleInformer cache.SharedIndexInformer
 	mgRoleLister   dblisters.MongoDBRoleLister
 
+	// AWSRole
+	awsRoleQueue    *queue.Worker
+	awsRoleInformer cache.SharedIndexInformer
+	awsRoleLister   secretengine_listers.AWSRoleLister
+
 	// DatabaseAccessRequest
 	dbAccessQueue    *queue.Worker
 	dbAccessInformer cache.SharedIndexInformer
@@ -110,6 +117,7 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 		dbapi.MySQLRole{}.CustomResourceDefinition(),
 		dbapi.MongoDBRole{}.CustomResourceDefinition(),
 		dbapi.DatabaseAccessRequest{}.CustomResourceDefinition(),
+		secretengineapi.AWSRole{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }
@@ -158,6 +166,9 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	go c.pgRoleQueue.Run(stopCh)
 	go c.myRoleQueue.Run(stopCh)
 	go c.mgRoleQueue.Run(stopCh)
+
+	// For AWSRole
+	go c.awsRoleQueue.Run(stopCh)
 
 	// For DB access request
 	go c.dbAccessQueue.Run(stopCh)
