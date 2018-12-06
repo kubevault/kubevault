@@ -63,8 +63,5 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 		util.EnsureOwnerRefToObject(in.GetObjectMeta(), util.AsOwner(vs))
 		return in
 	})
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }

@@ -159,10 +159,7 @@ func (c *VaultController) updatedMySQLRoleStatus(status *api.MySQLRoleStatus, mR
 		s = status
 		return s
 	}, vsapis.EnableStatusSubresource)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (c *VaultController) runMySQLRoleFinalizer(mRole *api.MySQLRole, timeout time.Duration, interval time.Duration) {

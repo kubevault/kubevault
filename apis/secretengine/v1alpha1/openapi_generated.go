@@ -786,7 +786,7 @@ func schema_operator_apis_secretengine_v1alpha1_AWSRoleSpec(ref common.Reference
 							Format:      "",
 						},
 					},
-					"roleArns": {
+					"roleARNs": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the ARNs of the AWS roles this Vault role is allowed to assume. Required when credential_type is assumed_role and prohibited otherwise",
 							Type:        []string{"array"},
@@ -800,7 +800,7 @@ func schema_operator_apis_secretengine_v1alpha1_AWSRoleSpec(ref common.Reference
 							},
 						},
 					},
-					"policyArns": {
+					"policyARNs": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the ARNs of the AWS managed policies to be attached to IAM users when they are requested. Valid only when credential_type is iam_user. When credential_type is iam_user, at least one of policy_arns or policy_document must be specified.",
 							Type:        []string{"array"},

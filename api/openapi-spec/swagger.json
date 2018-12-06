@@ -6992,7 +6992,7 @@
           "description": "Specifies the IAM policy in JSON format.",
           "type": "string"
         },
-        "policyArns": {
+        "policyARNs": {
           "description": "Specifies the ARNs of the AWS managed policies to be attached to IAM users when they are requested. Valid only when credential_type is iam_user. When credential_type is iam_user, at least one of policy_arns or policy_document must be specified.",
           "type": "array",
           "items": {
@@ -7003,7 +7003,7 @@
           "description": "The IAM policy document for the role. The behavior depends on the credential type. With iam_user, the policy document will be attached to the IAM user generated and augment the permissions the IAM user has. With assumed_role and federation_token, the policy document will act as a filter on what the credentials can do.",
           "type": "string"
         },
-        "roleArns": {
+        "roleARNs": {
           "description": "Specifies the ARNs of the AWS roles this Vault role is allowed to assume. Required when credential_type is assumed_role and prohibited otherwise",
           "type": "array",
           "items": {

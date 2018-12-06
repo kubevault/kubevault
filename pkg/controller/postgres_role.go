@@ -159,11 +159,7 @@ func (c *VaultController) updatePostgresRoleStatus(status *api.PostgresRoleStatu
 		s = status
 		return s
 	}, vsapis.EnableStatusSubresource)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (c *VaultController) runPostgresRoleFinalizer(pgRole *api.PostgresRole, timeout time.Duration, interval time.Duration) {

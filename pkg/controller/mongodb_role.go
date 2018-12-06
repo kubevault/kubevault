@@ -161,10 +161,7 @@ func (c *VaultController) updatedMongoDBRoleStatus(status *api.MongoDBRoleStatus
 		s = status
 		return s
 	}, vsapis.EnableStatusSubresource)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (c *VaultController) runMongoDBRoleFinalizer(mRole *api.MongoDBRole, timeout time.Duration, interval time.Duration) {

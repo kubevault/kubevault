@@ -276,13 +276,13 @@ func (in *AWSRoleSpec) DeepCopyInto(out *AWSRoleSpec) {
 		*out = new(AWSConfig)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.RoleArns != nil {
-		in, out := &in.RoleArns, &out.RoleArns
+	if in.RoleARNs != nil {
+		in, out := &in.RoleARNs, &out.RoleARNs
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
-	if in.PolicyArns != nil {
-		in, out := &in.PolicyArns, &out.PolicyArns
+	if in.PolicyARNs != nil {
+		in, out := &in.PolicyARNs, &out.PolicyARNs
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}

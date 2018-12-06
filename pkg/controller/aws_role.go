@@ -159,10 +159,7 @@ func (c *VaultController) updatedAWSRoleStatus(status *api.AWSRoleStatus, awsRol
 		s = status
 		return s
 	}, vsapis.EnableStatusSubresource)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (c *VaultController) runAWSRoleFinalizer(awsRole *api.AWSRole, timeout time.Duration, interval time.Duration) {

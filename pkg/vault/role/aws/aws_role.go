@@ -150,11 +150,11 @@ func (a *AWSRole) CreateRole() error {
 	payload := map[string]interface{}{
 		"credential_type": roleSpec.CredentialType,
 	}
-	if len(roleSpec.RoleArns) > 0 {
-		payload["role_arns"] = roleSpec.RoleArns
+	if len(roleSpec.RoleARNs) > 0 {
+		payload["role_arns"] = roleSpec.RoleARNs
 	}
-	if len(roleSpec.PolicyArns) > 0 {
-		payload["policy_arns"] = roleSpec.PolicyArns
+	if len(roleSpec.PolicyARNs) > 0 {
+		payload["policy_arns"] = roleSpec.PolicyARNs
 	}
 	if roleSpec.PolicyDocument != "" {
 		payload["policy_document"] = roleSpec.PolicyDocument
@@ -168,8 +168,8 @@ func (a *AWSRole) CreateRole() error {
 	if roleSpec.Policy != "" {
 		payload["policy"] = roleSpec.Policy
 	}
-	if roleSpec.Arn != "" {
-		payload["arn"] = roleSpec.Arn
+	if roleSpec.ARN != "" {
+		payload["arn"] = roleSpec.ARN
 	}
 
 	if err := req.SetJSONBody(payload); err != nil {

@@ -312,9 +312,7 @@ func (c *VaultController) finalizeDatabaseAccessRequest(dbRBClient database.Data
 	if lease.ID == "" {
 		return nil
 	}
-
-	err := dbRBClient.RevokeLease(lease.ID)
-	return err
+	return dbRBClient.RevokeLease(lease.ID)
 }
 
 func (c *VaultController) removeDatabaseAccessRequestFinalizer(dbAReq *api.DatabaseAccessRequest) error {
@@ -349,7 +347,6 @@ func UpsertDatabaseAccessCondition(condList []api.DatabaseAccessRequestCondition
 			res = append(res, c)
 		}
 	}
-
 	return res
 }
 
