@@ -27,12 +27,17 @@ import (
 
 type SecretengineV1alpha1Interface interface {
 	RESTClient() rest.Interface
+	AWSAccessKeyRequestsGetter
 	AWSRolesGetter
 }
 
 // SecretengineV1alpha1Client is used to interact with features provided by the secretengine.kubevault.com group.
 type SecretengineV1alpha1Client struct {
 	restClient rest.Interface
+}
+
+func (c *SecretengineV1alpha1Client) AWSAccessKeyRequests(namespace string) AWSAccessKeyRequestInterface {
+	return newAWSAccessKeyRequests(c, namespace)
 }
 
 func (c *SecretengineV1alpha1Client) AWSRoles(namespace string) AWSRoleInterface {
