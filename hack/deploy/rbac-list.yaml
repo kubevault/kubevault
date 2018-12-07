@@ -22,6 +22,7 @@ rules:
   - policy.kubevault.com
   - appcatalog.appscode.com
   - authorization.kubedb.com
+  - secretengine.kubevault.com
   resources:
   - "*"
   verbs: ["*"]
