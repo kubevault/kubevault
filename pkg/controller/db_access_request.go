@@ -12,7 +12,7 @@ import (
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
 	patchutil "github.com/kubedb/apimachinery/client/clientset/versioned/typed/authorization/v1alpha1/util"
 	vsapis "github.com/kubevault/operator/apis"
-	"github.com/kubevault/operator/pkg/vault/role/database"
+	"github.com/kubevault/operator/pkg/vault/credential"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
@@ -87,7 +87,7 @@ func (c *VaultController) runDatabaseAccessRequestInjector(key string) error {
 			}
 
 			if condType == api.AccessApproved {
-				dbCredManager, err := database.NewDatabaseCredentialManager(c.kubeClient, c.appCatalogClient, c.dbClient, dbAccessReq)
+				dbCredManager, err := credential.NewCredentialManagerForDatabase(c.kubeClient, c.appCatalogClient, c.dbClient, dbAccessReq)
 				if err != nil {
 					return err
 				}
@@ -112,7 +112,7 @@ func (c *VaultController) runDatabaseAccessRequestInjector(key string) error {
 //	  - create secret containing credential
 //	  - create rbac role and role binding
 //    - sync role binding
-func (c *VaultController) reconcileDatabaseAccessRequest(dbRBClient database.DatabaseCredentialManager, dbAccessReq *api.DatabaseAccessRequest) error {
+func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.CredentialManager, dbAccessReq *api.DatabaseAccessRequest) error {
 	var (
 		name   = dbAccessReq.Name
 		ns     = dbAccessReq.Namespace
@@ -128,7 +128,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbRBClient database.Dat
 	// if does not exist in .status.lease, then get credential
 	if dbAccessReq.Status.Lease == nil {
 		// get database credential secret
-		credSecret, err := dbRBClient.GetCredential()
+		credSecret, err := dbCM.GetCredential()
 		if err != nil {
 			status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
 				Type:           RequestFailed,
@@ -145,9 +145,9 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbRBClient database.Dat
 		}
 
 		secretName = rand.WithUniqSuffix(name)
-		err = dbRBClient.CreateSecret(secretName, ns, credSecret)
+		err = dbCM.CreateSecret(secretName, ns, credSecret)
 		if err != nil {
-			err2 := dbRBClient.RevokeLease(credSecret.LeaseID)
+			err2 := dbCM.RevokeLease(credSecret.LeaseID)
 			if err2 != nil {
 				return errors.Wrapf(err2, "failed to revoke lease")
 			}
@@ -181,7 +181,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbRBClient database.Dat
 		}
 	}
 
-	err := dbRBClient.CreateRole(getSecretAccessRoleName(secretName), ns, secretName)
+	err := dbCM.CreateRole(getSecretAccessRoleName(secretName), ns, secretName)
 	if err != nil {
 		status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
 			Type:           RequestFailed,
@@ -197,7 +197,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbRBClient database.Dat
 		return errors.WithStack(err)
 	}
 
-	err = dbRBClient.CreateRoleBinding(getSecretAccessRoleName(secretName), ns, getSecretAccessRoleName(secretName), dbAccessReq.Spec.Subjects)
+	err = dbCM.CreateRoleBinding(getSecretAccessRoleName(secretName), ns, getSecretAccessRoleName(secretName), dbAccessReq.Spec.Subjects)
 	if err != nil {
 		status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
 			Type:           RequestFailed,
@@ -264,7 +264,7 @@ func (c *VaultController) runDatabaseAccessRequestFinalizer(dbAReq *api.Database
 		}
 
 		if !finalizationDone {
-			d, err := database.NewDatabaseCredentialManager(c.kubeClient, c.appCatalogClient, c.dbClient, dbAReq)
+			d, err := credential.NewCredentialManagerForDatabase(c.kubeClient, c.appCatalogClient, c.dbClient, dbAReq)
 			if err != nil {
 				glog.Errorf("DatabaseAccessRequest %s/%s finalizer: %v", dbAReq.Namespace, dbAReq.Name, err)
 			} else {
@@ -305,14 +305,14 @@ func (c *VaultController) runDatabaseAccessRequestFinalizer(dbAReq *api.Database
 	c.finalizerInfo.Delete(id)
 }
 
-func (c *VaultController) finalizeDatabaseAccessRequest(dbRBClient database.DatabaseCredentialManager, lease *api.Lease) error {
+func (c *VaultController) finalizeDatabaseAccessRequest(dbCM credential.CredentialManager, lease *api.Lease) error {
 	if lease == nil {
 		return nil
 	}
 	if lease.ID == "" {
 		return nil
 	}
-	return dbRBClient.RevokeLease(lease.ID)
+	return dbCM.RevokeLease(lease.ID)
 }
 
 func (c *VaultController) removeDatabaseAccessRequestFinalizer(dbAReq *api.DatabaseAccessRequest) error {
@@ -335,7 +335,7 @@ func getDatabaseAccessRequestId(dbAReq *api.DatabaseAccessRequest) string {
 }
 
 func getSecretAccessRoleName(name string) string {
-	return fmt.Sprintf("%s-credential-reader", name)
+	return rand.WithUniqSuffix(fmt.Sprintf("%s-credential-reader", name))
 }
 
 func UpsertDatabaseAccessCondition(condList []api.DatabaseAccessRequestCondition, cond api.DatabaseAccessRequestCondition) []api.DatabaseAccessRequestCondition {

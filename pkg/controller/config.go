@@ -99,6 +99,7 @@ func (c *Config) New() (*VaultController, error) {
 
 	// For AWSRole
 	ctrl.initAWSRoleWatcher()
+	ctrl.initAWSAccessKeyWatcher()
 
 	return ctrl, nil
 }

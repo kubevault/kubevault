@@ -38,7 +38,7 @@ func NewDatabaseRoleForPostgres(kClient kubernetes.Interface, appClient appcat_c
 		return nil, errors.WithStack(err)
 	}
 
-	path, err := getDatabasePath(appClient, *ref)
+	path, err := GetDatabasePath(appClient, *ref)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database path")
 	}
@@ -66,7 +66,7 @@ func NewDatabaseRoleForMysql(kClient kubernetes.Interface, appClient appcat_cs.A
 		return nil, errors.WithStack(err)
 	}
 
-	path, err := getDatabasePath(appClient, *ref)
+	path, err := GetDatabasePath(appClient, *ref)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database path")
 	}
@@ -94,7 +94,7 @@ func NewDatabaseRoleForMongodb(kClient kubernetes.Interface, appClient appcat_cs
 		return nil, errors.WithStack(err)
 	}
 
-	path, err := getDatabasePath(appClient, *ref)
+	path, err := GetDatabasePath(appClient, *ref)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database path")
 	}
@@ -165,7 +165,7 @@ func (d *DatabaseRole) DeleteRole(name string) error {
 }
 
 // If database path does not exist, then use default database path
-func getDatabasePath(c appcat_cs.AppcatalogV1alpha1Interface, ref appcat.AppReference) (string, error) {
+func GetDatabasePath(c appcat_cs.AppcatalogV1alpha1Interface, ref appcat.AppReference) (string, error) {
 	vApp, err := c.AppBindings(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
