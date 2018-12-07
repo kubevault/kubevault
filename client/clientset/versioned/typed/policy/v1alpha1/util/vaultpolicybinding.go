@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/appscode/kutil"
-	"github.com/evanphx/json-patch"
+	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/golang/glog"
 	api "github.com/kubevault/operator/apis/policy/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1"

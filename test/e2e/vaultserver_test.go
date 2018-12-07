@@ -10,7 +10,7 @@ import (
 
 	rand_util "github.com/appscode/go/crypto/rand"
 	"github.com/golang/glog"
-	"github.com/hashicorp/go-cleanhttp"
+	cleanhttp "github.com/hashicorp/go-cleanhttp"
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/controller"
