@@ -1,4 +1,4 @@
-package database
+package credential
 
 import (
 	"encoding/json"
@@ -8,8 +8,7 @@ import (
 
 	"github.com/appscode/pat"
 	vaultapi "github.com/hashicorp/vault/api"
-	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
-	"github.com/kubevault/operator/pkg/vault/secret/engines/database"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -33,18 +32,6 @@ const (
 func vaultServer() *httptest.Server {
 	m := pat.New()
 
-	m.Get("/v1/database/creds/geterror", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("error"))
-	}))
-	m.Get("/v1/database/creds/jsonerror", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("json error"))
-	}))
-	m.Get("/v1/database/creds/success", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(credResponse))
-	}))
 	m.Put("/v1/sys/leases/revoke/success", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("{}"))
@@ -76,6 +63,26 @@ func vaultServer() *httptest.Server {
 	return httptest.NewServer(m)
 }
 
+type fakeDBCredM struct {
+	getSecretErr bool
+	cred         *vaultapi.Secret
+}
+
+func (f *fakeDBCredM) GetSecret() (*vaultapi.Secret, error) {
+	if f.getSecretErr {
+		return nil, errors.New("error")
+	}
+	return f.cred, nil
+}
+
+func (f *fakeDBCredM) ParseCredential(secret *vaultapi.Secret) (map[string][]byte, error) {
+	return nil, nil
+}
+
+func (f *fakeDBCredM) GetOwnerReference() metav1.OwnerReference {
+	return metav1.OwnerReference{}
+}
+
 func TestCreateSecret(t *testing.T) {
 	cred := &vaultapi.Secret{
 		LeaseID:       "1204",
@@ -86,16 +93,9 @@ func TestCreateSecret(t *testing.T) {
 		},
 	}
 
-	dbAreq := &api.DatabaseAccessRequest{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "db-req",
-			UID:  "1234",
-		},
-	}
-
 	testData := []struct {
 		testName     string
-		dClient      *DBCredManager
+		credManager  *CredManager
 		cred         *vaultapi.Secret
 		secretName   string
 		namespace    string
@@ -103,9 +103,8 @@ func TestCreateSecret(t *testing.T) {
 	}{
 		{
 			testName: "Successfully secret created",
-			dClient: &DBCredManager{
-				dbAccessReq: dbAreq,
-				vaultClient: nil,
+			credManager: &CredManager{
+				secretEngine: &fakeDBCredM{},
 			},
 			cred:         cred,
 			secretName:   "pg-cred",
@@ -114,9 +113,8 @@ func TestCreateSecret(t *testing.T) {
 		},
 		{
 			testName: "create secret, secret already exists, no error",
-			dClient: &DBCredManager{
-				dbAccessReq: dbAreq,
-				vaultClient: nil,
+			credManager: &CredManager{
+				secretEngine: &fakeDBCredM{},
 			},
 			cred:         cred,
 			secretName:   "pg-cred",
@@ -127,7 +125,7 @@ func TestCreateSecret(t *testing.T) {
 
 	for _, test := range testData {
 		t.Run(test.testName, func(t *testing.T) {
-			d := test.dClient
+			d := test.credManager
 			d.kubeClient = kfake.NewSimpleClientset()
 
 			if test.createSecret {
@@ -154,26 +152,18 @@ func TestCreateSecret(t *testing.T) {
 }
 
 func TestCreateRole(t *testing.T) {
-	dbAreq := &api.DatabaseAccessRequest{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "db-req",
-			UID:  "1234",
-		},
-	}
-
 	testData := []struct {
-		testName   string
-		dClient    *DBCredManager
-		createRole bool
-		roleName   string
-		secretName string
-		namespace  string
+		testName    string
+		credManager *CredManager
+		createRole  bool
+		roleName    string
+		secretName  string
+		namespace   string
 	}{
 		{
 			testName: "Successfully role created",
-			dClient: &DBCredManager{
-				dbAccessReq: dbAreq,
-				vaultClient: nil,
+			credManager: &CredManager{
+				secretEngine: &fakeDBCredM{},
 			},
 			createRole: false,
 			roleName:   "pg-role",
@@ -182,9 +172,8 @@ func TestCreateRole(t *testing.T) {
 		},
 		{
 			testName: "create role, role already exists, no error",
-			dClient: &DBCredManager{
-				dbAccessReq: dbAreq,
-				vaultClient: nil,
+			credManager: &CredManager{
+				secretEngine: &fakeDBCredM{},
 			},
 			createRole: true,
 			roleName:   "pg-role",
@@ -195,7 +184,7 @@ func TestCreateRole(t *testing.T) {
 
 	for _, test := range testData {
 		t.Run(test.testName, func(t *testing.T) {
-			d := test.dClient
+			d := test.credManager
 			d.kubeClient = kfake.NewSimpleClientset()
 
 			if test.createRole {
@@ -224,13 +213,6 @@ func TestCreateRole(t *testing.T) {
 }
 
 func TestCreateRoleBinding(t *testing.T) {
-	dbAreq := &api.DatabaseAccessRequest{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "db-req",
-			UID:  "1234",
-		},
-	}
-
 	subs := []rbacv1.Subject{
 		{
 			Kind:      rbacv1.ServiceAccountKind,
@@ -241,7 +223,7 @@ func TestCreateRoleBinding(t *testing.T) {
 
 	testData := []struct {
 		testName        string
-		dClient         *DBCredManager
+		credManager     *CredManager
 		createRB        bool
 		roleName        string
 		roleBindingName string
@@ -250,9 +232,8 @@ func TestCreateRoleBinding(t *testing.T) {
 	}{
 		{
 			testName: "Successfully role binding created",
-			dClient: &DBCredManager{
-				dbAccessReq: dbAreq,
-				vaultClient: nil,
+			credManager: &CredManager{
+				secretEngine: &fakeDBCredM{},
 			},
 			createRB:        false,
 			roleName:        "pg-role",
@@ -261,9 +242,8 @@ func TestCreateRoleBinding(t *testing.T) {
 		},
 		{
 			testName: "Successfully role binding patched",
-			dClient: &DBCredManager{
-				dbAccessReq: dbAreq,
-				vaultClient: nil,
+			credManager: &CredManager{
+				secretEngine: &fakeDBCredM{},
 			},
 			createRB:        true,
 			roleName:        "pg-role",
@@ -275,7 +255,7 @@ func TestCreateRoleBinding(t *testing.T) {
 
 	for _, test := range testData {
 		t.Run(test.testName, func(t *testing.T) {
-			d := test.dClient
+			d := test.credManager
 			d.kubeClient = kfake.NewSimpleClientset()
 
 			if test.createRB {
@@ -314,23 +294,15 @@ func TestRevokeLease(t *testing.T) {
 		return
 	}
 
-	dbAreq := &api.DatabaseAccessRequest{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "db-req",
-			UID:  "1234",
-		},
-	}
-
 	testData := []struct {
 		testName    string
-		dClient     *DBCredManager
+		credManager *CredManager
 		expectedErr bool
 		leaseID     string
 	}{
 		{
 			testName: "Lease revoke successful",
-			dClient: &DBCredManager{
-				dbAccessReq: dbAreq,
+			credManager: &CredManager{
 				vaultClient: cl,
 			},
 			leaseID:     "success",
@@ -338,8 +310,7 @@ func TestRevokeLease(t *testing.T) {
 		},
 		{
 			testName: "Lease revoke failed",
-			dClient: &DBCredManager{
-				dbAccessReq: dbAreq,
+			credManager: &CredManager{
 				vaultClient: cl,
 			},
 			leaseID:     "error",
@@ -349,7 +320,7 @@ func TestRevokeLease(t *testing.T) {
 
 	for _, test := range testData {
 		t.Run(test.testName, func(t *testing.T) {
-			err := test.dClient.RevokeLease(test.leaseID)
+			err := test.credManager.RevokeLease(test.leaseID)
 			if test.expectedErr {
 				assert.NotNil(t, err, "expected error")
 			} else {
@@ -372,14 +343,14 @@ func TestDatabaseRoleBinding_IsLeaseExpired(t *testing.T) {
 	}
 
 	testData := []struct {
-		testName  string
-		dClient   *DBCredManager
-		isExpired bool
-		leaseID   string
+		testName    string
+		credManager *CredManager
+		isExpired   bool
+		leaseID     string
 	}{
 		{
 			testName: "lease is expired",
-			dClient: &DBCredManager{
+			credManager: &CredManager{
 				vaultClient: cl,
 			},
 			isExpired: true,
@@ -387,7 +358,7 @@ func TestDatabaseRoleBinding_IsLeaseExpired(t *testing.T) {
 		},
 		{
 			testName: "lease is valid",
-			dClient: &DBCredManager{
+			credManager: &CredManager{
 				vaultClient: cl,
 			},
 			isExpired: false,
@@ -397,7 +368,7 @@ func TestDatabaseRoleBinding_IsLeaseExpired(t *testing.T) {
 
 	for _, test := range testData {
 		t.Run(test.testName, func(t *testing.T) {
-			ok, err := test.dClient.IsLeaseExpired(test.leaseID)
+			ok, err := test.credManager.IsLeaseExpired(test.leaseID)
 			if assert.Nil(t, err) {
 				assert.Condition(t, func() (success bool) {
 					if ok == test.isExpired {
@@ -410,18 +381,7 @@ func TestDatabaseRoleBinding_IsLeaseExpired(t *testing.T) {
 	}
 }
 
-func TestDBCredManager_GetCredential(t *testing.T) {
-	srv := vaultServer()
-	defer srv.Close()
-
-	cfg := vaultapi.DefaultConfig()
-	cfg.Address = srv.URL
-
-	cl, err := vaultapi.NewClient(cfg)
-	if !assert.Nil(t, err, "failed to create vault client") {
-		return
-	}
-
+func TestCredManager_GetCredential(t *testing.T) {
 	cred := &vaultapi.Secret{
 		LeaseID:       "1204",
 		LeaseDuration: 300,
@@ -431,45 +391,28 @@ func TestDBCredManager_GetCredential(t *testing.T) {
 		},
 	}
 
-	dbAreq := &api.DatabaseAccessRequest{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "db-req",
-			UID:  "1234",
-		},
-	}
-
 	testData := []struct {
 		testName    string
-		dClient     *DBCredManager
+		credManager *CredManager
 		cred        *vaultapi.Secret
 		expectedErr bool
 	}{
 		{
 			testName: "Successfully get credential",
-			dClient: &DBCredManager{
-				dbAccessReq:  dbAreq,
-				vaultClient:  nil,
-				secretGetter: database.NewSecretGetter(cl, "database", "success"),
+			credManager: &CredManager{
+				secretEngine: &fakeDBCredM{
+					cred: cred,
+				},
 			},
 			cred:        cred,
 			expectedErr: false,
 		},
 		{
 			testName: "failed to get credential, json error",
-			dClient: &DBCredManager{
-				dbAccessReq:  dbAreq,
-				vaultClient:  nil,
-				secretGetter: database.NewSecretGetter(cl, "database", "jsonerror"),
-			},
-			cred:        nil,
-			expectedErr: true,
-		},
-		{
-			testName: "failed to get credential, get error",
-			dClient: &DBCredManager{
-				dbAccessReq:  dbAreq,
-				vaultClient:  nil,
-				secretGetter: database.NewSecretGetter(cl, "database", "geterror"),
+			credManager: &CredManager{
+				secretEngine: &fakeDBCredM{
+					getSecretErr: true,
+				},
 			},
 			cred:        nil,
 			expectedErr: true,
@@ -478,7 +421,7 @@ func TestDBCredManager_GetCredential(t *testing.T) {
 
 	for _, test := range testData {
 		t.Run(test.testName, func(t *testing.T) {
-			d := test.dClient
+			d := test.credManager
 			cred, err := d.GetCredential()
 			if test.expectedErr {
 				assert.NotNil(t, err, "error should occur")

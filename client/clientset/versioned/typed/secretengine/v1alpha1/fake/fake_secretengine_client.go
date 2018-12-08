@@ -28,6 +28,10 @@ type FakeSecretengineV1alpha1 struct {
 	*testing.Fake
 }
 
+func (c *FakeSecretengineV1alpha1) AWSAccessKeyRequests(namespace string) v1alpha1.AWSAccessKeyRequestInterface {
+	return &FakeAWSAccessKeyRequests{c, namespace}
+}
+
 func (c *FakeSecretengineV1alpha1) AWSRoles(namespace string) v1alpha1.AWSRoleInterface {
 	return &FakeAWSRoles{c, namespace}
 }

@@ -206,6 +206,5 @@ func (c *VaultController) getVaultStatus(p *corev1.Pod, tlsConfig *vaultapi.TLSC
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get vault pod status: failed requesting health info for the vault pod (%s/%s).", p.Namespace, p.Name)
 	}
-
 	return hr, nil
 }

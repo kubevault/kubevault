@@ -2,13 +2,17 @@ package aws
 
 import (
 	"fmt"
+	"strconv"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/kubevault/operator/pkg/vault/secret"
 	"github.com/pkg/errors"
 )
 
-const UID = "AWS"
+const (
+	UID       = "AWS"
+	UseSTSKey = "useSTS"
+)
 
 type SecretInfo struct {
 	// Specifies the path where secret engine is enabled
@@ -16,6 +20,10 @@ type SecretInfo struct {
 
 	// Specifies the role for credential
 	Role string
+
+	// If true, '/aws/sts' endpoint will be used to retrieve credential
+	// Otherwise, '/aws/creds' endpoint will be used to retrieve credential
+	UseSTS bool
 
 	Client *vaultapi.Client
 }
@@ -30,17 +38,11 @@ func NewSecretManager() secret.SecretManager {
 
 func NewSecretManagerWithOptions(c *vaultapi.Client, opts map[string]string) secret.SecretManager {
 	s := &SecretInfo{}
-	s.Client = c
-	if val, ok := opts[secret.RoleKey]; ok {
-		s.Role = val
-	}
-	if val, ok := opts[secret.PathKey]; ok {
-		s.Path = val
-	}
+	s.SetOptions(c, opts)
 	return s
 }
 
-func NewSecretGetter(vc *vaultapi.Client, path string, role string) secret.SecretGetter {
+func NewSecretGetter(vc *vaultapi.Client, path string, role string, useSTS bool) secret.SecretGetter {
 	return &SecretInfo{
 		Client: vc,
 		Path:   path,
@@ -56,6 +58,11 @@ func (s *SecretInfo) SetOptions(c *vaultapi.Client, opts map[string]string) erro
 	if val, ok := opts[secret.PathKey]; ok {
 		s.Path = val
 	}
+	if val, ok := opts[UseSTSKey]; ok {
+		if v, err := strconv.ParseBool(val); err == nil {
+			s.UseSTS = v
+		}
+	}
 	return nil
 }
 
@@ -70,7 +77,12 @@ func (s *SecretInfo) GetSecret() (*vaultapi.Secret, error) {
 		return nil, errors.New("vault api client is nil")
 	}
 
-	path := fmt.Sprintf("/v1/%s/creds/%s", s.Path, s.Role)
+	var path string
+	if s.UseSTS {
+		path = fmt.Sprintf("/v1/%s/sts/%s", s.Path, s.Role)
+	} else {
+		path = fmt.Sprintf("/v1/%s/creds/%s", s.Path, s.Role)
+	}
 	req := s.Client.NewRequest("GET", path)
 
 	resp, err := s.Client.RawRequest(req)

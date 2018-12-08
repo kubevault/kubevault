@@ -243,7 +243,6 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 	if err = c.manageMonitor(vs); err != nil {
 		return err
 	}
-
 	return nil
 }
 

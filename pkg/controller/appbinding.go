@@ -44,11 +44,11 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 			Kind:       vaultconfig.ResourceKindVaultServerConfiguration,
 		},
 		UsePodServiceAccountForCSIDriver: true,
-		AuthPath:                        string(api.AuthTypeKubernetes),
-		ServiceAccountName:              vs.ServiceAccountName(),
-		PolicyControllerRole:            vs.PolicyNameForPolicyController(),
-		AuthMethodControllerRole:        vaultPolicyBindingForAuthMethod(vs).PolicyBindingName(),
-		TokenReviewerServiceAccountName: vs.ServiceAccountForTokenReviewer(),
+		AuthPath:                         string(api.AuthTypeKubernetes),
+		ServiceAccountName:               vs.ServiceAccountName(),
+		PolicyControllerRole:             vs.PolicyNameForPolicyController(),
+		AuthMethodControllerRole:         vaultPolicyBindingForAuthMethod(vs).PolicyBindingName(),
+		TokenReviewerServiceAccountName:  vs.ServiceAccountForTokenReviewer(),
 	}
 	dataConf, err := json.Marshal(vsConf)
 	if err != nil {
@@ -63,8 +63,5 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 		util.EnsureOwnerRefToObject(in.GetObjectMeta(), util.AsOwner(vs))
 		return in
 	})
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }

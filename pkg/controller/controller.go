@@ -96,6 +96,11 @@ type VaultController struct {
 	dbAccessInformer cache.SharedIndexInformer
 	dbAccessLister   dblisters.DatabaseAccessRequestLister
 
+	// AWSAccessKeyRequest
+	awsAccessQueue    *queue.Worker
+	awsAccessInformer cache.SharedIndexInformer
+	awsAccessLister   secretengine_listers.AWSAccessKeyRequestLister
+
 	// Contain the currently processing finalizer
 	finalizerInfo *mapFinalizer
 
@@ -118,6 +123,7 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 		dbapi.MongoDBRole{}.CustomResourceDefinition(),
 		dbapi.DatabaseAccessRequest{}.CustomResourceDefinition(),
 		secretengineapi.AWSRole{}.CustomResourceDefinition(),
+		secretengineapi.AWSAccessKeyRequest{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }
@@ -172,6 +178,9 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 
 	// For DB access request
 	go c.dbAccessQueue.Run(stopCh)
+
+	// For AWS access key request
+	go c.awsAccessQueue.Run(stopCh)
 
 	<-stopCh
 	glog.Info("Stopping Vault operator")

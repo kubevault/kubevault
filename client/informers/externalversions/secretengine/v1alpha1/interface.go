@@ -24,6 +24,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
+	// AWSAccessKeyRequests returns a AWSAccessKeyRequestInformer.
+	AWSAccessKeyRequests() AWSAccessKeyRequestInformer
 	// AWSRoles returns a AWSRoleInformer.
 	AWSRoles() AWSRoleInformer
 }
@@ -37,6 +39,11 @@ type version struct {
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakListOptions internalinterfaces.TweakListOptionsFunc) Interface {
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
+}
+
+// AWSAccessKeyRequests returns a AWSAccessKeyRequestInformer.
+func (v *version) AWSAccessKeyRequests() AWSAccessKeyRequestInformer {
+	return &aWSAccessKeyRequestInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // AWSRoles returns a AWSRoleInformer.

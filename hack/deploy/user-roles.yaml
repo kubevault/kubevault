@@ -8,6 +8,10 @@ rules:
 - apiGroups:
   - kubevault.com
   - catalog.kubevault.com
+  - policy.kubevault.com
+  - appcatalog.appscode.com
+  - authorization.kubedb.com
+  - secretengine.kubevault.com
   resources:
   - "*"
   verbs: ["*"]
@@ -23,6 +27,31 @@ rules:
   - kubevault.com
   resources:
   - vaultservers
+  verbs: ["*"]
+- apiGroups:
+  - policy.kubevault.com
+  resources:
+  - vaultpolicies
+  - vaultpolicybindings
+  verbs: ["*"]
+- apiGroups:
+  - authorization.kubedb.com
+  resources:
+  - databaseaccessrequests
+  - mongodbroles
+  - mysqlroles
+  - postgresroles
+  verbs: ["*"]
+- apiGroups:
+  - secretengine.kubevault.com
+  resources:
+  - awsroles
+  - awsaccesskeyrequests
+  verbs: ["*"]
+- apiGroups:
+  - appcatalog.appscode.com
+  resources:
+  - appbindings
   verbs: ["*"]
 - apiGroups:
   - catalog.kubevault.com
@@ -41,6 +70,31 @@ rules:
   - kubevault.com
   resources:
   - vaultservers
+  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - policy.kubevault.com
+  resources:
+  - vaultpolicies
+  - vaultpolicybindings
+  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - authorization.kubedb.com
+  resources:
+  - databaseaccessrequests
+  - mongodbroles
+  - mysqlroles
+  - postgresroles
+  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - secretengine.kubevault.com
+  resources:
+  - awsroles
+  - awsaccesskeyrequests
+  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - appcatalog.appscode.com
+  resources:
+  - appbindings
   verbs: ["get", "list", "watch"]
 - apiGroups:
   - catalog.kubevault.com

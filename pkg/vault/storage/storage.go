@@ -9,7 +9,7 @@ import (
 	"github.com/kubevault/operator/pkg/vault/storage/gcs"
 	"github.com/kubevault/operator/pkg/vault/storage/inmem"
 	"github.com/kubevault/operator/pkg/vault/storage/mysql"
-	"github.com/kubevault/operator/pkg/vault/storage/postgersql"
+	postgresql "github.com/kubevault/operator/pkg/vault/storage/postgersql"
 	"github.com/kubevault/operator/pkg/vault/storage/s3"
 	"github.com/kubevault/operator/pkg/vault/storage/swift"
 	"github.com/pkg/errors"

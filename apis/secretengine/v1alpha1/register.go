@@ -34,6 +34,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&AWSRole{},
 		&AWSRoleList{},
+		&AWSAccessKeyRequest{},
+		&AWSAccessKeyRequestList{},
 	)
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&metav1.Status{},

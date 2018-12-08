@@ -34,7 +34,7 @@ func NewAWSRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1al
 		return nil, errors.Wrap(err, "failed to create vault api client")
 	}
 
-	awsPath, err := getAWSPath(appClient, role.Spec.AuthManagerRef)
+	awsPath, err := GetAWSPath(appClient, role.Spec.AuthManagerRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get aws path")
 	}
@@ -48,7 +48,7 @@ func NewAWSRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1al
 }
 
 // If aws path does not exist, then use default database path
-func getAWSPath(c appcat_cs.AppcatalogV1alpha1Interface, ref *appcat.AppReference) (string, error) {
+func GetAWSPath(c appcat_cs.AppcatalogV1alpha1Interface, ref *appcat.AppReference) (string, error) {
 	vApp, err := c.AppBindings(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return "", err

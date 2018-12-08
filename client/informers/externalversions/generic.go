@@ -70,6 +70,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Policy().V1alpha1().VaultPolicyBindings().Informer()}, nil
 
 		// Group=secretengine.kubevault.com, Version=v1alpha1
+	case secretenginev1alpha1.SchemeGroupVersion.WithResource("awsaccesskeyrequests"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Secretengine().V1alpha1().AWSAccessKeyRequests().Informer()}, nil
 	case secretenginev1alpha1.SchemeGroupVersion.WithResource("awsroles"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Secretengine().V1alpha1().AWSRoles().Informer()}, nil
 

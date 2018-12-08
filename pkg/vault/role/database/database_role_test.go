@@ -3,7 +3,6 @@ package database
 import (
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/appscode/pat"
@@ -75,28 +74,4 @@ func TestDeleteRole(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestTry(t *testing.T) {
-	addr := os.Getenv("VAULT_ADDR")
-	token := os.Getenv("VAULT_TOKEN")
-	if addr == "" || token == "" {
-		t.Skip()
-	}
-
-	cfg := vaultapi.DefaultConfig()
-	cfg.ConfigureTLS(&vaultapi.TLSConfig{
-		Insecure: true,
-	})
-
-	cfg.Address = addr
-	cl, _ := vaultapi.NewClient(cfg)
-	cl.SetToken(token)
-
-	d := DBCredManager{
-		vaultClient: cl,
-	}
-
-	err := d.RevokeLease("database/creds/test/33b022a7-7d50-4622-a74e-9c468d1d6e38")
-	assert.Nil(t, err)
 }

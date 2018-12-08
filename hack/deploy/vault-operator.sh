@@ -10,6 +10,8 @@ crds=(
   mongodbroles.authorization.kubedb.com
   mysqlroles.authorization.kubedb.com
   postgresroles.authorization.kubedb.com
+  awsroles.secretengine.kubevault.com
+  awsaccesskeyrequests.secretengine.kubevault.com
 )
 apiServices=(
   v1alpha1.validators.kubevault.com

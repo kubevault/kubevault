@@ -18,6 +18,14 @@ limitations under the License.
 
 package v1alpha1
 
+// AWSAccessKeyRequestListerExpansion allows custom methods to be added to
+// AWSAccessKeyRequestLister.
+type AWSAccessKeyRequestListerExpansion interface{}
+
+// AWSAccessKeyRequestNamespaceListerExpansion allows custom methods to be added to
+// AWSAccessKeyRequestNamespaceLister.
+type AWSAccessKeyRequestNamespaceListerExpansion interface{}
+
 // AWSRoleListerExpansion allows custom methods to be added to
 // AWSRoleLister.
 type AWSRoleListerExpansion interface{}

@@ -47,12 +47,12 @@ type AWSRoleSpec struct {
 
 	// Specifies the ARNs of the AWS roles this Vault role is allowed to assume.
 	// Required when credential_type is assumed_role and prohibited otherwise
-	RoleArns []string `json:"roleArns,omitempty"`
+	RoleARNs []string `json:"roleARNs,omitempty"`
 
 	// Specifies the ARNs of the AWS managed policies to be attached to IAM users when they are requested.
 	// Valid only when credential_type is iam_user. When credential_type is iam_user,
 	// at least one of policy_arns or policy_document must be specified.
-	PolicyArns []string `json:"policyArns,omitempty"`
+	PolicyARNs []string `json:"policyARNs,omitempty"`
 
 	// The IAM policy document for the role. The behavior depends on the credential type.
 	// With iam_user, the policy document will be attached to the IAM user generated and
@@ -73,7 +73,7 @@ type AWSRoleSpec struct {
 	Policy string `json:"policy,omitempty"`
 
 	// Specifies the full ARN reference to the desired existing policy.
-	Arn string `json:"arn,omitempty"`
+	ARN string `json:"arn,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
