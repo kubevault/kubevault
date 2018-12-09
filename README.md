@@ -1,48 +1,28 @@
----
-title: Weclome | Vault operator
-description: Welcome to Vault operator
-menu:
-  product_vault-operator_0.1.0:
-    identifier: readme-vault
-    name: Readme
-    parent: welcome
-    weight: -1
-product_name: vault-operator
-menu_name: product_vault-operator_0.1.0
-section_menu_id: welcome
-url: /products/vault-operator/0.1.0/welcome/
-aliases:
-  - /products/vault-operator/0.1.0/
-  - /products/vault-operator/0.1.0/README/
----
-# Vault operator
- Vault operator by AppsCode is a Kubernetes operator for [restic](https://restic.net). If you are running production workloads in Kubernetes, you might want to take backup of your disks. Using Vault operator, you can backup Kubernetes volumes mounted in following types of workloads:
+[![Slack](https://slack.appscode.com/badge.svg)](https://slack.appscode.com)
+[![Twitter](https://img.shields.io/twitter/follow/kubevault.svg?style=social&logo=twitter&label=Follow)](https://twitter.com/intent/follow?screen_name=KubeVault)
 
-- Deployment
-- DaemonSet
-- ReplicaSet
-- ReplicationController
-- StatefulSet
+[![Throughput Graph](https://graphs.waffle.io/kubevault/project/throughput.svg)](https://waffle.io/kubevault/project/metrics/throughput)
 
-From here you can learn all about Vault operator's architecture and how to deploy and use Vault operator.
+# KubeVault Docs
 
-- [Concepts](/docs/concepts/). Concepts explain some significant aspect of Vault operator. This is where you can learn about what Vault operator does and how it does it.
+This repository documents various aspects of KubeVault poject.
 
-- [Setup](/docs/setup/). Setup contains instructions for installing
-  the Vault operator in various cloud providers.
+## Installation
+To install Vault operator & CSI driver, please follow the guide [here](https://github.com/kubevault/docs/blob/master/docs/setup/install.md).
 
-- [Monitoring](/docs/monitoring). Monitoring contains instructions for setup prometheus with vault server
+## Using KubeVault
+Want to learn how to use KubeVault? Please start [here](https://github.com/kubevault/docs/blob/master/docs/guides/README.md).
 
-- [Guides](/docs/guides/). Guides show you how to perform tasks with Vault operator.
-
-- [Reference](/docs/reference/). Detailed exhaustive lists of
-command-line options, configuration options, API definitions, and procedures.
-
-We're always looking for help improving our documentation, so please don't hesitate to [file an issue](https://github.com/kubevault/operator/issues/new) if you see some problem. Or better yet, submit your own [contributions](/docs/CONTRIBUTING.md) to help
-make our docs better.
+## Contribution guidelines
+Want to help improve KubeVault? Please start [here](https://github.com/kubevault/docs/blob/master/docs/CONTRIBUTING.md).
 
 ---
 
-**Vault operator binaries collects anonymous usage statistics to help us learn how the software is being used and how we can improve it. To disable stats collection, run the operator with the flag** `--enable-analytics=false`.
+**KubeVault binaries collects anonymous usage statistics to help us learn how the software is being used and how we can improve it. To disable stats collection, run the operator with the flag** `--enable-analytics=false`.
 
 ---
+
+## Support
+We use Slack for public discussions. To chit chat with us or the rest of the community, join us in the [AppsCode Slack team](https://appscode.slack.com/messages/kubevault/) channel `#kubevault`. To sign up, use our [Slack inviter](https://slack.appscode.com/).
+
+If you have found a bug with KubeVault or want to request for new features, please [file an issue](https://github.com/kubevault/project/issues/new).
