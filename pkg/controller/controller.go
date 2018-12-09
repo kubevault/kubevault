@@ -15,14 +15,14 @@ import (
 	dblisters "github.com/kubedb/apimachinery/client/listers/authorization/v1alpha1"
 	"github.com/kubevault/operator/apis"
 	catalogapi "github.com/kubevault/operator/apis/catalog/v1alpha1"
+	engineapi "github.com/kubevault/operator/apis/engine/v1alpha1"
 	vaultapi "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	policyapi "github.com/kubevault/operator/apis/policy/v1alpha1"
-	secretengineapi "github.com/kubevault/operator/apis/secretengine/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	vaultinformers "github.com/kubevault/operator/client/informers/externalversions"
+	engine_listers "github.com/kubevault/operator/client/listers/engine/v1alpha1"
 	vault_listers "github.com/kubevault/operator/client/listers/kubevault/v1alpha1"
 	policy_listers "github.com/kubevault/operator/client/listers/policy/v1alpha1"
-	secretengine_listers "github.com/kubevault/operator/client/listers/secretengine/v1alpha1"
 	crd_api "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/util/runtime"
@@ -89,7 +89,7 @@ type VaultController struct {
 	// AWSRole
 	awsRoleQueue    *queue.Worker
 	awsRoleInformer cache.SharedIndexInformer
-	awsRoleLister   secretengine_listers.AWSRoleLister
+	awsRoleLister   engine_listers.AWSRoleLister
 
 	// DatabaseAccessRequest
 	dbAccessQueue    *queue.Worker
@@ -99,7 +99,7 @@ type VaultController struct {
 	// AWSAccessKeyRequest
 	awsAccessQueue    *queue.Worker
 	awsAccessInformer cache.SharedIndexInformer
-	awsAccessLister   secretengine_listers.AWSAccessKeyRequestLister
+	awsAccessLister   engine_listers.AWSAccessKeyRequestLister
 
 	// Contain the currently processing finalizer
 	finalizerInfo *mapFinalizer
@@ -122,8 +122,8 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 		dbapi.MySQLRole{}.CustomResourceDefinition(),
 		dbapi.MongoDBRole{}.CustomResourceDefinition(),
 		dbapi.DatabaseAccessRequest{}.CustomResourceDefinition(),
-		secretengineapi.AWSRole{}.CustomResourceDefinition(),
-		secretengineapi.AWSAccessKeyRequest{}.CustomResourceDefinition(),
+		engineapi.AWSRole{}.CustomResourceDefinition(),
+		engineapi.AWSAccessKeyRequest{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }

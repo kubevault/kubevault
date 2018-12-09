@@ -3,7 +3,7 @@ package aws
 import (
 	"encoding/json"
 
-	api "github.com/kubevault/operator/apis/secretengine/v1alpha1"
+	api "github.com/kubevault/operator/apis/engine/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault"
 	"github.com/kubevault/operator/pkg/vault/role"
 	"github.com/pkg/errors"

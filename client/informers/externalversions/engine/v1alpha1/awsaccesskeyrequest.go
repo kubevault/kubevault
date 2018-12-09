@@ -21,10 +21,10 @@ package v1alpha1
 import (
 	time "time"
 
-	secretenginev1alpha1 "github.com/kubevault/operator/apis/secretengine/v1alpha1"
+	enginev1alpha1 "github.com/kubevault/operator/apis/engine/v1alpha1"
 	versioned "github.com/kubevault/operator/client/clientset/versioned"
 	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/kubevault/operator/client/listers/secretengine/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/client/listers/engine/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -61,16 +61,16 @@ func NewFilteredAWSAccessKeyRequestInformer(client versioned.Interface, namespac
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.SecretengineV1alpha1().AWSAccessKeyRequests(namespace).List(options)
+				return client.EngineV1alpha1().AWSAccessKeyRequests(namespace).List(options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.SecretengineV1alpha1().AWSAccessKeyRequests(namespace).Watch(options)
+				return client.EngineV1alpha1().AWSAccessKeyRequests(namespace).Watch(options)
 			},
 		},
-		&secretenginev1alpha1.AWSAccessKeyRequest{},
+		&enginev1alpha1.AWSAccessKeyRequest{},
 		resyncPeriod,
 		indexers,
 	)
@@ -81,7 +81,7 @@ func (f *aWSAccessKeyRequestInformer) defaultInformer(client versioned.Interface
 }
 
 func (f *aWSAccessKeyRequestInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&secretenginev1alpha1.AWSAccessKeyRequest{}, f.defaultInformer)
+	return f.factory.InformerFor(&enginev1alpha1.AWSAccessKeyRequest{}, f.defaultInformer)
 }
 
 func (f *aWSAccessKeyRequestInformer) Lister() v1alpha1.AWSAccessKeyRequestLister {

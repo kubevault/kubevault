@@ -1,13 +1,13 @@
 package v1alpha1
 
 import (
-	"github.com/kubevault/operator/apis/secretengine"
+	"github.com/kubevault/operator/apis/engine"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-var SchemeGroupVersion = schema.GroupVersion{Group: secretengine.GroupName, Version: "v1alpha1"}
+var SchemeGroupVersion = schema.GroupVersion{Group: engine.GroupName, Version: "v1alpha1"}
 
 var (
 	// TODO: move SchemeBuilder with zz_generated.deepcopy.go to k8s.io/api.

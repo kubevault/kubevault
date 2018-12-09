@@ -21,9 +21,9 @@ package scheme
 import (
 	catalogv1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	configv1alpha1 "github.com/kubevault/operator/apis/config/v1alpha1"
+	enginev1alpha1 "github.com/kubevault/operator/apis/engine/v1alpha1"
 	kubevaultv1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	policyv1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
-	secretenginev1alpha1 "github.com/kubevault/operator/apis/secretengine/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -37,9 +37,9 @@ var ParameterCodec = runtime.NewParameterCodec(Scheme)
 var localSchemeBuilder = runtime.SchemeBuilder{
 	catalogv1alpha1.AddToScheme,
 	configv1alpha1.AddToScheme,
+	enginev1alpha1.AddToScheme,
 	kubevaultv1alpha1.AddToScheme,
 	policyv1alpha1.AddToScheme,
-	secretenginev1alpha1.AddToScheme,
 }
 
 // AddToScheme adds all types of this clientset into the given scheme. This allows composition

@@ -3,7 +3,7 @@ package credential
 import (
 	dbapi "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
 	dbcrd "github.com/kubedb/apimachinery/client/clientset/versioned"
-	secretengineapi "github.com/kubevault/operator/apis/secretengine/v1alpha1"
+	engineapi "github.com/kubevault/operator/apis/engine/v1alpha1"
 	vaultcrd "github.com/kubevault/operator/client/clientset/versioned"
 	"github.com/kubevault/operator/pkg/vault/credential/aws"
 	"github.com/kubevault/operator/pkg/vault/credential/database"
@@ -24,7 +24,7 @@ func NewCredentialManagerForDatabase(kubeClient kubernetes.Interface, appClient 
 	}, nil
 }
 
-func NewCredentialManagerForAWS(kubeClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr vaultcrd.Interface, awsAKReq *secretengineapi.AWSAccessKeyRequest) (CredentialManager, error) {
+func NewCredentialManagerForAWS(kubeClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr vaultcrd.Interface, awsAKReq *engineapi.AWSAccessKeyRequest) (CredentialManager, error) {
 	awsCM, err := aws.NewAWSCredentialManager(kubeClient, appClient, cr, awsAKReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get aws credential manager")

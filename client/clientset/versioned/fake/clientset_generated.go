@@ -24,12 +24,12 @@ import (
 	fakecatalogv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/catalog/v1alpha1/fake"
 	configv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/config/v1alpha1"
 	fakeconfigv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/config/v1alpha1/fake"
+	enginev1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/engine/v1alpha1"
+	fakeenginev1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/engine/v1alpha1/fake"
 	kubevaultv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
 	fakekubevaultv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/fake"
 	policyv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1"
 	fakepolicyv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1/fake"
-	secretenginev1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/secretengine/v1alpha1"
-	fakesecretenginev1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/secretengine/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -99,6 +99,16 @@ func (c *Clientset) Config() configv1alpha1.ConfigV1alpha1Interface {
 	return &fakeconfigv1alpha1.FakeConfigV1alpha1{Fake: &c.Fake}
 }
 
+// EngineV1alpha1 retrieves the EngineV1alpha1Client
+func (c *Clientset) EngineV1alpha1() enginev1alpha1.EngineV1alpha1Interface {
+	return &fakeenginev1alpha1.FakeEngineV1alpha1{Fake: &c.Fake}
+}
+
+// Engine retrieves the EngineV1alpha1Client
+func (c *Clientset) Engine() enginev1alpha1.EngineV1alpha1Interface {
+	return &fakeenginev1alpha1.FakeEngineV1alpha1{Fake: &c.Fake}
+}
+
 // KubevaultV1alpha1 retrieves the KubevaultV1alpha1Client
 func (c *Clientset) KubevaultV1alpha1() kubevaultv1alpha1.KubevaultV1alpha1Interface {
 	return &fakekubevaultv1alpha1.FakeKubevaultV1alpha1{Fake: &c.Fake}
@@ -117,14 +127,4 @@ func (c *Clientset) PolicyV1alpha1() policyv1alpha1.PolicyV1alpha1Interface {
 // Policy retrieves the PolicyV1alpha1Client
 func (c *Clientset) Policy() policyv1alpha1.PolicyV1alpha1Interface {
 	return &fakepolicyv1alpha1.FakePolicyV1alpha1{Fake: &c.Fake}
-}
-
-// SecretengineV1alpha1 retrieves the SecretengineV1alpha1Client
-func (c *Clientset) SecretengineV1alpha1() secretenginev1alpha1.SecretengineV1alpha1Interface {
-	return &fakesecretenginev1alpha1.FakeSecretengineV1alpha1{Fake: &c.Fake}
-}
-
-// Secretengine retrieves the SecretengineV1alpha1Client
-func (c *Clientset) Secretengine() secretenginev1alpha1.SecretengineV1alpha1Interface {
-	return &fakesecretenginev1alpha1.FakeSecretengineV1alpha1{Fake: &c.Fake}
 }

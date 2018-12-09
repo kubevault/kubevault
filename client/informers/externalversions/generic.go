@@ -22,9 +22,9 @@ import (
 	"fmt"
 
 	v1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
+	enginev1alpha1 "github.com/kubevault/operator/apis/engine/v1alpha1"
 	kubevaultv1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	policyv1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
-	secretenginev1alpha1 "github.com/kubevault/operator/apis/secretengine/v1alpha1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -59,6 +59,12 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	case v1alpha1.SchemeGroupVersion.WithResource("vaultserverversions"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Catalog().V1alpha1().VaultServerVersions().Informer()}, nil
 
+		// Group=engine.kubevault.com, Version=v1alpha1
+	case enginev1alpha1.SchemeGroupVersion.WithResource("awsaccesskeyrequests"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Engine().V1alpha1().AWSAccessKeyRequests().Informer()}, nil
+	case enginev1alpha1.SchemeGroupVersion.WithResource("awsroles"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Engine().V1alpha1().AWSRoles().Informer()}, nil
+
 		// Group=kubevault.com, Version=v1alpha1
 	case kubevaultv1alpha1.SchemeGroupVersion.WithResource("vaultservers"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Kubevault().V1alpha1().VaultServers().Informer()}, nil
@@ -68,12 +74,6 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Policy().V1alpha1().VaultPolicies().Informer()}, nil
 	case policyv1alpha1.SchemeGroupVersion.WithResource("vaultpolicybindings"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Policy().V1alpha1().VaultPolicyBindings().Informer()}, nil
-
-		// Group=secretengine.kubevault.com, Version=v1alpha1
-	case secretenginev1alpha1.SchemeGroupVersion.WithResource("awsaccesskeyrequests"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Secretengine().V1alpha1().AWSAccessKeyRequests().Informer()}, nil
-	case secretenginev1alpha1.SchemeGroupVersion.WithResource("awsroles"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Secretengine().V1alpha1().AWSRoles().Informer()}, nil
 
 	}
 

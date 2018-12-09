@@ -1838,6 +1838,137 @@ spec:
               properties:
                 agent:
                   type: string
+                args:
+                  description: 'Arguments to the entrypoint. The docker image''s CMD
+                    is used if this is not provided. Variable references $(VAR_NAME)
+                    are expanded using the container''s environment. If a variable
+                    cannot be resolved, the reference in the input string will be
+                    unchanged. The $(VAR_NAME) syntax can be escaped with a double
+                    $$, ie: $$(VAR_NAME). Escaped references will never be expanded,
+                    regardless of whether the variable exists or not. Cannot be updated.
+                    More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell'
+                  items:
+                    type: string
+                  type: array
+                env:
+                  description: List of environment variables to set in the container.
+                    Cannot be updated.
+                  items:
+                    description: EnvVar represents an environment variable present
+                      in a Container.
+                    properties:
+                      name:
+                        description: Name of the environment variable. Must be a C_IDENTIFIER.
+                        type: string
+                      value:
+                        description: 'Variable references $(VAR_NAME) are expanded
+                          using the previous defined environment variables in the
+                          container and any service environment variables. If a variable
+                          cannot be resolved, the reference in the input string will
+                          be unchanged. The $(VAR_NAME) syntax can be escaped with
+                          a double $$, ie: $$(VAR_NAME). Escaped references will never
+                          be expanded, regardless of whether the variable exists or
+                          not. Defaults to "".'
+                        type: string
+                      valueFrom:
+                        description: EnvVarSource represents a source for the value
+                          of an EnvVar.
+                        properties:
+                          configMapKeyRef:
+                            description: Selects a key from a ConfigMap.
+                            properties:
+                              key:
+                                description: The key to select.
+                                type: string
+                              name:
+                                description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                                type: string
+                              optional:
+                                description: Specify whether the ConfigMap or it's
+                                  key must be defined
+                                type: boolean
+                            required:
+                            - key
+                          fieldRef:
+                            description: ObjectFieldSelector selects an APIVersioned
+                              field of an object.
+                            properties:
+                              apiVersion:
+                                description: Version of the schema the FieldPath is
+                                  written in terms of, defaults to "v1".
+                                type: string
+                              fieldPath:
+                                description: Path of the field to select in the specified
+                                  API version.
+                                type: string
+                            required:
+                            - fieldPath
+                          resourceFieldRef:
+                            description: ResourceFieldSelector represents container
+                              resources (cpu, memory) and their output format
+                            properties:
+                              containerName:
+                                description: 'Container name: required for volumes,
+                                  optional for env vars'
+                                type: string
+                              divisor:
+                                description: |-
+                                  Quantity is a fixed-point representation of a number. It provides convenient marshaling/unmarshaling in JSON and YAML, in addition to String() and Int64() accessors.
+
+                                  The serialization format is:
+
+                                  <quantity>        ::= <signedNumber><suffix>
+                                    (Note that <suffix> may be empty, from the "" case in <decimalSI>.)
+                                  <digit>           ::= 0 | 1 | ... | 9 <digits>          ::= <digit> | <digit><digits> <number>          ::= <digits> | <digits>.<digits> | <digits>. | .<digits> <sign>            ::= "+" | "-" <signedNumber>    ::= <number> | <sign><number> <suffix>          ::= <binarySI> | <decimalExponent> | <decimalSI> <binarySI>        ::= Ki | Mi | Gi | Ti | Pi | Ei
+                                    (International System of units; See: http://physics.nist.gov/cuu/Units/binary.html)
+                                  <decimalSI>       ::= m | "" | k | M | G | T | P | E
+                                    (Note that 1024 = 1Ki but 1000 = 1k; I didn't choose the capitalization.)
+                                  <decimalExponent> ::= "e" <signedNumber> | "E" <signedNumber>
+
+                                  No matter which of the three exponent forms is used, no quantity may represent a number greater than 2^63-1 in magnitude, nor may it have more than 3 decimal places. Numbers larger or more precise will be capped or rounded up. (E.g.: 0.1m will rounded up to 1m.) This may be extended in the future if we require larger or smaller quantities.
+
+                                  When a Quantity is parsed from a string, it will remember the type of suffix it had, and will use the same type again when it is serialized.
+
+                                  Before serializing, Quantity will be put in "canonical form". This means that Exponent/suffix will be adjusted up or down (with a corresponding increase or decrease in Mantissa) such that:
+                                    a. No precision is lost
+                                    b. No fractional digits will be emitted
+                                    c. The exponent (or suffix) is as large as possible.
+                                  The sign will be omitted unless the number is negative.
+
+                                  Examples:
+                                    1.5 will be serialized as "1500m"
+                                    1.5Gi will be serialized as "1536Mi"
+
+                                  Note that the quantity will NEVER be internally represented by a floating point number. That is the whole point of this exercise.
+
+                                  Non-canonical values will still parse as long as they are well formed, but will be re-emitted in their canonical form. (So always use canonical form, or don't diff.)
+
+                                  This format is intended to make it difficult to use these numbers without writing some sort of special handling code in the hopes that that will cause implementors to also use a fixed point implementation.
+                                type: string
+                              resource:
+                                description: 'Required: resource to select'
+                                type: string
+                            required:
+                            - resource
+                          secretKeyRef:
+                            description: SecretKeySelector selects a key of a Secret.
+                            properties:
+                              key:
+                                description: The key of the secret to select from.  Must
+                                  be a valid secret key.
+                                type: string
+                              name:
+                                description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
+                                type: string
+                              optional:
+                                description: Specify whether the Secret or it's key
+                                  must be defined
+                                type: boolean
+                            required:
+                            - key
+                    required:
+                    - name
+                  type: array
                 prometheus:
                   properties:
                     interval:
@@ -1869,6 +2000,93 @@ spec:
                         it defaults to Limits if that is explicitly specified, otherwise
                         to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
                       type: object
+                securityContext:
+                  description: SecurityContext holds security configuration that will
+                    be applied to a container. Some fields are present in both SecurityContext
+                    and PodSecurityContext.  When both are set, the values in SecurityContext
+                    take precedence.
+                  properties:
+                    allowPrivilegeEscalation:
+                      description: 'AllowPrivilegeEscalation controls whether a process
+                        can gain more privileges than its parent process. This bool
+                        directly controls if the no_new_privs flag will be set on
+                        the container process. AllowPrivilegeEscalation is true always
+                        when the container is: 1) run as Privileged 2) has CAP_SYS_ADMIN'
+                      type: boolean
+                    capabilities:
+                      description: Adds and removes POSIX capabilities from running
+                        containers.
+                      properties:
+                        add:
+                          description: Added capabilities
+                          items:
+                            type: string
+                          type: array
+                        drop:
+                          description: Removed capabilities
+                          items:
+                            type: string
+                          type: array
+                    privileged:
+                      description: Run container in privileged mode. Processes in
+                        privileged containers are essentially equivalent to root on
+                        the host. Defaults to false.
+                      type: boolean
+                    procMount:
+                      description: procMount denotes the type of proc mount to use
+                        for the containers. The default is DefaultProcMount which
+                        uses the container runtime defaults for readonly paths and
+                        masked paths. This requires the ProcMountType feature flag
+                        to be enabled.
+                      type: string
+                    readOnlyRootFilesystem:
+                      description: Whether this container has a read-only root filesystem.
+                        Default is false.
+                      type: boolean
+                    runAsGroup:
+                      description: The GID to run the entrypoint of the container
+                        process. Uses runtime default if unset. May also be set in
+                        PodSecurityContext.  If set in both SecurityContext and PodSecurityContext,
+                        the value specified in SecurityContext takes precedence.
+                      format: int64
+                      type: integer
+                    runAsNonRoot:
+                      description: Indicates that the container must run as a non-root
+                        user. If true, the Kubelet will validate the image at runtime
+                        to ensure that it does not run as UID 0 (root) and fail to
+                        start the container if it does. If unset or false, no such
+                        validation will be performed. May also be set in PodSecurityContext.  If
+                        set in both SecurityContext and PodSecurityContext, the value
+                        specified in SecurityContext takes precedence.
+                      type: boolean
+                    runAsUser:
+                      description: The UID to run the entrypoint of the container
+                        process. Defaults to user specified in image metadata if unspecified.
+                        May also be set in PodSecurityContext.  If set in both SecurityContext
+                        and PodSecurityContext, the value specified in SecurityContext
+                        takes precedence.
+                      format: int64
+                      type: integer
+                    seLinuxOptions:
+                      description: SELinuxOptions are the labels to be applied to
+                        the container
+                      properties:
+                        level:
+                          description: Level is SELinux level label that applies to
+                            the container.
+                          type: string
+                        role:
+                          description: Role is a SELinux role label that applies to
+                            the container.
+                          type: string
+                        type:
+                          description: Type is a SELinux type label that applies to
+                            the container.
+                          type: string
+                        user:
+                          description: User is a SELinux user label that applies to
+                            the container.
+                          type: string
             nodes:
               description: 'Number of nodes to deploy for a Vault deployment. Default:
                 1.'

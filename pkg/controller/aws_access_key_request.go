@@ -9,8 +9,8 @@ import (
 	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
 	"github.com/kubevault/operator/apis"
-	api "github.com/kubevault/operator/apis/secretengine/v1alpha1"
-	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/secretengine/v1alpha1/util"
+	api "github.com/kubevault/operator/apis/engine/v1alpha1"
+	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"github.com/kubevault/operator/pkg/vault/credential"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
@@ -20,11 +20,11 @@ import (
 
 const (
 	AWSAccessKeyRequestFailed    api.RequestConditionType = "Failed"
-	AWSAccessKeyRequestFinalizer                          = "awsaccesskeyrequest.secretengine.kubevault.com"
+	AWSAccessKeyRequestFinalizer                          = "awsaccesskeyrequest.engine.kubevault.com"
 )
 
 func (c *VaultController) initAWSAccessKeyWatcher() {
-	c.awsAccessInformer = c.extInformerFactory.Secretengine().V1alpha1().AWSAccessKeyRequests().Informer()
+	c.awsAccessInformer = c.extInformerFactory.Engine().V1alpha1().AWSAccessKeyRequests().Informer()
 	c.awsAccessQueue = queue.New(api.ResourceKindAWSAccessKeyRequest, c.MaxNumRequeues, c.NumThreads, c.runAWSAccessKeyRequestInjector)
 	c.awsAccessInformer.AddEventHandler(queue.NewEventHandler(c.awsAccessQueue.GetQueue(), func(oldObj, newObj interface{}) bool {
 		old := oldObj.(*api.AWSAccessKeyRequest)
@@ -47,7 +47,7 @@ func (c *VaultController) initAWSAccessKeyWatcher() {
 		}
 		return nu.GetDeletionTimestamp() != nil
 	}))
-	c.awsAccessLister = c.extInformerFactory.Secretengine().V1alpha1().AWSAccessKeyRequests().Lister()
+	c.awsAccessLister = c.extInformerFactory.Engine().V1alpha1().AWSAccessKeyRequests().Lister()
 }
 
 func (c *VaultController) runAWSAccessKeyRequestInjector(key string) error {
@@ -72,7 +72,7 @@ func (c *VaultController) runAWSAccessKeyRequestInjector(key string) error {
 		} else {
 			if !core_util.HasFinalizer(awsAccessReq.ObjectMeta, AWSAccessKeyRequestFinalizer) {
 				// Add finalizer
-				_, _, err = patchutil.PatchAWSAccessKeyRequest(c.extClient.SecretengineV1alpha1(), awsAccessReq, func(binding *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest {
+				_, _, err = patchutil.PatchAWSAccessKeyRequest(c.extClient.EngineV1alpha1(), awsAccessReq, func(binding *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest {
 					binding.ObjectMeta = core_util.AddFinalizer(binding.ObjectMeta, AWSAccessKeyRequestFinalizer)
 					return binding
 				})
@@ -224,7 +224,7 @@ func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.Credenti
 }
 
 func (c *VaultController) updateAWSAccessKeyRequestStatus(status *api.AWSAccessKeyRequestStatus, awsAKReq *api.AWSAccessKeyRequest) error {
-	_, err := patchutil.UpdateAWSAccessKeyRequestStatus(c.extClient.SecretengineV1alpha1(), awsAKReq, func(s *api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus {
+	_, err := patchutil.UpdateAWSAccessKeyRequestStatus(c.extClient.EngineV1alpha1(), awsAKReq, func(s *api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus {
 		s = status
 		return s
 	}, apis.EnableStatusSubresource)
@@ -318,14 +318,14 @@ func (c *VaultController) finalizeAWSAccessKeyRequest(awsCM credential.Credentia
 }
 
 func (c *VaultController) removeAWSAccessKeyRequestFinalizer(awsAKReq *api.AWSAccessKeyRequest) error {
-	accessReq, err := c.extClient.SecretengineV1alpha1().AWSAccessKeyRequests(awsAKReq.Namespace).Get(awsAKReq.Name, metav1.GetOptions{})
+	accessReq, err := c.extClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKReq.Namespace).Get(awsAKReq.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
 		return err
 	}
 
-	_, _, err = patchutil.PatchAWSAccessKeyRequest(c.extClient.SecretengineV1alpha1(), accessReq, func(in *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest {
+	_, _, err = patchutil.PatchAWSAccessKeyRequest(c.extClient.EngineV1alpha1(), accessReq, func(in *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest {
 		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, AWSAccessKeyRequestFinalizer)
 		return in
 	})

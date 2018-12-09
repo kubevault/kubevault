@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "github.com/kubevault/operator/apis/secretengine/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/apis/engine/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -30,13 +30,13 @@ import (
 
 // FakeAWSRoles implements AWSRoleInterface
 type FakeAWSRoles struct {
-	Fake *FakeSecretengineV1alpha1
+	Fake *FakeEngineV1alpha1
 	ns   string
 }
 
-var awsrolesResource = schema.GroupVersionResource{Group: "secretengine.kubevault.com", Version: "v1alpha1", Resource: "awsroles"}
+var awsrolesResource = schema.GroupVersionResource{Group: "engine.kubevault.com", Version: "v1alpha1", Resource: "awsroles"}
 
-var awsrolesKind = schema.GroupVersionKind{Group: "secretengine.kubevault.com", Version: "v1alpha1", Kind: "AWSRole"}
+var awsrolesKind = schema.GroupVersionKind{Group: "engine.kubevault.com", Version: "v1alpha1", Kind: "AWSRole"}
 
 // Get takes name of the aWSRole, and returns the corresponding aWSRole object, and an error if there is any.
 func (c *FakeAWSRoles) Get(name string, options v1.GetOptions) (result *v1alpha1.AWSRole, err error) {

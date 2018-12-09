@@ -19,26 +19,26 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/secretengine/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/engine/v1alpha1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )
 
-type FakeSecretengineV1alpha1 struct {
+type FakeEngineV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeSecretengineV1alpha1) AWSAccessKeyRequests(namespace string) v1alpha1.AWSAccessKeyRequestInterface {
+func (c *FakeEngineV1alpha1) AWSAccessKeyRequests(namespace string) v1alpha1.AWSAccessKeyRequestInterface {
 	return &FakeAWSAccessKeyRequests{c, namespace}
 }
 
-func (c *FakeSecretengineV1alpha1) AWSRoles(namespace string) v1alpha1.AWSRoleInterface {
+func (c *FakeEngineV1alpha1) AWSRoles(namespace string) v1alpha1.AWSRoleInterface {
 	return &FakeAWSRoles{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *FakeSecretengineV1alpha1) RESTClient() rest.Interface {
+func (c *FakeEngineV1alpha1) RESTClient() rest.Interface {
 	var ret *rest.RESTClient
 	return ret
 }

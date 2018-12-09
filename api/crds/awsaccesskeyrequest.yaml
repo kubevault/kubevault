@@ -5,9 +5,9 @@ metadata:
   creationTimestamp: null
   labels:
     app: vault
-  name: awsaccesskeyrequests.secretengine.kubevault.com
+  name: awsaccesskeyrequests.engine.kubevault.com
 spec:
-  group: secretengine.kubevault.com
+  group: engine.kubevault.com
   names:
     categories:
     - vault

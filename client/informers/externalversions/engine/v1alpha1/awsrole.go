@@ -21,10 +21,10 @@ package v1alpha1
 import (
 	time "time"
 
-	secretenginev1alpha1 "github.com/kubevault/operator/apis/secretengine/v1alpha1"
+	enginev1alpha1 "github.com/kubevault/operator/apis/engine/v1alpha1"
 	versioned "github.com/kubevault/operator/client/clientset/versioned"
 	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/kubevault/operator/client/listers/secretengine/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/client/listers/engine/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -61,16 +61,16 @@ func NewFilteredAWSRoleInformer(client versioned.Interface, namespace string, re
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.SecretengineV1alpha1().AWSRoles(namespace).List(options)
+				return client.EngineV1alpha1().AWSRoles(namespace).List(options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.SecretengineV1alpha1().AWSRoles(namespace).Watch(options)
+				return client.EngineV1alpha1().AWSRoles(namespace).Watch(options)
 			},
 		},
-		&secretenginev1alpha1.AWSRole{},
+		&enginev1alpha1.AWSRole{},
 		resyncPeriod,
 		indexers,
 	)
@@ -81,7 +81,7 @@ func (f *aWSRoleInformer) defaultInformer(client versioned.Interface, resyncPeri
 }
 
 func (f *aWSRoleInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&secretenginev1alpha1.AWSRole{}, f.defaultInformer)
+	return f.factory.InformerFor(&enginev1alpha1.AWSRole{}, f.defaultInformer)
 }
 
 func (f *aWSRoleInformer) Lister() v1alpha1.AWSRoleLister {
