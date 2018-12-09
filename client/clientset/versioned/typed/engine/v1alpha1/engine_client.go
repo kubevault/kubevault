@@ -19,33 +19,33 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/kubevault/operator/apis/secretengine/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/apis/engine/v1alpha1"
 	"github.com/kubevault/operator/client/clientset/versioned/scheme"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	rest "k8s.io/client-go/rest"
 )
 
-type SecretengineV1alpha1Interface interface {
+type EngineV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	AWSAccessKeyRequestsGetter
 	AWSRolesGetter
 }
 
-// SecretengineV1alpha1Client is used to interact with features provided by the secretengine.kubevault.com group.
-type SecretengineV1alpha1Client struct {
+// EngineV1alpha1Client is used to interact with features provided by the engine.kubevault.com group.
+type EngineV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *SecretengineV1alpha1Client) AWSAccessKeyRequests(namespace string) AWSAccessKeyRequestInterface {
+func (c *EngineV1alpha1Client) AWSAccessKeyRequests(namespace string) AWSAccessKeyRequestInterface {
 	return newAWSAccessKeyRequests(c, namespace)
 }
 
-func (c *SecretengineV1alpha1Client) AWSRoles(namespace string) AWSRoleInterface {
+func (c *EngineV1alpha1Client) AWSRoles(namespace string) AWSRoleInterface {
 	return newAWSRoles(c, namespace)
 }
 
-// NewForConfig creates a new SecretengineV1alpha1Client for the given config.
-func NewForConfig(c *rest.Config) (*SecretengineV1alpha1Client, error) {
+// NewForConfig creates a new EngineV1alpha1Client for the given config.
+func NewForConfig(c *rest.Config) (*EngineV1alpha1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -54,12 +54,12 @@ func NewForConfig(c *rest.Config) (*SecretengineV1alpha1Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &SecretengineV1alpha1Client{client}, nil
+	return &EngineV1alpha1Client{client}, nil
 }
 
-// NewForConfigOrDie creates a new SecretengineV1alpha1Client for the given config and
+// NewForConfigOrDie creates a new EngineV1alpha1Client for the given config and
 // panics if there is an error in the config.
-func NewForConfigOrDie(c *rest.Config) *SecretengineV1alpha1Client {
+func NewForConfigOrDie(c *rest.Config) *EngineV1alpha1Client {
 	client, err := NewForConfig(c)
 	if err != nil {
 		panic(err)
@@ -67,9 +67,9 @@ func NewForConfigOrDie(c *rest.Config) *SecretengineV1alpha1Client {
 	return client
 }
 
-// New creates a new SecretengineV1alpha1Client for the given RESTClient.
-func New(c rest.Interface) *SecretengineV1alpha1Client {
-	return &SecretengineV1alpha1Client{c}
+// New creates a new EngineV1alpha1Client for the given RESTClient.
+func New(c rest.Interface) *EngineV1alpha1Client {
+	return &EngineV1alpha1Client{c}
 }
 
 func setConfigDefaults(config *rest.Config) error {
@@ -87,7 +87,7 @@ func setConfigDefaults(config *rest.Config) error {
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *SecretengineV1alpha1Client) RESTClient() rest.Interface {
+func (c *EngineV1alpha1Client) RESTClient() rest.Interface {
 	if c == nil {
 		return nil
 	}

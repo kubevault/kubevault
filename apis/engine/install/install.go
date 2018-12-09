@@ -17,7 +17,7 @@ limitations under the License.
 package install
 
 import (
-	"github.com/kubevault/operator/apis/secretengine/v1alpha1"
+	"github.com/kubevault/operator/apis/engine/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 )

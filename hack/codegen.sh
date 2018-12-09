@@ -7,7 +7,7 @@ PACKAGE_NAME=github.com/kubevault/operator
 REPO_ROOT="$GOPATH/src/$PACKAGE_NAME"
 DOCKER_REPO_ROOT="/go/src/$PACKAGE_NAME"
 DOCKER_CODEGEN_PKG="/go/src/k8s.io/code-generator"
-apiGroups=(kubevault/v1alpha1 catalog/v1alpha1 policy/v1alpha1 secretengine/v1alpha1)
+apiGroups=(kubevault/v1alpha1 catalog/v1alpha1 policy/v1alpha1 engine/v1alpha1)
 
 pushd $REPO_ROOT
 
@@ -22,7 +22,7 @@ docker run --rm -ti -u $(id -u):$(id -g) \
   appscode/gengo:release-1.12 "$DOCKER_CODEGEN_PKG"/generate-groups.sh all \
   github.com/kubevault/operator/client \
   github.com/kubevault/operator/apis \
-  "kubevault:v1alpha1 catalog:v1alpha1 config:v1alpha1 policy:v1alpha1 secretengine:v1alpha1" \
+  "kubevault:v1alpha1 catalog:v1alpha1 config:v1alpha1 policy:v1alpha1 engine:v1alpha1" \
   --go-header-file "$DOCKER_REPO_ROOT/hack/gengo/boilerplate.go.txt"
 
 # Generate openapi

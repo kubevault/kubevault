@@ -7,8 +7,8 @@ import (
 	"github.com/appscode/kutil"
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/golang/glog"
-	api "github.com/kubevault/operator/apis/secretengine/v1alpha1"
-	cs "github.com/kubevault/operator/client/clientset/versioned/typed/secretengine/v1alpha1"
+	api "github.com/kubevault/operator/apis/engine/v1alpha1"
+	cs "github.com/kubevault/operator/client/clientset/versioned/typed/engine/v1alpha1"
 	"github.com/pkg/errors"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,7 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-func CreateOrPatchAWSRole(c cs.SecretengineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.AWSRole) *api.AWSRole) (*api.AWSRole, kutil.VerbType, error) {
+func CreateOrPatchAWSRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.AWSRole) *api.AWSRole) (*api.AWSRole, kutil.VerbType, error) {
 	cur, err := c.AWSRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		glog.V(3).Infof("Creating AWSRole %s/%s.", meta.Namespace, meta.Name)
@@ -34,11 +34,11 @@ func CreateOrPatchAWSRole(c cs.SecretengineV1alpha1Interface, meta metav1.Object
 	return PatchAWSRole(c, cur, transform)
 }
 
-func PatchAWSRole(c cs.SecretengineV1alpha1Interface, cur *api.AWSRole, transform func(*api.AWSRole) *api.AWSRole) (*api.AWSRole, kutil.VerbType, error) {
+func PatchAWSRole(c cs.EngineV1alpha1Interface, cur *api.AWSRole, transform func(*api.AWSRole) *api.AWSRole) (*api.AWSRole, kutil.VerbType, error) {
 	return PatchAWSRoleObject(c, cur, transform(cur.DeepCopy()))
 }
 
-func PatchAWSRoleObject(c cs.SecretengineV1alpha1Interface, cur, mod *api.AWSRole) (*api.AWSRole, kutil.VerbType, error) {
+func PatchAWSRoleObject(c cs.EngineV1alpha1Interface, cur, mod *api.AWSRole) (*api.AWSRole, kutil.VerbType, error) {
 	curJson, err := json.Marshal(cur)
 	if err != nil {
 		return nil, kutil.VerbUnchanged, err
@@ -61,7 +61,7 @@ func PatchAWSRoleObject(c cs.SecretengineV1alpha1Interface, cur, mod *api.AWSRol
 	return out, kutil.VerbPatched, err
 }
 
-func TryUpdateAWSRole(c cs.SecretengineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.AWSRole) *api.AWSRole) (result *api.AWSRole, err error) {
+func TryUpdateAWSRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.AWSRole) *api.AWSRole) (result *api.AWSRole, err error) {
 	attempt := 0
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
@@ -83,7 +83,7 @@ func TryUpdateAWSRole(c cs.SecretengineV1alpha1Interface, meta metav1.ObjectMeta
 }
 
 func UpdateAWSRoleStatus(
-	c cs.SecretengineV1alpha1Interface,
+	c cs.EngineV1alpha1Interface,
 	in *api.AWSRole,
 	transform func(*api.AWSRoleStatus) *api.AWSRoleStatus,
 	useSubresource ...bool,

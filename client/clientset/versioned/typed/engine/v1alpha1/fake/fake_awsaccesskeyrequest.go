@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "github.com/kubevault/operator/apis/secretengine/v1alpha1"
+	v1alpha1 "github.com/kubevault/operator/apis/engine/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -30,13 +30,13 @@ import (
 
 // FakeAWSAccessKeyRequests implements AWSAccessKeyRequestInterface
 type FakeAWSAccessKeyRequests struct {
-	Fake *FakeSecretengineV1alpha1
+	Fake *FakeEngineV1alpha1
 	ns   string
 }
 
-var awsaccesskeyrequestsResource = schema.GroupVersionResource{Group: "secretengine.kubevault.com", Version: "v1alpha1", Resource: "awsaccesskeyrequests"}
+var awsaccesskeyrequestsResource = schema.GroupVersionResource{Group: "engine.kubevault.com", Version: "v1alpha1", Resource: "awsaccesskeyrequests"}
 
-var awsaccesskeyrequestsKind = schema.GroupVersionKind{Group: "secretengine.kubevault.com", Version: "v1alpha1", Kind: "AWSAccessKeyRequest"}
+var awsaccesskeyrequestsKind = schema.GroupVersionKind{Group: "engine.kubevault.com", Version: "v1alpha1", Kind: "AWSAccessKeyRequest"}
 
 // Get takes name of the aWSAccessKeyRequest, and returns the corresponding aWSAccessKeyRequest object, and an error if there is any.
 func (c *FakeAWSAccessKeyRequests) Get(name string, options v1.GetOptions) (result *v1alpha1.AWSAccessKeyRequest, err error) {

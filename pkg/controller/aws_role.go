@@ -11,8 +11,8 @@ import (
 	"github.com/golang/glog"
 	"github.com/kubevault/operator/apis"
 	vsapis "github.com/kubevault/operator/apis"
-	api "github.com/kubevault/operator/apis/secretengine/v1alpha1"
-	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/secretengine/v1alpha1/util"
+	api "github.com/kubevault/operator/apis/engine/v1alpha1"
+	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"github.com/kubevault/operator/pkg/vault/role/aws"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -23,14 +23,14 @@ import (
 const (
 	AWSRolePhaseSuccess    api.AWSRolePhase = "Success"
 	AWSRoleConditionFailed                  = "Failed"
-	AWSRoleFinalizer                        = "awsrole.secretengine.kubevault.com"
+	AWSRoleFinalizer                        = "awsrole.engine.kubevault.com"
 )
 
 func (c *VaultController) initAWSRoleWatcher() {
-	c.awsRoleInformer = c.extInformerFactory.Secretengine().V1alpha1().AWSRoles().Informer()
+	c.awsRoleInformer = c.extInformerFactory.Engine().V1alpha1().AWSRoles().Informer()
 	c.awsRoleQueue = queue.New(api.ResourceKindAWSRole, c.MaxNumRequeues, c.NumThreads, c.runAWSRoleInjector)
 	c.awsRoleInformer.AddEventHandler(queue.NewObservableHandler(c.awsRoleQueue.GetQueue(), apis.EnableStatusSubresource))
-	c.awsRoleLister = c.extInformerFactory.Secretengine().V1alpha1().AWSRoles().Lister()
+	c.awsRoleLister = c.extInformerFactory.Engine().V1alpha1().AWSRoles().Lister()
 }
 
 func (c *VaultController) runAWSRoleInjector(key string) error {
@@ -55,7 +55,7 @@ func (c *VaultController) runAWSRoleInjector(key string) error {
 		} else {
 			if !core_util.HasFinalizer(awsRole.ObjectMeta, AWSRoleFinalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchAWSRole(c.extClient.SecretengineV1alpha1(), awsRole, func(role *api.AWSRole) *api.AWSRole {
+				_, _, err := patchutil.PatchAWSRole(c.extClient.EngineV1alpha1(), awsRole, func(role *api.AWSRole) *api.AWSRole {
 					role.ObjectMeta = core_util.AddFinalizer(role.ObjectMeta, AWSRoleFinalizer)
 					return role
 				})
@@ -155,7 +155,7 @@ func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, awsR
 }
 
 func (c *VaultController) updatedAWSRoleStatus(status *api.AWSRoleStatus, awsRole *api.AWSRole) error {
-	_, err := patchutil.UpdateAWSRoleStatus(c.extClient.SecretengineV1alpha1(), awsRole, func(s *api.AWSRoleStatus) *api.AWSRoleStatus {
+	_, err := patchutil.UpdateAWSRoleStatus(c.extClient.EngineV1alpha1(), awsRole, func(s *api.AWSRoleStatus) *api.AWSRoleStatus {
 		s = status
 		return s
 	}, vsapis.EnableStatusSubresource)
@@ -249,7 +249,7 @@ func (c *VaultController) finalizeAWSRole(awsRClient aws.AWSRoleInterface, awsRo
 }
 
 func (c *VaultController) removeAWSRoleFinalizer(awsRole *api.AWSRole) error {
-	m, err := c.extClient.SecretengineV1alpha1().AWSRoles(awsRole.Namespace).Get(awsRole.Name, metav1.GetOptions{})
+	m, err := c.extClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Get(awsRole.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
@@ -257,7 +257,7 @@ func (c *VaultController) removeAWSRoleFinalizer(awsRole *api.AWSRole) error {
 	}
 
 	// remove finalizer
-	_, _, err = patchutil.PatchAWSRole(c.extClient.SecretengineV1alpha1(), m, func(role *api.AWSRole) *api.AWSRole {
+	_, _, err = patchutil.PatchAWSRole(c.extClient.EngineV1alpha1(), m, func(role *api.AWSRole) *api.AWSRole {
 		role.ObjectMeta = core_util.RemoveFinalizer(role.ObjectMeta, AWSRoleFinalizer)
 		return role
 	})

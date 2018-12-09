@@ -11,7 +11,7 @@ rules:
   - policy.kubevault.com
   - appcatalog.appscode.com
   - authorization.kubedb.com
-  - secretengine.kubevault.com
+  - engine.kubevault.com
   resources:
   - "*"
   verbs: ["*"]
@@ -43,7 +43,7 @@ rules:
   - postgresroles
   verbs: ["*"]
 - apiGroups:
-  - secretengine.kubevault.com
+  - engine.kubevault.com
   resources:
   - awsroles
   - awsaccesskeyrequests
@@ -86,7 +86,7 @@ rules:
   - postgresroles
   verbs: ["get", "list", "watch"]
 - apiGroups:
-  - secretengine.kubevault.com
+  - engine.kubevault.com
   resources:
   - awsroles
   - awsaccesskeyrequests

@@ -7,8 +7,8 @@ import (
 	"github.com/appscode/kutil"
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/golang/glog"
-	api "github.com/kubevault/operator/apis/secretengine/v1alpha1"
-	cs "github.com/kubevault/operator/client/clientset/versioned/typed/secretengine/v1alpha1"
+	api "github.com/kubevault/operator/apis/engine/v1alpha1"
+	cs "github.com/kubevault/operator/client/clientset/versioned/typed/engine/v1alpha1"
 	"github.com/pkg/errors"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,7 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-func CreateOrPatchAWSAccessKeyRequest(c cs.SecretengineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest) (*api.AWSAccessKeyRequest, kutil.VerbType, error) {
+func CreateOrPatchAWSAccessKeyRequest(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest) (*api.AWSAccessKeyRequest, kutil.VerbType, error) {
 	cur, err := c.AWSAccessKeyRequests(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		glog.V(3).Infof("Creating AWSAccessKeyRequest %s/%s.", meta.Namespace, meta.Name)
@@ -34,11 +34,11 @@ func CreateOrPatchAWSAccessKeyRequest(c cs.SecretengineV1alpha1Interface, meta m
 	return PatchAWSAccessKeyRequest(c, cur, transform)
 }
 
-func PatchAWSAccessKeyRequest(c cs.SecretengineV1alpha1Interface, cur *api.AWSAccessKeyRequest, transform func(*api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest) (*api.AWSAccessKeyRequest, kutil.VerbType, error) {
+func PatchAWSAccessKeyRequest(c cs.EngineV1alpha1Interface, cur *api.AWSAccessKeyRequest, transform func(*api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest) (*api.AWSAccessKeyRequest, kutil.VerbType, error) {
 	return PatchAWSAccessKeyRequestObject(c, cur, transform(cur.DeepCopy()))
 }
 
-func PatchAWSAccessKeyRequestObject(c cs.SecretengineV1alpha1Interface, cur, mod *api.AWSAccessKeyRequest) (*api.AWSAccessKeyRequest, kutil.VerbType, error) {
+func PatchAWSAccessKeyRequestObject(c cs.EngineV1alpha1Interface, cur, mod *api.AWSAccessKeyRequest) (*api.AWSAccessKeyRequest, kutil.VerbType, error) {
 	curJson, err := json.Marshal(cur)
 	if err != nil {
 		return nil, kutil.VerbUnchanged, err
@@ -61,7 +61,7 @@ func PatchAWSAccessKeyRequestObject(c cs.SecretengineV1alpha1Interface, cur, mod
 	return out, kutil.VerbPatched, err
 }
 
-func TryUpdateAWSAccessKeyRequest(c cs.SecretengineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest) (result *api.AWSAccessKeyRequest, err error) {
+func TryUpdateAWSAccessKeyRequest(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest) (result *api.AWSAccessKeyRequest, err error) {
 	attempt := 0
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
@@ -83,7 +83,7 @@ func TryUpdateAWSAccessKeyRequest(c cs.SecretengineV1alpha1Interface, meta metav
 }
 
 func UpdateAWSAccessKeyRequestStatus(
-	c cs.SecretengineV1alpha1Interface,
+	c cs.EngineV1alpha1Interface,
 	in *api.AWSAccessKeyRequest,
 	transform func(*api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus,
 	useSubresource ...bool,

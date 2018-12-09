@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	api "github.com/kubevault/operator/apis/secretengine/v1alpha1"
+	api "github.com/kubevault/operator/apis/engine/v1alpha1"
 	"github.com/kubevault/operator/pkg/controller"
 	"github.com/kubevault/operator/pkg/vault"
 	"github.com/kubevault/operator/test/e2e/framework"
@@ -60,7 +60,7 @@ var _ = Describe("AWS role", func() {
 		IsAWSRoleCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking Is AWSRole(%s/%s) created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.SecretengineV1alpha1().AWSRoles(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().AWSRoles(namespace).Get(name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "Is AWS role created")
 		}
@@ -68,7 +68,7 @@ var _ = Describe("AWS role", func() {
 		IsAWSRoleDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking Is AWSRole(%s/%s) deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.SecretengineV1alpha1().AWSRoles(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().AWSRoles(namespace).Get(name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "Is AWSRole role deleted")
 		}
@@ -76,7 +76,7 @@ var _ = Describe("AWS role", func() {
 		IsAWSRoleSucceeded = func(name, namespace string) {
 			By(fmt.Sprintf("Checking Is AWSRole(%s/%s) succeeded", namespace, name))
 			Eventually(func() bool {
-				r, err := f.CSClient.SecretengineV1alpha1().AWSRoles(namespace).Get(name, metav1.GetOptions{})
+				r, err := f.CSClient.EngineV1alpha1().AWSRoles(namespace).Get(name, metav1.GetOptions{})
 				if err == nil {
 					return r.Status.Phase == controller.AWSRolePhaseSuccess
 				}
@@ -87,7 +87,7 @@ var _ = Describe("AWS role", func() {
 		IsAWSAccessKeyRequestCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking Is AWSAccessKeyRequest(%s/%s) created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.SecretengineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "Is AWSAccessKeyRequest created")
 		}
@@ -95,7 +95,7 @@ var _ = Describe("AWS role", func() {
 		IsAWSAccessKeyRequestDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking Is AWSAccessKeyRequest(%s/%s) deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.SecretengineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "Is AWSAccessKeyRequest deleted")
 		}
@@ -103,7 +103,7 @@ var _ = Describe("AWS role", func() {
 		IsAWSAccessKeyRequestApproved = func(name, namespace string) {
 			By(fmt.Sprintf("Checking Is AWSAccessKeyRequest(%s/%s) apporved", namespace, name))
 			Eventually(func() bool {
-				d, err := f.CSClient.SecretengineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				d, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
 				if err == nil {
 					return d.Status.Lease != nil
 				}
@@ -113,7 +113,7 @@ var _ = Describe("AWS role", func() {
 		IsAWSAccessKeyRequestDenied = func(name, namespace string) {
 			By(fmt.Sprintf("Checking Is AWSAccessKeyRequest(%s/%s) denied", namespace, name))
 			Eventually(func() bool {
-				d, err := f.CSClient.SecretengineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				d, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
 				if err == nil {
 					for _, c := range d.Status.Conditions {
 						if c.Type == api.AccessDenied {
@@ -191,7 +191,7 @@ var _ = Describe("AWS role", func() {
 			})
 
 			AfterEach(func() {
-				err := f.CSClient.SecretengineV1alpha1().AWSRoles(p.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().AWSRoles(p.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AWSRole")
 
 				IsAWSRoleDeleted(p.Name, p.Namespace)
@@ -199,7 +199,7 @@ var _ = Describe("AWS role", func() {
 			})
 
 			It("should be successful", func() {
-				_, err := f.CSClient.SecretengineV1alpha1().AWSRoles(awsRole.Namespace).Create(&p)
+				_, err := f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Create(&p)
 				Expect(err).NotTo(HaveOccurred(), "Create AWSole")
 
 				IsVaultAWSRoleCreated(p.RoleName())
@@ -217,14 +217,14 @@ var _ = Describe("AWS role", func() {
 					Namespace: f.Namespace(),
 				}
 
-				_, err := f.CSClient.SecretengineV1alpha1().AWSRoles(awsRole.Namespace).Create(&p)
+				_, err := f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Create(&p)
 				Expect(err).NotTo(HaveOccurred(), "Create AWSRole")
 
 				IsAWSRoleCreated(p.Name, p.Namespace)
 			})
 
 			It("should be successful", func() {
-				err := f.CSClient.SecretengineV1alpha1().AWSRoles(p.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().AWSRoles(p.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AWSRole")
 
 				IsAWSRoleDeleted(p.Name, p.Namespace)
@@ -312,7 +312,7 @@ var _ = Describe("AWS role", func() {
 
 		Context("Create, Approve, Deny AWSAccessKeyRequest", func() {
 			BeforeEach(func() {
-				r, err := f.CSClient.SecretengineV1alpha1().AWSRoles(awsRole.Namespace).Create(&awsRole)
+				r, err := f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Create(&awsRole)
 				Expect(err).NotTo(HaveOccurred(), "Create AWSRole")
 
 				IsVaultAWSRoleCreated(r.RoleName())
@@ -320,12 +320,12 @@ var _ = Describe("AWS role", func() {
 			})
 
 			AfterEach(func() {
-				err := f.CSClient.SecretengineV1alpha1().AWSAccessKeyRequests(awsAKReq.Namespace).Delete(awsAKReq.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKReq.Namespace).Delete(awsAKReq.Name, &metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AWSAccessKeyRequest")
 
 				IsAWSAccessKeyRequestDeleted(awsAKReq.Name, awsAKReq.Namespace)
 
-				err = f.CSClient.SecretengineV1alpha1().AWSRoles(awsRole.Namespace).Delete(awsRole.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Delete(awsRole.Name, &metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AWSRole")
 
 				IsAWSRoleDeleted(awsRole.Name, awsRole.Namespace)
@@ -333,14 +333,14 @@ var _ = Describe("AWS role", func() {
 			})
 
 			It("create should be successful", func() {
-				_, err := f.CSClient.SecretengineV1alpha1().AWSAccessKeyRequests(awsAKReq.Namespace).Create(&awsAKReq)
+				_, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKReq.Namespace).Create(&awsAKReq)
 				Expect(err).NotTo(HaveOccurred(), "Create AWSAccessKeyRequest")
 
 				IsAWSAccessKeyRequestCreated(awsAKReq.Name, awsAKReq.Namespace)
 			})
 
 			It("approve should be successful", func() {
-				d, err := f.CSClient.SecretengineV1alpha1().AWSAccessKeyRequests(awsAKReq.Namespace).Create(&awsAKReq)
+				d, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKReq.Namespace).Create(&awsAKReq)
 				Expect(err).NotTo(HaveOccurred(), "Create AWSAccessKeyRequest")
 				IsAWSAccessKeyRequestCreated(awsAKReq.Name, awsAKReq.Namespace)
 
@@ -358,7 +358,7 @@ var _ = Describe("AWS role", func() {
 			})
 
 			It("deny should be successful", func() {
-				d, err := f.CSClient.SecretengineV1alpha1().AWSAccessKeyRequests(awsAKReq.Namespace).Create(&awsAKReq)
+				d, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKReq.Namespace).Create(&awsAKReq)
 				Expect(err).NotTo(HaveOccurred(), "Create AWSAccessKeyRequest")
 				IsAWSAccessKeyRequestCreated(awsAKReq.Name, awsAKReq.Namespace)
 

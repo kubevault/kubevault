@@ -2,7 +2,7 @@ package aws
 
 import (
 	vaultapi "github.com/hashicorp/vault/api"
-	api "github.com/kubevault/operator/apis/secretengine/v1alpha1"
+	api "github.com/kubevault/operator/apis/engine/v1alpha1"
 	crd "github.com/kubevault/operator/client/clientset/versioned"
 	"github.com/kubevault/operator/pkg/vault"
 	awsrole "github.com/kubevault/operator/pkg/vault/role/aws"
@@ -47,7 +47,7 @@ func NewAWSCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.A
 }
 
 func GetVaultRefAndRole(cr crd.Interface, ref api.RoleReference) (*appcat.AppReference, string, error) {
-	r, err := cr.SecretengineV1alpha1().AWSRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
+	r, err := cr.EngineV1alpha1().AWSRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, "", errors.Wrapf(err, "AWSRole %s/%s", ref.Namespace, ref.Name)
 	}
