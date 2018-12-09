@@ -61,15 +61,16 @@ The following table lists the configurable parameters of the Vault chart and the
 | `tolerations`                         | Tolerations used pod assignment                                    | `{}`               |
 | `rbac.create`                         | If `true`, create and use RBAC resources                           | `true`             |
 | `serviceAccount.create`               | If `true`, create a new service account                            | `true`             |
-| `serviceAccount.name`                 | Service account to be used. If not set and `serviceAccount.create` is `true`, a name is generated using the fullname template | `` |
-| `apioperator.groupPriorityMinimum`    | The minimum priority the group should have.                        | 10000              |
-| `apioperator.versionPriority`         | The ordering of this API inside of the group.                      | 15                 |
-| `apioperator.enableValidatingWebhook` | Enable validating webhooks for Kubernetes workloads                | true               |
-| `apioperator.enableMutatingWebhook`   | Enable mutating webhooks for Kubernetes workloads                  | true               |
-| `apioperator.ca`                      | CA certificate used by main Kubernetes api operator                | `not-ca-cert`      |
+| `serviceAccount.name`                 | Service account to be used. If not set and `serviceAccount.create` is `true`, a name is generated using the fullname template                                              | ``                                                        |
+| `apiserver.groupPriorityMinimum`      | The minimum priority the group should have.                        | 10000              |
+| `apiserver.versionPriority`           | The ordering of this API inside of the group.                      | 15                 |
+| `apiserver.enableValidatingWebhook`   | Enable validating webhooks for Stash CRDs                          | true               |
+| `apiserver.enableMutatingWebhook`     | Enable mutating webhooks for Kubernetes workloads                  | true               |
+| `apiserver.ca`                        | CA certificate used by main Kubernetes api server                  | `not-ca-cert`      |
 | `apiserver.disableStatusSubresource`  | If true, disables status sub resource for crds. Otherwise enables based on Kubernetes version | `false`            |
+| `apiserver.bypassValidatingWebhookXray` | If true, bypasses validating webhook xray checks                 | `false`            |
+| `apiserver.useKubeapiserverFqdnForAks`  | If true, uses kube-apiserver FQDN for AKS cluster to workaround https://github.com/Azure/AKS/issues/522 | `true`             |
 | `enableAnalytics`                     | Send usage events to Google Analytics                              | `true`             |
-
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example:
 

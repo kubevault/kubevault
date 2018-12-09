@@ -1,49 +1,44 @@
 package eventer
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/appscode/go/log"
-	"github.com/golang/glog"
 	core "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/record"
+	"k8s.io/client-go/tools/reference"
 )
 
 const (
-	// Certificate Events
-	EventReasonCertificateRenewFailed      = "RenewFailed"
-	EventReasonCertificateRenewSuccessful  = "RenewSuccessful"
-	EventReasonCertificateCreateFailed     = "CreateFailed"
-	EventReasonCertificateCreateSuccessful = "CreateSuccessful"
-
-	// Ingress Events
-	EventReasonIngressHAProxyConfigCreateFailed      = "HAProxyConfigCreateFailed"
-	EventReasonIngressConfigMapCreateFailed          = "ConfigMapCreateFailed"
-	EventReasonIngressConfigMapCreateSuccessful      = "ConfigMapCreateSuccessful"
-	EventReasonIngressUnsupportedLBType              = "UnsupportedLBType"
-	EventReasonIngressControllerCreateFailed         = "ControllerCreateFailed"
-	EventReasonIngressControllerCreateSuccessful     = "ControllerCreateSuccessful"
-	EventReasonIngressServiceCreateFailed            = "ServiceCreateFailed"
-	EventReasonIngressServiceCreateSuccessful        = "ServiceCreateSuccessful"
-	EventReasonIngressServiceMonitorCreateFailed     = "ServiceMonitorCreateFailed"
-	EventReasonIngressServiceMonitorCreateSuccessful = "ServiceMonitorCreateSuccessful"
-	EventReasonIngressUpdateFailed                   = "UpdateFailed"
-	EventReasonIngressDeleteFailed                   = "DeleteFailed"
-	EventReasonIngressUpdateSuccessful               = "UpdateSuccessful"
-	EventReasonIngressServiceUpdateFailed            = "ServiceUpdateFailed"
-	EventReasonIngressServiceUpdateSuccessful        = "ServiceUpdateSuccessful"
-	EventReasonIngressFirewallUpdateFailed           = "FirewallUpdateFailed"
-	EventReasonIngressStatsServiceCreateFailed       = "StatsServiceCreateFailed"
-	EventReasonIngressStatsServiceCreateSuccessful   = "StatsServiceCreateSuccessful"
-	EventReasonIngressStatsServiceDeleteFailed       = "StatsServiceDeleteFailed"
-	EventReasonIngressStatsServiceDeleteSuccessful   = "StatsServiceDeleteSuccessful"
-	EventReasonIngressInvalid                        = "IngressInvalid"
+	EventReasonInvalidRestic                        = "InvalidRestic"
+	EventReasonInvalidRecovery                      = "InvalidRecovery"
+	EventReasonInvalidCronExpression                = "InvalidCronExpression"
+	EventReasonSuccessfulCronExpressionReset        = "SuccessfulCronExpressionReset"
+	EventReasonSuccessfulBackup                     = "SuccessfulBackup"
+	EventReasonFailedToBackup                       = "FailedBackup"
+	EventReasonSuccessfulRecovery                   = "SuccessfulRecovery"
+	EventReasonFailedToRecover                      = "FailedRecovery"
+	EventReasonSuccessfulCheck                      = "SuccessfulCheck"
+	EventReasonFailedToCheck                        = "FailedCheck"
+	EventReasonFailedToRetention                    = "FailedRetention"
+	EventReasonFailedToUpdate                       = "FailedUpdateBackup"
+	EventReasonFailedCronJob                        = "FailedCronJob"
+	EventReasonFailedToDelete                       = "FailedDelete"
+	EventReasonJobCreated                           = "RecoveryJobCreated"
+	EventReasonJobFailedToCreate                    = "RecoveryJobFailedToCreate"
+	EventReasonCheckJobCreated                      = "CheckJobCreated"
+	EventReasonFailedSetup                          = "SetupFailed"
+	EventReasonAdmissionWebhookNotActivated  string = "AdmissionWebhookNotActivated"
 )
 
 func NewEventRecorder(client kubernetes.Interface, component string) record.EventRecorder {
 	// Event Broadcaster
 	broadcaster := record.NewBroadcaster()
-	broadcaster.StartLogging(glog.Infof)
 	broadcaster.StartEventWatcher(
 		func(event *core.Event) {
 			if _, err := client.CoreV1().Events(event.Namespace).Create(event); err != nil {
@@ -53,4 +48,37 @@ func NewEventRecorder(client kubernetes.Interface, component string) record.Even
 	)
 	// Event Recorder
 	return broadcaster.NewRecorder(scheme.Scheme, core.EventSource{Component: component})
+}
+
+func CreateEvent(client kubernetes.Interface, component string, obj runtime.Object, eventType, reason, message string) (*core.Event, error) {
+	ref, err := reference.GetReference(scheme.Scheme, obj)
+	if err != nil {
+		return nil, err
+	}
+
+	t := metav1.Time{Time: time.Now()}
+
+	return client.CoreV1().Events(ref.Namespace).Create(&core.Event{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%v.%x", ref.Name, t.UnixNano()),
+			Namespace: ref.Namespace,
+		},
+		InvolvedObject: *ref,
+		Reason:         reason,
+		Message:        message,
+		FirstTimestamp: t,
+		LastTimestamp:  t,
+		Count:          1,
+		Type:           eventType,
+		Source:         core.EventSource{Component: component},
+	})
+}
+
+func CreateEventWithLog(client kubernetes.Interface, component string, obj runtime.Object, eventType, reason, message string) {
+	event, err := CreateEvent(client, component, obj, eventType, reason, message)
+	if err != nil {
+		log.Errorln("Failed to write event, reason: ", err)
+	} else {
+		log.Infoln("Event created: ", event.Name)
+	}
 }

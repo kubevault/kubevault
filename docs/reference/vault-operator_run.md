@@ -67,8 +67,10 @@ vault-operator run [flags]
       --client-ca-file string                                   If set, any request presenting a client certificate signed by one of the authorities in the client-ca-file is authenticated with an identity corresponding to the CommonName of the client certificate.
       --contention-profiling                                    Enable lock contention profiling, if profiling is enabled
       --docker-registry string                                  Docker image registry for sidecar, init-container, check-job, recovery-job and kubectl-job (default "kubevault")
+      --enable-mutating-webhook                                 If true, enables mutating webhooks for KubeDB CRDs.
       --enable-status-subresource                               If true, uses sub resource for crds.
       --enable-swagger-ui                                       Enables swagger ui on the apiserver at /swagger-ui
+      --enable-validating-webhook                               If true, enables validating webhooks for KubeDB CRDs.
   -h, --help                                                    help for run
       --http2-max-streams-per-connection int                    The limit that the server gives to clients for the maximum number of streams in an HTTP/2 connection. Zero means to use golang's default. (default 1000)
       --kubeconfig string                                       kubeconfig file pointing at the 'core' kubernetes server.

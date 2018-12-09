@@ -11,6 +11,11 @@ rules:
   - customresourcedefinitions
   verbs: ["*"]
 - apiGroups:
+  - apiregistration.k8s.io
+  resources:
+  - apiservices
+  verbs: ["get", "patch"]
+- apiGroups:
   - admissionregistration.k8s.io
   resources:
   - mutatingwebhookconfigurations
@@ -20,9 +25,9 @@ rules:
   - kubevault.com
   - catalog.kubevault.com
   - policy.kubevault.com
+  - engine.kubevault.com
   - appcatalog.appscode.com
   - authorization.kubedb.com
-  - engine.kubevault.com
   resources:
   - "*"
   verbs: ["*"]
@@ -38,7 +43,7 @@ rules:
   - secrets
   - services
   - serviceaccounts
-  verbs: ["create", "update", "get", "patch"]
+  verbs: ["create", "get", "patch"]
 - apiGroups:
   - ""
   resources:
@@ -64,7 +69,6 @@ rules:
   - rbac.authorization.k8s.io
   resources:
   - clusterroles
-  - clusterrolebindings
   - roles
   - rolebindings
   verbs: ["get", "update", "create", "patch"]

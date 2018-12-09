@@ -131,11 +131,16 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 func (c *VaultController) Run(stopCh <-chan struct{}) {
 	go c.RunInformers(stopCh)
 
-	cancel, _ := reg_util.SyncValidatingWebhookCABundle(c.clientConfig, validatingWebhook)
+	if c.EnableMutatingWebhook {
+		cancel, _ := reg_util.SyncMutatingWebhookCABundle(c.clientConfig, mutatingWebhook)
+		defer cancel()
+	}
+	if c.EnableValidatingWebhook {
+		cancel, _ := reg_util.SyncValidatingWebhookCABundle(c.clientConfig, validatingWebhook)
+		defer cancel()
+	}
 
 	<-stopCh
-
-	cancel()
 }
 
 func (c *VaultController) RunInformers(stopCh <-chan struct{}) {

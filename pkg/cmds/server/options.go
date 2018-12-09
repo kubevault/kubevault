@@ -17,14 +17,16 @@ import (
 )
 
 type ExtraOptions struct {
-	DockerRegistry     string
-	MaxNumRequeues     int
-	NumThreads         int
-	QPS                float64
-	Burst              int
-	ResyncPeriod       time.Duration
-	PrometheusCrdGroup string
-	PrometheusCrdKinds prom.CrdKinds
+	DockerRegistry          string
+	MaxNumRequeues          int
+	NumThreads              int
+	QPS                     float64
+	Burst                   int
+	ResyncPeriod            time.Duration
+	EnableValidatingWebhook bool
+	EnableMutatingWebhook   bool
+	PrometheusCrdGroup      string
+	PrometheusCrdKinds      prom.CrdKinds
 }
 
 func NewExtraOptions() *ExtraOptions {
@@ -50,6 +52,8 @@ func (s *ExtraOptions) AddGoFlags(fs *flag.FlagSet) {
 	fs.StringVar(&s.PrometheusCrdGroup, "prometheus-crd-apigroup", s.PrometheusCrdGroup, "prometheus CRD  API group name")
 	fs.Var(&s.PrometheusCrdKinds, "prometheus-crd-kinds", " - EXPERIMENTAL (could be removed in future releases) - customize CRD kind names")
 
+	fs.BoolVar(&s.EnableMutatingWebhook, "enable-mutating-webhook", s.EnableMutatingWebhook, "If true, enables mutating webhooks for KubeDB CRDs.")
+	fs.BoolVar(&s.EnableValidatingWebhook, "enable-validating-webhook", s.EnableValidatingWebhook, "If true, enables validating webhooks for KubeDB CRDs.")
 	fs.BoolVar(&apis.EnableStatusSubresource, "enable-status-subresource", apis.EnableStatusSubresource, "If true, uses sub resource for crds.")
 }
 
@@ -66,9 +70,10 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 	cfg.MaxNumRequeues = s.MaxNumRequeues
 	cfg.NumThreads = s.NumThreads
 	cfg.ResyncPeriod = s.ResyncPeriod
-
 	cfg.ClientConfig.QPS = float32(s.QPS)
 	cfg.ClientConfig.Burst = s.Burst
+	cfg.EnableMutatingWebhook = s.EnableMutatingWebhook
+	cfg.EnableValidatingWebhook = s.EnableValidatingWebhook
 
 	if cfg.KubeClient, err = kubernetes.NewForConfig(cfg.ClientConfig); err != nil {
 		return err

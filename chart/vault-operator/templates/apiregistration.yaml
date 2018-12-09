@@ -3,17 +3,58 @@
 {{- $altName1 := printf "%s.%s" $cn .Release.Namespace }}
 {{- $altName2 := printf "%s.%s.svc" $cn .Release.Namespace }}
 {{- $cert := genSignedCert $cn nil (list $altName1 $altName2) 3650 $ca }}
+# register as aggregated apiserver
 apiVersion: apiregistration.k8s.io/v1beta1
 kind: APIService
 metadata:
-  name: v1alpha1.admission.kubevault.com
+  name: v1alpha1.mutators.kubevault.com
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     app: "{{ template "vault-operator.name" . }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
 spec:
-  group: admission.kubevault.com
+  group: mutators.kubevault.com
+  version: v1alpha1
+  service:
+    namespace: {{ .Release.Namespace }}
+    name: {{ template "vault-operator.fullname" . }}
+  caBundle: {{ b64enc $ca.Cert }}
+  groupPriorityMinimum: {{ .Values.apiserver.groupPriorityMinimum }}
+  versionPriority: {{ .Values.apiserver.versionPriority }}
+---
+# register as aggregated apiserver
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1alpha1.validators.kubevault.com
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "{{ template "vault-operator.name" . }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  group: validators.kubevault.com
+  version: v1alpha1
+  service:
+    namespace: {{ .Release.Namespace }}
+    name: {{ template "vault-operator.fullname" . }}
+  caBundle: {{ b64enc $ca.Cert }}
+  groupPriorityMinimum: {{ .Values.apiserver.groupPriorityMinimum }}
+  versionPriority: {{ .Values.apiserver.versionPriority }}
+---
+# register as aggregated apiserver
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1alpha1.validators.authorization.kubedb.com
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "{{ template "vault-operator.name" . }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  group: validators.authorization.kubedb.com
   version: v1alpha1
   service:
     namespace: {{ .Release.Namespace }}

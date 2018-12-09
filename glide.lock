@@ -1,5 +1,5 @@
-hash: c11f1b8e68180523d9f15f46392f5838c6752680ac6586e0142ba95cec613e26
-updated: 2018-12-07T18:36:41.706258551-08:00
+hash: 5bdb5c7e58f220d3d7f84460c16cb01153f055e62d3ea9ff56e6aca9c7b936ff
+updated: 2018-12-09T03:17:34.480662869-08:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -9,7 +9,7 @@ imports:
   - compute/metadata
   - internal
 - name: github.com/appscode/go
-  version: aa0a55d74dac66f9b9bec9c0e7b67944115a3f44
+  version: 584aaa73af837f112c0a471be398ea837341c330
   subpackages:
   - analytics
   - context
@@ -36,7 +36,7 @@ imports:
   - admission/v1beta1
   - registry/admissionreview/v1beta1
 - name: github.com/appscode/kutil
-  version: 5b92c76d65e4a80e7a187738bb389d367aa1339a
+  version: 333f8316973162b49176cdd933f1bbf64157ba74
   subpackages:
   - admissionregistration/v1beta1
   - apiextensions/v1beta1
@@ -44,6 +44,7 @@ imports:
   - apps/v1
   - core/v1
   - discovery
+  - dynamic
   - meta
   - openapi
   - rbac/v1
@@ -609,6 +610,8 @@ imports:
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
 - name: gopkg.in/natefinch/lumberjack.v2
   version: 20b71e5b60d756d3d2f80def009790325acc2b23
+- name: gopkg.in/square/go-jose.v2
+  version: 72415094398e2f013bf50b76fd6de36df47938ea
 - name: gopkg.in/yaml.v2
   version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
 - name: k8s.io/api
@@ -1018,6 +1021,7 @@ imports:
   version: 0ed33881dc4355495f623c6f22e7dd0b7632b7c0
   subpackages:
   - pkg/api/legacyscheme
+  - pkg/apis/core
 - name: kmodules.xyz/custom-resources
   version: 6d398bd2d81b1d6a811ad026c1dd24f1564a1f3c
   repo: https://github.com/kmodules/custom-resources.git
@@ -1052,6 +1056,8 @@ imports:
   vcs: git
   subpackages:
   - api/v1
+- name: sigs.k8s.io/yaml
+  version: 5fa4c7f5e38dda46711e0c2efd62370cfae67205
 testImports:
 - name: github.com/appscode/pat
   version: 48ff78925b7955367d8a048fc2b5cec8efadf8d3

@@ -21,16 +21,19 @@ import (
 )
 
 const (
+	mutatingWebhook   = "mutators.kubevault.com"
 	validatingWebhook = "validators.kubevault.com"
 )
 
 type config struct {
-	EnableRBAC     bool
-	DockerRegistry string
-	MaxNumRequeues int
-	NumThreads     int
-	OpsAddress     string
-	ResyncPeriod   time.Duration
+	EnableRBAC              bool
+	DockerRegistry          string
+	MaxNumRequeues          int
+	NumThreads              int
+	OpsAddress              string
+	ResyncPeriod            time.Duration
+	EnableValidatingWebhook bool
+	EnableMutatingWebhook   bool
 }
 
 type Config struct {
@@ -60,28 +63,39 @@ func (c *Config) New() (*VaultController, error) {
 		opt.IncludeUninitialized = true
 	}
 	ctrl := &VaultController{
-		config:              c.config,
-		clientConfig:        c.ClientConfig,
-		ctxCancels:          make(map[string]CtxWithCancel),
-		finalizerInfo:       NewMapFinalizer(),
-		authMethodCtx:       make(map[string]CtxWithCancel),
-		kubeClient:          c.KubeClient,
-		extClient:           c.ExtClient,
-		crdClient:           c.CRDClient,
-		promClient:          c.PromClient,
-		appCatalogClient:    c.AppCatalogClient,
-		dbClient:            c.DbClient,
-		kubeInformerFactory: informers.NewFilteredSharedInformerFactory(c.KubeClient, c.ResyncPeriod, core.NamespaceAll, tweakListOptions),
-		extInformerFactory:  vaultinformers.NewSharedInformerFactory(c.ExtClient, c.ResyncPeriod),
-		dbInformerFactory:   dbinformers.NewSharedInformerFactory(c.DbClient, c.ResyncPeriod),
-		recorder:            eventer.NewEventRecorder(c.KubeClient, "vault-controller"),
+		config:           c.config,
+		clientConfig:     c.ClientConfig,
+		ctxCancels:       make(map[string]CtxWithCancel),
+		finalizerInfo:    NewMapFinalizer(),
+		authMethodCtx:    make(map[string]CtxWithCancel),
+		kubeClient:       c.KubeClient,
+		extClient:        c.ExtClient,
+		crdClient:        c.CRDClient,
+		promClient:       c.PromClient,
+		appCatalogClient: c.AppCatalogClient,
+		dbClient:         c.DbClient,
+		kubeInformerFactory: informers.NewSharedInformerFactoryWithOptions(
+			c.KubeClient,
+			c.ResyncPeriod,
+			informers.WithNamespace(core.NamespaceAll),
+			informers.WithTweakListOptions(tweakListOptions)),
+		extInformerFactory: vaultinformers.NewSharedInformerFactory(c.ExtClient, c.ResyncPeriod),
+		dbInformerFactory:  dbinformers.NewSharedInformerFactory(c.DbClient, c.ResyncPeriod),
+		recorder:           eventer.NewEventRecorder(c.KubeClient, "vault-operator"),
 	}
 
 	if err := ctrl.ensureCustomResourceDefinitions(); err != nil {
 		return nil, err
 	}
-	if err := reg_util.UpdateValidatingWebhookCABundle(ctrl.clientConfig, validatingWebhook); err != nil {
-		return nil, err
+	if c.EnableMutatingWebhook {
+		if err := reg_util.UpdateMutatingWebhookCABundle(c.ClientConfig, mutatingWebhook); err != nil {
+			return nil, err
+		}
+	}
+	if c.EnableValidatingWebhook {
+		if err := reg_util.UpdateValidatingWebhookCABundle(c.ClientConfig, validatingWebhook); err != nil {
+			return nil, err
+		}
 	}
 
 	// For VaultServer

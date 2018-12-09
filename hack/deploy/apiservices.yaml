@@ -1,0 +1,50 @@
+# register as aggregated apiserver
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1alpha1.mutators.kubevault.com
+  labels:
+    app: vault-operator
+spec:
+  caBundle: ${SERVICE_SERVING_CERT_CA}
+  group: mutators.kubevault.com
+  groupPriorityMinimum: 1000
+  versionPriority: 15
+  service:
+    name: vault-operator
+    namespace: ${VAULT_OPERATOR_NAMESPACE}
+  version: v1alpha1
+---
+# register as aggregated apiserver
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1alpha1.validators.kubevault.com
+  labels:
+    app: vault-operator
+spec:
+  caBundle: ${SERVICE_SERVING_CERT_CA}
+  group: validators.kubevault.com
+  groupPriorityMinimum: 1000
+  versionPriority: 15
+  service:
+    name: vault-operator
+    namespace: ${VAULT_OPERATOR_NAMESPACE}
+  version: v1alpha1
+---
+# register as aggregated apiserver
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1alpha1.validators.authorization.kubedb.com
+  labels:
+    app: vault-operator
+spec:
+  caBundle: ${SERVICE_SERVING_CERT_CA}
+  group: validators.authorization.kubedb.com
+  groupPriorityMinimum: 1000
+  versionPriority: 15
+  service:
+    name: vault-operator
+    namespace: ${VAULT_OPERATOR_NAMESPACE}
+  version: v1alpha1
