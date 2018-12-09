@@ -2,12 +2,17 @@ package server
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	hooks "github.com/appscode/kubernetes-webhook-util/admission/v1beta1"
 	admissionreview "github.com/appscode/kubernetes-webhook-util/registry/admissionreview/v1beta1"
+	reg_util "github.com/appscode/kutil/admissionregistration/v1beta1"
+	dynamic_util "github.com/appscode/kutil/dynamic"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	vsadmission "github.com/kubevault/operator/pkg/admission"
 	"github.com/kubevault/operator/pkg/controller"
+	"github.com/kubevault/operator/pkg/eventer"
 	admission "k8s.io/api/admission/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -16,6 +21,12 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/kubernetes/pkg/apis/core"
+)
+
+const (
+	apiserviceName = "v1alpha1.validators.kubevault.com"
 )
 
 var (
@@ -92,10 +103,18 @@ func (c completedConfig) New() (*VaultServer, error) {
 	if err != nil {
 		return nil, err
 	}
-	admissionHooks := []hooks.AdmissionHook{
-		&vsadmission.VaultServerValidator{},
-		&vsadmission.PolicyBindingMutator{},
-		&vsadmission.DatabaseAccessRequestValidator{},
+
+	var admissionHooks []hooks.AdmissionHook
+	if c.ExtraConfig.EnableValidatingWebhook {
+		admissionHooks = append(admissionHooks,
+			&vsadmission.VaultServerValidator{},
+			&vsadmission.DatabaseAccessRequestValidator{},
+		)
+	}
+	if c.ExtraConfig.EnableMutatingWebhook {
+		admissionHooks = append(admissionHooks,
+			&vsadmission.PolicyBindingMutator{},
+		)
 	}
 
 	s := &VaultServer{
@@ -148,6 +167,47 @@ func (c completedConfig) New() (*VaultServer, error) {
 		s.GenericAPIServer.AddPostStartHookOrDie(postStartName,
 			func(context genericapiserver.PostStartHookContext) error {
 				return admissionHook.Initialize(c.ExtraConfig.ClientConfig, context.StopCh)
+			},
+		)
+	}
+
+	if c.ExtraConfig.EnableValidatingWebhook {
+		s.GenericAPIServer.AddPostStartHookOrDie("validating-webhook-xray",
+			func(context genericapiserver.PostStartHookContext) error {
+				go func() {
+					xray := reg_util.NewCreateValidatingWebhookXray(c.ExtraConfig.ClientConfig, apiserviceName, &api.VaultServer{
+						TypeMeta: metav1.TypeMeta{
+							APIVersion: api.SchemeGroupVersion.String(),
+							Kind:       api.ResourceKindVaultServer,
+						},
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "test-vaultserver-for-webhook-xray",
+							Namespace: "default",
+						},
+						Spec: api.VaultServerSpec{
+							Nodes:   1,
+							Version: "0.11.1",
+						},
+					}, context.StopCh)
+					if err := xray.IsActive(); err != nil {
+						w, _, e2 := dynamic_util.DetectWorkload(
+							c.ExtraConfig.ClientConfig,
+							core.SchemeGroupVersion.WithResource("pods"),
+							os.Getenv("MY_POD_NAMESPACE"),
+							os.Getenv("MY_POD_NAME"))
+						if e2 == nil {
+							eventer.CreateEventWithLog(
+								kubernetes.NewForConfigOrDie(c.ExtraConfig.ClientConfig),
+								"vault-operator",
+								w,
+								core.EventTypeWarning,
+								eventer.EventReasonAdmissionWebhookNotActivated,
+								err.Error())
+						}
+						panic(err)
+					}
+				}()
+				return nil
 			},
 		)
 	}

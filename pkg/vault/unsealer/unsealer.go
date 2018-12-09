@@ -5,6 +5,9 @@ import (
 	"time"
 
 	core_util "github.com/appscode/kutil/core/v1"
+	"github.com/appscode/kutil/tools/analytics"
+	"github.com/appscode/kutil/tools/cli"
+	"github.com/appscode/kutil/tools/clientcmd"
 	"github.com/golang/glog"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	sa_util "github.com/kubevault/operator/pkg/util"
@@ -146,12 +149,16 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 				Key: core.ServiceAccountTokenKey,
 			},
 		},
+	}, core.EnvVar{
+		Name:  analytics.Key,
+		Value: cli.AnalyticsClientID,
 	})
 
 	// Add flags for policy
 	args = append(args, fmt.Sprintf("--policy-manager.name=%s", u.vs.PolicyNameForPolicyController()))
 	args = append(args, fmt.Sprintf("--policy-manager.service-account-name=%s", u.vs.ServiceAccountName()))
 	args = append(args, fmt.Sprintf("--policy-manager.service-account-namespace=%s", u.vs.Namespace))
+	args = append(args, fmt.Sprintf("--use-kubeapiserver-fqdn-for-aks=%v", clientcmd.UseKubeAPIServerFQDNForAKS()))
 
 	cont.Args = append(cont.Args, args...)
 	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)

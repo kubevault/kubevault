@@ -30,7 +30,11 @@ spec:
         - --audit-log-path=-
         - --tls-cert-file=/var/serving-cert/tls.crt
         - --tls-private-key-file=/var/serving-cert/tls.key
+        - --enable-mutating-webhook=${VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK}
+        - --enable-validating-webhook=${VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK}
+        - --bypass-validating-webhook-xray=${VAULT_OPERATOR_BYPASS_VALIDATING_WEBHOOK_XRAY}
         - --enable-status-subresource=${VAULT_OPERATOR_ENABLE_STATUS_SUBRESOURCE}
+        - --use-kubeapiserver-fqdn-for-aks=${VAULT_OPERATOR_USE_KUBEAPISERVER_FQDN_FOR_AKS}
         - --enable-analytics=${VAULT_OPERATOR_ENABLE_ANALYTICS}
         ports:
         - containerPort: 8443
@@ -43,15 +47,10 @@ spec:
             port: 8443
             scheme: HTTPS
         livenessProbe:
-          failureThreshold: 8
           httpGet:
             path: /healthz
             port: 8443
             scheme: HTTPS
-          initialDelaySeconds: 15
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 15
         resources:
           requests:
             cpu: "100m"
@@ -88,59 +87,8 @@ metadata:
     app: vault-operator
 spec:
   ports:
-  - name: admission
+  - name: api
     port: 443
     targetPort: 8443
   selector:
     app: vault-operator
----
-# register as aggregated apiserver
-apiVersion: apiregistration.k8s.io/v1beta1
-kind: APIService
-metadata:
-  name: v1alpha1.validators.kubevault.com
-  labels:
-    app: vault-operator
-spec:
-  caBundle: ${SERVICE_SERVING_CERT_CA}
-  group: validators.kubevault.com
-  groupPriorityMinimum: 1000
-  versionPriority: 15
-  service:
-    name: vault-operator
-    namespace: ${VAULT_OPERATOR_NAMESPACE}
-  version: v1alpha1
----
-# register as aggregated apiserver
-apiVersion: apiregistration.k8s.io/v1beta1
-kind: APIService
-metadata:
-  name: v1alpha1.mutators.kubevault.com
-  labels:
-    app: vault-operator
-spec:
-  caBundle: ${SERVICE_SERVING_CERT_CA}
-  group: mutators.kubevault.com
-  groupPriorityMinimum: 1000
-  versionPriority: 15
-  service:
-    name: vault-operator
-    namespace: ${VAULT_OPERATOR_NAMESPACE}
-  version: v1alpha1
----
-# register as aggregated apiserver
-apiVersion: apiregistration.k8s.io/v1beta1
-kind: APIService
-metadata:
-  name: v1alpha1.validators.authorization.kubedb.com
-  labels:
-    app: vault-operator
-spec:
-  caBundle: ${SERVICE_SERVING_CERT_CA}
-  group: validators.authorization.kubedb.com
-  groupPriorityMinimum: 1000
-  versionPriority: 15
-  service:
-    name: vault-operator
-    namespace: ${VAULT_OPERATOR_NAMESPACE}
-  version: v1alpha1

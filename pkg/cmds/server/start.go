@@ -62,6 +62,7 @@ func (o VaultServerOptions) Config() (*server.VaultServerConfig, error) {
 	if err := o.RecommendedOptions.ApplyTo(serverConfig, server.Scheme); err != nil {
 		return nil, err
 	}
+	// Fixes https://github.com/Azure/AKS/issues/522
 	clientcmd.Fix(serverConfig.ClientConfig)
 
 	extraConfig := controller.NewConfig(serverConfig.ClientConfig)

@@ -5,12 +5,14 @@ metadata:
   name: kubevault:core:admin
   labels:
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
-  annotations:
-    "helm.sh/hook": post-install,post-upgrade
-    "helm.sh/hook-delete-policy": before-hook-creation
+rules:
 - apiGroups:
   - kubevault.com
   - catalog.kubevault.com
+  - policy.kubevault.com
+  - appcatalog.appscode.com
+  - authorization.kubedb.com
+  - engine.kubevault.com
   resources:
   - "*"
   verbs: ["*"]
@@ -21,14 +23,36 @@ metadata:
   name: kubevault:core:edit
   labels:
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
-  annotations:
-    "helm.sh/hook": post-install,post-upgrade
-    "helm.sh/hook-delete-policy": before-hook-creation
 rules:
 - apiGroups:
   - kubevault.com
   resources:
   - vaultservers
+  verbs: ["*"]
+- apiGroups:
+  - policy.kubevault.com
+  resources:
+  - vaultpolicies
+  - vaultpolicybindings
+  verbs: ["*"]
+- apiGroups:
+  - authorization.kubedb.com
+  resources:
+  - databaseaccessrequests
+  - mongodbroles
+  - mysqlroles
+  - postgresroles
+  verbs: ["*"]
+- apiGroups:
+  - engine.kubevault.com
+  resources:
+  - awsroles
+  - awsaccesskeyrequests
+  verbs: ["*"]
+- apiGroups:
+  - appcatalog.appscode.com
+  resources:
+  - appbindings
   verbs: ["*"]
 - apiGroups:
   - catalog.kubevault.com
@@ -42,14 +66,36 @@ metadata:
   name: kubevault:core:view
   labels:
     rbac.authorization.k8s.io/aggregate-to-view: "true"
-  annotations:
-    "helm.sh/hook": post-install,post-upgrade
-    "helm.sh/hook-delete-policy": before-hook-creation
 rules:
 - apiGroups:
   - kubevault.com
   resources:
   - vaultservers
+  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - policy.kubevault.com
+  resources:
+  - vaultpolicies
+  - vaultpolicybindings
+  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - authorization.kubedb.com
+  resources:
+  - databaseaccessrequests
+  - mongodbroles
+  - mysqlroles
+  - postgresroles
+  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - engine.kubevault.com
+  resources:
+  - awsroles
+  - awsaccesskeyrequests
+  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - appcatalog.appscode.com
+  resources:
+  - appbindings
   verbs: ["get", "list", "watch"]
 - apiGroups:
   - catalog.kubevault.com

@@ -1,8 +1,11 @@
+# GKE returns Major:"1", Minor:"10+"
+{{- $major := default "0" .Capabilities.KubeVersion.Major | trimSuffix "+" | int64 }}
+{{- $minor := default "0" .Capabilities.KubeVersion.Minor | trimSuffix "+" | int64 }}
 {{- if .Values.apiserver.enableValidatingWebhook }}
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: ValidatingWebhookConfiguration
 metadata:
-  name: admission.kubevault.com
+  name: validators.kubevault.com
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     app: "{{ template "vault-operator.name" . }}"
@@ -12,12 +15,12 @@ metadata:
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation
 webhooks:
-- name: vaultservers.admission.kubevault.com
+- name: vaultservers.validators.kubevault.com
   clientConfig:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/admission.kubevault.com/v1alpha1/vaultservers
+      path: /apis/validators.kubevault.com/v1alpha1/vaultservers
     caBundle: {{ b64enc .Values.apiserver.ca }}
   rules:
   - operations:
@@ -30,4 +33,42 @@ webhooks:
     resources:
     - vaultservers
   failurePolicy: Fail
+{{- if and (ge $major 1) (ge $minor 12) }}
+  sideEffects: None
+{{- end }}
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validators.authorization.kubedb.com
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "{{ template "vault-operator.name" . }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+webhooks:
+- name: databaseaccessrequests.validators.authorization.kubedb.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/validators.authorization.kubedb.com/v1alpha1/databaseaccessrequests
+    caBundle: {{ b64enc .Values.apiserver.ca }}
+  rules:
+  - operations:
+    - CREATE
+    - UPDATE
+    apiGroups:
+    - authorization.kubedb.com
+    apiVersions:
+    - "*"
+    resources:
+    - databaseaccessrequests
+  failurePolicy: Fail
+{{- if and (ge $major 1) (ge $minor 12) }}
+  sideEffects: None
+{{- end }}
 {{ end }}
