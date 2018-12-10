@@ -56,7 +56,10 @@ func (exp monitor) Apply(pt *core.PodTemplateSpec, agent *mona.AgentSpec) error 
 		},
 	}
 	if agent != nil {
+		cont.Args = append(cont.Args, agent.Args...)
+		cont.Env = agent.Env
 		cont.Resources = agent.Resources
+		cont.SecurityContext = agent.SecurityContext
 	}
 
 	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)
