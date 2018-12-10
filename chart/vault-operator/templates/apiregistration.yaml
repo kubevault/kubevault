@@ -63,6 +63,26 @@ spec:
   groupPriorityMinimum: {{ .Values.apiserver.groupPriorityMinimum }}
   versionPriority: {{ .Values.apiserver.versionPriority }}
 ---
+# register as aggregated apiserver
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1alpha1.validators.engine.kubevault.com
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "{{ template "vault-operator.name" . }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  group: validators.engine.kubevault.com
+  version: v1alpha1
+  service:
+    namespace: {{ .Release.Namespace }}
+    name: {{ template "vault-operator.fullname" . }}
+  caBundle: {{ b64enc $ca.Cert }}
+  groupPriorityMinimum: {{ .Values.apiserver.groupPriorityMinimum }}
+  versionPriority: {{ .Values.apiserver.versionPriority }}
+---
 apiVersion: v1
 kind: Secret
 metadata:
