@@ -1,5 +1,5 @@
-hash: 5bdb5c7e58f220d3d7f84460c16cb01153f055e62d3ea9ff56e6aca9c7b936ff
-updated: 2018-12-09T03:17:34.480662869-08:00
+hash: ba1de17ec752123c0d7d8c2b9c25a5570eed22231bdd86fdaffde160485da8cf
+updated: 2018-12-10T00:08:29.389461328-08:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -441,12 +441,6 @@ imports:
   - matchers/support/goraph/node
   - matchers/support/goraph/util
   - types
-- name: github.com/openshift/api
-  version: 31a7bbd2266d178da3c12bb83f5274d387f775e6
-- name: github.com/openshift/client-go
-  version: 4688ad28de2e88110c0ea30179c51b9b205f99be
-- name: github.com/openshift/origin
-  version: fecffb2fce100260088a1b9f268c0901a778cf2b
 - name: github.com/pborman/uuid
   version: ca53cad383cad2479bbba7f7a1a05797ec1386e4
 - name: github.com/peterbourgon/diskv
@@ -1057,7 +1051,7 @@ imports:
   subpackages:
   - api/v1
 - name: sigs.k8s.io/yaml
-  version: 5fa4c7f5e38dda46711e0c2efd62370cfae67205
+  version: fd68e9863619f6ec2fdd8625fe1f02e7c877e480
 testImports:
 - name: github.com/appscode/pat
   version: 48ff78925b7955367d8a048fc2b5cec8efadf8d3
