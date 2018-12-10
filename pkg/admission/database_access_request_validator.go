@@ -82,7 +82,7 @@ func (v *DatabaseAccessRequestValidator) Admit(req *admission.AdmissionRequest) 
 
 		if isApprovedOrDenied {
 			// once request is approved or denied, .spec can not be changed
-			diff := meta_util.Diff(dbAReq.Spec, oldDbAReq.Spec)
+			diff := meta_util.Diff(oldDbAReq.Spec, dbAReq.Spec)
 			if diff != "" {
 				return hookapi.StatusBadRequest(errors.Errorf("once request is approved or denied, .spec can not be changed. Diff: %s", diff))
 			}

@@ -82,7 +82,7 @@ func (v *AWSAccessKeyRequestValidator) Admit(req *admission.AdmissionRequest) *a
 
 		if isApprovedOrDenied {
 			// once request is approved or denied, .spec can not be changed
-			diff := meta_util.Diff(awsAKReq.Spec, oldAwsAKReq.Spec)
+			diff := meta_util.Diff(oldAwsAKReq.Spec, awsAKReq.Spec)
 			if diff != "" {
 				return hookapi.StatusBadRequest(errors.Errorf("once request is approved or denied, .spec can not be changed. Diff: %s", diff))
 			}
