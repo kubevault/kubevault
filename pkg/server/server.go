@@ -109,6 +109,7 @@ func (c completedConfig) New() (*VaultServer, error) {
 		admissionHooks = append(admissionHooks,
 			&vsadmission.VaultServerValidator{},
 			&vsadmission.DatabaseAccessRequestValidator{},
+			&vsadmission.AWSAccessKeyRequestValidator{},
 		)
 	}
 	if c.ExtraConfig.EnableMutatingWebhook {
