@@ -1,0 +1,12 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: vault-aws-storage
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: com.vault.csi.vaultdbs
+parameters:
+  ref: default/vaultapp
+  role: aws-cred-role
+  engine: AWS
+  path: aws

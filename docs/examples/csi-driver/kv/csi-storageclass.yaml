@@ -1,0 +1,13 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: vault-kv-storage
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: com.vault.csi.vaultdbs
+parameters:
+  ref: default/vaultapp
+  engine: KV
+  secret: my-secret
+  path: kv
+
