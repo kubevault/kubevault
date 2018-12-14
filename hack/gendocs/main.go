@@ -21,12 +21,12 @@ const (
 
 var (
 	tplFrontMatter = template.Must(template.New("index").Parse(`---
-title: Reference | KubeVault Engine
-description: KubeVault Engine CLI Reference
+title: Reference | Vault Operator
+description: Vault Operator CLI Reference
 menu:
   product_kubevault_{{ .Version }}:
     identifier: reference-operator
-    name: KubeVault Engine
+    name: Vault Operator
     weight: 10
     parent: reference
 menu_name: product_kubevault_{{ .Version }}
