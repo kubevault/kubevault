@@ -21,33 +21,34 @@ const (
 
 var (
 	tplFrontMatter = template.Must(template.New("index").Parse(`---
-title: Reference
-description: Steward CLI Reference
+title: Reference | KubeVault Engine
+description: KubeVault Engine CLI Reference
 menu:
-  product_vault-operator_{{ .Version }}:
-    identifier: reference
-    name: Reference
-    weight: 1000
-left_menu: product_vault-operator_{{ .Version }}
+  product_kubevault_{{ .Version }}:
+    identifier: reference-operator
+    name: KubeVault Engine
+    weight: 10
+    parent: reference
+menu_name: product_kubevault_{{ .Version }}
 ---
 `))
 
 	_ = template.Must(tplFrontMatter.New("cmd").Parse(`---
 title: {{ .Name }}
 menu:
-  product_vault-operator_{{ .Version }}:
+  product_kubevault_{{ .Version }}:
     identifier: {{ .ID }}
     name: {{ .Name }}
-    parent: reference
+    parent: reference-operator
 {{- if .RootCmd }}
     weight: 0
 {{ end }}
-product_name: vault-operator
-left_menu: product_vault-operator_{{ .Version }}
+product_name: kubevault
+menu_name: product_kubevault_{{ .Version }}
 section_menu_id: reference
 {{- if .RootCmd }}
 aliases:
-  - products/vault-operator/{{ .Version }}/reference/
+  - products/kubevault/{{ .Version }}/reference/operator/
 {{ end }}
 ---
 `))
@@ -56,7 +57,7 @@ aliases:
 // ref: https://github.com/spf13/cobra/blob/master/doc/md_docs.md
 func main() {
 	rootCmd := cmds.NewRootCmd()
-	dir := runtime.GOPath() + "/src/github.com/kubevault/operator/docs/reference"
+	dir := runtime.GOPath() + "/src/github.com/kubevault/docs/docs/reference/operator"
 	fmt.Printf("Generating cli markdown tree in: %v\n", dir)
 	err := os.RemoveAll(dir)
 	if err != nil {
@@ -89,7 +90,7 @@ func main() {
 	}
 
 	linkHandler := func(name string) string {
-		return "/docs/reference/" + name
+		return "/docs/reference/operator/" + name
 	}
 	doc.GenMarkdownTreeCustom(rootCmd, dir, filePrepender, linkHandler)
 
