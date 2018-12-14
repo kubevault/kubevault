@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-config
+  namespace: demo
   labels:
     app: postgres
 data:
@@ -13,6 +14,7 @@ kind: PersistentVolume
 apiVersion: v1
 metadata:
   name: postgres-pv-volume
+  namespace: demo
   labels:
     type: local
     app: postgres
@@ -29,6 +31,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: postgres-pv-claim
+  namespace: demo
   labels:
     app: postgres
 spec:
@@ -43,6 +46,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: postgres
+  namespace: demo
 spec:
   replicas: 1
   template:

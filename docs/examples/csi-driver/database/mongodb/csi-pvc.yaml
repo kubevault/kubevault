@@ -1,14 +1,15 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: csi-pg-pvc
+  name: csi-mongodb-pvc
+  namespace: demo
 spec:
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
-  storageClassName: vault-pg-storage
+  storageClassName: vault-mongodb-storage
   volumeMode: DirectoryOrCreate
 
 

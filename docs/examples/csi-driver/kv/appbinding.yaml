@@ -2,14 +2,14 @@ apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
   name: vaultapp
-  namespace: default
+  namespace: demo
 spec:
   clientConfig:
-    url: http://159.89.41.120:30001
+    url: http://159.203.114.170:30001
     insecureSkipTLSVerify: true
   parameters:
     apiVersion: "kubevault.com/v1alpha1"
     kind: "VaultServerConfiguration"
     usePodServiceAccountForCSIDriver: true
     authPath: "kubernetes"
-    policyControllerRole: testrole
+    policyControllerRole: kvrole

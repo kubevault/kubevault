@@ -32,7 +32,7 @@ Vault operator can be installed via a script or as a Helm chart.
 To install Vault operator in your Kubernetes cluster, run the following command:
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.1.0/hack/deploy/vault-operator.sh | bash
+$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.1.0/hack/deploy/install.sh | bash
 ```
 
 After successful installation, you should have a `vault-operator-***` pod running in the `kube-system` namespace.

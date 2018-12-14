@@ -2,12 +2,13 @@ kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
   name: vault-pg-storage
+  namespace: demo
   annotations:
     storageclass.kubernetes.io/is-default-class: "false"
-provisioner: com.vault.csi.vaultdbs
+provisioner: com.kubevault.csi.secrets
 parameters:
-  ref: default/vaultapp
+  ref: demo/vaultapp
   engine: DATABASE
-  role: my-role
+  role: my-pg-role
   path: database
 

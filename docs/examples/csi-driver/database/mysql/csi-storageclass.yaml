@@ -1,14 +1,14 @@
-apiVersion: storage.k8s.io/v1
 kind: StorageClass
+apiVersion: storage.k8s.io/v1
 metadata:
-  name: vault-pki-storage
+  name: vault-mysql-storage
   namespace: demo
   annotations:
     storageclass.kubernetes.io/is-default-class: "false"
 provisioner: com.kubevault.csi.secrets
 parameters:
   ref: demo/vaultapp
-  engine: PKI
-  role: my-pki-role
-  path: pki
-  common_name: www.my-website.com
+  engine: DATABASE
+  role: my-role
+  path: database
+
