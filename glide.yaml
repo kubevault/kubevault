@@ -6,8 +6,6 @@ import:
   version: release-9.0
 - package: github.com/appscode/kutil
   version: release-9.0
-- package: github.com/appscode/ocutil
-  version: release-3.11
 - package: github.com/coreos/prometheus-operator
   version: v0.25.0
 - package: github.com/cpuguy83/go-md2man
@@ -19,7 +17,7 @@ import:
 - package: github.com/go-openapi/spec
 - package: github.com/golang/glog
 - package: github.com/golang/protobuf
-  version: v1.1.0
+  version: v1.0.0
 - package: github.com/gorilla/websocket
   version: v1.4.0
 - package: github.com/hashicorp/vault
