@@ -1,6 +1,7 @@
 package database
 
 import (
+	meta_util "github.com/appscode/kutil/meta"
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
 	crd "github.com/kubedb/apimachinery/client/clientset/versioned"
@@ -8,7 +9,6 @@ import (
 	databaserole "github.com/kubevault/operator/pkg/vault/role/database"
 	"github.com/kubevault/operator/pkg/vault/secret"
 	"github.com/kubevault/operator/pkg/vault/secret/engines/database"
-	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -81,7 +81,7 @@ func (d *DBCredManager) ParseCredential(credSecret *vaultapi.Secret) (map[string
 		Username string `json:"username"`
 	}
 
-	err := mapstructure.Decode(credSecret.Data, &cred)
+	err := meta_util.Decode(credSecret.Data, &cred)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse credential from vault secret")
 	}
