@@ -3,8 +3,6 @@ package postgres
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
-	"path/filepath"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
@@ -15,6 +13,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	appcat_util "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/util"
 )
 
 type PostgresRole struct {
@@ -23,18 +22,19 @@ type PostgresRole struct {
 	pgRole       *api.PostgresRole
 	vaultClient  *vaultapi.Client
 	kubeClient   kubernetes.Interface
+	dbBinding    *appcat.AppBinding
 	databasePath string
-	dbConnUrl    string
+	dbConnURL    string
 }
 
 func NewPostgresRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, v *vaultapi.Client, pgRole *api.PostgresRole, databasePath string) (*PostgresRole, error) {
 	ref := pgRole.Spec.DatabaseRef
-	dApp, err := appClient.AppBindings(pgRole.Namespace).Get(ref.Name, metav1.GetOptions{})
+	dbBinding, err := appClient.AppBindings(pgRole.Namespace).Get(ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	secretRef := dApp.Spec.Secret
+	secretRef := dbBinding.Spec.Secret
 	if secretRef == nil {
 		return nil, errors.New("database secret is not provided")
 	}
@@ -45,15 +45,15 @@ func NewPostgresRole(kClient kubernetes.Interface, appClient appcat_cs.Appcatalo
 	}
 
 	cf := &configapi.PostgresConfiguration{}
-	if dApp.Spec.Parameters != nil {
-		err := json.Unmarshal(dApp.Spec.Parameters.Raw, cf)
+	if dbBinding.Spec.Parameters != nil {
+		err := json.Unmarshal(dbBinding.Spec.Parameters.Raw, cf)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to unmarshal database parameter")
 		}
 	}
 	cf.SetDefaults()
 
-	connUrl, err := getConnectionUrl(dApp)
+	connurl, err := dbBinding.URLTemplate()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database connection url")
 	}
@@ -64,8 +64,9 @@ func NewPostgresRole(kClient kubernetes.Interface, appClient appcat_cs.Appcatalo
 		pgRole:       pgRole,
 		vaultClient:  v,
 		kubeClient:   kClient,
+		dbBinding:    dbBinding,
 		databasePath: databasePath,
-		dbConnUrl:    connUrl,
+		dbConnURL:    connurl,
 	}, nil
 }
 
@@ -87,15 +88,23 @@ func (p *PostgresRole) CreateConfig() error {
 	payload := map[string]interface{}{
 		"plugin_name":    p.config.PluginName,
 		"allowed_roles":  p.config.AllowedRoles,
-		"connection_url": p.dbConnUrl,
+		"connection_url": p.dbConnURL,
 	}
 
-	data := p.secret.Data
+	data := make(map[string]interface{}, len(p.secret.Data))
+	for k, v := range p.secret.Data {
+		data[k] = v
+	}
+	err := appcat_util.TransformCredentials(p.kubeClient, p.dbBinding.Spec.SecretTransforms, data)
+	if err != nil {
+		return err
+	}
+
 	if val, ok := data["username"]; ok {
-		payload["username"] = string(val)
+		payload["username"] = val
 	}
 	if val, ok := data["password"]; ok {
-		payload["password"] = string(val)
+		payload["password"] = val
 	}
 
 	if p.config.MaxOpenConnections > 0 {
@@ -108,7 +117,7 @@ func (p *PostgresRole) CreateConfig() error {
 		payload["max_connection_lifetime"] = p.config.MaxConnectionLifetime
 	}
 
-	err := req.SetJSONBody(payload)
+	err = req.SetJSONBody(payload)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -157,29 +166,4 @@ func (p *PostgresRole) CreateRole() error {
 		return errors.Wrapf(err, "failed to create database role %s for config %s", name, pg.DatabaseRef.Name)
 	}
 	return nil
-}
-
-func getConnectionUrl(app *appcat.AppBinding) (string, error) {
-	c := app.Spec.ClientConfig
-	if c.URL != nil {
-		u, err := url.Parse(*c.URL)
-		if err == nil {
-			if u.User != nil {
-				return "", errors.New("username/password must not be included in url, use {{field_name}} template instead and provide username and password in secret")
-			}
-		}
-		return *c.URL, nil
-
-	} else if c.Service != nil {
-		srv := c.Service
-		rawUrl := fmt.Sprintf("{{username}}:{{password}}@%s.%s.svc:%d", srv.Name, app.Namespace, srv.Port)
-		if srv.Path != nil {
-			rawUrl = filepath.Join(rawUrl, *srv.Path)
-		}
-		rawUrl = fmt.Sprintf("postgresql://%s", rawUrl)
-		return rawUrl, nil
-
-	} else {
-		return "", errors.New("connection url is not provided")
-	}
 }

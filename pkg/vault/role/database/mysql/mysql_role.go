@@ -3,8 +3,6 @@ package mysql
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
-	"path/filepath"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
@@ -15,6 +13,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	appcat_util "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/util"
 )
 
 type MySQLRole struct {
@@ -23,18 +22,19 @@ type MySQLRole struct {
 	mRole        *api.MySQLRole
 	vaultClient  *vaultapi.Client
 	kubeClient   kubernetes.Interface
+	dbBinding    *appcat.AppBinding
 	databasePath string
-	dbConnUrl    string
+	dbConnURL    string
 }
 
 func NewMySQLRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, v *vaultapi.Client, mRole *api.MySQLRole, databasePath string) (*MySQLRole, error) {
 	ref := mRole.Spec.DatabaseRef
-	dApp, err := appClient.AppBindings(mRole.Namespace).Get(ref.Name, metav1.GetOptions{})
+	dbBinding, err := appClient.AppBindings(mRole.Namespace).Get(ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	secretRef := dApp.Spec.Secret
+	secretRef := dbBinding.Spec.Secret
 	if secretRef == nil {
 		return nil, errors.New("database secret is not provided")
 	}
@@ -45,15 +45,15 @@ func NewMySQLRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1
 	}
 
 	cf := &configapi.MySQLConfiguration{}
-	if dApp.Spec.Parameters != nil {
-		err := json.Unmarshal(dApp.Spec.Parameters.Raw, cf)
+	if dbBinding.Spec.Parameters != nil {
+		err := json.Unmarshal(dbBinding.Spec.Parameters.Raw, cf)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to unmarshal database parameter")
 		}
 	}
 	cf.SetDefaults()
 
-	connUrl, err := getConnectionUrl(dApp)
+	connurl, err := dbBinding.URLTemplate()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database connection url")
 	}
@@ -64,8 +64,9 @@ func NewMySQLRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1
 		mRole:        mRole,
 		vaultClient:  v,
 		kubeClient:   kClient,
+		dbBinding:    dbBinding,
 		databasePath: databasePath,
-		dbConnUrl:    connUrl,
+		dbConnURL:    connurl,
 	}, nil
 }
 
@@ -87,15 +88,23 @@ func (m *MySQLRole) CreateConfig() error {
 	payload := map[string]interface{}{
 		"plugin_name":    m.config.PluginName,
 		"allowed_roles":  m.config.AllowedRoles,
-		"connection_url": m.dbConnUrl,
+		"connection_url": m.dbConnURL,
 	}
 
-	data := m.secret.Data
+	data := make(map[string]interface{}, len(m.secret.Data))
+	for k, v := range m.secret.Data {
+		data[k] = v
+	}
+	err := appcat_util.TransformCredentials(m.kubeClient, m.dbBinding.Spec.SecretTransforms, data)
+	if err != nil {
+		return err
+	}
+
 	if val, ok := data["username"]; ok {
-		payload["username"] = string(val)
+		payload["username"] = val
 	}
 	if val, ok := data["password"]; ok {
-		payload["password"] = string(val)
+		payload["password"] = val
 	}
 
 	if m.config.MaxOpenConnections > 0 {
@@ -108,7 +117,7 @@ func (m *MySQLRole) CreateConfig() error {
 		payload["max_connection_lifetime"] = m.config.MaxConnectionLifetime
 	}
 
-	err := req.SetJSONBody(payload)
+	err = req.SetJSONBody(payload)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -151,28 +160,4 @@ func (m *MySQLRole) CreateRole() error {
 		return errors.Wrapf(err, "failed to create database role %s for config %s", name, my.DatabaseRef.Name)
 	}
 	return nil
-}
-
-func getConnectionUrl(app *appcat.AppBinding) (string, error) {
-	c := app.Spec.ClientConfig
-	if c.URL != nil {
-		u, err := url.Parse(*c.URL)
-		if err == nil {
-			if u.User != nil {
-				return "", errors.New("username/password must not be included in url, use {{field_name}} template instead and provide username and password in secret")
-			}
-		}
-		return *c.URL, nil
-
-	} else if c.Service != nil {
-		srv := c.Service
-		rawUrl := fmt.Sprintf("{{username}}:{{password}}@tcp(%s.%s.svc:%d)/", srv.Name, app.Namespace, srv.Port)
-		if srv.Path != nil {
-			rawUrl = filepath.Join(rawUrl, *srv.Path)
-		}
-		return rawUrl, nil
-
-	} else {
-		return "", errors.New("connection url is not provided")
-	}
 }

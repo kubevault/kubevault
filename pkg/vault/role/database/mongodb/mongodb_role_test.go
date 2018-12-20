@@ -114,7 +114,7 @@ func TestMongoDBRole_CreateConfig(t *testing.T) {
 		},
 		vaultClient:  cl,
 		databasePath: "database",
-		dbConnUrl:    "hi.com",
+		dbConnURL:    "hi.com",
 		config: &configapi.MongoDBConfiguration{
 			AllowedRoles: "*",
 			PluginName:   "mongo",

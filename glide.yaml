@@ -20,6 +20,8 @@ import:
   version: v1.0.0
 - package: github.com/gorilla/websocket
   version: v1.4.0
+- package: github.com/mitchellh/mapstructure
+  version: v1.1.2
 - package: github.com/hashicorp/vault
   version: v0.10.3
 - package: github.com/imdario/mergo

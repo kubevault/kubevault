@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/appscode/go/crypto/rand"
-	"github.com/appscode/go/types"
 	_ "github.com/lib/pq"
 	. "github.com/onsi/gomega"
 	apps "k8s.io/api/apps/v1"
@@ -193,14 +192,15 @@ func (f *Framework) DeployPostgres() (*appcat.AppReference, error) {
 		},
 		Spec: appcat.AppBindingSpec{
 			Secret: &core.LocalObjectReference{
-				PostgresCredentialSecret,
+				Name: PostgresCredentialSecret,
 			},
 			ClientConfig: appcat.ClientConfig{
 				Service: &appcat.ServiceReference{
 					Name:   postgresServiceName,
 					Scheme: "postgresql",
 					Port:   5432,
-					Path:   types.StringP("/postgres?sslmode=disable"),
+					Path:   "/",
+					Query:  "sslmode=disable",
 				},
 				InsecureSkipTLSVerify: true,
 			},

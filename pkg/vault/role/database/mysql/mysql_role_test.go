@@ -113,7 +113,7 @@ func TestMySQLRole_CreateConfig(t *testing.T) {
 		},
 		vaultClient:  cl,
 		databasePath: "database",
-		dbConnUrl:    "hi.com",
+		dbConnURL:    "hi.com",
 		config: &configapi.MySQLConfiguration{
 			AllowedRoles: "*",
 			PluginName:   "mongo",
