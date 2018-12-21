@@ -93,18 +93,18 @@ func (m *MySQLRole) CreateConfig() error {
 
 	data := make(map[string]interface{}, len(m.secret.Data))
 	for k, v := range m.secret.Data {
-		data[k] = v
+		data[k] = string(v)
 	}
 	err := appcat_util.TransformCredentials(m.kubeClient, m.dbBinding.Spec.SecretTransforms, data)
 	if err != nil {
 		return err
 	}
 
-	if val, ok := data["username"]; ok {
-		payload["username"] = val
+	if v, ok := data[appcat.KeyUsername]; ok {
+		payload[appcat.KeyUsername] = v
 	}
-	if val, ok := data["password"]; ok {
-		payload["password"] = val
+	if v, ok := data[appcat.KeyPassword]; ok {
+		payload[appcat.KeyPassword] = v
 	}
 
 	if m.config.MaxOpenConnections > 0 {

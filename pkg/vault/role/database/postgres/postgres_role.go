@@ -93,18 +93,18 @@ func (p *PostgresRole) CreateConfig() error {
 
 	data := make(map[string]interface{}, len(p.secret.Data))
 	for k, v := range p.secret.Data {
-		data[k] = v
+		data[k] = string(v)
 	}
 	err := appcat_util.TransformCredentials(p.kubeClient, p.dbBinding.Spec.SecretTransforms, data)
 	if err != nil {
 		return err
 	}
 
-	if val, ok := data["username"]; ok {
-		payload["username"] = val
+	if v, ok := data[appcat.KeyUsername]; ok {
+		payload[appcat.KeyUsername] = v
 	}
-	if val, ok := data["password"]; ok {
-		payload["password"] = val
+	if v, ok := data[appcat.KeyPassword]; ok {
+		payload[appcat.KeyPassword] = v
 	}
 
 	if p.config.MaxOpenConnections > 0 {
