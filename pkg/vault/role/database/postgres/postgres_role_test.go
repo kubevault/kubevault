@@ -14,6 +14,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 func setupVaultServer() *httptest.Server {
@@ -113,7 +114,7 @@ func TestPostgresRole_CreateConfig(t *testing.T) {
 		},
 		vaultClient:  cl,
 		databasePath: "database",
-		dbConnUrl:    "hi.com",
+		dbConnURL:    "hi.com",
 		config: &configapi.PostgresConfiguration{
 			AllowedRoles: "*",
 			PluginName:   "mongo",
@@ -166,6 +167,7 @@ func TestPostgresRole_CreateConfig(t *testing.T) {
 		t.Run(test.testName, func(t *testing.T) {
 			p := test.pgClient
 			p.kubeClient = kfake.NewSimpleClientset()
+			p.dbBinding = &appcat.AppBinding{}
 
 			err := p.CreateConfig()
 			if test.expectedErr {
