@@ -249,7 +249,7 @@ spec:
 
 ## VaultServer Status
 
-VaultServer Status shows the status of Vault deployment. Status of vault are monitored and updated by Vault operator.
+VaultServer Status shows the status of Vault deployment. Status of vault is monitored and updated by Vault operator.
 
 ```yaml
 status:
