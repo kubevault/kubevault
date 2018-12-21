@@ -17,10 +17,12 @@ section_menu_id: setup
 If you installed csi driver using YAML then run:
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.1.0/hack/deploy/install.sh \
+$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.2.0/hack/deploy/install.sh \
     | bash -s -- --uninstall [--namespace=NAMESPACE]
 
 ```
+
+> N.B: For Kubernetes v1.12 use `0.1.0`
 
 The above command will leave the csidriver crd objects as-is. If you wish to nuke all csidriver crd objects, also pass the `--purge` flag.
 
