@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 
 	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
@@ -79,42 +80,43 @@ func (a AppBinding) URLTemplate() (string, error) {
 
 func (a AppBinding) Host() (string, error) {
 	c := a.Spec.ClientConfig
-	if c.URL != nil {
+	if c.Service != nil { // preferred source for MYSQL app binding
+		return fmt.Sprintf("%s.%s.svc:%d", c.Service.Name, a.Namespace, c.Service.Port), nil
+	} else if c.URL != nil {
 		u, err := url.Parse(*c.URL)
 		if err != nil {
 			return "", err
 		}
 		return u.Host, nil
-	} else if c.Service != nil {
-		return fmt.Sprintf("%s.%s.svc:%d", c.Service.Name, a.Namespace, c.Service.Port), nil
 	}
 	return "", errors.New("connection url is missing")
 }
 
 func (a AppBinding) Hostname() (string, error) {
 	c := a.Spec.ClientConfig
-	if c.URL != nil {
+	if c.Service != nil { // preferred source for MYSQL app binding
+		return fmt.Sprintf("%s.%s.svc", c.Service.Name, a.Namespace), nil
+	} else if c.URL != nil {
 		u, err := url.Parse(*c.URL)
 		if err != nil {
 			return "", err
 		}
 		return u.Hostname(), nil
-	} else if c.Service != nil {
-		return fmt.Sprintf("%s.%s.svc", c.Service.Name, a.Namespace), nil
 	}
 	return "", errors.New("connection url is missing")
 }
 
-func (a AppBinding) Port() (string, error) {
+func (a AppBinding) Port() (int32, error) {
 	c := a.Spec.ClientConfig
-	if c.URL != nil {
+	if c.Service != nil { // preferred source for MYSQL app binding
+		return c.Service.Port, nil
+	} else if c.URL != nil {
 		u, err := url.Parse(*c.URL)
 		if err != nil {
-			return "", err
+			return 0, err
 		}
-		return u.Port(), nil
-	} else if c.Service != nil {
-		return fmt.Sprintf("%d", c.Service.Port), nil
+		port, err := strconv.ParseInt(u.Port(), 10, 32)
+		return int32(port), err
 	}
-	return "", errors.New("connection url is missing")
+	return 0, errors.New("connection url is missing")
 }

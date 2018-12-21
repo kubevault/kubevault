@@ -1,5 +1,5 @@
 hash: 419f8dc8880699ec81afe8e7f894403bcd17fee2e225ef8f6cbfec3d75d8d140
-updated: 2018-12-20T03:48:41.606738089-08:00
+updated: 2018-12-20T21:40:32.658757028-08:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -1014,7 +1014,7 @@ imports:
   - pkg/api/legacyscheme
   - pkg/apis/core
 - name: kmodules.xyz/custom-resources
-  version: 9aa5331613e863c76b7735db66af27c6f027d878
+  version: b4ef1fe08b7a09681a676c1b697cf66fd74b7ed4
   repo: https://github.com/kmodules/custom-resources.git
   vcs: git
   subpackages:
@@ -1053,7 +1053,7 @@ testImports:
 - name: github.com/appscode/pat
   version: 48ff78925b7955367d8a048fc2b5cec8efadf8d3
 - name: github.com/ncw/swift
-  version: 6f342da371d063863f2f354f183e4ab0ef72d287
+  version: 3d63426e3fec66c303577c2257565bd19a5ca3bc
 - name: github.com/pmezard/go-difflib
   version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
   subpackages:
