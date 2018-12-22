@@ -170,6 +170,8 @@ func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespa
 		s.Initialized = status.Initialized
 		s.UpdatedNodes = status.UpdatedNodes
 		s.Phase = status.Phase
+		s.ServiceName = status.ServiceName
+		s.ClientPort = status.ClientPort
 		return s
 	}, apis.EnableStatusSubresource)
 	return vault, err

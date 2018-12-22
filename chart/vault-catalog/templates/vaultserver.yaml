@@ -14,5 +14,5 @@ spec:
   vault:
     image: "vault:0.11.1"
   unsealer:
-    image: "{{ .Values.dockerRegistry }}/vault-unsealer:canary"
+    image: "{{ .Values.dockerRegistry }}/vault-unsealer:0.1.0"
 {{ end }}
