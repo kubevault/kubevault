@@ -69,6 +69,7 @@ rules:
   - rbac.authorization.k8s.io
   resources:
   - clusterroles
+  - clusterrolebindings
   - roles
   - rolebindings
   verbs: ["get", "update", "create", "patch"]
