@@ -64,7 +64,7 @@ func (o *Options) GetRBAC(prefix, namespace string) []rbac.Role {
 			{
 				APIGroups: []string{core.GroupName},
 				Resources: []string{"secrets"},
-				Verbs:     []string{"create", "get", "update", "patch"},
+				Verbs:     []string{"create", "get", "patch"},
 			},
 		},
 	}
