@@ -86,9 +86,7 @@ enableAnalytics: true
 monitoring:
   # specify monitoring agent (either "prometheus.io/builtin" or "prometheus.io/coreos-operator")
   agent: "none"
-  # specify whether to monitor backup and recovery
-  backup: false
-  # specify whether to monitor vault operator
+  # specify whether to monitor Vault operator
   operator: false
   # specify where ServiceMonitor crd will be created
   prometheus:
