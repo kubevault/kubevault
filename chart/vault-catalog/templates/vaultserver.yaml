@@ -15,4 +15,6 @@ spec:
     image: "vault:0.11.1"
   unsealer:
     image: "{{ .Values.dockerRegistry }}/vault-unsealer:0.1.0"
+  exporter:
+    image: "{{ .Values.dockerRegistry }}/vault-exporter:0.1.0"
 {{ end }}

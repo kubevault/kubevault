@@ -129,7 +129,7 @@ export VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK=false
 export VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK=false
 export VAULT_OPERATOR_CATALOG=${VAULT_OPERATOR_CATALOG:-all}
 export VAULT_OPERATOR_DOCKER_REGISTRY=kubevault
-export VAULT_OPERATOR_IMAGE_TAG=canary
+export VAULT_OPERATOR_IMAGE_TAG=0.1.0
 export VAULT_OPERATOR_IMAGE_PULL_SECRET=
 export VAULT_OPERATOR_IMAGE_PULL_POLICY=IfNotPresent
 export VAULT_OPERATOR_ENABLE_ANALYTICS=true
@@ -144,7 +144,7 @@ export SCRIPT_LOCATION="curl -fsSL https://raw.githubusercontent.com/kubevault/o
 if [ "$APPSCODE_ENV" = "dev" ]; then
   detect_tag
   export SCRIPT_LOCATION="cat "
-  export VAULT_OPERATOR_IMAGE_TAG=$TAG
+  export VAULT_OPERATOR_IMAGE_TAG=dev
   export VAULT_OPERATOR_IMAGE_PULL_POLICY=Always
 fi
 
@@ -175,8 +175,8 @@ show_help() {
   echo "    --enable-status-subresource        if enabled, uses status sub resource for crds"
   echo "    --use-kubeapiserver-fqdn-for-aks   if true, uses kube-apiserver FQDN for AKS cluster to workaround https://github.com/Azure/AKS/issues/522 (default true)"
   echo "    --enable-analytics                 send usage events to Google Analytics (default: true)"
-  echo "    --uninstall                        uninstall stash"
-  echo "    --purge                            purges stash crd objects and crds"
+  echo "    --uninstall                        uninstall vault-operator"
+  echo "    --purge                            purges vault operator crd objects and crds"
   echo "    --install-catalog                  installs Vault server version catalog (default: all)"
 }
 
@@ -448,7 +448,7 @@ if [ "$VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK" = true ]; then
     echo "For details, visit: https://appsco.de/kube-apiserver-webhooks ."
     echo "After admission webhooks are activated, please uninstall and then reinstall Stash operator."
     # uninstall misconfigured webhooks to avoid failures
-    kubectl delete validatingwebhookconfiguration -l app=stash || true
+    kubectl delete validatingwebhookconfiguration -l app=vault-operator || true
     exit 1
   fi
 fi
