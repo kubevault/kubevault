@@ -8,10 +8,17 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
+  {{- if and (eq .Values.monitoring.agent "prometheus.io/builtin") .Values.monitoring.operator }}
+  annotations:
+    prometheus.io/scrap: "true"
+    prometheus.io/operator_path: "/metrics"
+    prometheus.io/operator_port: "8443"
+    prometheus.io/operator_scheme: "https"
+  {{- end }}
 spec:
   ports:
   # Port used to expose admission webhook apiserver
-  - name: admission
+  - name: api
     port: 443
     targetPort: 8443
   selector:

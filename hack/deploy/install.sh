@@ -129,7 +129,7 @@ export VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK=false
 export VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK=false
 export VAULT_OPERATOR_CATALOG=${VAULT_OPERATOR_CATALOG:-all}
 export VAULT_OPERATOR_DOCKER_REGISTRY=kubevault
-export VAULT_OPERATOR_IMAGE_TAG=canary
+export VAULT_OPERATOR_IMAGE_TAG=0.1.0
 export VAULT_OPERATOR_IMAGE_PULL_SECRET=
 export VAULT_OPERATOR_IMAGE_PULL_POLICY=IfNotPresent
 export VAULT_OPERATOR_ENABLE_ANALYTICS=true
@@ -170,13 +170,13 @@ show_help() {
   echo "    --image-pull-secret                name of secret used to pull Vault images"
   echo "    --run-on-master                    run Vault operator on master"
   echo "    --enable-mutating-webhook          enable/disable mutating webhooks for Kubernetes workloads"
-  echo "    --enable-validating-webhook        enable/disable validating webhooks for Stash crds"
+  echo "    --enable-validating-webhook        enable/disable validating webhooks for Vault CRDs"
   echo "    --bypass-validating-webhook-xray   if true, bypasses validating webhook xray checks"
   echo "    --enable-status-subresource        if enabled, uses status sub resource for crds"
   echo "    --use-kubeapiserver-fqdn-for-aks   if true, uses kube-apiserver FQDN for AKS cluster to workaround https://github.com/Azure/AKS/issues/522 (default true)"
   echo "    --enable-analytics                 send usage events to Google Analytics (default: true)"
-  echo "    --uninstall                        uninstall stash"
-  echo "    --purge                            purges stash crd objects and crds"
+  echo "    --uninstall                        uninstall Vault operator"
+  echo "    --purge                            purges Vault CRD objects and crds"
   echo "    --install-catalog                  installs Vault server version catalog (default: all)"
 }
 
@@ -446,9 +446,9 @@ if [ "$VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK" = true ]; then
     echo "Admission webhooks are not activated."
     echo "Enable it by configuring --enable-admission-plugins flag of kube-apiserver."
     echo "For details, visit: https://appsco.de/kube-apiserver-webhooks ."
-    echo "After admission webhooks are activated, please uninstall and then reinstall Stash operator."
+    echo "After admission webhooks are activated, please uninstall and then reinstall Vault operator."
     # uninstall misconfigured webhooks to avoid failures
-    kubectl delete validatingwebhookconfiguration -l app=stash || true
+    kubectl delete validatingwebhookconfiguration -l app=vault-operator || true
     exit 1
   fi
 fi
