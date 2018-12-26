@@ -16,7 +16,7 @@ func (v VaultServerVersion) CustomResourceDefinition() *apiextensions.CustomReso
 		Singular:      ResourceVaultServerVersion,
 		Kind:          ResourceKindVaultServerVersion,
 		ShortNames:    []string{"vsv"},
-		Categories:    []string{"vault", "appscode", "all"},
+		Categories:    []string{"vault", "appscode"},
 		ResourceScope: string(apiextensions.ClusterScoped),
 		Versions: []apiextensions.CustomResourceDefinitionVersion{
 			{
