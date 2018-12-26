@@ -22,10 +22,10 @@ spec:
       app: "{{ template "vault-operator.name" . }}"
       release: "{{ .Release.Name }}"
   endpoints:
-  - port: admission
+  - port: api
     bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
     scheme: https
     tlsConfig:
-      caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      caFile: /etc/prometheus/secrets/{{ template "vault-operator.fullname" . }}-apiserver-cert/tls.crt
       serverName: "{{ template "vault-operator.fullname" . }}.{{ .Release.Namespace }}.svc"
 {{- end }}

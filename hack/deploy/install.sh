@@ -158,6 +158,15 @@ $ONESSL semver --check='<1.11.0' $KUBE_APISERVER_VERSION || { export VAULT_OPERA
 export VAULT_OPERATOR_WEBHOOK_SIDE_EFFECTS=
 $ONESSL semver --check='<1.12.0' $KUBE_APISERVER_VERSION || { export VAULT_OPERATOR_WEBHOOK_SIDE_EFFECTS='sideEffects: None'; }
 
+MONITORING_AGENT_NONE="none"
+MONITORING_AGENT_BUILTIN="prometheus.io/builtin"
+MONITORING_AGENT_COREOS_OPERATOR="prometheus.io/coreos-operator"
+
+export MONITORING_AGENT=${MONITORING_AGENT:-$MONITORING_AGENT_NONE}
+export MONITORING_OPERATOR=${MONITORING_OPERATOR:-false}
+export SERVICE_MONITOR_LABEL_KEY="app"
+export SERVICE_MONITOR_LABEL_VALUE="vault-operator"
+
 show_help() {
   echo "install.sh - install Vault operator"
   echo " "
@@ -178,6 +187,10 @@ show_help() {
   echo "    --uninstall                        uninstall Vault operator"
   echo "    --purge                            purges Vault CRD objects and crds"
   echo "    --install-catalog                  installs Vault server version catalog (default: all)"
+  echo "    --monitoring-agent                 specify which monitoring agent to use (default: none)"
+  echo "    --monitoring-operator              specify whether to monitor Vault operator (default: false)"
+  echo "    --prometheus-namespace             specify the namespace where Prometheus server is running or will be deployed (default: same namespace as vault-operator)"
+  echo "    --servicemonitor-label             specify the label for ServiceMonitor crd. Prometheus crd will use this label to select the ServiceMonitor. (default: 'app: vault-operator')"
 }
 
 while test $# -gt 0; do
@@ -274,6 +287,42 @@ while test $# -gt 0; do
       export VAULT_OPERATOR_PURGE=1
       shift
       ;;
+    --monitoring-agent*)
+       val=$(echo $1 | sed -e 's/^[^=]*=//g')
+       if [ "$val" != "$MONITORING_AGENT_BUILTIN" ] && [ "$val" != "$MONITORING_AGENT_COREOS_OPERATOR" ]; then
+         echo 'Invalid monitoring agent. Use "builtin" or "coreos-operator"'
+         exit 1
+       else
+         export MONITORING_AGENT="$val"
+       fi
+       shift
+       ;;
+     --monitoring-operator*)
+       val=$(echo $1 | sed -e 's/^[^=]*=//g')
+       if [ "$val" = "true" ]; then
+         export MONITORING_OPERATOR="$val"
+       fi
+       shift
+       ;;
+     --prometheus-namespace*)
+       export PROMETHEUS_NAMESPACE=$(echo $1 | sed -e 's/^[^=]*=//g')
+       shift
+       ;;
+     --servicemonitor-label*)
+       label=$(echo $1 | sed -e 's/^[^=]*=//g')
+       # split label into key value pair
+       IFS='='
+       pair=($label)
+       unset IFS
+       # check if the label is valid
+       if [ ! ${#pair[@]} = 2 ]; then
+         echo "Invalid ServiceMonitor label format. Use '--servicemonitor-label=key=value'"
+         exit 1
+       fi
+       export SERVICE_MONITOR_LABEL_KEY="${pair[0]}"
+       export SERVICE_MONITOR_LABEL_VALUE="${pair[1]}"
+       shift
+       ;;
     *)
       echo "Error: unknown flag:" $1
       show_help
@@ -281,6 +330,8 @@ while test $# -gt 0; do
       ;;
   esac
 done
+
+export PROMETHEUS_NAMESPACE=${PROMETHEUS_NAMESPACE:-$VAULT_OPERATOR_NAMESPACE}
 
 if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
   # delete webhooks and apiservices
@@ -297,6 +348,10 @@ if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
   kubectl delete clusterrole -l app=vault-operator
   kubectl delete rolebindings -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
   kubectl delete role -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
+
+  # delete servicemonitor and vault-operator-apiserver-cert secret. ignore error as they might not exist
+  kubectl delete servicemonitor vault-operator-servicemonitor --namespace $PROMETHEUS_NAMESPACE || true
+  kubectl delete secret vault-operator-apiserver-cert --namespace $PROMETHEUS_NAMESPACE || true
 
   echo "waiting for Vault operator pod to stop running"
   for (( ; ; )); do
@@ -452,6 +507,35 @@ if [ "$VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK" = true ]; then
     exit 1
   fi
 fi
+
+ # configure prometheus monitoring
+ if [ "$MONITORING_AGENT" != "$MONITORING_AGENT_NONE" ]; then
+   case "$MONITORING_AGENT" in
+     "$MONITORING_AGENT_BUILTIN")
+       # apply common annotation
+       kubectl annotate service vault-operator -n "$VAULT_OPERATOR_NAMESPACE" prometheus.io/scrap="true" --overwrite
+
+        # apply operator specific annotation
+       if [ "$MONITORING_OPERATOR" = "true" ]; then
+         kubectl annotate service vault-operator -n "$VAULT_OPERATOR_NAMESPACE" --overwrite \
+           prometheus.io/operator_path="/metrics" \
+           prometheus.io/operator_port="8443" \
+           prometheus.io/operator_scheme="https"
+       fi
+       ;;
+     "$MONITORING_AGENT_COREOS_OPERATOR")
+       if [ "$MONITORING_OPERATOR" = "true" ]; then
+         ${SCRIPT_LOCATION}hack/deploy/monitor/servicemonitor-operator.yaml | $ONESSL envsubst | kubectl apply -f -
+       fi
+       ;;
+   esac
+
+    # if operator monitoring is enabled and prometheus-namespace is provided,
+   # create vault-operator-apiserver-cert there. this will be mounted on prometheus pod.
+   if [ "$MONITORING_OPERATOR" = "true" ] && [ "$PROMETHEUS_NAMESPACE" != "$VAULT_OPERATOR_NAMESPACE" ]; then
+     ${SCRIPT_LOCATION}hack/deploy/monitor/apiserver-cert.yaml | $ONESSL envsubst | kubectl apply -f -
+   fi
+ fi
 
 echo
 echo "Successfully installed Vault operator in $VAULT_OPERATOR_NAMESPACE namespace!"
