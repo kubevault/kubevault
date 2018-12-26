@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: vault-operator-servicemonitor
+  namespace: ${PROMETHEUS_NAMESPACE}
+  labels:
+    ${SERVICE_MONITOR_LABEL_KEY}: ${SERVICE_MONITOR_LABEL_VALUE}
+spec:
+  namespaceSelector:
+    matchNames:
+    - ${VAULT_OPERATOR_NAMESPACE}
+  selector:
+    matchLabels:
+      app: vault-operator
+  endpoints:
+  - port: api
+    bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    scheme: https
+    tlsConfig:
+      caFile: /etc/prometheus/secrets/vault-operator-apiserver-cert/tls.crt
+      serverName: "vault-operator.${VAULT_OPERATOR_NAMESPACE}.svc"

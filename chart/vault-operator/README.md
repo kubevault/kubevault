@@ -72,6 +72,10 @@ The following table lists the configurable parameters of the Vault chart and the
 | `apiserver.useKubeapiserverFqdnForAks`  | If true, uses kube-apiserver FQDN for AKS cluster to workaround https://github.com/Azure/AKS/issues/522 | `true`             |
 | `apiserver.healthcheck.enabled`         | Enable readiness and liveliness probes                             | `true`             |
 | `enableAnalytics`                       | Send usage events to Google Analytics                              | `true`             |
+| `monitoring.agent`                      | Specify which monitoring agent to use for monitoring Vault. It accepts either `prometheus.io/builtin` or `prometheus.io/coreos-operator`.                                  | `none`                                                    |
+| `monitoring.operator`                   | Specify whether to monitor Vault operator.                                                                                                                                 | `false`                                                   |
+| `monitoring.prometheus.namespace`       | Specify the namespace where Prometheus server is running or will be deployed.                                                                                              | Release namespace                                         |
+| `monitoring.serviceMonitor.labels`      | Specify the labels for ServiceMonitor. Prometheus crd will select ServiceMonitor using these labels. Only usable when monitoring agent is `prometheus.io/coreos-operator`. | `app: <generated app name>` and `release: <release name>` |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example:
 
