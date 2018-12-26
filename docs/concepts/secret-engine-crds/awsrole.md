@@ -54,7 +54,7 @@ AWSRole Spec has following fields:
 
 ### spec.authManagerRef
 
-`spec.authManagerRef` specifies the name and namespace of [AppBinding](https://github.com/kmodules/custom-resources/blob/10b24c8fd9028ab67a4b75cbf16d8f8e52cfe634/apis/appcatalog/v1alpha1/appbinding_types.go#L21) that contains information to communicate with Vault.
+`spec.authManagerRef` specifies the name and namespace of [AppBinding](/docs/concepts/appbinding-crds/appbinding.md) that contains information to communicate with Vault.
 
 ```yaml
 spec:
