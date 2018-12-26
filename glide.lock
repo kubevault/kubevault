@@ -1,5 +1,5 @@
-hash: 419f8dc8880699ec81afe8e7f894403bcd17fee2e225ef8f6cbfec3d75d8d140
-updated: 2018-12-20T21:40:32.658757028-08:00
+hash: deb6771275e7a8ef9c29b1b95312406ff616fbac6fe0accc915895361be01a96
+updated: 2018-12-26T06:21:06.100599561-08:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -230,7 +230,7 @@ imports:
 - name: github.com/ghodss/yaml
   version: 73d445a93680fa1a78ae23a5839bad48f32ba1ee
 - name: github.com/go-ini/ini
-  version: 300e940a926eb277d3901b20bdfcc54928ad3642
+  version: a9da9309fb4822643ceebb765f80025c35ac19a1
 - name: github.com/go-openapi/jsonpointer
   version: 46af16f9f7b149af66e5d1bd010e3574dc06de98
 - name: github.com/go-openapi/jsonreference
@@ -266,7 +266,7 @@ imports:
 - name: github.com/google/btree
   version: 7d79101e329e5a3adf994758c578dab82b90c017
 - name: github.com/google/go-cmp
-  version: 2248b49eaa8e1c8c0963ee77b40841adbc19d4ca
+  version: 3af367b6b30c263d47e8895973edcca9a49cf029
   subpackages:
   - cmp
   - cmp/internal/diff
@@ -599,6 +599,8 @@ imports:
   - transport
 - name: gopkg.in/inf.v0
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
+- name: gopkg.in/ini.v1
+  version: a9da9309fb4822643ceebb765f80025c35ac19a1
 - name: gopkg.in/natefinch/lumberjack.v2
   version: 20b71e5b60d756d3d2f80def009790325acc2b23
 - name: gopkg.in/square/go-jose.v2
@@ -711,7 +713,7 @@ imports:
   - third_party/forked/golang/netutil
   - third_party/forked/golang/reflect
 - name: k8s.io/apiserver
-  version: 70f523ccd088c9dca12de68b719d9b29f8e8c7d2
+  version: 419ab4faf457be27411fc8125ed110a03be373e8
   repo: https://github.com/kmodules/apiserver.git
   vcs: git
   subpackages:
