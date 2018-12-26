@@ -25,7 +25,6 @@ spec:
     categories:
     - vault
     - appscode
-    - all
     kind: VaultServerVersion
     plural: vaultserverversions
     shortNames:
