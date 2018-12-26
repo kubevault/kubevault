@@ -69,16 +69,20 @@ spec:
         volumeMounts:
         - mountPath: /var/serving-cert
           name: serving-cert
+{{- if .Values.apiserver.healthcheck.enabled }}
         readinessProbe:
           httpGet:
             path: /healthz
             port: 8443
             scheme: HTTPS
+          initialDelaySeconds: 5
         livenessProbe:
           httpGet:
             path: /healthz
             port: 8443
             scheme: HTTPS
+          initialDelaySeconds: 5
+{{- end }}
         resources:
           requests:
             cpu: "100m"
