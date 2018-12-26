@@ -1,0 +1,13 @@
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicyBinding
+metadata:
+  name: demo-role
+  namespace: demo
+spec:
+  roleName: "demo-role"
+  policies : ["demo-policy"]
+  serviceAccountNames: ["demo-sa"]
+  serviceAccountNamespaces: ["demo"]
+  TTL: "1000"
+  maxTTL: "2000"
+  Period: "1000"
