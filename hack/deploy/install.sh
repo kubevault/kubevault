@@ -509,30 +509,23 @@ if [ "$VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK" = true ]; then
 fi
 
  # configure prometheus monitoring
- if [ "$MONITORING_AGENT" != "$MONITORING_AGENT_NONE" ]; then
+ if [ "$MONITORING_OPERATOR" = "true" ] && [ "$MONITORING_AGENT" != "$MONITORING_AGENT_NONE" ]; then
    case "$MONITORING_AGENT" in
      "$MONITORING_AGENT_BUILTIN")
-       # apply common annotation
-       kubectl annotate service vault-operator -n "$VAULT_OPERATOR_NAMESPACE" prometheus.io/scrap="true" --overwrite
-
-        # apply operator specific annotation
-       if [ "$MONITORING_OPERATOR" = "true" ]; then
-         kubectl annotate service vault-operator -n "$VAULT_OPERATOR_NAMESPACE" --overwrite \
-           prometheus.io/operator_path="/metrics" \
-           prometheus.io/operator_port="8443" \
-           prometheus.io/operator_scheme="https"
-       fi
+        kubectl annotate service vault-operator -n "$VAULT_OPERATOR_NAMESPACE" --overwrite \
+          prometheus.io/scrap="true" \
+          prometheus.io/operator_path="/metrics" \
+          prometheus.io/operator_port="8443" \
+          prometheus.io/operator_scheme="https"
        ;;
      "$MONITORING_AGENT_COREOS_OPERATOR")
-       if [ "$MONITORING_OPERATOR" = "true" ]; then
-         ${SCRIPT_LOCATION}hack/deploy/monitor/servicemonitor-operator.yaml | $ONESSL envsubst | kubectl apply -f -
-       fi
+       ${SCRIPT_LOCATION}hack/deploy/monitor/servicemonitor-operator.yaml | $ONESSL envsubst | kubectl apply -f -
        ;;
    esac
 
     # if operator monitoring is enabled and prometheus-namespace is provided,
    # create vault-operator-apiserver-cert there. this will be mounted on prometheus pod.
-   if [ "$MONITORING_OPERATOR" = "true" ] && [ "$PROMETHEUS_NAMESPACE" != "$VAULT_OPERATOR_NAMESPACE" ]; then
+   if [ "$PROMETHEUS_NAMESPACE" != "$VAULT_OPERATOR_NAMESPACE" ]; then
      ${SCRIPT_LOCATION}hack/deploy/monitor/apiserver-cert.yaml | $ONESSL envsubst | kubectl apply -f -
    fi
  fi
