@@ -38,9 +38,6 @@ spec:
         - --enable-analytics=${VAULT_OPERATOR_ENABLE_ANALYTICS}
         ports:
         - containerPort: 8443
-        volumeMounts:
-        - mountPath: /var/serving-cert
-          name: serving-cert
         readinessProbe:
           httpGet:
             path: /healthz
@@ -56,6 +53,9 @@ spec:
         resources:
           requests:
             cpu: "100m"
+        volumeMounts:
+        - mountPath: /var/serving-cert
+          name: serving-cert
       volumes:
       - name: serving-cert
         secret:
