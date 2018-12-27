@@ -66,9 +66,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        volumeMounts:
-        - mountPath: /var/serving-cert
-          name: serving-cert
 {{- if .Values.apiserver.healthcheck.enabled }}
         readinessProbe:
           httpGet:
@@ -84,8 +81,10 @@ spec:
           initialDelaySeconds: 5
 {{- end }}
         resources:
-          requests:
-            cpu: "100m"
+{{ toYaml .Values.resources | indent 10 }}
+        volumeMounts:
+        - mountPath: /var/serving-cert
+          name: serving-cert
       volumes:
       - name: serving-cert
         secret:
