@@ -4,6 +4,7 @@ import (
 	"flag"
 	"time"
 
+	"github.com/appscode/kutil/tools/clusterid"
 	prom "github.com/coreos/prometheus-operator/pkg/client/monitoring/v1"
 	db_cs "github.com/kubedb/apimachinery/client/clientset/versioned"
 	"github.com/kubevault/operator/apis"
@@ -43,6 +44,8 @@ func NewExtraOptions() *ExtraOptions {
 }
 
 func (s *ExtraOptions) AddGoFlags(fs *flag.FlagSet) {
+	clusterid.AddGoFlags(fs)
+
 	fs.StringVar(&s.DockerRegistry, "docker-registry", s.DockerRegistry, "Docker image registry for sidecar, init-container, check-job, recovery-job and kubectl-job")
 
 	fs.Float64Var(&s.QPS, "qps", s.QPS, "The maximum QPS to the master from this client")

@@ -4,14 +4,15 @@ import (
 	"fmt"
 
 	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
+	"github.com/appscode/kutil/tools/clusterid"
 	"github.com/kubevault/operator/apis"
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
 
 func (r AWSRole) RoleName() string {
 	cluster := "-"
-	if r.ClusterName != "" {
-		cluster = r.ClusterName
+	if clusterid.ClusterName() != "" {
+		cluster = clusterid.ClusterName()
 	}
 	return fmt.Sprintf("k8s.%s.%s.%s", cluster, r.Namespace, r.Name)
 }
