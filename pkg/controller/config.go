@@ -30,7 +30,6 @@ type config struct {
 	DockerRegistry          string
 	MaxNumRequeues          int
 	NumThreads              int
-	OpsAddress              string
 	ResyncPeriod            time.Duration
 	EnableValidatingWebhook bool
 	EnableMutatingWebhook   bool
