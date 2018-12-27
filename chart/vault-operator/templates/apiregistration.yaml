@@ -1,8 +1,9 @@
-{{- $ca := genCA "svc-cat-ca" 3650 }}
+{{- $ca := genCA "ca" 3650 }}
 {{- $cn := include "vault-operator.fullname" . -}}
 {{- $altName1 := printf "%s.%s" $cn .Release.Namespace }}
 {{- $altName2 := printf "%s.%s.svc" $cn .Release.Namespace }}
 {{- $cert := genSignedCert $cn nil (list $altName1 $altName2) 3650 $ca }}
+{{- if or .Values.apiserver.enableMutatingWebhook .Values.apiserver.enableValidatingWebhook }}
 # register as aggregated apiserver
 apiVersion: apiregistration.k8s.io/v1beta1
 kind: APIService
@@ -82,6 +83,7 @@ spec:
   caBundle: {{ b64enc $ca.Cert }}
   groupPriorityMinimum: {{ .Values.apiserver.groupPriorityMinimum }}
   versionPriority: {{ .Values.apiserver.versionPriority }}
+{{ end }}
 ---
 apiVersion: v1
 kind: Secret
