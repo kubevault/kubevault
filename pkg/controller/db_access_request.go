@@ -181,7 +181,9 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.Credent
 		}
 	}
 
-	err := dbCM.CreateRole(getSecretAccessRoleName(secretName), ns, secretName)
+	roleName := getSecretAccessRoleName(api.ResourceKindDatabaseAccessRequest, ns, dbAccessReq.Name)
+
+	err := dbCM.CreateRole(roleName, ns, secretName)
 	if err != nil {
 		status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
 			Type:           RequestFailed,
@@ -197,7 +199,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.Credent
 		return errors.WithStack(err)
 	}
 
-	err = dbCM.CreateRoleBinding(getSecretAccessRoleName(secretName), ns, getSecretAccessRoleName(secretName), dbAccessReq.Spec.Subjects)
+	err = dbCM.CreateRoleBinding(roleName, ns, roleName, dbAccessReq.Spec.Subjects)
 	if err != nil {
 		status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
 			Type:           RequestFailed,
@@ -334,18 +336,23 @@ func getDatabaseAccessRequestId(dbAReq *api.DatabaseAccessRequest) string {
 	return fmt.Sprintf("%s/%s/%s", api.ResourceDatabaseAccessRequest, dbAReq.Namespace, dbAReq.Name)
 }
 
-func getSecretAccessRoleName(name string) string {
-	return rand.WithUniqSuffix(fmt.Sprintf("%s-credential-reader", name))
+func getSecretAccessRoleName(kind, namespace, name string) string {
+	return fmt.Sprintf("%s-%s-%s-credential-reader", kind, namespace, name)
 }
 
 func UpsertDatabaseAccessCondition(condList []api.DatabaseAccessRequestCondition, cond api.DatabaseAccessRequestCondition) []api.DatabaseAccessRequestCondition {
 	res := []api.DatabaseAccessRequestCondition{}
+	inserted := false
 	for _, c := range condList {
 		if c.Type == cond.Type {
 			res = append(res, cond)
+			inserted = true
 		} else {
 			res = append(res, c)
 		}
+	}
+	if !inserted {
+		res = append(res, cond)
 	}
 	return res
 }

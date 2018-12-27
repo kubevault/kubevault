@@ -183,7 +183,9 @@ func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.Credenti
 		}
 	}
 
-	err := awsCM.CreateRole(getSecretAccessRoleName(secretName), ns, secretName)
+	roleName := getSecretAccessRoleName(api.ResourceKindAWSAccessKeyRequest, ns, awsAccessReq.Name)
+
+	err := awsCM.CreateRole(roleName, ns, secretName)
 	if err != nil {
 		status.Conditions = UpsertAWSAccessKeyCondition(status.Conditions, api.AWSAccessKeyRequestCondition{
 			Type:           AWSAccessKeyRequestFailed,
@@ -199,7 +201,7 @@ func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.Credenti
 		return errors.WithStack(err)
 	}
 
-	err = awsCM.CreateRoleBinding(getSecretAccessRoleName(secretName), ns, getSecretAccessRoleName(secretName), awsAccessReq.Spec.Subjects)
+	err = awsCM.CreateRoleBinding(roleName, ns, roleName, awsAccessReq.Spec.Subjects)
 	if err != nil {
 		status.Conditions = UpsertAWSAccessKeyCondition(status.Conditions, api.AWSAccessKeyRequestCondition{
 			Type:           AWSAccessKeyRequestFailed,
@@ -338,12 +340,17 @@ func getAWSAccessKeyRequestId(awsAKReq *api.AWSAccessKeyRequest) string {
 
 func UpsertAWSAccessKeyCondition(condList []api.AWSAccessKeyRequestCondition, cond api.AWSAccessKeyRequestCondition) []api.AWSAccessKeyRequestCondition {
 	res := []api.AWSAccessKeyRequestCondition{}
+	inserted := false
 	for _, c := range condList {
 		if c.Type == cond.Type {
 			res = append(res, cond)
+			inserted = true
 		} else {
 			res = append(res, c)
 		}
+	}
+	if !inserted {
+		res = append(res, cond)
 	}
 	return res
 }
