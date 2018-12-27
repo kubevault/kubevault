@@ -5,6 +5,7 @@ import (
 
 	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
 	meta_util "github.com/appscode/kutil/meta"
+	"github.com/appscode/kutil/tools/clusterid"
 	"github.com/kubevault/operator/apis"
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
@@ -15,8 +16,8 @@ func (v VaultPolicy) GetKey() string {
 
 func (v VaultPolicy) PolicyName() string {
 	cluster := "-"
-	if v.ClusterName != "" {
-		cluster = v.ClusterName
+	if clusterid.ClusterName() != "" {
+		cluster = clusterid.ClusterName()
 	}
 	return fmt.Sprintf("k8s.%s.%s.%s", cluster, v.Namespace, v.Name)
 }
