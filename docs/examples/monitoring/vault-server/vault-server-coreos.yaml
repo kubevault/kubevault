@@ -1,7 +1,7 @@
 apiVersion: kubevault.com/v1alpha1
 kind: VaultServer
 metadata:
-  name: example
+  name: exampleco
   namespace: demo
 spec:
   nodes: 1
@@ -10,22 +10,20 @@ spec:
     spec:
       type: NodePort
   backend:
-    inmem: {}
+    inmem: true
   unsealer:
     secretShares: 4
     secretThreshold: 2
-    insecureSkipTLSVerify: true
+    insecureTLS: true
     overwriteExisting: true
     mode:
       kubernetesSecret:
         secretName: vault-keys
   monitor:
-    agent: prometheus.io/builtin
+    agent: prometheus.io/coreos-operator
     prometheus:
+      port: 9102
       namespace: demo
       labels:
         app: vault
       interval: 10s
-    resources:
-      requests:
-        storage: 1Gi

@@ -29,7 +29,7 @@ spec:
       operatorSecret: etcd-client-tls
 ```
 
-For deploying secure etcd cluster we need to generate some certificates. See [here](https://github.com/coreos/etcd-operator/blob/master/doc/user/cluster_tls.md) for information on etcd cluster TLS policy. 
+For deploying secure etcd cluster we need to generate some certificates. See [here](https://github.com/coreos/etcd-operator/blob/master/doc/user/cluster_tls.md) for information on etcd cluster TLS policy.
 
 Create etcd peer tls secret:
 ```console
@@ -73,7 +73,7 @@ secret "etcd-client-tls" created
 
 Create etcd cluster:
 ```console
-$ cat etcd_cluster.yaml 
+$ cat etcd_cluster.yaml
 apiVersion: "etcd.database.coreos.com/v1beta2"
 kind: "EtcdCluster"
 metadata:
@@ -118,7 +118,7 @@ See here.
 
 ### Deploy vault
 
-We will deploy `my-vault` on `default` namespace. We will configure it for etcd storage backend which is already running on kubernetes cluster. We will use `kubernetes secret` for auto initializing and unsealing. 
+We will deploy `my-vault` on `default` namespace. We will configure it for etcd storage backend which is already running on kubernetes cluster. We will use `kubernetes secret` for auto initializing and unsealing.
 
 ```yaml
 apiVersion: "kubevault.com/v1alpha1"
@@ -156,7 +156,7 @@ $ kubectl create secret generic vault-etcd-tls --from-file=etcd-ca.crt --from-fi
 secret "vault-etcd-tls" created
 
 ```
-Create vault server:
+Create Vault server:
 ```console
 $ cat vault-crd.yaml
 apiVersion: "kubevault.com/v1alpha1"
@@ -222,7 +222,7 @@ status:
 
 ```
 
-Vault operator create an service with same name as vault server. In this example, vault can be accessed using `my-vault` service.
+Vault operator create an service with same name as Vault server. In this example, vault can be accessed using `my-vault` service.
 
 Check vault seal status:
 ```console
@@ -298,5 +298,5 @@ metadata:
     vault_cluster: my-vault
   name: my-vault-vault-config
   namespace: default
-  ...         
+  ...
 ```

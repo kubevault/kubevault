@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: prometheus-demo
+  name: prometheus
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - args:
+        - --config.file=/etc/prometheus/prometheus.yml
+        - --storage.tsdb.path=/prometheus/
+        image: prom/prometheus:v2.5.0
+        imagePullPolicy: IfNotPresent
+        name: prometheus
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /etc/prometheus/
+          name: prometheus-config
+        - mountPath: /prometheus/
+          name: prometheus-storage
+        - mountPath: /etc/prometheus/secret/vault-operator-apiserver-cert
+          name: vault-operator-apiserver-cert
+      serviceAccountName: prometheus
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: prometheus-config
+        name: prometheus-config
+      - emptyDir: {}
+        name: prometheus-storage
+      - name: vault-operator-apiserver-cert
+        secret:
+          defaultMode: 420
+          secretName: vault-operator-apiserver-cert

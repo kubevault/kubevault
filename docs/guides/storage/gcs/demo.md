@@ -21,7 +21,7 @@ gsutil iam ch \
   serviceAccount:vault-sa@tigerworks-kube.iam.gserviceaccount.com:legacyBucketReader \
   gs://vault-test-bucket
 ```
-Grant access to the crypto key: 
+Grant access to the crypto key:
 ```console
 gcloud kms keys add-iam-policy-binding \
   vault-init \
@@ -51,7 +51,7 @@ See here.
 
 ### Deploy vault
 
-We will deploy `my-vault` on `default` namespace. We will configure it for gcs backend which is already created. We will use `google kms gcs` for auto initializing and unsealing. 
+We will deploy `my-vault` on `default` namespace. We will configure it for gcs backend which is already created. We will use `google kms gcs` for auto initializing and unsealing.
 
 ```yaml
 apiVersion: "kubevault.com/v1alpha1"
@@ -79,7 +79,7 @@ spec:
         kmsCryptoKey: "vault-init"
 ```
 
-Create vault server:
+Create Vault server:
 ```console
 $ cat vault-crd.yaml
 apiVersion: "kubevault.com/v1alpha1"
@@ -148,7 +148,7 @@ status:
     - my-vault-5568f99b5d-d9vs8
 
 ```
-Vault operator creates a service with the same name as vault server. In this example, vault can be accessed using `my-vault` service. 
+Vault operator creates a service with the same name as Vault server. In this example, vault can be accessed using `my-vault` service.
 
 Check vault seal status:
 ```console
@@ -217,5 +217,5 @@ metadata:
     vault_cluster: my-vault
   name: my-vault-vault-config
   namespace: default
-  ...         
+  ...
 ```

@@ -33,6 +33,7 @@ csi-vault version [flags]
 ```
       --alsologtostderr                  log to standard error as well as files
       --enable-analytics                 Send analytical events to Google Analytics (default true)
+      --log-flush-frequency duration     Maximum number of seconds between log flushes (default 5s)
       --log_backtrace_at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
       --log_dir string                   If non-empty, write log files in this directory
       --logtostderr                      log to standard error instead of files (default true)
@@ -60,6 +61,7 @@ csi-vault version [flags]
       --test.timeout d                   panic test binary after duration d (default 0, timeout disabled) (default 0s)
       --test.trace file                  write an execution trace to file
       --test.v                           verbose: print additional output
+      --use-kubeapiserver-fqdn-for-aks   if true, uses kube-apiserver FQDN for AKS cluster to workaround https://github.com/Azure/AKS/issues/522 (default true)
   -v, --v Level                          log level for V logs
       --vmodule moduleSpec               comma-separated list of pattern=N settings for file-filtered logging
 ```

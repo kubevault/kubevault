@@ -1,59 +1,29 @@
 ---
-title: Vault-Operator Run
+title: Csi-Vault Run
 menu:
   product_kubevault_0.1.0:
-    identifier: vault-operator-run
-    name: Vault-Operator Run
-    parent: reference-operator
+    identifier: csi-vault-run
+    name: Csi-Vault Run
+    parent: reference-csi-driver
 product_name: kubevault
 menu_name: product_kubevault_0.1.0
 section_menu_id: reference
 ---
-## vault-operator run
+## csi-vault run
 
-Launch Vault operator
+Run Vault CSI driver
 
 ### Synopsis
 
-Launch Vault operator
+Run Vault CSI driver
 
 ```
-vault-operator run [flags]
+csi-vault run [flags]
 ```
 
 ### Options
 
 ```
-      --audit-log-batch-buffer-size int                         The size of the buffer to store events before batching and writing. Only used in batch mode. (default 10000)
-      --audit-log-batch-max-size int                            The maximum size of a batch. Only used in batch mode. (default 1)
-      --audit-log-batch-max-wait duration                       The amount of time to wait before force writing the batch that hadn't reached the max size. Only used in batch mode.
-      --audit-log-batch-throttle-burst int                      Maximum number of requests sent at the same moment if ThrottleQPS was not utilized before. Only used in batch mode.
-      --audit-log-batch-throttle-enable                         Whether batching throttling is enabled. Only used in batch mode.
-      --audit-log-batch-throttle-qps float32                    Maximum average number of batches per second. Only used in batch mode.
-      --audit-log-format string                                 Format of saved audits. "legacy" indicates 1-line text format for each event. "json" indicates structured json format. Known formats are legacy,json. (default "json")
-      --audit-log-maxage int                                    The maximum number of days to retain old audit log files based on the timestamp encoded in their filename.
-      --audit-log-maxbackup int                                 The maximum number of old audit log files to retain.
-      --audit-log-maxsize int                                   The maximum size in megabytes of the audit log file before it gets rotated.
-      --audit-log-mode string                                   Strategy for sending audit events. Blocking indicates sending events should block server responses. Batch causes the backend to buffer and write events asynchronously. Known modes are batch,blocking. (default "blocking")
-      --audit-log-path string                                   If set, all requests coming to the apiserver will be logged to this file.  '-' means standard out.
-      --audit-log-truncate-enabled                              Whether event and batch truncating is enabled.
-      --audit-log-truncate-max-batch-size int                   Maximum size of the batch sent to the underlying backend. Actual serialized size can be several hundreds of bytes greater. If a batch exceeds this limit, it is split into several batches of smaller size. (default 10485760)
-      --audit-log-truncate-max-event-size int                   Maximum size of the audit event sent to the underlying backend. If the size of an event is greater than this number, first request and response are removed, and if this doesn't reduce the size enough, event is discarded. (default 102400)
-      --audit-log-version string                                API group and version used for serializing audit events written to log. (default "audit.k8s.io/v1beta1")
-      --audit-policy-file string                                Path to the file that defines the audit policy configuration.
-      --audit-webhook-batch-buffer-size int                     The size of the buffer to store events before batching and writing. Only used in batch mode. (default 10000)
-      --audit-webhook-batch-max-size int                        The maximum size of a batch. Only used in batch mode. (default 400)
-      --audit-webhook-batch-max-wait duration                   The amount of time to wait before force writing the batch that hadn't reached the max size. Only used in batch mode. (default 30s)
-      --audit-webhook-batch-throttle-burst int                  Maximum number of requests sent at the same moment if ThrottleQPS was not utilized before. Only used in batch mode. (default 15)
-      --audit-webhook-batch-throttle-enable                     Whether batching throttling is enabled. Only used in batch mode. (default true)
-      --audit-webhook-batch-throttle-qps float32                Maximum average number of batches per second. Only used in batch mode. (default 10)
-      --audit-webhook-config-file string                        Path to a kubeconfig formatted file that defines the audit webhook configuration.
-      --audit-webhook-initial-backoff duration                  The amount of time to wait before retrying the first failed request. (default 10s)
-      --audit-webhook-mode string                               Strategy for sending audit events. Blocking indicates sending events should block server responses. Batch causes the backend to buffer and write events asynchronously. Known modes are batch,blocking. (default "batch")
-      --audit-webhook-truncate-enabled                          Whether event and batch truncating is enabled.
-      --audit-webhook-truncate-max-batch-size int               Maximum size of the batch sent to the underlying backend. Actual serialized size can be several hundreds of bytes greater. If a batch exceeds this limit, it is split into several batches of smaller size. (default 10485760)
-      --audit-webhook-truncate-max-event-size int               Maximum size of the audit event sent to the underlying backend. If the size of an event is greater than this number, first request and response are removed, and if this doesn't reduce the size enough, event is discarded. (default 102400)
-      --audit-webhook-version string                            API group and version used for serializing audit events written to webhook. (default "audit.k8s.io/v1beta1")
       --authentication-kubeconfig string                        kubeconfig file pointing at the 'core' kubernetes server with enough rights to create tokenaccessreviews.authentication.k8s.io.
       --authentication-skip-lookup                              If false, the authentication-kubeconfig will be used to lookup missing authentication configuration from the cluster.
       --authentication-token-webhook-cache-ttl duration         The duration to cache responses from the webhook token authenticator. (default 10s)
@@ -65,26 +35,20 @@ vault-operator run [flags]
       --burst int                                               The maximum burst for throttle (default 100)
       --cert-dir string                                         The directory where the TLS certs are located. If --tls-cert-file and --tls-private-key-file are provided, this flag will be ignored. (default "apiserver.local.config/certificates")
       --client-ca-file string                                   If set, any request presenting a client certificate signed by one of the authorities in the client-ca-file is authenticated with an identity corresponding to the CommonName of the client certificate.
-      --cluster-name string                                     Name of cluster used in a multi-cluster setup
       --contention-profiling                                    Enable lock contention profiling, if profiling is enabled
-      --docker-registry string                                  Docker image registry for sidecar, init-container, check-job, recovery-job and kubectl-job (default "kubevault")
-      --enable-mutating-webhook                                 If true, enables mutating webhooks for KubeDB CRDs.
-      --enable-status-subresource                               If true, uses sub resource for crds.
       --enable-swagger-ui                                       Enables swagger ui on the apiserver at /swagger-ui
-      --enable-validating-webhook                               If true, enables validating webhooks for KubeDB CRDs.
+      --endpoint string                                         CSI endpoint (default "unix:///var/lib/kubelet/plugins/com.kubevault.csi.secrets/csi.sock")
   -h, --help                                                    help for run
       --http2-max-streams-per-connection int                    The limit that the server gives to clients for the maximum number of streams in an HTTP/2 connection. Zero means to use golang's default. (default 1000)
       --kubeconfig string                                       kubeconfig file pointing at the 'core' kubernetes server.
+      --node string                                             Hostname (default "beast")
       --profiling                                               Enable profiling via web interface host:port/debug/pprof/ (default true)
-      --prometheus-crd-apigroup string                          prometheus CRD  API group name (default "monitoring.coreos.com")
-      --prometheus-crd-kinds CrdKinds                            - EXPERIMENTAL (could be removed in future releases) - customize CRD kind names
       --qps float                                               The maximum QPS to the master from this client (default 100)
       --requestheader-allowed-names strings                     List of client certificate common names to allow to provide usernames in headers specified by --requestheader-username-headers. If empty, any client certificate validated by the authorities in --requestheader-client-ca-file is allowed.
       --requestheader-client-ca-file string                     Root certificate bundle to use to verify client certificates on incoming requests before trusting usernames in headers specified by --requestheader-username-headers. WARNING: generally do not depend on authorization being already done for incoming requests.
       --requestheader-extra-headers-prefix strings              List of request header prefixes to inspect. X-Remote-Extra- is suggested. (default [x-remote-extra-])
       --requestheader-group-headers strings                     List of request headers to inspect for groups. X-Remote-Group is suggested. (default [x-remote-group])
       --requestheader-username-headers strings                  List of request headers to inspect for usernames. X-Remote-User is common. (default [x-remote-user])
-      --resync-period duration                                  If non-zero, will re-list this often. Otherwise, re-list will be delayed aslong as possible (until the upstream source closes the watch or times out. (default 10m0s)
       --secure-port int                                         The port on which to serve HTTPS with authentication and authorization.If 0, don't serve HTTPS at all. (default 443)
       --tls-cert-file string                                    File containing the default x509 Certificate for HTTPS. (CA cert, if any, concatenated after server cert). If HTTPS serving is enabled, and --tls-cert-file and --tls-private-key-file are not provided, a self-signed certificate and key are generated for the public address and saved to the directory specified by --cert-dir.
       --tls-cipher-suites strings                               Comma-separated list of cipher suites for the server. If omitted, the default Go cipher suites will be use.  Possible values: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_RC4_128_SHA,TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_RC4_128_SHA,TLS_RSA_WITH_3DES_EDE_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_RC4_128_SHA
@@ -97,13 +61,35 @@ vault-operator run [flags]
 
 ```
       --alsologtostderr                  log to standard error as well as files
-      --bypass-validating-webhook-xray   if true, bypasses validating webhook xray checks
       --enable-analytics                 Send analytical events to Google Analytics (default true)
       --log-flush-frequency duration     Maximum number of seconds between log flushes (default 5s)
       --log_backtrace_at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
       --log_dir string                   If non-empty, write log files in this directory
       --logtostderr                      log to standard error instead of files (default true)
       --stderrthreshold severity         logs at or above this threshold go to stderr
+      --test.bench regexp                run only benchmarks matching regexp
+      --test.benchmem                    print memory allocations for benchmarks
+      --test.benchtime d                 run each benchmark for duration d (default 1s)
+      --test.blockprofile file           write a goroutine blocking profile to file
+      --test.blockprofilerate rate       set blocking profile rate (see runtime.SetBlockProfileRate) (default 1)
+      --test.count n                     run tests and benchmarks n times (default 1)
+      --test.coverprofile file           write a coverage profile to file
+      --test.cpu list                    comma-separated list of cpu counts to run each test with
+      --test.cpuprofile file             write a cpu profile to file
+      --test.failfast                    do not start new tests after the first test failure
+      --test.list regexp                 list tests, examples, and benchmarks matching regexp then exit
+      --test.memprofile file             write an allocation profile to file
+      --test.memprofilerate rate         set memory allocation profiling rate (see runtime.MemProfileRate)
+      --test.mutexprofile string         write a mutex contention profile to the named file after execution
+      --test.mutexprofilefraction int    if >= 0, calls runtime.SetMutexProfileFraction() (default 1)
+      --test.outputdir dir               write profiles to dir
+      --test.parallel n                  run at most n tests in parallel (default 8)
+      --test.run regexp                  run only tests and examples matching regexp
+      --test.short                       run smaller test suite to save time
+      --test.testlogfile file            write test action log to file (for use only by cmd/go)
+      --test.timeout d                   panic test binary after duration d (default 0, timeout disabled) (default 0s)
+      --test.trace file                  write an execution trace to file
+      --test.v                           verbose: print additional output
       --use-kubeapiserver-fqdn-for-aks   if true, uses kube-apiserver FQDN for AKS cluster to workaround https://github.com/Azure/AKS/issues/522 (default true)
   -v, --v Level                          log level for V logs
       --vmodule moduleSpec               comma-separated list of pattern=N settings for file-filtered logging
@@ -111,5 +97,5 @@ vault-operator run [flags]
 
 ### SEE ALSO
 
-* [vault-operator](/docs/reference/operator/vault-operator.md)	 - Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
+* [csi-vault](/docs/reference/csi-driver/csi-vault.md)	 - Vault CSI by Appscode - Start farms
 

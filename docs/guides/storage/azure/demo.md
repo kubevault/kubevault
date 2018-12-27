@@ -7,7 +7,7 @@
   ![aks](images/aks.png)
 
   Configure `.kube/config`
-  
+
   ```console
   $ az aks get-credentials --resource-group vault-aks --name vault
   Merged "vault" as current context in /home/ac/.kube/config
@@ -51,7 +51,7 @@ See here.
 
 ### Deploy vault
 
-We will deploy `my-vault` on `default` namespace. We will configure it for Azure Storage Container backend. We will use `azureKeyVault` for auto initializing and unsealing. 
+We will deploy `my-vault` on `default` namespace. We will configure it for Azure Storage Container backend. We will use `azureKeyVault` for auto initializing and unsealing.
 
 ```yaml
 apiVersion: "kubevault.com/v1alpha1"
@@ -90,7 +90,7 @@ metadata:
   namespace: default
 ```
 
-Create vault server:
+Create Vault server:
 ```console
 $ cat vault-crd.yaml
 apiVersion: "kubevault.com/v1alpha1"
@@ -159,7 +159,7 @@ status:
     - my-vault-67f4db966b-4zvxx
 
 ```
-Vault operator creates a service with the same name as vault server. In this example, vault can be accessed using `my-vault` service. 
+Vault operator creates a service with the same name as Vault server. In this example, vault can be accessed using `my-vault` service.
 
 Check vault seal status:
 ```console
@@ -215,5 +215,5 @@ metadata:
     vault_cluster: my-vault
   name: my-vault-vault-config
   namespace: default
-  ...         
+  ...
 ```

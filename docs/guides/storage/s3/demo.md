@@ -46,7 +46,7 @@ $ pharmer apply vault --v=10
 ```console
 $ pharmer get clusters
 NAME         PROVIDER   ZONE         VERSION   RUNNING SINCE   STATUS
-vault        aws        us-west-1a   v1.9.0    1d              Ready     
+vault        aws        us-west-1a   v1.9.0    1d              Ready
 ```
 ![aws-ec2-status](aws-ec2.png)
 
@@ -57,7 +57,7 @@ Current Kubeconfig is backed up as /home/ac/.kube/config.bak.2018-06-23T18-06.
 kubectl context set to cluster `vault`.
 ```
 ```console
-$ kubectl get pods --all-namespaces                                                
+$ kubectl get pods --all-namespaces
 NAMESPACE     NAME                                                               READY     STATUS    RESTARTS   AGE
 kube-system   calico-etcd-tvfs6                                                  1/1       Running   0          1d
 kube-system   calico-kube-controllers-f6986b99f-f2hvc                            1/1       Running   0          1d
@@ -110,7 +110,7 @@ spec:
 ```
 > **Note**: Here, vault will attempt to retrieve credentials from the AWS metadata service. Please, make sure that it's has permission for s3 bucket, encryption key and amazon ssm.
 
-Create vault server:
+Create Vault server:
 ```console
 $ cat vault-crd.yaml
 apiVersion: "kubevault.com/v1alpha1"
@@ -175,7 +175,7 @@ status:
     - my-vault-74d4c5db45-nfskg
 
 ```
-Vault operator creates a service with the same name as vault server. In this example, vault can be accessed using `my-vault` service. 
+Vault operator creates a service with the same name as Vault server. In this example, vault can be accessed using `my-vault` service.
 
 Check vault seal status:
 ```console
@@ -243,5 +243,5 @@ metadata:
     vault_cluster: my-vault
   name: my-vault-vault-config
   namespace: default
-  ...         
+  ...
 ```
