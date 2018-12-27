@@ -163,7 +163,7 @@ MONITORING_AGENT_BUILTIN="prometheus.io/builtin"
 MONITORING_AGENT_COREOS_OPERATOR="prometheus.io/coreos-operator"
 
 export MONITORING_AGENT=${MONITORING_AGENT:-$MONITORING_AGENT_NONE}
-export MONITORING_OPERATOR=${MONITORING_OPERATOR:-false}
+export MONITOR_OPERATOR=${MONITOR_OPERATOR:-false}
 export SERVICE_MONITOR_LABEL_KEY="app"
 export SERVICE_MONITOR_LABEL_VALUE="vault-operator"
 
@@ -188,7 +188,7 @@ show_help() {
   echo "    --purge                            purges Vault CRD objects and crds"
   echo "    --install-catalog                  installs Vault server version catalog (default: all)"
   echo "    --monitoring-agent                 specify which monitoring agent to use (default: none)"
-  echo "    --monitoring-operator              specify whether to monitor Vault operator (default: false)"
+  echo "    --monitor-operator                 specify whether to monitor Vault operator (default: false)"
   echo "    --prometheus-namespace             specify the namespace where Prometheus server is running or will be deployed (default: same namespace as vault-operator)"
   echo "    --servicemonitor-label             specify the label for ServiceMonitor crd. Prometheus crd will use this label to select the ServiceMonitor. (default: 'app: vault-operator')"
 }
@@ -297,10 +297,10 @@ while test $# -gt 0; do
        fi
        shift
        ;;
-     --monitoring-operator*)
+     --monitor-operator*)
        val=$(echo $1 | sed -e 's/^[^=]*=//g')
        if [ "$val" = "true" ]; then
-         export MONITORING_OPERATOR="$val"
+         export MONITOR_OPERATOR="$val"
        fi
        shift
        ;;
@@ -509,7 +509,7 @@ if [ "$VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK" = true ]; then
 fi
 
 # configure prometheus monitoring
-if [ "$MONITORING_OPERATOR" = "true" ] && [ "$MONITORING_AGENT" != "$MONITORING_AGENT_NONE" ]; then
+if [ "$MONITOR_OPERATOR" = "true" ] && [ "$MONITORING_AGENT" != "$MONITORING_AGENT_NONE" ]; then
   case "$MONITORING_AGENT" in
     "$MONITORING_AGENT_BUILTIN")
        kubectl annotate service vault-operator -n "$VAULT_OPERATOR_NAMESPACE" --overwrite \
