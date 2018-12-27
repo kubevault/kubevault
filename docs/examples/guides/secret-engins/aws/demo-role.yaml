@@ -1,0 +1,27 @@
+apiVersion: engine.kubevault.com/v1alpha1
+kind: AWSRole
+metadata:
+  name: demo-role
+  namespace: demo
+spec:
+  credentialType: iam_user
+  policyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": "ec2:*",
+          "Resource": "*"
+        }
+      ]
+    }
+  authManagerRef:
+    name: vault-app
+    namespace: demo
+  config:
+    credentialSecret: aws-cred
+    region: us-east-1
+    leaseConfig:
+      lease: 1h
+      leaseMax: 1h
