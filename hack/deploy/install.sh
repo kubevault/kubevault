@@ -512,11 +512,11 @@ fi
 if [ "$MONITOR_OPERATOR" = "true" ] && [ "$MONITORING_AGENT" != "$MONITORING_AGENT_NONE" ]; then
   case "$MONITORING_AGENT" in
     "$MONITORING_AGENT_BUILTIN")
-       kubectl annotate service vault-operator -n "$VAULT_OPERATOR_NAMESPACE" --overwrite \
-         prometheus.io/scrap="true" \
-         prometheus.io/operator_path="/metrics" \
-         prometheus.io/operator_port="8443" \
-         prometheus.io/operator_scheme="https"
+      kubectl annotate service vault-operator -n "$VAULT_OPERATOR_NAMESPACE" --overwrite \
+        prometheus.io/scrape="true" \
+        prometheus.io/path="/metrics" \
+        prometheus.io/port="8443" \
+        prometheus.io/scheme="https"
       ;;
     "$MONITORING_AGENT_COREOS_OPERATOR")
       ${SCRIPT_LOCATION}hack/deploy/monitor/servicemonitor-operator.yaml | $ONESSL envsubst | kubectl apply -f -
