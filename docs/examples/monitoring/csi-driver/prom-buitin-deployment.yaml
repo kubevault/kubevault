@@ -30,8 +30,8 @@ spec:
           name: prometheus-config
         - mountPath: /prometheus/
           name: prometheus-storage
-        - mountPath: /etc/prometheus/secret/vault-operator-apiserver-cert
-          name: vault-operator-apiserver-cert
+        - mountPath: /etc/prometheus/secret/csi-vault-apiserver-cert
+          name: csi-vault-apiserver-cert
       serviceAccountName: prometheus
       volumes:
       - configMap:
@@ -40,10 +40,10 @@ spec:
         name: prometheus-config
       - emptyDir: {}
         name: prometheus-storage
-      - name: vault-operator-apiserver-cert
+      - name: csi-vault-apiserver-cert
         secret:
           defaultMode: 420
-          secretName: vault-operator-apiserver-cert
+          secretName: csi-vault-apiserver-cert
           items:
           - path: tls.crt
             key: tls.crt

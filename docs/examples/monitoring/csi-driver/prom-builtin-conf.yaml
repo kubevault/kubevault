@@ -1,0 +1,150 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  labels:
+    name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |-
+    global:
+      scrape_interval: 5s
+      evaluation_interval: 5s
+    scrape_configs:
+    - job_name: 'csi-vault-attacher'
+      honor_labels: true
+      kubernetes_sd_configs:
+      - role: endpoints
+      # kubernetes apiserver serve metrics on a TLS secure endpoints. so, we have to use "https" scheme
+      scheme: https
+      # we have to provide certificate to establish tls secure connection
+      tls_config:
+        ca_file: /etc/prometheus/secret/csi-vault-apiserver-cert/tls.crt
+        server_name: csi-vault-attacher.kube-system.svc
+      #  bearer_token_file is required for authorizating prometheus server to kubernetes apiserver
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_label_app]
+        separator: ;
+        regex: csi-vault
+        replacement: $1
+        action: keep
+      - source_labels: [__meta_kubernetes_service_label_component]
+        separator: ;
+        regex: attacher
+        replacement: $1
+        action: keep
+      - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
+        separator: ;
+        regex: Node;(.*)
+        target_label: node
+        replacement: ${1}
+        action: replace
+      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: kube-system;csi-vault-attacher;api
+      - separator: ;
+        regex: (.*)
+        target_label: endpoint
+        replacement: api
+        action: replace
+      - source_labels: [__meta_kubernetes_service_name]
+        separator: ;
+        regex: (.*)
+        target_label: job
+        replacement: ${1}
+        action: replace
+
+    - job_name: 'csi-vault-provisioner'
+      honor_labels: true
+      kubernetes_sd_configs:
+      - role: endpoints
+      # kubernetes apiserver serve metrics on a TLS secure endpoints. so, we have to use "https" scheme
+      scheme: https
+      # we have to provide certificate to establish tls secure connection
+      tls_config:
+        ca_file: /etc/prometheus/secret/csi-vault-apiserver-cert/tls.crt
+        server_name: csi-vault-provisioner.kube-system.svc
+      #  bearer_token_file is required for authorizating prometheus server to kubernetes apiserver
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_label_app]
+        separator: ;
+        regex: csi-vault
+        replacement: $1
+        action: keep
+      - source_labels: [__meta_kubernetes_service_label_component]
+        separator: ;
+        regex: provisioner
+        replacement: $1
+        action: keep
+      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: kube-system;csi-vault-provisioner;api
+      - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
+        separator: ;
+        regex: Node;(.*)
+        target_label: node
+        replacement: ${1}
+        action: replace
+      - source_labels: [__meta_kubernetes_service_name]
+        separator: ;
+        regex: (.*)
+        target_label: job
+        replacement: ${1}
+        action: replace
+      - separator: ;
+        regex: (.*)
+        target_label: endpoint
+        replacement: api
+        action: replace
+
+    - job_name: 'csi-vault-plugin'
+      honor_labels: true
+      kubernetes_sd_configs:
+      - role: endpoints
+      # kubernetes apiserver serve metrics on a TLS secure endpoints. so, we have to use "https" scheme
+      scheme: https
+      # we have to provide certificate to establish tls secure connection
+      tls_config:
+        ca_file: /etc/prometheus/secret/csi-vault-apiserver-cert/tls.crt
+        server_name: csi-vault-plugin.kube-system.svc
+      #  bearer_token_file is required for authorizating prometheus server to kubernetes apiserver
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_label_app]
+        separator: ;
+        regex: csi-vault
+        replacement: $1
+        action: keep
+      - source_labels: [__meta_kubernetes_service_label_component]
+        separator: ;
+        regex: plugin
+        replacement: $1
+        action: keep
+      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: kube-system;csi-vault-plugin;api
+      - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
+        separator: ;
+        regex: Node;(.*)
+        target_label: node
+        replacement: ${1}
+        action: replace
+      - source_labels: [__meta_kubernetes_service_name]
+        separator: ;
+        regex: (.*)
+        target_label: job
+        replacement: ${1}
+        action: replace
+      - separator: ;
+        regex: (.*)
+        target_label: endpoint
+        replacement: api
+        action: replace
+  
+
+

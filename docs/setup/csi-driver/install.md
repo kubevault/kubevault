@@ -41,6 +41,45 @@ $ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.1.0/hack/d
 
 After successful installation, you should have `csi-vault-***` pod running in the `kube-system` namespace.
 
+
+#### Customizing Installer
+
+The installer script and associated yaml files can be found in the [/hack/deploy](https://github.com/kubevault/csi-driver/tree/0.2.0/hack/deploy) folder. You can see the full list of flags available to installer using `-h` flag.
+
+```console
+$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.2.0/hack/deploy/install.sh | bash -s -- -h
+install.sh -install Vault csi driver
+
+install.sh [options]
+
+options:
+-h, --help                                show brief help
+-n, --namespace=NAMESPACE                 specify namespace (default: kube-system)
+    --csi-vault-docker-registry           docker registry used to pull csi-vault image (default: kubevault)
+    --csi-vault-image-pull-secret         name of secret used to pull csi-vault images
+    --csi-vault-image-tag                 docker image version of csi vault
+    --csi-attacher-docker-registry        docker registry used to pull csi attacher image (default: quay.io/k8scsi)
+    --csi-attacher-image-pull-secret      name of secret used to pull csi attacher image
+    --csi-attacher-image-tag              docker image version of csi attacher
+    --csi-provisioner-docker-registry     docker registry used to pull csi provisioner image (default: quay.io/k8scsi)
+    --csi-provisioner-image-pull-secret   name of secret used to pull csi provisioner image
+    --csi-provisioner-image-tag           docker image version of csi provisioner
+    --csi-registrar-docker-registry       docker registry used to pull csi registrar image (default: quay.io/k8scsi)
+    --csi-registrar-image-pull-secret     name of secret used to pull csi registrar image
+    --csi-registrar-image-tag             docker image version of csi registrar
+    --csi-driver-name                     name of csi driver to install (default: com.kubevault.csi.secrets)
+    --csi-required-attachment             indicates csi volume driver requires an attach operation (default: false)
+    --install-appbinding                  indicates appbinding crd need to be installed (default: true)
+    --monitoring-agent                    specify which monitoring agent to use (default: none)
+    --monitor-attacher                    specify whether to monitor Vault CSI driver attacher (default: false)
+    --monitor-plugin                      specify whether to monitor Vault CSI driver plugin (default: false)
+    --monitor-provisioner                 specify whether to monitor Vault CSI driver provisioner (default: false)
+    --prometheus-namespace                specify the namespace where Prometheus server is running or will be deployed (default: same namespace as csi-vault)
+    --servicemonitor-label                specify the label for ServiceMonitor crd. Prometheus crd will use this label to select the ServiceMonitor. (default: 'app: csi-vault')
+    --uninstall                           uninstall vault csi driver
+    --purge                               purges csi driver crd objects and crds
+```
+
 </div>
 <div class="tab-pane fade" id="helm" role="tabpanel" aria-labelledby="helm-tab">
 

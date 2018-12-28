@@ -49,7 +49,7 @@ $ helm install appscode/vault-operator --name vault-operator --version 0.1.0 --n
 ```console
 $ curl -fsSL https://raw.githubusercontent.com/kubevault/vault-operator/0.1.0/hack/deploy/install.sh  | bash -s -- \
   --monitoring-agent=prometheus.io/coreos-operator \
-  --monitoring-operator=true \
+  --monitor-operator=true \
   --prometheus-namespace=monitoring \
   --servicemonitor-label=k8s-app=prometheus
 ```
@@ -93,7 +93,7 @@ Here, `api` endpoint exports operator metrics.
 
 Vault operator exports operator metrics via TLS secured `api` endpoint. So, Prometheus server need to provide certificate while scrapping metrics from this endpoint. Vault operator has created a secret named `vault-operator-apiserver-certs` with this certificate in `monitoring` namespace as we have specified that we are going to deploy Prometheus in that namespace through `--prometheus-namespace` flag. We have to specify this secret in Prometheus crd through `spec.secrets` field. Prometheus operator will mount this secret at `/etc/prometheus/secrets/vault-operator-apiserver-cert` directory of respective Prometheus pod. So, we need to configure `tlsConfig` field to use that certificate. Here, `caFile` indicates the certificate to use and serverName is used to verify hostname. In our case, the certificate is valid for hostname server and `vault-operator.kube-system.svc`.
 
-Let's check secret vault-operator-apiserver-cert has been created in demo namespace.
+Let's check secret vault-operator-apiserver-cert has been created in monitoring namespace.
 
 ```console
 $ kubectl get secret -n monitoring -l=app=vault-operator

@@ -25,8 +25,28 @@ data:
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
 
       relabel_configs:
+      - source_labels: [__meta_kubernetes_service_label_app]
+        separator: ;
+        regex: vault-operator
+        replacement: $1
+        action: keep
+      - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
+        separator: ;
+        regex: Node;(.*)
+        target_label: node
+        replacement: ${1}
+        action: replace
       - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
         action: keep
         regex: kube-system;vault-operator;api
-      - target_label: __address__
-        replacement:  vault-operator.kube-system.svc:443
+      - separator: ;
+        regex: (.*)
+        target_label: endpoint
+        replacement: api
+        action: replace
+      - source_labels: [__meta_kubernetes_service_name]
+        separator: ;
+        regex: (.*)
+        target_label: job
+        replacement: ${1}
+        action: replace

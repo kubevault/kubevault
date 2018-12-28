@@ -59,14 +59,18 @@ options:
     --image-pull-secret                name of secret used to pull Vault images
     --run-on-master                    run Vault operator on master
     --enable-mutating-webhook          enable/disable mutating webhooks for Kubernetes workloads
-    --enable-validating-webhook        enable/disable validating webhooks for Stash crds
+    --enable-validating-webhook        enable/disable validating webhooks for Vault CRDs
     --bypass-validating-webhook-xray   if true, bypasses validating webhook xray checks
     --enable-status-subresource        if enabled, uses status sub resource for crds
     --use-kubeapiserver-fqdn-for-aks   if true, uses kube-apiserver FQDN for AKS cluster to workaround https://github.com/Azure/AKS/issues/522 (default true)
     --enable-analytics                 send usage events to Google Analytics (default: true)
-    --uninstall                        uninstall stash
-    --purge                            purges stash crd objects and crds
+    --uninstall                        uninstall Vault operator
+    --purge                            purges Vault CRD objects and crds
     --install-catalog                  installs Vault server version catalog (default: all)
+    --monitoring-agent                 specify which monitoring agent to use (default: none)
+    --monitor-operator                 specify whether to monitor Vault operator (default: false)
+    --prometheus-namespace             specify the namespace where Prometheus server is running or will be deployed (default: same namespace as vault-operator)
+    --servicemonitor-label             specify the label for ServiceMonitor crd. Prometheus crd will use this label to select the ServiceMonitor. (default: 'app: vault-operator')
 ```
 
 If you would like to run Vault operator pod in `master` instances, pass the `--run-on-master` flag:

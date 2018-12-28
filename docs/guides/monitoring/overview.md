@@ -72,7 +72,7 @@ You can enable monitoring through some flags while installing or upgrading or up
 |       Script Flag        |            Helm Values             |                     Acceptable Values                      |                                                         Default                                                         |                                                                                    Uses                                                                                    |
 | ------------------------ | ---------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `--monitoring-agent`     | `monitoring.agent`                 | `prometheus.io/builtin` or `prometheus.io/coreos-operator` | `none`                                                                                                                  | Specify which monitoring agent to use for monitoring Vault operator.                                                                                                                |
-| `--monitoring-operator`  | `monitoring.operator`              | `true` or `false`                                          | `false`                                                                                                                 | Specify whether to monitor Vault operator.                                                                                                                                 |
+| `--monitor-operator`  | `monitoring.operator`              | `true` or `false`                                          | `false`                                                                                                                 | Specify whether to monitor Vault operator.                                                                                                                                 |
 | `--prometheus-namespace` | `monitoring.prometheus.namespace`  | any namespace                                              | same namespace as Vault operator                                                                                        | Specify the namespace where Prometheus server is running or will be deployed                                                                                               |
 | `--servicemonitor-label` | `monitoring.serviceMonitor.labels` | any label                                                  | For Helm installation, `app: <generated app name>` and `release: <release name>`. For script installation, `app: vault-operator` | Specify the labels for ServiceMonitor. Prometheus crd will select ServiceMonitor using these labels. Only usable when monitoring agent is `prometheus.io/coreos-operator`. |
 
@@ -91,7 +91,7 @@ $ helm install appscode/vault-operator --name vault-operator --version 0.1.0 --n
 ```console
 $ curl -fsSL https://raw.githubusercontent.com/kubevault/vault-operator/0.1.0/hack/deploy/install.sh  | bash -s -- \
   --monitoring-agent=prometheus.io/coreos-operator \
-  --monitoring-operator=true \
+  --monitor-operator=true \
   --prometheus-namespace=demo \
   --servicemonitor-label=k8s-app=prometheus
 ```
