@@ -3,10 +3,7 @@ kind: Job
 metadata:
   name: {{ .Release.Name }}-cleaner
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app: "{{ template "vault-operator.name" . }}"
-    heritage: "{{ .Release.Service }}"
-    release: "{{ .Release.Name }}"
+    {{- include "vault-operator.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": pre-delete
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed

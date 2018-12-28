@@ -4,10 +4,7 @@ kind: ClusterRole
 metadata:
   name: {{ template "vault-operator.fullname" . }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app: "{{ template "vault-operator.name" . }}"
-    heritage: "{{ .Release.Service }}"
-    release: "{{ .Release.Name }}"
+    {{- include "vault-operator.labels" . | nindent 4 }}
 rules:
 - apiGroups:
   - apiextensions.k8s.io
