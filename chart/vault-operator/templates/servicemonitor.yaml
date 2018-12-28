@@ -2,17 +2,17 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
- name: vault-operator-servicemonitor
- namespace: {{ default .Release.Namespace  .Values.monitoring.prometheus.namespace }}
- labels:
-   {{- if .Values.monitoring.serviceMonitor.labels }}
-   {{- range $key, $val := .Values.monitoring.serviceMonitor.labels }}
-   {{ $key }}: {{ $val }}
-   {{- end }}
-   {{- else }}
-   app: "{{ template "vault-operator.name" . }}"
-   release: "{{ .Release.Name }}"
-   {{- end }}
+  name: vault-operator-servicemonitor
+  namespace: {{ default .Release.Namespace  .Values.monitoring.prometheus.namespace }}
+  labels:
+    {{- if .Values.monitoring.serviceMonitor.labels }}
+    {{- range $key, $val := .Values.monitoring.serviceMonitor.labels }}
+    {{ $key }}: {{ $val }}
+    {{- end }}
+    {{- else }}
+    app: "{{ template "vault-operator.name" . }}"
+    release: "{{ .Release.Name }}"
+    {{- end }}
 spec:
   namespaceSelector:
     matchNames:
