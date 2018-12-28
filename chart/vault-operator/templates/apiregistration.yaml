@@ -10,10 +10,7 @@ kind: APIService
 metadata:
   name: v1alpha1.mutators.kubevault.com
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app: "{{ template "vault-operator.name" . }}"
-    heritage: "{{ .Release.Service }}"
-    release: "{{ .Release.Name }}"
+    {{- include "vault-operator.labels" . | nindent 4 }}
 spec:
   group: mutators.kubevault.com
   version: v1alpha1
@@ -30,10 +27,7 @@ kind: APIService
 metadata:
   name: v1alpha1.validators.kubevault.com
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app: "{{ template "vault-operator.name" . }}"
-    heritage: "{{ .Release.Service }}"
-    release: "{{ .Release.Name }}"
+    {{- include "vault-operator.labels" . | nindent 4 }}
 spec:
   group: validators.kubevault.com
   version: v1alpha1
@@ -50,10 +44,7 @@ kind: APIService
 metadata:
   name: v1alpha1.validators.authorization.kubedb.com
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app: "{{ template "vault-operator.name" . }}"
-    heritage: "{{ .Release.Service }}"
-    release: "{{ .Release.Name }}"
+    {{- include "vault-operator.labels" . | nindent 4 }}
 spec:
   group: validators.authorization.kubedb.com
   version: v1alpha1
@@ -70,10 +61,7 @@ kind: APIService
 metadata:
   name: v1alpha1.validators.engine.kubevault.com
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app: "{{ template "vault-operator.name" . }}"
-    heritage: "{{ .Release.Service }}"
-    release: "{{ .Release.Name }}"
+    {{- include "vault-operator.labels" . | nindent 4 }}
 spec:
   group: validators.engine.kubevault.com
   version: v1alpha1
@@ -91,10 +79,7 @@ metadata:
   name: {{ template "vault-operator.fullname" . }}-apiserver-cert
   namespace: {{ .Release.Namespace }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app: "{{ template "vault-operator.name" . }}"
-    heritage: "{{ .Release.Service }}"
-    release: "{{ .Release.Name }}"
+    {{- include "vault-operator.labels" . | nindent 4 }}
 type: Opaque
 data:
   tls.crt: {{ b64enc $cert.Cert }}
@@ -110,10 +95,7 @@ metadata:
   name: {{ template "vault-operator.fullname" . }}-apiserver-cert
   namespace: {{ $promNamespace }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app: "{{ template "vault-operator.name" . }}"
-    heritage: "{{ .Release.Service }}"
-    release: "{{ .Release.Name }}"
+    {{- include "vault-operator.labels" . | nindent 4 }}
 type: kubernetes.io/tls
 data:
   tls.crt: {{ b64enc $cert.Cert }}
@@ -128,10 +110,7 @@ metadata:
   name: {{ template "vault-operator.fullname" . }}-apiserver-extension-server-authentication-reader
   namespace: kube-system
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app: "{{ template "vault-operator.name" . }}"
-    heritage: "{{ .Release.Service }}"
-    release: "{{ .Release.Name }}"
+    {{- include "vault-operator.labels" . | nindent 4 }}
 roleRef:
   kind: Role
   apiGroup: rbac.authorization.k8s.io
@@ -147,10 +126,7 @@ kind: ClusterRoleBinding
 metadata:
   name: {{ template "vault-operator.fullname" . }}-apiserver-auth-delegator
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    app: "{{ template "vault-operator.name" . }}"
-    heritage: "{{ .Release.Service }}"
-    release: "{{ .Release.Name }}"
+    {{- include "vault-operator.labels" . | nindent 4 }}
 roleRef:
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io

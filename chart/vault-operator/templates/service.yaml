@@ -4,10 +4,7 @@ metadata:
   name: {{ template "vault-operator.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    app: "{{ template "vault-operator.name" . }}"
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+    {{- include "vault-operator.labels" . | nindent 4 }}
   {{- if and (eq .Values.monitoring.agent "prometheus.io/builtin") .Values.monitoring.operator }}
   annotations:
     prometheus.io/scrape: "true"
