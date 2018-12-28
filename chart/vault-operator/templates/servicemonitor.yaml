@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: vault-operator
+  name: {{ template "vault-operator.fullname" . }}
   namespace: {{ default .Release.Namespace  .Values.monitoring.prometheus.namespace }}
   labels:
     {{- if .Values.monitoring.serviceMonitor.labels }}
