@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: vault-operator-servicemonitor
+  name: vault-operator
   namespace: ${PROMETHEUS_NAMESPACE}
   labels:
     ${SERVICE_MONITOR_LABEL_KEY}: ${SERVICE_MONITOR_LABEL_VALUE}

@@ -526,7 +526,7 @@ if [ "$MONITOR_OPERATOR" = "true" ] && [ "$MONITORING_AGENT" != "$MONITORING_AGE
         prometheus.io/scheme="https"
       ;;
     "$MONITORING_AGENT_COREOS_OPERATOR")
-      ${SCRIPT_LOCATION}hack/deploy/monitor/servicemonitor-operator.yaml | $ONESSL envsubst | kubectl apply -f -
+      ${SCRIPT_LOCATION}hack/deploy/monitor/servicemonitor.yaml | $ONESSL envsubst | kubectl apply -f -
       ;;
   esac
 fi
