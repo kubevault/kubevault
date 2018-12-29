@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ .Release.Name }}-cleaner
+  name: {{ template "vault-operator.fullname" . }}-cleaner
   labels:
     {{- include "vault-operator.labels" . | nindent 4 }}
   annotations:
@@ -24,5 +24,5 @@ spec:
           - sh
           - -c
           - "sleep 2; kubectl delete validatingwebhookconfigurations validators.kubevault.com || true; kubectl delete validatingwebhookconfigurations validators.authorization.kubedb.com || true;kubectl delete validatingwebhookconfigurations validators.engine.kubevault.com || true; kubectl delete mutatingwebhookconfiguration mutators.kubevault.com || true"
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
       restartPolicy: Never
