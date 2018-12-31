@@ -1,0 +1,16 @@
+apiVersion: authorization.kubedb.com/v1alpha1
+kind: PostgresRole
+metadata:
+  name: demo-role
+  namespace: demo
+spec:
+  creationStatements:
+    - "CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';"
+    - "GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";"
+  defaultTTL: 1h
+  maxTTL: 24h
+  authManagerRef:
+    namespace: demo
+    name: vault-app
+  databaseRef:
+    name: postgres-app

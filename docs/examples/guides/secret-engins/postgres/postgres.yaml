@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: postgres
+  name: postgres
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: clair-postgresql
+        image: postgres:9.6.2
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: root
+        - name: POSTGRES_DB
+          value: database
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - exec pg_isready --host $POD_IP
+          initialDelaySeconds: 120
+          timeoutSeconds: 5
+          failureThreshold: 6
+        ports:
+        - containerPort: 5432
+          name: postgresql
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - exec pg_isready --host $POD_IP
+          initialDelaySeconds: 5
+          timeoutSeconds: 3
+          periodSeconds: 5
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data/pgdata
+          name: data
+          subPath: postgresql-db
+      volumes:
+      - name: data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: demo
+  labels:
+    app: postgres
+spec:
+  type: ClusterIP
+  ports:
+  - name: postgresqlsvc
+    port: 5432
+    targetPort: postgresql
+  selector:
+    app: postgres

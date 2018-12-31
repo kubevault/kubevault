@@ -1,0 +1,27 @@
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
+metadata:
+  name: postgres-app
+  namespace: demo
+spec:
+  secret:
+    name: postgres-user-cred # secret
+  clientConfig:
+    service:
+      name: postgres
+      scheme: postgresql
+      port: 5432
+      path: "postgres"
+      query: "sslmode=disable"
+    insecureSkipTLSVerify: true
+  parameters:
+    allowedRoles: "*"
+---
+apiVersion: v1
+data:
+  username: cG9zdGdyZXM=
+  password: cm9vdA==
+kind: Secret
+metadata:
+  name: postgres-user-cred
+  namespace: demo

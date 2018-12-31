@@ -286,13 +286,14 @@ NAME        AGE
 demo-cred   3s
 ```
 
-AWS credential will not be issued until it is approved. To approve it, you have to add `Approved` in `status.conditions[].type` field.
+AWS credential will not be issued until it is approved. To approve it, you have to add `Approved` in `status.conditions[].type` field. You can use [KubeVault CLI](https://github.com/kubevault/cli) as [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) to approve or deny DatabaseAccessRequest.
 
 ```console
-$ kubectl edit awsaccesskeyrequest/demo-cred -n demo
-awsaccesskeyrequest.engine.kubevault.com/demo-cred edited
+# using kubevault cli as kubectl plugin to approve request
+$ kubectl vault approve awsaccesskeyrequest demo-cred -n demo
+approved
 
-$ kubectl get awsaccesskeyrequest/demo-cred -n demo -o yaml
+$ kubectl get awsaccesskeyrequest demo-cred -n demo -o yaml
 apiVersion: engine.kubevault.com/v1alpha1
 kind: AWSAccessKeyRequest
 metadata:
