@@ -35,6 +35,7 @@ csi-vault run [flags]
       --burst int                                               The maximum burst for throttle (default 100)
       --cert-dir string                                         The directory where the TLS certs are located. If --tls-cert-file and --tls-private-key-file are provided, this flag will be ignored. (default "apiserver.local.config/certificates")
       --client-ca-file string                                   If set, any request presenting a client certificate signed by one of the authorities in the client-ca-file is authenticated with an identity corresponding to the CommonName of the client certificate.
+      --connection-timeout duration                             Timeout for waiting for CSI driver socket in seconds. (default 30s)
       --contention-profiling                                    Enable lock contention profiling, if profiling is enabled
       --enable-swagger-ui                                       Enables swagger ui on the apiserver at /swagger-ui
       --endpoint string                                         CSI endpoint (default "unix:///var/lib/kubelet/plugins/com.kubevault.csi.secrets/csi.sock")
