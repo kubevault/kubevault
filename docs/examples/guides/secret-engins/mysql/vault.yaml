@@ -1,0 +1,17 @@
+apiVersion: kubevault.com/v1alpha1
+kind: VaultServer
+metadata:
+  name: vault
+  namespace: demo
+spec:
+  nodes: 1
+  version: "1.0.0"
+  backend:
+    inmem: {}
+  unsealer:
+    secretShares: 4
+    secretThreshold: 2
+    insecureSkipTLSVerify: true
+    mode:
+      kubernetesSecret:
+        secretName: vault-keys

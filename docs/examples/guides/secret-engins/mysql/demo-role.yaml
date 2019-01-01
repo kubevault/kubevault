@@ -1,0 +1,16 @@
+apiVersion: authorization.kubedb.com/v1alpha1
+kind: MySQLRole
+metadata:
+  name: demo-role
+  namespace: demo
+spec:
+  creationStatements:
+    - "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';"
+    - "GRANT SELECT ON *.* TO '{{name}}'@'%';"
+  defaultTTL: 1h
+  maxTTL: 24h
+  authManagerRef:
+    namespace: demo
+    name: vault-app
+  databaseRef:
+    name: mysql-app

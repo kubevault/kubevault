@@ -1,0 +1,47 @@
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicy
+metadata:
+  name: mysql-role-policy
+  namespace: demo
+spec:
+  vaultAppRef:
+    name: vault
+    namespace: demo
+  policy: |
+    path "sys/mounts" {
+      capabilities = ["read", "list"]
+    }
+
+    path "sys/mounts/*" {
+      capabilities = ["create", "read", "update", "delete"]
+    }
+
+    path "database/config/*" {
+    	capabilities = ["create", "read", "update", "delete"]
+    }
+
+    path "database/roles/*" {
+    	capabilities = ["create", "update", "read", "delete"]
+    }
+
+    path "database/creds/*" {
+        capabilities = ["read"]
+    }
+
+    path "sys/leases/revoke/*" {
+        capabilities = ["update"]
+    }
+---
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicyBinding
+metadata:
+  name: mysql-role
+  namespace: demo
+spec:
+  roleName: "mysql-role"
+  policies : ["mysql-role-policy"]
+  serviceAccountNames: ["demo-sa"]
+  serviceAccountNamespaces: ["demo"]
+  TTL: "1000"
+  maxTTL: "2000"
+  Period: "1000"

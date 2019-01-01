@@ -1,0 +1,23 @@
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
+metadata:
+  name: mysql-app
+  namespace: demo
+spec:
+  secret:
+    name: mysql-user-cred # secret
+  clientConfig:
+    url: tcp(mysql.demo.svc:3306)/
+    insecureSkipTLSVerify: true
+  parameters:
+    allowedRoles: "*"
+    pluginName: "mysql-rds-database-plugin"
+---
+apiVersion: v1
+data:
+  username: cm9vdA==
+  password: cm9vdA==
+kind: Secret
+metadata:
+  name: mysql-user-cred
+  namespace: demo

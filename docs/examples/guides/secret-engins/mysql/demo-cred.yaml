@@ -1,0 +1,14 @@
+apiVersion: authorization.kubedb.com/v1alpha1
+kind: DatabaseAccessRequest
+metadata:
+  name: demo-cred
+  namespace: demo
+spec:
+  roleRef:
+    kind: MySQLRole
+    name: demo-role
+    namespace: demo
+  subjects:
+    - kind: User
+      name: nahid
+      apiGroup: rbac.authorization.k8s.io
