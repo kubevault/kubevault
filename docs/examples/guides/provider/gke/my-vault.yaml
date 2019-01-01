@@ -1,0 +1,24 @@
+apiVersion: kubevault.com/v1alpha1
+kind: VaultServer
+metadata:
+  name: my-vault
+  namespace: demo
+spec:
+  nodes: 1
+  version: "1.0.0"
+  backend:
+    gcs:
+      bucket: "demo-vault"
+      credentialSecret: "google-cred"
+  unsealer:
+    secretShares: 4
+    secretThreshold: 2
+    insecureSkipTLSVerify: true
+    mode:
+      googleKmsGcs:
+        bucket: "demo-vault"
+        kmsProject: "ackube"
+        kmsLocation: "global"
+        kmsKeyRing: "vault"
+        kmsCryptoKey: "vault-key"
+        credentialSecret: "google-cred"

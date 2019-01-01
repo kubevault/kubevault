@@ -1,4 +1,4 @@
-# Deploying Vault with Amazon EKS using AWS s3 backend and unsealing it using awsKmsSsm
+# Deploying Vault with Amazon EKS using AWS S3 backend and unsealing it using awsKmsSsm
 
 Here, we are going to deploy Vault in Amazon EKS using Vault operator. We are going to use [AWS S3 bucket](https://aws.amazon.com/s3/) as Vault backend and `awsKmsSsm` unsealer mode for automatic unsealing the Vault. 
 
