@@ -1360,9 +1360,16 @@ func schema_operator_apis_kubevault_v1alpha1_TLSPolicy(ref common.ReferenceCallb
 				Properties: map[string]spec.Schema{
 					"tlsSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "TLSSecret is the secret containing TLS certs used by each vault node for the communication between the vault server and its clients. The secret should contain three files:\n\t- ca.crt\n\t- server.crt\n\t- server.key\n\nThe server certificate must allow the following wildcard domains:\n\t- localhost\n\t- *.<namespace>.pod\n\t- <vaultServer-name>.<namespace>.svc",
+							Description: "TLSSecret is the secret containing TLS certs used by each vault node for the communication between the vault server and its clients. The secret should contain three files:\n\t- tls.crt\n\t- tls.key\n\nThe server certificate must allow the following wildcard domains:\n\t- localhost\n\t- *.<namespace>.pod\n\t- <vaultServer-name>.<namespace>.svc",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"caBundle": {
+						SchemaProps: spec.SchemaProps{
+							Description: "CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate.",
+							Type:        []string{"string"},
+							Format:      "byte",
 						},
 					},
 				},
@@ -1405,20 +1412,6 @@ func schema_operator_apis_kubevault_v1alpha1_UnsealerSpec(ref common.ReferenceCa
 							Description: "overwrite existing unseal keys and root tokens, possibly dangerous!",
 							Type:        []string{"boolean"},
 							Format:      "",
-						},
-					},
-					"insecureSkipTLSVerify": {
-						SchemaProps: spec.SchemaProps{
-							Description: "InsecureSkipTLSVerify disables TLS certificate verification",
-							Type:        []string{"boolean"},
-							Format:      "",
-						},
-					},
-					"caBundle": {
-						SchemaProps: spec.SchemaProps{
-							Description: "CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate.",
-							Type:        []string{"string"},
-							Format:      "byte",
 						},
 					},
 					"storeRootToken": {

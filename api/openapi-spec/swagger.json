@@ -6572,8 +6572,13 @@
         "tlsSecret"
       ],
       "properties": {
+        "caBundle": {
+          "description": "CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate.",
+          "type": "string",
+          "format": "byte"
+        },
         "tlsSecret": {
-          "description": "TLSSecret is the secret containing TLS certs used by each vault node for the communication between the vault server and its clients. The secret should contain three files:\n\t- ca.crt\n\t- server.crt\n\t- server.key\n\nThe server certificate must allow the following wildcard domains:\n\t- localhost\n\t- *.\u003cnamespace\u003e.pod\n\t- \u003cvaultServer-name\u003e.\u003cnamespace\u003e.svc",
+          "description": "TLSSecret is the secret containing TLS certs used by each vault node for the communication between the vault server and its clients. The secret should contain three files:\n\t- tls.crt\n\t- tls.key\n\nThe server certificate must allow the following wildcard domains:\n\t- localhost\n\t- *.\u003cnamespace\u003e.pod\n\t- \u003cvaultServer-name\u003e.\u003cnamespace\u003e.svc",
           "type": "string"
         }
       }
@@ -6581,15 +6586,6 @@
     "com.github.kubevault.operator.apis.kubevault.v1alpha1.UnsealerSpec": {
       "description": "UnsealerSpec contain the configuration for auto vault initialize/unseal",
       "properties": {
-        "caBundle": {
-          "description": "CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate.",
-          "type": "string",
-          "format": "byte"
-        },
-        "insecureSkipTLSVerify": {
-          "description": "InsecureSkipTLSVerify disables TLS certificate verification",
-          "type": "boolean"
-        },
         "mode": {
           "description": "mode contains unseal mechanism",
           "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.ModeSpec"
