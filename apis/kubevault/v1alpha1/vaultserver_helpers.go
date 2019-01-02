@@ -109,6 +109,16 @@ func (v VaultServer) IsValid() error {
 	return nil
 }
 
+func (v VaultServer) StatsServiceName() string {
+	return v.Name + "-stats"
+}
+
+func (v VaultServer) StatsLabels() map[string]string {
+	labels := v.OffshootLabels()
+	labels["feature"] = "stats"
+	return labels
+}
+
 func (v VaultServer) StatsService() mona.StatsAccessor {
 	return &vaultServerStatsService{&v}
 }
@@ -122,7 +132,7 @@ func (e vaultServerStatsService) GetNamespace() string {
 }
 
 func (e vaultServerStatsService) ServiceName() string {
-	return e.OffshootName()
+	return e.StatsServiceName()
 }
 
 func (e vaultServerStatsService) ServiceMonitorName() string {

@@ -1,5 +1,5 @@
 hash: deb6771275e7a8ef9c29b1b95312406ff616fbac6fe0accc915895361be01a96
-updated: 2018-12-27T01:22:46.294096886-08:00
+updated: 2019-01-02T04:40:18.652650448-08:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -714,7 +714,7 @@ imports:
   - third_party/forked/golang/netutil
   - third_party/forked/golang/reflect
 - name: k8s.io/apiserver
-  version: 419ab4faf457be27411fc8125ed110a03be373e8
+  version: 2aa1408a8c0a98b7d52911b63a98cbb7c9fd5e7c
   repo: https://github.com/kmodules/apiserver.git
   vcs: git
   subpackages:
@@ -1030,7 +1030,7 @@ imports:
   - client/clientset/versioned/typed/appcatalog/v1alpha1/fake
   - client/clientset/versioned/typed/appcatalog/v1alpha1/util
 - name: kmodules.xyz/monitoring-agent-api
-  version: d12289267b3d7510feb9fac1f5e451d476f23a38
+  version: e79ddf3f680a16a99b9aacb718f5607b54cef04d
   repo: https://github.com/kmodules/monitoring-agent-api.git
   vcs: git
   subpackages:
