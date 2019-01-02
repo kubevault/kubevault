@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	vaultapi "github.com/hashicorp/vault/api"
+	"k8s.io/kubernetes/pkg/apis/core"
 )
 
 const (
@@ -20,12 +21,6 @@ const (
 
 	// VaultTLSAssetDir is the dir where vault's server TLS sits
 	VaultTLSAssetDir = "/etc/vault/tls/"
-
-	// ServerTLSCertName is the filename of the vault server cert
-	ServerTLSCertName = "server.crt"
-
-	// ServerTLSKeyName is the filename of the vault server key
-	ServerTLSKeyName = "server.key"
 )
 
 var listenerFmt = `
@@ -40,14 +35,14 @@ listener "tcp" {
 // NewConfigWithDefaultParams appends to given config data some default params:
 // - tcp listener
 func NewConfigWithDefaultParams() string {
-	return fmt.Sprintf(listenerFmt, filepath.Join(VaultTLSAssetDir, ServerTLSCertName), filepath.Join(VaultTLSAssetDir, ServerTLSKeyName))
+	return fmt.Sprintf(listenerFmt, filepath.Join(VaultTLSAssetDir, core.TLSCertKey), filepath.Join(VaultTLSAssetDir, core.TLSPrivateKeyKey))
 }
 
 // ListenerConfig creates tcp listener config
 func GetListenerConfig() string {
 	listenerCfg := fmt.Sprintf(listenerFmt,
-		filepath.Join(VaultTLSAssetDir, ServerTLSCertName),
-		filepath.Join(VaultTLSAssetDir, ServerTLSKeyName))
+		filepath.Join(VaultTLSAssetDir, core.TLSCertKey),
+		filepath.Join(VaultTLSAssetDir, core.TLSPrivateKeyKey))
 
 	return listenerCfg
 }

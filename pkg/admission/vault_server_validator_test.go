@@ -44,10 +44,9 @@ var (
 		},
 	}
 	unslr = api.UnsealerSpec{
-		SecretShares:          5,
-		SecretThreshold:       3,
-		InsecureSkipTLSVerify: true,
-		Mode:                  api.ModeSpec{},
+		SecretShares:    5,
+		SecretThreshold: 3,
+		Mode:            api.ModeSpec{},
 	}
 )
 
@@ -328,8 +327,6 @@ func TestValidateVaultServer(t *testing.T) {
 			testName: "spec.unsealer.insecureTLS is false and spec.unsealer.vaultCASecret is empty, expect error",
 			vs: func() *api.VaultServer {
 				u := unslr
-				u.InsecureSkipTLSVerify = false
-				u.CABundle = []byte("")
 				v := vaultServerWiitUnsealer(&u)
 				return &v
 			}(),

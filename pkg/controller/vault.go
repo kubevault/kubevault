@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"net"
 	"path/filepath"
 
 	core_util "github.com/appscode/kutil/core/v1"
@@ -32,12 +33,10 @@ const (
 	VaultClusterPort        = 8201
 	vaultTLSAssetVolumeName = "vault-tls-secret"
 	CaCertName              = "ca.crt"
-	ServerCertName          = "server.crt"
-	ServerkeyName           = "server.key"
 )
 
 type Vault interface {
-	GetServerTLS() (*core.Secret, error)
+	GetServerTLS() (*core.Secret, []byte, error)
 	GetConfig() (*core.ConfigMap, error)
 	Apply(pt *core.PodTemplateSpec) error
 	GetService() *core.Service
@@ -98,28 +97,34 @@ func NewVault(vs *api.VaultServer, config *rest.Config, kc kubernetes.Interface,
 //
 // if user provide TLS secrets, then it will be used.
 // Otherwise self signed certificates will be used
-func (v *vaultSrv) GetServerTLS() (*core.Secret, error) {
+func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 	tls := v.vs.Spec.TLS
 	if tls != nil && tls.TLSSecret != "" {
 		sr, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(tls.TLSSecret, metav1.GetOptions{})
-		return sr, err
+		return sr, tls.CABundle, err
 	}
 
-	tlsSecretName := v.vs.TLSSecretName()
+	if v.vs.Spec.TLS == nil {
+		v.vs.Spec.TLS = &api.TLSPolicy{
+			TLSSecret: v.vs.TLSSecretName(),
+		}
+	}
+
+	tlsSecretName := v.vs.Spec.TLS.TLSSecret
 	sr, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(tlsSecretName, metav1.GetOptions{})
 	if err == nil {
 		glog.Infof("secret %s/%s already exists", v.vs.Namespace, tlsSecretName)
-		return sr, nil
+		return sr, v.vs.Spec.TLS.CABundle, nil
 	}
 
 	store, err := certstore.NewCertStore(afero.NewMemMapFs(), filepath.Join("", "pki"))
 	if err != nil {
-		return nil, errors.Wrap(err, "certificate store create error")
+		return nil, nil, errors.Wrap(err, "certificate store create error")
 	}
 
 	err = store.NewCA()
 	if err != nil {
-		return nil, errors.Wrap(err, "ca certificate create error")
+		return nil, nil, errors.Wrap(err, "ca certificate create error")
 	}
 
 	// ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
@@ -129,11 +134,14 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, error) {
 			fmt.Sprintf("*.%s.pod", v.vs.Namespace),
 			fmt.Sprintf("%s.%s.svc", v.vs.Name, v.vs.Namespace),
 		},
+		IPs: []net.IP{
+			net.ParseIP("127.0.0.1"),
+		},
 	}
 
 	srvCrt, srvKey, err := store.NewServerCertPairBytes(altNames)
 	if err != nil {
-		return nil, errors.Wrap(err, "vault server create crt/key pair error")
+		return nil, nil, errors.Wrap(err, "vault server create crt/key pair error")
 	}
 
 	tlsSr := &core.Secret{
@@ -143,12 +151,12 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, error) {
 			Labels:    v.vs.OffshootLabels(),
 		},
 		Data: map[string][]byte{
-			CaCertName:     store.CACertBytes(),
-			ServerCertName: srvCrt,
-			ServerkeyName:  srvKey,
+			core.TLSCertKey:       srvCrt,
+			core.TLSPrivateKeyKey: srvKey,
 		},
 	}
-	return tlsSr, nil
+	v.vs.Spec.TLS.CABundle = store.CACertBytes()
+	return tlsSr, store.CACertBytes(), nil
 }
 
 // GetConfig will return the vault config in ConfigMap

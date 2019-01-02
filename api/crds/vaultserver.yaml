@@ -4397,27 +4397,23 @@ spec:
               description: TLSPolicy defines the TLS policy of the vault nodes If
                 this is not set, operator will auto-gen TLS assets and secrets.
               properties:
+                caBundle:
+                  description: CABundle is a PEM encoded CA bundle which will be used
+                    to validate the serving certificate.
+                  format: byte
+                  type: string
                 tlsSecret:
                   description: "TLSSecret is the secret containing TLS certs used
                     by each vault node for the communication between the vault server
-                    and its clients. The secret should contain three files:\n\t- ca.crt\n\t-
-                    server.crt\n\t- server.key\n\nThe server certificate must allow
-                    the following wildcard domains:\n\t- localhost\n\t- *.<namespace>.pod\n\t-
-                    <vaultServer-name>.<namespace>.svc"
+                    and its clients. The secret should contain three files:\n\t- tls.crt\n\t-
+                    tls.key\n\nThe server certificate must allow the following wildcard
+                    domains:\n\t- localhost\n\t- *.<namespace>.pod\n\t- <vaultServer-name>.<namespace>.svc"
                   type: string
               required:
               - tlsSecret
             unsealer:
               description: UnsealerSpec contain the configuration for auto vault initialize/unseal
               properties:
-                caBundle:
-                  description: CABundle is a PEM encoded CA bundle which will be used
-                    to validate the serving certificate.
-                  format: byte
-                  type: string
-                insecureSkipTLSVerify:
-                  description: InsecureSkipTLSVerify disables TLS certificate verification
-                  type: boolean
                 mode:
                   description: ModeSpec contain unseal mechanism
                   properties:

@@ -184,15 +184,18 @@ type TLSPolicy struct {
 	// TLSSecret is the secret containing TLS certs used by each vault node
 	// for the communication between the vault server and its clients.
 	// The secret should contain three files:
-	//	- ca.crt
-	// 	- server.crt
-	// 	- server.key
+	// 	- tls.crt
+	// 	- tls.key
 	//
 	// The server certificate must allow the following wildcard domains:
 	// 	- localhost
 	// 	- *.<namespace>.pod
 	// 	- <vaultServer-name>.<namespace>.svc
 	TLSSecret string `json:"tlsSecret"`
+
+	// CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate.
+	// +optional
+	CABundle []byte `json:"caBundle,omitempty"`
 }
 
 // TODO : set defaults and validation
@@ -544,14 +547,6 @@ type UnsealerSpec struct {
 	// overwrite existing unseal keys and root tokens, possibly dangerous!
 	// +optional
 	OverwriteExisting bool `json:"overwriteExisting,omitempty"`
-
-	// InsecureSkipTLSVerify disables TLS certificate verification
-	// +optional
-	InsecureSkipTLSVerify bool `json:"insecureSkipTLSVerify,omitempty"`
-
-	// CABundle is a PEM encoded CA bundle which will be used to validate the serving certificate.
-	// +optional
-	CABundle []byte `json:"caBundle,omitempty"`
 
 	// should the root token be stored in the key store (default true)
 	// +optional
