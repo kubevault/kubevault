@@ -22,14 +22,14 @@ import (
 
 // monitorAndUpdateStatus monitors the vault service and replicas statuses, and
 // updates the status resource in the vault CR item.
-func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.VaultServer) {
+func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, vs *api.VaultServer) {
 	tlsConfig := &vaultapi.TLSConfig{
 		Insecure: true,
 	}
 
 	s := api.VaultServerStatus{
 		Phase:       api.ClusterPhaseProcessing,
-		ServiceName: v.OffshootName(),
+		ServiceName: vs.OffshootName(),
 		ClientPort:  VaultClientPort,
 		VaultStatus: api.VaultStatus{
 			Standby: []string{},
@@ -39,37 +39,37 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, v *api.Vau
 
 	for {
 		// Do not wait to update Phase ASAP.
-		latest, err := c.updateVaultCRStatus(ctx, v.Name, v.Namespace, &s)
+		latest, err := c.updateVaultCRStatus(ctx, vs.Name, vs.Namespace, &s)
 		if err != nil {
-			glog.Errorf("vault status monitor: failed updating the status for the vault server %s: %v", v.Name, err)
+			glog.Errorf("vault status monitor: failed updating the status for the vault server %s: %v", vs.Name, err)
 		}
 		if latest != nil {
-			v = latest
-			s = v.Status
+			vs = latest
+			s = vs.Status
 		}
 
 		select {
 		case err := <-ctx.Done():
-			glog.Infof("vault status monitor: stop monitoring vault (%s/%s), reason: %v\n", v.Namespace, v.Name, err)
+			glog.Infof("vault status monitor: stop monitoring vault (%s/%s), reason: %v\n", vs.Namespace, vs.Name, err)
 			return
 		case <-time.After(5 * time.Second):
 		}
 
-		c.updateLocalVaultCRStatus(ctx, v, &s, tlsConfig)
+		c.updateLocalVaultCRStatus(ctx, vs, &s, tlsConfig)
 	}
 }
 
 // updateLocalVaultCRStatus updates local vault CR status by querying each vault pod's API.
-func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, v *api.VaultServer, s *api.VaultServerStatus, tlsConfig *vaultapi.TLSConfig) {
-	name, namespace := v.Name, v.Namespace
-	sel := v.OffshootSelectors()
+func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, vs *api.VaultServer, s *api.VaultServerStatus, tlsConfig *vaultapi.TLSConfig) {
+	name, namespace := vs.Name, vs.Namespace
+	sel := vs.OffshootSelectors()
 
 	// TODO : handle upgrades when pods from two replicaset can co-exist :(
 	opt := metav1.ListOptions{LabelSelector: labels.SelectorFromSet(sel).String()}
 
-	version, err := c.extClient.CatalogV1alpha1().VaultServerVersions().Get(string(v.Spec.Version), metav1.GetOptions{})
+	version, err := c.extClient.CatalogV1alpha1().VaultServerVersions().Get(string(vs.Spec.Version), metav1.GetOptions{})
 	if err != nil {
-		glog.Errorf("vault status monitor: failed to get vault server version(%s): %v", v.Spec.Version, err)
+		glog.Errorf("vault status monitor: failed to get vault server version(%s): %v", vs.Spec.Version, err)
 		return
 	}
 

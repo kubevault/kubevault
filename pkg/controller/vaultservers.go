@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/appscode/go/encoding/json/types"
+	"github.com/appscode/go/log"
+	"github.com/appscode/kutil"
 	apps_util "github.com/appscode/kutil/apps/v1"
 	core_util "github.com/appscode/kutil/core/v1"
 	meta_util "github.com/appscode/kutil/meta"
@@ -13,6 +15,7 @@ import (
 	"github.com/kubevault/operator/apis"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
+	"github.com/kubevault/operator/pkg/eventer"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
@@ -251,6 +254,40 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 	err = ensureDeployment(c.kubeClient, vs, d)
 	if err != nil {
 		return err
+	}
+
+	if vs.Spec.Monitor != nil && vs.Spec.Monitor.Prometheus != nil {
+		if _, vt, err := c.ensureStatsService(vs); err != nil { // Error ignored intentionally
+			c.recorder.Eventf(
+				vs,
+				core.EventTypeWarning,
+				eventer.EventReasonStatsServiceReconcileFailed,
+				"Failed to ensure stats Service %s. Reason: %v",
+				vs.StatsServiceName(),
+				err,
+			)
+		} else if vt != kutil.VerbUnchanged {
+			c.recorder.Eventf(
+				vs,
+				core.EventTypeNormal,
+				eventer.EventReasonStatsServiceReconcileSuccessful,
+				"Successfully %s stats Service %s",
+				vt,
+				vs.StatsServiceName(),
+			)
+		}
+	} else {
+		if err := c.ensureStatsServiceDeleted(vs); err != nil { // Error ignored intentionally
+			log.Warningf("failed to delete stats Service %s, reason: %s", vs.StatsServiceName(), err)
+		} else {
+			c.recorder.Eventf(
+				vs,
+				core.EventTypeNormal,
+				eventer.EventReasonStatsServiceDeleteSuccessful,
+				"Successfully deleted stats Service %s",
+				vs.StatsServiceName(),
+			)
+		}
 	}
 
 	if err = c.manageMonitor(vs); err != nil {
