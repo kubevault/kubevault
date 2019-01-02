@@ -11,8 +11,8 @@ func TestGetListenerConfig(t *testing.T) {
 listener "tcp" {
   address = "0.0.0.0:8200"
   cluster_address = "0.0.0.0:8201"
-  tls_cert_file = "/etc/vault/tls/server.crt"
-  tls_key_file  = "/etc/vault/tls/server.key"
+  tls_cert_file = "/etc/vault/tls/tls.crt"
+  tls_key_file  = "/etc/vault/tls/tls.key"
 }
 `
 	assert.Equal(t, expectedOutput, GetListenerConfig())

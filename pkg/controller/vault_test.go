@@ -268,7 +268,7 @@ func TestGetServerTLS(t *testing.T) {
 				defer deleteSecret(t, v.kubeClient, test.extraSecret)
 			}
 
-			_, err := v.GetServerTLS()
+			_, _, err := v.GetServerTLS()
 			if test.expectErr {
 				assert.NotNil(t, err)
 			} else {

@@ -30,11 +30,11 @@ type vaultFake struct {
 	ErrInApply        bool
 }
 
-func (v *vaultFake) GetServerTLS() (*core.Secret, error) {
+func (v *vaultFake) GetServerTLS() (*core.Secret, []byte, error) {
 	if v.ErrInGetServerTLS {
-		return nil, fmt.Errorf("error")
+		return nil, nil, fmt.Errorf("error")
 	}
-	return v.sr, nil
+	return v.sr, nil, nil
 }
 func (v *vaultFake) GetConfig() (*core.ConfigMap, error) {
 	if v.ErrInGetConfig {
