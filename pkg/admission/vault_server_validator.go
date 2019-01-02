@@ -116,21 +116,6 @@ func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs
 	if vs.Spec.Nodes < 1 {
 		return errors.Errorf(`spec.nodes "%v" invalid. Value must be greater than zero`, vs.Spec.Nodes)
 	}
-	if vs.Spec.TLS != nil {
-		sr := vs.Spec.TLS.TLSSecret
-		if sr != "" {
-			err := validateSecret(client, sr, vs.Namespace, []string{
-				"ca.crt",
-				"server.crt",
-				"server.key",
-			})
-			if err != nil {
-				return errors.Wrap(err, "for spec.tls.tlsSecret")
-			}
-		} else {
-			return errors.New("spec.tls.tlsSecret is empty")
-		}
-	}
 
 	numOfBackend := 0
 	if vs.Spec.Backend.Inmem != nil {
@@ -300,11 +285,6 @@ func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs
 		}
 		if unslr.SecretThreshold > unslr.SecretShares {
 			return errors.New("spec.unsealer.secretShares must be greater than spec.unsealer.secretThreshold")
-		}
-		if unslr.InsecureSkipTLSVerify == false {
-			if len(unslr.CABundle) == 0 {
-				return errors.New("spec.unsealer.insecureSkipTLSVerify is false and spec.unsealer.caBundle is empty")
-			}
 		}
 
 		mode := unslr.Mode

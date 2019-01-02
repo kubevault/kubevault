@@ -114,15 +114,12 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 		p := time.Second * unslr.RetryPeriodSeconds
 		args = append(args, fmt.Sprintf("--retry-period=%s", p.String()))
 	}
-	if unslr.InsecureSkipTLSVerify == true {
-		args = append(args, fmt.Sprintf("--vault.insecure-skip-tls-verify=true"))
-	}
 	if unslr.OverwriteExisting == true {
 		args = append(args, fmt.Sprintf("--overwrite-existing=true"))
 	}
 
-	if unslr.InsecureSkipTLSVerify == false && len(unslr.CABundle) != 0 {
-		args = append(args, fmt.Sprintf("--vault.address=%s", unslr.CABundle))
+	if u.vs.Spec.TLS != nil && u.vs.Spec.TLS.CABundle != nil {
+		args = append(args, fmt.Sprintf("--vault.ca-cert=%s", u.vs.Spec.TLS.CABundle))
 	}
 
 	// Add kubernetes auth flags

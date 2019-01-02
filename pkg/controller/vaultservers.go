@@ -179,11 +179,24 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 }
 
 func (c *VaultController) CreateVaultTLSSecret(vs *api.VaultServer, v Vault) error {
-	sr, err := v.GetServerTLS()
+	sr, ca, err := v.GetServerTLS()
 	if err != nil {
 		return err
 	}
-	return ensureSecret(c.kubeClient, vs, sr)
+
+	err = ensureSecret(c.kubeClient, vs, sr)
+	if err != nil {
+		return err
+	}
+
+	_, _, err = patchutil.CreateOrPatchVaultServer(c.extClient.KubevaultV1alpha1(), vs.ObjectMeta, func(in *api.VaultServer) *api.VaultServer {
+		in.Spec.TLS = &api.TLSPolicy{
+			TLSSecret: sr.Name,
+			CABundle:  ca,
+		}
+		return in
+	})
+	return err
 }
 
 func (c *VaultController) CreateVaultConfig(vs *api.VaultServer, v Vault) error {

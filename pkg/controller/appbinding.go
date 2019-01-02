@@ -6,7 +6,6 @@ import (
 	vaultconfig "github.com/kubevault/operator/apis/config/v1alpha1"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/util"
-	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -19,14 +18,9 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 		Name:      vs.AppBindingName(),
 		Namespace: vs.Namespace,
 	}
-	sr, err := v.GetServerTLS()
+	_, caBundle, err := v.GetServerTLS()
 	if err != nil {
 		return err
-	}
-
-	caBundle, ok := sr.Data["ca.crt"]
-	if !ok {
-		return errors.New("ca bundle not found in server tls secret")
 	}
 
 	vClientConf := appcat.ClientConfig{
