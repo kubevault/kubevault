@@ -13,8 +13,6 @@ spec:
     secretThresold: <num_of_secret_threshold>
     retryPeriodSeconds: <retry_period>
     overwriteExisting: <true/false>
-    insecureSkipTLSVerify: <true/false>
-    caBundle: <pem_encoded_ca_cert>
     mode:
       ...
 ```
@@ -50,26 +48,6 @@ spec:
 spec:
   unsealer:
     retryPeriodSeconds: 15
-```
-
-#### unsealer.insecureSkipTLSVerify
-
-`unsealer.insecureSkipTLSVerify` is an optional field that specifies whether skip tls verification when Unsealer communicating with Vault server. It accepts boolean value. Default vault is `false`.
-
-```yaml
-spec:
-  unsealer:
-    insecureSkipTLSVerify: true
-```
-
-#### unsealer.caBundle
-
-`unsealer.caBundle` is an optional field that specifies the CA cert that will be used to verify Vault server certificates when Unsealer communicating with it.
-
-```yaml
-spec:
-  unsealer:
-    caBundle: <pem_encoded_ca_cert>
 ```
 
 #### unsealer.overwriteExisting

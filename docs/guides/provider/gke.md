@@ -106,7 +106,6 @@ spec:
   unsealer:
     secretShares: 4
     secretThreshold: 2
-    insecureSkipTLSVerify: true
     mode:
       googleKmsGcs:
         bucket: "demo-vault"
@@ -174,7 +173,6 @@ spec:
   unsealer:
     secretShares: 4
     secretThreshold: 2
-    insecureSkipTLSVerify: true
     mode:
       googleKmsGcs:
         bucket: "demo-vault"

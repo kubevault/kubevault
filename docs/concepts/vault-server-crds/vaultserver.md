@@ -31,7 +31,6 @@ spec:
   unsealer:
     secretShares: 4
     secretThreshold: 2
-    insecureSkipTLSVerify: true
     mode:
       kubernetesSecret:
         secretName: vault-keys
@@ -65,17 +64,22 @@ spec:
 spec:
   tls:
     tlsSecret: <tls_assets_secret_name> # name of the secret containing TLS assets
+    caBundle: <pem_coded_ca>
 ```
 
 - **`tls.tlsSecret`**: Specifies the name of the secret containing TLS assets. The secret must contain following keys:
-  - `ca.crt`
-  - `server.crt`
-  - `server.key`
+  - `tls.crt`
+  - `tls.key`
 
   The server certificate must allow the following wildcard domains:
   - `localhost`
   - `*.<namespace>.pod`
   - `<vaultServer-name>.<namespace>.svc`
+
+  The server certificate must allow the following ip:
+  - `127.0.0.1`
+
+- **`tls.caBundle`**: Specifies the PEM encoded CA bundle which will be used to validate the serving certificate.
 
 ### spec.configSource
 
@@ -115,8 +119,6 @@ spec:
     secretThresold: <num_of_secret_threshold>
     retryPeriodSeconds: <retry_period>
     overwriteExisting: <true/false>
-    insecureSkipTLSVerify: <true/false>
-    caBundle: <pem_encoded_ca_cert>
     mode:
       ...
 ```
@@ -273,21 +275,21 @@ status:
 - `clientPort` : Indicates the port client will use to communicate with vault.
 
 - `vaultStatus` : Indicates the status of vault pods. It has following fields:
- 
+
   - `active` : Name of the active vault pod.
- 
+
   - `standby` : Names of the standby vault pods.
- 
+
   - `sealed` : Names of the sealed vault pods.
- 
+
   - `unsealed` : Names of the unsealed vault pods.
 
 - `authMethodStatus` : Indicates the status of the auth methods specified in `spec.authMethods`. It has following fields:
 
   - `type` : Specifies the name of the authentication method type
-  
+
   - `path` : Specifies the path in which the auth method is enabled.
-  
+
   - `status` : Specifies whether auth method is enabled or not.
-  
+
   - `reason` : Specifies the reason why failed to enable auth method.

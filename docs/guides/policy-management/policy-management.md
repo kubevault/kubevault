@@ -63,7 +63,6 @@ spec:
     inmem: {}
   nodes: 1
   unsealer:
-    insecureSkipTLSVerify: true
     mode:
       kubernetesSecret:
         secretName: vault-keys

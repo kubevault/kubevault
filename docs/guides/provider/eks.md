@@ -64,7 +64,6 @@ spec:
   unsealer:
     secretShares: 4
     secretThreshold: 2
-    insecureSkipTLSVerify: true
     mode:
       awsKmsSsm:
         region: "us-east-1"
@@ -115,7 +114,6 @@ $ cat examples/guides/provider/eks/my-vault.yaml
     unsealer:
       secretShares: 4
       secretThreshold: 2
-      insecureSkipTLSVerify: true
       mode:
         awsKmsSsm:
           region: "us-east-1"
