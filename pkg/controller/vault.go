@@ -331,12 +331,6 @@ func (v *vaultSrv) GetService() *core.Service {
 					Protocol: core.ProtocolTCP,
 					Port:     VaultClusterPort,
 				},
-				{
-					Name:       exporter.PrometheusExporterPortName,
-					Protocol:   core.ProtocolTCP,
-					Port:       exporter.VaultExporterFetchMetricsPort,
-					TargetPort: intstr.FromInt(exporter.VaultExporterFetchMetricsPort),
-				},
 			},
 			ClusterIP:                v.vs.Spec.ServiceTemplate.Spec.ClusterIP,
 			Type:                     v.vs.Spec.ServiceTemplate.Spec.Type,
