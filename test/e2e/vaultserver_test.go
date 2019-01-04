@@ -55,13 +55,10 @@ var _ = Describe("VaultServer", func() {
 			Eventually(func() bool {
 				sr, err := f.KubeClient.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
 				if err == nil {
-					if _, ok := sr.Data[controller.CaCertName]; !ok {
+					if _, ok := sr.Data[core.TLSCertKey]; !ok {
 						return false
 					}
-					if _, ok := sr.Data[controller.ServerCertName]; !ok {
-						return false
-					}
-					if _, ok := sr.Data[controller.ServerkeyName]; !ok {
+					if _, ok := sr.Data[core.TLSPrivateKeyKey]; !ok {
 						return false
 					}
 					return true
@@ -415,9 +412,8 @@ var _ = Describe("VaultServer", func() {
 			BeforeEach(func() {
 				vaultKeySecret = rand_util.WithUniqSuffix("v-key")
 				unseal := api.UnsealerSpec{
-					SecretShares:          4,
-					SecretThreshold:       2,
-					InsecureSkipTLSVerify: true,
+					SecretShares:    4,
+					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
 							SecretName: vaultKeySecret,
@@ -455,9 +451,8 @@ var _ = Describe("VaultServer", func() {
 			BeforeEach(func() {
 				vaultKeySecret = rand_util.WithUniqSuffix("v-key")
 				unsealer := api.UnsealerSpec{
-					SecretShares:          4,
-					SecretThreshold:       2,
-					InsecureSkipTLSVerify: true,
+					SecretShares:    4,
+					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
 							SecretName: vaultKeySecret,
@@ -523,9 +518,8 @@ var _ = Describe("VaultServer", func() {
 
 			BeforeEach(func() {
 				unsealer := api.UnsealerSpec{
-					SecretShares:          4,
-					SecretThreshold:       2,
-					InsecureSkipTLSVerify: true,
+					SecretShares:    4,
+					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
 							SecretName: "k8s-inmem-keys-123411",
@@ -571,9 +565,8 @@ var _ = Describe("VaultServer", func() {
 
 		BeforeEach(func() {
 			unseal = &api.UnsealerSpec{
-				SecretShares:          4,
-				SecretThreshold:       2,
-				InsecureSkipTLSVerify: true,
+				SecretShares:    4,
+				SecretThreshold: 2,
 				Mode: api.ModeSpec{
 					KubernetesSecret: &api.KubernetesSecretSpec{
 						SecretName: secretName,
@@ -738,17 +731,16 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:          4,
-					SecretThreshold:       2,
-					InsecureSkipTLSVerify: true,
+					SecretShares:    4,
+					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						GoogleKmsGcs: &api.GoogleKmsGcsSpec{
 							Bucket:           "vault-test-bucket",
 							CredentialSecret: secretName,
-							KmsCryptoKey:     "vault-init",
-							KmsKeyRing:       "vault-key-ring",
+							KmsCryptoKey:     "vault-key",
+							KmsKeyRing:       "vault",
 							KmsLocation:      "global",
-							KmsProject:       "tigerworks-kube",
+							KmsProject:       "ackube",
 						},
 					},
 				}
@@ -792,9 +784,8 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:          4,
-					SecretThreshold:       2,
-					InsecureSkipTLSVerify: true,
+					SecretShares:    4,
+					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						AwsKmsSsm: &api.AwsKmsSsmSpec{
 							KmsKeyID:         "65ed2c85-4915-4e82-be47-d56ccaa8019b",
@@ -894,9 +885,8 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:          4,
-					SecretThreshold:       2,
-					InsecureSkipTLSVerify: true,
+					SecretShares:    4,
+					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						AzureKeyVault: &api.AzureKeyVault{
 							VaultBaseUrl:    "https://vault-test-1204.vault.azure.net/",
@@ -960,9 +950,8 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:          4,
-					SecretThreshold:       2,
-					InsecureSkipTLSVerify: true,
+					SecretShares:    4,
+					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
 							SecretName: k8sSecretName,
@@ -1030,9 +1019,8 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:          4,
-					SecretThreshold:       2,
-					InsecureSkipTLSVerify: true,
+					SecretShares:    4,
+					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
 							SecretName: k8sSecretName,
@@ -1081,9 +1069,8 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:          4,
-					SecretThreshold:       2,
-					InsecureSkipTLSVerify: true,
+					SecretShares:    4,
+					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
 							SecretName: k8sSecretName,
@@ -1155,9 +1142,8 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				unsealer := api.UnsealerSpec{
-					SecretShares:          4,
-					SecretThreshold:       2,
-					InsecureSkipTLSVerify: true,
+					SecretShares:    4,
+					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						KubernetesSecret: &api.KubernetesSecretSpec{
 							SecretName: "k8s-dynamodb-keys-1234",
@@ -1198,9 +1184,8 @@ var _ = Describe("VaultServer", func() {
 
 		BeforeEach(func() {
 			unseal = &api.UnsealerSpec{
-				SecretShares:          4,
-				SecretThreshold:       2,
-				InsecureSkipTLSVerify: true,
+				SecretShares:    4,
+				SecretThreshold: 2,
 				Mode: api.ModeSpec{
 					KubernetesSecret: &api.KubernetesSecretSpec{
 						SecretName: secretName,
