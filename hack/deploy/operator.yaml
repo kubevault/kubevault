@@ -36,6 +36,7 @@ spec:
         - --enable-status-subresource=${VAULT_OPERATOR_ENABLE_STATUS_SUBRESOURCE}
         - --use-kubeapiserver-fqdn-for-aks=${VAULT_OPERATOR_USE_KUBEAPISERVER_FQDN_FOR_AKS}
         - --enable-analytics=${VAULT_OPERATOR_ENABLE_ANALYTICS}
+        - --cluster-name=${VAULT_OPERATOR_CLUSTER_NAME}
         ports:
         - containerPort: 8443
         readinessProbe:
