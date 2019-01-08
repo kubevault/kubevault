@@ -51,6 +51,7 @@ spec:
 {{- end }}
         - --use-kubeapiserver-fqdn-for-aks={{ .Values.apiserver.useKubeapiserverFqdnForAks }}
         - --enable-analytics={{ .Values.enableAnalytics }}
+        - --cluster-name={{ .Values.clusterName }}
         ports:
         - containerPort: 8443
         env:

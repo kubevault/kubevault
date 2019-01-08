@@ -138,6 +138,7 @@ export VAULT_OPERATOR_PURGE=0
 export VAULT_OPERATOR_ENABLE_STATUS_SUBRESOURCE=false
 export VAULT_OPERATOR_BYPASS_VALIDATING_WEBHOOK_XRAY=false
 export VAULT_OPERATOR_USE_KUBEAPISERVER_FQDN_FOR_AKS=true
+export VAULT_OPERATOR_CLUSTER_NAME=
 
 export APPSCODE_ENV=${APPSCODE_ENV:-prod}
 export SCRIPT_LOCATION="curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.1.0/"
@@ -191,6 +192,7 @@ show_help() {
   echo "    --monitor-operator                 specify whether to monitor Vault operator (default: false)"
   echo "    --prometheus-namespace             specify the namespace where Prometheus server is running or will be deployed (default: same namespace as vault-operator)"
   echo "    --servicemonitor-label             specify the label for ServiceMonitor crd. Prometheus crd will use this label to select the ServiceMonitor. (default: 'app: vault-operator')"
+  echo "    --cluster-name                     Name of cluster used in a multi-cluster setup"
 }
 
 while test $# -gt 0; do
@@ -321,6 +323,10 @@ while test $# -gt 0; do
        fi
        export SERVICE_MONITOR_LABEL_KEY="${pair[0]}"
        export SERVICE_MONITOR_LABEL_VALUE="${pair[1]}"
+       shift
+       ;;
+     --cluster-name*)
+       export VAULT_OPERATOR_CLUSTER_NAME=$(echo $1 | sed -e 's/^[^=]*=//g')
        shift
        ;;
     *)
