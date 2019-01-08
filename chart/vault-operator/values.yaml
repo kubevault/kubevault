@@ -107,3 +107,6 @@ monitoring:
     namespace: ""
   serviceMonitor:
     labels: {}
+
+# Name of cluster used in a multi-cluster setup
+clusterName:
