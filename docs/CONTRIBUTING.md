@@ -42,12 +42,12 @@ If you have a question about Vault operator or having problem using it, you can 
 
 ## Bugs/Feature request
 
-If you have found a bug with Vault operator or want to request for new features, please [file an issue](https://github.com/kubevault/operator/issues/new).
+If you have found a bug with Vault operator or want to request for new features, please [file an issue](https://github.com/kubevault/project/issues/new).
 
 ## Submit PR
 
-If you fix a bug or developed a new feature, feel free to submit a PR. In either case, please file a [Github issue](https://github.com/kubevault/operator/issues/new) first, so that we can have a discussion on it. This is a rough outline of what a contributor's workflow looks like:
 
+If you fix a bug or developed a new feature, feel free to submit a PR. In either case, please file a [Github issue](https://github.com/kubevault/project/issues/new) first, so that we can have a discussion on it. This is a rough outline of what a contributor's workflow looks like:
 - Create a topic branch from where you want to base your work (usually master).
 - Make commits of logical units.
 - Push your changes to a topic branch in your fork of the repository.

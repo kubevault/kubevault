@@ -26,9 +26,9 @@ spec:
   vault:
     image: vault:0.11.1
   exporter:
-    image: kubevault/vault-exporter: # add tag later
+    image: kubevault/vault-exporter: 0.1.0
   unsealer:
-    image: kubevault/vault-unsealer: # add tag later
+    image: kubevault/vault-unsealer: 0.1.0
   version: 0.11.1
 ```
 
@@ -59,7 +59,7 @@ spec:
 ```yaml
 spec:
   unsealer:
-    image: kubevault/vault-unsealer: # add tag later
+    image: kubevault/vault-unsealer: 0.1.0
 ```
 
 ### spec.exporter.image
@@ -69,5 +69,5 @@ spec:
 ```yaml
 spec:
   exporter:
-    image: kubevault/vault-exporter: # add tag later
+    image: kubevault/vault-exporter: 0.1.0
 ```

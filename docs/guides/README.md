@@ -16,15 +16,28 @@ aliases:
 ---
 # Guides
 
-Guides show you how to perform tasks with Vault operator.
+Guides show you how to perform tasks with Vault operator and Vault CSI driver.
 
-- Learn how to use Vault operator to backup a Kubernetes deployment [here](/docs/guides/backup.md).
-- To restore a backup see [here](/docs/guides/restore.md).
-- To run backup in offline mode see [here](/docs/guides/offline_backup.md)
-- See the list of supported backends and how to configure them [here](/docs/guides/backends.md).
-- Learn to use Vault operator in Google Kubernetes Engine [here](/docs/guides/gke.md)
-- Learn to use Vault operator with self-hosted TLS secured Minio Server [here](/docs/guides/minio_server.md).
-- Learn to use Vault operator in Rook Storage System [here](/docs/guides/rook.md)
-- See working examples for supported workload types [here](/docs/guides/workloads.md).
-- Thinking about monitoring your backup operations? Vault operator works [out-of-the-box with Prometheus](/docs/guides/monitoring.md).
-- Learn about how to configure [RBAC roles](/docs/guides/rbac.md).
+## Using Vault operator
+
+- To deploy Vault in AWS EKS see [here](/docs/guides/provider/eks.md).
+- To deploy Vault in Google GKE see [here](/docs/guides/provider/gke.md).
+- To deploy Vault in Azure AKS see [here](/docs/guides/provider/aks.md).
+- To manage Vault [policy](https://www.vaultproject.io/docs/concepts/policies.html) see [here](/docs/guides/policy-management/policy-management.md).
+- To manage Vault [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html#aws-secrets-engine) see [here](/docs/guides/secret-engines/aws/vault-operator.md).
+- To manage Vault [MongoDB Database secret engine](https://www.vaultproject.io/api/secret/databases/mongodb.html) see [here](/docs/guides/secret-engines/mongodb/vault-operator.md).
+- To manage Vault [MySQL Database secret engine](https://www.vaultproject.io/api/secret/databases/mysql-maria.html) see [here](/docs/guides/secret-engines/mysql/vault-operator.md).
+- To manage Vault [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html) see [here](/docs/guides/secret-engines/postgres/vault-operator.md).
+- To set up monitoring see [here](/docs/guides/monitoring/overview.md).
+- To use Vault operator for external Vault see [here](/docs/guides/provider/external-vault.md).
+- To use Vault operator in multiple cluster for same Vault see [here](/docs/guides/provider/multi-cluster-vault.md).
+
+## Using Vault CSI driver
+
+- To mount [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html) secret in pod see [here](/docs/guides/secret-engines/aws/csi-driver.md).
+- To mount [KV secret engine](https://www.vaultproject.io/docs/secrets/kv/kv-v1.html) secret in pod see [here](/docs/guides/secret-engines/kv/csi-driver.md).
+- To mount [MongoDB Database secret engine](https://www.vaultproject.io/api/secret/databases/mongodb.html) secret in pod see [here](/docs/guides/secret-engines/mongodb/csi-driver.md)
+- To mount [MySQL Database secret engine](https://www.vaultproject.io/api/secret/databases/mysql-maria.html) secret in pod see [here](/docs/guides/secret-engines/mysql/csi-driver.md).
+- To mount [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html) secret in pod see [here](/docs/guides/secret-engines/postgres/csi-driver.md).
+- To mount [PKI secret engine](https://www.vaultproject.io/docs/secrets/pki/index.html) secret in pod see [here](/docs/guides/secret-engines/pki/csi-driver.md).
+- To set up monitoring see [here](/docs/guides/monitoring/overview.md). 

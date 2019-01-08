@@ -107,6 +107,7 @@ List of supported backends:
 - [MySQL](/docs/concepts/vault-server-crds/storage/mysql.md)
 - [In Memory](/docs/concepts/vault-server-crds/storage/inmem.md)
 - [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
+- [Etcd](/docs/concepts/vault-server-crds/storage/etcd.md)
 
 ### spec.unsealer
 

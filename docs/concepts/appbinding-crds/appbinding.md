@@ -1,6 +1,6 @@
 # AppBinding CRD
 
-AppBinding CRD provides a way to specify connection information, credential and parameters that are necessary for communicate will app/service. In Vault operator, AppBinding used to communicate with vault, database, etc. This also provides flexibility to use external app/service. 
+AppBinding CRD provides a way to specify connection information, credential and parameters that are necessary for communicating with app/service. In Vault operator, AppBinding used to communicate with vault, database, etc. This also provides flexibility to use external app/service. 
 
 ```yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
