@@ -2,17 +2,17 @@
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: "0.11.1"
+  name: "1.0.0"
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     app: "{{ template "vault-catalog.name" . }}"
     heritage: "{{ .Release.Service }}"
     release: "{{ .Release.Name }}"
 spec:
-  version: "0.11.1"
+  version: "1.0.0"
   deprecated: false
   vault:
-    image: "vault:0.11.1"
+    image: "vault:1.0.0"
   unsealer:
     image: "{{ .Values.dockerRegistry }}/vault-unsealer:0.1.0"
   exporter:
