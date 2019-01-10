@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	vaultVersion = "test-v0.11.1"
+	vaultVersion = "test-v1.0.0"
 )
 
 func (f *Invocation) VaultServer(node int32, bs api.BackendStorageSpec) *api.VaultServer {

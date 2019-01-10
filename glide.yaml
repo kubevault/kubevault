@@ -19,11 +19,11 @@ import:
 - package: github.com/go-openapi/spec
 - package: github.com/golang/glog
 - package: github.com/golang/protobuf
-  version: v1.0.0
+  version: v1.1.0
 - package: github.com/gorilla/websocket
   version: v1.4.0
 - package: github.com/hashicorp/vault
-  version: v0.10.3
+  version: v0.11.3
 - package: github.com/imdario/mergo
   version: v0.3.5
 - package: github.com/jpillora/go-ogle-analytics
@@ -97,3 +97,5 @@ import:
   repo: https://github.com/kmodules/offshoot-api.git
   vcs: git
   version: release-9.0
+- package: google.golang.org/grpc
+  version: v1.13.0

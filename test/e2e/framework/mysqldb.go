@@ -1,9 +1,11 @@
 package framework
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/appscode/go/crypto/rand"
+	"github.com/appscode/go/types"
 	. "github.com/onsi/gomega"
 	apps "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
@@ -166,11 +168,7 @@ func (f *Framework) DeployMysql() (*appcat.AppReference, error) {
 				MysqlCredentialSecret,
 			},
 			ClientConfig: appcat.ClientConfig{
-				Service: &appcat.ServiceReference{
-					Name:   mysqlDBServiceName,
-					Scheme: "mysql",
-					Port:   3306,
-				},
+				URL:                   types.StringP(fmt.Sprintf("tcp(%s.%s.svc:3306)/", mysqlDBServiceName, f.namespace)),
 				InsecureSkipTLSVerify: true,
 			},
 			Parameters: &runtime.RawExtension{

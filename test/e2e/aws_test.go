@@ -154,7 +154,8 @@ var _ = Describe("AWS role", func() {
 				},
 				Spec: api.AWSRoleSpec{
 					AuthManagerRef: f.VaultAppRef,
-					Policy: `
+					CredentialType: api.AWSCredentialIAMUser,
+					PolicyDocument: `
 						{
 							  "Version": "2012-10-17",
 							  "Statement": [
@@ -261,7 +262,8 @@ var _ = Describe("AWS role", func() {
 				},
 				Spec: api.AWSRoleSpec{
 					AuthManagerRef: f.VaultAppRef,
-					Policy: `
+					CredentialType: api.AWSCredentialIAMUser,
+					PolicyDocument: `
 						{
 							  "Version": "2012-10-17",
 							  "Statement": [

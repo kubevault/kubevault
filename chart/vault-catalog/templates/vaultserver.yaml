@@ -1,4 +1,25 @@
-{{ if .Values.catalog.etcd }}
+{{ if .Values.catalog.vaultServer }}
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "1.0.1"
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "{{ template "vault-catalog.name" . }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  version: "1.0.1"
+  deprecated: false
+  vault:
+    image: "vault:1.0.1"
+  unsealer:
+    image: "{{ .Values.dockerRegistry }}/vault-unsealer:0.1.0"
+  exporter:
+    image: "{{ .Values.dockerRegistry }}/vault-exporter:0.1.0"
+
+---
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
@@ -17,4 +38,125 @@ spec:
     image: "{{ .Values.dockerRegistry }}/vault-unsealer:0.1.0"
   exporter:
     image: "{{ .Values.dockerRegistry }}/vault-exporter:0.1.0"
+
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.0"
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "{{ template "vault-catalog.name" . }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  version: "0.11.0"
+  deprecated: false
+  vault:
+    image: "vault:0.11.0"
+  unsealer:
+    image: "{{ .Values.dockerRegistry }}/vault-unsealer:0.1.0"
+  exporter:
+    image: "{{ .Values.dockerRegistry }}/vault-exporter:0.1.0"
+
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.1"
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "{{ template "vault-catalog.name" . }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  version: "0.11.1"
+  deprecated: false
+  vault:
+    image: "vault:0.11.1"
+  unsealer:
+    image: "{{ .Values.dockerRegistry }}/vault-unsealer:0.1.0"
+  exporter:
+    image: "{{ .Values.dockerRegistry }}/vault-exporter:0.1.0"
+
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.2"
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "{{ template "vault-catalog.name" . }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  version: "0.11.2"
+  deprecated: false
+  vault:
+    image: "vault:0.11.2"
+  unsealer:
+    image: "{{ .Values.dockerRegistry }}/vault-unsealer:0.1.0"
+  exporter:
+    image: "{{ .Values.dockerRegistry }}/vault-exporter:0.1.0"
+
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.3"
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "{{ template "vault-catalog.name" . }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  version: "0.11.3"
+  deprecated: false
+  vault:
+    image: "vault:0.11.3"
+  unsealer:
+    image: "{{ .Values.dockerRegistry }}/vault-unsealer:0.1.0"
+  exporter:
+    image: "{{ .Values.dockerRegistry }}/vault-exporter:0.1.0"
+
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.4"
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "{{ template "vault-catalog.name" . }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  version: "0.11.4"
+  deprecated: false
+  vault:
+    image: "vault:0.11.4"
+  unsealer:
+    image: "{{ .Values.dockerRegistry }}/vault-unsealer:0.1.0"
+  exporter:
+    image: "{{ .Values.dockerRegistry }}/vault-exporter:0.1.0"
+
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.5"
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: "{{ template "vault-catalog.name" . }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+spec:
+  version: "0.11.5"
+  deprecated: false
+  vault:
+    image: "vault:0.11.5"
+  unsealer:
+    image: "{{ .Values.dockerRegistry }}/vault-unsealer:0.1.0"
+  exporter:
+    image: "{{ .Values.dockerRegistry }}/vault-exporter:0.1.0"
+
 {{ end }}

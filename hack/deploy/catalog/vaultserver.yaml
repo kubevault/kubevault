@@ -1,6 +1,22 @@
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
+  name: "1.0.1"
+  labels:
+    app: vault-operator
+spec:
+  version: "1.0.1"
+  deprecated: false
+  vault:
+    image: "vault:1.0.1"
+  unsealer:
+    image: "kubevault/vault-unsealer:0.1.0"
+  exporter:
+    image: "kubevault/vault-exporter:0.1.0"
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
   name: "1.0.0"
   labels:
     app: vault-operator
@@ -9,6 +25,102 @@ spec:
   deprecated: false
   vault:
     image: "vault:1.0.0"
+  unsealer:
+    image: "kubevault/vault-unsealer:0.1.0"
+  exporter:
+    image: "kubevault/vault-exporter:0.1.0"
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.0"
+  labels:
+    app: vault-operator
+spec:
+  version: "0.11.0"
+  deprecated: false
+  vault:
+    image: "vault:0.11.0"
+  unsealer:
+    image: "kubevault/vault-unsealer:0.1.0"
+  exporter:
+    image: "kubevault/vault-exporter:0.1.0"
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.1"
+  labels:
+    app: vault-operator
+spec:
+  version: "0.11.1"
+  deprecated: false
+  vault:
+    image: "vault:0.11.1"
+  unsealer:
+    image: "kubevault/vault-unsealer:0.1.0"
+  exporter:
+    image: "kubevault/vault-exporter:0.1.0"
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.2"
+  labels:
+    app: vault-operator
+spec:
+  version: "0.11.2"
+  deprecated: false
+  vault:
+    image: "vault:0.11.2"
+  unsealer:
+    image: "kubevault/vault-unsealer:0.1.0"
+  exporter:
+    image: "kubevault/vault-exporter:0.1.0"
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.3"
+  labels:
+    app: vault-operator
+spec:
+  version: "0.11.3"
+  deprecated: false
+  vault:
+    image: "vault:0.11.3"
+  unsealer:
+    image: "kubevault/vault-unsealer:0.1.0"
+  exporter:
+    image: "kubevault/vault-exporter:0.1.0"
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.4"
+  labels:
+    app: vault-operator
+spec:
+  version: "0.11.4"
+  deprecated: false
+  vault:
+    image: "vault:0.11.4"
+  unsealer:
+    image: "kubevault/vault-unsealer:0.1.0"
+  exporter:
+    image: "kubevault/vault-exporter:0.1.0"
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "0.11.5"
+  labels:
+    app: vault-operator
+spec:
+  version: "0.11.5"
+  deprecated: false
+  vault:
+    image: "vault:0.11.5"
   unsealer:
     image: "kubevault/vault-unsealer:0.1.0"
   exporter:
