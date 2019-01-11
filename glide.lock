@@ -1,5 +1,5 @@
-hash: 09a803ca5f981528109887cef6e4398b4e976493679ee77971cea81ae3f6adba
-updated: 2019-01-10T16:39:09.103826549+06:00
+hash: 97639f14ebf26055a5679f23f528310337b5f00b66805204206390aeef9f4f46
+updated: 2019-01-11T11:12:06.821691558+06:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -8,7 +8,7 @@ imports:
   subpackages:
   - compute/metadata
 - name: github.com/appscode/go
-  version: 584aaa73af837f112c0a471be398ea837341c330
+  version: 4012a8a934ec15a8c89b29d0b8a5e729e929c7cd
   subpackages:
   - analytics
   - context
@@ -342,7 +342,7 @@ imports:
   - json/scanner
   - json/token
 - name: github.com/hashicorp/vault
-  version: fb601237bfbe4bc16ff679f642248ee8a86e627b
+  version: c19cef14891751a23eaa9b41fd456d1f99e7e856
   subpackages:
   - api
   - helper/awsutil

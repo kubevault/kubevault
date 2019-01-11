@@ -23,7 +23,7 @@ import:
 - package: github.com/gorilla/websocket
   version: v1.4.0
 - package: github.com/hashicorp/vault
-  version: v0.11.3
+  version: v1.0.0
 - package: github.com/imdario/mergo
   version: v0.3.5
 - package: github.com/jpillora/go-ogle-analytics
