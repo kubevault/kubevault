@@ -77,7 +77,7 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 					Containers: []core.Container{
 						{
 							Name:  "vault",
-							Image: "vault:1.0.0",
+							Image: "vault:1.0.1",
 							Args: []string{
 								"server",
 								"-dev",
