@@ -13,7 +13,7 @@ func (f *Framework) CreateVaultserverVersion() error {
 		Spec: api.VaultServerVersionSpec{
 			Version: vaultVersion,
 			Vault: api.VaultServerVersionVault{
-				Image: "vault:0.11.1",
+				Image: "vault:1.0.1",
 			},
 			Unsealer: api.VaultServerVersionUnsealer{
 				Image: "kubevault/vault-unsealer:0.1.0",

@@ -19,11 +19,11 @@ import:
 - package: github.com/go-openapi/spec
 - package: github.com/golang/glog
 - package: github.com/golang/protobuf
-  version: v1.0.0
+  version: v1.1.0
 - package: github.com/gorilla/websocket
   version: v1.4.0
 - package: github.com/hashicorp/vault
-  version: v0.10.3
+  version: v1.0.1
 - package: github.com/imdario/mergo
   version: v0.3.5
 - package: github.com/jpillora/go-ogle-analytics
@@ -59,6 +59,8 @@ import:
   version: 95c6576299259db960f6c5b9b69ea52422860fce
 - package: golang.org/x/text
   version: b19bf474d317b857955b12035d2c5acb57ce8b01
+- package: google.golang.org/grpc
+  version: v1.13.0
 - package: gopkg.in/ini.v1
   version: v1.40.0
 - package: gopkg.in/square/go-jose.v2

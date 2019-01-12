@@ -1,5 +1,5 @@
-hash: deb6771275e7a8ef9c29b1b95312406ff616fbac6fe0accc915895361be01a96
-updated: 2019-01-02T04:40:18.652650448-08:00
+hash: ec6176b4beda5b601d9d0a844fee96fded0333f29bb9b5423d0b878be7bb6441
+updated: 2019-01-11T21:31:42.214233319-08:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -8,7 +8,7 @@ imports:
   subpackages:
   - compute/metadata
 - name: github.com/appscode/go
-  version: 584aaa73af837f112c0a471be398ea837341c330
+  version: 4012a8a934ec15a8c89b29d0b8a5e729e929c7cd
   subpackages:
   - analytics
   - context
@@ -28,14 +28,14 @@ imports:
 - name: github.com/appscode/go-version
   version: 7aba545c679b0f45679eeb406dc662d2c8a04c26
 - name: github.com/appscode/jsonpatch
-  version: 5af499cf01c842bfdd7761a433fc90525ccd6836
+  version: 7c0e3b262f30165a8ec3d0b4c6059fd92703bfb2
 - name: github.com/appscode/kubernetes-webhook-util
   version: 904e96afd5093a20c8e1e247749221d9a5c9419b
   subpackages:
   - admission/v1beta1
   - registry/admissionreview/v1beta1
 - name: github.com/appscode/kutil
-  version: 6546fe6e8bde14cda08b0415f926cbed47d66e6a
+  version: c2edb24c3c1c6f97bbe8d0616dc2eee59a11c665
   subpackages:
   - admissionregistration/v1beta1
   - apiextensions/v1beta1
@@ -56,6 +56,8 @@ imports:
   - tools/queue
 - name: github.com/appscode/mergo
   version: 9f23e2d6bd2a77f959b2bf6acdbefd708a83a4a4
+- name: github.com/armon/go-radix
+  version: 1a2de0c21c94309923825da3df33a4381872c795
 - name: github.com/aws/aws-sdk-go
   version: fde4ded7becdeae4d26bf1212916aabba79349b4
   subpackages:
@@ -252,7 +254,7 @@ imports:
   subpackages:
   - lru
 - name: github.com/golang/protobuf
-  version: 925541529c1fa6821df4e44ce2723319eb2be768
+  version: b4deda0973fb4c70b50d226b1af49f3da59f5265
   subpackages:
   - jsonpb
   - proto
@@ -304,14 +306,26 @@ imports:
   version: 8a6fb523712970c966eefc6b39ed2c5e74880354
 - name: github.com/hashicorp/go-cleanhttp
   version: e8ab9daed8d1ddd2d3c4efba338fe2eeae2e4f18
+- name: github.com/hashicorp/go-hclog
+  version: 4783caec6f2e5cdd47fab8b2bb47ce2ce5c546b7
+- name: github.com/hashicorp/go-immutable-radix
+  version: 27df80928bb34bb1b0d6d0e01b9e679902e7a6b5
 - name: github.com/hashicorp/go-multierror
   version: 886a7fbe3eb1c874d46f623bfa70af45f425b3d1
+- name: github.com/hashicorp/go-plugin
+  version: f444068e8f5a19853177f7aa0aea7e7d95b5b528
+  subpackages:
+  - internal/proto
 - name: github.com/hashicorp/go-retryablehttp
   version: d3a63d3c72068412f9ecd7c36faafd874d2e2888
 - name: github.com/hashicorp/go-rootcerts
   version: 6bb64b370b90e7ef1fa532be9e591a81c3493e00
 - name: github.com/hashicorp/go-sockaddr
-  version: 6d291a969b86c4b633730bfc6b8b9d64c3aafed9
+  version: e92cdb5343bbaf42b0a596937ae0f382270d6759
+- name: github.com/hashicorp/go-uuid
+  version: 4f571afc59f3043a65f8fe6bf46d887b10a01d43
+- name: github.com/hashicorp/go-version
+  version: d40cf49b3a77bba84a7afdbd7f1dc295d114efb1
 - name: github.com/hashicorp/golang-lru
   version: a0d98a5f288019575c6d1f4bb1573fef2d1fcdc4
   subpackages:
@@ -328,15 +342,31 @@ imports:
   - json/scanner
   - json/token
 - name: github.com/hashicorp/vault
-  version: 533003e27840d9646cb4e7d23b3a113895da1dd0
+  version: 08df121c8b9adcc2b8fd55fc8506c3f9714c7e61
   subpackages:
   - api
   - helper/awsutil
+  - helper/certutil
   - helper/compressutil
+  - helper/consts
+  - helper/errutil
   - helper/hclutil
   - helper/jsonutil
+  - helper/license
+  - helper/locksutil
+  - helper/logging
+  - helper/mlock
   - helper/parseutil
+  - helper/pathmanager
+  - helper/pluginutil
   - helper/strutil
+  - helper/wrapping
+  - logical
+  - physical
+  - physical/inmem
+  - version
+- name: github.com/hashicorp/yamux
+  version: 2f1d1f20f75d5404f53b9edf6b53ed5505508675
 - name: github.com/imdario/mergo
   version: 9316a62528ac99aaecb4e47eadd6dc8aa6533d58
 - name: github.com/inconshreveable/mousetrap
@@ -397,6 +427,8 @@ imports:
   - pbutil
 - name: github.com/mitchellh/go-homedir
   version: ae18d6b8b3205b561c79e8e5f69bff09736185f4
+- name: github.com/mitchellh/go-testing-interface
+  version: 6d0b8010fcc857872e42fc6c931227569016843c
 - name: github.com/mitchellh/mapstructure
   version: 3536a929edddb9a5b34bd6861dc4a9647cb459fe
 - name: github.com/modern-go/concurrent
@@ -405,6 +437,8 @@ imports:
   version: 05fbef0ca5da472bbf96c9322b84a53edc03c9fd
 - name: github.com/NYTimes/gziphandler
   version: 56545f4a5d46df9a6648819d1664c3a03a13ffdb
+- name: github.com/oklog/run
+  version: 6934b124db28979da51d3470dadfa34d73d72652
 - name: github.com/onsi/ginkgo
   version: fa5fabab2a1bfbd924faf4c067d07ae414e2aedf
   subpackages:
@@ -443,6 +477,10 @@ imports:
   version: ca53cad383cad2479bbba7f7a1a05797ec1386e4
 - name: github.com/peterbourgon/diskv
   version: 5f041e8faa004a95c88a202771f4cc3e991971e6
+- name: github.com/pierrec/lz4
+  version: 623b5a2f4d2a41e411730dcdfbfdaeb5c0c4564e
+  subpackages:
+  - internal/xxh32
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/prometheus/client_golang
@@ -475,6 +513,12 @@ imports:
   version: 97b2266dfe4bd4ea1b81a463322f04f8b724801e
   subpackages:
   - diffmatchpatch
+- name: github.com/SermoDigital/jose
+  version: 803625baeddc3526d01d321b5066029f53eafc81
+  subpackages:
+  - crypto
+  - jws
+  - jwt
 - name: github.com/sirupsen/logrus
   version: 89742aefa4b206dcf400792f3bd35b542998eb3b
 - name: github.com/spf13/afero
@@ -579,21 +623,30 @@ imports:
   - googleapis/api/annotations
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 5b3c4e850e90a4cf6a20ebd46c8b32a0a3afcb9e
+  version: 168a6198bcb0ef175f7dacec0b8691fc141dc9b8
   subpackages:
   - balancer
+  - balancer/base
+  - balancer/roundrobin
   - codes
   - connectivity
   - credentials
-  - grpclb/grpc_lb_v1/messages
+  - encoding
+  - encoding/proto
   - grpclog
+  - health
   - health/grpc_health_v1
   - internal
+  - internal/backoff
+  - internal/channelz
+  - internal/grpcrand
   - keepalive
   - metadata
   - naming
   - peer
   - resolver
+  - resolver/dns
+  - resolver/passthrough
   - stats
   - status
   - tap
