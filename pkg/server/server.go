@@ -115,6 +115,7 @@ func (c completedConfig) New() (*VaultServer, error) {
 	if c.ExtraConfig.EnableMutatingWebhook {
 		admissionHooks = append(admissionHooks,
 			&vsadmission.PolicyBindingMutator{},
+			&vsadmission.VaultServerMutator{},
 		)
 	}
 
