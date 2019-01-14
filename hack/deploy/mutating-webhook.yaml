@@ -24,3 +24,22 @@ webhooks:
     - vaultpolicybindings
   failurePolicy: Fail
   ${VAULT_OPERATOR_WEBHOOK_SIDE_EFFECTS}
+- name: vaultservers.mutators.kubevault.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/mutators.kubevault.com/v1alpha1/vaultservers
+    caBundle: ${KUBE_CA}
+  rules:
+  - operations:
+    - CREATE
+    - UPDATE
+    apiGroups:
+    - kubevault.com
+    apiVersions:
+    - "*"
+    resources:
+    - vaultservers
+  failurePolicy: Fail
+  ${VAULT_OPERATOR_WEBHOOK_SIDE_EFFECTS}
