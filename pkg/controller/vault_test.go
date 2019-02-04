@@ -16,7 +16,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	kfake "k8s.io/client-go/kubernetes/fake"
-	mona "kmodules.xyz/monitoring-agent-api/api/v1"
 )
 
 const (
@@ -46,7 +45,7 @@ func (s *storageFake) Apply(pt *core.PodTemplateSpec) error {
 
 type exporterFake struct{}
 
-func (exp *exporterFake) Apply(pt *core.PodTemplateSpec, agent *mona.AgentSpec) error {
+func (exp *exporterFake) Apply(pt *core.PodTemplateSpec, vs *api.VaultServer) error {
 	return nil
 }
 
