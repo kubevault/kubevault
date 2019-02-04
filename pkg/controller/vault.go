@@ -32,7 +32,6 @@ const (
 	VaultClientPort         = 8200
 	VaultClusterPort        = 8201
 	vaultTLSAssetVolumeName = "vault-tls-secret"
-	CaCertName              = "ca.crt"
 )
 
 type Vault interface {
@@ -302,7 +301,7 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 		}
 	}
 
-	err = v.exprtr.Apply(pt, v.vs.Spec.Monitor)
+	err = v.exprtr.Apply(pt, v.vs)
 	if err != nil {
 		return errors.WithStack(err)
 	}

@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	core_util "github.com/appscode/kutil/core/v1"
+	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
-	mona "kmodules.xyz/monitoring-agent-api/api/v1"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 )
 
 type Exporter interface {
-	Apply(pt *core.PodTemplateSpec, agent *mona.AgentSpec) error
+	Apply(pt *core.PodTemplateSpec, vs *api.VaultServer) error
 	GetTelemetryConfig() (string, error)
 }
 
@@ -33,10 +33,12 @@ func NewExporter(image string) (Exporter, error) {
 	return monitor{image: image}, nil
 }
 
-func (exp monitor) Apply(pt *core.PodTemplateSpec, agent *mona.AgentSpec) error {
+func (exp monitor) Apply(pt *core.PodTemplateSpec, vs *api.VaultServer) error {
 	if pt == nil {
 		return errors.New("podTempleSpec is nil")
 	}
+
+	agent := vs.Spec.Monitor
 
 	cont := core.Container{
 		Name:            util.VaultExporterContainerName,
@@ -55,6 +57,11 @@ func (exp monitor) Apply(pt *core.PodTemplateSpec, agent *mona.AgentSpec) error 
 			},
 		},
 	}
+
+	if vs.Spec.TLS != nil && vs.Spec.TLS.CABundle != nil {
+		cont.Args = append(cont.Args, fmt.Sprintf("--vault.tls-cacert=%s", vs.Spec.TLS.CABundle))
+	}
+
 	if agent != nil {
 		cont.Args = append(cont.Args, agent.Args...)
 		cont.Env = agent.Env
