@@ -150,7 +150,7 @@ Check whether the VaultPolicy is successful.
 ```cosole
 $ kubectl get vaultpolicies -n demo
 NAME                           STATUS    AGE
-demo-policy                      Success   1m
+demo-policy                    Success   1m
 ```
 
 Check whether the policy is created in Vault. To resolve the naming conflict, name of policy in Vault will follow this format: `k8s.{spec.clusterName or -}.{spec.namespace}.{spec.name}`. For this case, it is `k8s.-.demo.demo-policy`.
