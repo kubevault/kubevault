@@ -1,5 +1,5 @@
-hash: ec6176b4beda5b601d9d0a844fee96fded0333f29bb9b5423d0b878be7bb6441
-updated: 2019-01-11T21:31:42.214233319-08:00
+hash: e1d07023b386bab29afbee8b348da33c1667e9531ab26c6773653a8fb6d1df75
+updated: 2019-02-19T00:33:30.820166717-08:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -8,7 +8,7 @@ imports:
   subpackages:
   - compute/metadata
 - name: github.com/appscode/go
-  version: 4012a8a934ec15a8c89b29d0b8a5e729e929c7cd
+  version: 52eaa8008e2e5fe8df77ac6fb2fd45e3ea2ae47c
   subpackages:
   - analytics
   - context
@@ -35,7 +35,7 @@ imports:
   - admission/v1beta1
   - registry/admissionreview/v1beta1
 - name: github.com/appscode/kutil
-  version: c2edb24c3c1c6f97bbe8d0616dc2eee59a11c665
+  version: 963f95c3833ac1630834cb574a30fac82234a3bd
   subpackages:
   - admissionregistration/v1beta1
   - apiextensions/v1beta1
@@ -265,11 +265,11 @@ imports:
   - ptypes/struct
   - ptypes/timestamp
 - name: github.com/golang/snappy
-  version: d9eb7a3d35ec988b8585d4a0068e462c27d28380
+  version: cef980a12b316c5b7e5bb3a8e168eb43ae999a88
 - name: github.com/google/btree
   version: 7d79101e329e5a3adf994758c578dab82b90c017
 - name: github.com/google/go-cmp
-  version: 2248b49eaa8e1c8c0963ee77b40841adbc19d4ca
+  version: 3af367b6b30c263d47e8895973edcca9a49cf029
   subpackages:
   - cmp
   - cmp/internal/diff
@@ -307,21 +307,21 @@ imports:
 - name: github.com/hashicorp/go-cleanhttp
   version: e8ab9daed8d1ddd2d3c4efba338fe2eeae2e4f18
 - name: github.com/hashicorp/go-hclog
-  version: 4783caec6f2e5cdd47fab8b2bb47ce2ce5c546b7
+  version: 90f2fbc4844c54471c74c1395e1d06ce0582ec59
 - name: github.com/hashicorp/go-immutable-radix
   version: 27df80928bb34bb1b0d6d0e01b9e679902e7a6b5
 - name: github.com/hashicorp/go-multierror
   version: 886a7fbe3eb1c874d46f623bfa70af45f425b3d1
 - name: github.com/hashicorp/go-plugin
-  version: f444068e8f5a19853177f7aa0aea7e7d95b5b528
+  version: b838ffee39ce7c7c38226c1413aa4ecae61b4d27
   subpackages:
-  - internal/proto
+  - internal/plugin
 - name: github.com/hashicorp/go-retryablehttp
-  version: d3a63d3c72068412f9ecd7c36faafd874d2e2888
+  version: 73489d0a1476f0c9e6fb03f9c39241523a496dfd
 - name: github.com/hashicorp/go-rootcerts
-  version: 6bb64b370b90e7ef1fa532be9e591a81c3493e00
+  version: 63503fb4e1eca22f9ae0f90b49c5d5538a0e87eb
 - name: github.com/hashicorp/go-sockaddr
-  version: e92cdb5343bbaf42b0a596937ae0f382270d6759
+  version: 3aed17b5ee41761cc2b04f2a94c7107d428967e5
 - name: github.com/hashicorp/go-uuid
   version: 4f571afc59f3043a65f8fe6bf46d887b10a01d43
 - name: github.com/hashicorp/go-version
@@ -378,7 +378,7 @@ imports:
 - name: github.com/json-iterator/go
   version: 1624edc4454b8682399def8740d46db5e4362ba4
 - name: github.com/kubedb/apimachinery
-  version: 6319e29148b40f1ac9a7ea312394754e83feba8e
+  version: a307434ffe887287826f1197ca7221213905900b
   subpackages:
   - apis
   - apis/authorization
@@ -426,7 +426,7 @@ imports:
   subpackages:
   - pbutil
 - name: github.com/mitchellh/go-homedir
-  version: ae18d6b8b3205b561c79e8e5f69bff09736185f4
+  version: af06845cf3004701891bf4fdb884bfe4920b3727
 - name: github.com/mitchellh/go-testing-interface
   version: 6d0b8010fcc857872e42fc6c931227569016843c
 - name: github.com/mitchellh/mapstructure
@@ -478,7 +478,7 @@ imports:
 - name: github.com/peterbourgon/diskv
   version: 5f041e8faa004a95c88a202771f4cc3e991971e6
 - name: github.com/pierrec/lz4
-  version: 623b5a2f4d2a41e411730dcdfbfdaeb5c0c4564e
+  version: 7f42fed96396aa858623e7e51628123cda496462
   subpackages:
   - internal/xxh32
 - name: github.com/pkg/errors
@@ -508,7 +508,7 @@ imports:
 - name: github.com/russross/blackfriday
   version: 05f3235734ad95d0016f6a23902f06461fcf567a
 - name: github.com/ryanuber/go-glob
-  version: 256dc444b735e061061cf46c809487313d5b0065
+  version: 51a8f68e6c24dc43f1e371749c89a267de4ebc53
 - name: github.com/sergi/go-diff
   version: 97b2266dfe4bd4ea1b81a463322f04f8b724801e
   subpackages:
@@ -1093,8 +1093,6 @@ imports:
   - api/v1
 - name: kmodules.xyz/objectstore-api
   version: ebe27c957a5bf41e0680776e3626b5507087f4c3
-  repo: https://github.com/kmodules/objectstore-api.git
-  vcs: git
   subpackages:
   - api/v1
 - name: kmodules.xyz/offshoot-api
@@ -1109,7 +1107,7 @@ testImports:
 - name: github.com/appscode/pat
   version: 48ff78925b7955367d8a048fc2b5cec8efadf8d3
 - name: github.com/ncw/swift
-  version: 3d63426e3fec66c303577c2257565bd19a5ca3bc
+  version: ba19fe35e796969e50f19bd748a770ec5d191ece
 - name: github.com/pmezard/go-difflib
   version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
   subpackages:
