@@ -139,6 +139,7 @@ export VAULT_OPERATOR_ENABLE_STATUS_SUBRESOURCE=false
 export VAULT_OPERATOR_BYPASS_VALIDATING_WEBHOOK_XRAY=false
 export VAULT_OPERATOR_USE_KUBEAPISERVER_FQDN_FOR_AKS=true
 export VAULT_OPERATOR_CLUSTER_NAME=
+export VAULT_OPERATOR_PRIORITY_CLASS=system-cluster-critical
 
 export APPSCODE_ENV=${APPSCODE_ENV:-prod}
 export SCRIPT_LOCATION="curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.1.0/"
@@ -338,6 +339,10 @@ while test $# -gt 0; do
 done
 
 export PROMETHEUS_NAMESPACE=${PROMETHEUS_NAMESPACE:-$VAULT_OPERATOR_NAMESPACE}
+
+if [ "$VAULT_OPERATOR_NAMESPACE" != "kube-system" ]; then
+    export VAULT_OPERATOR_PRIORITY_CLASS=""
+fi
 
 if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
   # delete webhooks and apiservices
