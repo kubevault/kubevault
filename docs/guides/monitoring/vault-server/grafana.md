@@ -23,7 +23,7 @@ If there is no grafana instance running on your cluster, then you can [read this
 We have to add our Prometheus server `prometheus-prometheus-0` as data source of grafana. We are going to use a `ClusterIP` service to connect Prometheus server with grafana. Let's create a service to select Prometheus server `prometheus-prometheus-0`,
 
 ```console
-$ kubectl apply -f https://raw.githubusercontent.com/kubevault/operator/docs/examples/monitoring/coreos/prometheus-service.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/kubevault/docs/master/docs/examples/monitoring/vault-server/prometheus-service.yaml
 service/prometheus created
 ```
 
@@ -71,6 +71,36 @@ Now, follow these steps to add the Prometheus server as data source of Grafana U
     </p>
 
 Once you have added Prometheus data source successfully, you are ready to create a dashboard to visualize the metrics.
+
+## Import Vault server Dashboard
+
+Vault server comes with a pre-configured Grafana dashboard. You can download json configuration of the dashboard from [here](/docs/examples/monitoring/grafana/dashboard.json).
+
+Follow these steps to import the preconfigured stash dashboard,
+
+1. From Grafana UI, go to `Create` option from sidebar and click on `import`.
+
+    <p align="center">
+        <img alt="Grafana: Import dashboard"  src="/docs/images/monitoring/grafana-import-1.png" style="padding: 10px;">
+    </p>
+
+2. Then, paste `json` from [here](/docs/examples/monitoring/grafana/dashboard.json) or upload `json` configuration file of the dashboard using `Upload .json File` button.
+
+    <p align="center">
+      <img alt="Grafana: Provide dashboard ID"  src="/docs/images/monitoring/grafana-import-2.png" style="padding: 10px;">
+    </p>
+
+3. Now on `prometheus-infra` field, select the data source name that we have given to our Prometheus data source earlier. Then click on `Import` button.
+
+    <p align="center">
+        <img alt="Grafana: Select data source"  src="/docs/images/monitoring/grafana-import-4.png" style="padding: 10px;">
+    </p>
+
+Once you have imported the dashboard successfully, you will be greeted with dashboard.
+
+<p align="center">
+      <img alt="Grafana: Stash dashboard"  src="/docs/images/monitoring/grafana-import-3.png" style="padding: 10px;">
+</p>
 
 
 ## Cleanup

@@ -63,12 +63,15 @@ data:
       - source_labels: [__meta_kubernetes_service_name]
         action: replace
         target_label: kubernetes_name
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: pod_name
 ```
 
 You can create above ConfigMap by running
 
 ```console
-$ kubectl create -f https://raw.githubusercontent.com/kubevault/operator/docs/examples/prom-server-conf.yaml
+$ kubectl create -f https://raw.githubusercontent.com/kubevault/docs/master/docs/examples/monitoring/vault-server/prom-server-conf.yaml
 configmap/prometheus-server-conf created
 ```
 
@@ -117,7 +120,7 @@ Here,
 Run following command to create example above.
 
 ```console
-$ kubectl create -f https://raw.githubusercontent.comkubevault/operator/docs/examples/vault-server-builtin.yaml
+$ kubectl create -f https://raw.githubusercontent.com/kubevault/docs/master/docs/examples/monitoring/vault-server/vault-server-builtin.yaml
 vaultserver.kubevault.com/example created
 ```
 
@@ -129,7 +132,7 @@ NAME      NODES     VERSION   STATUS    AGE
 example   1         0.11.1    Running   3h
 ```
 
-Let's describe Service `example`
+Let's describe Service `example-stats`
 
 ```console
 $ kubectl get svc -n demo example -o yaml
