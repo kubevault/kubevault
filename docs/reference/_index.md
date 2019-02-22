@@ -1,10 +1,11 @@
 ---
 title: Reference
-description: Steward CLI Reference
+description: KubeVault Reference
 menu:
-  product_vault-operator_0.1.0:
+  docs_0.1.0:
     identifier: reference
     name: Reference
     weight: 1000
-left_menu: product_vault-operator_0.1.0
+    pre: dropdown
+menu_name: docs_0.1.0
 ---

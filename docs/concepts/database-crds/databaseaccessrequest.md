@@ -1,3 +1,17 @@
+---
+title: DatabaseAccessRequest | Vault Secret Engine
+menu:
+  docs_0.1.0:
+    identifier: databaseaccessrequest-database-crds
+    name: DatabaseAccessRequest
+    parent: database-crds-concepts
+    weight: 100
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # DatabaseAccessRequest CRD
 
 `DatabaseAccessRequest` CRD is to request database credential from vault. If `DatabaseAccessRequest` is approved, then Vault operator will issue credential from vault and create kubernetes secret containing credential. The secret name will be specified in `status.secret.name` field.
@@ -84,7 +98,7 @@ spec:
 
 - `lease` : Contains lease information of the issued credential.
 
-- `conditions` : Represent observations of a DatabaseAccessRequest. 
+- `conditions` : Represent observations of a DatabaseAccessRequest.
 
     ```yaml
     status:
@@ -92,7 +106,7 @@ spec:
         - type: Approved
     ```
 
-  It has following field:  
+  It has following field:
   - `conditions[].type` : `Required`. Specifies request approval state. Supported type: `Approved` and `Denied`.
   - `conditions[].reason` : `Optional`. Specifies brief reason for the request state.
   - `conditions[].message` : `Optional`. Specifies human readable message with details about the request state.

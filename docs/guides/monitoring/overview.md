@@ -1,15 +1,17 @@
 ---
-title: Monitoring Overview | Vault server
-description: A general overview of monitoring Vault server
+title: Monitoring Overview | KubeVault
+description: A General Overview of Monitoring KubeVault Components
 menu:
-  product_vault-operator_0.1.0:
-    identifier: monitoring-overview
+  docs_0.1.0:
+    identifier: overview-monitoring
     name: Overview
-    weight: 30
-product_name: vault-operator   
-menu_name: product_vault-operator_0.1.0
-section_menu_id:  guides
+    parent: monitoring-guides
+    weight: 5
+menu_name: docs_0.1.0
+section_menu_id: guides
 ---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
 
 # Monitoring Vault Server
 

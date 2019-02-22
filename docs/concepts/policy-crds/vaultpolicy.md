@@ -1,3 +1,17 @@
+---
+title: VaultPolicy | KubeVault Concepts
+menu:
+  docs_0.1.0:
+    identifier: vaultpolicy-policy-crds
+    name: VaultPolicy
+    parent: policy-crds-concepts
+    weight: 10
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # VaultPolicy CRD
 
 Vault operator will create Vault [Policy](https://www.vaultproject.io/docs/concepts/policies.html) according to `VaultPolicy` CRD (CustomResourceDefinition) specification. If the user deletes the VaultPolicy CRD, then respective policy will also be deleted from Vault.
@@ -52,7 +66,7 @@ spec:
 
 ### spec.vaultAppRef
 
-`spec.vaultAppRef` is a required field that specifies name and namespace of [AppBinding](/docs/concepts/appbinding-crds/appbinding.md) that contains information to communicate with Vault.
+`spec.vaultAppRef` is a required field that specifies name and namespace of [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains information to communicate with Vault.
 
 ```yaml
 spec:

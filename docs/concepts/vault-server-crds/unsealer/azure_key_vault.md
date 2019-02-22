@@ -1,3 +1,17 @@
+---
+title: Azure Key Vault | Vault Unsealer
+menu:
+  docs_0.1.0:
+    identifier: azure-key-vault-unsealer
+    name: Azure Key Vault
+    parent: unsealer-vault-server-crds
+    weight: 1
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # mode.azureKeyVault
 
 To use **azureKeyVault** mode specify `mode.azureKeyVault`. In this mode, unseal keys and root token will be stored in [Azure Key Vault](https://docs.microsoft.com/en-us/azure/key-vault/key-vault-overview) as secret.

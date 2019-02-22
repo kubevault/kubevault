@@ -1,15 +1,16 @@
 ---
-title: Use Grafana dashboard to visualize data
+title: Grafana dashboard for Vault Server
 menu:
-  product_vault-operator_0.1.0:
-    identifier: use-grafana-dashboard-to-visualize-data
-    name: Use Grafana Dashboard
-    parent: vault-monitor
-    weight: 10
-product_name: vault-operator
-menu_name: product_vault-operator_0.1.0
-section_menu_id: monitor
+  docs_0.1.0:
+    identifier: grafana-vault-server-monitoring
+    name: Grafana Dashboard
+    parent: vault-server-monitoring
+    weight: 20
+menu_name: docs_0.1.0
+section_menu_id: guides
 ---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
 
 # Visualize Vault server data using Grafana dashboard
 

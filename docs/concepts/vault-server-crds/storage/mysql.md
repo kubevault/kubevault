@@ -1,3 +1,17 @@
+---
+title: MySQL | Vault Server Storage
+menu:
+  docs_0.1.0:
+    identifier: mysql-storage
+    name: MySQL
+    parent: storage-vault-server-crds
+    weight: 35
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # MySQL
 
 In MySQL storage backend, data will be stored in [MySQL](https://www.mysql.org/). Vault documentation for MySQL storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/mysql.html).

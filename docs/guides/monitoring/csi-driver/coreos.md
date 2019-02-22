@@ -1,15 +1,16 @@
 ---
-title: Monitor Vault CSI Driver using Coreos Prometheus Operator
+title: Monitor Vault CSI Driver using CoreOS Prometheus Operator
 menu:
-  product_vault-csi-driver_0.1.0:
-    identifier: vault-csi-driver-using-coreos-prometheus-monitoring
-    name: Coreos Prometheus Discovery
-    parent: vault-monitor
-    weight: 10
-product_name: csi-vault
-menu_name: product_vault-csi-driver_0.1.0
-section_menu_id: monitor
+  docs_0.1.0:
+    identifier: coreos-csi-driver-monitoring
+    name: Prometheus Operator
+    parent: csi-driver-monitoring
+    weight: 15
+menu_name: docs_0.1.0
+section_menu_id: guides
 ---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
 
 # Monitoring Vault CSI Driver Using CoreOS Prometheus Operator
 

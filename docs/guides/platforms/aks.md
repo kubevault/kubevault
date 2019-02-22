@@ -1,6 +1,20 @@
-# Deploying Vault with Azure Kubernetes Service (AKS) using GCS bucket backend and unsealing it using azureKeyVault
+---
+title: Deploy Vault on Azure Kubernetes Service (AKS)
+menu:
+  docs_0.1.0:
+    identifier: aks-platform
+    name: AKS
+    parent: platform-guides
+    weight: 15
+menu_name: docs_0.1.0
+section_menu_id: guides
+---
 
-Here, we are going to deploy Vault in AKS using Vault operator. We are going to use [Azure Storage Container](https://azure.microsoft.com/en-us/services/storage/) as Vault backend and `azureKeyVault` unsealer mode for automatic unsealing the Vault. 
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
+# Deploy Vault on Azure Kubernetes Service (AKS)
+
+Here, we are going to deploy Vault in AKS using Vault operator. We are going to use [Azure Storage Container](https://azure.microsoft.com/en-us/services/storage/) as Vault backend and `azureKeyVault` unsealer mode for automatic unsealing the Vault.
 
 ## Before You Begin
 
@@ -151,11 +165,11 @@ type: Opaque
 `spec.unsealer.mode.azureKeyVault.vaultBaseUrl` is the DNS name of the `vault-key-store` key vault.
 
 ![key vault](/docs/images/guides/provider/aks/key-vault.png)
-                                                   
+
 Now, we are going to create `my-vault` in `demo` namespace.
 
 ```console
-$ cat examples/guides/provider/aks/my-vault.yaml 
+$ cat examples/guides/provider/aks/my-vault.yaml
 apiVersion: kubevault.com/v1alpha1
 kind: VaultServer
 metadata:
@@ -248,14 +262,14 @@ data:
     telemetry {
       statsd_address = "0.0.0.0:9125"
     }
-    
+
 kind: ConfigMap
 metadata:
   name: my-vault-vault-config
   namespace: demo
 ```
 
-In this `my-vault`, Vault operator will use self-signed certificates for Vault and also will create `{metadata.name}-vault-tls` secret containing certificates. You can optionally specify certificates in [spec.tls](/docs/concepts/vault-server-crds/vaultserver.md#spectls). 
+In this `my-vault`, Vault operator will use self-signed certificates for Vault and also will create `{metadata.name}-vault-tls` secret containing certificates. You can optionally specify certificates in [spec.tls](/docs/concepts/vault-server-crds/vaultserver.md#spectls).
 
 ```console
 $ kubectl get secrets -n demo
@@ -308,7 +322,7 @@ HA Enabled      false
 
 ```
 
-Set Vault token for further use. In this case, we are going to use root token(not recommended).  
+Set Vault token for further use. In this case, we are going to use root token(not recommended).
 
 ```console
 $  $ export VAULT_TOKEN='s.4A4wjt0Jkz7JuBii038BzknC'

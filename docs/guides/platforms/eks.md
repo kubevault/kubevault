@@ -1,8 +1,22 @@
-# Deploying Vault with Amazon EKS using AWS S3 backend and unsealing it using awsKmsSsm
+---
+title: Deploy Vault on Amazon EKS
+menu:
+  docs_0.1.0:
+    identifier: eks-platform
+    name: EKS
+    parent: platform-guides
+    weight: 10
+menu_name: docs_0.1.0
+section_menu_id: guides
+---
 
-Here, we are going to deploy Vault in Amazon EKS using Vault operator. We are going to use [AWS S3 bucket](https://aws.amazon.com/s3/) as Vault backend and `awsKmsSsm` unsealer mode for automatic unsealing the Vault. 
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-## Before You Begin 
+# Deploy Vault on Amazon EKS
+
+Here, we are going to deploy Vault in Amazon EKS using Vault operator. We are going to use [AWS S3 bucket](https://aws.amazon.com/s3/) as Vault backend and `awsKmsSsm` unsealer mode for automatic unsealing the Vault.
+
+## Before You Begin
 
 At first, you need to have a EKS cluster. If you don't already have a cluster, create one from [here](https://aws.amazon.com/eks/). You can use [eksctl](https://github.com/weaveworks/eksctl) command line tool to create EKS cluster easily.
 
@@ -15,7 +29,7 @@ At first, you need to have a EKS cluster. If you don't already have a cluster, c
 
 - You will need a [AWS S3 Bucket](https://aws.amazon.com/s3/) to use it as Vault backend storage. In this tutorial, we are going to use `demo-vault-3` S3 bucket.
 
-- You will need a [AWS KMS key](https://aws.amazon.com/kms/) to use it for Vault unsealer. In this tutorial, we are going to use `218daa5f-7173-429e-a030-288b30761f79` as KMS key id. 
+- You will need a [AWS KMS key](https://aws.amazon.com/kms/) to use it for Vault unsealer. In this tutorial, we are going to use `218daa5f-7173-429e-a030-288b30761f79` as KMS key id.
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -98,7 +112,7 @@ spec:
 Now, we are going to create `my-vault`
 
 ```console
-$ cat examples/guides/provider/eks/my-vault.yaml 
+$ cat examples/guides/provider/eks/my-vault.yaml
   apiVersion: kubevault.com/v1alpha1
   kind: VaultServer
   metadata:
@@ -119,7 +133,7 @@ $ cat examples/guides/provider/eks/my-vault.yaml
           region: "us-east-1"
           kmsKeyID: "218daa5f-7173-429e-a030-288b30761f79"
 
-$ kubectl apply -f examples/guides/provider/eks/my-vault.yaml 
+$ kubectl apply -f examples/guides/provider/eks/my-vault.yaml
 vaultserver.kubevault.com/my-vault created
 ```
 
@@ -200,7 +214,7 @@ metadata:
 
 ```
 
-In this `my-vault`, Vault operator will use self-signed certificates for Vault and also will create `{metadata.name}-vault-tls` secret containing certificates. You can optionally specify certificates in [spec.tls](/docs/concepts/vault-server-crds/vaultserver.md#spectls). 
+In this `my-vault`, Vault operator will use self-signed certificates for Vault and also will create `{metadata.name}-vault-tls` secret containing certificates. You can optionally specify certificates in [spec.tls](/docs/concepts/vault-server-crds/vaultserver.md#spectls).
 
 ```console
 $ kubectl get secrets -n demo
@@ -253,7 +267,7 @@ HA Enabled      false
 
 ```
 
-Set Vault token for further use. In this case, we are going to use root token(not recommended).  
+Set Vault token for further use. In this case, we are going to use root token(not recommended).
 
 ```console
 $ export VAULT_TOKEN='9116f849-2085-9c28-015f-aec3e184e90f'

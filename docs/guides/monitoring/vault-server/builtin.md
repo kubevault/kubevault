@@ -1,15 +1,16 @@
 ---
 title: Monitor Vault Server using Builtin Prometheus Discovery
 menu:
-  product_vault-operator_0.1.0:
-    identifier: vault-server-using-builtin-prometheus-monitoring
-    name: Builtin Prometheus Discovery
-    parent: vault-monitor
+  docs_0.1.0:
+    identifier: builtin-prometheus-vault-server-monitoring
+    name: Builtin Prometheus
+    parent: vault-server-monitoring
     weight: 10
-product_name: vault-operator
-menu_name: product_vault-operator_0.1.0
-section_menu_id: monitor
+menu_name: docs_0.1.0
+section_menu_id: guides
 ---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
 
 # Monitor Vault server with builtin Prometheus
 

@@ -1,4 +1,18 @@
-# Manage AWS secret engine using Vault operator
+---
+title: Manage AWS IAM Secrets using the Vault Operator
+menu:
+  docs_0.1.0:
+    identifier: overview-aws
+    name: Overview
+    parent: aws-secret-engines
+    weight: 10
+menu_name: docs_0.1.0
+section_menu_id: guides
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
+# Manage AWS IAM Secrets using the Vault Operator
 
 You can easily manage [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html#aws-secrets-engine) using Vault operator.
 
@@ -6,7 +20,7 @@ You should be familiar with the following CRD:
 
 - [AWSRole](/docs/concepts/secret-engine-crds/awsrole.md)
 - [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/awsaccesskeyrequest.md)
-- [AppBinding](/docs/concepts/appbinding-crds/appbinding.md)
+- [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 
 Before you begin:
 
@@ -25,7 +39,7 @@ namespace/demo created
 In this tutorial, we will create [role](https://www.vaultproject.io/api/secret/aws/index.html#create-update-role) using AWSRole and issue credential using AWSAccessKeyRequest. For this tutorial, we are going to deploy Vault using Vault operator.
 
 ```console
-$ cat examples/guides/secret-engins/aws/vault.yaml 
+$ cat examples/guides/secret-engins/aws/vault.yaml
 apiVersion: kubevault.com/v1alpha1
 kind: VaultServer
 metadata:
@@ -57,7 +71,7 @@ spec:
     image: vault:1.0.0
   version: 1.0.0
 
-$ kubectl apply -f examples/guides/secret-engins/aws/vault.yaml 
+$ kubectl apply -f examples/guides/secret-engins/aws/vault.yaml
 vaultserver.kubevault.com/vault created
 
 $ kubectl get vaultserver/vault -n demo
@@ -99,7 +113,7 @@ spec:
       leaseMax: 1h
 ```
 
-Here, `spec.config.credentialSecret` will be used to configure [root iam credentials](https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials). 
+Here, `spec.config.credentialSecret` will be used to configure [root iam credentials](https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials).
 
 ```yaml
 apiVersion: v1
@@ -113,7 +127,7 @@ metadata:
 type: Opaque
 ```
 
-`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/appbinding-crds/vault-authentication-using-appbinding.md) for Vault authentication using AppBinding in Vault operator.
+`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview.md) for Vault authentication using AppBinding in Vault operator.
 
 ```yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
@@ -171,7 +185,7 @@ You can manage policy in Vault using Vault operator, see [here](/docs/guides/pol
 Now, we are going to create `demo-role`.
 
 ```console
-$ cat examples/guides/secret-engins/aws/demo-role.yaml 
+$ cat examples/guides/secret-engins/aws/demo-role.yaml
 apiVersion: engine.kubevault.com/v1alpha1
 kind: AWSRole
 metadata:
@@ -232,7 +246,7 @@ policy_arns         <nil>
 policy_document     {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"ec2:*","Resource":"*"}]}
 role_arns           <nil>
 ```
- 
+
 If we delete AWSRole, then respective role will be deleted from Vault.
 
 ```console
@@ -272,12 +286,12 @@ spec:
     apiGroup: rbac.authorization.k8s.io
 ```
 
-Here, `spec.roleRef` is the reference of AWSRole against which credential will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret. Also, Vault operator will use AppBinding reference from AWSRole which is specified in `spec.roleRef`. 
+Here, `spec.roleRef` is the reference of AWSRole against which credential will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret. Also, Vault operator will use AppBinding reference from AWSRole which is specified in `spec.roleRef`.
 
 Now, we are going to create `demo-cred` AWSAccessKeyRequest.
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/aws/demo-cred.yaml 
+$ kubectl apply -f examples/guides/secret-engins/aws/demo-cred.yaml
 awsaccesskeyrequest.engine.kubevault.com/demo-cred created
 
 $ kubectl get awsaccesskeyrequests -n demo
@@ -344,7 +358,7 @@ metadata:
   name: demo-cred-wttlrm
   namespace: demo
 type: Opaque
-``` 
+```
 
 If AWSAccessKeyRequest is deleted, then credential lease (if have any) will be revoked.
 
@@ -353,6 +367,6 @@ $ kubectl delete awsaccesskeyrequest/demo-cred -n demo
 awsaccesskeyrequest.engine.kubevault.com "demo-cred" deleted
 ```
 
-If AWSAccessKeyRequest is `Denied`, then Vault operator will not issue any credential. 
+If AWSAccessKeyRequest is `Denied`, then Vault operator will not issue any credential.
 
 > Note: Once AWSAccessKeyRequest is `Approved` or `Denied`, you can not change `spec.roleRef` and `spec.subjects` field.

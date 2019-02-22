@@ -1,12 +1,11 @@
 ---
 title: Csi-Vault Version
 menu:
-  product_kubevault_0.1.0:
+  docs_0.1.0:
     identifier: csi-vault-version
     name: Csi-Vault Version
     parent: reference-csi-driver
-product_name: kubevault
-menu_name: product_kubevault_0.1.0
+menu_name: docs_0.1.0
 section_menu_id: reference
 ---
 ## csi-vault version

@@ -1,15 +1,16 @@
 ---
 title: Monitor Vault CSI Driver using Builtin Prometheus Discovery
 menu:
-  product_vault-csi-driver_0.1.0:
-    identifier: vault-csi-driver-using-builtin-prometheus-monitoring
-    name: Builtin Prometheus Discovery
-    parent: vault-monitor
+  docs_0.1.0:
+    identifier: builtin-prometheus-csi-driver-monitoring
+    name: Builtin Prometheus
+    parent: csi-driver-monitoring
     weight: 10
-product_name: csi-driver
-menu_name: product_vault-csi-driver_0.1.0
-section_menu_id: monitor
+menu_name: docs_0.1.0
+section_menu_id: guides
 ---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
 
 # Monitor Vault CSI Driver with builtin Prometheus
 

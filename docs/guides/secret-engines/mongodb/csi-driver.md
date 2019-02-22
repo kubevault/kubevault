@@ -1,17 +1,18 @@
 ---
-title: CSI Driver with MongoDB
-description: Vault CSI Driver with Database(MongoDB) secret engine
+title: Manage MongoDB credentials using the Vault CSI Driver
 menu:
-  product_vault:
-    identifier: mongodb-csi-driver
-    name: MongoDB CSI Driver
-    parent: mongodb
-    weight: 10
-product_name: csi-driver
-menu_name: product_vault
+  docs_0.1.0:
+    identifier: csi-driver-mongodb
+    name: CSI Driver
+    parent: mongodb-secret-engines
+    weight: 15
+menu_name: docs_0.1.0
 section_menu_id: guides
 ---
-# Setup Database(MongoDB) secret engine for Vault CSI Driver
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
+# Manage MongoDB credentials using the Vault CSI Driver
 
 ## Before you Begin
 

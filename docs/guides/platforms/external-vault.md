@@ -1,3 +1,17 @@
+---
+title: Manage External Vault using Vault Operator
+menu:
+  docs_0.1.0:
+    identifier: external-vault-platform
+    name: External Vault
+    parent: platform-guides
+    weight: 25
+menu_name: docs_0.1.0
+section_menu_id: guides
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # Manage External Vault using Vault Operator
 
 You can manage external Vault (not deployed by Vault operator) by Vault operator. You can do following operations using Vault operator:
@@ -14,7 +28,7 @@ You can manage external Vault (not deployed by Vault operator) by Vault operator
 
 In this tutorial, we are going to show how we can use Vault operator for Vault which is not provisioned by Vault operator.
 
-We have a Vault running which can be accessible by the address `http://vault.default.svc:8200` from Kubernetes cluster. Vault operator use [AppBinding](/docs/concepts/appbinding-crds/appbinding.md) to communicate with Vault. [AppBinding](/docs/concepts/appbinding-crds/appbinding.md) provides a way of specifying Vault connection information and credential. Following authentication methods are currently supported by Vault operator using AppBinding:
+We have a Vault running which can be accessible by the address `http://vault.default.svc:8200` from Kubernetes cluster. Vault operator use [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) to communicate with Vault. [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) provides a way of specifying Vault connection information and credential. Following authentication methods are currently supported by Vault operator using AppBinding:
 
 - [Token Auth Method](https://www.vaultproject.io/docs/auth/token.html#token-auth-method)
 - [Kubernetes Auth Method](https://www.vaultproject.io/docs/auth/kubernetes.html)
@@ -22,7 +36,7 @@ We have a Vault running which can be accessible by the address `http://vault.def
 - [Userpass Auth Method](https://www.vaultproject.io/docs/auth/userpass.html)
 - [TLS Certificates Auth Method](https://www.vaultproject.io/docs/auth/cert.html)
 
-Vault authentication using AppBinding can be found in [here](/docs/concepts/appbinding-crds/vault-authentication-using-appbinding.md).
+Vault authentication using AppBinding can be found in [here](/docs/concepts/vault-server-crds/auth-methods/overview.md).
 
 In this tutorial, we are going to use [Kubernetes Auth Method](https://www.vaultproject.io/docs/auth/kubernetes.html).
 
@@ -31,14 +45,14 @@ Now, we are going to enable and configure [Kubenetes auth](https://www.vaultproj
 - Create a service account and cluster role bindings that allow that service account to authenticate with the review token API.
 
   ```console
-  $ cat examples/guides/provider/external-vault/token-reviewer-sa.yaml 
+  $ cat examples/guides/provider/external-vault/token-reviewer-sa.yaml
   apiVersion: v1
   kind: ServiceAccount
   metadata:
     name: token-reviewer
     namespace: demo
-    
-  $ cat examples/guides/provider/external-vault/token-review-binding.yaml 
+
+  $ cat examples/guides/provider/external-vault/token-review-binding.yaml
   apiVersion: rbac.authorization.k8s.io/v1beta1
   kind: ClusterRoleBinding
   metadata:
@@ -50,12 +64,12 @@ Now, we are going to enable and configure [Kubenetes auth](https://www.vaultproj
   subjects:
   - kind: ServiceAccount
     name: token-reviewer
-    namespace: demo⏎     
+    namespace: demo⏎
 
-  $ kubectl apply -f examples/guides/provider/external-vault/token-reviewer-sa.yaml 
+  $ kubectl apply -f examples/guides/provider/external-vault/token-reviewer-sa.yaml
   serviceaccount/token-reviewer created
 
-  $ kubectl apply -f examples/guides/provider/external-vault/token-review-binding.yaml 
+  $ kubectl apply -f examples/guides/provider/external-vault/token-review-binding.yaml
   clusterrolebinding.rbac.authorization.k8s.io/role-tokenreview-binding created
   ```
 
@@ -69,7 +83,7 @@ Now, we are going to enable and configure [Kubenetes auth](https://www.vaultproj
 - Configure Kubernetes auth in Vault.
 
   ```console
-  $ kubectl get sa token-reviewer -n demo -o jsonpath="{.secrets[*]['name']}" 
+  $ kubectl get sa token-reviewer -n demo -o jsonpath="{.secrets[*]['name']}"
   token-reviewer-token-fvqsv
 
   $ export SA_JWT_TOKEN=$(kubectl get secret token-reviewer-token-fvqsv -n demo -o jsonpath="{.data.token}" | base64 --decode; echo)
@@ -86,7 +100,7 @@ Now, we are going to enable and configure [Kubenetes auth](https://www.vaultproj
 We are going to create Vault [policy](https://www.vaultproject.io/docs/concepts/policies.html). It has permission to manage policy and Kubernetes role in Vault.
 
 ```console
-$ cat examples/guides/provider/external-vault/policy-admin.hcl 
+$ cat examples/guides/provider/external-vault/policy-admin.hcl
 path "sys/policy/*" {
   capabilities = ["create", "update", "read", "delete", "list"]
 }
@@ -103,21 +117,21 @@ path "auth/kubernetes/role/*" {
   capabilities = ["create", "update", "read", "delete", "list"]
 }
 
-$ vault policy write policy-admin examples/guides/provider/external-vault/policy-admin.hcl 
+$ vault policy write policy-admin examples/guides/provider/external-vault/policy-admin.hcl
 Success! Uploaded policy: policy-admin
 ```
 
 We are going to assign the above policy to a service account `policy-admin` so that we can use that service account to manage policy and Kubernetes role.
 
 ```console
-$ cat examples/guides/provider/external-vault/policy-admin-sa.yaml 
+$ cat examples/guides/provider/external-vault/policy-admin-sa.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: policy-admin
   namespace: demo
 
-$ kubectl apply -f examples/guides/provider/external-vault/policy-admin-sa.yaml 
+$ kubectl apply -f examples/guides/provider/external-vault/policy-admin-sa.yaml
 serviceaccount/policy-admin created
 
 $ vault write auth/kubernetes/role/policy-admin-role \
@@ -146,14 +160,14 @@ spec:
     policyControllerRole: policy-admin-role
     authPath: kubernetes
 
-$ kubectl apply -f examples/guides/provider/external-vault/vault-app.yaml 
+$ kubectl apply -f examples/guides/provider/external-vault/vault-app.yaml
 appbinding.appcatalog.appscode.com/vault-app created
 ```
 
 If Vault operator uses the above AppBinding `vault-app`, then it will have the permission that is given to service account `policy-admin` by `policy-admin-role` role. Now, we are going to create [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) using `vault-app` AppBinding.
 
 ```console
-$ cat examples/guides/provider/external-vault/demo-policy.yaml 
+$ cat examples/guides/provider/external-vault/demo-policy.yaml
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
 metadata:
@@ -168,7 +182,7 @@ spec:
       capabilities = ["create", "read", "update", "delete", "list"]
     }
 
-$ kubectl apply -f  examples/guides/provider/external-vault/demo-policy.yaml 
+$ kubectl apply -f  examples/guides/provider/external-vault/demo-policy.yaml
 vaultpolicy.policy.kubevault.com/demo-policy created
 
 $ kubectl get vaultpolicies -n demo

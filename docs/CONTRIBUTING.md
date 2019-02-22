@@ -1,21 +1,21 @@
 ---
-title: Contributing | Vault operator
+title: Contributing | KubeVault
 description: Contributing
 menu:
-  product_vault-operator_0.1.0:
-    identifier: contributing-vault
+  docs_0.1.0:
+    identifier: contributing-kubevault
     name: Contributing
     parent: welcome
     weight: 10
-product_name: vault-operator
-menu_name: product_vault-operator_0.1.0
+menu_name: docs_0.1.0
 section_menu_id: welcome
-url: /products/vault-operator/0.1.0/welcome/contributing/
+url: /docs/0.1.0/welcome/contributing/
 aliases:
-  - /products/vault-operator/0.1.0/CONTRIBUTING/
+  - /docs/0.1.0/CONTRIBUTING/
 ---
 
 # Contribution Guidelines
+
 Want to hack on Vault operator?
 
 AppsCode projects are [Apache 2.0 licensed](https://github.com/kubevault/operator/blob/master/LICENSE) and accept contributions via
@@ -38,7 +38,7 @@ please feel free to send a Pull Request.
 
 ## Getting Help
 
-If you have a question about Vault operator or having problem using it, you can contact us on the [AppsCode Slack team](https://appscode.slack.com/messages/C8NCX6N23/details/) channel `#vault`. Follow [this link](https://slack.appscode.com) to get invitation to our Slack channel.
+If you have a question about Vault operator or having problem using it, you can contact us on the [AppsCode Slack team](https://appscode.slack.com/messages/kubevault/) channel `#vault`. Follow [this link](https://slack.appscode.com) to get invitation to our Slack channel.
 
 ## Bugs/Feature request
 

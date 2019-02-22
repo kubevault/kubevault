@@ -1,3 +1,17 @@
+---
+title: MongoDBRole | Vault Secret Engine
+menu:
+  docs_0.1.0:
+    identifier: mongodb-database-crds
+    name: MongoDBRole
+    parent: database-crds-concepts
+    weight: 10
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # MongoDBRole CRD
 
 Vault operator will create [database connection config](https://www.vaultproject.io/api/secret/databases/mongodb.html#configure-connection) and [role](https://www.vaultproject.io/api/secret/databases/index.html#create-role) according to `MongoDBRole` CRD (CustomResourceDefinition) specification. If the user deletes the `MongoDBRole` CRD, then respective role will also be deleted from Vault.
@@ -42,7 +56,7 @@ MongoDBRole Spec has following fields:
 
 ### spec.authManagerRef
 
-`spec.authManagerRef` specifies the name and namespace of [AppBinding](/docs/concepts/appbinding-crds/appbinding.md) that contains information to communicate with Vault.
+`spec.authManagerRef` specifies the name and namespace of [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains information to communicate with Vault.
 
 ```yaml
 spec:
@@ -53,7 +67,7 @@ spec:
 
 ### spec.databaseRef
 
-`spec.databaseRef` is a required field that specifies the name of [AppBinding](/docs/concepts/appbinding-crds/appbinding.md) that contains mongodb database connection information. This should be in the same namespace of the `MongoDBRole` CRD.
+`spec.databaseRef` is a required field that specifies the name of [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains mongodb database connection information. This should be in the same namespace of the `MongoDBRole` CRD.
 
 ```yaml
 spec:
@@ -63,7 +77,7 @@ spec:
 
 ### spec.creationStatements
 
-`spec.creationStatements` is a required field that specifies the database statements executed to create and configure a user. See in [here](https://www.vaultproject.io/api/secret/databases/mongodb.html#creation_statements) for Vault documentation. 
+`spec.creationStatements` is a required field that specifies the database statements executed to create and configure a user. See in [here](https://www.vaultproject.io/api/secret/databases/mongodb.html#creation_statements) for Vault documentation.
 
 ```yaml
 spec:
@@ -91,7 +105,7 @@ spec:
 
 ### spec.revocationStatements
 
-`spec.revocationStatements` is an optional field that specifies the database statements to be executed to revoke a user. See in [here](https://www.vaultproject.io/api/secret/databases/mongodb.html#revocation_statements) for Vault documentation. 
+`spec.revocationStatements` is an optional field that specifies the database statements to be executed to revoke a user. See in [here](https://www.vaultproject.io/api/secret/databases/mongodb.html#revocation_statements) for Vault documentation.
 
 ## MongoDBRole Status
 

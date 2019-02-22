@@ -1,18 +1,16 @@
 ---
-title: Overview | Developer Guide
-description: Developer Guide Overview
+title: Developer Guide
 menu:
-  product_vault-operator_0.1.0:
+  docs_0.1.0:
     identifier: developer-guide-readme
     name: Overview
     parent: developer-guide
     weight: 15
-product_name: vault-operator
-menu_name: product_vault-operator_0.1.0
+menu_name: docs_0.1.0
 section_menu_id: setup
 ---
 
-> New to Vault operator? Please start [here](/docs/concepts/README.md).
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
 
 ## Development Guide
 This document is intended to be the canonical source of truth for things like supported toolchain versions for building Vault operator.

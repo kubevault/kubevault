@@ -1,17 +1,18 @@
 ---
-title: CSI Driver with Postgres
-description: Vault CSI Driver with Database(postgres) secret engine
+title: Manage PostgreSQL credentials using the Vault CSI Driver
 menu:
-  product_vault:
-    identifier: pg-csi-driver
-    name: Postgres CSI Driver
-    parent: postgres
-    weight: 10
-product_name: csi-driver
-menu_name: product_vault
+  docs_0.1.0:
+    identifier: csi-driver-postgres
+    name: CSI Driver
+    parent: postgres-secret-engines
+    weight: 15
+menu_name: docs_0.1.0
 section_menu_id: guides
 ---
-# Setup Database(PostgresSQL) secret engine for Vault CSI Driver
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
+# Manage PostgreSQL credentials using the Vault CSI Driver
 
 ## Before you Begin
 

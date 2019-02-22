@@ -1,3 +1,17 @@
+---
+title: Etcd | Vault Server Storage
+menu:
+  docs_0.1.0:
+    identifier: etcd-storage
+    name: Etcd
+    parent: storage-vault-server-crds
+    weight: 20
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # Etcd
 
 In Etcd storage backend, data will be stored in [Etcd](https://coreos.com/etcd/). Vault documentation for Etcd storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html).

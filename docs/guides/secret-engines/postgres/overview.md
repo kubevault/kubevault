@@ -1,12 +1,26 @@
-# Manage MySQL Database secret engine using Vault operator
+---
+title: Manage PostgreSQL credentials using the Vault Operator
+menu:
+  docs_0.1.0:
+    identifier: overview-postgres
+    name: Overview
+    parent: postgres-secret-engines
+    weight: 10
+menu_name: docs_0.1.0
+section_menu_id: guides
+---
 
-You can easily manage [MySQL Database secret engine](https://www.vaultproject.io/api/secret/databases/mysql-maria.html) using Vault operator.
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
+# Manage PostgreSQL credentials using the Vault Operator
+
+You can easily manage [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html) using Vault operator.
 
 You should be familiar with the following CRD:
 
-- [MySQLRole](/docs/concepts/database-crds/mysql.md)
+- [PostgresRole](/docs/concepts/database-crds/postgresrole.md)
 - [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md)
-- [AppBinding](/docs/concepts/appbinding-crds/appbinding.md)
+- [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 
 Before you begin:
 
@@ -22,10 +36,10 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-In this tutorial, we will create [role](https://www.vaultproject.io/api/secret/databases/index.html#create-role) using MySQLRole and issue credential using DatabaseAccessRequest. For this tutorial, we are going to deploy Vault using Vault operator.
+In this tutorial, we will create [role](https://www.vaultproject.io/api/secret/databases/index.html#create-role) using PostgresRole and issue credential using DatabaseAccessRequest. For this tutorial, we are going to deploy Vault using Vault operator.
 
 ```console
-$ cat examples/guides/secret-engins/mysql/vault.yaml 
+$ cat examples/guides/secret-engins/postgres/vault.yaml
 apiVersion: kubevault.com/v1alpha1
 kind: VaultServer
 metadata:
@@ -57,7 +71,7 @@ spec:
     image: vault:1.0.0
   version: 1.0.0
 
-$ kubectl apply -f examples/guides/secret-engins/mysql/vault.yaml 
+$ kubectl apply -f examples/guides/secret-engins/postgres/vault.yaml
 vaultserver.kubevault.com/vault created
 
 $ kubectl get vaultserver/vault -n demo
@@ -65,49 +79,53 @@ NAME      NODES     VERSION   STATUS    AGE
 vault     1         1.0.0     Running   1h
 ```
 
-## MySQLRole
+## PostgresRole
 
-Using [MySQLRole](/docs/concepts/database-crds/mysql.md), you can configure [connection](https://www.vaultproject.io/api/secret/databases/mysql-maria.html#configure-connection) and create [role](https://www.vaultproject.io/api/secret/databases/index.html#create-role). In this tutorial, we are going to create `demo-role` in `demo` namespace.
+Using [PostgresRole](/docs/concepts/database-crds/postgresrole.md), you can configure [connection](https://www.vaultproject.io/api/secret/databases/postgresql.html#configure-connection) and create [role](https://www.vaultproject.io/api/secret/databases/index.html#create-role). In this tutorial, we are going to create `demo-role` in `demo` namespace.
 
 ```yaml
 apiVersion: authorization.kubedb.com/v1alpha1
-kind: MySQLRole
+kind: PostgresRole
 metadata:
   name: demo-role
   namespace: demo
 spec:
   creationStatements:
-    - "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';"
-    - "GRANT SELECT ON *.* TO '{{name}}'@'%';"
+    - "CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';"
+    - "GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";"
   defaultTTL: 1h
   maxTTL: 24h
+  databaseRef:
+    name: postgres-app
   authManagerRef:
     namespace: demo
     name: vault-app
-  databaseRef:
-    name: mysql-app
 ```
 
-Here, `spec.databaseRef` is the reference of AppBinding containing Mysql database connection and credential information.  
+Here, `spec.databaseRef` is the reference of AppBinding containing Postgres database connection and credential information.
 
 ```yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
-  name: mysql-app
+  name: postgres-app
   namespace: demo
 spec:
   secret:
-    name: mysql-user-cred # secret
+    name: postgres-user-cred # secret
   clientConfig:
-    url: tcp(mysql.demo.svc:3306)/ # format: [protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN], url in DSN(Data Source Name) format without username and password, ref: https://github.com/go-sql-driver/mysql#dsn-data-source-name
+    service:
+      name: postgres
+      scheme: postgresql
+      port: 5432
+      path: "postgres"
+      query: "sslmode=disable"
     insecureSkipTLSVerify: true
   parameters:
     allowedRoles: "*" # names of the allowed roles to use this connection config in Vault, ref: https://www.vaultproject.io/api/secret/databases/index.html#allowed_roles
-    pluginName: "mysql-rds-database-plugin" # name of the plugin to use, ref: https://www.vaultproject.io/api/secret/databases/index.html#plugin_name 
 ```
 
-`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/appbinding-crds/vault-authentication-using-appbinding.md) for Vault authentication using AppBinding in Vault operator.
+`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview.md) for Vault authentication using AppBinding in Vault operator.
 
 ```yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
@@ -124,7 +142,7 @@ spec:
       scheme: HTTPS
   parameters:
     serviceAccountName: demo-sa
-    policyControllerRole: mysql-role
+    policyControllerRole: postgres-role
     authPath: kubernetes
 ```
 
@@ -161,32 +179,32 @@ You can manage policy in Vault using Vault operator, see [here](/docs/guides/pol
 Now, we are going to create `demo-role`.
 
 ```console
-$ cat examples/guides/secret-engins/mysql/demo-role.yaml
+$ cat examples/guides/secret-engins/postgres/demo-role.yaml
 apiVersion: authorization.kubedb.com/v1alpha1
-kind: MySQLRole
+kind: PostgresRole
 metadata:
   name: demo-role
   namespace: demo
 spec:
   creationStatements:
-    - "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';"
-    - "GRANT SELECT ON *.* TO '{{name}}'@'%';"
+    - "CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';"
+    - "GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";"
   defaultTTL: 1h
   maxTTL: 24h
   authManagerRef:
     namespace: demo
     name: vault-app
   databaseRef:
-    name: mysql-app
+    name: postgres-app
 
-$ kubectl apply -f examples/guides/secret-engins/mysql/demo-role.yaml
-mysqlrole.authorization.kubedb.com/demo-role created
+$ kubectl apply -f examples/guides/secret-engins/postgres/demo-role.yaml
+postgresrole.authorization.kubedb.com/demo-role created
 ```
 
-Check whether MySQLRole is successful.
+Check whether PostgresRole is successful.
 
 ```console
-$ kubectl get  mysqlroles/demo-role -n demo -o json | jq '.status'
+$ kubectl get  postgresroles/demo-role -n demo -o json | jq '.status'
 {
   "observedGeneration": "1$6208915667192219204",
   "phase": "Success"
@@ -204,8 +222,8 @@ k8s.-.demo.demo-role
 $ vault read database/roles/k8s.-.demo.demo-role
 Key                      Value
 ---                      -----
-creation_statements      [CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT SELECT ON *.* TO '{{name}}'@'%';]
-db_name                  mysql-app
+creation_statements      [CREATE ROLE "{{name}}" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; GRANT SELECT ON ALL TABLES IN SCHEMA public TO "{{name}}";]
+db_name                  postgres-app
 default_ttl              1h
 max_ttl                  24h
 renew_statements         <nil>
@@ -213,12 +231,12 @@ revocation_statements    <nil>
 rollback_statements      <nil>
 
 ```
- 
-If we delete MySQLRole, then respective role will be deleted from Vault.
+
+If we delete PostgresRole, then respective role will be deleted from Vault.
 
 ```console
-$ kubectl delete mysqlroles demo-role -n demo
-mysqlrole.authorization.kubedb.com "demo-role" deleted
+$ kubectl delete postgresroles/demo-role -n demo
+postgresrole.authorization.kubedb.com "demo-role" deleted
 
 # check in vault whether role exists
 $ vault read database/roles/k8s.-.demo.demo-role
@@ -235,7 +253,7 @@ No value found at database/roles/
 
 ## DatabaseAccessRequest
 
-Using [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md), you can issue Mysql credential from Vault. In this tutorial, we are going to issue Mysql credential by creating `demo-cred` DatabaseAccessRequest in `demo` namespace.
+Using [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md), you can issue Postgres credential from Vault. In this tutorial, we are going to issue Postgres credential by creating `demo-cred` DatabaseAccessRequest in `demo` namespace.
 
 ```yaml
 apiVersion: authorization.kubedb.com/v1alpha1
@@ -245,7 +263,7 @@ metadata:
   namespace: demo
 spec:
   roleRef:
-    kind: MySQLRole
+    kind: PostgresRole
     name: demo-role
     namespace: demo
   subjects:
@@ -254,12 +272,12 @@ spec:
       apiGroup: rbac.authorization.k8s.io
 ```
 
-Here, `spec.roleRef` is the reference of MySQLRole against which credential will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret. Also, Vault operator will use AppBinding reference from MySQLRole which is specified in `spec.roleRef`. 
+Here, `spec.roleRef` is the reference of PostgresRole against which credential will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret. Also, Vault operator will use AppBinding reference from PostgresRole which is specified in `spec.roleRef`.
 
 Now, we are going to create `demo-cred` DatabaseAccessRequest.
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/mysql/demo-cred.yaml 
+$ kubectl apply -f examples/guides/secret-engins/postgres/demo-cred.yaml
 databaseaccessrequest.authorization.kubedb.com/demo-cred created
 
 $ kubectl get databaseaccessrequests -n demo
@@ -267,7 +285,7 @@ NAME        AGE
 demo-cred   1m
 ```
 
-Mysql credential will not be issued until it is approved. To approve it, you have to add `Approved` in `status.conditions[].type` field. You can use [KubeVault CLI](https://github.com/kubevault/cli) as [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) to approve or deny DatabaseAccessRequest.
+Postgres credential will not be issued until it is approved. To approve it, you have to add `Approved` in `status.conditions[].type` field. You can use [KubeVault CLI](https://github.com/kubevault/cli) as [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) to approve or deny DatabaseAccessRequest.
 
 ```console
 # using kubevault cli as kubectl plugin to approve request
@@ -282,7 +300,7 @@ metadata:
   namespace: demo
 spec:
   roleRef:
-    kind: MySQLRole
+    kind: PostgresRole
     name: demo-role
     namespace: demo
   subjects:
@@ -304,7 +322,7 @@ $ kubectl get databaseaccessrequest demo-cred -n demo -o json | jq '.status'
 {
   "conditions": [
     {
-      "lastUpdateTime": "2018-12-31T10:02:17Z",
+      "lastUpdateTime": "2018-12-31T08:07:19Z",
       "message": "This was approved by kubectl vault approve databaseaccessrequest",
       "reason": "KubectlApprove",
       "type": "Approved"
@@ -312,26 +330,26 @@ $ kubectl get databaseaccessrequest demo-cred -n demo -o json | jq '.status'
   ],
   "lease": {
     "duration": "1h0m0s",
-    "id": "database/creds/k8s.-.demo.demo-role/8pZ4bfPdKad2olxBbexh1O08",
+    "id": "database/creds/k8s.-.demo.demo-role/3AiGu2wmuH01sN7FPrsXWEmr",
     "renewable": true
   },
   "secret": {
-    "name": "demo-cred-5nr4ah"
+    "name": "demo-cred-3v6ro3"
   }
 }
 
-$ kubectl get secrets/demo-cred-5nr4ah -n demo -o yaml
+
+$ kubectl get secrets/demo-cred-3v6ro3 -n demo -o yaml
 apiVersion: v1
 data:
-  password: QTFhLTVKZXBjZHBBYlpyV3FwWE8=
-  username: di1rOHMuLTZmQ000ZlBSaw==
+  password: QTFhLTRyTUd1amxicks2eExkU28=
+  username: di1rdWJlcm5ldC1rOHMuLS5kZS0zdVRWYkpaT1JxWDlyM0xFbVpsZS0xNTQ2MjQzNjM5
 kind: Secret
 metadata:
-  name: demo-cred-5nr4ah
+  name: demo-cred-3v6ro3
   namespace: demo
 type: Opaque
-
-``` 
+```
 
 If DatabaseAccessRequest is deleted, then credential lease (if have any) will be revoked.
 
@@ -340,6 +358,6 @@ $ kubectl delete databaseaccessrequest demo-cred -n demo
 databaseaccessrequest.authorization.kubedb.com "demo-cred" deleted
 ```
 
-If DatabaseAccessRequest is `Denied`, then Vault operator will not issue any credential. 
+If DatabaseAccessRequest is `Denied`, then Vault operator will not issue any credential.
 
 > Note: Once DatabaseAccessRequest is `Approved` or `Denied`, you can not change `spec.roleRef` and `spec.subjects` field.

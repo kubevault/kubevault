@@ -1,8 +1,22 @@
-# What is Vault operator
+---
+title: What is KubeVault
+menu:
+  docs_0.1.0:
+    identifier: what-is-kubevault-concepts
+    name: What is KubeVault
+    parent: concepts
+    weight: 20
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
+# What is KubeVault
 
 Vault operator is a Kubernetes controller for [HashiCorp Vault](https://www.vaultproject.io/). Vault is a tool for secrets management, encryption as a service, and privileged access management. Deploying, maintaining, and managing Vault in Kubernetes could be challenging. Vault operator eases these operational tasks so that developers can focus on solving business problems.
 
-# Why use Vault operator
+# Why use KubeVault
 
 Vault operator makes it easy to deploy, maintain and manage Vault servers in Kubernetes. It covers automatic initialization and unsealing and also stores unseal keys and root token in a secure way using cloud KMS (Key Management Service) service. It provides the following features:
 

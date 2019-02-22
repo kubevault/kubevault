@@ -1,17 +1,18 @@
 ---
-title: CSI Driver with PKI
-description: Vault CSI Driver with PKI secret engine
+title: Manage PKI (certificates) using the Vault CSI Driver
 menu:
-  product_vault:
-    identifier: pki-csi-driver
-    name: PKI CSI Driver
-    parent: pki
-    weight: 10
-product_name: csi-driver
-menu_name: product_vault
+  docs_0.1.0:
+    identifier: csi-driver-pki
+    name: CSI Driver
+    parent: pki-secret-engines
+    weight: 15
+menu_name: docs_0.1.0
 section_menu_id: guides
 ---
-# Setup PKI (certificates) secret engine for Vault CSI Driver
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
+# Manage PKI (certificates) using the Vault CSI Driver
 
 ## Before you Begin
 

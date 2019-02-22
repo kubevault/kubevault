@@ -1,3 +1,17 @@
+---
+title: Vault Server | KubeVault Concepts
+menu:
+  docs_0.1.0:
+    identifier: vaultserver-vault-server-crds
+    name: Vault Server
+    parent: vault-server-crds-concepts
+    weight: 10
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # VaultServer CRD
 
 Vault operator will deploy Vault according to `VaultServer` CRD (CustomResourceDefinition) specification.

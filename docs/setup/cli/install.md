@@ -1,16 +1,17 @@
 ---
 title: Install KubeVault CLI
-description: KubeVault CLI Install
 menu:
   product_KubeVault_0.1.0:
     identifier: install-cli
     name: Install
-    parent: setup-cli
+    parent: cli-setup
     weight: 10
 product_name: KubeVault
 menu_name: product_KubeVault_0.1.0
 section_menu_id: setup
 ---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
 
 # Installation Guide
 

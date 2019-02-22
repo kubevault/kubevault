@@ -1,16 +1,16 @@
 ---
-title: Install
-description: Vault CSI Driver Install
+title: Install Vault CSI Driver
 menu:
   product_vault:
     identifier: install-csi-driver
     name: Install
-    parent: setup
+    parent: csi-driver-setup
     weight: 10
-product_name: csi-driver
 menu_name: product_vault
 section_menu_id: setup
 ---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
 
 # Installation Guide
 

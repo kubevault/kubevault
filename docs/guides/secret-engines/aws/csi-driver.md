@@ -1,17 +1,18 @@
 ---
-title: CSI Driver with AWS
-description: Vault CSI Driver with AWS secret engine
+title: Manage AWS IAM Secrets using the Vault CSI Driver
 menu:
-  product_vault:
-    identifier: aws-csi-driver
-    name: AWS CSI Driver
-    parent: aws
-    weight: 10
-product_name: csi-driver
-menu_name: product_vault
+  docs_0.1.0:
+    identifier: csi-driver-aws
+    name: CSI Driver
+    parent: aws-secret-engines
+    weight: 15
+menu_name: docs_0.1.0
 section_menu_id: guides
 ---
-# Setup AWS secret engine for Vault CSI Driver
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
+# Manage AWS IAM Secrets using the Vault CSI Driver
 
 ## Before you Begin
 
@@ -103,7 +104,7 @@ To use secret from `AWS` secret engine, you have to do following things.
       access_key=AKIAJWVN5Z4FOFT7NLNA \
       secret_key=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 \
       region=us-east-1
-    Success! Data written to: aws/config/root  
+    Success! Data written to: aws/config/root
     ```
 
 4. **Configure a Vault Role:** We need to configure a vault role that maps to a set of permissions in AWS and an AWS credential type. When users generate credentials, they are generated against this role,

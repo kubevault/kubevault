@@ -1,3 +1,17 @@
+---
+title: Vault Server Version | KubeVault Concepts
+menu:
+  docs_0.1.0:
+    identifier: vaultserverversion-vault-server-crds
+    name: Vault Server Version
+    parent: vault-server-crds-concepts
+    weight: 15
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # VaultServerVersion
 
 `VaultServerVersion` is a Kubernetes `Custom Resource Definitions` (CRD). It is a **non-namespaced** CRD. The name of this CRD will be used in `.spec.version` field of [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md) CRD. It provides a way to specify the docker images of Vault, Unsealer and Exporter.

@@ -1,4 +1,18 @@
-# Manage MongoDB Database secret engine using Vault operator
+---
+title: Manage MongoDB credentials using the Vault Operator
+menu:
+  docs_0.1.0:
+    identifier: overview-mongodb
+    name: Overview
+    parent: mongodb-secret-engines
+    weight: 10
+menu_name: docs_0.1.0
+section_menu_id: guides
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
+# Manage MongoDB credentials using the Vault Operator
 
 You can easily manage [MongoDB Database secret engine](https://www.vaultproject.io/api/secret/databases/mongodb.html) using Vault operator.
 
@@ -6,7 +20,7 @@ You should be familiar with the following CRD:
 
 - [MongoDBRole](/docs/concepts/database-crds/mongodb.md)
 - [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md)
-- [AppBinding](/docs/concepts/appbinding-crds/appbinding.md)
+- [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 
 Before you begin:
 
@@ -108,7 +122,7 @@ spec:
     allowedRoles: "*" # names of the allowed roles to use this connection config in Vault, ref: https://www.vaultproject.io/api/secret/databases/index.html#allowed_roles
 ```
 
-`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/appbinding-crds/vault-authentication-using-appbinding.md) for Vault authentication using AppBinding in Vault operator.
+`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview.md) for Vault authentication using AppBinding in Vault operator.
 
 ```yaml
 apiVersion: appcatalog.appscode.com/v1alpha1

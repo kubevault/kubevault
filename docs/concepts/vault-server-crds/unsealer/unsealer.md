@@ -1,3 +1,17 @@
+---
+title: Unsealer Unsealer
+menu:
+  docs_0.1.0:
+    identifier: unsealer-unsealer
+    name: Unsealer Unsealer
+    parent: unsealer-vault-server-crds
+    weight: 1
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # Unsealer
 
 [Unsealer](https://github.com/kubevault/unsealer) automates the process of [initializing](https://www.vaultproject.io/docs/commands/operator/init.html) and [unsealing](https://www.vaultproject.io/docs/concepts/seal.html#unsealing) Vault running in Kubernetes cluster. Also it provides facilities to store unseal keys and root token in a secure way.

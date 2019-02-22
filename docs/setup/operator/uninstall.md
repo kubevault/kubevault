@@ -1,16 +1,15 @@
 ---
-title: Uninstall
-description: Vault operator Uninstall
+title: Uninstall Vault operator
 menu:
-  product_vault-operator_0.1.0:
-    identifier: uninstall-vault
+  docs_0.1.0:
+    identifier: uninstall-operator
     name: Uninstall
-    parent: setup
+    parent: operator-setup
     weight: 20
-product_name: vault-operator
-menu_name: product_vault-operator_0.1.0
+menu_name: docs_0.1.0
 section_menu_id: setup
 ---
+
 # Uninstall Vault operator
 
 To uninstall Vault operator, run the following command:

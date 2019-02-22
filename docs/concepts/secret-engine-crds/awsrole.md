@@ -1,3 +1,17 @@
+---
+title: AwsRole | Vault Secret Engine
+menu:
+  docs_0.1.0:
+    identifier: awsrole-secret-engine-crds
+    name: AwsRole
+    parent: secret-engine-crds-concepts
+    weight: 10
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # AWSRole CRD
 
 Vault operator will configure [root IAM credentials](https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials) and create [role](https://www.vaultproject.io/api/secret/aws/index.html#create-update-role) according to `AWSRole` CRD (CustomResourceDefinition) specification. If the user deletes the `AWSRole` CRD, then respective role will also be deleted from Vault.
@@ -18,7 +32,7 @@ status:
 
 ## AWSRole Spec
 
-AWSRole `spec` contains root IAM credentials configuration and role information. 
+AWSRole `spec` contains root IAM credentials configuration and role information.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
@@ -54,7 +68,7 @@ AWSRole Spec has following fields:
 
 ### spec.authManagerRef
 
-`spec.authManagerRef` specifies the name and namespace of [AppBinding](/docs/concepts/appbinding-crds/appbinding.md) that contains information to communicate with Vault.
+`spec.authManagerRef` specifies the name and namespace of [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains information to communicate with Vault.
 
 ```yaml
 spec:
@@ -91,15 +105,15 @@ It has following fields:
 
 - `config.maxRetries` : `Optional`. Specifies the number of max retries the client should use for recoverable errors.
 
-- `config.leaseConfig` : `Optional`. Specifies the lease configuration. 
-    
+- `config.leaseConfig` : `Optional`. Specifies the lease configuration.
+
     ```yaml
     config:
       leaseConfig:
         lease: 1h
         leaseMax: 1h
     ```
-    
+
     It has following fields:
     - `leaseConfig.lease` : `Optional`. Specifies the lease value. Accepts time suffixed strings ("1h").
     - `leaseConfig.leaseMax` : `Optional`. Specifies the maximum lease value. Accepts time suffixed strings ("1h").

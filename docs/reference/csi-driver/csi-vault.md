@@ -1,17 +1,16 @@
 ---
 title: Csi-Vault
 menu:
-  product_kubevault_0.1.0:
+  docs_0.1.0:
     identifier: csi-vault
     name: Csi-Vault
     parent: reference-csi-driver
     weight: 0
 
-product_name: kubevault
-menu_name: product_kubevault_0.1.0
+menu_name: docs_0.1.0
 section_menu_id: reference
 aliases:
-  - products/kubevault/0.1.0/reference/csi-driver/
+  - /docs/0.1.0/reference/csi-driver/
 
 ---
 ## csi-vault

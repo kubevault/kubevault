@@ -1,3 +1,17 @@
+---
+title: Vault Policy Management
+menu:
+  docs_0.1.0:
+    identifier: overview-policy-management
+    name: Overview
+    parent: policy-management-guides
+    weight: 10
+menu_name: docs_0.1.0
+section_menu_id: guides
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # Vault Policy Management
 
 You can easily manage Vault [Policy](https://www.vaultproject.io/docs/concepts/policies.html) in Kubernetes way using Vault operator.
@@ -6,7 +20,7 @@ You should be familiar with the following CRD:
 
 - [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md)
 - [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md)
-- [AppBinding](/docs/concepts/appbinding-crds/appbinding.md)
+- [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 
 Before you begin:
 
@@ -25,7 +39,7 @@ namespace/demo created
 
 ## VaultPolicy
 
-Using VaultPolicy, you can create, update and delete policy in Vault. In this tutorial, we are going to create `demo-policy` in `demo` namespace. 
+Using VaultPolicy, you can create, update and delete policy in Vault. In this tutorial, we are going to create `demo-policy` in `demo` namespace.
 
 ```yaml
 apiVersion: policy.kubevault.com/v1alpha1
@@ -121,12 +135,12 @@ spec:
 
 Here, `vault-policy-controller` role binds the serviceaccount `vault` with the policy. So, this serviceaccount `vault` has policy create, update and delete permission in Vault.
 
-In this tutorial, we are going to use this AppBinding to authenticate against the Vault. See [here](/docs/concepts/appbinding-crds/vault-authentication-using-appbinding.md) for Vault authentication using AppBinding in Vault operator.
+In this tutorial, we are going to use this AppBinding to authenticate against the Vault. See [here](/docs/concepts/vault-server-crds/auth-methods/overview.md) for Vault authentication using AppBinding in Vault operator.
 
 Now, we are going to create VaultPolicy.
 
 ```console
-$ cat examples/guides/policy-management/demo-policy.yaml 
+$ cat examples/guides/policy-management/demo-policy.yaml
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
 metadata:
@@ -140,10 +154,10 @@ spec:
     path "secret/*" {
       capabilities = ["create", "read", "update", "delete", "list"]
     }
-    
-$ kubectl apply -f examples/guides/policy-management/demo-policy.yaml 
+
+$ kubectl apply -f examples/guides/policy-management/demo-policy.yaml
 vaultpolicy.policy.kubevault.com/demo-policy created
-``` 
+```
 
 Check whether the VaultPolicy is successful.
 
@@ -210,7 +224,7 @@ Here, `demo-sa` in `demo` namespace will have the permission that is specified i
 Now, we are going to create VaultPolicyBinding `demo-role`.
 
 ```cosole
-$ cat examples/guides/policy-management/demo-role.yaml 
+$ cat examples/guides/policy-management/demo-role.yaml
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicyBinding
 metadata:
@@ -225,7 +239,7 @@ spec:
   maxTTL: "2000"
   Period: "1000"
 
-$ kubectl apply -f examples/guides/policy-management/demo-role.yaml 
+$ kubectl apply -f examples/guides/policy-management/demo-role.yaml
 vaultpolicybinding.policy.kubevault.com/demo-role created
 ```
 
@@ -237,7 +251,7 @@ NAME                           STATUS    AGE
 demo-role                      Success   2m
 ```
 
-Check whether role is created in Vault. 
+Check whether role is created in Vault.
 
 ```console
 $ vault list auth/kubernetes/role
@@ -315,7 +329,7 @@ Code: 403. Errors:
 If we delete VaultPolicyBinding, then respective role will be deleted from Vault.
 
 ```console
-$ kubectl delete vaultpolicybindings/demo-role -n demo 
+$ kubectl delete vaultpolicybindings/demo-role -n demo
 vaultpolicybinding.policy.kubevault.com "demo-role" deleted
 ```
 

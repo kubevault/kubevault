@@ -1,3 +1,17 @@
+---
+title: GCS | Vault Server Storage
+menu:
+  docs_0.1.0:
+    identifier: gcs-storage
+    name: GCS
+    parent: storage-vault-server-crds
+    weight: 25
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # Google Cloud Storage (GCS)
 
 In Google Cloud Storage (GCS) storage backend, data will be stored in [Google Cloud Storage](https://cloud.google.com/storage/docs/). Vault documentation for GCS storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html).

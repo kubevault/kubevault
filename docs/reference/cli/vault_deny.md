@@ -1,12 +1,11 @@
 ---
 title: Vault Deny
 menu:
-  product_kubevault_0.1.0:
+  docs_0.1.0:
     identifier: vault-deny
     name: Vault Deny
     parent: reference-cli
-product_name: kubevault
-menu_name: product_kubevault_0.1.0
+menu_name: docs_0.1.0
 section_menu_id: reference
 ---
 ## vault deny

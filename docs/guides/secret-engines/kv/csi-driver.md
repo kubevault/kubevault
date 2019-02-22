@@ -1,17 +1,18 @@
 ---
-title: CSI Driver with KV
-description: Vault CSI Driver with Key/Value secret engine
+title: Manage Key/Value Secrets using the Vault CSI Driver
 menu:
-  product_vault:
-    identifier: kv-csi-driver
-    name: KV CSI Driver
-    parent: kv
-    weight: 10
-product_name: csi-driver
-menu_name: product_vault
+  docs_0.1.0:
+    identifier: csi-driver-kv
+    name: CSI Driver
+    parent: kv-secret-engines
+    weight: 15
+menu_name: docs_0.1.0
 section_menu_id: guides
 ---
-# Setup Key/Value secret engine for Vault CSI Driver
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
+# Manage Key/Value Secrets using the Vault CSI Driver
 
 ## Before you Begin
 

@@ -1,17 +1,18 @@
 ---
-title: CSI Driver with MySQL
-description: Vault CSI Driver with Database(MySQL) secret engine
+title: Manage MySQL/MariaDB credentials using the Vault CSI Driver
 menu:
-  product_vault:
-    identifier: mysql-csi-driver
-    name: MySQL CSI Driver
-    parent: mysql
-    weight: 10
-product_name: csi-driver
-menu_name: product_vault
+  docs_0.1.0:
+    identifier: csi-driver-mysql
+    name: CSI Driver
+    parent: mysql-secret-engines
+    weight: 15
+menu_name: docs_0.1.0
 section_menu_id: guides
 ---
-# Setup Database(MySQL/MariaDB) secret engine for Vault CSI Driver
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
+# Manage MySQL/MariaDB credentials using the Vault CSI Driver
 
 ## Before you Begin
 

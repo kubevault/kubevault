@@ -1,3 +1,17 @@
+---
+title: VaultPolicyBinding | KubeVault Concepts
+menu:
+  docs_0.1.0:
+    identifier: vaultpolicybinding-policy-crds
+    name: VaultPolicyBinding
+    parent: policy-crds-concepts
+    weight: 15
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # VaultPolicyBinding CRD
 
 Vault operator will create Vault Kuberenetes [Role](https://www.vaultproject.io/api/auth/kubernetes/index.html#create-role) according to `VaultPolicyBinding` CRD (CustomResourceDefinition) specification. If the user deletes the VaultPolicyBinding CRD, then respective role will also be deleted from Vault.
@@ -57,7 +71,7 @@ spec:
 
 ### spec.policies
 
-`spec.policies` is a required field that specifies the list of [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) CRD names. These `VaultPolicy` CRD should be in the namespace of the `VaultPolicyBinding` CRD. 
+`spec.policies` is a required field that specifies the list of [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) CRD names. These `VaultPolicy` CRD should be in the namespace of the `VaultPolicyBinding` CRD.
 
 ```yaml
 spec:
@@ -75,7 +89,7 @@ spec:
 
 ### spec.serviceAccountNamespaces
 
-`spec.serviceAccountNamespaces` is a required field that specifies the list of namespaces where `spce.serviceAccountNames` are in. 
+`spec.serviceAccountNamespaces` is a required field that specifies the list of namespaces where `spce.serviceAccountNames` are in.
 
 ```yaml
 spec:

@@ -1,15 +1,16 @@
 ---
-title: Monitor Vault Server using Coreos Prometheus Operator
+title: Monitor Vault Server using CoreOS Prometheus Operator
 menu:
-  product_vault-operator_0.1.0:
-    identifier: vault-server-using-coreos-prometheus-monitoring
-    name: Coreos Prometheus Discovery
-    parent: vault-monitor
-    weight: 10
-product_name: vault-operator
-menu_name: product_vault-operator_0.1.0
-section_menu_id: monitor
+  docs_0.1.0:
+    identifier: coreos-vault-server-monitoring
+    name: Prometheus Operator
+    parent: vault-server-monitoring
+    weight: 15
+menu_name: docs_0.1.0
+section_menu_id: guides
 ---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
 
 # Monitoring Vault Server Using CoreOS Prometheus Operator
 
@@ -19,7 +20,7 @@ If there is no existing Prometheus server running, [read this tutorial](https://
 
 This tutorial will show you how to monitor Vault server using Prometheus via [CoreOS Prometheus Operator](https://github.com/coreos/prometheus-operator).
 
-## Monitor Vault server 
+## Monitor Vault server
 
 ```yaml
 apiVersion: kubevault.com/v1alpha1

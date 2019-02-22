@@ -1,3 +1,17 @@
+---
+title: AWSAccessKeyRequest | Vault Secret Engine
+menu:
+  docs_0.1.0:
+    identifier: awsaccesskeyrequest-secret-engine-crds
+    name: AWSAccessKeyRequest
+    parent: secret-engine-crds-concepts
+    weight: 15
+menu_name: docs_0.1.0
+section_menu_id: concepts
+---
+
+> New to KubeVault? Please start [here](/docs/concepts/README.md).
+
 # AWSAccessKeyRequest CRD
 
 `AWSAccessKeyRequest` CRD is to request AWS credential from vault. If `AWSAccessKeyRequest` is approved, then Vault operator will issue credential from vault and create kubernetes secret containing credential. The secret name will be specified in `status.secret.name` field.
@@ -66,7 +80,7 @@ spec:
 
 ### spec.ttl
 
-`spec.ttl` is an optional field that specifies the TTL for the use of the STS token. This is specified as a string with a duration suffix. 
+`spec.ttl` is an optional field that specifies the TTL for the use of the STS token. This is specified as a string with a duration suffix.
 
 ```yaml
 spec:
@@ -75,7 +89,7 @@ spec:
 
 ### spec.roleARN
 
-`spec.roleARN` is an optional field that specifies the ARN of the role to assume if `credential_type` on the Vault role is `assumed_role`. Must match one of the allowed role ARNs in the Vault role. Optional if the Vault role only allows a single AWS role ARN, required otherwise. 
+`spec.roleARN` is an optional field that specifies the ARN of the role to assume if `credential_type` on the Vault role is `assumed_role`. Must match one of the allowed role ARNs in the Vault role. Optional if the Vault role only allows a single AWS role ARN, required otherwise.
 
 ```yaml
 spec:
@@ -83,7 +97,7 @@ spec:
 ```
 
 ### spec.useSTS
-`spec.useSTS` is an optional field. If this is `true`, `/aws/sts` endpoint will be used to retrieve credential. Otherwise, `/aws/creds` endpoint will be used to retrieve credential. 
+`spec.useSTS` is an optional field. If this is `true`, `/aws/sts` endpoint will be used to retrieve credential. Otherwise, `/aws/creds` endpoint will be used to retrieve credential.
 
 ```yaml
 spec:
@@ -98,7 +112,7 @@ spec:
 
 - `lease` : Contains lease information of the issued credential.
 
-- `conditions` : Represent observations of a AWSAccessKeyRequest. 
+- `conditions` : Represent observations of a AWSAccessKeyRequest.
 
     ```yaml
     status:
@@ -106,9 +120,9 @@ spec:
         - type: Approved
     ```
 
-  It has following field:  
+  It has following field:
   - `conditions[].type` : `Required`. Specifies request approval state. Supported type: `Approved` and `Denied`.
   - `conditions[].reason` : `Optional`. Specifies brief reason for the request state.
   - `conditions[].message` : `Optional`. Specifies human readable message with details about the request state.
-  
-> Note: AWS credential will be issued if `conditions[].type` is `Approved`. Otherwise, Vault operator will not issue any credential. 
+
+> Note: AWS credential will be issued if `conditions[].type` is `Approved`. Otherwise, Vault operator will not issue any credential.
