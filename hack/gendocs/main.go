@@ -24,31 +24,30 @@ var (
 title: Reference | Vault Operator
 description: Vault Operator CLI Reference
 menu:
-  product_kubevault_{{ .Version }}:
+  docs_{{ .Version }}:
     identifier: reference-operator
     name: Vault Operator
     weight: 10
     parent: reference
-menu_name: product_kubevault_{{ .Version }}
+menu_name: docs_{{ .Version }}
 ---
 `))
 
 	_ = template.Must(tplFrontMatter.New("cmd").Parse(`---
 title: {{ .Name }}
 menu:
-  product_kubevault_{{ .Version }}:
+  docs_{{ .Version }}:
     identifier: {{ .ID }}
     name: {{ .Name }}
     parent: reference-operator
 {{- if .RootCmd }}
     weight: 0
 {{ end }}
-product_name: kubevault
-menu_name: product_kubevault_{{ .Version }}
+menu_name: docs_{{ .Version }}
 section_menu_id: reference
 {{- if .RootCmd }}
 aliases:
-  - products/kubevault/{{ .Version }}/reference/operator/
+  - /docs/{{ .Version }}/reference/operator/
 {{ end }}
 ---
 `))
