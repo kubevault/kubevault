@@ -71,7 +71,6 @@ Concepts help you learn about the different parts of the KubeVault and the abstr
   - [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md)
 
 </div>
-
 <div class="tab-pane fade" id="policy-mgr" role="tabpanel" aria-labelledby="policy-mgr-tab">
 
 - Vault Policy Management
@@ -79,4 +78,4 @@ Concepts help you learn about the different parts of the KubeVault and the abstr
   - [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md)
 
 </div>
-
+</div>
