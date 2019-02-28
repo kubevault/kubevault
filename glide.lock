@@ -1,5 +1,5 @@
-hash: e1d07023b386bab29afbee8b348da33c1667e9531ab26c6773653a8fb6d1df75
-updated: 2019-02-19T00:33:30.820166717-08:00
+hash: 8bd48e800495f829ca051205c8a38dbdd4d83a1d02d9b0a9a3cc650f9613166a
+updated: 2019-02-28T00:41:27.358535992-08:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -235,13 +235,13 @@ imports:
 - name: github.com/go-ini/ini
   version: a9da9309fb4822643ceebb765f80025c35ac19a1
 - name: github.com/go-openapi/jsonpointer
-  version: 46af16f9f7b149af66e5d1bd010e3574dc06de98
+  version: ef5f0afec364d3b9396b7b77b43dbe26bf1f8004
 - name: github.com/go-openapi/jsonreference
-  version: 13c6e3589ad90f49bd3e3bbe2c2cb3d7a4142272
+  version: 8483a886a90412cd6858df4ea3483dce9c8e35a3
 - name: github.com/go-openapi/spec
-  version: 1de3e0542de65ad8d75452a595886fdd0befb363
+  version: 5bae59e25b21498baea7f9d46e9c147ec106a42e
 - name: github.com/go-openapi/swag
-  version: f3f9494671f93fcff853e3c6e9e948b3eb71e590
+  version: 5899d5c5e619fda5fa86e14795a835f473ca284c
 - name: github.com/gogo/protobuf
   version: c0656edd0d9eab7c66d1eb0c568f9039345796f7
   subpackages:
@@ -265,7 +265,7 @@ imports:
   - ptypes/struct
   - ptypes/timestamp
 - name: github.com/golang/snappy
-  version: cef980a12b316c5b7e5bb3a8e168eb43ae999a88
+  version: 2a8bb927dd31d8daada140a5d09578521ce5c36a
 - name: github.com/google/btree
   version: 7d79101e329e5a3adf994758c578dab82b90c017
 - name: github.com/google/go-cmp
@@ -307,13 +307,13 @@ imports:
 - name: github.com/hashicorp/go-cleanhttp
   version: e8ab9daed8d1ddd2d3c4efba338fe2eeae2e4f18
 - name: github.com/hashicorp/go-hclog
-  version: 90f2fbc4844c54471c74c1395e1d06ce0582ec59
+  version: 2f91710694ab9472cc9e085a9c74565082063354
 - name: github.com/hashicorp/go-immutable-radix
   version: 27df80928bb34bb1b0d6d0e01b9e679902e7a6b5
 - name: github.com/hashicorp/go-multierror
   version: 886a7fbe3eb1c874d46f623bfa70af45f425b3d1
 - name: github.com/hashicorp/go-plugin
-  version: b838ffee39ce7c7c38226c1413aa4ecae61b4d27
+  version: 3f118e8ee104b6f22aeb12453fab56aed1356186
   subpackages:
   - internal/plugin
 - name: github.com/hashicorp/go-retryablehttp
@@ -478,7 +478,7 @@ imports:
 - name: github.com/peterbourgon/diskv
   version: 5f041e8faa004a95c88a202771f4cc3e991971e6
 - name: github.com/pierrec/lz4
-  version: 7f42fed96396aa858623e7e51628123cda496462
+  version: 062282ea0dcff40c9fb8525789eef9644b1fbd6e
   subpackages:
   - internal/xxh32
 - name: github.com/pkg/errors
@@ -606,7 +606,7 @@ imports:
   subpackages:
   - rate
 - name: google.golang.org/appengine
-  version: 12d5545dc1cfa6047a286d5e853841b6471f4c19
+  version: 54a98f90d1c46b7731eb8fb305d2a321c30ef610
   subpackages:
   - internal
   - internal/app_identity
@@ -1071,8 +1071,6 @@ imports:
   - pkg/apis/core
 - name: kmodules.xyz/custom-resources
   version: b4ef1fe08b7a09681a676c1b697cf66fd74b7ed4
-  repo: https://github.com/kmodules/custom-resources.git
-  vcs: git
   subpackages:
   - apis/appcatalog
   - apis/appcatalog/v1alpha1
@@ -1084,8 +1082,6 @@ imports:
   - client/clientset/versioned/typed/appcatalog/v1alpha1/util
 - name: kmodules.xyz/monitoring-agent-api
   version: e79ddf3f680a16a99b9aacb718f5607b54cef04d
-  repo: https://github.com/kmodules/monitoring-agent-api.git
-  vcs: git
   subpackages:
   - agents
   - agents/coreosprometheusoperator
@@ -1096,9 +1092,7 @@ imports:
   subpackages:
   - api/v1
 - name: kmodules.xyz/offshoot-api
-  version: 2ab6d9decb219e8465875d80be5d6bc754052bd9
-  repo: https://github.com/kmodules/offshoot-api.git
-  vcs: git
+  version: bfce3a53c777ee56eb43e3314611c001f46a6e87
   subpackages:
   - api/v1
 - name: sigs.k8s.io/yaml
