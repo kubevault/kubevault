@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"github.com/appscode/go/crypto/rand"
-	core_util "github.com/appscode/kutil/core/v1"
-	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
 	"github.com/kubedb/apimachinery/apis"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
@@ -17,6 +15,8 @@ import (
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	core_util "kmodules.xyz/client-go/core/v1"
+	"kmodules.xyz/client-go/tools/queue"
 )
 
 const RequestFailed api.RequestConditionType = "Failed"

@@ -131,7 +131,7 @@ func (c *FakeAWSAccessKeyRequests) DeleteCollection(options *v1.DeleteOptions, l
 // Patch applies the patch and returns the patched aWSAccessKeyRequest.
 func (c *FakeAWSAccessKeyRequests) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.AWSAccessKeyRequest, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(awsaccesskeyrequestsResource, c.ns, name, data, subresources...), &v1alpha1.AWSAccessKeyRequest{})
+		Invokes(testing.NewPatchSubresourceAction(awsaccesskeyrequestsResource, c.ns, name, pt, data, subresources...), &v1alpha1.AWSAccessKeyRequest{})
 
 	if obj == nil {
 		return nil, err

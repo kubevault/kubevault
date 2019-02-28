@@ -5,13 +5,14 @@ import (
 	"io"
 	"net"
 
-	"github.com/appscode/kutil/tools/clientcmd"
 	"github.com/kubevault/operator/pkg/controller"
 	"github.com/kubevault/operator/pkg/server"
 	"github.com/spf13/pflag"
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
+	"kmodules.xyz/client-go/meta"
+	"kmodules.xyz/client-go/tools/clientcmd"
 )
 
 const defaultEtcdPathPrefix = "/registry/kubevault.com"
@@ -27,10 +28,14 @@ type VaultServerOptions struct {
 func NewVaultServerOptions(out, errOut io.Writer) *VaultServerOptions {
 	o := &VaultServerOptions{
 		// TODO we will nil out the etcd storage options.  This requires a later level of k8s.io/apiserver
-		RecommendedOptions: genericoptions.NewRecommendedOptions(defaultEtcdPathPrefix, server.Codecs.LegacyCodec(admissionv1beta1.SchemeGroupVersion)),
-		ExtraOptions:       NewExtraOptions(),
-		StdOut:             out,
-		StdErr:             errOut,
+		RecommendedOptions: genericoptions.NewRecommendedOptions(
+			defaultEtcdPathPrefix,
+			server.Codecs.LegacyCodec(admissionv1beta1.SchemeGroupVersion),
+			genericoptions.NewProcessInfo("vault-operator", meta.Namespace()),
+		),
+		ExtraOptions: NewExtraOptions(),
+		StdOut:       out,
+		StdErr:       errOut,
 	}
 	o.RecommendedOptions.Etcd = nil
 	o.RecommendedOptions.Admission = nil

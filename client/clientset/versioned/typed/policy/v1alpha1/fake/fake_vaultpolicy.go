@@ -131,7 +131,7 @@ func (c *FakeVaultPolicies) DeleteCollection(options *v1.DeleteOptions, listOpti
 // Patch applies the patch and returns the patched vaultPolicy.
 func (c *FakeVaultPolicies) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VaultPolicy, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(vaultpoliciesResource, c.ns, name, data, subresources...), &v1alpha1.VaultPolicy{})
+		Invokes(testing.NewPatchSubresourceAction(vaultpoliciesResource, c.ns, name, pt, data, subresources...), &v1alpha1.VaultPolicy{})
 
 	if obj == nil {
 		return nil, err

@@ -3,10 +3,7 @@ package controller
 import (
 	"fmt"
 
-	reg_util "github.com/appscode/kutil/admissionregistration/v1beta1"
-	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
-	"github.com/appscode/kutil/tools/queue"
-	pcm "github.com/coreos/prometheus-operator/pkg/client/monitoring/v1"
+	pcm "github.com/coreos/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	"github.com/golang/glog"
 	dbapis "github.com/kubedb/apimachinery/apis"
 	dbapi "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
@@ -31,6 +28,9 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
+	reg_util "kmodules.xyz/client-go/admissionregistration/v1beta1"
+	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
+	"kmodules.xyz/client-go/tools/queue"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )

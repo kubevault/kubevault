@@ -5,13 +5,13 @@ import (
 	"time"
 
 	logs "github.com/appscode/go/log/golog"
-	"github.com/appscode/kutil/tools/clientcmd"
 	"github.com/kubevault/operator/pkg/controller"
 	"github.com/kubevault/operator/test/e2e/framework"
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
 	ka "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
+	"kmodules.xyz/client-go/tools/clientcmd"
 )
 
 const (

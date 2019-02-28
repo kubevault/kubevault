@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	meta_util "github.com/appscode/kutil/meta"
-	"github.com/appscode/kutil/tools/portforward"
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/kubevault/operator/apis"
@@ -18,6 +16,8 @@ import (
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	meta_util "kmodules.xyz/client-go/meta"
+	"kmodules.xyz/client-go/tools/portforward"
 )
 
 // monitorAndUpdateStatus monitors the vault service and replicas statuses, and

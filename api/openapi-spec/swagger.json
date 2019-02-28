@@ -141,13 +141,6 @@
           },
           {
             "uniqueItems": true,
-            "type": "boolean",
-            "description": "If true, partially initialized resources are included in the response.",
-            "name": "includeUninitialized",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
             "type": "string",
             "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
             "name": "labelSelector",
@@ -222,6 +215,13 @@
             "schema": {
               "$ref": "#/definitions/com.github.kubevault.operator.apis.catalog.v1alpha1.VaultServerVersion"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -285,13 +285,6 @@
           },
           {
             "uniqueItems": true,
-            "type": "boolean",
-            "description": "If true, partially initialized resources are included in the response.",
-            "name": "includeUninitialized",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
             "type": "string",
             "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
             "name": "labelSelector",
@@ -342,6 +335,13 @@
         }
       },
       "parameters": [
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "If true, partially initialized resources are included in the response.",
+          "name": "includeUninitialized",
+          "in": "query"
+        },
         {
           "uniqueItems": true,
           "type": "string",
@@ -409,6 +409,13 @@
             "schema": {
               "$ref": "#/definitions/com.github.kubevault.operator.apis.catalog.v1alpha1.VaultServerVersion"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -453,7 +460,6 @@
           {
             "name": "body",
             "in": "body",
-            "required": true,
             "schema": {
               "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions"
             }
@@ -535,6 +541,13 @@
             "schema": {
               "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Patch"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1079,13 +1092,6 @@
           },
           {
             "uniqueItems": true,
-            "type": "boolean",
-            "description": "If true, partially initialized resources are included in the response.",
-            "name": "includeUninitialized",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
             "type": "string",
             "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
             "name": "labelSelector",
@@ -1160,6 +1166,13 @@
             "schema": {
               "$ref": "#/definitions/com.github.kubevault.operator.apis.engine.v1alpha1.AWSAccessKeyRequest"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1223,13 +1236,6 @@
           },
           {
             "uniqueItems": true,
-            "type": "boolean",
-            "description": "If true, partially initialized resources are included in the response.",
-            "name": "includeUninitialized",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
             "type": "string",
             "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
             "name": "labelSelector",
@@ -1280,6 +1286,13 @@
         }
       },
       "parameters": [
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "If true, partially initialized resources are included in the response.",
+          "name": "includeUninitialized",
+          "in": "query"
+        },
         {
           "uniqueItems": true,
           "type": "string",
@@ -1355,6 +1368,13 @@
             "schema": {
               "$ref": "#/definitions/com.github.kubevault.operator.apis.engine.v1alpha1.AWSAccessKeyRequest"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1399,7 +1419,6 @@
           {
             "name": "body",
             "in": "body",
-            "required": true,
             "schema": {
               "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions"
             }
@@ -1481,6 +1500,13 @@
             "schema": {
               "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Patch"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1561,13 +1587,6 @@
           },
           {
             "uniqueItems": true,
-            "type": "boolean",
-            "description": "If true, partially initialized resources are included in the response.",
-            "name": "includeUninitialized",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
             "type": "string",
             "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
             "name": "labelSelector",
@@ -1642,6 +1661,13 @@
             "schema": {
               "$ref": "#/definitions/com.github.kubevault.operator.apis.engine.v1alpha1.AWSRole"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1705,13 +1731,6 @@
           },
           {
             "uniqueItems": true,
-            "type": "boolean",
-            "description": "If true, partially initialized resources are included in the response.",
-            "name": "includeUninitialized",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
             "type": "string",
             "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
             "name": "labelSelector",
@@ -1762,6 +1781,13 @@
         }
       },
       "parameters": [
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "If true, partially initialized resources are included in the response.",
+          "name": "includeUninitialized",
+          "in": "query"
+        },
         {
           "uniqueItems": true,
           "type": "string",
@@ -1837,6 +1863,13 @@
             "schema": {
               "$ref": "#/definitions/com.github.kubevault.operator.apis.engine.v1alpha1.AWSRole"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1881,7 +1914,6 @@
           {
             "name": "body",
             "in": "body",
-            "required": true,
             "schema": {
               "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions"
             }
@@ -1963,6 +1995,13 @@
             "schema": {
               "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Patch"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -2757,13 +2796,6 @@
           },
           {
             "uniqueItems": true,
-            "type": "boolean",
-            "description": "If true, partially initialized resources are included in the response.",
-            "name": "includeUninitialized",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
             "type": "string",
             "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
             "name": "labelSelector",
@@ -2838,6 +2870,13 @@
             "schema": {
               "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServer"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -2901,13 +2940,6 @@
           },
           {
             "uniqueItems": true,
-            "type": "boolean",
-            "description": "If true, partially initialized resources are included in the response.",
-            "name": "includeUninitialized",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
             "type": "string",
             "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
             "name": "labelSelector",
@@ -2958,6 +2990,13 @@
         }
       },
       "parameters": [
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "If true, partially initialized resources are included in the response.",
+          "name": "includeUninitialized",
+          "in": "query"
+        },
         {
           "uniqueItems": true,
           "type": "string",
@@ -3033,6 +3072,13 @@
             "schema": {
               "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.VaultServer"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3077,7 +3123,6 @@
           {
             "name": "body",
             "in": "body",
-            "required": true,
             "schema": {
               "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions"
             }
@@ -3159,6 +3204,13 @@
             "schema": {
               "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Patch"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3727,13 +3779,6 @@
           },
           {
             "uniqueItems": true,
-            "type": "boolean",
-            "description": "If true, partially initialized resources are included in the response.",
-            "name": "includeUninitialized",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
             "type": "string",
             "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
             "name": "labelSelector",
@@ -3808,6 +3853,13 @@
             "schema": {
               "$ref": "#/definitions/com.github.kubevault.operator.apis.policy.v1alpha1.VaultPolicy"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3871,13 +3923,6 @@
           },
           {
             "uniqueItems": true,
-            "type": "boolean",
-            "description": "If true, partially initialized resources are included in the response.",
-            "name": "includeUninitialized",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
             "type": "string",
             "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
             "name": "labelSelector",
@@ -3928,6 +3973,13 @@
         }
       },
       "parameters": [
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "If true, partially initialized resources are included in the response.",
+          "name": "includeUninitialized",
+          "in": "query"
+        },
         {
           "uniqueItems": true,
           "type": "string",
@@ -4003,6 +4055,13 @@
             "schema": {
               "$ref": "#/definitions/com.github.kubevault.operator.apis.policy.v1alpha1.VaultPolicy"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4047,7 +4106,6 @@
           {
             "name": "body",
             "in": "body",
-            "required": true,
             "schema": {
               "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions"
             }
@@ -4129,6 +4187,13 @@
             "schema": {
               "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Patch"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4209,13 +4274,6 @@
           },
           {
             "uniqueItems": true,
-            "type": "boolean",
-            "description": "If true, partially initialized resources are included in the response.",
-            "name": "includeUninitialized",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
             "type": "string",
             "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
             "name": "labelSelector",
@@ -4290,6 +4348,13 @@
             "schema": {
               "$ref": "#/definitions/com.github.kubevault.operator.apis.policy.v1alpha1.VaultPolicyBinding"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4353,13 +4418,6 @@
           },
           {
             "uniqueItems": true,
-            "type": "boolean",
-            "description": "If true, partially initialized resources are included in the response.",
-            "name": "includeUninitialized",
-            "in": "query"
-          },
-          {
-            "uniqueItems": true,
             "type": "string",
             "description": "A selector to restrict the list of returned objects by their labels. Defaults to everything.",
             "name": "labelSelector",
@@ -4410,6 +4468,13 @@
         }
       },
       "parameters": [
+        {
+          "uniqueItems": true,
+          "type": "boolean",
+          "description": "If true, partially initialized resources are included in the response.",
+          "name": "includeUninitialized",
+          "in": "query"
+        },
         {
           "uniqueItems": true,
           "type": "string",
@@ -4485,6 +4550,13 @@
             "schema": {
               "$ref": "#/definitions/com.github.kubevault.operator.apis.policy.v1alpha1.VaultPolicyBinding"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4529,7 +4601,6 @@
           {
             "name": "body",
             "in": "body",
-            "required": true,
             "schema": {
               "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions"
             }
@@ -4611,6 +4682,13 @@
             "schema": {
               "$ref": "#/definitions/io.k8s.apimachinery.pkg.apis.meta.v1.Patch"
             }
+          },
+          {
+            "uniqueItems": true,
+            "type": "string",
+            "description": "When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed",
+            "name": "dryRun",
+            "in": "query"
           }
         ],
         "responses": {
@@ -7395,6 +7473,11 @@
           "items": {
             "$ref": "#/definitions/io.k8s.api.core.v1.ContainerPort"
           },
+          "x-kubernetes-list-map-keys": [
+            "containerPort",
+            "protocol"
+          ],
+          "x-kubernetes-list-type": "map",
           "x-kubernetes-patch-merge-key": "containerPort",
           "x-kubernetes-patch-strategy": "merge"
         },
@@ -7431,7 +7514,7 @@
           "type": "boolean"
         },
         "volumeDevices": {
-          "description": "volumeDevices is the list of block devices to be used by the container. This is an alpha feature and may change in the future.",
+          "description": "volumeDevices is the list of block devices to be used by the container. This is a beta feature.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/io.k8s.api.core.v1.VolumeDevice"
@@ -9388,7 +9471,7 @@
       }
     },
     "io.k8s.apimachinery.pkg.apis.meta.v1.OwnerReference": {
-      "description": "OwnerReference contains enough information to let you identify an owning object. Currently, an owning object must be in the same namespace, so there is no namespace field.",
+      "description": "OwnerReference contains enough information to let you identify an owning object. An owning object must be in the same namespace as the dependent, or be cluster-scoped, so there is no namespace field.",
       "required": [
         "apiVersion",
         "kind",

@@ -3,9 +3,7 @@ package controller
 import (
 	"time"
 
-	reg_util "github.com/appscode/kutil/admissionregistration/v1beta1"
-	"github.com/appscode/kutil/discovery"
-	pcm "github.com/coreos/prometheus-operator/pkg/client/monitoring/v1"
+	pcm "github.com/coreos/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	db_cs "github.com/kubedb/apimachinery/client/clientset/versioned"
 	dbinformers "github.com/kubedb/apimachinery/client/informers/externalversions"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
@@ -17,6 +15,8 @@ import (
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	reg_util "kmodules.xyz/client-go/admissionregistration/v1beta1"
+	"kmodules.xyz/client-go/discovery"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
 

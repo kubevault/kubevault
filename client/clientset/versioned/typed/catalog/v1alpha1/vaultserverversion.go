@@ -19,6 +19,8 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"time"
+
 	v1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	scheme "github.com/kubevault/operator/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -72,10 +74,15 @@ func (c *vaultServerVersions) Get(name string, options v1.GetOptions) (result *v
 
 // List takes label and field selectors, and returns the list of VaultServerVersions that match those selectors.
 func (c *vaultServerVersions) List(opts v1.ListOptions) (result *v1alpha1.VaultServerVersionList, err error) {
+	var timeout time.Duration
+	if opts.TimeoutSeconds != nil {
+		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
+	}
 	result = &v1alpha1.VaultServerVersionList{}
 	err = c.client.Get().
 		Resource("vaultserverversions").
 		VersionedParams(&opts, scheme.ParameterCodec).
+		Timeout(timeout).
 		Do().
 		Into(result)
 	return
@@ -83,10 +90,15 @@ func (c *vaultServerVersions) List(opts v1.ListOptions) (result *v1alpha1.VaultS
 
 // Watch returns a watch.Interface that watches the requested vaultServerVersions.
 func (c *vaultServerVersions) Watch(opts v1.ListOptions) (watch.Interface, error) {
+	var timeout time.Duration
+	if opts.TimeoutSeconds != nil {
+		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
+	}
 	opts.Watch = true
 	return c.client.Get().
 		Resource("vaultserverversions").
 		VersionedParams(&opts, scheme.ParameterCodec).
+		Timeout(timeout).
 		Watch()
 }
 
@@ -125,9 +137,14 @@ func (c *vaultServerVersions) Delete(name string, options *v1.DeleteOptions) err
 
 // DeleteCollection deletes a collection of objects.
 func (c *vaultServerVersions) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
+	var timeout time.Duration
+	if listOptions.TimeoutSeconds != nil {
+		timeout = time.Duration(*listOptions.TimeoutSeconds) * time.Second
+	}
 	return c.client.Delete().
 		Resource("vaultserverversions").
 		VersionedParams(&listOptions, scheme.ParameterCodec).
+		Timeout(timeout).
 		Body(options).
 		Do().
 		Error()

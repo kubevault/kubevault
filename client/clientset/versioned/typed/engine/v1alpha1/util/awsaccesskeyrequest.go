@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/appscode/kutil"
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/golang/glog"
 	api "github.com/kubevault/operator/apis/engine/v1alpha1"
@@ -14,6 +13,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
+	kutil "kmodules.xyz/client-go"
 )
 
 func CreateOrPatchAWSAccessKeyRequest(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest) (*api.AWSAccessKeyRequest, kutil.VerbType, error) {

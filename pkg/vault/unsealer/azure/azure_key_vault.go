@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"path/filepath"
 
-	core_util "github.com/appscode/kutil/core/v1"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
+	core_util "kmodules.xyz/client-go/core/v1"
 )
 
 const (

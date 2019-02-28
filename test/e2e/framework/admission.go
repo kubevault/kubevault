@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	discovery_util "github.com/appscode/kutil/discovery"
 	shell "github.com/codeskyblue/go-sh"
 	"github.com/golang/glog"
 	"github.com/kubevault/operator/apis"
@@ -21,6 +20,7 @@ import (
 	"k8s.io/client-go/discovery"
 	restclient "k8s.io/client-go/rest"
 	kapi "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1beta1"
+	discovery_util "kmodules.xyz/client-go/discovery"
 )
 
 func (f *Framework) NewTestVaultServerOptions(kubeConfigPath string, controllerOptions *srvr.ExtraOptions) *srvr.VaultServerOptions {

@@ -5,8 +5,6 @@ import (
 	"net"
 	"path/filepath"
 
-	core_util "github.com/appscode/kutil/core/v1"
-	"github.com/appscode/kutil/tools/certstore"
 	"github.com/golang/glog"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	cs "github.com/kubevault/operator/client/clientset/versioned"
@@ -24,6 +22,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/util/cert"
+	core_util "kmodules.xyz/client-go/core/v1"
+	"kmodules.xyz/client-go/tools/certstore"
 )
 
 const (
