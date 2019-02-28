@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/appscode/kutil/tools/clientcmd"
 	"github.com/golang/glog"
 	"k8s.io/client-go/kubernetes"
+	"kmodules.xyz/client-go/tools/clientcmd"
 )
 
 func TestTryGetJwtTokenSecretNameFromServiceAccount(t *testing.T) {

@@ -3,11 +3,11 @@ package v1alpha1
 import (
 	"fmt"
 
-	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
-	meta_util "github.com/appscode/kutil/meta"
-	"github.com/appscode/kutil/tools/clusterid"
 	"github.com/kubevault/operator/apis"
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
+	meta_util "kmodules.xyz/client-go/meta"
+	"kmodules.xyz/client-go/tools/clusterid"
 )
 
 func (v VaultPolicy) GetKey() string {

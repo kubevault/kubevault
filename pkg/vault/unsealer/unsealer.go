@@ -4,10 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	core_util "github.com/appscode/kutil/core/v1"
-	"github.com/appscode/kutil/tools/analytics"
-	"github.com/appscode/kutil/tools/cli"
-	"github.com/appscode/kutil/tools/clientcmd"
 	"github.com/golang/glog"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	sa_util "github.com/kubevault/operator/pkg/util"
@@ -21,6 +17,10 @@ import (
 	rbac "k8s.io/api/rbac/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	core_util "kmodules.xyz/client-go/core/v1"
+	"kmodules.xyz/client-go/tools/analytics"
+	"kmodules.xyz/client-go/tools/cli"
+	"kmodules.xyz/client-go/tools/clientcmd"
 )
 
 const (

@@ -3,8 +3,6 @@ package credential
 import (
 	"encoding/json"
 
-	core_util "github.com/appscode/kutil/core/v1"
-	rbac_util "github.com/appscode/kutil/rbac/v1"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
@@ -12,6 +10,8 @@ import (
 	rbac "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	core_util "kmodules.xyz/client-go/core/v1"
+	rbac_util "kmodules.xyz/client-go/rbac/v1"
 )
 
 type CredManager struct {

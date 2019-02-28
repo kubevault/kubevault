@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/appscode/go/wait"
-	core_util "github.com/appscode/kutil/core/v1"
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
 	vaultconfig "github.com/kubevault/operator/apis/config/v1alpha1"
@@ -23,6 +22,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
+	core_util "kmodules.xyz/client-go/core/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )

@@ -5,12 +5,6 @@ import (
 
 	"github.com/appscode/go/encoding/json/types"
 	"github.com/appscode/go/log"
-	"github.com/appscode/kutil"
-	apps_util "github.com/appscode/kutil/apps/v1"
-	core_util "github.com/appscode/kutil/core/v1"
-	meta_util "github.com/appscode/kutil/meta"
-	rbac_util "github.com/appscode/kutil/rbac/v1"
-	"github.com/appscode/kutil/tools/queue"
 	"github.com/golang/glog"
 	"github.com/kubevault/operator/apis"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
@@ -22,6 +16,12 @@ import (
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 	"k8s.io/client-go/kubernetes"
+	kutil "kmodules.xyz/client-go"
+	apps_util "kmodules.xyz/client-go/apps/v1"
+	core_util "kmodules.xyz/client-go/core/v1"
+	meta_util "kmodules.xyz/client-go/meta"
+	rbac_util "kmodules.xyz/client-go/rbac/v1"
+	"kmodules.xyz/client-go/tools/queue"
 )
 
 func (c *VaultController) initVaultServerWatcher() {

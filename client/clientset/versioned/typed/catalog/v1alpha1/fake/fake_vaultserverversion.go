@@ -112,7 +112,7 @@ func (c *FakeVaultServerVersions) DeleteCollection(options *v1.DeleteOptions, li
 // Patch applies the patch and returns the patched vaultServerVersion.
 func (c *FakeVaultServerVersions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VaultServerVersion, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(vaultserverversionsResource, name, data, subresources...), &v1alpha1.VaultServerVersion{})
+		Invokes(testing.NewRootPatchSubresourceAction(vaultserverversionsResource, name, pt, data, subresources...), &v1alpha1.VaultServerVersion{})
 	if obj == nil {
 		return nil, err
 	}

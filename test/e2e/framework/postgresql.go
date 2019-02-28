@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/appscode/go/crypto/rand"
-	"github.com/appscode/kutil/tools/portforward"
 	_ "github.com/lib/pq"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
@@ -16,6 +15,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"kmodules.xyz/client-go/tools/portforward"
 )
 
 var (

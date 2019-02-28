@@ -3,7 +3,6 @@ package admission
 import (
 	"testing"
 
-	meta_util "github.com/appscode/kutil/meta"
 	catalog "github.com/kubevault/operator/apis/catalog/v1alpha1"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	extfake "github.com/kubevault/operator/client/clientset/versioned/fake"
@@ -15,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/kubernetes/scheme"
+	meta_util "kmodules.xyz/client-go/meta"
 )
 
 const namespace = "test-ns"

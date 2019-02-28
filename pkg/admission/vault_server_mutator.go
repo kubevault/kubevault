@@ -3,12 +3,12 @@ package admission
 import (
 	"sync"
 
-	hookapi "github.com/appscode/kubernetes-webhook-util/admission/v1beta1"
-	meta_util "github.com/appscode/kutil/meta"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	admission "k8s.io/api/admission/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/rest"
+	meta_util "kmodules.xyz/client-go/meta"
+	hookapi "kmodules.xyz/webhook-runtime/admission/v1beta1"
 )
 
 const (

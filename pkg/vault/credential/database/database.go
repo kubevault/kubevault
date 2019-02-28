@@ -1,7 +1,6 @@
 package database
 
 import (
-	meta_util "github.com/appscode/kutil/meta"
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
 	crd "github.com/kubedb/apimachinery/client/clientset/versioned"
@@ -12,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	meta_util "kmodules.xyz/client-go/meta"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
