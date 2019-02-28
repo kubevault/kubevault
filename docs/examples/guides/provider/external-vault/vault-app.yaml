@@ -6,7 +6,6 @@ metadata:
 spec:
   clientConfig:
     url: http://vault.default.svc:8200
-    insecureSkipTLSVerify: true
   parameters:
     serviceAccountName: policy-admin
     policyControllerRole: policy-admin-role

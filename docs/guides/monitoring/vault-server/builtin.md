@@ -99,8 +99,6 @@ spec:
   unsealer:
     secretShares: 4
     secretThreshold: 2
-    insecureSkipTLSVerify: true
-    overwriteExisting: true
     mode:
       kubernetesSecret:
         secretName: vault-keys

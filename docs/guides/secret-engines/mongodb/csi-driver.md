@@ -208,7 +208,6 @@ To use secret from `database` engine, you have to do following things.
     spec:
     clientConfig:
       url: http://165.227.190.238:30001 # Replace this with Vault URL
-      insecureSkipTLSVerify: true
     parameters:
       apiVersion: "kubevault.com/v1alpha1"
       kind: "VaultServerConfiguration"

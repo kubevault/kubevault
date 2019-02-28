@@ -6,7 +6,6 @@ metadata:
 spec:
   clientConfig:
     url: http://159.203.114.50:30001
-    insecureSkipTLSVerify: true
   parameters:
     apiVersion: "kubevault.com/v1alpha1"
     kind: "VaultServerConfiguration"
