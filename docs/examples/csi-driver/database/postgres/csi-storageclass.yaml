@@ -7,8 +7,8 @@ metadata:
     storageclass.kubernetes.io/is-default-class: "false"
 provisioner: secrets.csi.kubevault.com # For Kubernetes 1.12.x(csi-vault:0.1.0) use -> com.kubevault.csi.secrets
 parameters:
-  ref: demo/vaultapp
+  ref: demo/vault-app
   engine: DATABASE
-  role: my-pg-role
+  role: k8s.-.demo.demo-role
   path: database
 

@@ -19,12 +19,12 @@ You can easily manage [AWS secret engine](https://www.vaultproject.io/docs/secre
 You should be familiar with the following CRD:
 
 - [AWSRole](/docs/concepts/secret-engine-crds/awsrole.md)
-- [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/awsaccesskeyrequest.md)
+- [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/awsaccesskeyrequest)
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 
 Before you begin:
 
-- Install Vault operator in your cluster following the steps [here](/docs/setup/operator/install.md).
+- Install Vault operator in your cluster following the steps [here](/docs/setup/operator/install).
 
 - Deploy Vault. It could be in the Kubernetes cluster or external.
 
@@ -81,7 +81,7 @@ vault     1         1.0.0     Running   1h
 
 ## AWSRole
 
-Using [AWSRole](/docs/concepts/secret-engine-crds/awsrole.md), you can configure [root iam credentials](https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials) and create [role](https://www.vaultproject.io/api/secret/aws/index.html#create-update-role). In this tutorial, we are going to create `demo-role` in `demo` namespace.
+Using [AWSRole](/docs/concepts/secret-engine-crds/awsrole.md), you can configure [root IAM credentials](https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials) and create [role](https://www.vaultproject.io/api/secret/aws/index.html#create-update-role). In this tutorial, we are going to create `demo-role` in `demo` namespace.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
@@ -116,6 +116,7 @@ spec:
 Here, `spec.config.credentialSecret` will be used to configure [root iam credentials](https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials).
 
 ```yaml
+$ cat examples/guides/secret-engins/aws/aws-cred.yaml
 apiVersion: v1
 data:
   access_key: QUAAAAA=
@@ -125,11 +126,14 @@ metadata:
   name: aws-cred
   namespace: demo
 type: Opaque
+
+$ kubectl apply -f examples/guides/secret-engins/aws/aws-cred.yaml
 ```
 
-`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview.md) for Vault authentication using AppBinding in Vault operator.
+`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview) for Vault authentication using AppBinding in Vault operator.
 
 ```yaml
+$ cat examples/guides/secret-engins/aws/vault-app.yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
@@ -146,9 +150,21 @@ spec:
     serviceAccountName: demo-sa
     policyControllerRole: aws-role
     authPath: kubernetes
+
+$ kubectl apply -f examples/guides/secret-engins/aws/vault-app.yaml
+appbinding.appcatalog.appscode.com/vault-app create
 ```
 
 `demo-sa` serviceaccount in the above AppBinding has the following permission in Vault.
+
+To create `demo-sa` serviceaccount run the following command:
+
+```console
+$ kubectl create serviceaccount -n demo demo-sa
+serviceaccount/demo-sa created
+```
+
+Now you need to create policy with following capabilities, which will be assigned to a role.
 
 ```hcl
 path "sys/mounts" {
@@ -180,7 +196,15 @@ path "sys/leases/revoke/*" {
 }
 ```
 
-You can manage policy in Vault using Vault operator, see [here](/docs/guides/policy-management/policy-management.md).
+You can manage policy in Vault using Vault operator, see [here](/docs/guides/policy-management/policy-management).
+
+To create above policy run following command
+
+```console
+$ kubectl apply -f examples/guides/secret-engins/aws/policy.yaml
+vaultpolicy.policy.kubevault.com/aws-role-policy created
+vaultpolicybinding.policy.kubevault.com/aws-role created
+```
 
 Now, we are going to create `demo-role`.
 
@@ -268,7 +292,7 @@ No value found at aws/roles/
 
 ## AWSAccessKeyRequest
 
-Using [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/awsaccesskeyrequest.md), you can issue AWS credential from Vault. In this tutorial, we are going to issue AWS credential by creating `demo-cred` AWSAccessKeyRequest in `demo` namespace.
+Using [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/awsaccesskeyrequest), you can issue AWS credential from Vault. In this tutorial, we are going to issue AWS credential by creating `demo-cred` AWSAccessKeyRequest in `demo` namespace.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1

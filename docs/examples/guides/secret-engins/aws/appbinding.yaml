@@ -1,0 +1,16 @@
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
+metadata:
+  name: vault-app
+  namespace: demo
+spec:
+  secret:
+    name: aws-cred
+  parameters:
+    policyControllerRole: demo # role name against which login will be done
+  clientConfig:
+    service:
+      name: vault
+      scheme: http
+      port: 8200
+    insecureSkipTLSVerify: true

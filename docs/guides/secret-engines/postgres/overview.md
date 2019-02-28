@@ -24,7 +24,7 @@ You should be familiar with the following CRD:
 
 Before you begin:
 
-- Install Vault operator in your cluster following the steps [here](/docs/setup/operator/install.md).
+- Install Vault operator in your cluster following the steps [here](/docs/setup/operator/install).
 
 - Deploy Vault. It could be in the Kubernetes cluster or external.
 
@@ -105,6 +105,7 @@ spec:
 Here, `spec.databaseRef` is the reference of AppBinding containing Postgres database connection and credential information.
 
 ```yaml
+$ cat examples/guides/secret-engins/postgres/postgres-app.yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
@@ -123,11 +124,15 @@ spec:
     insecureSkipTLSVerify: true
   parameters:
     allowedRoles: "*" # names of the allowed roles to use this connection config in Vault, ref: https://www.vaultproject.io/api/secret/databases/index.html#allowed_roles
+
+$ kubectl apply -f examples/guides/secret-engins/postgres/postgres-app.yaml
+appbinding.appcatalog.appscode.com/postgres-app created
 ```
 
-`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview.md) for Vault authentication using AppBinding in Vault operator.
+`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview) for Vault authentication using AppBinding in Vault operator.
 
 ```yaml
+$ cat examples/guides/secret-engins/postgres/vault-app.yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
@@ -144,9 +149,21 @@ spec:
     serviceAccountName: demo-sa
     policyControllerRole: postgres-role
     authPath: kubernetes
+
+$ kubectl apply -f examples/guides/secret-engins/postgres/vault-app.yaml
+appbinding.appcatalog.appscode.com/postgres-app created
 ```
 
 `demo-sa` serviceaccount in the above AppBinding has the following permission in Vault.
+
+To create `demo-sa` serviceaccount run the following command:
+
+```console
+$ kubectl create serviceaccount -n demo demo-sa
+serviceaccount/demo-sa created
+```
+
+Now you need to create policy with following capabilities, which will be assigned to a role.
 
 ```hcl
 path "sys/mounts" {
@@ -174,7 +191,15 @@ path "sys/leases/revoke/*" {
 }
 ```
 
-You can manage policy in Vault using Vault operator, see [here](/docs/guides/policy-management/policy-management.md).
+You can manage policy in Vault using Vault operator, see [here](/docs/guides/policy-management/policy-management).
+
+To create above policy run following command
+
+```console
+$ kubectl apply -f examples/guides/secret-engins/postgres/policy.yaml
+vaultpolicy.policy.kubevault.com/postgres-role-policy created
+vaultpolicybinding.policy.kubevault.com/postgres-role created
+```
 
 Now, we are going to create `demo-role`.
 

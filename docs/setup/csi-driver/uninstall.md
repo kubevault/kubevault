@@ -1,12 +1,12 @@
 ---
 title: Uninstall Vault CSI Driver
 menu:
-  product_vault:
+  docs_0.1.0:
     identifier: uninstall-csi-driver
     name: Uninstall
     parent: csi-driver-setup
     weight: 15
-menu_name: product_vault
+menu_name: docs_0.1.0
 section_menu_id: setup
 ---
 

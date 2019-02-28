@@ -76,7 +76,7 @@ $ kubectl create -f https://raw.githubusercontent.com/kubevault/docs/master/docs
 configmap/prometheus-server-conf created
 ```
 
-> Note: Yaml files used in this tutorial are stored in [docs/examples](/docs/examples)
+> Note: YAML files used in this tutorial are stored in [docs/examples](/docs/examples)
 
 ## Monitor Vault server
 
