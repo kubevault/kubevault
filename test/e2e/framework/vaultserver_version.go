@@ -16,7 +16,7 @@ func (f *Framework) CreateVaultserverVersion() error {
 				Image: "vault:1.0.1",
 			},
 			Unsealer: api.VaultServerVersionUnsealer{
-				Image: "kubevault/vault-unsealer:0.1.0",
+				Image: "kubevault/vault-unsealer:0.2.0",
 			},
 			Exporter: api.VaultServerVersionExporter{
 				Image: "kubevault/vault-exporter:0.1.0",

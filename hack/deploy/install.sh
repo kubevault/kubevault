@@ -129,7 +129,7 @@ export VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK=false
 export VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK=false
 export VAULT_OPERATOR_CATALOG=${VAULT_OPERATOR_CATALOG:-all}
 export VAULT_OPERATOR_DOCKER_REGISTRY=kubevault
-export VAULT_OPERATOR_IMAGE_TAG=0.1.0
+export VAULT_OPERATOR_IMAGE_TAG=0.2.0
 export VAULT_OPERATOR_IMAGE_PULL_SECRET=
 export VAULT_OPERATOR_IMAGE_PULL_POLICY=IfNotPresent
 export VAULT_OPERATOR_ENABLE_ANALYTICS=true
@@ -142,7 +142,7 @@ export VAULT_OPERATOR_CLUSTER_NAME=
 export VAULT_OPERATOR_PRIORITY_CLASS=system-cluster-critical
 
 export APPSCODE_ENV=${APPSCODE_ENV:-prod}
-export SCRIPT_LOCATION="curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.1.0/"
+export SCRIPT_LOCATION="curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.2.0/"
 if [ "$APPSCODE_ENV" = "dev" ]; then
   detect_tag
   export SCRIPT_LOCATION="cat "

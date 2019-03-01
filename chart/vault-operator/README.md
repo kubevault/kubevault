@@ -48,7 +48,7 @@ The following table lists the configurable parameters of the Vault chart and the
 | `replicaCount`                          | Number of Vault operator replicas to create (only 1 is supported)  | `1`                |
 | `operator.registry`                     | Docker registry used to pull Vault operator image                  | `kubevault`        |
 | `operator.repository`                   | Vault operator container image                                     | `vault-operator`   |
-| `operator.tag`                          | Vault operator container image tag                                 | `0.1.0`            |
+| `operator.tag`                          | Vault operator container image tag                                 | `0.2.0`            |
 | `cleaner.registry`                      | Docker registry used to pull Webhook cleaner image                 | `appscode`         |
 | `cleaner.repository`                    | Webhook cleaner container image                                    | `kubectl`          |
 | `cleaner.tag`                           | Webhook cleaner container image tag                                | `v1.11`            |
@@ -81,7 +81,7 @@ The following table lists the configurable parameters of the Vault chart and the
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example:
 
 ```console
-$ helm install --name vault-operator --set image.tag=v0.1.0 appscode/vault-operator
+$ helm install --name vault-operator --set image.tag=v0.2.0 appscode/vault-operator
 ```
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while
