@@ -1,12 +1,12 @@
 ---
 title: In Memory | Vault Server Storage
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: inmem-storage
     name: In Memory
     parent: storage-vault-server-crds
     weight: 30
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: concepts
 ---
 

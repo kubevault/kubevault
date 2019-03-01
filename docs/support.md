@@ -2,16 +2,16 @@
 title: Support | KubeVault
 description: Support
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: support-kubevault
     name: Support
     parent: welcome
     weight: 25
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: welcome
-url: /docs/0.1.0/welcome/support/
+url: /docs/0.2.0/welcome/support/
 aliases:
-  - /docs/0.1.0/support/
+  - /docs/0.2.0/support/
 ---
 
 # Support

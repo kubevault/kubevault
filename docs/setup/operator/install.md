@@ -1,12 +1,12 @@
 ---
 title: Install Vault operator
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: install-operator
     name: Install
     parent: operator-setup
     weight: 10
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: setup
 ---
 
@@ -32,7 +32,7 @@ Vault operator can be installed via a script or as a Helm chart.
 To install Vault operator in your Kubernetes cluster, run the following command:
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.1.0/hack/deploy/install.sh | bash
+$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.2.0/hack/deploy/install.sh | bash
 ```
 
 After successful installation, you should have a `vault-operator-***` pod running in the `kube-system` namespace.
@@ -44,10 +44,10 @@ vault-operator-846d47f489-jrb58       1/1       Running   0          48s
 
 #### Customizing Installer
 
-The installer script and associated yaml files can be found in the [/hack/deploy](https://github.com/kubevault/operator/tree/0.1.0/hack/deploy) folder. You can see the full list of flags available to installer using `-h` flag.
+The installer script and associated yaml files can be found in the [/hack/deploy](https://github.com/kubevault/operator/tree/0.2.0/hack/deploy) folder. You can see the full list of flags available to installer using `-h` flag.
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.1.0/hack/deploy/install.sh | bash -s -- -h
+$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.2.0/hack/deploy/install.sh | bash -s -- -h
 install.sh - install Vault operator
 
 install.sh [options]
@@ -77,7 +77,7 @@ options:
 If you would like to run Vault operator pod in `master` instances, pass the `--run-on-master` flag:
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.1.0/hack/deploy/install.sh \
+$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.2.0/hack/deploy/install.sh \
     | bash -s -- --run-on-master
 ```
 
@@ -85,7 +85,7 @@ Vault operator will be installed in a `kube-system` namespace by default. If you
 
 ```console
 $ kubectl create namespace vault
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.1.0/hack/deploy/install.sh \
+$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.2.0/hack/deploy/install.sh \
     | bash -s -- --namespace=vault [--run-on-master]
 ```
 
@@ -99,14 +99,14 @@ To pass the address of your private registry and optionally a image pull secret 
 
 ```console
 $ kubectl create namespace vault
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.1.0/hack/deploy/install.sh \
+$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.2.0/hack/deploy/install.sh \
     | bash -s -- --docker-registry=MY_REGISTRY [--image-pull-secret=SECRET_NAME]
 ```
 
 Vault operator implements [validating admission webhooks](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#validatingadmissionwebhook) to validate KubeVault CRDs and **mutating webhooks** for KubeVault crds. This is enabled by default for Kubernetes 1.9.0 or later releases. To disable this feature, pass the `--enable-validating-webhook=false` and `--enable-mutating-webhook=false` flag respectively.
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.1.0/hack/deploy/install.sh \
+$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.2.0/hack/deploy/install.sh \
     | bash -s -- --enable-validating-webhook=false --enable-mutating-webhook=false
 ```
 
@@ -114,18 +114,18 @@ $ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.1.0/hack/dep
 <div class="tab-pane fade" id="helm" role="tabpanel" aria-labelledby="helm-tab">
 
 ## Using Helm
-Vault operator can be installed via [Helm](https://helm.sh/) using the [chart](https://github.com/kubevault/operator/tree/0.1.0/chart/vault-operator) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `my-release`:
+Vault operator can be installed via [Helm](https://helm.sh/) using the [chart](https://github.com/kubevault/operator/tree/0.2.0/chart/vault-operator) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `my-release`:
 
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
 $ helm repo update
 $ helm search appscode/vault
 NAME                    CHART VERSION APP VERSION   DESCRIPTION
-appscode/vault-operator 0.1.0         0.1.0         Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
-appscode/vault-catalog  0.1.0         0.1.0         Vault Catalog by AppsCode - Catalog for vault versions
+appscode/vault-operator 0.2.0         0.2.0         Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
+appscode/vault-catalog  0.2.0         0.2.0         Vault Catalog by AppsCode - Catalog for vault versions
 
 # Step 1: Install vault-operator chart
-$ helm install appscode/vault-operator --name vault-operator --version 0.1.0 \
+$ helm install appscode/vault-operator --name vault-operator --version 0.2.0 \
   --namespace kube-system
 
 # Step 2: wait until crds are registered
@@ -138,11 +138,11 @@ vaultserverversions.catalog.kubevault.com    8s
 $ helm install appscode/vault-catalog --name vault-catalog
 
 # Step 3(a): Install catalog of Vault versions
-$ helm install appscode/vault-catalog --name vault-catalog --version 0.1.0 \
+$ helm install appscode/vault-catalog --name vault-catalog --version 0.2.0 \
   --namespace kube-system
 
 # Step 3(b): Or, if previously installed, upgrade catalog of Vault versions
-$ helm upgrade vault-catalog appscode/vault-catalog --version 0.1.0 \
+$ helm upgrade vault-catalog appscode/vault-catalog --version 0.2.0 \
   --namespace kube-system
 ```
 
@@ -344,13 +344,13 @@ $ POD_NAMESPACE=kube-system
 $ POD_NAME=$(kubectl get pods -n $POD_NAMESPACE -l app=vault-operator -o jsonpath={.items[0].metadata.name})
 $ kubectl exec -it $POD_NAME -n $POD_NAMESPACE vault-operator version
 
-Version = 0.1.0
+Version = 0.2.0
 VersionStrategy = tag
 Os = alpine
 Arch = amd64
 CommitHash = 85b0f16ab1b915633e968aac0ee23f877808ef49
 GitBranch = release-0.5
-GitTag = 0.1.0
+GitTag = 0.2.0
 CommitTimestamp = 2017-10-10T05:24:23
 
 ```

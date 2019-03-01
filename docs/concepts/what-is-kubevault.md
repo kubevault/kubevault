@@ -1,12 +1,12 @@
 ---
 title: What is KubeVault
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: what-is-kubevault-concepts
     name: What is KubeVault
     parent: concepts
     weight: 20
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: concepts
 ---
 

@@ -1,12 +1,12 @@
 ---
 title: Kubernetes Secret | Vault Unsealer
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: kubernetes-secret-unsealer
     name: Kubernetes Secret
     parent: unsealer-vault-server-crds
     weight: 1
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: concepts
 ---
 

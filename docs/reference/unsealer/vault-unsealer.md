@@ -1,16 +1,16 @@
 ---
 title: Vault-Unsealer
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: vault-unsealer
     name: Vault-Unsealer
     parent: reference-unsealer
     weight: 0
 
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: reference
 aliases:
-  - /docs/0.1.0/reference/unsealer/
+  - /docs/0.2.0/reference/unsealer/
 
 ---
 ## vault-unsealer

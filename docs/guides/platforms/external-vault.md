@@ -1,12 +1,12 @@
 ---
 title: Manage External Vault using Vault Operator
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: external-vault-platform
     name: External Vault
     parent: platform-guides
     weight: 25
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: guides
 ---
 

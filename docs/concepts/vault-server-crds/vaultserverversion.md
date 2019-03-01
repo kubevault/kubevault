@@ -1,12 +1,12 @@
 ---
 title: Vault Server Version | KubeVault Concepts
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: vaultserverversion-vault-server-crds
     name: Vault Server Version
     parent: vault-server-crds-concepts
     weight: 15
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: concepts
 ---
 
@@ -42,7 +42,7 @@ spec:
   exporter:
     image: kubevault/vault-exporter: 0.1.0
   unsealer:
-    image: kubevault/vault-unsealer: 0.1.0
+    image: kubevault/vault-unsealer: 0.2.0
   version: 0.11.1
 ```
 
@@ -73,7 +73,7 @@ spec:
 ```yaml
 spec:
   unsealer:
-    image: kubevault/vault-unsealer: 0.1.0
+    image: kubevault/vault-unsealer: 0.2.0
 ```
 
 ### spec.exporter.image

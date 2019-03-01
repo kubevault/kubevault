@@ -1,12 +1,12 @@
 ---
 title: Vault Policy Management
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: overview-policy-management
     name: Overview
     parent: policy-management-guides
     weight: 10
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: guides
 ---
 

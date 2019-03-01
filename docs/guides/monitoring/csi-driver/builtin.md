@@ -1,12 +1,12 @@
 ---
 title: Monitor Vault CSI Driver using Builtin Prometheus Discovery
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: builtin-prometheus-csi-driver-monitoring
     name: Builtin Prometheus
     parent: csi-driver-monitoring
     weight: 10
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: guides
 ---
 
@@ -36,7 +36,7 @@ Here, we are going to enable monitoring for `operator` metrics.
 <b> Using Helm: </b>
 
 ```console
-$ helm install appscode/csi-vault --name csi-vault --version 0.1.0 --namespace kube-system \
+$ helm install appscode/csi-vault --name csi-vault --version 0.2.0 --namespace kube-system \
   --set monitoring.agent=prometheus.io/builtin \
   --set monitoring.attacher=true \
   --set monitoring.plugin=true \
@@ -47,7 +47,7 @@ $ helm install appscode/csi-vault --name csi-vault --version 0.1.0 --namespace k
 <b> Using Script: </b>
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.1.0/hack/deploy/install.sh | bash -s -- \
+$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.2.0/hack/deploy/install.sh | bash -s -- \
   --monitoring-agent=prometheus.io/builtin \
   --monitor-attacher=true \
   --monitor-plugin=true \
@@ -70,7 +70,7 @@ metadata:
   creationTimestamp: "2018-12-28T06:32:51Z"
   labels:
     app: csi-vault
-    chart: csi-vault-0.1.0
+    chart: csi-vault-0.2.0
     component: csi-vault-attacher
     heritage: Tiller
     release: csi-vault
@@ -107,7 +107,7 @@ metadata:
   creationTimestamp: "2018-12-28T06:32:51Z"
   labels:
     app: csi-vault
-    chart: csi-vault-0.1.0
+    chart: csi-vault-0.2.0
     component: csi-vault-plugin
     heritage: Tiller
     release: csi-vault
@@ -144,7 +144,7 @@ metadata:
   creationTimestamp: "2018-12-28T06:32:51Z"
   labels:
     app: csi-vault
-    chart: csi-vault-0.1.0
+    chart: csi-vault-0.2.0
     component: csi-vault-provisioner
     heritage: Tiller
     release: csi-vault

@@ -1,12 +1,12 @@
 ---
 title: Monitor Vault Server using CoreOS Prometheus Operator
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: coreos-vault-server-monitoring
     name: Prometheus Operator
     parent: vault-server-monitoring
     weight: 15
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: guides
 ---
 

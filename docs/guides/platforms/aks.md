@@ -1,12 +1,12 @@
 ---
 title: Deploy Vault on Azure Kubernetes Service (AKS)
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: aks-platform
     name: AKS
     parent: platform-guides
     weight: 15
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: guides
 ---
 
@@ -124,9 +124,9 @@ metadata:
 spec:
   deprecated: false
   exporter:
-    image: kubevault/vault-exporter:0.1.0
+    image: kubevault/vault-exporter:0.2.0
   unsealer:
-    image: kubevault/vault-unsealer:0.1.0
+    image: kubevault/vault-unsealer:0.2.0
   vault:
     image: vault:1.0.0
   version: 1.0.0

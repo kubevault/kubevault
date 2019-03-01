@@ -1,12 +1,12 @@
 ---
 title: Monitor Vault Operator using Builtin Prometheus Discovery
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: builtin-prometheus-vault-operator-monitoring
     name: Builtin Prometheus
     parent: vault-operator-monitoring
     weight: 20
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: guides
 ---
 
@@ -37,7 +37,7 @@ Here, we are going to enable monitoring for `operator` metrics.
 <b> Using Helm: </b>
 
 ```console
-$ helm install appscode/vault-operator --name vault-operator --version 0.1.0 --namespace kube-system \
+$ helm install appscode/vault-operator --name vault-operator --version 0.2.0 --namespace kube-system \
   --set monitoring.agent=prometheus.io/builtin \
   --set monitoring.operator=true \
   --set monitoring.prometheus.namespace=monitoring
@@ -46,7 +46,7 @@ $ helm install appscode/vault-operator --name vault-operator --version 0.1.0 --n
 <b> Using Script: </b>
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/vault-operator/0.1.0/hack/deploy/install.sh  | bash -s -- \
+$ curl -fsSL https://raw.githubusercontent.com/kubevault/vault-operator/0.2.0/hack/deploy/install.sh  | bash -s -- \
   --monitoring-agent=prometheus.io/builtin \
   --monitor-operator=true \
   --prometheus-namespace=monitoring
@@ -67,7 +67,7 @@ metadata:
   creationTimestamp: "2018-12-26T06:12:51Z"
   labels:
     app: vault-operator
-    chart: vault-operator-0.1.0
+    chart: vault-operator-0.2.0
     heritage: Tiller
     release: vault-operator
   name: vault-operator

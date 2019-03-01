@@ -2,16 +2,16 @@
 title: Table of Contents | Guides
 description: Table of Contents | Guides
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: guides-readme
     name: Readme
     parent: guides
     weight: -1
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: guides
-url: /docs/0.1.0/guides/
+url: /docs/0.2.0/guides/
 aliases:
-  - /docs/0.1.0/guides/README/
+  - /docs/0.2.0/guides/README/
 ---
 
 # Guides

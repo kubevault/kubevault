@@ -2,17 +2,17 @@
 title: Welcome | KubeVault
 description: Welcome to KubeVault
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: readme-kubevault
     name: Readme
     parent: welcome
     weight: -1
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: welcome
-url: /docs/0.1.0/welcome/
+url: /docs/0.2.0/welcome/
 aliases:
-  - /docs/0.1.0/
-  - /docs/0.1.0/README/
+  - /docs/0.2.0/
+  - /docs/0.2.0/README/
 ---
 
 # KubeVault

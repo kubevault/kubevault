@@ -1,12 +1,12 @@
 ---
 title: Mount MongoDB credentials into Kubernetes pod using CSI Driver
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: csi-driver-mongodb
     name: CSI Driver
     parent: mongodb-secret-engines
     weight: 15
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: guides
 ---
 
@@ -232,7 +232,7 @@ So, we can create `StorageClass` now.
         namespace: demo
       annotations:
         storageclass.kubernetes.io/is-default-class: "false"
-      provisioner: com.kubevault.csi.secrets
+      provisioner: secrets.csi.kubevault.com
       parameters:
         ref: demo/vault-app # namespace/AppBinding, we created this in previous step
         engine: DATABASE # vault engine name

@@ -1,12 +1,12 @@
 ---
 title: Azure | Vault Server Storage
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: azure-storage
     name: Azure
     parent: storage-vault-server-crds
     weight: 10
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: concepts
 ---
 

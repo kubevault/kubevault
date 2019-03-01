@@ -1,11 +1,11 @@
 ---
 title: Vault-Unsealer Version
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: vault-unsealer-version
     name: Vault-Unsealer Version
     parent: reference-unsealer
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: reference
 ---
 ## vault-unsealer version

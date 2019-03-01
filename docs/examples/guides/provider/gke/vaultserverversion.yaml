@@ -7,7 +7,7 @@ spec:
   vault:
     image: "vault:1.0.0"
   unsealer:
-    image: "kubevault/vault-unsealer:0.1.0"
+    image: "kubevault/vault-unsealer:0.2.0"
   exporter:
-    image: "kubevault/vault-exporter:0.1.0"
+    image: "kubevault/vault-exporter:0.2.0"
   deprecated: false

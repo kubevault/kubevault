@@ -5,7 +5,7 @@ metadata:
   namespace: demo
   annotations:
     storageclass.kubernetes.io/is-default-class: "false"
-provisioner: com.kubevault.csi.secrets
+provisioner: secrets.csi.kubevault.com
 parameters:
   ref: demo/vaultapp
   engine: PKI

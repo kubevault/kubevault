@@ -1,12 +1,12 @@
 ---
 title: Manage Key/Value Secrets using the Vault Operator
 menu:
-  docs_0.1.0:
+  docs_0.2.0:
     identifier: overview-kv
     name: Overview
     parent: kv-secret-engines
     weight: 10
-menu_name: docs_0.1.0
+menu_name: docs_0.2.0
 section_menu_id: guides
 ---
 
@@ -63,9 +63,9 @@ metadata:
   name: 1.0.0
 spec:
   exporter:
-    image: kubevault/vault-exporter:0.1.0
+    image: kubevault/vault-exporter:0.2.0
   unsealer:
-    image: kubevault/vault-unsealer:0.1.0
+    image: kubevault/vault-unsealer:0.2.0
   vault:
     image: vault:1.0.0
   version: 1.0.0
