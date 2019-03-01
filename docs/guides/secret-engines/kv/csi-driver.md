@@ -50,15 +50,12 @@ There are two ways to configure Vault server. You can use either use `Vault Oper
 
 ### Using Vault Operator
 
-   Follow <a href= "/docs/guides/secret-engines/kv/overview.md"> this</a> tutorial to manage Key/Value secrets with `Vault operator`.
+Follow [this](/docs/guides/secret-engines/kv/overview.md) tutorial to manage Key/Value secrets with `Vault operator`. After successful configuration you should have following resources present in your cluster.
 
-   After successful configuration you should have following resources present in your cluster.
-   <ul>
-     <li>AppBinding: An appbinding with name <code>vault-app</code> in <code>demo</code> namespace</li>
-   </ul>
+- AppBinding: An appbinding with name `vault-app` in `demo` namespace
 
-  </div>
-  <div class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
+</div>
+<div class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
 
 ### Using Vault CLI
 
