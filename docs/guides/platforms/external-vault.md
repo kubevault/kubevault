@@ -77,7 +77,7 @@ Now, we are going to enable and configure [Kubenetes auth](https://www.vaultproj
 
   ```console
   $ vault auth enable kubernetes
-  Success! Enabled kubernetes auth method at: kubernetes/
+  Success! Enabled Kubernetes auth method at: kubernetes/
   ```
 
 - Configure Kubernetes auth in Vault.

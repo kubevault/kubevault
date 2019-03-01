@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # AWSAccessKeyRequest CRD
 
-`AWSAccessKeyRequest` CRD is to request AWS credential from vault. If `AWSAccessKeyRequest` is approved, then Vault operator will issue credential from vault and create kubernetes secret containing credential. The secret name will be specified in `status.secret.name` field.
+`AWSAccessKeyRequest` CRD is to request AWS credential from vault. If `AWSAccessKeyRequest` is approved, then Vault operator will issue credential from vault and create Kubernetes secret containing credential. The secret name will be specified in `status.secret.name` field.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1

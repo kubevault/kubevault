@@ -28,7 +28,7 @@ spec:
 
 ## kubernetesSecret.secretName
 
-`kubernetesSecret.secretName` is a required field that specifies the name of kubernetes secret. If this secret does not exist, then Unsealer will create it. The secret will be created in the same namespace of [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md).
+`kubernetesSecret.secretName` is a required field that specifies the name of Kubernetes secret. If this secret does not exist, then Unsealer will create it. The secret will be created in the same namespace of [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md).
 
 ```yaml
 spec:

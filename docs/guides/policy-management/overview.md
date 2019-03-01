@@ -99,7 +99,7 @@ status:
 
 When Vault is deployed by Vault operator using [VaultServer](docs/concepts/vault-server-crds/vaultserver.md). It does following things:
 
-- It enables and configures the kubernetes auth in Vault.
+- It enables and configures the Kubernetes auth in Vault.
 
 - It also create a policy in Vault that has policy create, update and delete permission. Also create a role in Vault that binds a serviceaccount with policy. This serviceaccount name and role name are specified in AppBinding that is also created by Vault operator.
 

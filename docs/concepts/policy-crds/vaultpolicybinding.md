@@ -62,7 +62,7 @@ spec:
 
 ### spec.authPath
 
-`spec.authPath` is an optional field that specifies the path where kubernetes auth is enabled. Default value is `kubernetes`.
+`spec.authPath` is an optional field that specifies the path where Kubernetes auth is enabled. Default value is `kubernetes`.
 
 ```yaml
 spec:

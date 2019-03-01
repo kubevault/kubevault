@@ -227,13 +227,13 @@ data:
       honor_labels: true
       kubernetes_sd_configs:
       - role: endpoints
-      # kubernetes apiserver serve metrics on a TLS secure endpoints. so, we have to use "https" scheme
+      # Kubernetes apiserver serve metrics on a TLS secure endpoints. so, we have to use "https" scheme
       scheme: https
       # we have to provide certificate to establish tls secure connection
       tls_config:
         ca_file: /etc/prometheus/secret/csi-vault-apiserver-cert/tls.crt
         server_name: csi-vault-attacher.kube-system.svc
-      #  bearer_token_file is required for authorizating prometheus server to kubernetes apiserver
+      #  bearer_token_file is required for authorizating prometheus server to Kubernetes apiserver
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
 
       relabel_configs:
@@ -272,13 +272,13 @@ data:
       honor_labels: true
       kubernetes_sd_configs:
       - role: endpoints
-      # kubernetes apiserver serve metrics on a TLS secure endpoints. so, we have to use "https" scheme
+      # Kubernetes apiserver serve metrics on a TLS secure endpoints. so, we have to use "https" scheme
       scheme: https
       # we have to provide certificate to establish tls secure connection
       tls_config:
         ca_file: /etc/prometheus/secret/csi-vault-apiserver-cert/tls.crt
         server_name: csi-vault-provisioner.kube-system.svc
-      #  bearer_token_file is required for authorizating prometheus server to kubernetes apiserver
+      #  bearer_token_file is required for authorizating prometheus server to Kubernetes apiserver
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
 
       relabel_configs:
@@ -317,13 +317,13 @@ data:
       honor_labels: true
       kubernetes_sd_configs:
       - role: endpoints
-      # kubernetes apiserver serve metrics on a TLS secure endpoints. so, we have to use "https" scheme
+      # Kubernetes apiserver serve metrics on a TLS secure endpoints. so, we have to use "https" scheme
       scheme: https
       # we have to provide certificate to establish tls secure connection
       tls_config:
         ca_file: /etc/prometheus/secret/csi-vault-apiserver-cert/tls.crt
         server_name: csi-vault-plugin.kube-system.svc
-      #  bearer_token_file is required for authorizating prometheus server to kubernetes apiserver
+      #  bearer_token_file is required for authorizating prometheus server to Kubernetes apiserver
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
 
       relabel_configs:

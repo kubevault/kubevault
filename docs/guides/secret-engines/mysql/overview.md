@@ -307,7 +307,7 @@ demo-cred   1m
 Mysql credential will not be issued until it is approved. To approve it, you have to add `Approved` in `status.conditions[].type` field. You can use [KubeVault CLI](https://github.com/kubevault/cli) as [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) to approve or deny DatabaseAccessRequest.
 
 ```console
-# using kubevault cli as kubectl plugin to approve request
+# using KubeVault cli as kubectl plugin to approve request
 $ kubectl vault approve databaseaccessrequest demo-cred -n demo
 approved
 

@@ -147,7 +147,7 @@ To use secret from `KV` engine, you have to do following things.
 
     ```console
     $ vault auth enable kubernetes
-    Success! Enabled kubernetes auth method at: kubernetes/
+    Success! Enabled Kubernetes auth method at: kubernetes/
 
     $ vault write auth/kubernetes/config \
         token_reviewer_jwt="$SA_JWT_TOKEN" \

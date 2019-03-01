@@ -76,7 +76,7 @@ It has following fields:
 
 - `clientConfig.url` : `Optional`. Specifies the location of the app, in standard URL form (`[scheme://]host:port/path`).
 
-- `clientConfig.service`: `Optional`. Specifies the reference of the kubernetes service for this app. It has following fields:
+- `clientConfig.service`: `Optional`. Specifies the reference of the Kubernetes service for this app. It has following fields:
     - `service.scheme` : `Optional`. Specifies which scheme to use, for example: http, https. If specified, then it will applied as prefix in this format: `scheme://`. If not specified, then nothing will be prefixed.
     - `service.name` : `Required`. Specifies the name of the service. This `service.name` and AppBinding's namespace will used to create app DNS.
     - `service.port` : `Required`. Specifies the port that will be exposed by this app.

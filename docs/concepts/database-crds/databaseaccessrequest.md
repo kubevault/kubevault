@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # DatabaseAccessRequest CRD
 
-`DatabaseAccessRequest` CRD is to request database credential from vault. If `DatabaseAccessRequest` is approved, then Vault operator will issue credential from vault and create kubernetes secret containing credential. The secret name will be specified in `status.secret.name` field.
+`DatabaseAccessRequest` CRD is to request database credential from vault. If `DatabaseAccessRequest` is approved, then Vault operator will issue credential from vault and create Kubernetes secret containing credential. The secret name will be specified in `status.secret.name` field.
 
 ```yaml
 apiVersion: authorization.kubedb.com/v1alpha1

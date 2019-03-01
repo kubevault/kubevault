@@ -58,7 +58,7 @@ The `spec` section has following parts:
 
 ```yaml
 spec:
-  nodes: 3 # 3 vault server will be deployed in kubernetes cluster
+  nodes: 3 # 3 vault server will be deployed in Kubernetes cluster
 ```
 
 ### spec.version
@@ -97,7 +97,7 @@ spec:
 
 ### spec.configSource
 
-`spec.configSource` is an optional field that allows the user to provide extra configuration for Vault. This field accepts a [VolumeSource](https://github.com/kubernetes/api/blob/release-1.11/core/v1/types.go#L47). You can use any kubernetes supported volume source such as configMap, secret, azureDisk etc.
+`spec.configSource` is an optional field that allows the user to provide extra configuration for Vault. This field accepts a [VolumeSource](https://github.com/kubernetes/api/blob/release-1.11/core/v1/types.go#L47). You can use any Kubernetes supported volume source such as configMap, secret, azureDisk etc.
 
 > Please note that the config file name needs to be `vault.hcl` for Vault.
 

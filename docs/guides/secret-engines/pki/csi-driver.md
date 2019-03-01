@@ -166,7 +166,7 @@ You can use Vault cli to manually configure an existing Vault server. The Vault 
 
     ```console
     $ vault auth enable kubernetes
-    Success! Enabled kubernetes auth method at: kubernetes/
+    Success! Enabled Kubernetes auth method at: kubernetes/
 
     $ vault write auth/kubernetes/config \
         token_reviewer_jwt="$SA_JWT_TOKEN" \

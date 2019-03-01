@@ -30,7 +30,7 @@ To perform Kubernetes Authentication using ServiceAccount Name,
       parameters:
         serviceAccountName: vault-sa
         policyControllerRole: demo # role name against which login will be done
-        authPath: k8s # kubernetes auth is enabled in this path
+        authPath: k8s # Kubernetes auth is enabled in this path
     ```
 - The specified ServiceAccount must be in AppBinding's namespace.
 
@@ -46,7 +46,7 @@ spec:
   parameters:
     serviceAccountName: vault-sa
     policyControllerRole: demo # role name against which login will be done
-    authPath: k8s # kubernetes auth is enabled in this path
+    authPath: k8s # Kubernetes auth is enabled in this path
   clientConfig:
     service:
       name: vault
@@ -93,7 +93,7 @@ To perform Kubernetes Authentication using ServiceAccount Token Secret,
     - `Secret.Data["token"]` : `Required`. Specifies the serviceaccount token.
 
 - The specified secret annotation can have the following key:
-    - `Secret.Annotations["kubevault.com/auth-path"]` : `Optional`. Specifies the path where kubernetes auth is enabled in Vault. If kubernetes auth is enabled in different path (not `kubernetes`), then you have to specify it.
+    - `Secret.Annotations["kubevault.com/auth-path"]` : `Optional`. Specifies the path where Kubernetes auth is enabled in Vault. If Kubernetes auth is enabled in different path (not `kubernetes`), then you have to specify it.
 
 - The type of the specified token secret must be `kubernetes.io/service-account-token`.
 

@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # In-Memory
 
-In `In-Memory` backend storage, data will be kept in memory. If the kubernetes pod on which vault is running is restarted, then all data will be lost. This is useful for development and experimentation, but use of this backend is highly discouraged in production. Vault documentation for In-Memory storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/in-memory.html).
+In `In-Memory` backend storage, data will be kept in memory. If the Kubernetes pod on which vault is running is restarted, then all data will be lost. This is useful for development and experimentation, but use of this backend is highly discouraged in production. Vault documentation for In-Memory storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/in-memory.html).
 
 ```yaml
 apiVersion: kubevault.com/v1alpha1
