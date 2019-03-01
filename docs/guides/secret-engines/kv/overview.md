@@ -70,7 +70,7 @@ spec:
     image: vault:1.0.0
   version: 1.0.0
 
-$ kubectl apply -f docs/examples/guides/secret-engins/kv/vaultserverversion.yaml 
+$ kubectl apply -f docs/examples/guides/secret-engins/kv/vaultserverversion.yaml
 vaultserverversion.catalog.kubevault.com/1.0.0 created
 
 $ kubectl apply -f examples/guides/secret-engins/kv/vault.yaml
@@ -81,7 +81,7 @@ NAME      NODES     VERSION   STATUS    AGE
 vault     1         1.0.0     Running   1h
 ```
 
-## Key/Value Policy create
+## Create Policy for Key/Value secrets
 
 In this tutorial, we are going to create policy `kv-policy` and policybinding  `kv-role`.
 
@@ -144,3 +144,111 @@ $ kubectl apply -f examples/guides/secret-engins/kv/policy.yaml
 vaultpolicy.policy.kubevault.com/kv-policy created
 vaultpolicybinding.policy.kubevault.com/kv-role created
 ```
+
+## Read/Write secrets into Vault
+
+From your local machine check the Vault server is running with following command:
+
+```console
+$ kubectl get pods -l app=vault -n demo
+NAME                     READY   STATUS    RESTARTS   AGE
+vault-848797ffdf-xdnn8   3/3     Running   0          8m44s
+```
+
+Vault server is running on port 8200. We are going to use [port forwarding](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/) to access Vault server from local machine. Run following commands on a separate terminal,
+
+```console
+$ kubectl port-forward -n vault-848797ffdf-xdnn8 8200
+Forwarding from 127.0.0.1:8200 -> 8200
+Forwarding from [::1]:8200 -> 8200
+```
+
+Now, you can access the Vault server at https://127.0.0.1:8200.
+
+To retrieve `CACert` of Vault server run following command:
+
+```console
+$ kubectl get pods vault-848797ffdf-xdnn8 -n demo -o jsonpath='{.spec.containers[?(@.name=="vault-unsealer")].args}'
+[run --v=3 --secret-shares=4 --secret-threshold=2 --vault.ca-cert=-----BEGIN CERTIFICATE-----
+MIICuDCCAaCgAwIBAgIBADANBgkqhkiG9w0BAQsFADANMQswCQYDVQQDEwJjYTAe
+Fw0xOTAzMDEwNTI1MzlaFw0yOTAyMjYwNTI1MzlaMA0xCzAJBgNVBAMTAmNhMIIB
+IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsd+CM6/GpA13afJpIjnL+2B7
+kjP6EnkIkrOaVm2tSf61r4HknjZYmENLvuiByCAwUIcWa+qa6LXgAQ+bV2EYOpyA
+uU1oJAphR2ARJsAjrzKDPtOLLu00/gCY6fJ4ueelwV2HlPIqjKTKZQHm6/yFCbp3
+mnTmGSf0kYGefcuf1BfZsA3wWKy9uetom8OHkUe+ufWGcbSVEVuGTV5jfbVZ/uo+
+AiNuR+qc4N1hIIVdVJxc98I2FTiII1vMYk7GjwubDcudxXzuKAYbJpY8No89Y8OT
+YDCl5YCILZyssMlRSa31S65nMJsZjkjKRtxMqIDCcpWcCO5Ij/qfoUexqNgQZQID
+AQABoyMwITAOBgNVHQ8BAf8EBAMCAqQwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG
+9w0BAQsFAAOCAQEAkBidD4V8vWHwnBip4psyMLdHG08H1KzcsDOfZ1n2q957Pfb9
+f2A0aq6My0/TdSEQaEHeOSruQonQDvnUOSZ0JDhjf5aKssggwzbHCmS6JqVEm+eb
+RW0OHJepJj382umj5qP/dUKBRM+cM56S1aheVw+H9cR4ltX2kRw98nPi7Ilwbd8a
+pjrlb2brUszDjaR0DGVOoeiSPFw7qv1EQA8xhu7a+K6woKwwd8a/VrRgfDQkeTLH
+R1RqEYe1Uk5t2sGIQ2q1ymWQfl2218P4Hh1TpAF4gzDrc5t3VOThy3ZLS9i2/XIu
+89cKx7f8pb6/ybfCARI96S+WcNbZHv+SKEL2MQ==
+-----END CERTIFICATE-----
+ --auth.k8s-host=https://10.96.0.1:443 ...
+```
+
+From the output grep `vault.ca-cert` key and store the value int `ca.crt` file.
+
+We need to configure following environment variable.
+
+```console
+export VAULT_ADDR=https://127.0.0.1:8200
+export VAULT_TOKEN=$(kubectl get secrets -n demo vault-keys -o jsonpath="{.data.vault-root-token}" | base64 --decode; echo)
+
+export VAULT_CACERT=ca.crt #Put the path where you stored ca.crt
+
+$ kubectl get secrets -n demo vault-vault-tls -o jsonpath="{.data.tls\.crt}" | base64 -d>tls.crt
+export VAULT_CLIENT_CERT=tls.crt
+
+$ kubectl get secrets -n demo vault-vault-tls -o jsonpath="{.data.tls\.key}" | base64 -d>tls.key
+export VAULT_CLIENT_KEY=tls.key
+
+```
+
+Check whether Vault server can be accessed
+
+```console
+$ vault status
+Key             Value
+---             -----
+Seal Type       shamir
+Sealed          false
+Total Shares    4
+Threshold       2
+Version         1.0.0
+Cluster Name    vault-cluster-1bfbb939
+Cluster ID      3db2acdf-28b6-8afb-ed52-fed6cf55379d
+HA Enabled      false
+```
+
+To enable `Key/Value` engine, run:
+
+```console
+$ vault secrets enable -version=1 kv
+Success! Enabled the kv secrets engine at: kv/
+```
+
+#### Write arbitary data
+
+To write secrets data into Vault run following command:
+
+```console
+$ vault kv put kv/my-secret my-value=s3cr3t
+Success! Data written to: kv/my-secret
+```
+
+#### Read arbitary data
+
+To read secrets data from Vault run following command:
+
+```console
+$ vault kv get kv/my-secret
+====== Data ======
+Key         Value
+---         -----
+my-value    s3cr3t
+```
+
+To learn more usages of Vault `Key/Vaule` secret engine click [this](https://www.vaultproject.io/docs/secrets/kv/kv-v1.html#usage).
