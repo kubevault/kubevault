@@ -59,19 +59,18 @@ $ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.2.0/hack/d
   --servicemonitor-label=k8s-app=prometheus
 ```
 
-This will create three `ServiceMonitor` crds with name `csi-vault-attacher-servicemonitor`, `csi-vault-plugin-servicemonitor` and `csi-vault-provisioner-servicemonitor`  in `monitoring` namespace for monitoring endpoints of `csi-vault-attacher`, `csi-vault-plugin` and `csi-vault-provisioner` services. These ServiceMonitor will have label `k8s-app: prometheus` provided by `--servicemonitor-label` flag. This label will be used by Prometheus crd to select this ServiceMonitor.
+This will create two `ServiceMonitor` crds with name `csi-vault-controller-servicemonitor`, `csi-vault-node-servicemonitor` in `monitoring` namespace for monitoring endpoints of corresponding services. These ServiceMonitor will have label `k8s-app: prometheus` provided by `--servicemonitor-label` flag. This label will be used by Prometheus crd to select this ServiceMonitor.
 
 Let's check the ServiceMonitor crd using following command,
 
 ```yaml
 $ kubectl get servicemonitors -n monitoring
-NAME                                   AGE
-csi-vault-attacher-servicemonitor      4m
-csi-vault-plugin-servicemonitor        4m
-csi-vault-provisioner-servicemonitor   4m
+NAME                                  AGE
+csi-vault-controller-servicemonitor   18h
+csi-vault-node-servicemonitor         18h
 ```
 
-Vault CSI driver exports driver metrics via TLS secured `api` endpoint. So, Prometheus server need to provide certificate while scrapping metrics from this endpoint. Vault CSI driver has created a secret named `csi-vault-apiserver-cert` with this certificate in `monitoring` namespace as we have specified that we are going to deploy Prometheus in that namespace through `--prometheus-namespace` flag. We have to specify this secret in Prometheus crd through `spec.secrets` field. Prometheus operator will mount this secret at `/etc/prometheus/secrets/csi-vault-apiserver-cert` directory of respective Prometheus pod. So, we need to configure `tlsConfig` field to use that certificate. Here, `caFile` indicates the certificate to use and serverName is used to verify hostname. In our case, the certificate is valid for hostname server, `csi-vault-attacher.kube-system.svc`, `csi-vault-plugin.kube-system.svc` and `csi-vault-provisioner.kube-system.svc`.
+Vault CSI driver exports driver metrics via TLS secured `api` endpoint. So, Prometheus server need to provide certificate while scrapping metrics from this endpoint. Vault CSI driver has created a secret named `csi-vault-apiserver-cert` with this certificate in `monitoring` namespace as we have specified that we are going to deploy Prometheus in that namespace through `--prometheus-namespace` flag. We have to specify this secret in Prometheus crd through `spec.secrets` field. Prometheus operator will mount this secret at `/etc/prometheus/secrets/csi-vault-apiserver-cert` directory of respective Prometheus pod. So, we need to configure `tlsConfig` field to use that certificate. Here, `caFile` indicates the certificate to use and serverName is used to verify hostname. In our case, the certificate is valid for hostname server, `csi-vault-controller.kube-system.svc`, `csi-vault-node.kube-system.svc`.
 
 Let's check secret csi-vault-apiserver-cert has been created in monitoring namespace.
 

@@ -11,7 +11,7 @@ data:
       scrape_interval: 5s
       evaluation_interval: 5s
     scrape_configs:
-    - job_name: 'csi-vault-attacher'
+    - job_name: 'csi-vault-controller'
       honor_labels: true
       kubernetes_sd_configs:
       - role: endpoints
@@ -20,7 +20,7 @@ data:
       # we have to provide certificate to establish tls secure connection
       tls_config:
         ca_file: /etc/prometheus/secret/csi-vault-apiserver-cert/tls.crt
-        server_name: csi-vault-attacher.kube-system.svc
+        server_name: csi-vault-controller.kube-system.svc
       #  bearer_token_file is required for authorizating prometheus server to Kubernetes apiserver
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
 
@@ -32,7 +32,7 @@ data:
         action: keep
       - source_labels: [__meta_kubernetes_service_label_component]
         separator: ;
-        regex: attacher
+        regex: controller
         replacement: $1
         action: keep
       - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
@@ -43,7 +43,7 @@ data:
         action: replace
       - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
         action: keep
-        regex: kube-system;csi-vault-attacher;api
+        regex: kube-system;csi-vault-controller;api
       - separator: ;
         regex: (.*)
         target_label: endpoint
@@ -56,7 +56,7 @@ data:
         replacement: ${1}
         action: replace
 
-    - job_name: 'csi-vault-provisioner'
+    - job_name: 'csi-vault-node'
       honor_labels: true
       kubernetes_sd_configs:
       - role: endpoints
@@ -65,7 +65,7 @@ data:
       # we have to provide certificate to establish tls secure connection
       tls_config:
         ca_file: /etc/prometheus/secret/csi-vault-apiserver-cert/tls.crt
-        server_name: csi-vault-provisioner.kube-system.svc
+        server_name: csi-vault-node.kube-system.svc
       #  bearer_token_file is required for authorizating prometheus server to Kubernetes apiserver
       bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
 
@@ -77,57 +77,12 @@ data:
         action: keep
       - source_labels: [__meta_kubernetes_service_label_component]
         separator: ;
-        regex: provisioner
+        regex: node
         replacement: $1
         action: keep
       - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
         action: keep
-        regex: kube-system;csi-vault-provisioner;api
-      - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
-        separator: ;
-        regex: Node;(.*)
-        target_label: node
-        replacement: ${1}
-        action: replace
-      - source_labels: [__meta_kubernetes_service_name]
-        separator: ;
-        regex: (.*)
-        target_label: job
-        replacement: ${1}
-        action: replace
-      - separator: ;
-        regex: (.*)
-        target_label: endpoint
-        replacement: api
-        action: replace
-
-    - job_name: 'csi-vault-plugin'
-      honor_labels: true
-      kubernetes_sd_configs:
-      - role: endpoints
-      # Kubernetes apiserver serve metrics on a TLS secure endpoints. so, we have to use "https" scheme
-      scheme: https
-      # we have to provide certificate to establish tls secure connection
-      tls_config:
-        ca_file: /etc/prometheus/secret/csi-vault-apiserver-cert/tls.crt
-        server_name: csi-vault-plugin.kube-system.svc
-      #  bearer_token_file is required for authorizating prometheus server to Kubernetes apiserver
-      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-
-      relabel_configs:
-      - source_labels: [__meta_kubernetes_service_label_app]
-        separator: ;
-        regex: csi-vault
-        replacement: $1
-        action: keep
-      - source_labels: [__meta_kubernetes_service_label_component]
-        separator: ;
-        regex: plugin
-        replacement: $1
-        action: keep
-      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
-        action: keep
-        regex: kube-system;csi-vault-plugin;api
+        regex: kube-system;csi-vault-node;api
       - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
         separator: ;
         regex: Node;(.*)
@@ -145,6 +100,3 @@ data:
         target_label: endpoint
         replacement: api
         action: replace
-  
-
-
