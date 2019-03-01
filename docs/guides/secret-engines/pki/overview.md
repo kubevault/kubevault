@@ -63,7 +63,7 @@ metadata:
   name: 1.0.0
 spec:
   exporter:
-    image: kubevault/vault-exporter:0.2.0
+    image: kubevault/vault-exporter:0.1.0
   unsealer:
     image: kubevault/vault-unsealer:0.2.0
   vault:
