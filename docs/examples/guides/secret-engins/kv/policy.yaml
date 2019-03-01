@@ -1,0 +1,39 @@
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicy
+metadata:
+  name: kv-policy
+  namespace: demo
+spec:
+  vaultAppRef:
+    name: vault
+    namespace: demo
+  policy: |
+    path "sys/mounts" {
+      capabilities = ["read", "list"]
+    }
+
+    path "sys/mounts/*" {
+      capabilities = ["create", "read", "update", "delete"]
+    }
+
+    path "kv/*" {
+        capabilities = ["read"]
+    }
+
+    path "sys/leases/revoke/*" {
+        capabilities = ["update"]
+    }
+---
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicyBinding
+metadata:
+  name: kv-role
+  namespace: demo
+spec:
+  roleName: "kv-role"
+  policies : ["kv-policy"]
+  serviceAccountNames: ["demo-sa"]
+  serviceAccountNamespaces: ["demo"]
+  TTL: "1000"
+  maxTTL: "2000"
+  Period: "1000"

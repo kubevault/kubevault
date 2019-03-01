@@ -1,5 +1,5 @@
 ---
-title: Manage PKI (certificates) using the Vault CSI Driver
+title: Mount PKI(certificates) Secrets into Kubernetse pod using CSI Driver
 menu:
   docs_0.1.0:
     identifier: csi-driver-pki
@@ -12,7 +12,7 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Manage PKI (certificates) using the Vault CSI Driver
+# Mount PKI(certificates) Secrets into Kubernetse pod using CSI Driver
 
 ## Before you Begin
 
@@ -25,28 +25,68 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
->Note: YAML files used in this tutorial stored in [docs/examples/csi-driver/pki](/docs/examples/csi-driver/pki) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs).
-
+>Note: YAML files used in this tutorial stored in [docs/examples/csi-driver/pki](https://github.com/kubevault/docs/tree/master/docs/examples/csi-driver/pki) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs).
 
 ## Configure Vault
 
-To use secret from `PKI` secret engine, you have to do following things.
+The following steps are required to retrieve secrets from `PKI` secrets engine using `Vault server` into a Kubernetes pod.
+
+- **Vault server:** used to provision and manage PKI(certificates) secrets
+- **Appbinding:** required to connect `CSI driver` with Vault server
+- **Role:** using this role `CSI driver` can access credentials from Vault server
+
+There are two ways to configure Vault server. You can use either use `Vault Operator` or use `vault` cli to manually configure a Vault server.
+
+<ul class="nav nav-tabs" id="conceptsTab" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" id="operator-tab" data-toggle="tab" href="#operator" role="tab" aria-controls="operator" aria-selected="true">Using Vault Operator</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="csi-driver-tab" data-toggle="tab" href="#csi-driver" role="tab" aria-controls="csi-driver" aria-selected="false">Using Vault CLI</a>
+  </li>
+</ul>
+<div class="tab-content" id="conceptsTabContent">
+  <div class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
+
+### Using Vault Operator
+
+   Follow <a href= "/docs/guides/secret-engines/pki/overview.md"> this</a> tutorial to manage PKI(certificates) secrets with `Vault operator`.
+
+   After successful configuration you should have following resources present in your cluster.
+   <ul>
+     <li>AppBinding: An appbinding with name <code>vault-app</code> in <code>demo</code> namespace</li>
+   </ul>
+
+  </div>
+  <div class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
+
+### Using Vault CLI
+
+You can use Vault cli to manually configure an existing Vault server. The Vault server may be running inside a Kubernetes cluster or running outside a Kubernetes cluster. If you don't have a Vault server, you can deploy one by running the following command:
+
+   ```console
+    $ kubectl apply -f https://raw.githubusercontent.com/kubevault/docs/master/docs/examples/csi-driver/vault-install.yaml
+    service/vault created
+    statefulset.apps/vault created
+   ```
+
+  To use secret from `PKI` secret engine, you have to do following things.
 
 1. **Enable `PKI` Engine:** To enable `PKI` secret engine run the following command.
 
-   ```console
-   $ vault secrets enable pki
-   Success! Enabled the pki secrets engine at: pki/
+    ```console
+    $ vault secrets enable pki
+    Success! Enabled the pki secrets engine at: pki/
    ```
 
 2. **Create Engine Policy:**  To issue certificate from engine, we need to create a policy with `read`, `create`, `update`, `delete` capability. Create a `policy.hcl` file and write the following content:
 
-   ```yaml
-   # capability of get secret
+    ```yaml
+    # capability of get secret
     path "pki/*" {
         capabilities = ["read", "create", "update", "delete"]
     }
-   ```
+    ```
 
     Write this policy into vault naming `test-policy` with following command:
 
@@ -57,7 +97,7 @@ To use secret from `PKI` secret engine, you have to do following things.
 
 3. **Configure CA certificate and Private key:** According to Vault documentation, Vault can accept an existing key pair, or it can generate its own self-signed root. You can learn more from [here](https://www.vaultproject.io/docs/secrets/pki/index.html#setup). In this documentation we generate self-signed root.
 
-   ```console
+    ```console
     $ vault write pki/root/generate/internal \
         common_name=my-website.com \
         ttl=8760h
@@ -68,19 +108,19 @@ To use secret from `PKI` secret engine, you have to do following things.
     expiration       1536807433
     issuing_ca       -----BEGIN CERTIFICATE-----...
     serial_number    7c:f1:fb:2c:6e:4d:99:0e:82:1b:08:0a:81:ed:61:3e:1d:fa:f5:29
-   ```
+    ```
 
 4. **Write a PKI role:** We need to configure a role that maps a name in vault to a procedure for generating certificate. When users of machines generate credentials, they are generated agains this role:
 
-   ```console
-   $ vault write pki/roles/my-pki-role \
+    ```console
+    $ vault write pki/roles/pki-role \
         allowed_domains=my-website.com \
         allow_subdomains=true \
         max_ttl=72h
-   Success! Data written to: pki/roles/my-pki-role
-   ```
+    Success! Data written to: pki/roles/pki-role
+    ```
 
-    Here, `my-pki-role` will be treated as secret name on storage class.
+    Here, `pki-role` will be treated as secret name on storage class.
 
 ## Configure Cluster
 
@@ -178,7 +218,16 @@ To use secret from `PKI` secret engine, you have to do following things.
       policyControllerRole: pki-cred-role # we created this in previous step
     ```
 
-4. **Create StorageClass:** Create `storage-class.yaml` file with following content, then run `kubectl apply -f storage-class.yaml`
+  </div>
+</div>
+
+## Mount secrets into a Kubernetes pod
+
+After configuring `Vault server`, now we have ` vault-app` AppBinding in `demo` namespace.
+
+So, we can create `StorageClass` now.
+
+**Create StorageClass:** Create `storage-class.yaml` file with following content, then run `kubectl apply -f storage-class.yaml`
 
     ```yaml
     kind: StorageClass
@@ -190,9 +239,9 @@ To use secret from `PKI` secret engine, you have to do following things.
       storageclass.kubernetes.io/is-default-class: "false"
     provisioner: secrets.csi.kubevault.com # For Kubernetes 1.12.x(csi-vault:0.1.0) use -> com.kubevault.csi.secrets
     parameters:
-      ref: demo/vaultapp # namespace/AppBinding, we created this in previous step
+      ref: demo/vault-app # namespace/AppBinding, we created this in previous step
       engine: PKI # vault engine name
-      role: my-pki-role # role name on vault which you want get access
+      role: pki-role # role name on vault which you want get access
       path: pki # specify the secret engine path, default is pki
     ```
    > N.B: If you use csi-vault:0.1.0, use `com.kubevault.csi.secrets` as provisioner name.

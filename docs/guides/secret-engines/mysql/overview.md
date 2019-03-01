@@ -150,16 +150,14 @@ $ kubectl apply -f examples/guides/secret-engins/mysql/vault-app.yaml
 appbinding.appcatalog.appscode.com/vault-app created
 ```
 
-`demo-sa` serviceaccount in the above AppBinding has the following permission in Vault.
-
-To create `demo-sa` serviceaccount run the following command:
+You need to create `demo-sa` serviceaccount by running following command:
 
 ```console
 $ kubectl create serviceaccount -n demo demo-sa
 serviceaccount/demo-sa created
 ```
 
-Now you need to create policy with following capabilities, which will be assigned to a role.
+`demo-sa` serviceaccount in the above AppBinding need to have the policy with following capabilities in Vault.
 
 ```hcl
 path "sys/mounts" {
@@ -189,7 +187,7 @@ path "sys/leases/revoke/*" {
 
 You can manage policy in Vault using Vault operator, see [here](/docs/guides/policy-management/policy-management).
 
-To create above policy run following command
+To create policy with above capabilities run following command
 
 ```console
 $ kubectl apply -f examples/guides/secret-engins/mysql/policy.yaml

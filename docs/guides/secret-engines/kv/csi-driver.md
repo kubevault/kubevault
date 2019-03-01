@@ -1,5 +1,5 @@
 ---
-title: Manage Key/Value Secrets using the Vault CSI Driver
+title: Mount Key/Value Secrets into Kubernetes pod using CSI Driver
 menu:
   docs_0.1.0:
     identifier: csi-driver-kv
@@ -12,7 +12,7 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Manage Key/Value Secrets using the Vault CSI Driver
+# Mount Key/Value Secrets into Kubernetes pod using CSI Driver
 
 ## Before you Begin
 
@@ -22,30 +22,71 @@ To keep things isolated, this tutorial uses a separate namespace called `demo` t
 
 ```console
 $ kubectl create ns demo
-namespace/demo created
+namespace "demo" created
 ```
 
->Note: YAML files used in this tutorial stored in [docs/examples/csi-driver/kv](/docs/examples/csi-driver/kv) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs).
+>Note: YAML files used in this tutorial stored in [docs/examples/csi-driver/kv](https://github.com/kubevault/docs/tree/master/docs/examples/csi-driver/kv) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
 
 ## Configure Vault
+
+The following steps are required to retrieve secrets from `Key/Value` secrets engine using `Vault server` into a Kubernetes pod.
+
+- **Vault server:** used to provision and manager Key/Value secrets
+- **Appbinding:** required to connect `CSI driver` with Vault server
+- **Role:** using this role `CSI driver` can access credentials from Vault server
+
+There are two ways to configure Vault server. You can use either use `Vault Operator` or use `vault` cli to manually configure a Vault server.
+
+<ul class="nav nav-tabs" id="conceptsTab" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" id="operator-tab" data-toggle="tab" href="#operator" role="tab" aria-controls="operator" aria-selected="true">Using Vault Operator</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="csi-driver-tab" data-toggle="tab" href="#csi-driver" role="tab" aria-controls="csi-driver" aria-selected="false">Using Vault CLI</a>
+  </li>
+</ul>
+<div class="tab-content" id="conceptsTabContent">
+  <div class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
+
+### Using Vault Operator
+
+   Follow <a href= "/docs/guides/secret-engines/kv/overview.md"> this</a> tutorial to manage Key/Value secrets with `Vault operator`.
+
+   After successful configuration you should have following resources present in your cluster.
+   <ul>
+     <li>AppBinding: An appbinding with name <code>vault-app</code> in <code>demo</code> namespace</li>
+   </ul>
+
+  </div>
+  <div class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
+
+### Using Vault CLI
+
+You can use Vault cli to manually configure an existing Vault server. The Vault server may be running inside a Kubernetes cluster or running outside a Kubernetes cluster. If you don't have a Vault server, you can deploy one by running the following command:
+
+    ```console
+    $ kubectl apply -f https://raw.githubusercontent.com/kubevault/docs/master/docs/examples/csi-driver/vault-install.yaml
+    service/vault created
+    statefulset.apps/vault created
+    ```
 
 To use secret from `KV` engine, you have to do following things.
 
 1. **Enable `KV` Engine:** To enable `KV` secret engine run the following command.
 
-   ```console
-   $ vault secrets enable -version=1 kv
-   Success! Enabled the kv secrets engine at: kv/
-   ```
+    ```console
+    $ vault secrets enable -version=1 kv
+    Success! Enabled the kv secrets engine at: kv/
+    ```
 
 2. **Create Engine Policy:**  To read secret from engine, we need to create a policy with `read` capability. Create a `policy.hcl` file and write the following content:
 
-   ```yaml
-   # capability of get secret
+    ```yaml
+    # capability of get secret
     path "kv/*" {
         capabilities = ["read"]
     }
-   ```
+    ```
 
     Write this policy into vault naming `test-policy` with following command:
 
@@ -53,6 +94,7 @@ To use secret from `KV` engine, you have to do following things.
     $ vault policy write test-policy policy.hcl
     Success! Uploaded policy: test-policy
     ```
+
 3. **Write Secret on Vault:** Create a secret on vault by running:
 
     ```console
@@ -64,27 +106,28 @@ To use secret from `KV` engine, you have to do following things.
 
 1. **Create Service Account:** Create `service.yaml` file with following content:
 
-    ```yaml
-    apiVersion: rbac.authorization.k8s.io/v1beta1
-    kind: ClusterRoleBinding
-    metadata:
-      name: role-tokenreview-binding
-      namespace: demo
-    roleRef:
-      apiGroup: rbac.authorization.k8s.io
-      kind: ClusterRole
-      name: system:auth-delegator
-    subjects:
-    - kind: ServiceAccount
-      name: kv-vault
-      namespace: demo
-    ---
-    apiVersion: v1
-    kind: ServiceAccount
-    metadata:
-      name: kv-vault
-      namespace: demo
-    ```
+      ```yaml
+        apiVersion: rbac.authorization.k8s.io/v1beta1
+        kind: ClusterRoleBinding
+        metadata:
+          name: role-tokenreview-binding
+          namespace: demo
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: system:auth-delegator
+        subjects:
+        - kind: ServiceAccount
+          name: kv-vault
+          namespace: demo
+        ---
+        apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: kv-vault
+          namespace: demo
+      ```
+
    After that, run `kubectl apply -f service.yaml` to create a service account.
 
 2. **Enable Kubernetes Auth:**  To enable Kubernetes auth backend, we need to extract the token reviewer JWT, Kubernetes CA certificate and Kubernetes host information.
@@ -130,7 +173,7 @@ To use secret from `KV` engine, you have to do following things.
     appbindings.appcatalog.appscode.com           2018-12-12T06:09:34Z
     ```
 
-   If you don't see that CRD, you can register it via the following command:
+    If you don't see that CRD, you can register it via the following command:
 
     ```console
     kubectl apply -f https://raw.githubusercontent.com/kmodules/custom-resources/master/api/crds/appbinding.yaml
@@ -143,7 +186,7 @@ To use secret from `KV` engine, you have to do following things.
     apiVersion: appcatalog.appscode.com/v1alpha1
     kind: AppBinding
     metadata:
-      name: vaultapp
+      name: vault-app
       namespace: demo
     spec:
     clientConfig:
@@ -156,7 +199,16 @@ To use secret from `KV` engine, you have to do following things.
       policyControllerRole: kvrole # we created this in previous step
     ```
 
-4. **Create StorageClass:** Create `storage-class.yaml` file with following content, then run `kubectl apply -f storage-class.yaml`
+  </div>
+</div>
+
+## Mount secrets into a Kubernetes pod
+
+After configuring `Vault server`, now we have ` vault-app` AppBinding in `demo` namespace.
+
+So, we can create `StorageClass` now.
+
+**Create StorageClass:** Create `storage-class.yaml` file with following content, then run `kubectl apply -f storage-class.yaml`
 
     ```yaml
     kind: StorageClass
@@ -168,7 +220,7 @@ To use secret from `KV` engine, you have to do following things.
       storageclass.kubernetes.io/is-default-class: "false"
     provisioner: secrets.csi.kubevault.com # For Kubernetes 1.12.x(csi-vault:0.1.0) use -> `com.kubevault.csi.secrets`
     parameters:
-      ref: demo/vaultapp # namespace/AppBinding, we created this in previous step
+      ref: demo/vault-app # namespace/AppBinding, we created this in previous step
       engine: KV # vault engine name
       secret: my-secret # secret name on vault which you want get access
       path: kv # specify the secret engine path, default is kv
