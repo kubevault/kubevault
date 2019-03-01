@@ -32,9 +32,6 @@ Vault CSI driver can be installed via a script or as a Helm chart.
 To install Vault CSI driver in your Kubernetes cluster, run the following command:
 
 ```console
-# Kubernetes 1.13+
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.2.0/hack/deploy/install.sh | bash
-
 # Kubernetes 1.12.x (CSI driver spec 0.3.0)
 $ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.1.0/hack/deploy/install.sh | bash
 ```
@@ -44,10 +41,10 @@ After successful installation, you should have `csi-vault-***` pod running in th
 
 #### Customizing Installer
 
-The installer script and associated yaml files can be found in the [/hack/deploy](https://github.com/kubevault/csi-driver/tree/0.2.0/hack/deploy) folder. You can see the full list of flags available to installer using `-h` flag.
+The installer script and associated yaml files can be found in the [/hack/deploy](https://github.com/kubevault/csi-driver/tree/0.1.0/hack/deploy) folder. You can see the full list of flags available to installer using `-h` flag.
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.2.0/hack/deploy/install.sh | bash -s -- -h
+$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.1.0/hack/deploy/install.sh | bash -s -- -h
 install.sh -install Vault csi driver
 
 install.sh [options]
@@ -92,10 +89,7 @@ $ helm repo add appscode https://charts.appscode.com/stable/
 $ helm repo update
 $ helm search appscode/csi-vault
 NAME              	CHART VERSION	APP VERSION	DESCRIPTION
-appscode/csi-vault	0.2.0        	0.2.0      	HashiCorp Vault CSI Driver for Kubernetes
-
-# Kubernetes 1.13+
-$ helm install appscode/csi-vault --name csi-vault --version 0.2.0 --namespace kube-system
+appscode/csi-vault	0.1.0        	0.1.0      	HashiCorp Vault CSI Driver for Kubernetes
 
 # Kubernetes 1.12.x (CSI driver spec 0.3.0)
 $ helm install appscode/csi-vault --name csi-vault --version 0.1.0 --namespace kube-system

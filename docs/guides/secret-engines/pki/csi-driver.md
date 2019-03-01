@@ -237,15 +237,14 @@ So, we can create `StorageClass` now.
       namespace: demo
     annotations:
       storageclass.kubernetes.io/is-default-class: "false"
-    provisioner: secrets.csi.kubevault.com # For Kubernetes 1.12.x(csi-vault:0.1.0) use -> com.kubevault.csi.secrets
+    provisioner: com.kubevault.csi.secrets
     parameters:
       ref: demo/vault-app # namespace/AppBinding, we created this in previous step
       engine: PKI # vault engine name
       role: pki-role # role name on vault which you want get access
       path: pki # specify the secret engine path, default is pki
     ```
-   > N.B: If you use csi-vault:0.1.0, use `com.kubevault.csi.secrets` as provisioner name.
-   
+
    Here, you can pass the following parameters optionally to issue the certificate
 
     ```yaml
