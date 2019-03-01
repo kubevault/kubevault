@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.2.0](https://github.com/kubevault/operator/tree/0.2.0) (2019-03-01)
+[Full Changelog](https://github.com/kubevault/operator/compare/0.1.0...0.2.0)
+
+**Merged pull requests:**
+
+- Prepare for 0.2.0 release [\#174](https://github.com/kubevault/operator/pull/174) ([tamalsaha](https://github.com/tamalsaha))
+- Update Kubernetes client libraries to 1.13.0 [\#173](https://github.com/kubevault/operator/pull/173) ([tamalsaha](https://github.com/tamalsaha))
+
 ## [0.1.0](https://github.com/kubevault/operator/tree/0.1.0) (2019-02-28)
 **Merged pull requests:**
 
