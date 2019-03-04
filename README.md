@@ -8,7 +8,7 @@
 This repository documents various aspects of KubeVault poject.
 
 ## Installation
-To install Vault operator & CSI driver, please follow the guide [here](https://github.com/kubevault/docs/blob/master/docs/setup/install.md).
+To install Vault operator & CSI driver, please follow the guide [here](https://github.com/kubevault/docs/blob/master/docs/setup/README.md).
 
 ## Using KubeVault
 Want to learn how to use KubeVault? Please start [here](https://github.com/kubevault/docs/blob/master/docs/guides/README.md).
