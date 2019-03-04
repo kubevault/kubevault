@@ -12,7 +12,7 @@
 Kubernetes [operator](https://coreos.com/blog/introducing-operators.html) for HashiCorp [Vault project](https://www.vaultproject.io/). This operator can be used to deploy Vault on a Kubernetes cluster, manage policies and manage secret engines.
 
 ## Installation
-To install Vault operator & CSI driver, please follow the guide [here](https://github.com/kubevault/docs/blob/master/docs/setup/install.md).
+To install Vault operator & CSI driver, please follow the guide [here](https://github.com/kubevault/docs/blob/master/docs/setup/README.md).
 
 ## Using KubeVault
 Want to learn how to use KubeVault? Please start [here](https://github.com/kubevault/docs/blob/master/docs/guides/README.md).
