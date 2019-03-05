@@ -46,19 +46,19 @@ There are two ways to configure Vault server. You can use either use `Vault Oper
   </li>
 </ul>
 <div class="tab-content" id="conceptsTabContent">
-  <div class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
+  <details open class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
 
-### Using Vault Operator
+<summary>Using Vault Operator</summary>
 
 Follow [this](/docs/guides/secret-engines/mysql/overview.md) tutorial to manage MySql/MariaDB credentials with `Vault operator`. After successful configuration you should have following resources present in your cluster.
 
 - AppBinding: An appbinding with name `vault-app` in `demo` namespace
 - Role: A role named `k8s.-.demo.demo-role` which have access to read database credential
 
-</div>
-<div class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
+</details>
+<details class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
 
-### Using Vault CLI
+<summary>Using Vault CLI</summary>
 
 You can use Vault cli to manually configure an existing Vault server. The Vault server may be running inside a Kubernetes cluster or running outside a Kubernetes cluster. If you don't have a Vault server, you can deploy one by running the following command:
 
@@ -215,7 +215,7 @@ Here, `k8s.-.demo.demo-role` will be treated as secret name on storage class.
 
     ```
 
-  </div>
+  </details>
 </div>
 
 ## Mount secrets into a Kubernetes pod

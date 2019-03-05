@@ -46,18 +46,18 @@ There are two ways to configure Vault server. You can use either use `Vault Oper
   </li>
 </ul>
 <div class="tab-content" id="conceptsTabContent">
-  <div class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
+  <details open class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
 
-### Using Vault Operator
+<summary>Using Vault Operator</summary>
 
 Follow [this](/docs/guides/secret-engines/kv/overview.md) tutorial to manage Key/Value secrets with `Vault operator`. After successful configuration you should have following resources present in your cluster.
 
 - AppBinding: An appbinding with name `vault-app` in `demo` namespace
 
-</div>
-<div class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
+</details>
+<details class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
 
-### Using Vault CLI
+<summary>Using Vault CLI</summary>
 
 You can use Vault cli to manually configure an existing Vault server. The Vault server may be running inside a Kubernetes cluster or running outside a Kubernetes cluster. If you don't have a Vault server, you can deploy one by running the following command:
 
@@ -196,7 +196,7 @@ To use secret from `KV` engine, you have to do following things.
       policyControllerRole: kvrole # we created this in previous step
     ```
 
-  </div>
+  </details>
 </div>
 
 ## Mount secrets into a Kubernetes pod
