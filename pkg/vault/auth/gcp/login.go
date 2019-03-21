@@ -22,7 +22,7 @@ import (
 
 type auth struct {
 	vClient   *vaultapi.Client
-	SignedJwt string
+	signedJwt string
 	role      string
 	path      string
 }
@@ -94,7 +94,7 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 
 	return &auth{
 		vClient:   vc,
-		SignedJwt: resp.SignedJwt,
+		signedJwt: resp.SignedJwt,
 		role:      cf.PolicyControllerRole,
 		path:      authPath,
 	}, nil
@@ -150,7 +150,7 @@ func (a *auth) Login() (string, error) {
 
 	payload := make(map[string]interface{})
 	payload["role"] = a.role
-	payload["jwt"] = a.SignedJwt
+	payload["jwt"] = a.signedJwt
 	if err := req.SetJSONBody(payload); err != nil {
 		return "", err
 	}

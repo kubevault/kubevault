@@ -57,7 +57,7 @@ func TestLogin(t *testing.T) {
 		t.Skip()
 	}
 
-	if au.SignedJwt == "" || au.role == "" {
+	if au.signedJwt == "" || au.role == "" {
 		t.Skip()
 	}
 	token, err := au.Login()
