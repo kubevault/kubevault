@@ -654,6 +654,7 @@ type AuthMethodType string
 const (
 	AuthTypeKubernetes AuthMethodType = "kubernetes"
 	AuthTypeAws        AuthMethodType = "aws"
+	AuthTypeGcp        AuthMethodType = "gcp"
 	AuthTypeUserPass   AuthMethodType = "userpass"
 	AuthTypeCert       AuthMethodType = "cert"
 )
