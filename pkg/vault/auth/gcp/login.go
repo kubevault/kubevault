@@ -46,7 +46,6 @@ type credentialsFile struct {
 }
 
 // https://www.vaultproject.io/api/auth/gcp/index.html
-
 func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 
 	if vApp.Spec.Parameters == nil {
@@ -63,9 +62,9 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
-	secretAccessKey, ok := secret.Data[apis.GCPAuthSACredentialJson]
+	saJson, ok := secret.Data[apis.GCPAuthSACredentialJson]
 	if !ok {
-		return nil, errors.New("secret_access_key is missing")
+		return nil, errors.New("sa.json is missing")
 	}
 
 	var cf config.VaultServerConfiguration
@@ -79,7 +78,7 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	}
 
 	var cred credentialsFile
-	if err := json.Unmarshal(secretAccessKey, &cred); err != nil {
+	if err := json.Unmarshal(saJson, &cred); err != nil {
 		return nil, errors.Wrap(err, "credential Unmarshal failed!")
 	}
 
@@ -99,7 +98,6 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		role:      cf.PolicyControllerRole,
 		path:      authPath,
 	}, nil
-
 }
 
 func getJWT(cred credentialsFile, role string) (*iam.SignJwtResponse, error) {
@@ -142,9 +140,7 @@ func getJWT(cred credentialsFile, role string) (*iam.SignJwtResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return resp, nil
-
 }
 
 // Login will log into vault and return client token
