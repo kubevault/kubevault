@@ -64,4 +64,6 @@ const (
 	SecretTypeGCPAuth core.SecretType = "kubevault.com/gcp"
 	// required for SecretTypeGCPAuth
 	GCPAuthSACredentialJson = "sa.json"
+	//required for ACLToken
+	ACLToken = "aclToken"
 )

@@ -267,6 +267,30 @@ func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs
 			}
 		}
 	}
+
+	if vs.Spec.Backend.Consul != nil {
+		numOfBackend++
+		consul := vs.Spec.Backend.Consul
+		if consul.ACLTokenSecretName != "" {
+			err := validateSecret(client, consul.ACLTokenSecretName, vs.Namespace, []string{
+				"aclToken",
+			})
+			if err != nil {
+				return errors.Wrap(err, "for spec.backend.consul.aclTokenSecretName")
+			}
+		}
+		if consul.TLSSecretName != "" {
+			err := validateSecret(client, consul.TLSSecretName, vs.Namespace, []string{
+				"tls_ca_file",
+				"tls_cert_file",
+				"tls_key_file",
+			})
+			if err != nil {
+				return errors.Wrap(err, "for spec.backend.consul.tlsSecretName")
+			}
+		}
+	}
+
 	if numOfBackend != 1 {
 		if numOfBackend == 0 {
 			return errors.New("spec.backend is not specified")
