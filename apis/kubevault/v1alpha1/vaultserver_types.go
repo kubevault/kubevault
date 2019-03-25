@@ -303,7 +303,7 @@ type ConsulSpec struct {
 	// Specifies the minimum allowed session TTL.
 	// Consul server has a lower limit of 10s on the session TTL by default.
 	// +optional
-	SessionTtl string `json:"sessionTtl,omitempty"`
+	SessionTTL string `json:"sessionTTL,omitempty"`
 
 	// Specifies the wait time before a lock lock acquisition is made.
 	// This affects the minimum time it takes to cancel a lock acquisition.
@@ -312,18 +312,22 @@ type ConsulSpec struct {
 
 	// Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file
 	// for consul communication
+	// Secret data:
+	//	- ca.crt
+	//	- client.crt
+	//  - client.key
 	// +optional
 	TLSSecretName string `json:"tlsSecretName,omitempty"`
 
 	// Specifies the minimum TLS version to use.
 	// Accepted values are "tls10", "tls11" or "tls12".
 	// +optional
-	TlsMinVersion string `json:"tlsMinVersion,omitempty"`
+	TLSMinVersion string `json:"tlsMinVersion,omitempty"`
 
 	// Specifies if the TLS host verification should be disabled.
 	// It is highly discouraged that you disable this option.
 	// +optional
-	TlsSkipVerify bool `json:"tlsSkipVerify,omitempty"`
+	TLSSkipVerify bool `json:"tlsSkipVerify,omitempty"`
 }
 
 // ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html
@@ -366,6 +370,10 @@ type EtcdSpec struct {
 	CredentialSecretName string `json:"credentialSecretName,omitempty"`
 
 	// Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication
+	// secret data:
+	//	- ca.crt
+	//  - client.crt
+	//  - client.key
 	// +optional
 	TLSSecretName string `json:"tlsSecretName,omitempty"`
 }

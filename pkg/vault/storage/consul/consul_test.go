@@ -35,7 +35,7 @@ func TestGetEtcdConfig(t *testing.T) {
 		ServiceTags:         "dev,aud",
 		ServiceAddress:      "",
 		ACLTokenSecretName:  "aclcred",
-		SessionTtl:          "20s",
+		SessionTTL:          "20s",
 		LockWaitTime:        "25s",
 		TLSSecretName:       "TLSCred",
 		TlsMinVersion:       "tls12",

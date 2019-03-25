@@ -6352,7 +6352,7 @@
           "description": "Specifies a comma-separated list of tags to attach to the service registration in Consul.",
           "type": "string"
         },
-        "sessionTtl": {
+        "sessionTTL": {
           "description": "Specifies the minimum allowed session TTL. Consul server has a lower limit of 10s on the session TTL by default.",
           "type": "string"
         },
@@ -6361,7 +6361,7 @@
           "type": "string"
         },
         "tlsSecretName": {
-          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for consul communication",
+          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for consul communication Secret data:\n\t- ca.crt\n\t- client.crt\n - client.key",
           "type": "string"
         },
         "tlsSkipVerify": {
@@ -6449,7 +6449,7 @@
           "type": "boolean"
         },
         "tlsSecretName": {
-          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication",
+          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication secret data:\n\t- ca.crt\n - client.crt\n - client.key",
           "type": "string"
         }
       }

@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/kubevault/operator/apis"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
@@ -16,9 +15,9 @@ import (
 const (
 	// TLS related file name for consul
 	ConsulTLSAssetDir    = "/etc/vault/storage/consul/tls/"
-	ConsulClientCaName   = "consul-ca.crt"
-	ConsulClientCertName = "consul-client.crt"
-	ConsulClientKeyName  = "consul-client.key"
+	ConsulClientCaName   = "ca.crt"
+	ConsulClientCertName = "client.crt"
+	ConsulClientKeyName  = "client.key"
 )
 
 var consulStorageFmt = `
@@ -112,15 +111,15 @@ func (o *Options) GetStorageConfig() (string, error) {
 			return "", errors.Wrapf(err, "failed to get secret %s/%s", o.namespace, o.ACLTokenSecretName)
 
 		}
-		if value, exist := secret.Data[apis.ACLToken]; !exist {
+		if value, exist := secret.Data["aclToken"]; !exist {
 			return "", errors.Wrapf(err, "Data field is empty in %s/%s", o.namespace, o.ACLTokenSecretName)
 		} else {
 			params = append(params, fmt.Sprintf(`token = "%s"`, string(value)))
 		}
 
 	}
-	if o.SessionTtl != "" {
-		params = append(params, fmt.Sprintf(`session_ttl = "%s"`, o.SessionTtl))
+	if o.SessionTTL != "" {
+		params = append(params, fmt.Sprintf(`session_ttl = "%s"`, o.SessionTTL))
 	}
 	if o.LockWaitTime != "" {
 		params = append(params, fmt.Sprintf(`lock_wait_time = "%s"`, o.LockWaitTime))
@@ -130,10 +129,10 @@ func (o *Options) GetStorageConfig() (string, error) {
 			fmt.Sprintf(`tls_cert_file = "%s"`, filepath.Join(ConsulTLSAssetDir, ConsulClientCertName)),
 			fmt.Sprintf(`tls_key_file = "%s"`, filepath.Join(ConsulTLSAssetDir, ConsulClientKeyName)))
 	}
-	if o.TlsMinVersion != "" {
-		params = append(params, fmt.Sprintf(`tls_min_version = "%s"`, o.TlsMinVersion))
+	if o.TLSMinVersion != "" {
+		params = append(params, fmt.Sprintf(`tls_min_version = "%s"`, o.TLSMinVersion))
 	}
-	if o.TlsSkipVerify != false {
+	if o.TLSSkipVerify != false {
 		params = append(params, fmt.Sprintf(`tls_skip_verify = true`))
 	}
 

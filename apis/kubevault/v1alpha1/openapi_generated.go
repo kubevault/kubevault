@@ -848,7 +848,7 @@ func schema_operator_apis_kubevault_v1alpha1_ConsulSpec(ref common.ReferenceCall
 							Format:      "",
 						},
 					},
-					"sessionTtl": {
+					"sessionTTL": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the minimum allowed session TTL. Consul server has a lower limit of 10s on the session TTL by default.",
 							Type:        []string{"string"},
@@ -864,7 +864,7 @@ func schema_operator_apis_kubevault_v1alpha1_ConsulSpec(ref common.ReferenceCall
 					},
 					"tlsSecretName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for consul communication",
+							Description: "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for consul communication Secret data:\n\t- ca.crt\n\t- client.crt\n - client.key",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -1023,7 +1023,7 @@ func schema_operator_apis_kubevault_v1alpha1_EtcdSpec(ref common.ReferenceCallba
 					},
 					"tlsSecretName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication",
+							Description: "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication secret data:\n\t- ca.crt\n - client.crt\n - client.key",
 							Type:        []string{"string"},
 							Format:      "",
 						},
