@@ -38,8 +38,8 @@ func TestGetEtcdConfig(t *testing.T) {
 		SessionTTL:          "20s",
 		LockWaitTime:        "25s",
 		TLSSecretName:       "TLSCred",
-		TlsMinVersion:       "tls12",
-		TlsSkipVerify:       false,
+		TLSMinVersion:       "tls12",
+		TLSSkipVerify:       false,
 	}
 	out1 := `
 storage "consul" {
