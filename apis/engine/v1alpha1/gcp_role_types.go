@@ -69,7 +69,7 @@ type GCPRoleList struct {
 }
 
 const (
-	GCPCredentialAccessKey = "sa.json"
+	GCPSACredentialJson = "sa.json"
 )
 
 // https://www.vaultproject.io/api/secret/gcp/index.html#write-config

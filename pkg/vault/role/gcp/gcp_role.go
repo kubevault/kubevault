@@ -93,7 +93,7 @@ func (a *GCPRole) CreateConfig() error {
 			return errors.Wrap(err, "failed to get gcp credential secret")
 		}
 
-		if val, ok := sr.Data[api.GCPCredentialAccessKey]; ok {
+		if val, ok := sr.Data[api.GCPSACredentialJson]; ok {
 			payload["credentials"] = string(val)
 		}
 

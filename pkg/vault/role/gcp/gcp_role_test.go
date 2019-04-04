@@ -26,7 +26,7 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 			Namespace: "demo",
 		},
 		Data: map[string][]byte{
-			api.GCPCredentialAccessKey: []byte(`{}`),
+			api.GCPSACredentialJson: []byte(`{}`),
 		},
 	})
 
