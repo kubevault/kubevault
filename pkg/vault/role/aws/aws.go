@@ -47,7 +47,7 @@ func NewAWSRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1al
 
 }
 
-// If aws path does not exist, then use default database path
+// If aws path does not exist, then use default aws path
 func GetAWSPath(c appcat_cs.AppcatalogV1alpha1Interface, ref *appcat.AppReference) (string, error) {
 	vApp, err := c.AppBindings(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 	if err != nil {
@@ -55,7 +55,7 @@ func GetAWSPath(c appcat_cs.AppcatalogV1alpha1Interface, ref *appcat.AppReferenc
 	}
 
 	var cf struct {
-		AWSPath string `json:"aws_path,omitempty"`
+		AWSPath string `json:"awsPath,omitempty"`
 	}
 
 	if vApp.Spec.Parameters != nil {

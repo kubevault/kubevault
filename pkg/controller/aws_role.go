@@ -102,7 +102,7 @@ func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, awsR
 		if err2 != nil {
 			return errors.Wrap(err2, "failed to update status")
 		}
-		return errors.Wrap(err, "failed to enable database secret engine")
+		return errors.Wrap(err, "failed to enable aws secret engine")
 	}
 
 	// create aws config
@@ -121,7 +121,7 @@ func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, awsR
 		if err2 != nil {
 			return errors.Wrap(err2, "failed to update status")
 		}
-		return errors.Wrap(err, "failed to create database connection config")
+		return errors.Wrap(err, "failed to create aws connection config")
 	}
 
 	// create role
@@ -243,7 +243,7 @@ func (c *VaultController) runAWSRoleFinalizer(awsRole *api.AWSRole, timeout time
 func (c *VaultController) finalizeAWSRole(awsRClient aws.AWSRoleInterface, awsRole *api.AWSRole) error {
 	err := awsRClient.DeleteRole(awsRole.RoleName())
 	if err != nil {
-		return errors.Wrap(err, "failed to database role")
+		return errors.Wrap(err, "failed to delete aws role")
 	}
 	return nil
 }

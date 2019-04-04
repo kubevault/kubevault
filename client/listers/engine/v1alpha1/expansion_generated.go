@@ -33,3 +33,11 @@ type AWSRoleListerExpansion interface{}
 // AWSRoleNamespaceListerExpansion allows custom methods to be added to
 // AWSRoleNamespaceLister.
 type AWSRoleNamespaceListerExpansion interface{}
+
+// GCPRoleListerExpansion allows custom methods to be added to
+// GCPRoleLister.
+type GCPRoleListerExpansion interface{}
+
+// GCPRoleNamespaceListerExpansion allows custom methods to be added to
+// GCPRoleNamespaceLister.
+type GCPRoleNamespaceListerExpansion interface{}

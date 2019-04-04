@@ -7,6 +7,10 @@ metadata:
     app: vault
   name: awsroles.engine.kubevault.com
 spec:
+  additionalPrinterColumns:
+  - JSONPath: .status.phase
+    name: Status
+    type: string
   group: engine.kubevault.com
   names:
     categories:
