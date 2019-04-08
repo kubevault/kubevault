@@ -12,6 +12,7 @@ crds=(
   postgresroles.authorization.kubedb.com
   awsroles.engine.kubevault.com
   awsaccesskeyrequests.engine.kubevault.com
+  gcproles.engine.kubevault.com
 )
 apiServices=(
   v1alpha1.validators.kubevault.com

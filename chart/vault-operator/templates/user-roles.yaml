@@ -54,6 +54,7 @@ rules:
   resources:
   - awsroles
   - awsaccesskeyrequests
+  - gcproles
   verbs: ["*"]
 - apiGroups:
   - appcatalog.appscode.com
@@ -100,6 +101,7 @@ rules:
   resources:
   - awsroles
   - awsaccesskeyrequests
+  - gcproles
   verbs: ["get", "list", "watch"]
 - apiGroups:
   - appcatalog.appscode.com
