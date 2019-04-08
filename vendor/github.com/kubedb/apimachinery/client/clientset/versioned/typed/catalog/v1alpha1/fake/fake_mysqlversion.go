@@ -112,7 +112,7 @@ func (c *FakeMySQLVersions) DeleteCollection(options *v1.DeleteOptions, listOpti
 // Patch applies the patch and returns the patched mySQLVersion.
 func (c *FakeMySQLVersions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.MySQLVersion, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(mysqlversionsResource, name, data, subresources...), &v1alpha1.MySQLVersion{})
+		Invokes(testing.NewRootPatchSubresourceAction(mysqlversionsResource, name, pt, data, subresources...), &v1alpha1.MySQLVersion{})
 	if obj == nil {
 		return nil, err
 	}

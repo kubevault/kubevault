@@ -131,7 +131,7 @@ func (c *FakeMongoDBs) DeleteCollection(options *v1.DeleteOptions, listOptions v
 // Patch applies the patch and returns the patched mongoDB.
 func (c *FakeMongoDBs) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.MongoDB, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(mongodbsResource, c.ns, name, data, subresources...), &v1alpha1.MongoDB{})
+		Invokes(testing.NewPatchSubresourceAction(mongodbsResource, c.ns, name, pt, data, subresources...), &v1alpha1.MongoDB{})
 
 	if obj == nil {
 		return nil, err

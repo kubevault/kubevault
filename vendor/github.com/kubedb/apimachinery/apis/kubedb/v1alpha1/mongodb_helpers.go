@@ -5,13 +5,13 @@ import (
 	"strconv"
 
 	"github.com/appscode/go/types"
-	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
-	meta_util "github.com/appscode/kutil/meta"
 	"github.com/kubedb/apimachinery/apis"
 	"github.com/kubedb/apimachinery/apis/kubedb"
 	apps "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
+	meta_util "kmodules.xyz/client-go/meta"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	mona "kmodules.xyz/monitoring-agent-api/api/v1"
 )
@@ -30,7 +30,13 @@ func (m MongoDB) OffshootSelectors() map[string]string {
 }
 
 func (m MongoDB) OffshootLabels() map[string]string {
-	return meta_util.FilterKeys(GenericKey, m.OffshootSelectors(), m.Labels)
+	out := m.OffshootSelectors()
+	out[meta_util.NameLabelKey] = ResourceSingularMongoDB
+	out[meta_util.VersionLabelKey] = string(m.Spec.Version)
+	out[meta_util.InstanceLabelKey] = m.Name
+	out[meta_util.ComponentLabelKey] = "database"
+	out[meta_util.ManagedByLabelKey] = GenericKey
+	return meta_util.FilterKeys(GenericKey, out, m.Labels)
 }
 
 func (m MongoDB) ResourceShortCode() string {
@@ -121,6 +127,12 @@ func (m mongoDBStatsService) Scheme() string {
 
 func (m MongoDB) StatsService() mona.StatsAccessor {
 	return &mongoDBStatsService{&m}
+}
+
+func (m MongoDB) StatsServiceLabels() map[string]string {
+	lbl := meta_util.FilterKeys(GenericKey, m.OffshootSelectors(), m.Labels)
+	lbl[LabelRole] = "stats"
+	return lbl
 }
 
 func (m *MongoDB) GetMonitoringVendor() string {
