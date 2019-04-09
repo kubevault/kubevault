@@ -29,6 +29,7 @@ type EngineV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	AWSAccessKeyRequestsGetter
 	AWSRolesGetter
+	GCPAccessKeyRequestsGetter
 	GCPRolesGetter
 }
 
@@ -43,6 +44,10 @@ func (c *EngineV1alpha1Client) AWSAccessKeyRequests(namespace string) AWSAccessK
 
 func (c *EngineV1alpha1Client) AWSRoles(namespace string) AWSRoleInterface {
 	return newAWSRoles(c, namespace)
+}
+
+func (c *EngineV1alpha1Client) GCPAccessKeyRequests(namespace string) GCPAccessKeyRequestInterface {
+	return newGCPAccessKeyRequests(c, namespace)
 }
 
 func (c *EngineV1alpha1Client) GCPRoles(namespace string) GCPRoleInterface {

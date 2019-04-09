@@ -36,7 +36,7 @@ func NewAWSCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.A
 
 	awsPath, err := awsrole.GetAWSPath(appClient, vaultRef)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get database path")
+		return nil, errors.Wrap(err, "failed to get aws path")
 	}
 	return &AWSCredManager{
 		AWSAccessReq: awsAKReq,

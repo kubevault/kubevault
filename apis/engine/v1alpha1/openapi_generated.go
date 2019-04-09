@@ -46,6 +46,11 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/kubevault/operator/apis/engine/v1alpha1.AWSRoleList":                  schema_operator_apis_engine_v1alpha1_AWSRoleList(ref),
 		"github.com/kubevault/operator/apis/engine/v1alpha1.AWSRoleSpec":                  schema_operator_apis_engine_v1alpha1_AWSRoleSpec(ref),
 		"github.com/kubevault/operator/apis/engine/v1alpha1.AWSRoleStatus":                schema_operator_apis_engine_v1alpha1_AWSRoleStatus(ref),
+		"github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequest":          schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequest(ref),
+		"github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequestCondition": schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestCondition(ref),
+		"github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequestList":      schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestList(ref),
+		"github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequestSpec":      schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestSpec(ref),
+		"github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequestStatus":    schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestStatus(ref),
 		"github.com/kubevault/operator/apis/engine/v1alpha1.GCPConfig":                    schema_operator_apis_engine_v1alpha1_GCPConfig(ref),
 		"github.com/kubevault/operator/apis/engine/v1alpha1.GCPRole":                      schema_operator_apis_engine_v1alpha1_GCPRole(ref),
 		"github.com/kubevault/operator/apis/engine/v1alpha1.GCPRoleCondition":             schema_operator_apis_engine_v1alpha1_GCPRoleCondition(ref),
@@ -911,6 +916,228 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleStatus(ref common.ReferenceCall
 		},
 		Dependencies: []string{
 			"github.com/appscode/go/encoding/json/types.IntHash", "github.com/kubevault/operator/apis/engine/v1alpha1.AWSRoleCondition"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequest(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "GCPAccessKeyRequest structure",
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequestSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequestStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequestSpec", "github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequestStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "request approval state, currently Approved or Denied.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"reason": {
+						SchemaProps: spec.SchemaProps{
+							Description: "brief reason for the request state",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"message": {
+						SchemaProps: spec.SchemaProps{
+							Description: "human readable message with details about the request state",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"lastUpdateTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timestamp for the last update to this condition",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+				Required: []string{"type"},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Items is a list of GCPAccessKeyRequest objects",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequest"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequest", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "GCPAccessKeyRequestSpec contains information to request for vault gcp credentials",
+				Properties: map[string]spec.Schema{
+					"roleRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Contains vault gcp role info",
+							Ref:         ref("github.com/kubevault/operator/apis/engine/v1alpha1.RoleReference"),
+						},
+					},
+					"subjects": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Contains a reference to the object or user identities the role binding is applied to",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/rbac/v1.Subject"),
+									},
+								},
+							},
+						},
+					},
+					"secretType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Contains the information about secret type, i.e. access_token or service_account_key",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"keyAlgorithm": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the algorithm used to generate key. Defaults to 2k RSA key. Accepted values: KEY_ALG_UNSPECIFIED, KEY_ALG_RSA_1024, KEY_ALG_RSA_2048",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"keyType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the private key type to generate. Defaults to JSON credentials file Accepted values: TYPE_UNSPECIFIED, TYPE_PKCS12_FILE, TYPE_GOOGLE_CREDENTIALS_FILE",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"roleRef", "subjects", "secretType"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kubevault/operator/apis/engine/v1alpha1.RoleReference", "k8s.io/api/rbac/v1.Subject"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Conditions applied to the request, such as approval or denial.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequestCondition"),
+									},
+								},
+							},
+						},
+					},
+					"secret": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Name of the secret containing GCPCredential",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
+						},
+					},
+					"lease": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Contains lease info",
+							Ref:         ref("github.com/kubevault/operator/apis/engine/v1alpha1.Lease"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequestCondition", "github.com/kubevault/operator/apis/engine/v1alpha1.Lease", "k8s.io/api/core/v1.LocalObjectReference"},
 	}
 }
 

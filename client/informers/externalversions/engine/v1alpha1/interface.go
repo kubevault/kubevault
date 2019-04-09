@@ -28,6 +28,8 @@ type Interface interface {
 	AWSAccessKeyRequests() AWSAccessKeyRequestInformer
 	// AWSRoles returns a AWSRoleInformer.
 	AWSRoles() AWSRoleInformer
+	// GCPAccessKeyRequests returns a GCPAccessKeyRequestInformer.
+	GCPAccessKeyRequests() GCPAccessKeyRequestInformer
 	// GCPRoles returns a GCPRoleInformer.
 	GCPRoles() GCPRoleInformer
 }
@@ -51,6 +53,11 @@ func (v *version) AWSAccessKeyRequests() AWSAccessKeyRequestInformer {
 // AWSRoles returns a AWSRoleInformer.
 func (v *version) AWSRoles() AWSRoleInformer {
 	return &aWSRoleInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// GCPAccessKeyRequests returns a GCPAccessKeyRequestInformer.
+func (v *version) GCPAccessKeyRequests() GCPAccessKeyRequestInformer {
+	return &gCPAccessKeyRequestInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // GCPRoles returns a GCPRoleInformer.
