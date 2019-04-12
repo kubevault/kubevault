@@ -99,6 +99,18 @@ func (s *SecretInfo) GetSecret() (*vaultapi.Secret, error) {
 	}
 
 	req := s.Client.NewRequest("GET", path)
+	if s.SecretType == string(engine.GCPSecretServiceAccountKey) {
+		payload := map[string]interface{}{}
+		if len(s.KeyAlgorithm) != 0 {
+			payload[secret.KeyAlgorithm] = s.KeyAlgorithm
+		}
+		if len(s.KeyType) != 0 {
+			payload[secret.KeyType] = s.KeyType
+		}
+		if err := req.SetJSONBody(payload); err != nil {
+			return nil, errors.Wrap(err, "failed to load payload in gcp access key request")
+		}
+	}
 	resp, err := s.Client.RawRequest(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get gcp access secret")

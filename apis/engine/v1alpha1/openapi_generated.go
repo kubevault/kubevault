@@ -1430,7 +1430,6 @@ func schema_operator_apis_engine_v1alpha1_Lease(ref common.ReferenceCallback) co
 						},
 					},
 				},
-				Required: []string{"id", "duration", "renewable"},
 			},
 		},
 		Dependencies: []string{

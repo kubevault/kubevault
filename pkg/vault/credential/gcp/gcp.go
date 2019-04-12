@@ -1,6 +1,8 @@
 package gcp
 
 import (
+	"encoding/json"
+
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubevault/operator/apis/engine/v1alpha1"
 	crd "github.com/kubevault/operator/client/clientset/versioned"
@@ -61,6 +63,8 @@ func (d *GCPCredManager) ParseCredential(credSecret *vaultapi.Secret) (map[strin
 		if value == nil {
 			data[key] = nil
 		} else if v, ok := value.(string); ok {
+			data[key] = []byte(v)
+		} else if v, ok := value.(json.Number); ok {
 			data[key] = []byte(v)
 		} else {
 			return nil, errors.Errorf("Failed to convert interface{} to string for key %s", key)

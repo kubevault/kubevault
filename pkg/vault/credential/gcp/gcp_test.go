@@ -1,6 +1,7 @@
 package gcp
 
 import (
+	"encoding/json"
 	"testing"
 
 	vaultapi "github.com/hashicorp/vault/api"
@@ -18,18 +19,18 @@ func TestGCPCredManager_ParseCredential(t *testing.T) {
 		{
 			name: "success, 'security_key' is nil",
 			data: map[string]interface{}{
-				"access_key":   "hi",
-				"secret_key":   "hello",
-				"security_key": nil,
+				"token":              "ya29.c.Elp5Be3ga87...",
+				"expires_at_seconds": json.Number(1537400046),
+				"token_ttl":          json.Number(3599),
 			},
 			expectErr: false,
 		},
 		{
 			name: "success, 'security_key' is string",
 			data: map[string]interface{}{
-				"access_key":   "hi",
-				"secret_key":   "hello",
-				"security_key": "bye",
+				"expires_at_seconds": json.Number(1555047259),
+				"token":              "ya29.c.ElnpBqL-KHY4sE1aybBaePiW-Rqvn7DOMyIupz7_w.....................",
+				"token_ttl":          json.Number(3599),
 			},
 			expectErr: false,
 		},
@@ -47,21 +48,13 @@ func TestGCPCredManager_ParseCredential(t *testing.T) {
 
 	for _, test := range testData {
 		t.Run(test.name, func(t *testing.T) {
-			data, err := gcpCM.ParseCredential(&vaultapi.Secret{
+			_, err := gcpCM.ParseCredential(&vaultapi.Secret{
 				Data: test.data,
 			})
 			if test.expectErr {
 				assert.NotNil(t, err)
 			} else {
-				if assert.Nil(t, err) {
-					for key, val := range test.data {
-						if val == nil {
-							assert.Nil(t, data[key])
-						} else {
-							assert.Equal(t, val.(string), string(data[key]))
-						}
-					}
-				}
+				assert.Nil(t, err)
 			}
 		})
 	}

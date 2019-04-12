@@ -13,6 +13,7 @@ crds=(
   awsroles.engine.kubevault.com
   awsaccesskeyrequests.engine.kubevault.com
   gcproles.engine.kubevault.com
+  gcpaccesskeyrequests.engine.kubevault.com
 )
 apiServices=(
   v1alpha1.validators.kubevault.com
