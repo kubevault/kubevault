@@ -38,10 +38,6 @@ type GCPAccessKeyRequestSpec struct {
 	// +required
 	Subjects []rbac.Subject `json:"subjects"`
 
-	// Contains the information about secret type, i.e. access_token or service_account_key
-	// +required
-	SecretType string `json:"secretType"`
-
 	// Specifies the algorithm used to generate key.
 	// Defaults to 2k RSA key.
 	// Accepted values: KEY_ALG_UNSPECIFIED, KEY_ALG_RSA_1024, KEY_ALG_RSA_2048

@@ -7959,8 +7959,7 @@
       "description": "GCPAccessKeyRequestSpec contains information to request for vault gcp credentials",
       "required": [
         "roleRef",
-        "subjects",
-        "secretType"
+        "subjects"
       ],
       "properties": {
         "keyAlgorithm": {
@@ -7974,10 +7973,6 @@
         "roleRef": {
           "description": "Contains vault gcp role info",
           "$ref": "#/definitions/com.github.kubevault.operator.apis.engine.v1alpha1.RoleReference"
-        },
-        "secretType": {
-          "description": "Contains the information about secret type, i.e. access_token or service_account_key",
-          "type": "string"
         },
         "subjects": {
           "description": "Contains a reference to the object or user identities the role binding is applied to",

@@ -47,11 +47,11 @@ func NewSecretManagerWithOptions(c *vaultapi.Client, opts map[string]string) sec
 	return s
 }
 
-func NewSecretGetter(vc *vaultapi.Client, path string, roleName string, reqSpec engine.GCPAccessKeyRequestSpec) secret.SecretGetter {
+func NewSecretGetter(vc *vaultapi.Client, path string, roleName string, secretType engine.GCPSecretType, reqSpec engine.GCPAccessKeyRequestSpec) secret.SecretGetter {
 	return &SecretInfo{
 		Path:         path,
 		Role:         roleName,
-		SecretType:   reqSpec.SecretType,
+		SecretType:   string(secretType),
 		KeyAlgorithm: reqSpec.KeyAlgorithm,
 		KeyType:      reqSpec.KeyType,
 		Client:       vc,

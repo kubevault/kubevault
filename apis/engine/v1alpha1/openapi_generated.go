@@ -1073,13 +1073,6 @@ func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestSpec(ref common.Ref
 							},
 						},
 					},
-					"secretType": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Contains the information about secret type, i.e. access_token or service_account_key",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"keyAlgorithm": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the algorithm used to generate key. Defaults to 2k RSA key. Accepted values: KEY_ALG_UNSPECIFIED, KEY_ALG_RSA_1024, KEY_ALG_RSA_2048",
@@ -1095,7 +1088,7 @@ func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestSpec(ref common.Ref
 						},
 					},
 				},
-				Required: []string{"roleRef", "subjects", "secretType"},
+				Required: []string{"roleRef", "subjects"},
 			},
 		},
 		Dependencies: []string{

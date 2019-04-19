@@ -26,7 +26,7 @@ type GCPCredManager struct {
 }
 
 func NewGCPCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr crd.Interface, gcpAKReq *api.GCPAccessKeyRequest) (*GCPCredManager, error) {
-	vaultRef, roleName, err := GetVaultRefAndRole(cr, gcpAKReq.Spec.RoleRef)
+	vaultRef, roleName, secretType, err := GetVaultRefAndRole(cr, gcpAKReq.Spec.RoleRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get vault app reference and GCPRole name")
 	}
@@ -42,19 +42,19 @@ func NewGCPCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.A
 	}
 
 	return &GCPCredManager{
-		SecretGetter:    gcpengines.NewSecretGetter(vClient, gcpPath, roleName, gcpAKReq.Spec),
+		SecretGetter:    gcpengines.NewSecretGetter(vClient, gcpPath, roleName, secretType, gcpAKReq.Spec),
 		GCPAccessKeyReq: gcpAKReq,
 		KubeClient:      kClient,
 		VaultClient:     vClient,
 	}, nil
 }
 
-func GetVaultRefAndRole(cr crd.Interface, ref api.RoleReference) (*appcat.AppReference, string, error) {
+func GetVaultRefAndRole(cr crd.Interface, ref api.RoleReference) (*appcat.AppReference, string, api.GCPSecretType, error) {
 	r, err := cr.EngineV1alpha1().GCPRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 	if err != nil {
-		return nil, "", errors.Wrapf(err, "GCPRole %s/%s", ref.Namespace, ref.Name)
+		return nil, "", "", errors.Wrapf(err, "GCPRole %s/%s", ref.Namespace, ref.Name)
 	}
-	return r.Spec.AuthManagerRef, r.RoleName(), nil
+	return r.Spec.AuthManagerRef, r.RoleName(), r.Spec.SecretType, nil
 }
 
 func (d *GCPCredManager) ParseCredential(credSecret *vaultapi.Secret) (map[string][]byte, error) {
