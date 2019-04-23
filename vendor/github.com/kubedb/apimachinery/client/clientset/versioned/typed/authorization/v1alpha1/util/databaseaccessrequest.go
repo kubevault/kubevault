@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/appscode/kutil"
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/golang/glog"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
@@ -14,6 +13,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
+	kutil "kmodules.xyz/client-go"
 )
 
 func CreateOrPatchDatabaseAccessRequest(c cs.AuthorizationV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.DatabaseAccessRequest) *api.DatabaseAccessRequest) (*api.DatabaseAccessRequest, kutil.VerbType, error) {

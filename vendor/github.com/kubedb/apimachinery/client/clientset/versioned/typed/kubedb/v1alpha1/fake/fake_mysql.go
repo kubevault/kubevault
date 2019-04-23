@@ -131,7 +131,7 @@ func (c *FakeMySQLs) DeleteCollection(options *v1.DeleteOptions, listOptions v1.
 // Patch applies the patch and returns the patched mySQL.
 func (c *FakeMySQLs) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.MySQL, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(mysqlsResource, c.ns, name, data, subresources...), &v1alpha1.MySQL{})
+		Invokes(testing.NewPatchSubresourceAction(mysqlsResource, c.ns, name, pt, data, subresources...), &v1alpha1.MySQL{})
 
 	if obj == nil {
 		return nil, err

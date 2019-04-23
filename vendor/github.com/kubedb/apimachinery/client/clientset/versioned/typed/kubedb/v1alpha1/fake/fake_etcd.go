@@ -131,7 +131,7 @@ func (c *FakeEtcds) DeleteCollection(options *v1.DeleteOptions, listOptions v1.L
 // Patch applies the patch and returns the patched etcd.
 func (c *FakeEtcds) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Etcd, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(etcdsResource, c.ns, name, data, subresources...), &v1alpha1.Etcd{})
+		Invokes(testing.NewPatchSubresourceAction(etcdsResource, c.ns, name, pt, data, subresources...), &v1alpha1.Etcd{})
 
 	if obj == nil {
 		return nil, err

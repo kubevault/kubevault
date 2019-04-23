@@ -131,7 +131,7 @@ func (c *FakeRedises) DeleteCollection(options *v1.DeleteOptions, listOptions v1
 // Patch applies the patch and returns the patched redis.
 func (c *FakeRedises) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Redis, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(redisesResource, c.ns, name, data, subresources...), &v1alpha1.Redis{})
+		Invokes(testing.NewPatchSubresourceAction(redisesResource, c.ns, name, pt, data, subresources...), &v1alpha1.Redis{})
 
 	if obj == nil {
 		return nil, err

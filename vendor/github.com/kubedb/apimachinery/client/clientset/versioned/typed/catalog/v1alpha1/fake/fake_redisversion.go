@@ -112,7 +112,7 @@ func (c *FakeRedisVersions) DeleteCollection(options *v1.DeleteOptions, listOpti
 // Patch applies the patch and returns the patched redisVersion.
 func (c *FakeRedisVersions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.RedisVersion, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(redisversionsResource, name, data, subresources...), &v1alpha1.RedisVersion{})
+		Invokes(testing.NewRootPatchSubresourceAction(redisversionsResource, name, pt, data, subresources...), &v1alpha1.RedisVersion{})
 	if obj == nil {
 		return nil, err
 	}
