@@ -131,7 +131,7 @@ func (c *FakeElasticsearches) DeleteCollection(options *v1.DeleteOptions, listOp
 // Patch applies the patch and returns the patched elasticsearch.
 func (c *FakeElasticsearches) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Elasticsearch, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(elasticsearchesResource, c.ns, name, data, subresources...), &v1alpha1.Elasticsearch{})
+		Invokes(testing.NewPatchSubresourceAction(elasticsearchesResource, c.ns, name, pt, data, subresources...), &v1alpha1.Elasticsearch{})
 
 	if obj == nil {
 		return nil, err
