@@ -6,6 +6,7 @@ import (
 	"github.com/kubevault/operator/apis"
 	config "github.com/kubevault/operator/apis/config/v1alpha1"
 	awsauth "github.com/kubevault/operator/pkg/vault/auth/aws"
+	azureauth "github.com/kubevault/operator/pkg/vault/auth/azure"
 	certauth "github.com/kubevault/operator/pkg/vault/auth/cert"
 	gcpauth "github.com/kubevault/operator/pkg/vault/auth/gcp"
 	k8sauth "github.com/kubevault/operator/pkg/vault/auth/kubernetes"
@@ -68,6 +69,8 @@ func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding) (AuthInterface, e
 		return awsauth.New(vApp, secret)
 	case apis.SecretTypeGCPAuth:
 		return gcpauth.New(vApp, secret)
+	case apis.SecretTypeAzureAuth:
+		return azureauth.New(vApp, secret)
 	default:
 		return nil, errors.New("Invalid/Unsupported secret type")
 	}

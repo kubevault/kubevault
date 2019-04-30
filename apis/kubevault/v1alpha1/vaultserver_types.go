@@ -758,6 +758,7 @@ const (
 	AuthTypeGcp        AuthMethodType = "gcp"
 	AuthTypeUserPass   AuthMethodType = "userpass"
 	AuthTypeCert       AuthMethodType = "cert"
+	AuthTypeAzure      AuthMethodType = "azure"
 )
 
 // AuthMethod contains the information to enable vault auth method
