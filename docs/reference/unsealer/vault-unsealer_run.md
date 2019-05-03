@@ -76,5 +76,5 @@ vault-unsealer run [flags]
 
 ### SEE ALSO
 
-* [vault-unsealer](/docs/reference/vault-unsealer.md)	 - Automates initialisation and unsealing of Hashicorp Vault
+* [vault-unsealer](/docs/reference/unsealer/vault-unsealer.md)	 - Automates initialisation and unsealing of Hashicorp Vault
 

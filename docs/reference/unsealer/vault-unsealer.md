@@ -38,6 +38,6 @@ Automates initialisation and unsealing of Hashicorp Vault
 
 ### SEE ALSO
 
-* [vault-unsealer run](/docs/reference/vault-unsealer_run.md)	 - Launch Vault unsealer
-* [vault-unsealer version](/docs/reference/vault-unsealer_version.md)	 - Prints binary version number.
+* [vault-unsealer run](/docs/reference/unsealer/vault-unsealer_run.md)	 - Launch Vault unsealer
+* [vault-unsealer version](/docs/reference/unsealer/vault-unsealer_version.md)	 - Prints binary version number.
 
