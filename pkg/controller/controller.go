@@ -106,6 +106,11 @@ type VaultController struct {
 	gcpRoleInformer cache.SharedIndexInformer
 	gcpRoleLister   engine_listers.GCPRoleLister
 
+	// GCPAccessKeyRequest
+	gcpAccessQueue    *queue.Worker
+	gcpAccessInformer cache.SharedIndexInformer
+	gcpAccessLister   engine_listers.GCPAccessKeyRequestLister
+
 	// Contain the currently processing finalizer
 	finalizerInfo *mapFinalizer
 
@@ -130,6 +135,7 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 		engineapi.AWSRole{}.CustomResourceDefinition(),
 		engineapi.AWSAccessKeyRequest{}.CustomResourceDefinition(),
 		engineapi.GCPRole{}.CustomResourceDefinition(),
+		engineapi.GCPAccessKeyRequest{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }
@@ -195,6 +201,9 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 
 	// For GCPRole
 	go c.gcpRoleQueue.Run(stopCh)
+
+	// For GCP access key request
+	go c.gcpAccessQueue.Run(stopCh)
 
 	<-stopCh
 	glog.Info("Stopping Vault operator")

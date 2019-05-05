@@ -34,6 +34,14 @@ type AWSRoleListerExpansion interface{}
 // AWSRoleNamespaceLister.
 type AWSRoleNamespaceListerExpansion interface{}
 
+// GCPAccessKeyRequestListerExpansion allows custom methods to be added to
+// GCPAccessKeyRequestLister.
+type GCPAccessKeyRequestListerExpansion interface{}
+
+// GCPAccessKeyRequestNamespaceListerExpansion allows custom methods to be added to
+// GCPAccessKeyRequestNamespaceLister.
+type GCPAccessKeyRequestNamespaceListerExpansion interface{}
+
 // GCPRoleListerExpansion allows custom methods to be added to
 // GCPRoleLister.
 type GCPRoleListerExpansion interface{}

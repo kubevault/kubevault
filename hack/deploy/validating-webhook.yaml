@@ -78,3 +78,22 @@ webhooks:
     - awsaccesskeyrequests
   failurePolicy: Fail
   ${VAULT_OPERATOR_WEBHOOK_SIDE_EFFECTS}
+- name: gcpaccesskeyrequests.validators.engine.kubevault.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/validators.engine.kubevault.com/v1alpha1/gcpaccesskeyrequests
+    caBundle: ${KUBE_CA}
+  rules:
+  - operations:
+    - CREATE
+    - UPDATE
+    apiGroups:
+    - engine.kubevault.com
+    apiVersions:
+    - "*"
+    resources:
+    - gcpaccesskeyrequests
+  failurePolicy: Fail
+  ${VAULT_OPERATOR_WEBHOOK_SIDE_EFFECTS}

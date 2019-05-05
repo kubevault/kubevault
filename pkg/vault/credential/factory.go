@@ -7,6 +7,7 @@ import (
 	vaultcrd "github.com/kubevault/operator/client/clientset/versioned"
 	"github.com/kubevault/operator/pkg/vault/credential/aws"
 	"github.com/kubevault/operator/pkg/vault/credential/database"
+	"github.com/kubevault/operator/pkg/vault/credential/gcp"
 	"github.com/pkg/errors"
 	"k8s.io/client-go/kubernetes"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
@@ -33,5 +34,17 @@ func NewCredentialManagerForAWS(kubeClient kubernetes.Interface, appClient appca
 		kubeClient:   kubeClient,
 		secretEngine: awsCM,
 		vaultClient:  awsCM.VaultClient,
+	}, nil
+}
+
+func NewCredentialManagerForGCP(kubeClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr vaultcrd.Interface, gcpAKReq *engineapi.GCPAccessKeyRequest) (CredentialManager, error) {
+	gcpCM, err := gcp.NewGCPCredentialManager(kubeClient, appClient, cr, gcpAKReq)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get gcp credential manager")
+	}
+	return &CredManager{
+		kubeClient:   kubeClient,
+		secretEngine: gcpCM,
+		vaultClient:  gcpCM.VaultClient,
 	}, nil
 }

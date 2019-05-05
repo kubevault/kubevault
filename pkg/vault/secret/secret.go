@@ -5,9 +5,11 @@ import (
 )
 
 const (
-	RoleKey   = "role"
-	PathKey   = "path"
-	SecretKey = "secret"
+	RoleKey      = "role"
+	PathKey      = "path"
+	SecretKey    = "secret"
+	KeyAlgorithm = "key_algorithm"
+	KeyType      = "key_type"
 )
 
 type SecretManager interface {

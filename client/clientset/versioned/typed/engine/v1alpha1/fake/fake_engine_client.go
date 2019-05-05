@@ -36,6 +36,10 @@ func (c *FakeEngineV1alpha1) AWSRoles(namespace string) v1alpha1.AWSRoleInterfac
 	return &FakeAWSRoles{c, namespace}
 }
 
+func (c *FakeEngineV1alpha1) GCPAccessKeyRequests(namespace string) v1alpha1.GCPAccessKeyRequestInterface {
+	return &FakeGCPAccessKeyRequests{c, namespace}
+}
+
 func (c *FakeEngineV1alpha1) GCPRoles(namespace string) v1alpha1.GCPRoleInterface {
 	return &FakeGCPRoles{c, namespace}
 }

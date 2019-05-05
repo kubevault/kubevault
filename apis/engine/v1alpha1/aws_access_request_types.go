@@ -60,14 +60,6 @@ type AWSAccessKeyRequestList struct {
 	Items []AWSAccessKeyRequest `json:"items,omitempty"`
 }
 
-type RoleReference struct {
-	// Name of the object being referenced.
-	Name string `json:"name"`
-
-	// Namespace of the referenced object.
-	Namespace string `json:"namespace"`
-}
-
 type AWSAccessKeyRequestStatus struct {
 	// Conditions applied to the request, such as approval or denial.
 	// +optional
@@ -79,14 +71,6 @@ type AWSAccessKeyRequestStatus struct {
 	// Contains lease info
 	Lease *Lease `json:"lease,omitempty"`
 }
-
-type RequestConditionType string
-
-// These are the possible conditions for a certificate request.
-const (
-	AccessApproved RequestConditionType = "Approved"
-	AccessDenied   RequestConditionType = "Denied"
-)
 
 type AWSAccessKeyRequestCondition struct {
 	// request approval state, currently Approved or Denied.
@@ -103,16 +87,4 @@ type AWSAccessKeyRequestCondition struct {
 	// timestamp for the last update to this condition
 	// +optional
 	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
-}
-
-// Lease contains lease info
-type Lease struct {
-	// lease id
-	ID string `json:"id"`
-
-	// lease duration
-	Duration metav1.Duration `json:"duration"`
-
-	// Specifies whether this lease is renewable
-	Renewable bool `json:"renewable"`
 }
