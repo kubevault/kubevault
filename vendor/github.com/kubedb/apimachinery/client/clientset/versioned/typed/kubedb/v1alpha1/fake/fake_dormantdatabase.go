@@ -131,7 +131,7 @@ func (c *FakeDormantDatabases) DeleteCollection(options *v1.DeleteOptions, listO
 // Patch applies the patch and returns the patched dormantDatabase.
 func (c *FakeDormantDatabases) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.DormantDatabase, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(dormantdatabasesResource, c.ns, name, data, subresources...), &v1alpha1.DormantDatabase{})
+		Invokes(testing.NewPatchSubresourceAction(dormantdatabasesResource, c.ns, name, pt, data, subresources...), &v1alpha1.DormantDatabase{})
 
 	if obj == nil {
 		return nil, err

@@ -112,7 +112,7 @@ func (c *FakeEtcdVersions) DeleteCollection(options *v1.DeleteOptions, listOptio
 // Patch applies the patch and returns the patched etcdVersion.
 func (c *FakeEtcdVersions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.EtcdVersion, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(etcdversionsResource, name, data, subresources...), &v1alpha1.EtcdVersion{})
+		Invokes(testing.NewRootPatchSubresourceAction(etcdversionsResource, name, pt, data, subresources...), &v1alpha1.EtcdVersion{})
 	if obj == nil {
 		return nil, err
 	}

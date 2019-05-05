@@ -112,7 +112,7 @@ func (c *FakePostgresVersions) DeleteCollection(options *v1.DeleteOptions, listO
 // Patch applies the patch and returns the patched postgresVersion.
 func (c *FakePostgresVersions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.PostgresVersion, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(postgresversionsResource, name, data, subresources...), &v1alpha1.PostgresVersion{})
+		Invokes(testing.NewRootPatchSubresourceAction(postgresversionsResource, name, pt, data, subresources...), &v1alpha1.PostgresVersion{})
 	if obj == nil {
 		return nil, err
 	}
