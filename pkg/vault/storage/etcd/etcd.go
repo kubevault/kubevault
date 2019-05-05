@@ -12,9 +12,9 @@ import (
 const (
 	// TLS related file name for etcd
 	EtcdTLSAssetDir    = "/etc/vault/storage/etcd/tls/"
-	EtcdClientCaName   = "etcd-ca.crt"
-	EtcdClientCertName = "etcd-client.crt"
-	EtcdClientKeyName  = "etcd-client.key"
+	EtcdClientCaName   = "ca.crt"
+	EtcdClientCertName = "client.crt"
+	EtcdClientKeyName  = "client.key"
 )
 
 var etcdStorageFmt = `
