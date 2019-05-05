@@ -66,6 +66,11 @@ Concepts help you learn about the different parts of the KubeVault and the abstr
 - AWS IAM Secret Engines
   - [AWSRole](/docs/concepts/secret-engine-crds/awsrole.md)
   - [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/awsaccesskeyrequest.md)
+
+- GCP Secret Engines
+  - [GCPRole](/docs/concepts/secret-engine-crds/gcprole.md)
+  - [GCPAccessKeyRequest](/docs/concepts/secret-engine-crds/gcpaccesskeyrequest.md)
+
 - Database Secret Engines
   - [MongoDBRole](/docs/concepts/database-crds/mongodb.md)
   - [MySQLRole](/docs/concepts/database-crds/mysql.md)
