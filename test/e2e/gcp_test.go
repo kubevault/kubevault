@@ -12,14 +12,14 @@ import (
 	"github.com/kubevault/operator/test/e2e/framework"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
-var _ = Describe("GCP Secret Engine", func() {
+var _ = Describe("GCP Role", func() {
 
 	var f *framework.Invocation
 
@@ -152,7 +152,7 @@ var _ = Describe("GCP Secret Engine", func() {
 
 	Describe("GCPRole", func() {
 		var (
-			gcpCredentials corev1.Secret
+			gcpCredentials core.Secret
 			gcpRole        api.GCPRole
 		)
 
@@ -167,7 +167,7 @@ var _ = Describe("GCP Secret Engine", func() {
 			jsonBytes, err := ioutil.ReadFile(credentialAddr)
 			Expect(err).NotTo(HaveOccurred(), "Parse gcp credentials")
 
-			gcpCredentials = corev1.Secret{
+			gcpCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      gcpCredSecret,
@@ -263,7 +263,7 @@ var _ = Describe("GCP Secret Engine", func() {
 
 	Describe("GCPAccessKeyRequest", func() {
 		var (
-			gcpCredentials corev1.Secret
+			gcpCredentials core.Secret
 			gcpRole        api.GCPRole
 			gcpAKReq       api.GCPAccessKeyRequest
 		)
@@ -278,7 +278,7 @@ var _ = Describe("GCP Secret Engine", func() {
 			jsonBytes, err := ioutil.ReadFile(credentialAddr)
 			Expect(err).NotTo(HaveOccurred(), "Parse gcp credentials")
 
-			gcpCredentials = corev1.Secret{
+			gcpCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      gcpCredSecret,

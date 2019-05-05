@@ -12,7 +12,7 @@ import (
 	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"github.com/kubevault/operator/pkg/vault/role/gcp"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
@@ -92,7 +92,7 @@ func (c *VaultController) reconcileGCPRole(gcpRClient gcp.GCPRoleInterface, gcpR
 		status.Conditions = []api.GCPRoleCondition{
 			{
 				Type:    GCPRoleConditionFailed,
-				Status:  corev1.ConditionTrue,
+				Status:  core.ConditionTrue,
 				Reason:  "FailedToEnableGCP",
 				Message: err.Error(),
 			},
@@ -111,7 +111,7 @@ func (c *VaultController) reconcileGCPRole(gcpRClient gcp.GCPRoleInterface, gcpR
 		status.Conditions = []api.GCPRoleCondition{
 			{
 				Type:    GCPRoleConditionFailed,
-				Status:  corev1.ConditionTrue,
+				Status:  core.ConditionTrue,
 				Reason:  "FailedToCreateGCPConfig",
 				Message: err.Error(),
 			},
@@ -130,7 +130,7 @@ func (c *VaultController) reconcileGCPRole(gcpRClient gcp.GCPRoleInterface, gcpR
 		status.Conditions = []api.GCPRoleCondition{
 			{
 				Type:    GCPRoleConditionFailed,
-				Status:  corev1.ConditionTrue,
+				Status:  core.ConditionTrue,
 				Reason:  "FailedToCreateRole",
 				Message: err.Error(),
 			},

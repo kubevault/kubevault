@@ -8390,6 +8390,9 @@
         "azure": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.AzureSpec"
         },
+        "consul": {
+          "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.ConsulSpec"
+        },
         "dynamoDB": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.DynamoDBSpec"
         },
@@ -8417,6 +8420,75 @@
         },
         "swift": {
           "$ref": "#/definitions/com.github.kubevault.operator.apis.kubevault.v1alpha1.SwiftSpec"
+        }
+      }
+    },
+    "com.github.kubevault.operator.apis.kubevault.v1alpha1.ConsulSpec": {
+      "description": "ref: https://www.vaultproject.io/docs/configuration/storage/consul.html\n\nConsulSpec defines the configuration to set up consul as backend storage in vault",
+      "properties": {
+        "aclTokenSecretName": {
+          "description": "Specifies the secret name that contains ACL token with permission to read and write from the path in Consul's key-value store. secret data:\n\t- aclToken:\u003cvalue\u003e",
+          "type": "string"
+        },
+        "address": {
+          "description": "Specifies the address of the Consul agent to communicate with. This can be an IP address, DNS record, or unix socket.",
+          "type": "string"
+        },
+        "checkTimeout": {
+          "description": "Specifies the check interval used to send health check information back to Consul. This is specified using a label suffix like \"30s\" or \"1h\".",
+          "type": "string"
+        },
+        "consistencyMode": {
+          "description": "Specifies the Consul consistency mode. Possible values are \"default\" or \"strong\".",
+          "type": "string"
+        },
+        "disableRegistration": {
+          "description": "Specifies whether Vault should register itself with Consul. Possible values are \"true\" or \"false\"",
+          "type": "string"
+        },
+        "lockWaitTime": {
+          "description": "Specifies the wait time before a lock lock acquisition is made. This affects the minimum time it takes to cancel a lock acquisition.",
+          "type": "string"
+        },
+        "maxParallel": {
+          "description": "Specifies the maximum number of concurrent requests to Consul.",
+          "type": "string"
+        },
+        "path": {
+          "description": "Specifies the path in Consul's key-value store where Vault data will be stored.",
+          "type": "string"
+        },
+        "scheme": {
+          "description": "Specifies the scheme to use when communicating with Consul. This can be set to \"http\" or \"https\".",
+          "type": "string"
+        },
+        "service": {
+          "description": "Specifies the name of the service to register in Consul.",
+          "type": "string"
+        },
+        "serviceAddress": {
+          "description": "Specifies a service-specific address to set on the service registration in Consul. If unset, Vault will use what it knows to be the HA redirect address - which is usually desirable. Setting this parameter to \"\" will tell Consul to leverage the configuration of the node the service is registered on dynamically.",
+          "type": "string"
+        },
+        "serviceTags": {
+          "description": "Specifies a comma-separated list of tags to attach to the service registration in Consul.",
+          "type": "string"
+        },
+        "sessionTTL": {
+          "description": "Specifies the minimum allowed session TTL. Consul server has a lower limit of 10s on the session TTL by default.",
+          "type": "string"
+        },
+        "tlsMinVersion": {
+          "description": "Specifies the minimum TLS version to use. Accepted values are \"tls10\", \"tls11\" or \"tls12\".",
+          "type": "string"
+        },
+        "tlsSecretName": {
+          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for consul communication Secret data:\n\t- ca.crt\n\t- client.crt\n - client.key",
+          "type": "string"
+        },
+        "tlsSkipVerify": {
+          "description": "Specifies if the TLS host verification should be disabled. It is highly discouraged that you disable this option.",
+          "type": "boolean"
         }
       }
     },
@@ -8499,7 +8571,7 @@
           "type": "boolean"
         },
         "tlsSecretName": {
-          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication",
+          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication secret data:\n\t- ca.crt\n - client.crt\n - client.key",
           "type": "string"
         }
       }
