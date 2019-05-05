@@ -55,4 +55,13 @@ const (
 	// Specifies the header value that required if X-Vault-AWS-IAM-Server-ID Header is set
 	// optional for annotation for  SecretTypeAWSAuth
 	AWSHeaderValueKey = "kubevault.com/aws.header-value"
+
+	// required fields:
+	// - Secret.Data["sa.json"] - gcp access secret key
+	//
+	// optional fields:
+	// - Secret.Annotations["kubevault.com/auth-path"] - Specifies the path where gcp auth is enabled
+	SecretTypeGCPAuth core.SecretType = "kubevault.com/gcp"
+	// required for SecretTypeGCPAuth
+	GCPAuthSACredentialJson = "sa.json"
 )
