@@ -51,6 +51,7 @@ Concepts help you learn about the different parts of the KubeVault and the abstr
   - [PosgreSQL](/docs/concepts/vault-server-crds/storage/postgresql.md)
   - [AWS S3](/docs/concepts/vault-server-crds/storage/s3.md)
   - [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
+  - [Consul](/docs/concepts/vault-server-crds/storage/consul.md)
 - Authentication Methods for Vault Server
   - [AWS IAM Auth Method](/docs/concepts/vault-server-crds/auth-methods/aws-iam.md)
   - [Kubernetes Auth Method](/docs/concepts/vault-server-crds/auth-methods/kubernetes.md)

@@ -122,6 +122,7 @@ List of supported backends:
 - [In Memory](/docs/concepts/vault-server-crds/storage/inmem.md)
 - [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
 - [Etcd](/docs/concepts/vault-server-crds/storage/etcd.md)
+- [Consul](/docs/concepts/vault-server-crds/storage/consul.md)
 
 ### spec.unsealer
 

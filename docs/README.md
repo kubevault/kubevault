@@ -28,6 +28,7 @@ KubeVault by AppsCode is a collection of tools for running HashiCorp [Vault](htt
 - [PosgreSQL](/docs/concepts/vault-server-crds/storage/postgresql.md)
 - [AWS S3](/docs/concepts/vault-server-crds/storage/s3.md)
 - [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
+- [Consul](/docs/concepts/vault-server-crds/storage/consul.md)
 
 From here you can learn all about Vault operator's architecture and how to deploy and use Vault operator.
 
