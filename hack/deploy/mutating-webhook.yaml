@@ -10,7 +10,7 @@ webhooks:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/mutators.kubevault.com/v1alpha1/vaultpolicybindings
+      path: /apis/mutators.kubevault.com/v1alpha1/vaultpolicybindingmutators
     caBundle: ${KUBE_CA}
   rules:
   - operations:
@@ -29,7 +29,7 @@ webhooks:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/mutators.kubevault.com/v1alpha1/vaultservers
+      path: /apis/mutators.kubevault.com/v1alpha1/vaultservermutators
     caBundle: ${KUBE_CA}
   rules:
   - operations:

@@ -26,9 +26,9 @@ func (v *VaultServerMutator) Resource() (plural schema.GroupVersionResource, sin
 	return schema.GroupVersionResource{
 			Group:    mutatorGroup,
 			Version:  mutatorVersion,
-			Resource: api.ResourceVaultServers,
+			Resource: "vaultservermutators",
 		},
-		api.ResourceVaultServer
+		"vaultservermutator"
 }
 
 func (v *VaultServerMutator) Initialize(config *rest.Config, stopCh <-chan struct{}) error {

@@ -28,9 +28,9 @@ func (a *PolicyBindingMutator) Resource() (plural schema.GroupVersionResource, s
 	return schema.GroupVersionResource{
 			Group:    mutatorGroup,
 			Version:  mutatorVersion,
-			Resource: api.ResourceVaultPolicyBindings,
+			Resource: "vaultpolicybindingmutators",
 		},
-		api.ResourceVaultPolicyBinding
+		"vaultpolicybindingmutator"
 }
 
 func (a *PolicyBindingMutator) Initialize(config *rest.Config, stopCh <-chan struct{}) error {

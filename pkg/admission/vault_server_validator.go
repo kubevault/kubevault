@@ -37,9 +37,9 @@ func (v *VaultServerValidator) Resource() (plural schema.GroupVersionResource, s
 	return schema.GroupVersionResource{
 			Group:    validatorGroup,
 			Version:  validatorVersion,
-			Resource: api.ResourceVaultServers,
+			Resource: "vaultservervalidators",
 		},
-		api.ResourceVaultServer
+		"vaultservervalidator"
 }
 
 func (v *VaultServerValidator) Initialize(config *rest.Config, stopCh <-chan struct{}) error {
