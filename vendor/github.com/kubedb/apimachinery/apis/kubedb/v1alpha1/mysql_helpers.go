@@ -3,12 +3,14 @@ package v1alpha1
 import (
 	"fmt"
 
-	crdutils "github.com/appscode/kutil/apiextensions/v1beta1"
-	meta_util "github.com/appscode/kutil/meta"
+	"github.com/appscode/go/types"
 	"github.com/kubedb/apimachinery/apis"
 	"github.com/kubedb/apimachinery/apis/kubedb"
 	apps "k8s.io/api/apps/v1"
+	core "k8s.io/api/core/v1"
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
+	meta_util "kmodules.xyz/client-go/meta"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	mona "kmodules.xyz/monitoring-agent-api/api/v1"
 )
@@ -27,7 +29,13 @@ func (m MySQL) OffshootSelectors() map[string]string {
 }
 
 func (m MySQL) OffshootLabels() map[string]string {
-	return meta_util.FilterKeys(GenericKey, m.OffshootSelectors(), m.Labels)
+	out := m.OffshootSelectors()
+	out[meta_util.NameLabelKey] = ResourceSingularMySQL
+	out[meta_util.VersionLabelKey] = string(m.Spec.Version)
+	out[meta_util.InstanceLabelKey] = m.Name
+	out[meta_util.ComponentLabelKey] = "database"
+	out[meta_util.ManagedByLabelKey] = GenericKey
+	return meta_util.FilterKeys(GenericKey, out, m.Labels)
 }
 
 func (m MySQL) ResourceShortCode() string {
@@ -50,6 +58,10 @@ func (m MySQL) ServiceName() string {
 	return m.OffshootName()
 }
 
+func (m MySQL) GoverningServiceName() string {
+	return m.OffshootName() + "-gvr"
+}
+
 // Snapshot service account name.
 func (m MySQL) SnapshotSAName() string {
 	return fmt.Sprintf("%v-snapshot", m.OffshootName())
@@ -67,8 +79,8 @@ func (r mysqlApp) Type() appcat.AppType {
 	return appcat.AppType(fmt.Sprintf("%s/%s", kubedb.GroupName, ResourceSingularMySQL))
 }
 
-func (r MySQL) AppBindingMeta() appcat.AppBindingMeta {
-	return &mysqlApp{&r}
+func (m MySQL) AppBindingMeta() appcat.AppBindingMeta {
+	return &mysqlApp{&m}
 }
 
 type mysqlStatsService struct {
@@ -97,6 +109,12 @@ func (m mysqlStatsService) Scheme() string {
 
 func (m MySQL) StatsService() mona.StatsAccessor {
 	return &mysqlStatsService{&m}
+}
+
+func (m MySQL) StatsServiceLabels() map[string]string {
+	lbl := meta_util.FilterKeys(GenericKey, m.OffshootSelectors(), m.Labels)
+	lbl[LabelRole] = "stats"
+	return lbl
 }
 
 func (m *MySQL) GetMonitoringVendor() string {
@@ -161,38 +179,9 @@ func (m *MySQLSpec) SetDefaults() {
 		return
 	}
 
-	// migrate first to avoid incorrect defaulting
-	m.BackupSchedule.SetDefaults()
-	if m.DoNotPause {
-		m.TerminationPolicy = TerminationPolicyDoNotTerminate
-		m.DoNotPause = false
-	}
-	if len(m.NodeSelector) > 0 {
-		m.PodTemplate.Spec.NodeSelector = m.NodeSelector
-		m.NodeSelector = nil
-	}
-	if m.Resources != nil {
-		m.PodTemplate.Spec.Resources = *m.Resources
-		m.Resources = nil
-	}
-	if m.Affinity != nil {
-		m.PodTemplate.Spec.Affinity = m.Affinity
-		m.Affinity = nil
-	}
-	if len(m.SchedulerName) > 0 {
-		m.PodTemplate.Spec.SchedulerName = m.SchedulerName
-		m.SchedulerName = ""
-	}
-	if len(m.Tolerations) > 0 {
-		m.PodTemplate.Spec.Tolerations = m.Tolerations
-		m.Tolerations = nil
-	}
-	if len(m.ImagePullSecrets) > 0 {
-		m.PodTemplate.Spec.ImagePullSecrets = m.ImagePullSecrets
-		m.ImagePullSecrets = nil
-	}
-
 	// perform defaulting
+	m.BackupSchedule.SetDefaults()
+
 	if m.StorageType == "" {
 		m.StorageType = StorageTypeDurable
 	}
@@ -205,6 +194,47 @@ func (m *MySQLSpec) SetDefaults() {
 		} else {
 			m.TerminationPolicy = TerminationPolicyPause
 		}
+	}
+
+	if m.Topology != nil && m.Topology.Mode != nil && *m.Topology.Mode == MySQLClusterModeGroup {
+		if m.Replicas == nil {
+			m.Replicas = types.Int32P(MySQLDefaultGroupSize)
+		}
+		m.setDefaultProbes()
+	} else {
+		if m.Replicas == nil {
+			m.Replicas = types.Int32P(1)
+		}
+	}
+}
+
+// setDefaultProbes sets defaults only when probe fields are nil.
+// In operator, check if the value of probe fields is "{}".
+// For "{}", ignore readinessprobe or livenessprobe in statefulset.
+// Ref: https://github.com/mattlord/Docker-InnoDB-Cluster/blob/master/healthcheck.sh#L10
+func (m *MySQLSpec) setDefaultProbes() {
+	probe := &core.Probe{
+		Handler: core.Handler{
+			Exec: &core.ExecAction{
+				Command: []string{
+					"bash",
+					"-c",
+					`
+export MYSQL_PWD=${MYSQL_ROOT_PASSWORD}
+mysql -h localhost -nsLNE -e "select member_state from performance_schema.replication_group_members where member_id=@@server_uuid;" 2>/dev/null | grep -v "*" | egrep -v "ERROR|OFFLINE"
+`,
+				},
+			},
+		},
+		InitialDelaySeconds: 30,
+		PeriodSeconds:       5,
+	}
+
+	if m.PodTemplate.Spec.LivenessProbe == nil {
+		m.PodTemplate.Spec.LivenessProbe = probe
+	}
+	if m.PodTemplate.Spec.ReadinessProbe == nil {
+		m.PodTemplate.Spec.ReadinessProbe = probe
 	}
 }
 

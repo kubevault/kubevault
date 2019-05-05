@@ -112,7 +112,7 @@ func (c *FakeElasticsearchVersions) DeleteCollection(options *v1.DeleteOptions, 
 // Patch applies the patch and returns the patched elasticsearchVersion.
 func (c *FakeElasticsearchVersions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.ElasticsearchVersion, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(elasticsearchversionsResource, name, data, subresources...), &v1alpha1.ElasticsearchVersion{})
+		Invokes(testing.NewRootPatchSubresourceAction(elasticsearchversionsResource, name, pt, data, subresources...), &v1alpha1.ElasticsearchVersion{})
 	if obj == nil {
 		return nil, err
 	}

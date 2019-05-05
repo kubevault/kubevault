@@ -131,7 +131,7 @@ func (c *FakeMongoDBRoles) DeleteCollection(options *v1.DeleteOptions, listOptio
 // Patch applies the patch and returns the patched mongoDBRole.
 func (c *FakeMongoDBRoles) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.MongoDBRole, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(mongodbrolesResource, c.ns, name, data, subresources...), &v1alpha1.MongoDBRole{})
+		Invokes(testing.NewPatchSubresourceAction(mongodbrolesResource, c.ns, name, pt, data, subresources...), &v1alpha1.MongoDBRole{})
 
 	if obj == nil {
 		return nil, err

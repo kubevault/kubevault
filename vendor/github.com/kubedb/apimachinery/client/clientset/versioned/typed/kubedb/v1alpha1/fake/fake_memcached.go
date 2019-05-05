@@ -131,7 +131,7 @@ func (c *FakeMemcacheds) DeleteCollection(options *v1.DeleteOptions, listOptions
 // Patch applies the patch and returns the patched memcached.
 func (c *FakeMemcacheds) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Memcached, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(memcachedsResource, c.ns, name, data, subresources...), &v1alpha1.Memcached{})
+		Invokes(testing.NewPatchSubresourceAction(memcachedsResource, c.ns, name, pt, data, subresources...), &v1alpha1.Memcached{})
 
 	if obj == nil {
 		return nil, err
