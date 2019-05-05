@@ -35,10 +35,17 @@ func (r AWSRole) CustomResourceDefinition() *apiextensions.CustomResourceDefinit
 		Labels: crdutils.Labels{
 			LabelsMap: map[string]string{"app": "vault"},
 		},
-		SpecDefinitionName:      "github.com/kubedb/apimachinery/apis/authorization/v1alpha1.AWSRole",
+		SpecDefinitionName:      "github.com/kubevault/operator/apis/kubevault/v1alpha1.AWSRole",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
 		EnableStatusSubresource: apis.EnableStatusSubresource,
+		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
+			{
+				Name:     "Status",
+				Type:     "string",
+				JSONPath: ".status.phase",
+			},
+		},
 	})
 }
 

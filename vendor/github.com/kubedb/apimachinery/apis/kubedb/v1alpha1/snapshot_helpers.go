@@ -99,5 +99,8 @@ func (s *Snapshot) SetDefaults() {
 	if s == nil {
 		return
 	}
-	// Add snapshot defaulting here
+	if s.Spec.Resources != nil {
+		s.Spec.PodTemplate.Spec.Resources = *s.Spec.Resources
+		s.Spec.Resources = nil
+	}
 }

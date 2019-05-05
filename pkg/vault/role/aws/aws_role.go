@@ -33,7 +33,7 @@ func (a *AWSRole) IsAWSEnabled() (bool, error) {
 	return false, nil
 }
 
-// EnableDatabase enables aws secret engine
+// EnableAWS enables aws secret engine
 // It first checks whether aws is enabled or not
 func (a *AWSRole) EnableAWS() error {
 	enabled, err := a.IsAWSEnabled()
@@ -194,7 +194,7 @@ func (a *AWSRole) DeleteRole(name string) error {
 
 	_, err := a.vaultClient.RawRequest(req)
 	if err != nil {
-		return errors.Wrapf(err, "failed to delete database role %s", name)
+		return errors.Wrapf(err, "failed to delete aws role %s", name)
 	}
 	return nil
 }

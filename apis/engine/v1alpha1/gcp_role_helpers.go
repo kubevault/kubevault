@@ -1,17 +1,28 @@
 package v1alpha1
 
 import (
-	"github.com/kubedb/apimachinery/apis"
+	"fmt"
+
+	"github.com/kubevault/operator/apis"
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
+	"kmodules.xyz/client-go/tools/clusterid"
 )
 
-func (d AWSAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+func (r GCPRole) RoleName() string {
+	cluster := "-"
+	if clusterid.ClusterName() != "" {
+		cluster = clusterid.ClusterName()
+	}
+	return fmt.Sprintf("k8s.%s.%s.%s", cluster, r.Namespace, r.Name)
+}
+
+func (r GCPRole) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crdutils.NewCustomResourceDefinition(crdutils.Config{
 		Group:         SchemeGroupVersion.Group,
-		Plural:        ResourceAWSAccessKeyRequests,
-		Singular:      ResourceAWSAccessKeyRequest,
-		Kind:          ResourceKindAWSAccessKeyRequest,
+		Plural:        ResourceGCPRoles,
+		Singular:      ResourceGCPRole,
+		Kind:          ResourceKindGCPRole,
 		Categories:    []string{"vault", "appscode", "all"},
 		ResourceScope: string(apiextensions.NamespaceScoped),
 		Versions: []apiextensions.CustomResourceDefinitionVersion{
@@ -24,13 +35,20 @@ func (d AWSAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomRes
 		Labels: crdutils.Labels{
 			LabelsMap: map[string]string{"app": "vault"},
 		},
-		SpecDefinitionName:      "github.com/kubevault/operator/apis/kubevault/v1alpha1.AWSAccessKeyRequest",
+		SpecDefinitionName:      "github.com/kubevault/operator/apis/kubevault/v1alpha1.GCPRole",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
 		EnableStatusSubresource: apis.EnableStatusSubresource,
+		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
+			{
+				Name:     "Status",
+				Type:     "string",
+				JSONPath: ".status.phase",
+			},
+		},
 	})
 }
 
-func (d AWSAccessKeyRequest) IsValid() error {
+func (r GCPRole) IsValid() error {
 	return nil
 }

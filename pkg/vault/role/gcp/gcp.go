@@ -1,4 +1,4 @@
-package aws
+package gcp
 
 import (
 	"encoding/json"
@@ -13,49 +13,48 @@ import (
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
 
-const DefaultAWSPath = "aws"
+const DefaultGCPPath = "gcp"
 
-type AWSRoleInterface interface {
+type GCPRoleInterface interface {
 	role.RoleInterface
 
-	// Enable enables aws secret engine
-	EnableAWS() error
+	// Enable enables gcp secret engine
+	EnableGCP() error
 
-	// IsAWSEnabled checks whether aws is enabled or not
-	IsAWSEnabled() (bool, error)
+	// IsGCPEnabled checks whether gcp is enabled or not
+	IsGCPEnabled() (bool, error)
 
 	// DeleteRole deletes role
 	DeleteRole(name string) error
 }
 
-func NewAWSRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.AWSRole) (AWSRoleInterface, error) {
+func NewGCPRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.GCPRole) (GCPRoleInterface, error) {
 	vClient, err := vault.NewClient(kClient, appClient, role.Spec.AuthManagerRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault api client")
 	}
 
-	awsPath, err := GetAWSPath(appClient, role.Spec.AuthManagerRef)
+	gcpPath, err := GetGCPPath(appClient, role.Spec.AuthManagerRef)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get aws path")
+		return nil, errors.Wrap(err, "failed to get gcp path")
 	}
-	return &AWSRole{
+	return &GCPRole{
 		kubeClient:  kClient,
 		vaultClient: vClient,
-		awsRole:     role,
-		awsPath:     awsPath,
+		gcpRole:     role,
+		gcpPath:     gcpPath,
 	}, nil
-
 }
 
-// If aws path does not exist, then use default aws path
-func GetAWSPath(c appcat_cs.AppcatalogV1alpha1Interface, ref *appcat.AppReference) (string, error) {
+// If gcp path does not exist, then use default gcp path
+func GetGCPPath(c appcat_cs.AppcatalogV1alpha1Interface, ref *appcat.AppReference) (string, error) {
 	vApp, err := c.AppBindings(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
 
 	var cf struct {
-		AWSPath string `json:"awsPath,omitempty"`
+		GCPPath string `json:"gcpPath,omitempty"`
 	}
 
 	if vApp.Spec.Parameters != nil {
@@ -65,8 +64,8 @@ func GetAWSPath(c appcat_cs.AppcatalogV1alpha1Interface, ref *appcat.AppReferenc
 		}
 	}
 
-	if cf.AWSPath != "" {
-		return cf.AWSPath, nil
+	if cf.GCPPath != "" {
+		return cf.GCPPath, nil
 	}
-	return DefaultAWSPath, nil
+	return DefaultGCPPath, nil
 }

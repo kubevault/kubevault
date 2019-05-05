@@ -29,6 +29,7 @@ type EngineV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	AWSAccessKeyRequestsGetter
 	AWSRolesGetter
+	GCPRolesGetter
 }
 
 // EngineV1alpha1Client is used to interact with features provided by the engine.kubevault.com group.
@@ -42,6 +43,10 @@ func (c *EngineV1alpha1Client) AWSAccessKeyRequests(namespace string) AWSAccessK
 
 func (c *EngineV1alpha1Client) AWSRoles(namespace string) AWSRoleInterface {
 	return newAWSRoles(c, namespace)
+}
+
+func (c *EngineV1alpha1Client) GCPRoles(namespace string) GCPRoleInterface {
+	return newGCPRoles(c, namespace)
 }
 
 // NewForConfig creates a new EngineV1alpha1Client for the given config.

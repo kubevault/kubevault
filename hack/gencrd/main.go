@@ -44,6 +44,7 @@ func generateCRDDefinitions() {
 		policyv1alpha1.VaultPolicyBinding{}.CustomResourceDefinition(),
 		secretv1alpha1.AWSRole{}.CustomResourceDefinition(),
 		secretv1alpha1.AWSAccessKeyRequest{}.CustomResourceDefinition(),
+		secretv1alpha1.GCPRole{}.CustomResourceDefinition(),
 	}
 	for _, crd := range crds {
 		filename := filepath.Join(gort.GOPath(), "/src/github.com/kubevault/operator/api/crds", crd.Spec.Names.Singular+".yaml")
@@ -96,6 +97,7 @@ func generateSwaggerJson() {
 			{policyv1alpha1.SchemeGroupVersion, policyv1alpha1.ResourceVaultPolicyBindings, policyv1alpha1.ResourceKindVaultPolicyBinding, true},
 			{secretv1alpha1.SchemeGroupVersion, secretv1alpha1.ResourceAWSRoles, secretv1alpha1.ResourceKindAWSRole, true},
 			{secretv1alpha1.SchemeGroupVersion, secretv1alpha1.ResourceAWSAccessKeyRequests, secretv1alpha1.ResourceKindAWSAccessKeyRequest, true},
+			{secretv1alpha1.SchemeGroupVersion, secretv1alpha1.ResourceGCPRole, secretv1alpha1.ResourceKindGCPRole, true},
 		},
 	})
 	if err != nil {

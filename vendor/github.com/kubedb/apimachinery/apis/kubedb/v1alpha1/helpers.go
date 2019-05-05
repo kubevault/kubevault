@@ -4,5 +4,8 @@ func (e *BackupScheduleSpec) SetDefaults() {
 	if e == nil {
 		return
 	}
-	// Add BackupScheduleSpec defaulting here
+	if e.Resources != nil {
+		e.PodTemplate.Spec.Resources = *e.Resources
+		e.Resources = nil
+	}
 }

@@ -5,7 +5,7 @@ metadata:
   creationTimestamp: null
   labels:
     app: vault
-  name: awsroles.engine.kubevault.com
+  name: gcproles.engine.kubevault.com
 spec:
   additionalPrinterColumns:
   - JSONPath: .status.phase
@@ -17,9 +17,9 @@ spec:
     - vault
     - appscode
     - all
-    kind: AWSRole
-    plural: awsroles
-    singular: awsrole
+    kind: GCPRole
+    plural: gcproles
+    singular: gcprole
   scope: Namespaced
   subresources:
     status: {}

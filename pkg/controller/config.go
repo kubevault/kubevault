@@ -114,5 +114,8 @@ func (c *Config) New() (*VaultController, error) {
 	ctrl.initAWSRoleWatcher()
 	ctrl.initAWSAccessKeyWatcher()
 
+	// For GCPRole
+	ctrl.initGCPRoleWatcher()
+
 	return ctrl, nil
 }
