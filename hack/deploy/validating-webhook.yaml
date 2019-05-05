@@ -78,30 +78,22 @@ webhooks:
     - awsaccesskeyrequests
   failurePolicy: Fail
   ${VAULT_OPERATOR_WEBHOOK_SIDE_EFFECTS}
----
-apiVersion: admissionregistration.k8s.io/v1beta1
-kind: ValidatingWebhookConfiguration
-metadata:
-  name: validators.engine.kubevault.com
-  labels:
-    app: vault-operator
-webhooks:
-  - name: gcpaccesskeyrequests.validators.engine.kubevault.com
-    clientConfig:
-      service:
-        namespace: default
-        name: kubernetes
-        path: /apis/validators.engine.kubevault.com/v1alpha1/gcpaccesskeyrequests
-      caBundle: ${KUBE_CA}
-    rules:
-      - operations:
-          - CREATE
-          - UPDATE
-        apiGroups:
-          - engine.kubevault.com
-        apiVersions:
-          - "*"
-        resources:
-          - gcpaccesskeyrequests
-    failurePolicy: Fail
-    ${VAULT_OPERATOR_WEBHOOK_SIDE_EFFECTS}
+- name: gcpaccesskeyrequests.validators.engine.kubevault.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/validators.engine.kubevault.com/v1alpha1/gcpaccesskeyrequests
+    caBundle: ${KUBE_CA}
+  rules:
+  - operations:
+    - CREATE
+    - UPDATE
+    apiGroups:
+    - engine.kubevault.com
+    apiVersions:
+    - "*"
+    resources:
+    - gcpaccesskeyrequests
+  failurePolicy: Fail
+  ${VAULT_OPERATOR_WEBHOOK_SIDE_EFFECTS}
