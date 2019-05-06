@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,9 +15,13 @@ import (
 )
 
 func TestLogin(t *testing.T) {
-	addr := "http://127.0.0.1:8200"
-	credentialaddr := "/home/kamol/Downloads/ackube-f40f2904becb.json"
-	role := "my-iam-role"
+	addr := os.Getenv("VAULT_ADDR")
+	credentialaddr := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+	role := os.Getenv("VAULT_GCP_ROLE_NAME")
+	if addr == "" || credentialaddr == "" || role == "" {
+		t.Skip()
+	}
+
 	jsonBytes, err := ioutil.ReadFile(credentialaddr)
 	if err != nil {
 		log.Fatal(err)
