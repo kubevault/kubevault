@@ -11,10 +11,10 @@ import (
 	cs "github.com/kubevault/operator/client/clientset/versioned"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/afero"
+	"gomodules.xyz/cert/certstore"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	ka "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
-	"kmodules.xyz/client-go/tools/certstore"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )

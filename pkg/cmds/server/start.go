@@ -64,7 +64,7 @@ func (o VaultServerOptions) Config() (*server.VaultServerConfig, error) {
 
 	serverConfig := genericapiserver.NewRecommendedConfig(server.Codecs)
 	serverConfig.EnableMetrics = true
-	if err := o.RecommendedOptions.ApplyTo(serverConfig, server.Scheme); err != nil {
+	if err := o.RecommendedOptions.ApplyTo(serverConfig); err != nil {
 		return nil, err
 	}
 	// Fixes https://github.com/Azure/AKS/issues/522

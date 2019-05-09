@@ -14,6 +14,8 @@ import (
 	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"gomodules.xyz/cert"
+	"gomodules.xyz/cert/certstore"
 	apps "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
@@ -21,9 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/util/cert"
 	core_util "kmodules.xyz/client-go/core/v1"
-	"kmodules.xyz/client-go/tools/certstore"
 )
 
 const (
