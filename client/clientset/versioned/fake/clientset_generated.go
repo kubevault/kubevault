@@ -84,18 +84,8 @@ func (c *Clientset) CatalogV1alpha1() catalogv1alpha1.CatalogV1alpha1Interface {
 	return &fakecatalogv1alpha1.FakeCatalogV1alpha1{Fake: &c.Fake}
 }
 
-// Catalog retrieves the CatalogV1alpha1Client
-func (c *Clientset) Catalog() catalogv1alpha1.CatalogV1alpha1Interface {
-	return &fakecatalogv1alpha1.FakeCatalogV1alpha1{Fake: &c.Fake}
-}
-
 // ConfigV1alpha1 retrieves the ConfigV1alpha1Client
 func (c *Clientset) ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface {
-	return &fakeconfigv1alpha1.FakeConfigV1alpha1{Fake: &c.Fake}
-}
-
-// Config retrieves the ConfigV1alpha1Client
-func (c *Clientset) Config() configv1alpha1.ConfigV1alpha1Interface {
 	return &fakeconfigv1alpha1.FakeConfigV1alpha1{Fake: &c.Fake}
 }
 
@@ -104,27 +94,12 @@ func (c *Clientset) EngineV1alpha1() enginev1alpha1.EngineV1alpha1Interface {
 	return &fakeenginev1alpha1.FakeEngineV1alpha1{Fake: &c.Fake}
 }
 
-// Engine retrieves the EngineV1alpha1Client
-func (c *Clientset) Engine() enginev1alpha1.EngineV1alpha1Interface {
-	return &fakeenginev1alpha1.FakeEngineV1alpha1{Fake: &c.Fake}
-}
-
 // KubevaultV1alpha1 retrieves the KubevaultV1alpha1Client
 func (c *Clientset) KubevaultV1alpha1() kubevaultv1alpha1.KubevaultV1alpha1Interface {
 	return &fakekubevaultv1alpha1.FakeKubevaultV1alpha1{Fake: &c.Fake}
 }
 
-// Kubevault retrieves the KubevaultV1alpha1Client
-func (c *Clientset) Kubevault() kubevaultv1alpha1.KubevaultV1alpha1Interface {
-	return &fakekubevaultv1alpha1.FakeKubevaultV1alpha1{Fake: &c.Fake}
-}
-
 // PolicyV1alpha1 retrieves the PolicyV1alpha1Client
 func (c *Clientset) PolicyV1alpha1() policyv1alpha1.PolicyV1alpha1Interface {
-	return &fakepolicyv1alpha1.FakePolicyV1alpha1{Fake: &c.Fake}
-}
-
-// Policy retrieves the PolicyV1alpha1Client
-func (c *Clientset) Policy() policyv1alpha1.PolicyV1alpha1Interface {
 	return &fakepolicyv1alpha1.FakePolicyV1alpha1{Fake: &c.Fake}
 }

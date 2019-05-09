@@ -32,20 +32,10 @@ import (
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
 	CatalogV1alpha1() catalogv1alpha1.CatalogV1alpha1Interface
-	// Deprecated: please explicitly pick a version if possible.
-	Catalog() catalogv1alpha1.CatalogV1alpha1Interface
 	ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface
-	// Deprecated: please explicitly pick a version if possible.
-	Config() configv1alpha1.ConfigV1alpha1Interface
 	EngineV1alpha1() enginev1alpha1.EngineV1alpha1Interface
-	// Deprecated: please explicitly pick a version if possible.
-	Engine() enginev1alpha1.EngineV1alpha1Interface
 	KubevaultV1alpha1() kubevaultv1alpha1.KubevaultV1alpha1Interface
-	// Deprecated: please explicitly pick a version if possible.
-	Kubevault() kubevaultv1alpha1.KubevaultV1alpha1Interface
 	PolicyV1alpha1() policyv1alpha1.PolicyV1alpha1Interface
-	// Deprecated: please explicitly pick a version if possible.
-	Policy() policyv1alpha1.PolicyV1alpha1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
@@ -64,20 +54,8 @@ func (c *Clientset) CatalogV1alpha1() catalogv1alpha1.CatalogV1alpha1Interface {
 	return c.catalogV1alpha1
 }
 
-// Deprecated: Catalog retrieves the default version of CatalogClient.
-// Please explicitly pick a version.
-func (c *Clientset) Catalog() catalogv1alpha1.CatalogV1alpha1Interface {
-	return c.catalogV1alpha1
-}
-
 // ConfigV1alpha1 retrieves the ConfigV1alpha1Client
 func (c *Clientset) ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface {
-	return c.configV1alpha1
-}
-
-// Deprecated: Config retrieves the default version of ConfigClient.
-// Please explicitly pick a version.
-func (c *Clientset) Config() configv1alpha1.ConfigV1alpha1Interface {
 	return c.configV1alpha1
 }
 
@@ -86,31 +64,13 @@ func (c *Clientset) EngineV1alpha1() enginev1alpha1.EngineV1alpha1Interface {
 	return c.engineV1alpha1
 }
 
-// Deprecated: Engine retrieves the default version of EngineClient.
-// Please explicitly pick a version.
-func (c *Clientset) Engine() enginev1alpha1.EngineV1alpha1Interface {
-	return c.engineV1alpha1
-}
-
 // KubevaultV1alpha1 retrieves the KubevaultV1alpha1Client
 func (c *Clientset) KubevaultV1alpha1() kubevaultv1alpha1.KubevaultV1alpha1Interface {
 	return c.kubevaultV1alpha1
 }
 
-// Deprecated: Kubevault retrieves the default version of KubevaultClient.
-// Please explicitly pick a version.
-func (c *Clientset) Kubevault() kubevaultv1alpha1.KubevaultV1alpha1Interface {
-	return c.kubevaultV1alpha1
-}
-
 // PolicyV1alpha1 retrieves the PolicyV1alpha1Client
 func (c *Clientset) PolicyV1alpha1() policyv1alpha1.PolicyV1alpha1Interface {
-	return c.policyV1alpha1
-}
-
-// Deprecated: Policy retrieves the default version of PolicyClient.
-// Please explicitly pick a version.
-func (c *Clientset) Policy() policyv1alpha1.PolicyV1alpha1Interface {
 	return c.policyV1alpha1
 }
 

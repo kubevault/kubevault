@@ -11,7 +11,6 @@ import (
 	"github.com/kubevault/operator/pkg/eventer"
 	core "k8s.io/api/core/v1"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -58,9 +57,6 @@ func (c *Config) New() (*VaultController, error) {
 		return nil, err
 	}
 
-	tweakListOptions := func(opt *metav1.ListOptions) {
-		opt.IncludeUninitialized = true
-	}
 	ctrl := &VaultController{
 		config:           c.config,
 		clientConfig:     c.ClientConfig,
@@ -76,8 +72,7 @@ func (c *Config) New() (*VaultController, error) {
 		kubeInformerFactory: informers.NewSharedInformerFactoryWithOptions(
 			c.KubeClient,
 			c.ResyncPeriod,
-			informers.WithNamespace(core.NamespaceAll),
-			informers.WithTweakListOptions(tweakListOptions)),
+			informers.WithNamespace(core.NamespaceAll)),
 		extInformerFactory: vaultinformers.NewSharedInformerFactory(c.ExtClient, c.ResyncPeriod),
 		dbInformerFactory:  dbinformers.NewSharedInformerFactory(c.DbClient, c.ResyncPeriod),
 		recorder:           eventer.NewEventRecorder(c.KubeClient, "vault-operator"),
