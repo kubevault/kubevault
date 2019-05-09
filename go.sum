@@ -255,8 +255,8 @@ github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORN
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
-github.com/kubedb/apimachinery v0.0.0-20190318220916-fb8b2533cc4f h1:VHK2r46+VMaYhAm24v1PlGa2g5Pwli2q2vSfFlkNGVA=
-github.com/kubedb/apimachinery v0.0.0-20190318220916-fb8b2533cc4f/go.mod h1:KB3GoWnT0npL4q1h82271X0txwAkkl8ZedVfbJMy4Rg=
+github.com/kubedb/apimachinery v0.0.0-20190506191700-871d6b5d30ee h1:E5drL4CdNcFoT6LKZahAfSv+ScSTZazcjViSAc6RsTI=
+github.com/kubedb/apimachinery v0.0.0-20190506191700-871d6b5d30ee/go.mod h1:KB3GoWnT0npL4q1h82271X0txwAkkl8ZedVfbJMy4Rg=
 github.com/lib/pq v0.0.0-20180201184707-88edab080323 h1:Ou506ViB5uo2GloKFWIYi5hwRJn4AAOXuLVv8RMY9+4=
 github.com/lib/pq v0.0.0-20180201184707-88edab080323/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
 github.com/mailru/easyjson v0.0.0-20180823135443-60711f1a8329 h1:2gxZ0XQIU/5z3Z3bUBu+FXuk2pFbkN6tcwi/pjyaDic=

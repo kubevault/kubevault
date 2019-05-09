@@ -30,7 +30,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/vault v1.0.1
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d // indirect
-	github.com/kubedb/apimachinery v0.0.0-20190318220916-fb8b2533cc4f
+	github.com/kubedb/apimachinery v0.0.0-20190506191700-871d6b5d30ee
 	github.com/lib/pq v0.0.0-20180201184707-88edab080323
 	github.com/mitchellh/go-testing-interface v1.0.0 // indirect
 	github.com/ncw/swift v1.0.47
