@@ -34,6 +34,14 @@ type AWSRoleListerExpansion interface{}
 // AWSRoleNamespaceLister.
 type AWSRoleNamespaceListerExpansion interface{}
 
+// AzureRoleListerExpansion allows custom methods to be added to
+// AzureRoleLister.
+type AzureRoleListerExpansion interface{}
+
+// AzureRoleNamespaceListerExpansion allows custom methods to be added to
+// AzureRoleNamespaceLister.
+type AzureRoleNamespaceListerExpansion interface{}
+
 // GCPAccessKeyRequestListerExpansion allows custom methods to be added to
 // GCPAccessKeyRequestLister.
 type GCPAccessKeyRequestListerExpansion interface{}

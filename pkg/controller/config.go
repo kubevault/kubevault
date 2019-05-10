@@ -113,5 +113,8 @@ func (c *Config) New() (*VaultController, error) {
 	ctrl.initGCPRoleWatcher()
 	ctrl.initGCPAccessKeyWatcher()
 
+	// For AzureRole
+	ctrl.initAzureRoleWatcher()
+
 	return ctrl, nil
 }

@@ -46,6 +46,12 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/kubevault/operator/apis/engine/v1alpha1.AWSRoleList":                  schema_operator_apis_engine_v1alpha1_AWSRoleList(ref),
 		"github.com/kubevault/operator/apis/engine/v1alpha1.AWSRoleSpec":                  schema_operator_apis_engine_v1alpha1_AWSRoleSpec(ref),
 		"github.com/kubevault/operator/apis/engine/v1alpha1.AWSRoleStatus":                schema_operator_apis_engine_v1alpha1_AWSRoleStatus(ref),
+		"github.com/kubevault/operator/apis/engine/v1alpha1.AzureConfig":                  schema_operator_apis_engine_v1alpha1_AzureConfig(ref),
+		"github.com/kubevault/operator/apis/engine/v1alpha1.AzureRole":                    schema_operator_apis_engine_v1alpha1_AzureRole(ref),
+		"github.com/kubevault/operator/apis/engine/v1alpha1.AzureRoleCondition":           schema_operator_apis_engine_v1alpha1_AzureRoleCondition(ref),
+		"github.com/kubevault/operator/apis/engine/v1alpha1.AzureRoleList":                schema_operator_apis_engine_v1alpha1_AzureRoleList(ref),
+		"github.com/kubevault/operator/apis/engine/v1alpha1.AzureRoleSpec":                schema_operator_apis_engine_v1alpha1_AzureRoleSpec(ref),
+		"github.com/kubevault/operator/apis/engine/v1alpha1.AzureRoleStatus":              schema_operator_apis_engine_v1alpha1_AzureRoleStatus(ref),
 		"github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequest":          schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequest(ref),
 		"github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequestCondition": schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestCondition(ref),
 		"github.com/kubevault/operator/apis/engine/v1alpha1.GCPAccessKeyRequestList":      schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestList(ref),
@@ -930,6 +936,275 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleStatus(ref common.ReferenceCall
 		},
 		Dependencies: []string{
 			"github.com/appscode/go/encoding/json/types.IntHash", "github.com/kubevault/operator/apis/engine/v1alpha1.AWSRoleCondition"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_AzureConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "AzureConfig contains information to communicate with Azure",
+				Properties: map[string]spec.Schema{
+					"subscriptionID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The subscription id for the Azure Active Directory.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"tenantID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The tenant id for the Azure Active Directory.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"clientID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The OAuth2 client id to connect to Azure.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"clientSecret": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The OAuth2 client secret to connect to Azure. This value will be provided by kubernetes secret\n\tsecret.Data:\n\t\tclientSecret: <value>",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"environment": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The Azure environment. If not specified, Vault will use Azure Public Cloud.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"subscriptionID", "tenantID"},
+			},
+		},
+		Dependencies: []string{},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_AzureRole(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "AzureRole",
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/kubevault/operator/apis/engine/v1alpha1.AzureRoleSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/kubevault/operator/apis/engine/v1alpha1.AzureRoleStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kubevault/operator/apis/engine/v1alpha1.AzureRoleSpec", "github.com/kubevault/operator/apis/engine/v1alpha1.AzureRoleStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_AzureRoleCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "AzureRoleCondition describes the state of a AzureRole at a certain point.",
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Type of AzureRole condition.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Status of the condition, one of True, False, Unknown.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"reason": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The reason for the condition's.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"message": {
+						SchemaProps: spec.SchemaProps{
+							Description: "A human readable message indicating details about the transition.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_AzureRoleList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Items is a list of AzureRole objects",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("github.com/kubevault/operator/apis/engine/v1alpha1.AzureRole"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kubevault/operator/apis/engine/v1alpha1.AzureRole", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_AzureRoleSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "AzureRoleSpec contains connection information, Azure role info, etc",
+				Properties: map[string]spec.Schema{
+					"authManagerRef": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+						},
+					},
+					"config": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/kubevault/operator/apis/engine/v1alpha1.AzureConfig"),
+						},
+					},
+					"azureRoles": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of Azure roles to be assigned to the generated service principal. The array must be in JSON format, properly escaped as a string",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"applicationObjectID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Application Object ID for an existing service principal that will be used instead of creating dynamic service principals. If present, azure_roles will be ignored.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the default TTL for service principals generated using this role. Accepts time suffixed strings (\"1h\") or an integer number of seconds. Defaults to the system/engine default TTL time.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"maxTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum TTL for service principals generated using this role. Accepts time suffixed strings (\"1h\") or an integer number of seconds. Defaults to the system/engine max TTL time.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"config"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/kubevault/operator/apis/engine/v1alpha1.AzureConfig", "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_AzureRoleStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Properties: map[string]spec.Schema{
+					"phase": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "observedGeneration is the most recent generation observed for this AzureRole. It corresponds to the AzureRole's generation, which is updated on mutation by the API Server.",
+							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+						},
+					},
+					"conditions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Represents the latest available observations of a AzureRole current state.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("github.com/kubevault/operator/apis/engine/v1alpha1.AzureRoleCondition"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/appscode/go/encoding/json/types.IntHash", "github.com/kubevault/operator/apis/engine/v1alpha1.AzureRoleCondition"},
 	}
 }
 
