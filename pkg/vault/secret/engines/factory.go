@@ -3,6 +3,7 @@ package engines
 import (
 	"github.com/kubevault/operator/pkg/vault/secret"
 	"github.com/kubevault/operator/pkg/vault/secret/engines/aws"
+	"github.com/kubevault/operator/pkg/vault/secret/engines/azure"
 	"github.com/kubevault/operator/pkg/vault/secret/engines/database"
 	"github.com/kubevault/operator/pkg/vault/secret/engines/gcp"
 	"github.com/kubevault/operator/pkg/vault/secret/engines/kv"
@@ -22,6 +23,8 @@ func NewSecretManager(engineName string) (secret.SecretManager, error) {
 		return database.NewSecretManager(), nil
 	case gcp.UID:
 		return gcp.NewSecretManager(), nil
+	case azure.UID:
+		return azure.NewSecretManager(), nil
 	default:
 		return nil, errors.Errorf("unsupported/invalid secret engine '%s'", engineName)
 	}

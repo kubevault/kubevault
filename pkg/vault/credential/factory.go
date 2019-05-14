@@ -6,6 +6,7 @@ import (
 	engineapi "github.com/kubevault/operator/apis/engine/v1alpha1"
 	vaultcrd "github.com/kubevault/operator/client/clientset/versioned"
 	"github.com/kubevault/operator/pkg/vault/credential/aws"
+	"github.com/kubevault/operator/pkg/vault/credential/azure"
 	"github.com/kubevault/operator/pkg/vault/credential/database"
 	"github.com/kubevault/operator/pkg/vault/credential/gcp"
 	"github.com/pkg/errors"
@@ -46,5 +47,17 @@ func NewCredentialManagerForGCP(kubeClient kubernetes.Interface, appClient appca
 		kubeClient:   kubeClient,
 		secretEngine: gcpCM,
 		vaultClient:  gcpCM.VaultClient,
+	}, nil
+}
+
+func NewCredentialManagerForAzure(kubeClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr vaultcrd.Interface, azureAKReq *engineapi.AzureAccessKeyRequest) (CredentialManager, error) {
+	azureCM, err := azure.NewAzureCredentialManager(kubeClient, appClient, cr, azureAKReq)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get azure credential manager")
+	}
+	return &CredManager{
+		kubeClient:   kubeClient,
+		secretEngine: azureCM,
+		vaultClient:  azureCM.VaultClient,
 	}, nil
 }
