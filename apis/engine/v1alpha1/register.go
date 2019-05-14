@@ -41,6 +41,7 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&GCPAccessKeyRequest{},
 		&GCPAccessKeyRequestList{},
 		&AzureRole{},
+		&AzureRoleList{},
 	)
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&metav1.Status{},
