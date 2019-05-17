@@ -944,6 +944,7 @@ func schema_operator_apis_engine_v1alpha1_AzureConfig(ref common.ReferenceCallba
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Description: "AzureConfig contains information to communicate with Azure",
+				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"subscriptionID": {
 						SchemaProps: spec.SchemaProps{
@@ -984,7 +985,6 @@ func schema_operator_apis_engine_v1alpha1_AzureConfig(ref common.ReferenceCallba
 				Required: []string{"subscriptionID", "tenantID"},
 			},
 		},
-		Dependencies: []string{},
 	}
 }
 
@@ -993,6 +993,7 @@ func schema_operator_apis_engine_v1alpha1_AzureRole(ref common.ReferenceCallback
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Description: "AzureRole",
+				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"kind": {
 						SchemaProps: spec.SchemaProps{
@@ -1036,6 +1037,7 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleCondition(ref common.Referenc
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Description: "AzureRoleCondition describes the state of a AzureRole at a certain point.",
+				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"type": {
 						SchemaProps: spec.SchemaProps{
@@ -1068,7 +1070,6 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleCondition(ref common.Referenc
 				},
 			},
 		},
-		Dependencies: []string{},
 	}
 }
 
@@ -1076,6 +1077,7 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleList(ref common.ReferenceCall
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
 					"kind": {
 						SchemaProps: spec.SchemaProps{
@@ -1122,6 +1124,7 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleSpec(ref common.ReferenceCall
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Description: "AzureRoleSpec contains connection information, Azure role info, etc",
+				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"authManagerRef": {
 						SchemaProps: spec.SchemaProps{
@@ -1174,6 +1177,7 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleStatus(ref common.ReferenceCa
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
 					"phase": {
 						SchemaProps: spec.SchemaProps{
