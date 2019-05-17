@@ -327,7 +327,6 @@ var _ = Describe("GCP Role", func() {
 							Namespace: f.Namespace(),
 						},
 					},
-					SecretType: string(api.GCPSecretAccessToken),
 				},
 			}
 		})
@@ -412,7 +411,6 @@ var _ = Describe("GCP Role", func() {
 
 			BeforeEach(func() {
 				gcpRole.Spec.SecretType = api.GCPSecretAccessToken
-				gcpAKReq.Spec.SecretType = string(api.GCPSecretAccessToken)
 				gcpAKReq.Status.Conditions = []api.GCPAccessKeyRequestCondition{
 					{
 						Type: api.AccessApproved,
@@ -462,7 +460,6 @@ var _ = Describe("GCP Role", func() {
 
 			BeforeEach(func() {
 				gcpRole.Spec.SecretType = api.GCPSecretServiceAccountKey
-				gcpAKReq.Spec.SecretType = string(api.GCPSecretServiceAccountKey)
 				gcpAKReq.Status.Conditions = []api.GCPAccessKeyRequestCondition{
 					{
 						Type: api.AccessApproved,
