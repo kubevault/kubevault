@@ -23,9 +23,9 @@ func (v *AzureAccessKeyRequestValidator) Resource() (plural schema.GroupVersionR
 	return schema.GroupVersionResource{
 			Group:    validatorGroupForEngine,
 			Version:  validatorVersionForEngine,
-			Resource: api.ResourceAzureAccessKeyRequests,
+			Resource: "azureaccessyeyrequestvalidators",
 		},
-		api.ResourceAzureAccessKeyRequest
+		"azureaccessyeyrequestvalidator"
 }
 
 func (v *AzureAccessKeyRequestValidator) Initialize(config *rest.Config, stopCh <-chan struct{}) error {

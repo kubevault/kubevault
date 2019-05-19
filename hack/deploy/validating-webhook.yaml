@@ -102,17 +102,17 @@ webhooks:
     service:
       namespace: default
       name: kubernetes
-      path: /apis/validators.engine.kubevault.com/v1alpha1/azureaccesskeyrequests
+      path: /apis/validators.engine.kubevault.com/v1alpha1/azureaccesskeyrequestvalidators
     caBundle: ${KUBE_CA}
   rules:
-    - operations:
-        - CREATE
-        - UPDATE
-      apiGroups:
-        - engine.kubevault.com
-      apiVersions:
-        - "*"
-      resources:
-        - azureaccesskeyrequests
+  - operations:
+    - CREATE
+    - UPDATE
+    apiGroups:
+    - engine.kubevault.com
+    apiVersions:
+    - "*"
+    resources:
+    - azureaccesskeyrequests
   failurePolicy: Fail
   ${VAULT_OPERATOR_WEBHOOK_SIDE_EFFECTS}
