@@ -946,30 +946,9 @@ func schema_operator_apis_engine_v1alpha1_AzureConfig(ref common.ReferenceCallba
 				Description: "AzureConfig contains information to communicate with Azure",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"subscriptionID": {
+					"credentialSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "The subscription id for the Azure Active Directory.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"tenantID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The tenant id for the Azure Active Directory.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"clientID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The OAuth2 client id to connect to Azure.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"clientSecret": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The OAuth2 client secret to connect to Azure. This value will be provided by kubernetes secret\n\tsecret.Data:\n\t\tclientSecret: <value>",
+							Description: "Specifies the secret name containing Azure credentials secret.Data:\n\t- subscriptionID: <value>, The subscription id for the Azure Active Directory.\n\t- tenantID: <value>, The tenant id for the Azure Active Directory.\n\t- clientID: <value>, The OAuth2 client id to connect to Azure.\n\t- clientSecret: <value>, The OAuth2 client secret to connect to Azure.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -982,7 +961,7 @@ func schema_operator_apis_engine_v1alpha1_AzureConfig(ref common.ReferenceCallba
 						},
 					},
 				},
-				Required: []string{"subscriptionID", "tenantID"},
+				Required: []string{"credentialSecret"},
 			},
 		},
 	}

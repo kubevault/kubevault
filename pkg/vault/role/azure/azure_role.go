@@ -78,35 +78,35 @@ func (a *AzureRole) CreateConfig() error {
 		return errors.New("azure secret engine config is nil")
 	}
 
-	if cfg.SubscriptionID != "" {
-		payload["subscription_id"] = cfg.SubscriptionID
-	} else {
-		return errors.New("azure secret engine configuration failed: subscription id missing")
-	}
+	if cfg.CredentialSecret != "" {
+		sr, err := a.kubeClient.CoreV1().Secrets(a.azureRole.Namespace).Get(cfg.CredentialSecret, metav1.GetOptions{})
+		if err != nil {
+			return errors.Wrap(err, "failed to get azure credential secret")
+		}
 
-	if cfg.TenantID != "" {
-		payload["tenant_id"] = cfg.TenantID
-	} else {
-		return errors.New("azure secret engine configuration failed: tenant id missing")
-	}
+		if val, ok := sr.Data[api.AzureSubscriptionID]; ok && len(val) > 0 {
+			payload["subscription_id"] = string(val)
+		} else {
+			return errors.New("azure secret engine configuration failed: subscription id missing")
+		}
 
-	if cfg.ClientID != "" {
-		payload["client_id"] = cfg.ClientID
+		if val, ok := sr.Data[api.AzureTenantID]; ok && len(val) > 0 {
+			payload["tenant_id"] = string(val)
+		} else {
+			return errors.New("azure secret engine configuration failed: tenant id missing")
+		}
+
+		if val, ok := sr.Data[api.AzureClientID]; ok && len(val) > 0 {
+			payload["client_id"] = string(val)
+		}
+
+		if val, ok := sr.Data[api.AzureClientSecret]; ok && len(val) > 0 {
+			payload["client_secret"] = string(val)
+		}
 	}
 
 	if cfg.Environment != "" {
 		payload["environment"] = cfg.Environment
-	}
-	if cfg.ClientSecret != "" {
-		sr, err := a.kubeClient.CoreV1().Secrets(a.azureRole.Namespace).Get(cfg.ClientSecret, metav1.GetOptions{})
-		if err != nil {
-			return errors.Wrap(err, "failed to get azure client secret")
-		}
-
-		if val, ok := sr.Data[api.AzureClientSecret]; ok {
-			payload["client_secret"] = string(val)
-		}
-
 	}
 
 	if err := req.SetJSONBody(payload); err != nil {
