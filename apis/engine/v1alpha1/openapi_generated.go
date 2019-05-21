@@ -948,7 +948,7 @@ func schema_operator_apis_engine_v1alpha1_AzureConfig(ref common.ReferenceCallba
 				Properties: map[string]spec.Schema{
 					"credentialSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name containing Azure credentials secret.Data:\n\t- subscriptionID: <value>, The subscription id for the Azure Active Directory.\n\t- tenantID: <value>, The tenant id for the Azure Active Directory.\n\t- clientID: <value>, The OAuth2 client id to connect to Azure.\n\t- clientSecret: <value>, The OAuth2 client secret to connect to Azure.",
+							Description: "Specifies the secret name containing Azure credentials secret.Data:\n\t- subscription-id: <value>, The subscription id for the Azure Active Directory.\n\t- tenant-id: <value>, The tenant id for the Azure Active Directory.\n\t- client-id: <value>, The OAuth2 client id to connect to Azure.\n\t- client-secret: <value>, The OAuth2 client secret to connect to Azure.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

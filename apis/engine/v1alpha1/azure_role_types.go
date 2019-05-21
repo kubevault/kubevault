@@ -28,10 +28,10 @@ type AzureRole struct {
 type AzureSecretType string
 
 const (
-	AzureClientSecret   = "clientSecret"
-	AzureSubscriptionID = "subscriptionID"
-	AzureTenantID       = "tenantID"
-	AzureClientID       = "clientID"
+	AzureClientSecret   = "client-secret"
+	AzureSubscriptionID = "subscription-id"
+	AzureTenantID       = "tenant-id"
+	AzureClientID       = "client-id"
 )
 
 // AzureRoleSpec contains connection information, Azure role info, etc
@@ -80,10 +80,10 @@ type AzureConfig struct {
 
 	// Specifies the secret name containing Azure credentials
 	// secret.Data:
-	// 	- subscriptionID: <value>, The subscription id for the Azure Active Directory.
-	//	- tenantID: <value>, The tenant id for the Azure Active Directory.
-	//	- clientID: <value>, The OAuth2 client id to connect to Azure.
-	//	- clientSecret: <value>, The OAuth2 client secret to connect to Azure.
+	// 	- subscription-id: <value>, The subscription id for the Azure Active Directory.
+	//	- tenant-id: <value>, The tenant id for the Azure Active Directory.
+	//	- client-id: <value>, The OAuth2 client id to connect to Azure.
+	//	- client-secret: <value>, The OAuth2 client secret to connect to Azure.
 	// +required
 	CredentialSecret string `json:"credentialSecret"`
 
