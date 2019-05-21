@@ -160,7 +160,7 @@ func (a *GCPRole) DeleteRole(name string) error {
 
 	_, err := a.vaultClient.RawRequest(req)
 	if err != nil {
-		return errors.Wrapf(err, "failed to delete database role %s", name)
+		return errors.Wrapf(err, "failed to delete gcp role %s", name)
 	}
 	return nil
 }

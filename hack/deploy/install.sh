@@ -14,6 +14,7 @@ crds=(
   awsaccesskeyrequests.engine.kubevault.com
   gcproles.engine.kubevault.com
   gcpaccesskeyrequests.engine.kubevault.com
+  azureroles.engine.kubevault.com
 )
 apiServices=(
   v1alpha1.validators.kubevault.com

@@ -22,6 +22,8 @@ type AWSAccessKeyRequestExpansion interface{}
 
 type AWSRoleExpansion interface{}
 
+type AzureRoleExpansion interface{}
+
 type GCPAccessKeyRequestExpansion interface{}
 
 type GCPRoleExpansion interface{}
