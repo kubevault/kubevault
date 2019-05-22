@@ -124,4 +124,25 @@ webhooks:
 {{- if and (ge $major 1) (ge $minor 12) }}
   sideEffects: None
 {{- end }}
+- name: azureaccesskeyrequests.validators.engine.kubevault.com
+  clientConfig:
+    service:
+      namespace: default
+      name: kubernetes
+      path: /apis/validators.engine.kubevault.com/v1alpha1/azureaccesskeyrequestvalidators
+    caBundle: {{ b64enc .Values.apiserver.ca }}
+  rules:
+  - operations:
+    - CREATE
+    - UPDATE
+    apiGroups:
+    - engine.kubevault.com
+    apiVersions:
+    - "*"
+    resources:
+    - azureaccesskeyrequests
+  failurePolicy: Fail
+  {{- if and (ge $major 1) (ge $minor 12) }}
+  sideEffects: None
+  {{- end }}
 {{ end }}

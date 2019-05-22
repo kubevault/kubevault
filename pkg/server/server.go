@@ -110,6 +110,8 @@ func (c completedConfig) New() (*VaultServer, error) {
 			&vsadmission.VaultServerValidator{},
 			&vsadmission.DatabaseAccessRequestValidator{},
 			&vsadmission.AWSAccessKeyRequestValidator{},
+			&vsadmission.GCPAccessKeyRequestValidator{},
+			&vsadmission.AzureAccessKeyRequestValidator{},
 		)
 	}
 	if c.ExtraConfig.EnableMutatingWebhook {

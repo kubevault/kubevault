@@ -36,6 +36,10 @@ func (c *FakeEngineV1alpha1) AWSRoles(namespace string) v1alpha1.AWSRoleInterfac
 	return &FakeAWSRoles{c, namespace}
 }
 
+func (c *FakeEngineV1alpha1) AzureAccessKeyRequests(namespace string) v1alpha1.AzureAccessKeyRequestInterface {
+	return &FakeAzureAccessKeyRequests{c, namespace}
+}
+
 func (c *FakeEngineV1alpha1) AzureRoles(namespace string) v1alpha1.AzureRoleInterface {
 	return &FakeAzureRoles{c, namespace}
 }
