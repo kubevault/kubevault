@@ -52,7 +52,7 @@ func NewAzureCredentialManager(kClient kubernetes.Interface, appClient appcat_cs
 func GetVaultRefAndRole(cr crd.Interface, ref api.RoleReference) (*appcat.AppReference, string, error) {
 	r, err := cr.EngineV1alpha1().AzureRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 	if err != nil {
-		return nil, "", errors.Wrapf(err, "AzurePRole %s/%s", ref.Namespace, ref.Name)
+		return nil, "", errors.Wrapf(err, "AzureRole %s/%s", ref.Namespace, ref.Name)
 	}
 	return r.Spec.AuthManagerRef, r.RoleName(), nil
 }

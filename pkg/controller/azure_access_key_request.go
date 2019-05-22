@@ -72,9 +72,9 @@ func (c *VaultController) runAzureAccessKeyRequestInjector(key string) error {
 		} else {
 			if !core_util.HasFinalizer(azureAccessReq.ObjectMeta, AzureAccessKeyRequestFinalizer) {
 				// Add finalizer
-				_, _, err = patchutil.PatchAzureAccessKeyRequest(c.extClient.EngineV1alpha1(), azureAccessReq, func(binding *api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest {
-					binding.ObjectMeta = core_util.AddFinalizer(binding.ObjectMeta, AzureAccessKeyRequestFinalizer)
-					return binding
+				_, _, err = patchutil.PatchAzureAccessKeyRequest(c.extClient.EngineV1alpha1(), azureAccessReq, func(aAKR *api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest {
+					aAKR.ObjectMeta = core_util.AddFinalizer(aAKR.ObjectMeta, AzureAccessKeyRequestFinalizer)
+					return aAKR
 				})
 				if err != nil {
 					return errors.Wrapf(err, "failed to set AzureAccessKeyRequest finalizer for %s/%s", azureAccessReq.Namespace, azureAccessReq.Name)
