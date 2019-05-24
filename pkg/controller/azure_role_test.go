@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kubevault/operator/pkg/vault/role/azure"
-
 	api "github.com/kubevault/operator/apis/engine/v1alpha1"
 	opfake "github.com/kubevault/operator/client/clientset/versioned/fake"
+	"github.com/kubevault/operator/pkg/vault/role/azure"
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"

@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"testing"
 
-	core "k8s.io/api/core/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/stretchr/testify/assert"
+	core "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 )
 

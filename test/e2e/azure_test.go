@@ -5,20 +5,17 @@ import (
 	"os"
 	"time"
 
-	rbac "k8s.io/api/rbac/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-
 	api "github.com/kubevault/operator/apis/engine/v1alpha1"
-	core "k8s.io/api/core/v1"
-
 	"github.com/kubevault/operator/pkg/controller"
-	kerrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	"github.com/kubevault/operator/pkg/vault"
 	"github.com/kubevault/operator/test/e2e/framework"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	core "k8s.io/api/core/v1"
+	rbac "k8s.io/api/rbac/v1"
+	kerrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 var _ = FDescribe("Azure Secret Engine", func() {

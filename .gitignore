@@ -1,5 +1,3 @@
-# Created by .ignore support plugin (hsz.mobi)
-### Go template
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
 *.a
@@ -10,7 +8,6 @@ _obj
 _test
 
 # Architecture specific extensions/prefixes
-
 *.cgo1.go
 *.cgo2.c
 _cgo_defun.c
@@ -22,12 +19,16 @@ _testmain.go
 *.exe
 *.test
 *.prof
-.idea/
-dist/
-hack/configs/.env
-.vscode/
-test/e2e/report.xml
-test/e2e/junit.xml
-apiserver.local.config/
-.markdownlint.json
-coverage.txt
+
+/bin
+/.go
+
+/.idea
+/.markdownlint.json
+/.vscode
+/apiserver.local.config
+/coverage.txt
+/dist
+/hack/configs/.env
+/test/e2e/junit.xml
+/test/e2e/report.xml
