@@ -96,8 +96,9 @@ $ helm install appscode/csi-vault --name csi-vault --version 0.2.0 --namespace k
 ```
 
 To see the detailed configuration options, visit [here](https://github.com/kubevault/csi-driver/tree/chart/chart/csi-vault)
-</div>
 
+</div>
+</div>
 
 ## Verify  Installation
 
