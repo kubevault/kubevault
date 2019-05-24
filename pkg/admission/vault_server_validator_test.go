@@ -557,9 +557,9 @@ func vaultServerWithEtcd() (api.VaultServer, []core.Secret) {
 			"password",
 		}),
 		getSecret(etcd.TLSSecretName, namespace, []string{
-			"tls_ca_file",
-			"tls_cert_file",
-			"tls_key_file",
+			"ca.crt",
+			"client.crt",
+			"client.key",
 		}),
 	}
 	return v, extraSr
