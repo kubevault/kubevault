@@ -59,6 +59,7 @@ $ wget -O kubectl-vault https://github.com/kubevault/cli/releases/download/0.1.0
 2. Add the binary in to your PATH.
 
 </div>
+</div>
 
 Now, check installation using:
 

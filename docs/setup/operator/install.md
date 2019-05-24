@@ -149,6 +149,7 @@ $ helm upgrade vault-catalog appscode/vault-catalog --version 0.1.0 \
 To see the detailed configuration options, visit [here](https://github.com/kubevault/operator/tree/master/chart/vault-operator).
 
 </div>
+</div>
 
 ### Installing in GKE Cluster
 
