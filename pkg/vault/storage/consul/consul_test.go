@@ -2,14 +2,14 @@ package consul
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"testing"
+
+	core "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/stretchr/testify/assert"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
+	kfake "k8s.io/client-go/kubernetes/fake"
 )
 
 var (
@@ -17,7 +17,13 @@ var (
 	kubeconfig string
 )
 
-func TestGetEtcdConfig(t *testing.T) {
+const (
+	aclCredName     = "aclcred"
+	aclToken        = "aclToken"
+	secretNamespace = "default"
+)
+
+func TestGetConsulConfig(t *testing.T) {
 
 	spec1 := &api.ConsulSpec{
 		Address: "127.0.0.1:8500",
@@ -61,9 +67,9 @@ service_tags = "dev,aud"
 token = "data"
 session_ttl = "20s"
 lock_wait_time = "25s"
-tls_ca_file = "/etc/vault/storage/consul/tls/consul-ca.crt"
-tls_cert_file = "/etc/vault/storage/consul/tls/consul-client.crt"
-tls_key_file = "/etc/vault/storage/consul/tls/consul-client.key"
+tls_ca_file = "/etc/vault/storage/consul/tls/ca.crt"
+tls_cert_file = "/etc/vault/storage/consul/tls/client.crt"
+tls_key_file = "/etc/vault/storage/consul/tls/client.key"
 tls_min_version = "tls12"
 }
 `
@@ -85,26 +91,22 @@ tls_min_version = "tls12"
 		},
 	}
 
-	kubeconfig = filepath.Join(os.Getenv("HOME"), ".kube/config")
-
-	cfg, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
-	if err != nil {
-		panic(err)
-
-	}
-
-	kubeClient, err := kubernetes.NewForConfig(cfg)
-	if err != nil {
-		panic(err)
-
-	}
+	kubeClient := kfake.NewSimpleClientset(&core.Secret{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      aclCredName,
+			Namespace: secretNamespace,
+		},
+		Data: map[string][]byte{
+			aclToken: []byte("data"),
+		},
+	})
 
 	for _, test := range testCase {
 		t.Run(test.testName, func(t *testing.T) {
-			etcd, err := NewOptions(kubeClient, "default", *test.consulSpec)
+			consul, err := NewOptions(kubeClient, "default", *test.consulSpec)
 			assert.Nil(t, err)
 
-			config, err := etcd.GetStorageConfig()
+			config, err := consul.GetStorageConfig()
 			assert.Nil(t, err)
 			if !assert.Equal(t, test.expectedOutput, config) {
 				fmt.Println("expected:", test.expectedOutput)
