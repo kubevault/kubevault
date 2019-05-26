@@ -22,3 +22,4 @@ In Vault operator, usually Vault connection information are handled by [AppBindi
 - [Token Auth Method](/docs/concepts/vault-server-crds/auth-methods/token.md)
 - [Userpass Auth Method](/docs/concepts/vault-server-crds/auth-methods/userpass.md)
 - [GCP IAM Auth Method](/docs/concepts/vault-server-crds/auth-methods/gcp-iam.md)
+- [Azure Auth Method](/docs/concepts/vault-server-crds/auth-methods/azure.md)
