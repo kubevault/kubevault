@@ -1,0 +1,15 @@
+apiVersion: engine.kubevault.com/v1alpha1
+kind: AzureRole
+metadata:
+  name: demo-role
+  namespace: demo
+spec:
+  authManagerRef:
+    name: vault-app
+    namespace: demo
+  applicationObjectID: c1cb042d-96d7-423a-8dba-243c2e5010d3
+  config:
+    credentialSecret: azure-cred
+  ttl: 1h
+  maxTTL: 1h
+  
