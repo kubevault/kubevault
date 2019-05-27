@@ -11105,7 +11105,7 @@
           "description": "Name of the ConfigMap for Vault's configuration In this configMap contain extra config for vault ConfigSource is an optional field to provide extra configuration for vault. File name should be 'vault.hcl'. If specified, this file will be appended to the controller configuration file.",
           "$ref": "#/definitions/io.k8s.api.core.v1.VolumeSource"
         },
-        "dataSource": {
+        "dataSources": {
           "description": "DataSources is a list of Configmaps/Secrets in the same namespace as the VaultServer object, which shall be mounted into the VaultServer Pods. The data are mounted into /etc/vault/data/\u003cname\u003e. The first data will be named as \"data-0\", second one will be named as \"data-1\" and so on.",
           "type": "array",
           "items": {

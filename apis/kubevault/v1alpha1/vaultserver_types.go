@@ -49,7 +49,7 @@ type VaultServerSpec struct {
 	// The data are mounted into /etc/vault/data/<name>.
 	// The first data will be named as "data-0", second one will be named as "data-1" and so on.
 	// +optional
-	DataSource []core.VolumeSource `json:"dataSource,omitempty"`
+	DataSources []core.VolumeSource `json:"dataSources,omitempty"`
 
 	// TLS policy of vault nodes
 	// +optional

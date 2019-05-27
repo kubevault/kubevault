@@ -287,18 +287,16 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 		MountPath: filepath.Dir(util.VaultConfigFile),
 	})
 
-	if v.vs.Spec.DataSource != nil {
-		for indx, data := range v.vs.Spec.DataSource {
-			cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{
-				Name:      "data-" + strconv.Itoa(indx),
-				MountPath: "/etc/vault/data/data-" + strconv.Itoa(indx),
-			})
+	for indx, data := range v.vs.Spec.DataSources {
+		cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{
+			Name:      "data-" + strconv.Itoa(indx),
+			MountPath: "/etc/vault/data/data-" + strconv.Itoa(indx),
+		})
 
-			pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, core.Volume{
-				Name:         "data-" + strconv.Itoa(indx),
-				VolumeSource: data,
-			})
-		}
+		pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, core.Volume{
+			Name:         "data-" + strconv.Itoa(indx),
+			VolumeSource: data,
+		})
 	}
 
 	pt.Spec.InitContainers = core_util.UpsertContainer(pt.Spec.InitContainers, initCont)
