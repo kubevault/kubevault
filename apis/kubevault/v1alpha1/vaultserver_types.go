@@ -44,6 +44,13 @@ type VaultServerSpec struct {
 	// +optional
 	ConfigSource *core.VolumeSource `json:"configSource,omitempty"`
 
+	// DataSources is a list of Configmaps/Secrets in the same namespace as the VaultServer
+	// object, which shall be mounted into the VaultServer Pods.
+	// The data are mounted into /etc/vault/data/<name>.
+	// The first data will be named as "data-0", second one will be named as "data-1" and so on.
+	// +optional
+	DataSource []core.VolumeSource `json:"dataSource,omitempty"`
+
 	// TLS policy of vault nodes
 	// +optional
 	TLS *TLSPolicy `json:"tls,omitempty"`

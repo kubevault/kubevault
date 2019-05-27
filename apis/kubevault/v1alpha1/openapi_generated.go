@@ -1734,6 +1734,19 @@ func schema_operator_apis_kubevault_v1alpha1_VaultServerSpec(ref common.Referenc
 							Ref:         ref("k8s.io/api/core/v1.VolumeSource"),
 						},
 					},
+					"dataSource": {
+						SchemaProps: spec.SchemaProps{
+							Description: "DataSources is a list of Configmaps/Secrets in the same namespace as the VaultServer object, which shall be mounted into the VaultServer Pods. The data are mounted into /etc/vault/data/<name>. The first data will be named as \"data-0\", second one will be named as \"data-1\" and so on.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/core/v1.VolumeSource"),
+									},
+								},
+							},
+						},
+					},
 					"tls": {
 						SchemaProps: spec.SchemaProps{
 							Description: "TLS policy of vault nodes",
