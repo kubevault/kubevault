@@ -23,6 +23,7 @@ Vault operator makes it easy to deploy, maintain and manage Vault servers in Kub
 - Automatic initializing and unsealing Vault
 - Manage Vault [Policy](https://www.vaultproject.io/docs/concepts/policies.html)
 - Manage Vault [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html#aws-secrets-engine)
+- Manage Vault [Azure secret engine](https://www.vaultproject.io/docs/secrets/azure/index.html)
 - Manage Vault [MongoDB Database secret engine](https://www.vaultproject.io/api/secret/databases/mongodb.html)
 - Manage Vault [MySQL Database secret engine](https://www.vaultproject.io/api/secret/databases/mysql-maria.html)
 - Manage Vault [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html)
@@ -41,6 +42,11 @@ Policies in Vault provide a declarative way to grant or forbid access to certain
 ## Manage Vault AWS Secret Engine
 
 AWS secret engine in Vault generates AWS access credentials dynamically based on IAM policies. This makes AWS IAM user management easier. Using Vault operator, you can configure AWS secret engine and issue AWS access credential via Vault. A User can request AWS credential and after it's been approved Vault operator will create a Kubernetes Secret containing the AWS credential and also creates RBAC Role and RoleBinding so that the user can access the secret.
+
+## Manage Vault Azure Secret Engine
+
+The Azure secrets engine dynamically generates Azure service principals and role assignments. Vault roles can be mapped to one or more Azure roles, providing a simple, flexible way to manage the permissions granted to generated service principals. By using vault operator, one can easily configure vault azure secret engine and make request to generate service principals. Once the request is approved, the operator will get the credentials from vault and create kubernetes secret for storing those credentials. The operator also creates RBAC role and RoleBinding so that user can access the secret.
+
 
 # Manage Vault MongoDB Database Secret Engine
 
@@ -69,6 +75,8 @@ Vault operator is composed of following controllers:
 - A **Policy controller** that manages Vault policy and also bind the policy with Kubernetes ServiceAccount.
 
 - A **AWS secret engine controller** that configures secret engine, manages role and credential.
+
+- An **Azure secret engine controller** that configures secret engine, manages role and credentials.
 
 - A **Database secret engine controller** that configures database secret engine, manages role and credential.
 

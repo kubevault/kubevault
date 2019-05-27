@@ -72,6 +72,10 @@ Concepts help you learn about the different parts of the KubeVault and the abstr
   - [GCPRole](/docs/concepts/secret-engine-crds/gcprole.md)
   - [GCPAccessKeyRequest](/docs/concepts/secret-engine-crds/gcpaccesskeyrequest.md)
 
+- Azure Secret Engines
+  - [AzureRole](/docs/concepts/secret-engine-crds/azurerole.md)
+  - [AzureAccessKeyRequest](/docs/concepts/secret-engine-crds/azureaccesskeyrequest.md)
+  
 - Database Secret Engines
   - [MongoDBRole](/docs/concepts/database-crds/mongodb.md)
   - [MySQLRole](/docs/concepts/database-crds/mysql.md)
