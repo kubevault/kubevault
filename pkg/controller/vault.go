@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"path/filepath"
+	"strconv"
 
 	"github.com/golang/glog"
 	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
@@ -285,6 +286,18 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 		Name:      "config",
 		MountPath: filepath.Dir(util.VaultConfigFile),
 	})
+
+	for indx, data := range v.vs.Spec.DataSources {
+		cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{
+			Name:      "data-" + strconv.Itoa(indx),
+			MountPath: "/etc/vault/data/data-" + strconv.Itoa(indx),
+		})
+
+		pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, core.Volume{
+			Name:         "data-" + strconv.Itoa(indx),
+			VolumeSource: data,
+		})
+	}
 
 	pt.Spec.InitContainers = core_util.UpsertContainer(pt.Spec.InitContainers, initCont)
 	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)

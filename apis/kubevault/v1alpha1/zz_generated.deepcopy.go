@@ -564,6 +564,13 @@ func (in *VaultServerSpec) DeepCopyInto(out *VaultServerSpec) {
 		*out = new(v1.VolumeSource)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.DataSources != nil {
+		in, out := &in.DataSources, &out.DataSources
+		*out = make([]v1.VolumeSource, len(*in))
+		for i := range *in {
+			(*in)[i].DeepCopyInto(&(*out)[i])
+		}
+	}
 	if in.TLS != nil {
 		in, out := &in.TLS, &out.TLS
 		*out = new(TLSPolicy)
