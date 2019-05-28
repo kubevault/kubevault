@@ -24,6 +24,7 @@ Vault operator makes it easy to deploy, maintain and manage Vault servers in Kub
 - Manage Vault [Policy](https://www.vaultproject.io/docs/concepts/policies.html)
 - Manage Vault [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html#aws-secrets-engine)
 - Manage Vault [Azure secret engine](https://www.vaultproject.io/docs/secrets/azure/index.html)
+- Manage Vault [GCP secret engine](https://www.vaultproject.io/docs/secrets/gcp/index.html)
 - Manage Vault [MongoDB Database secret engine](https://www.vaultproject.io/api/secret/databases/mongodb.html)
 - Manage Vault [MySQL Database secret engine](https://www.vaultproject.io/api/secret/databases/mysql-maria.html)
 - Manage Vault [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html)
@@ -46,6 +47,10 @@ AWS secret engine in Vault generates AWS access credentials dynamically based on
 ## Manage Vault Azure Secret Engine
 
 The Azure secrets engine dynamically generates Azure service principals and role assignments. Vault roles can be mapped to one or more Azure roles, providing a simple, flexible way to manage the permissions granted to generated service principals. By using vault operator, one can easily configure vault azure secret engine and make request to generate service principals. Once the request is approved, the operator will get the credentials from vault and create kubernetes secret for storing those credentials. The operator also creates RBAC role and RoleBinding so that user can access the secret.
+
+## Manage Vault GCP Secret Engine
+
+The Google Cloud Vault secrets engine dynamically generates Google Cloud service account keys and OAuth tokens based on IAM policies. This enables users to gain access to Google Cloud resources without needing to create or manage a dedicated service account. By using vault operator, one can easily configure vault gcp secret engine and make request to generate Google Cloud account keys and OAuth tokens based on IAM policies. Once the request is approved, the operator will get the credentials from vault and create kubernetes secret for storing those credentials. The operator also creates RBAC role and RoleBinding so that user can access the secret.
 
 
 # Manage Vault MongoDB Database Secret Engine
@@ -77,6 +82,8 @@ Vault operator is composed of following controllers:
 - A **AWS secret engine controller** that configures secret engine, manages role and credential.
 
 - An **Azure secret engine controller** that configures secret engine, manages role and credentials.
+
+- A **GCP secret engine controller** that configure secret engine, manages role and credentials.
 
 - A **Database secret engine controller** that configures database secret engine, manages role and credential.
 
