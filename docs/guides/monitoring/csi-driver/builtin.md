@@ -47,7 +47,7 @@ $ helm install appscode/csi-vault --name csi-vault --version 0.2.0 --namespace k
 <b> Using Script: </b>
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.2.0/hack/deploy/install.sh | bash -s -- \
+$ curl -fsSL https://github.com/kubevault/csi-driver/raw/0.2.0/hack/deploy/install.sh | bash -s -- \
   --monitoring-agent=prometheus.io/builtin \
   --monitor-controller-plugin=true \
   --monitor-node-plugin=true \
@@ -197,7 +197,7 @@ csi-vault-apiserver-cert   kubernetes.io/tls   2      3h4m
 If you are using a `RBAC` enabled cluster, you have to provide necessary `RBAC` permissions for Prometheus. Following [this](https://github.com/appscode/third-party-tools/blob/master/monitoring/prometheus/builtin/README.md#deploy-prometheus-server), let's create `RBAC` stuffs for Prometheus by running:
 
 ```console
-$ kubectl apply -f https://raw.githubusercontent.com/appscode/third-party-tools/master/monitoring/prometheus/builtin/artifacts/rbac.yaml
+$ kubectl apply -f https://github.com/appscode/third-party-tools/raw/master/monitoring/prometheus/builtin/artifacts/rbac.yaml
 clusterrole.rbac.authorization.k8s.io/prometheus created
 serviceaccount/prometheus created
 clusterrolebinding.rbac.authorization.k8s.io/prometheus created
@@ -318,7 +318,7 @@ Look at the `tls_config` field of `vault-apiservers` job. We have provided certi
 Let's create the ConfigMap we have shown above,
 
 ```console
-$ kubectl apply -f https://raw.githubusercontent.com/kubevault/docs/master/docs/examples/monitoring/csi-driver/prom-builtin-conf.yaml
+$ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/monitoring/csi-driver/prom-builtin-conf.yaml
 configmap/prometheus-config created
 
 ```
@@ -384,7 +384,7 @@ Notice that, we have mounted csi-vault-apiserver-cert secret as a volume at `/et
 Now, let's create the deployment,
 
 ```console
-$ kubectl apply -f https://raw.githubusercontent.com/kubevault/docs/master/docs/examples/monitoring/csi-driver/prom-builtin-deployment.yaml
+$ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/monitoring/csi-driver/prom-builtin-deployment.yaml
 deployment.apps "prometheus" deleted
 ```
 

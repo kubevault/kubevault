@@ -63,7 +63,7 @@ Follow [this](/docs/guides/secret-engines/postgres/overview.md) tutorial to mana
 You can use Vault cli to manually configure an existing Vault server. The Vault server may be running inside a Kubernetes cluster or running outside a Kubernetes cluster. If you don't have a Vault server, you can deploy one by running the following command:
 
     ```console
-    $ kubectl apply -f https://raw.githubusercontent.com/kubevault/docs/master/docs/examples/csi-driver/vault-install.yaml
+    $ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/csi-driver/vault-install.yaml
     service/vault created
     statefulset.apps/vault created
     ```
@@ -192,7 +192,7 @@ To use secret from `database` engine, you have to do following things.
    If you don't see that CRD, you can register it via the following command:
 
     ```console
-    kubectl apply -f https://raw.githubusercontent.com/kmodules/custom-resources/master/api/crds/appbinding.yaml
+    kubectl apply -f https://github.com/kmodules/custom-resources/raw/master/api/crds/appbinding.yaml
 
     ```
 

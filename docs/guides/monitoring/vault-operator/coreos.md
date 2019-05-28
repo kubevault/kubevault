@@ -48,7 +48,7 @@ $ helm install appscode/vault-operator --name vault-operator --version 0.2.0 --n
 <b> Using Script: </b>
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/vault-operator/0.2.0/hack/deploy/install.sh  | bash -s -- \
+$ curl -fsSL https://github.com/kubevault/operator/raw/0.2.0/hack/deploy/install.sh  | bash -s -- \
   --monitoring-agent=prometheus.io/coreos-operator \
   --monitor-operator=true \
   --prometheus-namespace=monitoring \
@@ -142,7 +142,7 @@ Here, `spec.serviceMonitorSelector` is used to select the ServiceMonitor crd tha
 Let's create the Prometheus object we have shown above,
 
 ```console
-$ kubectl apply -f https://raw.githubusercontent.com/kubevault/docs/master/docs/examples/monitoring/vault-operator/prom-coreos-crd.yaml
+$ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/monitoring/vault-operator/prom-coreos-crd.yaml
 prometheus.monitoring.coreos.com/prometheus created
 ```
 

@@ -33,7 +33,7 @@ To install Vault CSI driver in your Kubernetes cluster, run the following comman
 
 ```console
 # Kubernetes 1.13+ (CSI driver spec 1.0.0)
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.2.0/hack/deploy/install.sh | bash
+$ curl -fsSL https://github.com/kubevault/csi-driver/raw/0.2.0/hack/deploy/install.sh | bash
 ```
 
 After successful installation, you should have `csi-vault-***` pod running in the `kube-system` namespace.
@@ -44,7 +44,7 @@ After successful installation, you should have `csi-vault-***` pod running in th
 The installer script and associated yaml files can be found in the [/hack/deploy](https://github.com/kubevault/csi-driver/tree/0.2.0/hack/deploy) folder. You can see the full list of flags available to installer using `-h` flag.
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.2.0/hack/deploy/install.sh | bash -s -- -h
+$ curl -fsSL https://github.com/kubevault/csi-driver/raw/0.2.0/hack/deploy/install.sh | bash -s -- -h
 install.sh -install Vault csi driver
 
 install.sh [options]

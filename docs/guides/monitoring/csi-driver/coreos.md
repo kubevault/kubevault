@@ -50,7 +50,7 @@ $ helm install appscode/csi-vault --name csi-vault --version 0.2.0 --namespace k
 <b> Using Script: </b>
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.2.0/hack/deploy/install.sh | bash -s -- \
+$ curl -fsSL https://github.com/kubevault/csi-driver/raw/0.2.0/hack/deploy/install.sh | bash -s -- \
   --monitoring-agent=prometheus.io/coreos-operator \
   --monitor-attacher=true \
   --monitor-plugin=true \
@@ -120,7 +120,7 @@ Here, `spec.serviceMonitorSelector` is used to select the ServiceMonitor crd tha
 Let's create the Prometheus object we have shown above,
 
 ```console
-$ kubectl apply -f https://raw.githubusercontent.com/kubevault/docs/master/docs/examples/monitoring/csi-driver/prom-coreos-crd.yaml
+$ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/monitoring/csi-driver/prom-coreos-crd.yaml
 prometheus.monitoring.coreos.com/prometheus created
 ```
 

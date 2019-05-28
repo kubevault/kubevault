@@ -26,7 +26,7 @@ We are going to install Vault operator in `demo-cluster-1`. We are going to set 
 $ kubectl config current-context
 gke_ackube_us-central1-a_demo-cluster-1
 
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.2.0/hack/deploy/install.sh \
+$ curl -fsSL https://github.com/kubevault/operator/raw/0.2.0/hack/deploy/install.sh \
     | bash -s -- --cluster-name=demo-cluster-1
 
 $ kubectl get pods -n kube-system
@@ -145,7 +145,7 @@ We are going to install Vault operator in `demo-cluster-2`.  We are going to set
 $ kubectl config current-context
 gke_ackube_us-central1-a_demo-cluster-2
 
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.2.0/hack/deploy/install.sh \
+$ curl -fsSL https://github.com/kubevault/operator/raw/0.2.0/hack/deploy/install.sh \
     | bash -s -- --cluster-name=demo-cluster-2
 
 $ kubectl get pods -n kube-system

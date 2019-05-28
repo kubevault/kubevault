@@ -15,7 +15,7 @@ section_menu_id: setup
 If you installed csi driver using YAML then run:
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/kubevault/csi-driver/0.2.0/hack/deploy/install.sh \
+$ curl -fsSL https://github.com/kubevault/csi-driver/raw/0.2.0/hack/deploy/install.sh \
     | bash -s -- --uninstall [--namespace=NAMESPACE]
 
 ```
