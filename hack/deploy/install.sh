@@ -41,46 +41,6 @@ function cleanup() {
 export APPSCODE_ENV=${APPSCODE_ENV:-prod}
 trap cleanup EXIT
 
-# ref: https://github.com/appscodelabs/libbuild/blob/master/common/lib.sh#L55
-inside_git_repo() {
-  git rev-parse --is-inside-work-tree >/dev/null 2>&1
-  inside_git=$?
-  if [ "$inside_git" -ne 0 ]; then
-    echo "Not inside a git repository"
-    exit 1
-  fi
-}
-
-detect_tag() {
-  inside_git_repo
-
-  # http://stackoverflow.com/a/1404862/3476121
-  git_tag=$(git describe --exact-match --abbrev=0 2>/dev/null || echo '')
-
-  commit_hash=$(git rev-parse --verify HEAD)
-  git_branch=$(git rev-parse --abbrev-ref HEAD)
-  commit_timestamp=$(git show -s --format=%ct)
-
-  if [ "$git_tag" != '' ]; then
-    TAG=$git_tag
-    TAG_STRATEGY='git_tag'
-  elif [ "$git_branch" != 'master' ] && [ "$git_branch" != 'HEAD' ] && [[ "$git_branch" != release-* ]]; then
-    TAG=$git_branch
-    TAG_STRATEGY='git_branch'
-  else
-    hash_ver=$(git describe --tags --always --dirty)
-    TAG="${hash_ver}"
-    TAG_STRATEGY='commit_hash'
-  fi
-
-  export TAG
-  export TAG_STRATEGY
-  export git_tag
-  export git_branch
-  export commit_hash
-  export commit_timestamp
-}
-
 onessl_found() {
   # https://stackoverflow.com/a/677212/244009
   if [ -x "$(command -v onessl)" ]; then
@@ -138,8 +98,8 @@ export VAULT_OPERATOR_RUN_ON_MASTER=0
 export VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK=false
 export VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK=false
 export VAULT_OPERATOR_CATALOG=${VAULT_OPERATOR_CATALOG:-all}
-export VAULT_OPERATOR_DOCKER_REGISTRY=kubevault
-export VAULT_OPERATOR_IMAGE_TAG=0.2.0
+export VAULT_OPERATOR_DOCKER_REGISTRY=${VAULT_OPERATOR_DOCKER_REGISTRY:-kubevault}
+export VAULT_OPERATOR_IMAGE_TAG=${VAULT_OPERATOR_IMAGE_TAG:-0.2.0}
 export VAULT_OPERATOR_IMAGE_PULL_SECRET=
 export VAULT_OPERATOR_IMAGE_PULL_POLICY=IfNotPresent
 export VAULT_OPERATOR_ENABLE_ANALYTICS=true
@@ -154,9 +114,7 @@ export VAULT_OPERATOR_PRIORITY_CLASS=system-cluster-critical
 export APPSCODE_ENV=${APPSCODE_ENV:-prod}
 export SCRIPT_LOCATION="curl -fsSL https://raw.githubusercontent.com/kubevault/operator/0.2.0/"
 if [ "$APPSCODE_ENV" = "dev" ]; then
-  detect_tag
   export SCRIPT_LOCATION="cat "
-  export VAULT_OPERATOR_IMAGE_TAG=$TAG
   export VAULT_OPERATOR_IMAGE_PULL_POLICY=Always
 fi
 
