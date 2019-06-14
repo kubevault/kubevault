@@ -18,13 +18,13 @@ You can manage external Vault (not deployed by Vault operator) by Vault operator
 
 - Manage Vault [policy](https://www.vaultproject.io/docs/concepts/policies.html) using [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) and [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md). Guides can be found [here](/docs/guides/policy-management/policy-management.md).
 
-- Manage [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html#aws-secrets-engine) using [AWSRole](/docs/concepts/secret-engine-crds/awsrole.md) and [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/awsaccesskeyrequest.md). Guides can be found [here](/docs/guides/secret-engines/aws/vault-operator.md).
+- Manage [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html#aws-secrets-engine) using [AWSRole](/docs/concepts/secret-engine-crds/awsrole.md) and [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/awsaccesskeyrequest.md). Guides can be found [here](/docs/guides/secret-engines/aws/overview.md).
 
-- Manage [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html) using [PostgresRole](/docs/concepts/database-crds/postgresrole.md) and [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md). Guides can be found [here](/docs/guides/secret-engines/postgres/vault-operator.md).
+- Manage [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html) using [PostgresRole](/docs/concepts/database-crds/postgresrole.md) and [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md). Guides can be found [here](/docs/guides/secret-engines/postgres/overview.md).
 
-- Manage [MySQL Database secret engine](https://www.vaultproject.io/api/secret/databases/mysql-maria.html) using [MySQLRole](/docs/concepts/database-crds/mysql.md) and [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md). Guides can be found [here](/docs/guides/secret-engines/mysql/vault-operator.md).
+- Manage [MySQL Database secret engine](https://www.vaultproject.io/api/secret/databases/mysql-maria.html) using [MySQLRole](/docs/concepts/database-crds/mysql.md) and [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md). Guides can be found [here](/docs/guides/secret-engines/mysql/overview.md).
 
-- Manage [MongoDB Database secret engine](https://www.vaultproject.io/api/secret/databases/mongodb.html) using [MongoDBRole](/docs/concepts/database-crds/mongodb.md) and [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md). Guides can be found [here](/docs/guides/secret-engines/mongodb/vault-operator.md).
+- Manage [MongoDB Database secret engine](https://www.vaultproject.io/api/secret/databases/mongodb.html) using [MongoDBRole](/docs/concepts/database-crds/mongodb.md) and [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md). Guides can be found [here](/docs/guides/secret-engines/mongodb/overview.md).
 
 In this tutorial, we are going to show how we can use Vault operator for Vault which is not provisioned by Vault operator.
 
