@@ -24,12 +24,12 @@ Guides show you how to perform tasks with Vault operator and Vault CSI driver.
 - To deploy Vault in Google GKE see [here](/docs/guides/platforms/gke.md).
 - To deploy Vault in Azure AKS see [here](/docs/guides/platforms/aks.md).
 - To manage Vault [policy](https://www.vaultproject.io/docs/concepts/policies.html) see [here](/docs/guides/policy-management/policy-management.md).
-- To manage Vault [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html#aws-secrets-engine) see [here](/docs/guides/secret-engines/aws/vault-operator.md).
+- To manage Vault [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html#aws-secrets-engine) see [here](/docs/guides/secret-engines/aws/overview.md).
 - To manage Vault [GCP secret engine](https://www.vaultproject.io/docs/secrets/gcp/index.html) see [here](/docs/guides/secret-engines/gcp/overview.md)
 - To manage Vault [Azure secret engine](https://www.vaultproject.io/docs/secrets/azure/index.html) see [here](/docs/guides/secret-engines/azure/overview.md)
-- To manage Vault [MongoDB Database secret engine](https://www.vaultproject.io/api/secret/databases/mongodb.html) see [here](/docs/guides/secret-engines/mongodb/vault-operator.md).
-- To manage Vault [MySQL Database secret engine](https://www.vaultproject.io/api/secret/databases/mysql-maria.html) see [here](/docs/guides/secret-engines/mysql/vault-operator.md).
-- To manage Vault [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html) see [here](/docs/guides/secret-engines/postgres/vault-operator.md).
+- To manage Vault [MongoDB Database secret engine](https://www.vaultproject.io/api/secret/databases/mongodb.html) see [here](/docs/guides/secret-engines/mongodb/overview.md).
+- To manage Vault [MySQL Database secret engine](https://www.vaultproject.io/api/secret/databases/mysql-maria.html) see [here](/docs/guides/secret-engines/mysql/overview.md).
+- To manage Vault [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html) see [here](/docs/guides/secret-engines/postgres/overview.md).
 - To set up monitoring see [here](/docs/guides/monitoring/overview.md).
 - To use Vault operator for external Vault see [here](/docs/guides/platforms/external-vault.md).
 - To use Vault operator in multiple cluster for same Vault see [here](/docs/guides/platforms/multi-cluster-vault.md).
