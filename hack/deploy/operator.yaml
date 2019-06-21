@@ -19,6 +19,8 @@ spec:
     spec:
       serviceAccountName: ${VAULT_OPERATOR_SERVICE_ACCOUNT}
       imagePullSecrets: [${VAULT_OPERATOR_IMAGE_PULL_SECRET}]
+      securityContext:
+        fsGroup: 65535
       containers:
       - name: operator
         image: ${VAULT_OPERATOR_DOCKER_REGISTRY}/vault-operator:${VAULT_OPERATOR_IMAGE_TAG}
