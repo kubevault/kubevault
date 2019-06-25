@@ -23,7 +23,7 @@ Guides show you how to perform tasks with Vault operator and Vault CSI driver.
 - To deploy Vault in AWS EKS see [here](/docs/guides/platforms/eks.md).
 - To deploy Vault in Google GKE see [here](/docs/guides/platforms/gke.md).
 - To deploy Vault in Azure AKS see [here](/docs/guides/platforms/aks.md).
-- To manage Vault [policy](https://www.vaultproject.io/docs/concepts/policies.html) see [here](/docs/guides/policy-management/policy-management.md).
+- To manage Vault [policy](https://www.vaultproject.io/docs/concepts/policies.html) see [here](/docs/guides/policy-management/overview.md).
 - To manage Vault [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html#aws-secrets-engine) see [here](/docs/guides/secret-engines/aws/overview.md).
 - To manage Vault [GCP secret engine](https://www.vaultproject.io/docs/secrets/gcp/index.html) see [here](/docs/guides/secret-engines/gcp/overview.md)
 - To manage Vault [Azure secret engine](https://www.vaultproject.io/docs/secrets/azure/index.html) see [here](/docs/guides/secret-engines/azure/overview.md)
