@@ -97,7 +97,7 @@ NAME       TYPE           CLUSTER-IP     EXTERNAL-IP       PORT(S)              
 my-vault   LoadBalancer   10.3.251.241   104.155.177.205   8200:31542/TCP,8201:31390/TCP,9102:30911/TCP   2m
 ```
 
-Now we are going to create `demo-policy-secret-admin` [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) in `demo-cluster-1`. Guides to manage policy in Vault can be found [here](/docs/guides/policy-management/policy-management.md).
+Now we are going to create `demo-policy-secret-admin` [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) in `demo-cluster-1`. Guides to manage policy in Vault can be found [here](/docs/guides/policy-management/overview.md).
 
 ```console
 $ cat examples/guides/provider/multi-cluster/demo-policy-secret-admin.yaml
