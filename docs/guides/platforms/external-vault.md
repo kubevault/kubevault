@@ -16,7 +16,7 @@ section_menu_id: guides
 
 You can manage external Vault (not deployed by Vault operator) by Vault operator. You can do following operations using Vault operator:
 
-- Manage Vault [policy](https://www.vaultproject.io/docs/concepts/policies.html) using [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) and [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md). Guides can be found [here](/docs/guides/policy-management/policy-management.md).
+- Manage Vault [policy](https://www.vaultproject.io/docs/concepts/policies.html) using [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) and [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md). Guides can be found [here](/docs/guides/policy-management/overview.md).
 
 - Manage [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html#aws-secrets-engine) using [AWSRole](/docs/concepts/secret-engine-crds/awsrole.md) and [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/awsaccesskeyrequest.md). Guides can be found [here](/docs/guides/secret-engines/aws/overview.md).
 
