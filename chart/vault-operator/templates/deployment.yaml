@@ -38,6 +38,7 @@ spec:
 {{ toYaml .Values.imagePullSecrets | indent 6 }}
       {{- end }}
       securityContext:
+        # ensure that s/a token is readable xref: https://issues.k8s.io/70679
         fsGroup: 65535
       containers:
       - name: operator

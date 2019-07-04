@@ -20,6 +20,7 @@ spec:
       serviceAccountName: ${VAULT_OPERATOR_SERVICE_ACCOUNT}
       imagePullSecrets: [${VAULT_OPERATOR_IMAGE_PULL_SECRET}]
       securityContext:
+        # ensure that s/a token is readable xref: https://issues.k8s.io/70679
         fsGroup: 65535
       containers:
       - name: operator
