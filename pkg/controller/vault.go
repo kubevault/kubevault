@@ -36,7 +36,8 @@ const (
 )
 
 var (
-	DefaultFsGroup int64 = 65535
+	// ensure that s/a token is readable xref: https://issues.k8s.io/70679
+	defaultFsGroup int64 = 65535
 )
 
 type Vault interface {
@@ -460,13 +461,12 @@ func (v *vaultSrv) GetRBACClusterRoleBinding() rbac.ClusterRoleBinding {
 }
 
 func (v *vaultSrv) GetPodTemplate(c core.Container, saName string) *core.PodTemplateSpec {
-
 	// If SecurityContext for PodTemplate is not specified, SecurityContext.FSGroup is set to default value 65535
 	if v.vs.Spec.PodTemplate.Spec.SecurityContext == nil {
-		v.vs.Spec.PodTemplate.Spec.SecurityContext = &core.PodSecurityContext{
-			FSGroup: &DefaultFsGroup,
-		}
+		v.vs.Spec.PodTemplate.Spec.SecurityContext = &core.PodSecurityContext{}
 	}
+	v.vs.Spec.PodTemplate.Spec.SecurityContext.FSGroup = &defaultFsGroup
+
 	return &core.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        v.vs.Name,
