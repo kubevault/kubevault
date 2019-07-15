@@ -6,15 +6,15 @@ import (
 
 	prom "github.com/coreos/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	db_cs "github.com/kubedb/apimachinery/client/clientset/versioned"
-	"github.com/kubevault/operator/apis"
-	cs "github.com/kubevault/operator/client/clientset/versioned"
-	"github.com/kubevault/operator/pkg/controller"
-	"github.com/kubevault/operator/pkg/docker"
 	"github.com/spf13/pflag"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	"k8s.io/client-go/kubernetes"
 	"kmodules.xyz/client-go/tools/clusterid"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	"kubevault.dev/operator/apis"
+	cs "kubevault.dev/operator/client/clientset/versioned"
+	"kubevault.dev/operator/pkg/controller"
+	"kubevault.dev/operator/pkg/docker"
 )
 
 type ExtraOptions struct {

@@ -9,12 +9,12 @@ import (
 
 	"github.com/appscode/pat"
 	vaultapi "github.com/hashicorp/vault/api"
-	api "github.com/kubevault/operator/apis/engine/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
 func CreateDemoDB() ([]GCPRole, *httptest.Server) {

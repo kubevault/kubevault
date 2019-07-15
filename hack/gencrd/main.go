@@ -9,30 +9,30 @@ import (
 	gort "github.com/appscode/go/runtime"
 	"github.com/go-openapi/spec"
 	"github.com/golang/glog"
-	"github.com/kubevault/operator/apis"
-	cataloginstall "github.com/kubevault/operator/apis/catalog/install"
-	catalogv1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
-	secretinstall "github.com/kubevault/operator/apis/engine/install"
-	secretv1alpha1 "github.com/kubevault/operator/apis/engine/v1alpha1"
-	vaultinstall "github.com/kubevault/operator/apis/kubevault/install"
-	vaultv1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	policyinstall "github.com/kubevault/operator/apis/policy/install"
-	policyv1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
 	crd_api "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/kube-openapi/pkg/common"
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
 	"kmodules.xyz/client-go/openapi"
+	"kubevault.dev/operator/apis"
+	cataloginstall "kubevault.dev/operator/apis/catalog/install"
+	catalogv1alpha1 "kubevault.dev/operator/apis/catalog/v1alpha1"
+	secretinstall "kubevault.dev/operator/apis/engine/install"
+	secretv1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
+	vaultinstall "kubevault.dev/operator/apis/kubevault/install"
+	vaultv1alpha1 "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	policyinstall "kubevault.dev/operator/apis/policy/install"
+	policyv1alpha1 "kubevault.dev/operator/apis/policy/v1alpha1"
 )
 
 func generateCRDDefinitions() {
 	apis.EnableStatusSubresource = true
 
-	filename := gort.GOPath() + "/src/github.com/kubevault/operator/apis/kubevault/v1alpha1/crds.yaml"
+	filename := gort.GOPath() + "/src/kubevault.dev/operator/apis/kubevault/v1alpha1/crds.yaml"
 	os.Remove(filename)
 
-	err := os.MkdirAll(filepath.Join(gort.GOPath(), "/src/github.com/kubevault/operator/api/crds"), 0755)
+	err := os.MkdirAll(filepath.Join(gort.GOPath(), "/src/kubevault.dev/operator/api/crds"), 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,7 +50,7 @@ func generateCRDDefinitions() {
 		secretv1alpha1.AzureAccessKeyRequest{}.CustomResourceDefinition(),
 	}
 	for _, crd := range crds {
-		filename := filepath.Join(gort.GOPath(), "/src/github.com/kubevault/operator/api/crds", crd.Spec.Names.Singular+".yaml")
+		filename := filepath.Join(gort.GOPath(), "/src/kubevault.dev/operator/api/crds", crd.Spec.Names.Singular+".yaml")
 		f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
 			log.Fatal(err)
@@ -110,7 +110,7 @@ func generateSwaggerJson() {
 		glog.Fatal(err)
 	}
 
-	filename := gort.GOPath() + "/src/github.com/kubevault/operator/api/openapi-spec/swagger.json"
+	filename := gort.GOPath() + "/src/kubevault.dev/operator/api/openapi-spec/swagger.json"
 	err = os.MkdirAll(filepath.Dir(filename), 0755)
 	if err != nil {
 		glog.Fatal(err)

@@ -1,9 +1,9 @@
 package token
 
 import (
-	"github.com/kubevault/operator/apis"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
+	"kubevault.dev/operator/apis"
 )
 
 type auth struct {

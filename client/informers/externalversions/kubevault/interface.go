@@ -19,8 +19,8 @@ limitations under the License.
 package kubevault
 
 import (
-	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/kubevault/operator/client/informers/externalversions/kubevault/v1alpha1"
+	internalinterfaces "kubevault.dev/operator/client/informers/externalversions/internalinterfaces"
+	v1alpha1 "kubevault.dev/operator/client/informers/externalversions/kubevault/v1alpha1"
 )
 
 // Interface provides access to each of this group's versions.

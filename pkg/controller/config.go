@@ -6,9 +6,6 @@ import (
 	pcm "github.com/coreos/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	db_cs "github.com/kubedb/apimachinery/client/clientset/versioned"
 	dbinformers "github.com/kubedb/apimachinery/client/informers/externalversions"
-	cs "github.com/kubevault/operator/client/clientset/versioned"
-	vaultinformers "github.com/kubevault/operator/client/informers/externalversions"
-	"github.com/kubevault/operator/pkg/eventer"
 	core "k8s.io/api/core/v1"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	"k8s.io/client-go/informers"
@@ -17,6 +14,9 @@ import (
 	reg_util "kmodules.xyz/client-go/admissionregistration/v1beta1"
 	"kmodules.xyz/client-go/discovery"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	cs "kubevault.dev/operator/client/clientset/versioned"
+	vaultinformers "kubevault.dev/operator/client/informers/externalversions"
+	"kubevault.dev/operator/pkg/eventer"
 )
 
 const (

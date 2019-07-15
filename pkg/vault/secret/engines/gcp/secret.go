@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	engine "github.com/kubevault/operator/apis/engine/v1alpha1"
-	"github.com/kubevault/operator/pkg/vault/role/gcp"
-	"github.com/kubevault/operator/pkg/vault/secret"
 	"github.com/pkg/errors"
+	engine "kubevault.dev/operator/apis/engine/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/role/gcp"
+	"kubevault.dev/operator/pkg/vault/secret"
 )
 
 const (

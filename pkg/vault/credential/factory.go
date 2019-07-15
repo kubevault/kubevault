@@ -3,15 +3,15 @@ package credential
 import (
 	dbapi "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
 	dbcrd "github.com/kubedb/apimachinery/client/clientset/versioned"
-	engineapi "github.com/kubevault/operator/apis/engine/v1alpha1"
-	vaultcrd "github.com/kubevault/operator/client/clientset/versioned"
-	"github.com/kubevault/operator/pkg/vault/credential/aws"
-	"github.com/kubevault/operator/pkg/vault/credential/azure"
-	"github.com/kubevault/operator/pkg/vault/credential/database"
-	"github.com/kubevault/operator/pkg/vault/credential/gcp"
 	"github.com/pkg/errors"
 	"k8s.io/client-go/kubernetes"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	engineapi "kubevault.dev/operator/apis/engine/v1alpha1"
+	vaultcrd "kubevault.dev/operator/client/clientset/versioned"
+	"kubevault.dev/operator/pkg/vault/credential/aws"
+	"kubevault.dev/operator/pkg/vault/credential/azure"
+	"kubevault.dev/operator/pkg/vault/credential/database"
+	"kubevault.dev/operator/pkg/vault/credential/gcp"
 )
 
 func NewCredentialManagerForDatabase(kubeClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr dbcrd.Interface, dbAR *dbapi.DatabaseAccessRequest) (CredentialManager, error) {

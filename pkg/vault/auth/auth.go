@@ -3,21 +3,21 @@ package auth
 import (
 	"encoding/json"
 
-	"github.com/kubevault/operator/apis"
-	config "github.com/kubevault/operator/apis/config/v1alpha1"
-	awsauth "github.com/kubevault/operator/pkg/vault/auth/aws"
-	azureauth "github.com/kubevault/operator/pkg/vault/auth/azure"
-	certauth "github.com/kubevault/operator/pkg/vault/auth/cert"
-	gcpauth "github.com/kubevault/operator/pkg/vault/auth/gcp"
-	k8sauth "github.com/kubevault/operator/pkg/vault/auth/kubernetes"
-	saauth "github.com/kubevault/operator/pkg/vault/auth/serviceaccount"
-	tokenauth "github.com/kubevault/operator/pkg/vault/auth/token"
-	basicauth "github.com/kubevault/operator/pkg/vault/auth/userpass"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	"kubevault.dev/operator/apis"
+	config "kubevault.dev/operator/apis/config/v1alpha1"
+	awsauth "kubevault.dev/operator/pkg/vault/auth/aws"
+	azureauth "kubevault.dev/operator/pkg/vault/auth/azure"
+	certauth "kubevault.dev/operator/pkg/vault/auth/cert"
+	gcpauth "kubevault.dev/operator/pkg/vault/auth/gcp"
+	k8sauth "kubevault.dev/operator/pkg/vault/auth/kubernetes"
+	saauth "kubevault.dev/operator/pkg/vault/auth/serviceaccount"
+	tokenauth "kubevault.dev/operator/pkg/vault/auth/token"
+	basicauth "kubevault.dev/operator/pkg/vault/auth/userpass"
 )
 
 type AuthInterface interface {

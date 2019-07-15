@@ -1,21 +1,21 @@
 package storage
 
 import (
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	"github.com/kubevault/operator/pkg/vault/storage/azure"
-	"github.com/kubevault/operator/pkg/vault/storage/consul"
-	"github.com/kubevault/operator/pkg/vault/storage/dynamodb"
-	"github.com/kubevault/operator/pkg/vault/storage/etcd"
-	"github.com/kubevault/operator/pkg/vault/storage/file"
-	"github.com/kubevault/operator/pkg/vault/storage/gcs"
-	"github.com/kubevault/operator/pkg/vault/storage/inmem"
-	"github.com/kubevault/operator/pkg/vault/storage/mysql"
-	postgresql "github.com/kubevault/operator/pkg/vault/storage/postgersql"
-	"github.com/kubevault/operator/pkg/vault/storage/s3"
-	"github.com/kubevault/operator/pkg/vault/storage/swift"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/storage/azure"
+	"kubevault.dev/operator/pkg/vault/storage/consul"
+	"kubevault.dev/operator/pkg/vault/storage/dynamodb"
+	"kubevault.dev/operator/pkg/vault/storage/etcd"
+	"kubevault.dev/operator/pkg/vault/storage/file"
+	"kubevault.dev/operator/pkg/vault/storage/gcs"
+	"kubevault.dev/operator/pkg/vault/storage/inmem"
+	"kubevault.dev/operator/pkg/vault/storage/mysql"
+	postgresql "kubevault.dev/operator/pkg/vault/storage/postgersql"
+	"kubevault.dev/operator/pkg/vault/storage/s3"
+	"kubevault.dev/operator/pkg/vault/storage/swift"
 )
 
 type Storage interface {

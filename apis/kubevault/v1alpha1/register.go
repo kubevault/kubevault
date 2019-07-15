@@ -1,10 +1,10 @@
 package v1alpha1
 
 import (
-	"github.com/kubevault/operator/apis/kubevault"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"kubevault.dev/operator/apis/kubevault"
 )
 
 var SchemeGroupVersion = schema.GroupVersion{Group: kubevault.GroupName, Version: "v1alpha1"}

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/stretchr/testify/assert"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 )
 
 func TestOptions_GetStorageConfig(t *testing.T) {

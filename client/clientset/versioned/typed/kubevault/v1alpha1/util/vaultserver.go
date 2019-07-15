@@ -6,14 +6,14 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/golang/glog"
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	cs "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
 	"github.com/pkg/errors"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
 	kutil "kmodules.xyz/client-go"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	cs "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
 )
 
 func CreateOrPatchVaultServer(c cs.KubevaultV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.VaultServer) *api.VaultServer) (*api.VaultServer, kutil.VerbType, error) {

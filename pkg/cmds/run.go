@@ -5,9 +5,9 @@ import (
 
 	"github.com/appscode/go/log"
 	v "github.com/appscode/go/version"
-	"github.com/kubevault/operator/pkg/cmds/server"
 	"github.com/spf13/cobra"
 	"kmodules.xyz/client-go/tools/cli"
+	"kubevault.dev/operator/pkg/cmds/server"
 )
 
 func NewCmdRun(out, errOut io.Writer, stopCh <-chan struct{}) *cobra.Command {

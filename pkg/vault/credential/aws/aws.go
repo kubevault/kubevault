@@ -2,17 +2,17 @@ package aws
 
 import (
 	vaultapi "github.com/hashicorp/vault/api"
-	api "github.com/kubevault/operator/apis/engine/v1alpha1"
-	crd "github.com/kubevault/operator/client/clientset/versioned"
-	"github.com/kubevault/operator/pkg/vault"
-	awsrole "github.com/kubevault/operator/pkg/vault/role/aws"
-	"github.com/kubevault/operator/pkg/vault/secret"
-	"github.com/kubevault/operator/pkg/vault/secret/engines/aws"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	crd "kubevault.dev/operator/client/clientset/versioned"
+	"kubevault.dev/operator/pkg/vault"
+	awsrole "kubevault.dev/operator/pkg/vault/role/aws"
+	"kubevault.dev/operator/pkg/vault/secret"
+	"kubevault.dev/operator/pkg/vault/secret/engines/aws"
 )
 
 type AWSCredManager struct {

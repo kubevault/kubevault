@@ -19,7 +19,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
+	internalinterfaces "kubevault.dev/operator/client/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to all the informers in this group version.

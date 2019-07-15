@@ -19,16 +19,16 @@ limitations under the License.
 package scheme
 
 import (
-	catalogv1alpha1 "github.com/kubevault/operator/apis/catalog/v1alpha1"
-	configv1alpha1 "github.com/kubevault/operator/apis/config/v1alpha1"
-	enginev1alpha1 "github.com/kubevault/operator/apis/engine/v1alpha1"
-	kubevaultv1alpha1 "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	policyv1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	catalogv1alpha1 "kubevault.dev/operator/apis/catalog/v1alpha1"
+	configv1alpha1 "kubevault.dev/operator/apis/config/v1alpha1"
+	enginev1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
+	kubevaultv1alpha1 "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	policyv1alpha1 "kubevault.dev/operator/apis/policy/v1alpha1"
 )
 
 var Scheme = runtime.NewScheme()

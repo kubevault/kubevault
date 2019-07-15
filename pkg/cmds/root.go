@@ -7,7 +7,6 @@ import (
 	"github.com/appscode/go/flags"
 	v "github.com/appscode/go/version"
 	dbscheme "github.com/kubedb/apimachinery/client/clientset/versioned/scheme"
-	"github.com/kubevault/operator/client/clientset/versioned/scheme"
 	"github.com/spf13/cobra"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
@@ -15,6 +14,7 @@ import (
 	"kmodules.xyz/client-go/logs"
 	"kmodules.xyz/client-go/tools/cli"
 	appcatscheme "kmodules.xyz/custom-resources/client/clientset/versioned/scheme"
+	"kubevault.dev/operator/client/clientset/versioned/scheme"
 )
 
 func NewRootCmd() *cobra.Command {

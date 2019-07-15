@@ -3,12 +3,12 @@ package controller
 import (
 	"testing"
 
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat_csfake "kmodules.xyz/custom-resources/client/clientset/versioned/fake"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 )
 
 func TestRun(t *testing.T) {

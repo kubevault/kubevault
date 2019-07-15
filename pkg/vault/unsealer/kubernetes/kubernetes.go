@@ -3,13 +3,13 @@ package kubernetes
 import (
 	"fmt"
 
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 const (

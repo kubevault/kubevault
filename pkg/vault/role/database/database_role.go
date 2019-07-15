@@ -6,16 +6,16 @@ import (
 
 	vaultapi "github.com/hashicorp/vault/api"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
-	vaultcs "github.com/kubevault/operator/pkg/vault"
-	"github.com/kubevault/operator/pkg/vault/role"
-	"github.com/kubevault/operator/pkg/vault/role/database/mongodb"
-	"github.com/kubevault/operator/pkg/vault/role/database/mysql"
-	"github.com/kubevault/operator/pkg/vault/role/database/postgres"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	vaultcs "kubevault.dev/operator/pkg/vault"
+	"kubevault.dev/operator/pkg/vault/role"
+	"kubevault.dev/operator/pkg/vault/role/database/mongodb"
+	"kubevault.dev/operator/pkg/vault/role/database/mysql"
+	"kubevault.dev/operator/pkg/vault/role/database/postgres"
 )
 
 const (

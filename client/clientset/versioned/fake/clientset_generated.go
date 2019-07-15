@@ -19,22 +19,22 @@ limitations under the License.
 package fake
 
 import (
-	clientset "github.com/kubevault/operator/client/clientset/versioned"
-	catalogv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/catalog/v1alpha1"
-	fakecatalogv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/catalog/v1alpha1/fake"
-	configv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/config/v1alpha1"
-	fakeconfigv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/config/v1alpha1/fake"
-	enginev1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/engine/v1alpha1"
-	fakeenginev1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/engine/v1alpha1/fake"
-	kubevaultv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
-	fakekubevaultv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/fake"
-	policyv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1"
-	fakepolicyv1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/testing"
+	clientset "kubevault.dev/operator/client/clientset/versioned"
+	catalogv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/catalog/v1alpha1"
+	fakecatalogv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/catalog/v1alpha1/fake"
+	configv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/config/v1alpha1"
+	fakeconfigv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/config/v1alpha1/fake"
+	enginev1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1"
+	fakeenginev1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/fake"
+	kubevaultv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
+	fakekubevaultv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/fake"
+	policyv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1"
+	fakepolicyv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/fake"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.

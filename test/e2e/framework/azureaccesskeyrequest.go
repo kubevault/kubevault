@@ -1,9 +1,9 @@
 package framework
 
 import (
-	"github.com/kubevault/operator/apis"
-	api "github.com/kubevault/operator/apis/engine/v1alpha1"
-	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
+	"kubevault.dev/operator/apis"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 )
 
 func (f *Framework) UpdateAzureAccessKeyRequestStatus(status *api.AzureAccessKeyRequestStatus, azureAReq *api.AzureAccessKeyRequest) error {

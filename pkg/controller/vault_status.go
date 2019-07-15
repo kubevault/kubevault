@@ -7,10 +7,6 @@ import (
 
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
-	"github.com/kubevault/operator/apis"
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	cs_util "github.com/kubevault/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
-	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
@@ -18,6 +14,10 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/portforward"
+	"kubevault.dev/operator/apis"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	cs_util "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 // monitorAndUpdateStatus monitors the vault service and replicas statuses, and

@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/kubevault/operator/pkg/cmds"
 	"kmodules.xyz/client-go/logs"
+	"kubevault.dev/operator/pkg/cmds"
 )
 
 func main() {

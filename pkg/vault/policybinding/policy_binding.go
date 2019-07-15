@@ -4,14 +4,14 @@ import (
 	"fmt"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	api "github.com/kubevault/operator/apis/policy/v1alpha1"
-	cs "github.com/kubevault/operator/client/clientset/versioned"
-	"github.com/kubevault/operator/pkg/vault"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	api "kubevault.dev/operator/apis/policy/v1alpha1"
+	cs "kubevault.dev/operator/client/clientset/versioned"
+	"kubevault.dev/operator/pkg/vault"
 )
 
 type PolicyBinding interface {

@@ -21,14 +21,14 @@ package v1alpha1
 import (
 	time "time"
 
-	policyv1alpha1 "github.com/kubevault/operator/apis/policy/v1alpha1"
-	versioned "github.com/kubevault/operator/client/clientset/versioned"
-	internalinterfaces "github.com/kubevault/operator/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/kubevault/operator/client/listers/policy/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
+	policyv1alpha1 "kubevault.dev/operator/apis/policy/v1alpha1"
+	versioned "kubevault.dev/operator/client/clientset/versioned"
+	internalinterfaces "kubevault.dev/operator/client/informers/externalversions/internalinterfaces"
+	v1alpha1 "kubevault.dev/operator/client/listers/policy/v1alpha1"
 )
 
 // VaultPolicyInformer provides access to a shared informer and lister for

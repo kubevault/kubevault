@@ -3,10 +3,6 @@ package admission
 import (
 	"testing"
 
-	catalog "github.com/kubevault/operator/apis/catalog/v1alpha1"
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	extfake "github.com/kubevault/operator/client/clientset/versioned/fake"
-	clientsetscheme "github.com/kubevault/operator/client/clientset/versioned/scheme"
 	"github.com/stretchr/testify/assert"
 	admission "k8s.io/api/admission/v1beta1"
 	core "k8s.io/api/core/v1"
@@ -15,6 +11,10 @@ import (
 	kfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/kubernetes/scheme"
 	meta_util "kmodules.xyz/client-go/meta"
+	catalog "kubevault.dev/operator/apis/catalog/v1alpha1"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	extfake "kubevault.dev/operator/client/clientset/versioned/fake"
+	clientsetscheme "kubevault.dev/operator/client/clientset/versioned/scheme"
 )
 
 const namespace = "test-ns"
