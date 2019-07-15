@@ -26,7 +26,7 @@ func (d AzureAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomR
 				"app": "vault",
 			},
 		},
-		SpecDefinitionName:      "github.com/kubevault/operator/apis/kubevault/v1alpha1.AzureAccessKeyRequest",
+		SpecDefinitionName:      "kubevault.dev/operator/apis/kubevault/v1alpha1.AzureAccessKeyRequest",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
 		EnableStatusSubresource: apis.EnableStatusSubresource,

@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	"github.com/kubevault/operator/pkg/vault/secret"
 	"github.com/pkg/errors"
+	"kubevault.dev/operator/pkg/vault/secret"
 )
 
 const UID = "DATABASE"

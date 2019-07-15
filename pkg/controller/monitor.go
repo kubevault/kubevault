@@ -4,9 +4,6 @@ import (
 	"fmt"
 
 	"github.com/appscode/go/log"
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	"github.com/kubevault/operator/pkg/vault/exporter"
-	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,6 +13,9 @@ import (
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/monitoring-agent-api/agents"
 	mona "kmodules.xyz/monitoring-agent-api/api/v1"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/exporter"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service, kutil.VerbType, error) {

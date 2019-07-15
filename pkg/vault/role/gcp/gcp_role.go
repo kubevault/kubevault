@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	api "github.com/kubevault/operator/apis/engine/v1alpha1"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
 type GCPRole struct {

@@ -2,11 +2,11 @@ package policy
 
 import (
 	vaultapi "github.com/hashicorp/vault/api"
-	api "github.com/kubevault/operator/apis/policy/v1alpha1"
-	"github.com/kubevault/operator/pkg/vault"
 	"github.com/pkg/errors"
 	"k8s.io/client-go/kubernetes"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	api "kubevault.dev/operator/apis/policy/v1alpha1"
+	"kubevault.dev/operator/pkg/vault"
 )
 
 type Policy interface {

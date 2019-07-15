@@ -3,10 +3,10 @@ package google
 import (
 	"testing"
 
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/stretchr/testify/assert"
 	core "k8s.io/api/core/v1"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 func TestOptions_Apply(t *testing.T) {

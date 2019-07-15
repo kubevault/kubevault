@@ -26,7 +26,7 @@ func (d GCPAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomRes
 				"app": "vault",
 			},
 		},
-		SpecDefinitionName:      "github.com/kubevault/operator/apis/kubevault/v1alpha1.GCPAccessKeyRequest",
+		SpecDefinitionName:      "kubevault.dev/operator/apis/kubevault/v1alpha1.GCPAccessKeyRequest",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
 		EnableStatusSubresource: apis.EnableStatusSubresource,

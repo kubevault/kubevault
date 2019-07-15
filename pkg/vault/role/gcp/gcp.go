@@ -3,14 +3,14 @@ package gcp
 import (
 	"encoding/json"
 
-	api "github.com/kubevault/operator/apis/engine/v1alpha1"
-	"github.com/kubevault/operator/pkg/vault"
-	"github.com/kubevault/operator/pkg/vault/role"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	"kubevault.dev/operator/pkg/vault"
+	"kubevault.dev/operator/pkg/vault/role"
 )
 
 const DefaultGCPPath = "gcp"

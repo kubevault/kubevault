@@ -24,7 +24,7 @@ func (d AWSAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomRes
 		Labels: crdutils.Labels{
 			LabelsMap: map[string]string{"app": "vault"},
 		},
-		SpecDefinitionName:      "github.com/kubevault/operator/apis/kubevault/v1alpha1.AWSAccessKeyRequest",
+		SpecDefinitionName:      "kubevault.dev/operator/apis/kubevault/v1alpha1.AWSAccessKeyRequest",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
 		EnableStatusSubresource: apis.EnableStatusSubresource,

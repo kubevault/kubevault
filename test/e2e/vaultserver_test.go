@@ -12,10 +12,6 @@ import (
 	"github.com/golang/glog"
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
 	vaultapi "github.com/hashicorp/vault/api"
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	"github.com/kubevault/operator/pkg/controller"
-	"github.com/kubevault/operator/pkg/vault/util"
-	"github.com/kubevault/operator/test/e2e/framework"
 	"github.com/ncw/swift"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -24,6 +20,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	"kubevault.dev/operator/pkg/controller"
+	"kubevault.dev/operator/pkg/vault/util"
+	"kubevault.dev/operator/test/e2e/framework"
 )
 
 const (

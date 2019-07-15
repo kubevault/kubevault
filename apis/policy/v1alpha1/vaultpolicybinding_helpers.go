@@ -3,11 +3,11 @@ package v1alpha1
 import (
 	"fmt"
 
-	"github.com/kubevault/operator/apis"
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/clusterid"
+	"kubevault.dev/operator/apis"
 )
 
 func (v VaultPolicyBinding) GetKey() string {
@@ -56,7 +56,7 @@ func (v VaultPolicyBinding) CustomResourceDefinition() *apiextensions.CustomReso
 		Labels: crdutils.Labels{
 			LabelsMap: map[string]string{"app": "vault"},
 		},
-		SpecDefinitionName:      "github.com/kubevault/operator/apis/policy/v1alpha1.VaultPolicyBinding",
+		SpecDefinitionName:      "kubevault.dev/operator/apis/policy/v1alpha1.VaultPolicyBinding",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
 		EnableStatusSubresource: apis.EnableStatusSubresource,

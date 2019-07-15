@@ -1,4 +1,4 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/kubevault/operator)](https://goreportcard.com/report/github.com/kubevault/operator)
+[![Go Report Card](https://goreportcard.com/badge/kubevault.dev/operator)](https://goreportcard.com/report/kubevault.dev/operator)
 [![Build Status](https://travis-ci.org/kubevault/operator.svg?branch=master)](https://travis-ci.org/kubevault/operator)
 [![codecov](https://codecov.io/gh/kubevault/operator/branch/master/graph/badge.svg)](https://codecov.io/gh/kubevault/operator)
 [![Docker Pulls](https://img.shields.io/docker/pulls/kubevault/vault-operator.svg)](https://hub.docker.com/r/kubevault/vault-operator/)

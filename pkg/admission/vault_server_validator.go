@@ -5,8 +5,6 @@ import (
 	"strings"
 	"sync"
 
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	cs "github.com/kubevault/operator/client/clientset/versioned"
 	"github.com/pkg/errors"
 	admission "k8s.io/api/admission/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -17,6 +15,8 @@ import (
 	"k8s.io/client-go/rest"
 	meta_util "kmodules.xyz/client-go/meta"
 	hookapi "kmodules.xyz/webhook-runtime/admission/v1beta1"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	cs "kubevault.dev/operator/client/clientset/versioned"
 )
 
 const (

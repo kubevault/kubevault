@@ -9,8 +9,6 @@ import (
 	"github.com/kubedb/apimachinery/apis"
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
 	patchutil "github.com/kubedb/apimachinery/client/clientset/versioned/typed/authorization/v1alpha1/util"
-	vsapis "github.com/kubevault/operator/apis"
-	"github.com/kubevault/operator/pkg/vault/role/database"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
@@ -18,6 +16,8 @@ import (
 	core_util "kmodules.xyz/client-go/core/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
+	vsapis "kubevault.dev/operator/apis"
+	"kubevault.dev/operator/pkg/vault/role/database"
 )
 
 const (

@@ -11,12 +11,12 @@ import (
 	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
 	dbfake "github.com/kubedb/apimachinery/client/clientset/versioned/fake"
 	dbinformers "github.com/kubedb/apimachinery/client/informers/externalversions"
-	"github.com/kubevault/operator/pkg/vault/role/database"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/role/database"
 )
 
 func setupVaultServerForMysql() *httptest.Server {

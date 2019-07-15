@@ -7,14 +7,14 @@ import (
 	"net/http"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	"github.com/kubevault/operator/apis"
-	config "github.com/kubevault/operator/apis/config/v1alpha1"
-	vsapi "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	"github.com/kubevault/operator/pkg/vault/auth/types"
-	vaultuitl "github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	"kubevault.dev/operator/apis"
+	config "kubevault.dev/operator/apis/config/v1alpha1"
+	vsapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/auth/types"
+	vaultuitl "kubevault.dev/operator/pkg/vault/util"
 )
 
 type auth struct {

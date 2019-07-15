@@ -5,10 +5,6 @@ import (
 
 	"github.com/appscode/go/encoding/json/types"
 	"github.com/golang/glog"
-	"github.com/kubevault/operator/apis"
-	policyapi "github.com/kubevault/operator/apis/policy/v1alpha1"
-	patchutil "github.com/kubevault/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
-	"github.com/kubevault/operator/pkg/vault/policy"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
@@ -16,6 +12,10 @@ import (
 	core_util "kmodules.xyz/client-go/core/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
+	"kubevault.dev/operator/apis"
+	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
+	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
+	"kubevault.dev/operator/pkg/vault/policy"
 )
 
 const (

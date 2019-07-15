@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	"github.com/kubevault/operator/pkg/vault/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
@@ -12,6 +11,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	core_util "kmodules.xyz/client-go/core/v1"
 	rbac_util "kmodules.xyz/client-go/rbac/v1"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 type CredManager struct {

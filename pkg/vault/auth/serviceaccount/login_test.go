@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	config "github.com/kubevault/operator/apis/config/v1alpha1"
+	config "kubevault.dev/operator/apis/config/v1alpha1"
 )
 
 func TestTry(t *testing.T) {

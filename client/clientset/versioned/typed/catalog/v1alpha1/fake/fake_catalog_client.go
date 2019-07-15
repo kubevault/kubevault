@@ -19,9 +19,9 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "github.com/kubevault/operator/client/clientset/versioned/typed/catalog/v1alpha1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
+	v1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/catalog/v1alpha1"
 )
 
 type FakeCatalogV1alpha1 struct {

@@ -75,8 +75,3 @@ var _ clientset.Interface = &Clientset{}
 func (c *Clientset) AppcatalogV1alpha1() appcatalogv1alpha1.AppcatalogV1alpha1Interface {
 	return &fakeappcatalogv1alpha1.FakeAppcatalogV1alpha1{Fake: &c.Fake}
 }
-
-// Appcatalog retrieves the AppcatalogV1alpha1Client
-func (c *Clientset) Appcatalog() appcatalogv1alpha1.AppcatalogV1alpha1Interface {
-	return &fakeappcatalogv1alpha1.FakeAppcatalogV1alpha1{Fake: &c.Fake}
-}

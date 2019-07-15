@@ -3,13 +3,13 @@ package admission
 import (
 	"sync"
 
-	api "github.com/kubevault/operator/apis/policy/v1alpha1"
 	admission "k8s.io/api/admission/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/rest"
 	meta_util "kmodules.xyz/client-go/meta"
 	hookapi "kmodules.xyz/webhook-runtime/admission/v1beta1"
+	api "kubevault.dev/operator/apis/policy/v1alpha1"
 )
 
 const (

@@ -4,17 +4,17 @@ import (
 	"encoding/json"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	api "github.com/kubevault/operator/apis/engine/v1alpha1"
-	crd "github.com/kubevault/operator/client/clientset/versioned"
-	"github.com/kubevault/operator/pkg/vault"
-	azurerole "github.com/kubevault/operator/pkg/vault/role/azure"
-	"github.com/kubevault/operator/pkg/vault/secret"
-	azureengines "github.com/kubevault/operator/pkg/vault/secret/engines/azure"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	crd "kubevault.dev/operator/client/clientset/versioned"
+	"kubevault.dev/operator/pkg/vault"
+	azurerole "kubevault.dev/operator/pkg/vault/role/azure"
+	"kubevault.dev/operator/pkg/vault/secret"
+	azureengines "kubevault.dev/operator/pkg/vault/secret/engines/azure"
 )
 
 type AzureCredManager struct {

@@ -5,10 +5,6 @@ import (
 	"os"
 	"strings"
 
-	api "github.com/kubevault/operator/apis/kubevault/v1alpha1"
-	vsadmission "github.com/kubevault/operator/pkg/admission"
-	"github.com/kubevault/operator/pkg/controller"
-	"github.com/kubevault/operator/pkg/eventer"
 	admission "k8s.io/api/admission/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -23,6 +19,10 @@ import (
 	dynamic_util "kmodules.xyz/client-go/dynamic"
 	hooks "kmodules.xyz/webhook-runtime/admission/v1beta1"
 	admissionreview "kmodules.xyz/webhook-runtime/registry/admissionreview/v1beta1"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	vsadmission "kubevault.dev/operator/pkg/admission"
+	"kubevault.dev/operator/pkg/controller"
+	"kubevault.dev/operator/pkg/eventer"
 )
 
 const (

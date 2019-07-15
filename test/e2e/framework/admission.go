@@ -10,8 +10,6 @@ import (
 
 	shell "github.com/codeskyblue/go-sh"
 	"github.com/golang/glog"
-	"github.com/kubevault/operator/apis"
-	srvr "github.com/kubevault/operator/pkg/cmds/server"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
@@ -21,6 +19,8 @@ import (
 	restclient "k8s.io/client-go/rest"
 	kapi "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1beta1"
 	discovery_util "kmodules.xyz/client-go/discovery"
+	"kubevault.dev/operator/apis"
+	srvr "kubevault.dev/operator/pkg/cmds/server"
 )
 
 func (f *Framework) NewTestVaultServerOptions(kubeConfigPath string, controllerOptions *srvr.ExtraOptions) *srvr.VaultServerOptions {

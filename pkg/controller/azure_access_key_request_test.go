@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	api "github.com/kubevault/operator/apis/engine/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
 func TestDeleteAzureAccessKeyCondition(t *testing.T) {
