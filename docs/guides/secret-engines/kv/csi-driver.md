@@ -61,11 +61,11 @@ Follow [this](/docs/guides/secret-engines/kv/overview.md) tutorial to manage Key
 
 You can use Vault cli to manually configure an existing Vault server. The Vault server may be running inside a Kubernetes cluster or running outside a Kubernetes cluster. If you don't have a Vault server, you can deploy one by running the following command:
 
-    ```console
-    $ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/csi-driver/vault-install.yaml
-    service/vault created
-    statefulset.apps/vault created
-    ```
+```console
+$ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/csi-driver/vault-install.yaml
+service/vault created
+statefulset.apps/vault created
+```
 
 To use secret from `KV` engine, you have to do following things.
 
@@ -130,14 +130,14 @@ To use secret from `KV` engine, you have to do following things.
 2. **Enable Kubernetes Auth:**  To enable Kubernetes auth backend, we need to extract the token reviewer JWT, Kubernetes CA certificate and Kubernetes host information.
 
     ```console
-    export VAULT_SA_NAME=$(kubectl get sa kv-vault -n demo -o jsonpath="{.secrets[*]['name']}")
+    $ export VAULT_SA_NAME=$(kubectl get sa kv-vault -n demo -o jsonpath="{.secrets[*]['name']}")
 
-    export SA_JWT_TOKEN=$(kubectl get secret $VAULT_SA_NAME -n demo -o jsonpath="{.data.token}" | base64 --decode; echo)
+    $ export SA_JWT_TOKEN=$(kubectl get secret $VAULT_SA_NAME -n demo -o jsonpath="{.data.token}" | base64 --decode; echo)
 
-    export SA_CA_CRT=$(kubectl get secret $VAULT_SA_NAME -n demo -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
+    $ export SA_CA_CRT=$(kubectl get secret $VAULT_SA_NAME -n demo -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
 
-    export K8S_HOST=<host-ip>
-    export K8s_PORT=6443
+    $ export K8S_HOST=<host-ip>
+    $ export K8s_PORT=6443
     ```
 
     Now, we can enable the Kubernetes authentication backend and create a Vault named role that is attached to this service account. Run:
@@ -173,7 +173,7 @@ To use secret from `KV` engine, you have to do following things.
     If you don't see that CRD, you can register it via the following command:
 
     ```console
-    kubectl apply -f https://github.com/kmodules/custom-resources/raw/master/api/crds/appbinding.yaml
+    $ kubectl apply -f https://github.com/kmodules/custom-resources/raw/master/api/crds/appbinding.yaml
 
     ```
 
@@ -207,21 +207,21 @@ So, we can create `StorageClass` now.
 
 **Create StorageClass:** Create `storage-class.yaml` file with following content, then run `kubectl apply -f storage-class.yaml`
 
-    ```yaml
-    kind: StorageClass
-    apiVersion: storage.k8s.io/v1
-    metadata:
-      name: vault-kv-storage
-      namespace: demo
-    annotations:
-      storageclass.kubernetes.io/is-default-class: "false"
-    provisioner: secrets.csi.kubevault.com
-    parameters:
-      ref: demo/vault-app # namespace/AppBinding, we created this in previous step
-      engine: KV # vault engine name
-      secret: my-secret # secret name on vault which you want get access
-      path: kv # specify the secret engine path, default is kv
-    ```
+```yaml
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: vault-kv-storage
+  namespace: demo
+annotations:
+  storageclass.kubernetes.io/is-default-class: "false"
+provisioner: secrets.csi.kubevault.com
+parameters:
+  ref: demo/vault-app # namespace/AppBinding, we created this in previous step
+  engine: KV # vault engine name
+  secret: my-secret # secret name on vault which you want get access
+  path: kv # specify the secret engine path, default is kv
+```
 
 ## Test & Verify
 
@@ -242,8 +242,15 @@ So, we can create `StorageClass` now.
       storageClassName: vault-kv-storage
       volumeMode: DirectoryOrCreate
     ```
-
-2. **Create Pod:** Now we can create a Pod which refers to this volume. When the Pod is created, the volume will be attached, formatted and mounted to the specific container.
+2. **Create Service Account:** Create service account for the pod we are going to create in next step.
+    ```yaml
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: kv-vault
+      namespace: demo
+    ```
+3. **Create Pod:** Now we can create a Pod which refers to this volume. When the Pod is created, the volume will be attached, formatted and mounted to the specific container.
 
     ```yaml
     apiVersion: v1
@@ -272,13 +279,13 @@ So, we can create `StorageClass` now.
    Check if the Pod is running successfully, by running:
 
     ```console
-    kubectl describe pods/my-pod
+    kubectl describe pods -n demo mypod
     ```
 
-3. **Verify Secret:** If the Pod is running successfully, then check inside the app container by running
+4. **Verify Secret:** If the Pod is running successfully, then check inside the app container by running
 
     ```console
-    $ kubectl exec -ti mypod /bin/sh
+    $ kubectl exec -n demo -ti mypod /bin/sh
     / # ls /etc/foo
     my-value
     / # cat /etc/foo/my-value
