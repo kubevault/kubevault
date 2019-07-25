@@ -6,15 +6,15 @@ import (
 
 	"github.com/appscode/go/crypto/rand"
 	"github.com/golang/glog"
-	"github.com/kubedb/apimachinery/apis"
-	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
-	patchutil "github.com/kubedb/apimachinery/client/clientset/versioned/typed/authorization/v1alpha1/util"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
+	"kubedb.dev/apimachinery/apis"
+	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
+	patchutil "kubedb.dev/apimachinery/client/clientset/versioned/typed/authorization/v1alpha1/util"
 	vsapis "kubevault.dev/operator/apis"
 	"kubevault.dev/operator/pkg/vault/credential"
 )

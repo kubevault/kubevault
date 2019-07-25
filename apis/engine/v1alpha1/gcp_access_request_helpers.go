@@ -1,9 +1,9 @@
 package v1alpha1
 
 import (
-	"github.com/kubedb/apimachinery/apis"
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
+	"kubedb.dev/apimachinery/apis"
 )
 
 func (d GCPAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {

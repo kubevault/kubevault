@@ -7,7 +7,6 @@ import (
 
 	"github.com/appscode/go/crypto/rand"
 	aggregator "github.com/appscode/go/util/errors"
-	db_cs "github.com/kubedb/apimachinery/client/clientset/versioned"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/afero"
 	"gomodules.xyz/cert/certstore"
@@ -16,6 +15,7 @@ import (
 	ka "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	db_cs "kubedb.dev/apimachinery/client/clientset/versioned"
 	cs "kubevault.dev/operator/client/clientset/versioned"
 )
 

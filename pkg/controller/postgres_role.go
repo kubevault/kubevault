@@ -6,9 +6,6 @@ import (
 
 	"github.com/appscode/go/encoding/json/types"
 	"github.com/golang/glog"
-	"github.com/kubedb/apimachinery/apis"
-	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
-	patchutil "github.com/kubedb/apimachinery/client/clientset/versioned/typed/authorization/v1alpha1/util"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
@@ -16,6 +13,9 @@ import (
 	core_util "kmodules.xyz/client-go/core/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
+	"kubedb.dev/apimachinery/apis"
+	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
+	patchutil "kubedb.dev/apimachinery/client/clientset/versioned/typed/authorization/v1alpha1/util"
 	vsapis "kubevault.dev/operator/apis"
 	"kubevault.dev/operator/pkg/vault/role/database"
 )

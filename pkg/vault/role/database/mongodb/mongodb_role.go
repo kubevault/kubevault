@@ -5,8 +5,6 @@ import (
 	"fmt"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
-	configapi "github.com/kubedb/apimachinery/apis/config/v1alpha1"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -14,6 +12,8 @@ import (
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 	appcat_util "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/util"
+	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
+	configapi "kubedb.dev/apimachinery/apis/config/v1alpha1"
 )
 
 type MongoDBRole struct {
