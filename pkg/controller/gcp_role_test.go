@@ -57,7 +57,7 @@ func TestGCPRole_reconcileGCPRole(t *testing.T) {
 			Namespace: "demo",
 		},
 		Spec: api.GCPRoleSpec{
-			AuthManagerRef: &appcat.AppReference{
+			Ref: &appcat.AppReference{
 				Namespace: "demo",
 				Name:      "test-212321",
 			},

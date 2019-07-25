@@ -36,8 +36,8 @@ const (
 
 // AzureRoleSpec contains connection information, Azure role info, etc
 type AzureRoleSpec struct {
-	AuthManagerRef *appcat.AppReference `json:"authManagerRef,omitempty"`
-	Config         *AzureConfig         `json:"config"`
+	Ref    *appcat.AppReference `json:"ref,omitempty"`
+	Config *AzureConfig         `json:"config"`
 
 	// ref:
 	// - https://www.vaultproject.io/api/secret/azure/index.html#parameters

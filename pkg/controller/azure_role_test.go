@@ -57,7 +57,7 @@ func TestAzureRole_reconcileAzureRole(t *testing.T) {
 			Namespace: "demo",
 		},
 		Spec: api.AzureRoleSpec{
-			AuthManagerRef: &appcat.AppReference{
+			Ref: &appcat.AppReference{
 				Namespace: "demo",
 				Name:      "test-212321",
 			},

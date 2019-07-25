@@ -9616,9 +9616,6 @@
         "credentialType"
       ],
       "properties": {
-        "authManagerRef": {
-          "$ref": "#/definitions/xyz.kmodules.custom-resources.apis.appcatalog.v1alpha1.AppReference"
-        },
         "config": {
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.AWSConfig"
         },
@@ -9648,6 +9645,9 @@
         "policyDocument": {
           "description": "The IAM policy document for the role. The behavior depends on the credential type. With iam_user, the policy document will be attached to the IAM user generated and augment the permissions the IAM user has. With assumed_role and federation_token, the policy document will act as a filter on what the credentials can do.",
           "type": "string"
+        },
+        "ref": {
+          "$ref": "#/definitions/xyz.kmodules.custom-resources.apis.appcatalog.v1alpha1.AppReference"
         },
         "roleARNs": {
           "description": "Specifies the ARNs of the AWS roles this Vault role is allowed to assume. Required when credential_type is assumed_role and prohibited otherwise",
@@ -9911,9 +9911,6 @@
           "description": "Application Object ID for an existing service principal that will be used instead of creating dynamic service principals. If present, azure_roles will be ignored.",
           "type": "string"
         },
-        "authManagerRef": {
-          "$ref": "#/definitions/xyz.kmodules.custom-resources.apis.appcatalog.v1alpha1.AppReference"
-        },
         "azureRoles": {
           "description": "List of Azure roles to be assigned to the generated service principal. The array must be in JSON format, properly escaped as a string",
           "type": "string"
@@ -9924,6 +9921,9 @@
         "maxTTL": {
           "description": "Specifies the maximum TTL for service principals generated using this role. Accepts time suffixed strings (\"1h\") or an integer number of seconds. Defaults to the system/engine max TTL time.",
           "type": "string"
+        },
+        "ref": {
+          "$ref": "#/definitions/xyz.kmodules.custom-resources.apis.appcatalog.v1alpha1.AppReference"
         },
         "ttl": {
           "description": "Specifies the default TTL for service principals generated using this role. Accepts time suffixed strings (\"1h\") or an integer number of seconds. Defaults to the system/engine default TTL time.",
@@ -10196,9 +10196,6 @@
         "bindings"
       ],
       "properties": {
-        "authManagerRef": {
-          "$ref": "#/definitions/xyz.kmodules.custom-resources.apis.appcatalog.v1alpha1.AppReference"
-        },
         "bindings": {
           "description": "Bindings configuration string (expects HCL or JSON format in raw or base64-encoded string)",
           "type": "string"
@@ -10209,6 +10206,9 @@
         "project": {
           "description": "Name of the GCP project that this roleset's service account will belong to. Cannot be updated.",
           "type": "string"
+        },
+        "ref": {
+          "$ref": "#/definitions/xyz.kmodules.custom-resources.apis.appcatalog.v1alpha1.AppReference"
         },
         "secretType": {
           "description": "Specifies the type of secret generated for this role set",
