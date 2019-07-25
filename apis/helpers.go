@@ -11,7 +11,7 @@ var (
 )
 
 func SetNameSchema(openapiSpec map[string]common.OpenAPIDefinition) {
-	// ref: https://github.com/kubedb/project/issues/166
+	// ref: https://kubedb.dev/project/issues/166
 	// https://github.com/kubernetes/apimachinery/blob/94ebb086c69b9fec4ddbfb6a1433d28ecca9292b/pkg/util/validation/validation.go#L153
 	var maxLength int64 = 63
 	openapiSpec["k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"].Schema.SchemaProps.Properties["name"] = spec.Schema{

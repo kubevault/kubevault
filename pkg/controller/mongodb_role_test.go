@@ -8,14 +8,14 @@ import (
 
 	"github.com/appscode/go/encoding/json/types"
 	"github.com/appscode/pat"
-	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
-	dbfake "github.com/kubedb/apimachinery/client/clientset/versioned/fake"
-	dbinformers "github.com/kubedb/apimachinery/client/informers/externalversions"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
+	dbfake "kubedb.dev/apimachinery/client/clientset/versioned/fake"
+	dbinformers "kubedb.dev/apimachinery/client/informers/externalversions"
 	"kubevault.dev/operator/pkg/vault/role/database"
 )
 

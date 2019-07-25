@@ -2,14 +2,14 @@ package database
 
 import (
 	vaultapi "github.com/hashicorp/vault/api"
-	api "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
-	crd "github.com/kubedb/apimachinery/client/clientset/versioned"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	meta_util "kmodules.xyz/client-go/meta"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
+	crd "kubedb.dev/apimachinery/client/clientset/versioned"
 	"kubevault.dev/operator/pkg/vault"
 	databaserole "kubevault.dev/operator/pkg/vault/role/database"
 	"kubevault.dev/operator/pkg/vault/secret"

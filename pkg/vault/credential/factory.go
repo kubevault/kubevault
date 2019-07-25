@@ -1,11 +1,11 @@
 package credential
 
 import (
-	dbapi "github.com/kubedb/apimachinery/apis/authorization/v1alpha1"
-	dbcrd "github.com/kubedb/apimachinery/client/clientset/versioned"
 	"github.com/pkg/errors"
 	"k8s.io/client-go/kubernetes"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	dbapi "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
+	dbcrd "kubedb.dev/apimachinery/client/clientset/versioned"
 	engineapi "kubevault.dev/operator/apis/engine/v1alpha1"
 	vaultcrd "kubevault.dev/operator/client/clientset/versioned"
 	"kubevault.dev/operator/pkg/vault/credential/aws"
