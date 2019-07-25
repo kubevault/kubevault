@@ -4,6 +4,7 @@ import (
 	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
@@ -60,6 +61,10 @@ type AWSRoleSpec struct {
 	// the policy document will act as a filter on what the credentials can do.
 	PolicyDocument string `json:"policyDocument,omitempty"`
 
+	// Specifies the IAM policy in JSON format.
+	// +optional
+	Policy *runtime.RawExtension `json:"policy,omitempty"`
+
 	// The default TTL for STS credentials. When a TTL is not specified when STS credentials are requested,
 	// and a default TTL is specified on the role, then this default TTL will be used.
 	// Valid only when credential_type is one of assumed_role or federation_token
@@ -68,12 +73,6 @@ type AWSRoleSpec struct {
 	// The max allowed TTL for STS credentials (credentials TTL are capped to max_sts_ttl).
 	// Valid only when credential_type is one of assumed_role or federation_token
 	MaxSTSTTL string `json:"maxSTSTTL,omitempty"`
-
-	// Specifies the IAM policy in JSON format.
-	Policy string `json:"policy,omitempty"`
-
-	// Specifies the full ARN reference to the desired existing policy.
-	ARN string `json:"arn,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

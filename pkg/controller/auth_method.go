@@ -142,11 +142,11 @@ func vaultPolicyForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy {
 			Labels:    vs.OffshootLabels(),
 		},
 		Spec: policyapi.VaultPolicySpec{
-			VaultAppRef: &appcat.AppReference{
+			Ref: &appcat.AppReference{
 				Name:      vs.AppBindingName(),
 				Namespace: vs.Namespace,
 			},
-			Policy: policyForAuthController,
+			PolicyDocument: policyForAuthController,
 		},
 	}
 	return plcy
@@ -175,8 +175,9 @@ func vaultPolicyBindingForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy
 func ensureVaultPolicy(c policycs.PolicyV1alpha1Interface, vp *policyapi.VaultPolicy, vs *api.VaultServer) error {
 	_, _, err := patchutil.CreateOrPatchVaultPolicy(c, vp.ObjectMeta, func(in *policyapi.VaultPolicy) *policyapi.VaultPolicy {
 		in.Labels = core_util.UpsertMap(in.Labels, vp.Labels)
+		in.Spec.PolicyDocument = vp.Spec.PolicyDocument
 		in.Spec.Policy = vp.Spec.Policy
-		in.Spec.VaultAppRef = vp.Spec.VaultAppRef
+		in.Spec.Ref = vp.Spec.Ref
 		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
 		return in
 	})

@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"encoding/json"
 	"fmt"
 
 	vaultapi "github.com/hashicorp/vault/api"
@@ -158,18 +159,19 @@ func (a *AWSRole) CreateRole() error {
 	}
 	if roleSpec.PolicyDocument != "" {
 		payload["policy_document"] = roleSpec.PolicyDocument
+	} else if roleSpec.Policy != nil {
+		doc, err := json.Marshal(roleSpec.Policy)
+		if err != nil {
+			return fmt.Errorf("failed to serialize spec.policy of AWSRole %s/%s. Reason: %v", a.awsRole.Namespace, a.awsRole.Name, err)
+		}
+		payload["policy_document"] = string(doc)
 	}
+
 	if roleSpec.DefaultSTSTTL != "" {
 		payload["default_sts_ttl"] = roleSpec.DefaultSTSTTL
 	}
 	if roleSpec.MaxSTSTTL != "" {
 		payload["max_sts_ttl"] = roleSpec.MaxSTSTTL
-	}
-	if roleSpec.Policy != "" {
-		payload["policy"] = roleSpec.Policy
-	}
-	if roleSpec.ARN != "" {
-		payload["arn"] = roleSpec.ARN
 	}
 
 	if err := req.SetJSONBody(payload); err != nil {

@@ -286,6 +286,11 @@ func (in *AWSRoleSpec) DeepCopyInto(out *AWSRoleSpec) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.Policy != nil {
+		in, out := &in.Policy, &out.Policy
+		*out = new(runtime.RawExtension)
+		(*in).DeepCopyInto(*out)
+	}
 	return
 }
 
