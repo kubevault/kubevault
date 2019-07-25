@@ -16,6 +16,11 @@ const (
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:path=vaultpolicybindings,singular=vaultpolicybinding,shortName=vpb,categories={vault,appscode,all}
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 type VaultPolicyBinding struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -44,7 +49,7 @@ type VaultPolicyBindingSpec struct {
 
 	//Specifies the TTL period of tokens issued using this role in seconds.
 	// +optional
-	TTL string `json:"TTL,omitempty"`
+	TTL string `json:"ttl,omitempty"`
 
 	//Specifies the maximum allowed lifetime of tokens issued in seconds using this role.
 	// +optional
@@ -58,6 +63,7 @@ type VaultPolicyBindingSpec struct {
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +kubebuilder:object:root=true
 
 type VaultPolicyBindingList struct {
 	metav1.TypeMeta `json:",inline"`
@@ -71,11 +77,11 @@ type ServiceAccountReference struct {
 	Namespace string `json:"namespace"`
 }
 
-type PolicyBindingStatus string
+type PolicyBindingPhase string
 
 const (
-	PolicyBindingSuccess PolicyBindingStatus = "Success"
-	PolicyBindingFailed  PolicyBindingStatus = "Failed"
+	PolicyBindingSuccess PolicyBindingPhase = "Success"
+	PolicyBindingFailed  PolicyBindingPhase = "Failed"
 )
 
 type VaultPolicyBindingStatus struct {
@@ -84,9 +90,9 @@ type VaultPolicyBindingStatus struct {
 	// +optional
 	ObservedGeneration *types.IntHash `json:"observedGeneration,omitempty"`
 
-	// Status indicates whether successfully bind the policy to service account in vault or not or in progress
+	// Phase indicates whether successfully bind the policy to service account in vault or not or in progress
 	// +optional
-	Status PolicyBindingStatus `json:"status,omitempty"`
+	Phase PolicyBindingPhase `json:"phase,omitempty"`
 
 	// Represents the latest available observations of a VaultPolicyBinding.
 	// +optional

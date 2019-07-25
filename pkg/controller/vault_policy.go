@@ -100,7 +100,7 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 
 	err := pClient.EnsurePolicy(vPolicy.PolicyName(), doc)
 	if err != nil {
-		status.Status = policyapi.PolicyFailed
+		status.Phase = policyapi.PolicyFailed
 		status.Conditions = []policyapi.PolicyCondition{
 			{
 				Type:    policyapi.PolicyConditionFailure,
@@ -120,7 +120,7 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 	// update status
 	status.ObservedGeneration = types.NewIntHash(vPolicy.Generation, meta_util.GenerationHash(vPolicy))
 	status.Conditions = []policyapi.PolicyCondition{}
-	status.Status = policyapi.PolicySuccess
+	status.Phase = policyapi.PolicySuccess
 	err2 := c.updatePolicyStatus(&status, vPolicy)
 	if err2 != nil {
 		return errors.Wrap(err2, "failed to update VaultPolicy status")

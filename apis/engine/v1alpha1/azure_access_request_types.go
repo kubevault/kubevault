@@ -12,11 +12,15 @@ const (
 	ResourceAzureAccessKeyRequests    = "azureaccesskeyrequests"
 )
 
+// AzureAccessKeyRequest structure
+
 // +genclient
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// AzureAccessKeyRequest structure
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:path=azureaccesskeyrequests,singular=azureaccesskeyrequest,categories={vault,appscode,all}
+// +kubebuilder:subresource:status
 type AzureAccessKeyRequest struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -41,6 +45,7 @@ type AzureAccessKeyRequestSpec struct {
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +kubebuilder:object:root=true
 
 type AzureAccessKeyRequestList struct {
 	metav1.TypeMeta `json:",inline"`

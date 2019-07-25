@@ -15,9 +15,15 @@
 
 SHELL=/bin/bash -o pipefail
 
-# The binary to build (just the basename).
+GO_PKG   := kubevault.dev
+REPO     := $(notdir $(shell pwd))
 BIN      := vault-operator
 COMPRESS ?= no
+
+# Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
+CRD_OPTIONS          ?= "crd:trivialVersions=true"
+CODE_GENERATOR_IMAGE ?= appscode/gengo:release-1.14
+API_GROUPS           ?= kubevault:v1alpha1 catalog:v1alpha1 config:v1alpha1 policy:v1alpha1 engine:v1alpha1
 
 # Where to push the docker image.
 REGISTRY ?= kubevault
@@ -121,8 +127,65 @@ version:
 	@echo commit_hash=$(commit_hash)
 	@echo commit_timestamp=$(commit_timestamp)
 
-gen:
-	./hack/codegen.sh
+DOCKER_REPO_ROOT := /go/src/$(GO_PKG)/$(REPO)
+
+# Generate a typed clientset
+.PHONY: clientset
+clientset:
+	@docker run --rm -ti                                 \
+		-u $$(id -u):$$(id -g)                           \
+		-v /tmp:/.cache                                  \
+		-v $$(pwd):$(DOCKER_REPO_ROOT)                   \
+		-w $(DOCKER_REPO_ROOT)                           \
+		--env HTTP_PROXY=$(HTTP_PROXY)                   \
+		--env HTTPS_PROXY=$(HTTPS_PROXY)                 \
+		$(CODE_GENERATOR_IMAGE)                          \
+		/go/src/k8s.io/code-generator/generate-groups.sh \
+			all                                          \
+			$(GO_PKG)/$(REPO)/client                     \
+			$(GO_PKG)/$(REPO)/apis                       \
+			"$(API_GROUPS)" \
+			--go-header-file "./hack/boilerplate.go.txt"
+
+# Generate openapi schema
+.PHONY: openapi
+openapi: $(addprefix openapi-, $(subst :,_, $(API_GROUPS)))
+openapi-%:
+	@echo "Generating openapi schema for $(subst _,/,$*)"
+	@docker run --rm -ti                                 \
+		-u $$(id -u):$$(id -g)                           \
+		-v /tmp:/.cache                                  \
+		-v $$(pwd):$(DOCKER_REPO_ROOT)                   \
+		-w $(DOCKER_REPO_ROOT)                           \
+		--env HTTP_PROXY=$(HTTP_PROXY)                   \
+		--env HTTPS_PROXY=$(HTTPS_PROXY)                 \
+		$(CODE_GENERATOR_IMAGE)                          \
+		openapi-gen                                      \
+			--v 1 --logtostderr                          \
+			--go-header-file "./hack/boilerplate.go.txt" \
+			--input-dirs "$(GO_PKG)/$(REPO)/apis/$(subst _,/,$*),k8s.io/apimachinery/pkg/apis/meta/v1,k8s.io/apimachinery/pkg/api/resource,k8s.io/apimachinery/pkg/runtime,k8s.io/apimachinery/pkg/util/intstr,k8s.io/apimachinery/pkg/version,k8s.io/api/core/v1,k8s.io/api/apps/v1,kmodules.xyz/offshoot-api/api/v1,github.com/appscode/go/encoding/json/types,kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1,kmodules.xyz/monitoring-agent-api/api/v1,k8s.io/api/rbac/v1" \
+			--output-package "$(GO_PKG)/$(REPO)/apis/$(subst _,/,$*)" \
+			--report-filename config/api-rules/violation_exceptions.list
+
+# Generate CRD manifests
+.PHONY: manifests
+manifests:
+	@echo "Generating CRD manifests"
+	@docker run --rm -ti                    \
+		-u $$(id -u):$$(id -g)              \
+		-v /tmp:/.cache                     \
+		-v $$(pwd):$(DOCKER_REPO_ROOT)      \
+		-w $(DOCKER_REPO_ROOT)              \
+	    --env HTTP_PROXY=$(HTTP_PROXY)      \
+	    --env HTTPS_PROXY=$(HTTPS_PROXY)    \
+		$(CODE_GENERATOR_IMAGE)             \
+		controller-gen                      \
+			$(CRD_OPTIONS)                  \
+			paths="./apis/..."              \
+			output:crd:artifacts:config=config/crd
+
+.PHONY: gen
+gen: clientset openapi manifests
 
 fmt: $(BUILD_DIRS)
 	@docker run                                                 \

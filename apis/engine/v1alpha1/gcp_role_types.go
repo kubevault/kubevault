@@ -17,7 +17,10 @@ const (
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// GCPRole
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:path=gcprole,singular=gcproles,categories={vault,appscode,all}
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
 type GCPRole struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -59,6 +62,7 @@ type GCPRoleSpec struct {
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +kubebuilder:object:root=true
 
 type GCPRoleList struct {
 	metav1.TypeMeta `json:",inline"`

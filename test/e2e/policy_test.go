@@ -63,7 +63,7 @@ var _ = Describe("VaultPolicy", func() {
 				if err != nil {
 					return false
 				}
-				return pb.Status.Status == api.PolicyBindingSuccess
+				return pb.Status.Phase == api.PolicyBindingSuccess
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("VaultPolicyBinding (%s/%s) should succeed", namespace, name))
 		}
 
@@ -74,7 +74,7 @@ var _ = Describe("VaultPolicy", func() {
 				if err != nil {
 					return false
 				}
-				return pb.Status.Status != api.PolicyBindingSuccess
+				return pb.Status.Phase != api.PolicyBindingSuccess
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("VaultPolicyBinding (%s/%s) should fail", namespace, name))
 		}
 	)

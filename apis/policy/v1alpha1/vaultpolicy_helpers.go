@@ -58,9 +58,9 @@ func (v VaultPolicy) CustomResourceDefinition() *apiextensions.CustomResourceDef
 		EnableStatusSubresource: apis.EnableStatusSubresource,
 		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
 			{
-				Name:     "Status",
+				Name:     "Phase",
 				Type:     "string",
-				JSONPath: ".status.status",
+				JSONPath: ".status.phase",
 			},
 			{
 				Name:     "Age",
