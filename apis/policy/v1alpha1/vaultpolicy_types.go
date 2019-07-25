@@ -4,6 +4,7 @@ import (
 	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
@@ -30,11 +31,16 @@ type VaultPolicySpec struct {
 	// path "secret/*" {
 	//   capabilities = ["create", "read", "update", "delete", "list"]
 	// }
-	Policy string `json:"policy"`
+	// +optional
+	PolicyDocument string `json:"policyDocument,omitempty"`
+
+	// Specifies the IAM policy in JSON format.
+	// +optional
+	Policy *runtime.RawExtension `json:"policy,omitempty"`
 
 	// Vault contains the reference of kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppBinding
 	// which contains information to communicate with vault
-	VaultAppRef *appcat.AppReference `json:"vaultAppRef"`
+	Ref *appcat.AppReference `json:"ref"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

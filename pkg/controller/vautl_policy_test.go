@@ -43,7 +43,7 @@ func simpleVaultPolicy() *policyapi.VaultPolicy {
 			Finalizers: []string{VaultPolicyFinalizer},
 		},
 		Spec: policyapi.VaultPolicySpec{
-			Policy: "simple {}",
+			PolicyDocument: "simple {}",
 		},
 	}
 }
@@ -74,8 +74,8 @@ func validVaultPolicy(app *appcat.AppBinding) *policyapi.VaultPolicy {
 			Finalizers: []string{VaultPolicyFinalizer},
 		},
 		Spec: policyapi.VaultPolicySpec{
-			Policy: "simple {}",
-			VaultAppRef: &appcat.AppReference{
+			PolicyDocument: "simple {}",
+			Ref: &appcat.AppReference{
 				Name:      app.Name,
 				Namespace: app.Namespace,
 			},

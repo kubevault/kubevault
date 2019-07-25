@@ -9616,10 +9616,6 @@
         "credentialType"
       ],
       "properties": {
-        "arn": {
-          "description": "Specifies the full ARN reference to the desired existing policy.",
-          "type": "string"
-        },
         "authManagerRef": {
           "$ref": "#/definitions/xyz.kmodules.custom-resources.apis.appcatalog.v1alpha1.AppReference"
         },
@@ -9640,7 +9636,7 @@
         },
         "policy": {
           "description": "Specifies the IAM policy in JSON format.",
-          "type": "string"
+          "$ref": "#/definitions/io.k8s.apimachinery.pkg.runtime.RawExtension"
         },
         "policyARNs": {
           "description": "Specifies the ARNs of the AWS managed policies to be attached to IAM users when they are requested. Valid only when credential_type is iam_user. When credential_type is iam_user, at least one of policy_arns or policy_document must be specified.",
@@ -11458,15 +11454,18 @@
     "dev.kubevault.operator.apis.policy.v1alpha1.VaultPolicySpec": {
       "type": "object",
       "required": [
-        "policy",
-        "vaultAppRef"
+        "ref"
       ],
       "properties": {
         "policy": {
+          "description": "Specifies the IAM policy in JSON format.",
+          "$ref": "#/definitions/io.k8s.apimachinery.pkg.runtime.RawExtension"
+        },
+        "policyDocument": {
           "description": "Policy specifies the vault policy in hcl format. For example: path \"secret/*\" {\n  capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\"]\n}",
           "type": "string"
         },
-        "vaultAppRef": {
+        "ref": {
           "description": "Vault contains the reference of kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppBinding which contains information to communicate with vault",
           "$ref": "#/definitions/xyz.kmodules.custom-resources.apis.appcatalog.v1alpha1.AppReference"
         }

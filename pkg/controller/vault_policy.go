@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/appscode/go/encoding/json/types"
@@ -86,7 +88,17 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 
 	// create or update policy
 	// its safe to call multiple times
-	err := pClient.EnsurePolicy(vPolicy.PolicyName(), vPolicy.Spec.Policy)
+
+	doc := vPolicy.Spec.PolicyDocument
+	if vPolicy.Spec.PolicyDocument == "" && vPolicy.Spec.Policy != nil {
+		data, err := json.Marshal(vPolicy.Spec.Policy)
+		if err != nil {
+			return fmt.Errorf("failed to serialize VaultPolicy %s/%s. Reason: %v", vPolicy.Namespace, vPolicy.Name, err)
+		}
+		doc = string(data)
+	}
+
+	err := pClient.EnsurePolicy(vPolicy.PolicyName(), doc)
 	if err != nil {
 		status.Status = policyapi.PolicyFailed
 		status.Conditions = []policyapi.PolicyCondition{

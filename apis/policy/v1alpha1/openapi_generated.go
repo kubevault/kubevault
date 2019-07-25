@@ -16060,25 +16060,31 @@ func schema_operator_apis_policy_v1alpha1_VaultPolicySpec(ref common.ReferenceCa
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"policy": {
+					"policyDocument": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Policy specifies the vault policy in hcl format. For example: path \"secret/*\" {\n  capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\"]\n}",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"vaultAppRef": {
+					"policy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the IAM policy in JSON format.",
+							Ref:         ref("k8s.io/apimachinery/pkg/runtime.RawExtension"),
+						},
+					},
+					"ref": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Vault contains the reference of kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppBinding which contains information to communicate with vault",
 							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
 						},
 					},
 				},
-				Required: []string{"policy", "vaultAppRef"},
+				Required: []string{"ref"},
 			},
 		},
 		Dependencies: []string{
-			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"},
+			"k8s.io/apimachinery/pkg/runtime.RawExtension", "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"},
 	}
 }
 

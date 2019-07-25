@@ -48,10 +48,10 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 		}
 		if vaultRef == nil {
 			// take vault connection reference from policy
-			vaultRef = plcy.Spec.VaultAppRef
+			vaultRef = plcy.Spec.Ref
 		} else {
 			// all policy should refer the same vault
-			vr := plcy.Spec.VaultAppRef
+			vr := plcy.Spec.Ref
 			if vr == nil || vr.Name != vaultRef.Name || vr.Namespace != vaultRef.Namespace {
 				return nil, errors.New("all policy should refer the same vault")
 			}

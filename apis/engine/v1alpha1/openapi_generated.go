@@ -16137,6 +16137,12 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleSpec(ref common.ReferenceCallba
 							Format:      "",
 						},
 					},
+					"policy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the IAM policy in JSON format.",
+							Ref:         ref("k8s.io/apimachinery/pkg/runtime.RawExtension"),
+						},
+					},
 					"defaultSTSTTL": {
 						SchemaProps: spec.SchemaProps{
 							Description: "The default TTL for STS credentials. When a TTL is not specified when STS credentials are requested, and a default TTL is specified on the role, then this default TTL will be used. Valid only when credential_type is one of assumed_role or federation_token",
@@ -16151,26 +16157,12 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleSpec(ref common.ReferenceCallba
 							Format:      "",
 						},
 					},
-					"policy": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the IAM policy in JSON format.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"arn": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the full ARN reference to the desired existing policy.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 				},
 				Required: []string{"config", "credentialType"},
 			},
 		},
 		Dependencies: []string{
-			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference", "kubevault.dev/operator/apis/engine/v1alpha1.AWSConfig"},
+			"k8s.io/apimachinery/pkg/runtime.RawExtension", "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference", "kubevault.dev/operator/apis/engine/v1alpha1.AWSConfig"},
 	}
 }
 

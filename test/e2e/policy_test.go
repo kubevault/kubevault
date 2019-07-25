@@ -138,7 +138,7 @@ var _ = Describe("VaultPolicy", func() {
 				Expect(err).NotTo(HaveOccurred())
 
 				plcy := "{}"
-				vPolicy.Spec.Policy = plcy
+				vPolicy.Spec.PolicyDocument = plcy
 				_, err := f.UpdateVaultPolicy(vPolicy)
 				Expect(err).NotTo(HaveOccurred())
 				IsPolicyUpdatedInVault(vPolicy, plcy)

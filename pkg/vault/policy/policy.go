@@ -23,7 +23,7 @@ func NewPolicyClientForVault(kc kubernetes.Interface, appc appcat_cs.AppcatalogV
 		return nil, errors.New("VaultPolicy is nil")
 	}
 
-	vc, err := vault.NewClient(kc, appc, p.Spec.VaultAppRef)
+	vc, err := vault.NewClient(kc, appc, p.Spec.Ref)
 	if err != nil {
 		return nil, err
 	}
