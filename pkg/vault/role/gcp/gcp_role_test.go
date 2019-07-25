@@ -47,7 +47,7 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 					Namespace: "demo",
 				},
 				Spec: api.GCPRoleSpec{
-					AuthManagerRef: &appcat.AppReference{
+					Ref: &appcat.AppReference{
 						Namespace:  "demo",
 						Name:       "vault-app",
 						Parameters: nil,
@@ -75,7 +75,7 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 					Namespace: "demo",
 				},
 				Spec: api.GCPRoleSpec{
-					AuthManagerRef: &appcat.AppReference{
+					Ref: &appcat.AppReference{
 						Namespace:  "demo",
 						Name:       "vault-app",
 						Parameters: nil,
@@ -100,7 +100,7 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 					Namespace: "demo",
 				},
 				Spec: api.GCPRoleSpec{
-					AuthManagerRef: &appcat.AppReference{
+					Ref: &appcat.AppReference{
 						Namespace:  "demo",
 						Name:       "vault-app",
 						Parameters: nil,
@@ -125,7 +125,7 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 					Namespace: "demo",
 				},
 				Spec: api.GCPRoleSpec{
-					AuthManagerRef: &appcat.AppReference{
+					Ref: &appcat.AppReference{
 						Namespace:  "demo",
 						Name:       "vault-app",
 						Parameters: nil,

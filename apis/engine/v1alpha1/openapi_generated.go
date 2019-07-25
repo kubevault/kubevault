@@ -16085,7 +16085,7 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleSpec(ref common.ReferenceCallba
 				Description: "AWSRoleSpec contains connection information, AWS role info, etc",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"authManagerRef": {
+					"ref": {
 						SchemaProps: spec.SchemaProps{
 							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
 						},
@@ -16576,7 +16576,7 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleSpec(ref common.ReferenceCall
 				Description: "AzureRoleSpec contains connection information, Azure role info, etc",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"authManagerRef": {
+					"ref": {
 						SchemaProps: spec.SchemaProps{
 							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
 						},
@@ -17055,7 +17055,7 @@ func schema_operator_apis_engine_v1alpha1_GCPRoleSpec(ref common.ReferenceCallba
 				Description: "GCPRoleSpec contains connection information, GCP role info, etc",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"authManagerRef": {
+					"ref": {
 						SchemaProps: spec.SchemaProps{
 							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
 						},

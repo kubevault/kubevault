@@ -186,7 +186,7 @@ var _ = Describe("GCP Role", func() {
 					Namespace: f.Namespace(),
 				},
 				Spec: api.GCPRoleSpec{
-					AuthManagerRef: f.VaultAppRef,
+					Ref: f.VaultAppRef,
 					Config: &api.GCPConfig{
 						CredentialSecret: gcpCredSecret,
 					},
@@ -236,7 +236,7 @@ var _ = Describe("GCP Role", func() {
 
 			BeforeEach(func() {
 				p = gcpRole
-				p.Spec.AuthManagerRef = &appcat.AppReference{
+				p.Spec.Ref = &appcat.AppReference{
 					Namespace: gcpRole.Namespace,
 					Name:      "invalid",
 				}
@@ -297,7 +297,7 @@ var _ = Describe("GCP Role", func() {
 					Namespace: f.Namespace(),
 				},
 				Spec: api.GCPRoleSpec{
-					AuthManagerRef: f.VaultAppRef,
+					Ref: f.VaultAppRef,
 					Config: &api.GCPConfig{
 						CredentialSecret: gcpCredSecret,
 					},

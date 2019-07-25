@@ -34,7 +34,7 @@ const (
 
 // GCPRoleSpec contains connection information, GCP role info, etc
 type GCPRoleSpec struct {
-	AuthManagerRef *appcat.AppReference `json:"authManagerRef,omitempty"`
+	Ref *appcat.AppReference `json:"ref,omitempty"`
 
 	Config *GCPConfig `json:"config"`
 

@@ -153,7 +153,7 @@ var _ = Describe("AWS role", func() {
 					Namespace: f.Namespace(),
 				},
 				Spec: api.AWSRoleSpec{
-					AuthManagerRef: f.VaultAppRef,
+					Ref:            f.VaultAppRef,
 					CredentialType: api.AWSCredentialIAMUser,
 					PolicyDocument: `
 						{
@@ -213,7 +213,7 @@ var _ = Describe("AWS role", func() {
 
 			BeforeEach(func() {
 				p = awsRole
-				p.Spec.AuthManagerRef = &appcat.AppReference{
+				p.Spec.Ref = &appcat.AppReference{
 					Name:      "invalid",
 					Namespace: f.Namespace(),
 				}
@@ -261,7 +261,7 @@ var _ = Describe("AWS role", func() {
 					Namespace: f.Namespace(),
 				},
 				Spec: api.AWSRoleSpec{
-					AuthManagerRef: f.VaultAppRef,
+					Ref:            f.VaultAppRef,
 					CredentialType: api.AWSCredentialIAMUser,
 					PolicyDocument: `
 						{

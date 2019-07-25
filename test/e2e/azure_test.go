@@ -188,7 +188,7 @@ var _ = FDescribe("Azure Secret Engine", func() {
 					Namespace: f.Namespace(),
 				},
 				Spec: api.AzureRoleSpec{
-					AuthManagerRef: f.VaultAppRef,
+					Ref: f.VaultAppRef,
 					Config: &api.AzureConfig{
 						CredentialSecret: azureCredSecret,
 					},
@@ -235,7 +235,7 @@ var _ = FDescribe("Azure Secret Engine", func() {
 
 			BeforeEach(func() {
 				p = azureRole
-				p.Spec.AuthManagerRef = &appcat.AppReference{
+				p.Spec.Ref = &appcat.AppReference{
 					Namespace: azureRole.Namespace,
 					Name:      "invalid",
 				}
@@ -300,7 +300,7 @@ var _ = FDescribe("Azure Secret Engine", func() {
 					Namespace: f.Namespace(),
 				},
 				Spec: api.AzureRoleSpec{
-					AuthManagerRef: f.VaultAppRef,
+					Ref: f.VaultAppRef,
 					Config: &api.AzureConfig{
 						CredentialSecret: azureCredSecret,
 					},

@@ -29,12 +29,12 @@ type AWSRoleInterface interface {
 }
 
 func NewAWSRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.AWSRole) (AWSRoleInterface, error) {
-	vClient, err := vault.NewClient(kClient, appClient, role.Spec.AuthManagerRef)
+	vClient, err := vault.NewClient(kClient, appClient, role.Spec.Ref)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault api client")
 	}
 
-	awsPath, err := GetAWSPath(appClient, role.Spec.AuthManagerRef)
+	awsPath, err := GetAWSPath(appClient, role.Spec.Ref)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get aws path")
 	}

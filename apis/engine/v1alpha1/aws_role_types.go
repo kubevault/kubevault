@@ -36,7 +36,7 @@ const (
 
 // AWSRoleSpec contains connection information, AWS role info, etc
 type AWSRoleSpec struct {
-	AuthManagerRef *appcat.AppReference `json:"authManagerRef,omitempty"`
+	Ref *appcat.AppReference `json:"ref,omitempty"`
 
 	Config *AWSConfig `json:"config"`
 
