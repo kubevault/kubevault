@@ -129,7 +129,7 @@ type: Opaque
 $ kubectl apply -f examples/guides/secret-engins/aws/aws-cred.yaml
 ```
 
-`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview) for Vault authentication using AppBinding in Vault operator.
+`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview.md) for Vault authentication using AppBinding in Vault operator.
 
 ```yaml
 $ cat examples/guides/secret-engins/aws/vault-app.yaml
