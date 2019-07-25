@@ -1,14 +1,14 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: vault-kv-storage
+  name: vault-gcp-storage
   namespace: demo
   annotations:
     storageclass.kubernetes.io/is-default-class: "false"
 provisioner: secrets.csi.kubevault.com
 parameters:
   ref: demo/vault-app
-  engine: KV
-  secret: my-secret
-  path: kv
-
+  engine: GCP
+  role: k8s.-.demo.gcp-role
+  path: gcp
+  secret_type: access_token

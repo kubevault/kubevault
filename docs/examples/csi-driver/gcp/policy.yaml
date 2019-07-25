@@ -1,7 +1,7 @@
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
 metadata:
-  name: kv-policy
+  name: gcp-policy
   namespace: demo
 spec:
   vaultAppRef:
@@ -16,12 +16,8 @@ spec:
       capabilities = ["create", "read", "update", "delete"]
     }
 
-    path "kv/*" {
-        capabilities = ["read"]
-    }
-
     path "gcp/*" {
-        capabilities = ["read"]
+        capabilities = [create", "read", "update", "delete"]
     }
 
     path "sys/leases/revoke/*" {
@@ -31,13 +27,13 @@ spec:
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicyBinding
 metadata:
-  name: kv-role
+  name: gcp-role
   namespace: demo
 spec:
-  roleName: "kv-role"
-  policies : ["kv-policy"]
+  roleName: "gcp-role"
+  policies : ["gcp-policy"]
   serviceAccountNames: ["demo-sa"]
   serviceAccountNamespaces: ["demo"]
   TTL: "1000"
   maxTTL: "2000"
-  Period: "1000"
+  period: "1000"

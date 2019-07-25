@@ -244,7 +244,7 @@ So, we can create `StorageClass` now.
 
 ## Test & Verify
 
-- **Create PVC:** Create a `PersistantVolumeClaim` with following data. This makes sure a volume will be created and provisioned on your behalf.
+- **Create PVC:** Create a `PersistentVolumeClaim` with following data. This makes sure a volume will be created and provisioned on your behalf.
 
     ```yaml
       apiVersion: v1

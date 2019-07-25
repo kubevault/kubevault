@@ -225,7 +225,7 @@ parameters:
 
 ## Test & Verify
 
-1. **Create PVC:** Create a `PersistantVolumeClaim` with following data. This makes sure a volume will be created and provisioned on your behalf.
+1. **Create PVC:** Create a `PersistentVolumeClaim` with following data. This makes sure a volume will be created and provisioned on your behalf.
 
     ```yaml
     apiVersion: v1

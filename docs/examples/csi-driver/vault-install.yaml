@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
       - name: vault
-        image: "vault:1.0.0"
+        image: "vault:1.0.1"
         args:
         - "server"
         - "-dev"

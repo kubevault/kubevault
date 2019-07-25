@@ -37,6 +37,7 @@ Guides show you how to perform tasks with Vault operator and Vault CSI driver.
 ## Using Vault CSI driver
 
 - To mount [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html) secret in pod see [here](/docs/guides/secret-engines/aws/csi-driver.md).
+- To mount [GCP secret engine](https://www.vaultproject.io/docs/secrets/gcp/index.html) secret in pod see [here](/docs/guides/secret-engines/gcp/csi-driver.md)
 - To mount [KV secret engine](https://www.vaultproject.io/docs/secrets/kv/kv-v1.html) secret in pod see [here](/docs/guides/secret-engines/kv/csi-driver.md).
 - To mount [MongoDB Database secret engine](https://www.vaultproject.io/api/secret/databases/mongodb.html) secret in pod see [here](/docs/guides/secret-engines/mongodb/csi-driver.md)
 - To mount [MySQL Database secret engine](https://www.vaultproject.io/api/secret/databases/mysql-maria.html) secret in pod see [here](/docs/guides/secret-engines/mysql/csi-driver.md).
