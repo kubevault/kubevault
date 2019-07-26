@@ -169,8 +169,8 @@ openapi-%:
 			--report-filename api/api-rules/violation_exceptions.list
 
 # Generate CRD manifests
-.PHONY: manifests
-manifests:
+.PHONY: gen-crds
+gen-crds:
 	@echo "Generating CRD manifests"
 	@docker run --rm -ti                    \
 		-u $$(id -u):$$(id -g)              \
@@ -184,6 +184,18 @@ manifests:
 			$(CRD_OPTIONS)                  \
 			paths="./apis/..."              \
 			output:crd:artifacts:config=api/crds
+
+crds_to_patch := kubevault.com_vaultservers.yaml
+
+.PHONY: patch-crds
+patch-crds: $(addprefix patch-crd-, $(crds_to_patch))
+patch-crd-%:
+	@echo "patching $*"
+	@kubectl patch -f api/crds/$* -p "$$(cat hack/crd-patch.json)" --type=json --local=true -o yaml > bin/$*
+	@mv bin/$* api/crds/$*
+
+.PHONY: manifests
+manifests: gen-crds patch-crds
 
 .PHONY: gen
 gen: clientset openapi manifests
