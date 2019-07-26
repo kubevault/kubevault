@@ -16,7 +16,7 @@ spec:
         }
       ]
     }
-  authManagerRef:
+  ref:
     name: vault-app
     namespace: demo
   config:

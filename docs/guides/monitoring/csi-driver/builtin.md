@@ -18,7 +18,13 @@ This tutorial will show you how to configure builtin [Prometheus](https://github
 
 ## Before You Begin
 
-At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Minikube](https://github.com/kubernetes/minikube).
+At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Minikube](https://github.com/kubernetes/minikube). To check the version of your cluster, run:
+
+```console
+$ kubectl version --short
+Client Version: v1.15.0
+Server Version: v1.15.0
+```
 
 To keep Prometheus resources isolated, we are going to use a separate namespace to deploy Prometheus server.
 

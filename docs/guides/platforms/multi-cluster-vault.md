@@ -107,10 +107,10 @@ metadata:
   name: demo-policy-secret-admin
   namespace: demo
 spec:
-  vaultAppRef:
+  ref:
     name: my-vault
     namespace: demo
-  policy: |
+  policyDocument: |
     path "secret/*" {
       capabilities = ["create", "read", "update", "delete", "list"]
     }
@@ -183,10 +183,10 @@ metadata:
   name: demo-policy-secret-reader
   namespace: demo
 spec:
-  vaultAppRef:
+  ref:
     name: vault-app
     namespace: demo
-  policy: |
+  policyDocument: |
     path "secret/*" {
       capabilities = ["read", "list"]
     }

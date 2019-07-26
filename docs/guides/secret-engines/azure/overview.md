@@ -103,7 +103,7 @@ metadata:
   name: demo-role
   namespace: demo
 spec:
-  authManagerRef:
+  ref:
     name: vault-app
     namespace: demo
   applicationObjectID: c1cb042d-96d7-423a-8dba-243c2e5010d3
@@ -113,9 +113,9 @@ spec:
   maxTTL: 1h
 ```
 
-Before deploying a AzureRole crd, you need to make sure that `spec.authManagerRef` and `config.clientSecret` fields are valid.
+Before deploying a AzureRole crd, you need to make sure that `spec.ref` and `config.clientSecret` fields are valid.
 
-`spec.authManagerRef` contains [appbinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference. You can use any valid [auth method](/docs/concepts/vault-server-crds/auth-methods/overview.md) while creating appbinding. We will use [token auth method](/docs/concepts/vault-server-crds/auth-methods/token.md) in this tutorial.
+`spec.ref` contains [appbinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference. You can use any valid [auth method](/docs/concepts/vault-server-crds/auth-methods/overview.md) while creating appbinding. We will use [token auth method](/docs/concepts/vault-server-crds/auth-methods/token.md) in this tutorial.
 
 ```console
 $ cat examples/guides/secret-engins/azure/token.yaml

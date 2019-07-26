@@ -42,18 +42,13 @@ metadata:
   namespace: demo
 spec:
   credentialType: iam_user
-  policy: |
-    {
-      "Version": "2012-10-17",
-      "Statement": [
-        {
-          "Effect": "Allow",
-          "Action": "ec2:*",
-          "Resource": "*"
-        }
-      ]
-    }
-  authManagerRef:
+  policy:
+    Version: '2012-10-17'
+    Statement:
+    - Effect: Allow
+      Action: ec2:*
+      Resource: "*"
+  ref:
     namespace: demo
     name: vault-app
   config:
@@ -66,13 +61,13 @@ spec:
 
 AWSRole Spec has following fields:
 
-### spec.authManagerRef
+### spec.ref
 
-`spec.authManagerRef` specifies the name and namespace of [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains information to communicate with Vault.
+`spec.ref` specifies the name and namespace of [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains information to communicate with Vault.
 
 ```yaml
 spec:
-  authManagerRef:
+  ref:
     name: vault-app
     namespace: demo
 ```

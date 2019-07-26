@@ -100,7 +100,7 @@ $ cat examples/guides/secret-engins/gcp/gcpRole.yaml
     name: gcp-role
     namespace: demo
   spec:
-    authManagerRef:
+    ref:
       name: vault-app
       namespace: demo
     config:
@@ -113,9 +113,9 @@ $ cat examples/guides/secret-engins/gcp/gcpRole.yaml
     tokenScopes: ["https://www.googleapis.com/auth/cloud-platform"]
 ```
 
-Before deploying a GCPRole crd, you need to make sure that `spec.authManagerRef` and `config.credentialSecret` fields are valid.
+Before deploying a GCPRole crd, you need to make sure that `spec.ref` and `config.credentialSecret` fields are valid.
 
-`spec.authManagerRef` contains [appbinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference. You can use any valid [auth method](/docs/concepts/vault-server-crds/auth-methods/overview.md) while creating appbinding. We will use [token auth method](/docs/concepts/vault-server-crds/auth-methods/token.md) in this tutorial.
+`spec.ref` contains [appbinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference. You can use any valid [auth method](/docs/concepts/vault-server-crds/auth-methods/overview.md) while creating appbinding. We will use [token auth method](/docs/concepts/vault-server-crds/auth-methods/token.md) in this tutorial.
 
 ```console
 $ cat examples/guides/secret-engins/gcp/token.yaml

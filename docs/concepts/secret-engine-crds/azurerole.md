@@ -28,7 +28,7 @@ metadata:
   name: <role-name>
   namespace: <role-namespace>
 spec:
-  authManagerRef:
+  ref:
     name: <appbinding-name>
     namespace: <appbinding-namespace>
   applicationObjectID: <application-object-id>
@@ -52,7 +52,7 @@ metadata:
   name: demo-role
   namespace: demo
 spec:
-  authManagerRef:
+  ref:
     name: vault-app
     namespace: demo
   applicationObjectID: c1cb042d-96d7-423a-8dba-243c2e5010d3
@@ -63,13 +63,13 @@ spec:
   maxTTL: 1h
 ```
 
-### spec.authManagerRef
+### spec.ref
 
-`spec.authManagerRef` specifies the name and namespace of [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains information to communicate with Vault.
+`spec.ref` specifies the name and namespace of [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains information to communicate with Vault.
 
 ```yaml
 spec:
-  authManagerRef:
+  ref:
     name: vault-app
     namespace: demo
 ```

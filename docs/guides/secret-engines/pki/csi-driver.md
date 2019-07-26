@@ -16,7 +16,13 @@ section_menu_id: guides
 
 ## Before you Begin
 
-At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Minikube](https://github.com/kubernetes/minikube).
+At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Minikube](https://github.com/kubernetes/minikube). To check the version of your cluster, run:
+
+```console
+$ kubectl version --short
+Client Version: v1.15.0
+Server Version: v1.15.0
+```
 
 To keep things isolated, this tutorial uses a separate namespace called `demo` throughout this tutorial.
 

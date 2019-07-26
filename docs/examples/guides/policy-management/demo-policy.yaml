@@ -4,10 +4,10 @@ metadata:
   name: demo-policy
   namespace: demo
 spec:
-  vaultAppRef:
+  ref:
     name: vault
     namespace: demo
-  policy: |
+  policyDocument: |
     path "secret/*" {
       capabilities = ["create", "read", "update", "delete", "list"]
     }

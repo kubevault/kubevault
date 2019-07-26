@@ -48,7 +48,7 @@ metadata:
   name: gcp-role
   namespace: demo
 spec:
-  authManagerRef:
+  ref:
     name: vault-app
     namespace: demo
   config:

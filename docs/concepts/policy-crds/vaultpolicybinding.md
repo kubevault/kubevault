@@ -42,9 +42,9 @@ spec:
   policies: ["secret-admin"]
   serviceAccountNames: ["sa1","sa2"]
   serviceAccountNamespaces: ["default","demo"]
-  TTL: "1000"
+  ttl: "1000"
   maxTTL: "2000"
-  Period: "1000"
+  period: "1000"
 ```
 
 VaultPolicyBinding Spec has following fields:
@@ -102,7 +102,7 @@ spec:
 
 ```yaml
 spec:
-  TTL: "300"
+  ttl: "300"
 ```
 
 ### spec.maxTTL

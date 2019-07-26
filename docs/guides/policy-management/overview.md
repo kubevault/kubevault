@@ -48,10 +48,10 @@ metadata:
   name: demo-policy
   namespace: demo
 spec:
-  vaultAppRef:
+  ref:
     name: vault
     namespace: demo
-  policy: |
+  policyDocument: |
     path "secret/*" {
       capabilities = ["create", "read", "update", "delete", "list"]
     }
@@ -147,10 +147,10 @@ metadata:
   name: demo-policy
   namespace: demo
 spec:
-  vaultAppRef:
+  ref:
     name: vault
     namespace: demo
-  policy: |
+  policyDocument: |
     path "secret/*" {
       capabilities = ["create", "read", "update", "delete", "list"]
     }
@@ -214,9 +214,9 @@ spec:
   policies : ["demo-policy"] # name of the VaultPolicies
   serviceAccountNames: ["demo-sa"]
   serviceAccountNamespaces: ["demo"]
-  TTL: "1000"
+  ttl: "1000"
   maxTTL: "2000"
-  Period: "1000"
+  period: "1000"
 ```
 
 Here, `demo-sa` in `demo` namespace will have the permission that is specified in `demo-policy` VaultPolicy.
@@ -235,9 +235,9 @@ spec:
   policies : ["demo-policy"]
   serviceAccountNames: ["demo-sa"]
   serviceAccountNamespaces: ["demo"]
-  TTL: "1000"
+  ttl: "1000"
   maxTTL: "2000"
-  Period: "1000"
+  period: "1000"
 
 $ kubectl apply -f examples/guides/policy-management/demo-role.yaml
 vaultpolicybinding.policy.kubevault.com/demo-role created

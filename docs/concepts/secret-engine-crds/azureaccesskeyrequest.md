@@ -46,7 +46,7 @@ metadata:
   name: demo-role
   namespace: demo
 spec:
-  authManagerRef:
+  ref:
     name: vault-app
     namespace: demo
   applicationObjectID: c1cb042d-96d7-423a-8dba

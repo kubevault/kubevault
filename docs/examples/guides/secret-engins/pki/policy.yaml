@@ -4,10 +4,10 @@ metadata:
   name: pki-policy
   namespace: demo
 spec:
-  vaultAppRef:
+  ref:
     name: vault
     namespace: demo
-  policy: |
+  policyDocument: |
     path "sys/mounts" {
       capabilities = ["read", "list"]
     }
@@ -34,6 +34,6 @@ spec:
   policies : ["pki-policy"]
   serviceAccountNames: ["demo-sa"]
   serviceAccountNamespaces: ["demo"]
-  TTL: "1000"
+  ttl: "1000"
   maxTTL: "2000"
-  Period: "1000"
+  period: "1000"

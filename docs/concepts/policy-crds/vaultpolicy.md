@@ -41,10 +41,10 @@ metadata:
   name: secret-admin
   namespace: demo
 spec:
-  vaultAppRef:
+  ref:
     name: vault
     namespace: demo
-  policy: |
+  policyDocument: |
     path "secret/*" {
       capabilities = ["create", "read", "update", "delete", "list"]
     }
@@ -58,19 +58,19 @@ VaultPolicy Spec has following fields:
 
 ```yaml
 spec:
-  policy: |
+  policyDocument: |
       path "secret/*" {
         capabilities = ["create", "read", "update", "delete", "list"]
       }
 ```
 
-### spec.vaultAppRef
+### spec.ref
 
-`spec.vaultAppRef` is a required field that specifies name and namespace of [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains information to communicate with Vault.
+`spec.ref` is a required field that specifies name and namespace of [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains information to communicate with Vault.
 
 ```yaml
 spec:
-  vaultAppRef:
+  ref:
     name: vault
     namespace: demo
 ```

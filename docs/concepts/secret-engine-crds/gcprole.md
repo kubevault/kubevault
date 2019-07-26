@@ -29,7 +29,7 @@ metadata:
   name: <name>
   namespace: <namespace>
 spec:
-  authManagerRef:
+  ref:
     name: <appbinding-name>
     namespace: <appbinding-namespace>
   bindings: <binding-configuration-string>
@@ -52,7 +52,7 @@ metadata:
   name: gcp-role
   namespace: demo
 spec:
-  authManagerRef:
+  ref:
     name: vault-app
     namespace: demo
   config:
@@ -65,13 +65,13 @@ spec:
   tokenScopes: ["https://www.googleapis.com/auth/cloud-platform"]
 ```
 
-### spec.authManagerRef
+### spec.ref
 
-`spec.authManagerRef` specifies the name and namespace of [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains information to communicate with Vault.
+`spec.ref` specifies the name and namespace of [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains information to communicate with Vault.
 
 ```yaml
 spec:
-  authManagerRef:
+  ref:
     name: vault-app
     namespace: demo
 ```

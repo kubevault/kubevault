@@ -90,18 +90,13 @@ metadata:
   namespace: demo
 spec:
   credentialType: iam_user
-  policyDocument: |
-    {
-      "Version": "2012-10-17",
-      "Statement": [
-        {
-          "Effect": "Allow",
-          "Action": "ec2:*",
-          "Resource": "*"
-        }
-      ]
-    }
-  authManagerRef:
+  policy:
+    Version: '2012-10-17'
+    Statement:
+    - Effect: Allow
+      Action: ec2:*
+      Resource: "*"
+  ref:
     name: vault-app
     namespace: demo
   config:
@@ -129,7 +124,7 @@ type: Opaque
 $ kubectl apply -f examples/guides/secret-engins/aws/aws-cred.yaml
 ```
 
-`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview.md) for Vault authentication using AppBinding in Vault operator.
+`spec.ref` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview.md) for Vault authentication using AppBinding in Vault operator.
 
 ```yaml
 $ cat examples/guides/secret-engins/aws/vault-app.yaml
@@ -214,18 +209,13 @@ metadata:
   namespace: demo
 spec:
   credentialType: iam_user
-  policyDocument: |
-    {
-      "Version": "2012-10-17",
-      "Statement": [
-        {
-          "Effect": "Allow",
-          "Action": "ec2:*",
-          "Resource": "*"
-        }
-      ]
-    }
-  authManagerRef:
+  policy:
+    Version: '2012-10-17'
+    Statement:
+    - Effect: Allow
+      Action: ec2:*
+      Resource: "*"
+  ref:
     name: vault-app
     namespace: demo
   config:
