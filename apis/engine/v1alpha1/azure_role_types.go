@@ -17,7 +17,10 @@ const (
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// AzureRole
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:path=azureroles,singular=azurerole,categories={vault,appscode,all}
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
 type AzureRole struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -63,6 +66,7 @@ type AzureRoleSpec struct {
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +kubebuilder:object:root=true
 
 type AzureRoleList struct {
 	metav1.TypeMeta `json:",inline"`

@@ -154,7 +154,7 @@ func TestReconcilePolicy(t *testing.T) {
 				p, err := ctrl.extClient.PolicyV1alpha1().VaultPolicies(c.vPolicy.Namespace).Get(c.vPolicy.Name, metav1.GetOptions{})
 				if assert.Nil(t, err) {
 					assert.Condition(t, func() (success bool) {
-						return c.expectStatus == string(p.Status.Status)
+						return c.expectStatus == string(p.Status.Phase)
 					}, ".status.status should match")
 				}
 			}

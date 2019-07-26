@@ -333,7 +333,7 @@ func waitUntilVaultPolicyIsReady(c policycs.PolicyV1alpha1Interface, vp *policya
 			return false, err2
 		}
 
-		if vp.Status.Status == policyapi.PolicySuccess {
+		if vp.Status.Phase == policyapi.PolicySuccess {
 			return true, nil
 		}
 
@@ -355,7 +355,7 @@ func waitUntilVaultPolicyBindingIsReady(c policycs.PolicyV1alpha1Interface, vpb 
 			return false, err2
 		}
 
-		if vpb.Status.Status == policyapi.PolicyBindingSuccess {
+		if vpb.Status.Phase == policyapi.PolicyBindingSuccess {
 			return true, nil
 		}
 

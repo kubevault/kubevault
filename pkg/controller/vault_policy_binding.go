@@ -85,7 +85,7 @@ func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBi
 	// it's safe to call multiple times
 	err := pBClient.Ensure(vPBind.PolicyBindingName())
 	if err != nil {
-		status.Status = policyapi.PolicyBindingFailed
+		status.Phase = policyapi.PolicyBindingFailed
 		status.Conditions = []policyapi.PolicyBindingCondition{
 			{
 				Type:    policyapi.PolicyBindingConditionFailure,
@@ -105,7 +105,7 @@ func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBi
 	// update status
 	status.ObservedGeneration = types.NewIntHash(vPBind.Generation, meta_util.GenerationHash(vPBind))
 	status.Conditions = []policyapi.PolicyBindingCondition{}
-	status.Status = policyapi.PolicyBindingSuccess
+	status.Phase = policyapi.PolicyBindingSuccess
 	err2 := c.updatePolicyBindingStatus(&status, vPBind)
 	if err2 != nil {
 		return errors.Wrap(err2, "failed to update VaultPolicyBinding status")

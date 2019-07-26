@@ -15639,8 +15639,7 @@ func schema_operator_apis_catalog_v1alpha1_VaultServerVersion(ref common.Referen
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "VaultServerVersion defines a vaultserver version.",
-				Type:        []string{"object"},
+				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
 					"kind": {
 						SchemaProps: spec.SchemaProps{

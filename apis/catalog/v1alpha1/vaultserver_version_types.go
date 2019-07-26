@@ -8,13 +8,20 @@ const (
 	ResourceVaultServerVersions    = "vaultserverversions"
 )
 
+// VaultServerVersion defines a vaultserver version.
+
 // +genclient
 // +genclient:nonNamespaced
 // +genclient:skipVerbs=updateStatus
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// VaultServerVersion defines a vaultserver version.
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:path=vaultserverversions,singular=vaultserverversion,scope=Cluster,shortName=vsv,categories={vault,appscode}
+// +kubebuilder:printcolumn:name="Version",type="string",JSONPath=".spec.version"
+// +kubebuilder:printcolumn:name="VAULT_IMAGE",type="string",JSONPath=".spec.vault.image"
+// +kubebuilder:printcolumn:name="Deprecated",type="boolean",JSONPath=".spec.deprecated"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 type VaultServerVersion struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -52,6 +59,7 @@ type VaultServerVersionExporter struct {
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +kubebuilder:object:root=true
 
 // VaultServerVersionList is a list of VaultserverVersions
 type VaultServerVersionList struct {

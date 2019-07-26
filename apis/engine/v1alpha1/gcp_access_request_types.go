@@ -16,7 +16,9 @@ const (
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// GCPAccessKeyRequest structure
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:path=gcpaccesskeyrequests,singular=gcpaccesskeyrequest,categories={vault,appscode,all}
+// +kubebuilder:subresource:status
 type GCPAccessKeyRequest struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -52,6 +54,7 @@ type GCPAccessKeyRequestSpec struct {
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +kubebuilder:object:root=true
 
 type GCPAccessKeyRequestList struct {
 	metav1.TypeMeta `json:",inline"`
