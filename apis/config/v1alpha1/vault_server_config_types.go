@@ -13,7 +13,7 @@ type VaultServerConfiguration struct {
 	// +optional
 	metav1.TypeMeta `json:",inline,omitempty"`
 
-	// Specifies the service account name
+	// Specifies the service account name, usually the vault server service account
 	// +optional
 	ServiceAccountName string `json:"serviceAccountName,omitempty"`
 
@@ -40,5 +40,5 @@ type VaultServerConfiguration struct {
 	// Specifies the path where kubernetes auth is enabled
 	// default : kubernetes
 	// +optional
-	AuthPath string `json:"authPath,omitempty"`
+	KubernetesAuthPath string `json:"kubernetesAuthPath,omitempty"`
 }

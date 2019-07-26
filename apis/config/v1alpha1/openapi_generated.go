@@ -15653,7 +15653,7 @@ func schema_operator_apis_config_v1alpha1_VaultServerConfiguration(ref common.Re
 					},
 					"serviceAccountName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the service account name",
+							Description: "Specifies the service account name, usually the vault server service account",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -15686,7 +15686,7 @@ func schema_operator_apis_config_v1alpha1_VaultServerConfiguration(ref common.Re
 							Format:      "",
 						},
 					},
-					"authPath": {
+					"kubernetesAuthPath": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the path where kubernetes auth is enabled default : kubernetes",
 							Type:        []string{"string"},

@@ -414,10 +414,6 @@ spec:
         spec:
           description: 'links: https://www.vaultproject.io/api/auth/kubernetes/index.html#parameters-1'
           properties:
-            authPath:
-              description: 'Specifies the path where kubernetes auth is enabled default
-                : kubernetes'
-              type: string
             maxTTL:
               description: Specifies the maximum allowed lifetime of tokens issued
                 in seconds using this role.
@@ -433,8 +429,6 @@ spec:
               items:
                 type: string
               type: array
-            roleName:
-              type: string
             serviceAccountNames:
               description: Specifies the names of the service account to bind with
                 policy
@@ -486,6 +480,9 @@ spec:
             phase:
               description: Phase indicates whether successfully bind the policy to
                 service account in vault or not or in progress
+              type: string
+            roleName:
+              description: 'ref: https://www.vaultproject.io/docs/auth/kubernetes.html#configuration'
               type: string
           type: object
       type: object

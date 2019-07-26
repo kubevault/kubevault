@@ -15,10 +15,6 @@ func (v VaultPolicyBinding) GetKey() string {
 }
 
 func (v VaultPolicyBinding) PolicyBindingName() string {
-	if v.Spec.RoleName != "" {
-		return v.Spec.RoleName
-	}
-
 	cluster := "-"
 	if clusterid.ClusterName() != "" {
 		cluster = clusterid.ClusterName()
@@ -82,13 +78,5 @@ func (v VaultPolicyBinding) IsValid() error {
 func (v *VaultPolicyBinding) SetDefaults() {
 	if v == nil {
 		return
-	}
-
-	if v.Spec.RoleName == "" {
-		v.Spec.RoleName = v.PolicyBindingName()
-	}
-
-	if v.Spec.AuthPath == "" {
-		v.Spec.AuthPath = "kubernetes"
 	}
 }

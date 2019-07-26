@@ -38,7 +38,7 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 			Kind:       vaultconfig.ResourceKindVaultServerConfiguration,
 		},
 		UsePodServiceAccountForCSIDriver: true,
-		AuthPath:                         string(api.AuthTypeKubernetes),
+		KubernetesAuthPath:               string(api.AuthTypeKubernetes),
 		ServiceAccountName:               vs.ServiceAccountName(),
 		PolicyControllerRole:             vs.PolicyNameForPolicyController(),
 		AuthMethodControllerRole:         vaultPolicyBindingForAuthMethod(vs).PolicyBindingName(),

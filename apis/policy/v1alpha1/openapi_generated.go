@@ -15886,19 +15886,6 @@ func schema_operator_apis_policy_v1alpha1_VaultPolicyBindingSpec(ref common.Refe
 				Description: "links: https://www.vaultproject.io/api/auth/kubernetes/index.html#parameters-1",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"roleName": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"authPath": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the path where kubernetes auth is enabled default : kubernetes",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"policies": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the names of the VaultPolicy",
@@ -15979,6 +15966,13 @@ func schema_operator_apis_policy_v1alpha1_VaultPolicyBindingStatus(ref common.Re
 						SchemaProps: spec.SchemaProps{
 							Description: "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
 							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+						},
+					},
+					"roleName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ref: https://www.vaultproject.io/docs/auth/kubernetes.html#configuration",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"phase": {

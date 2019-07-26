@@ -30,14 +30,6 @@ type VaultPolicyBinding struct {
 
 // links: https://www.vaultproject.io/api/auth/kubernetes/index.html#parameters-1
 type VaultPolicyBindingSpec struct {
-	// +optional
-	RoleName string `json:"roleName,omitempty"`
-
-	// Specifies the path where kubernetes auth is enabled
-	// default : kubernetes
-	// +optional
-	AuthPath string `json:"authPath,omitempty"`
-
 	// Specifies the names of the VaultPolicy
 	Policies []string `json:"policies"`
 
@@ -89,6 +81,10 @@ type VaultPolicyBindingStatus struct {
 	// resource's generation, which is updated on mutation by the API Server.
 	// +optional
 	ObservedGeneration *types.IntHash `json:"observedGeneration,omitempty"`
+
+	// ref: https://www.vaultproject.io/docs/auth/kubernetes.html#configuration
+	// +optional
+	RoleName string `json:"roleName,omitempty"`
 
 	// Phase indicates whether successfully bind the policy to service account in vault or not or in progress
 	// +optional

@@ -35,7 +35,7 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 		ttl:          pBind.Spec.TTL,
 		maxTTL:       pBind.Spec.MaxTTL,
 		period:       pBind.Spec.Period,
-		path:         pBind.Spec.AuthPath,
+		path:         pBind.Spec.AuthPath, // GetAppBinding(pBind.Spec.policies[0]).Parameters.KubernetesAuthPath
 	}
 	pb.setDefaults()
 

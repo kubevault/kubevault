@@ -64,8 +64,8 @@ func New(kc kubernetes.Interface, vApp *appcat.AppBinding) (*auth, error) {
 		return nil, errors.New("jwt is missing")
 	}
 
-	if cf.AuthPath == "" {
-		cf.AuthPath = string(vsapi.AuthTypeKubernetes)
+	if cf.KubernetesAuthPath == "" {
+		cf.KubernetesAuthPath = string(vsapi.AuthTypeKubernetes)
 	}
 	if cf.PolicyControllerRole == "" {
 		return nil, errors.Wrap(err, "policyControllerRole is empty")
@@ -75,7 +75,7 @@ func New(kc kubernetes.Interface, vApp *appcat.AppBinding) (*auth, error) {
 		vClient: vc,
 		jwt:     string(jwt),
 		role:    cf.PolicyControllerRole,
-		path:    cf.AuthPath,
+		path:    cf.KubernetesAuthPath,
 	}, nil
 }
 
