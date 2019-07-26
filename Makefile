@@ -152,6 +152,7 @@ clientset:
 openapi: $(addprefix openapi-, $(subst :,_, $(API_GROUPS)))
 openapi-%:
 	@echo "Generating openapi schema for $(subst _,/,$*)"
+	@mkdir -p api/api-rules
 	@docker run --rm -ti                                 \
 		-u $$(id -u):$$(id -g)                           \
 		-v /tmp:/.cache                                  \
@@ -165,7 +166,7 @@ openapi-%:
 			--go-header-file "./hack/boilerplate.go.txt" \
 			--input-dirs "$(GO_PKG)/$(REPO)/apis/$(subst _,/,$*),k8s.io/apimachinery/pkg/apis/meta/v1,k8s.io/apimachinery/pkg/api/resource,k8s.io/apimachinery/pkg/runtime,k8s.io/apimachinery/pkg/util/intstr,k8s.io/apimachinery/pkg/version,k8s.io/api/core/v1,k8s.io/api/apps/v1,kmodules.xyz/offshoot-api/api/v1,github.com/appscode/go/encoding/json/types,kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1,kmodules.xyz/monitoring-agent-api/api/v1,k8s.io/api/rbac/v1" \
 			--output-package "$(GO_PKG)/$(REPO)/apis/$(subst _,/,$*)" \
-			--report-filename config/api-rules/violation_exceptions.list
+			--report-filename api/api-rules/violation_exceptions.list
 
 # Generate CRD manifests
 .PHONY: manifests
@@ -182,7 +183,7 @@ manifests:
 		controller-gen                      \
 			$(CRD_OPTIONS)                  \
 			paths="./apis/..."              \
-			output:crd:artifacts:config=config/crd
+			output:crd:artifacts:config=api/crds
 
 .PHONY: gen
 gen: clientset openapi manifests
