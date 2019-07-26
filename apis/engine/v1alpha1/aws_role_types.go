@@ -39,11 +39,32 @@ const (
 	AWSCredentialFederationToken AWSCredentialType = "federation_token"
 )
 
-// AWSRoleSpec contains connection information, AWS role info, etc
-type AWSRoleSpec struct {
+
+type SecretEngine struct {
+	// spec
 	Ref *appcat.AppReference `json:"ref,omitempty"`
 
+	EngineType string
+	EnginePath string
+
 	Config *AWSConfig `json:"config"`
+	SkipActivation bool
+
+	// status
+	PolicyName string
+}
+
+// AWSRoleSpec contains connection information, AWS role info, etc
+type AWSRoleSpec struct {
+	Enginename string
+
+	//Ref *appcat.AppReference `json:"ref,omitempty"`
+	//
+	//Config *AWSConfig `json:"config"`
+	//
+	//AWSPath string `json:"awsPath,omitempty"`
+
+
 
 	// links:
 	// 	- https://www.vaultproject.io/api/secret/aws/index.html
