@@ -194,8 +194,16 @@ patch-crd-%:
 	@kubectl patch -f api/crds/$* -p "$$(cat hack/crd-patch.json)" --type=json --local=true -o yaml > bin/$*
 	@mv bin/$* api/crds/$*
 
+.PHONY: label-crds
+label-crds:
+	@for f in api/crds/*.yaml; do \
+		echo "applying app=vault label to $$f"; \
+		kubectl label --overwrite -f $$f --local=true -o yaml app=vault > bin/crd.yaml; \
+		mv bin/crd.yaml $$f; \
+	done
+
 .PHONY: manifests
-manifests: gen-crds patch-crds
+manifests: gen-crds patch-crds label-crds
 
 .PHONY: gen
 gen: clientset openapi manifests
