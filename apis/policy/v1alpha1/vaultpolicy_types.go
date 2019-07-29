@@ -31,7 +31,7 @@ type VaultPolicy struct {
 }
 
 type VaultPolicySpec struct {
-	// Policy specifies the vault policy in hcl format.
+	// PolicyDocument specifies a vault policy in hcl format.
 	// For example:
 	// path "secret/*" {
 	//   capabilities = ["create", "read", "update", "delete", "list"]
@@ -39,7 +39,7 @@ type VaultPolicySpec struct {
 	// +optional
 	PolicyDocument string `json:"policyDocument,omitempty"`
 
-	// Specifies the IAM policy in JSON format.
+	// Policy specifies a vault policy in json format.
 	// +optional
 	Policy *runtime.RawExtension `json:"policy,omitempty"`
 

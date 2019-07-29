@@ -415,12 +415,12 @@ spec:
         spec:
           properties:
             policy:
-              description: Specifies the IAM policy in JSON format.
+              description: Policy specifies a vault policy in json format.
               type: object
             policyDocument:
-              description: 'Policy specifies the vault policy in hcl format. For example:
-                path "secret/*" {   capabilities = ["create", "read", "update", "delete",
-                "list"] }'
+              description: 'PolicyDocument specifies a vault policy in hcl format.
+                For example: path "secret/*" {   capabilities = ["create", "read",
+                "update", "delete", "list"] }'
               type: string
             ref:
               description: Vault contains the reference of kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppBinding

@@ -16062,14 +16062,14 @@ func schema_operator_apis_policy_v1alpha1_VaultPolicySpec(ref common.ReferenceCa
 				Properties: map[string]spec.Schema{
 					"policyDocument": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Policy specifies the vault policy in hcl format. For example: path \"secret/*\" {\n  capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\"]\n}",
+							Description: "PolicyDocument specifies a vault policy in hcl format. For example: path \"secret/*\" {\n  capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\"]\n}",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"policy": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the IAM policy in JSON format.",
+							Description: "Policy specifies a vault policy in json format.",
 							Ref:         ref("k8s.io/apimachinery/pkg/runtime.RawExtension"),
 						},
 					},
