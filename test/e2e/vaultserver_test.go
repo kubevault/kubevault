@@ -789,6 +789,7 @@ var _ = Describe("VaultServer", func() {
 					Mode: api.ModeSpec{
 						AwsKmsSsm: &api.AwsKmsSsmSpec{
 							KmsKeyID:         "65ed2c85-4915-4e82-be47-d56ccaa8019b",
+							SsmKeyPrefix:     "/cluster/demo",
 							Region:           "us-west-1",
 							CredentialSecret: awsCredSecret,
 						},

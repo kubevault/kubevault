@@ -13,6 +13,7 @@ func TestOptions_Apply(t *testing.T) {
 	expected := []string{
 		"--mode=aws-kms-ssm",
 		"--aws.kms-key-id=test-key",
+		"--aws.ssm-key-prefix=/cluster/demo",
 	}
 	cont := corev1.Container{
 		Name: util.VaultUnsealerContainerName,
@@ -24,7 +25,8 @@ func TestOptions_Apply(t *testing.T) {
 	}
 
 	opts, err := NewOptions(api.AwsKmsSsmSpec{
-		KmsKeyID: "test-key",
+		KmsKeyID:     "test-key",
+		SsmKeyPrefix: "/cluster/demo",
 	})
 	assert.Nil(t, err)
 

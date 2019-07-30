@@ -15853,6 +15853,13 @@ func schema_operator_apis_kubevault_v1alpha1_AwsKmsSsmSpec(ref common.ReferenceC
 							Format:      "",
 						},
 					},
+					"ssmKeyPrefix": {
+						SchemaProps: spec.SchemaProps{
+							Description: "An optional Key prefix for SSM Parameter store",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"region": {
 						SchemaProps: spec.SchemaProps{
 							Type:   []string{"string"},
