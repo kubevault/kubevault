@@ -15651,6 +15651,13 @@ func schema_operator_apis_config_v1alpha1_VaultServerConfiguration(ref common.Re
 							Format:      "",
 						},
 					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path which is used for authentication by this AppBinding. If vault server is provisioned by KubeVault, this is usually `kubernetes`.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"serviceAccountName": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the service account name",
@@ -15686,14 +15693,8 @@ func schema_operator_apis_config_v1alpha1_VaultServerConfiguration(ref common.Re
 							Format:      "",
 						},
 					},
-					"authPath": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the path where kubernetes auth is enabled default : kubernetes",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 				},
+				Required: []string{"path"},
 			},
 		},
 	}

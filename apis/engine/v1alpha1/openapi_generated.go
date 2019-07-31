@@ -380,7 +380,13 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleStatus":                   schema_operator_apis_engine_v1alpha1_GCPRoleStatus(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.Lease":                           schema_operator_apis_engine_v1alpha1_Lease(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.LeaseConfig":                     schema_operator_apis_engine_v1alpha1_LeaseConfig(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.RoleReference":                   schema_operator_apis_engine_v1alpha1_RoleReference(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.RoleRef":                         schema_operator_apis_engine_v1alpha1_RoleRef(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngine":                    schema_operator_apis_engine_v1alpha1_SecretEngine(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineCondition":           schema_operator_apis_engine_v1alpha1_SecretEngineCondition(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineConfig":              schema_operator_apis_engine_v1alpha1_SecretEngineConfig(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineList":                schema_operator_apis_engine_v1alpha1_SecretEngineList(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineSpec":                schema_operator_apis_engine_v1alpha1_SecretEngineSpec(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineStatus":              schema_operator_apis_engine_v1alpha1_SecretEngineStatus(ref),
 	}
 }
 
@@ -15806,7 +15812,7 @@ func schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestSpec(ref common.Ref
 					"roleRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Contains vault aws role info",
-							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.RoleReference"),
+							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"),
 						},
 					},
 					"subjects": {
@@ -15847,7 +15853,7 @@ func schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestSpec(ref common.Ref
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/rbac/v1.Subject", "kubevault.dev/operator/apis/engine/v1alpha1.RoleReference"},
+			"k8s.io/api/rbac/v1.Subject", "kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"},
 	}
 }
 
@@ -16080,17 +16086,19 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleSpec(ref common.ReferenceCallba
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "AWSRoleSpec contains connection information, AWS role info, etc",
+				Description: "AWSRoleSpec contains connection information, AWS role info, etc More info: https://www.vaultproject.io/api/secret/aws/index.html#parameters-3",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"ref": {
+					"vaultRef": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+							Ref: ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
-					"config": {
+					"path": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AWSConfig"),
+							Description: "Path defines the path of the AWS secret engine default: aws More info: https://www.vaultproject.io/docs/auth/aws.html#via-the-cli",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"credentialType": {
@@ -16156,11 +16164,11 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleSpec(ref common.ReferenceCallba
 						},
 					},
 				},
-				Required: []string{"config", "credentialType"},
+				Required: []string{"vaultRef", "credentialType"},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/runtime.RawExtension", "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference", "kubevault.dev/operator/apis/engine/v1alpha1.AWSConfig"},
+			"k8s.io/api/core/v1.LocalObjectReference", "k8s.io/apimachinery/pkg/runtime.RawExtension"},
 	}
 }
 
@@ -16343,7 +16351,7 @@ func schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestSpec(ref common.R
 					"roleRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Contains vault azure role info",
-							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.RoleReference"),
+							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"),
 						},
 					},
 					"subjects": {
@@ -16364,7 +16372,7 @@ func schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestSpec(ref common.R
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/rbac/v1.Subject", "kubevault.dev/operator/apis/engine/v1alpha1.RoleReference"},
+			"k8s.io/api/rbac/v1.Subject", "kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"},
 	}
 }
 
@@ -16569,17 +16577,19 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleSpec(ref common.ReferenceCall
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "AzureRoleSpec contains connection information, Azure role info, etc",
+				Description: "AzureRoleSpec contains connection information, Azure role info, etc More info: https://www.vaultproject.io/api/secret/azure/index.html#create-update-role",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"ref": {
+					"vaultRef": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+							Ref: ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
-					"config": {
+					"path": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AzureConfig"),
+							Description: "Path defines the path of the Azure secret engine default: azure More info: https://www.vaultproject.io/docs/auth/azure.html#via-the-cli",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"azureRoles": {
@@ -16611,11 +16621,11 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleSpec(ref common.ReferenceCall
 						},
 					},
 				},
-				Required: []string{"config"},
+				Required: []string{"vaultRef"},
 			},
 		},
 		Dependencies: []string{
-			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference", "kubevault.dev/operator/apis/engine/v1alpha1.AzureConfig"},
+			"k8s.io/api/core/v1.LocalObjectReference"},
 	}
 }
 
@@ -16799,7 +16809,7 @@ func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestSpec(ref common.Ref
 					"roleRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Contains vault gcp role info",
-							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.RoleReference"),
+							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"),
 						},
 					},
 					"subjects": {
@@ -16834,7 +16844,7 @@ func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestSpec(ref common.Ref
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/rbac/v1.Subject", "kubevault.dev/operator/apis/engine/v1alpha1.RoleReference"},
+			"k8s.io/api/rbac/v1.Subject", "kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"},
 	}
 }
 
@@ -17046,17 +17056,19 @@ func schema_operator_apis_engine_v1alpha1_GCPRoleSpec(ref common.ReferenceCallba
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "GCPRoleSpec contains connection information, GCP role info, etc",
+				Description: "GCPRoleSpec contains connection information, GCP role info, etc More info: https://www.vaultproject.io/api/secret/gcp/index.html#parameters",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"ref": {
+					"vaultRef": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+							Ref: ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
-					"config": {
+					"path": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.GCPConfig"),
+							Description: "Path defines the path of the Google Cloud secret engine default: gcp More info: https://www.vaultproject.io/docs/auth/gcp.html#via-the-cli-helper",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"secretType": {
@@ -17095,11 +17107,11 @@ func schema_operator_apis_engine_v1alpha1_GCPRoleSpec(ref common.ReferenceCallba
 						},
 					},
 				},
-				Required: []string{"config", "secretType", "project", "bindings"},
+				Required: []string{"vaultRef", "secretType", "project", "bindings"},
 			},
 		},
 		Dependencies: []string{
-			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference", "kubevault.dev/operator/apis/engine/v1alpha1.GCPConfig"},
+			"k8s.io/api/core/v1.LocalObjectReference"},
 	}
 }
 
@@ -17205,29 +17217,271 @@ func schema_operator_apis_engine_v1alpha1_LeaseConfig(ref common.ReferenceCallba
 	}
 }
 
-func schema_operator_apis_engine_v1alpha1_RoleReference(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_operator_apis_engine_v1alpha1_RoleRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
+				Description: "RoleRef contains information that points to the role being used",
+				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"name": {
+					"apiGroup": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name of the object being referenced.",
+							Description: "APIGroup is the group for the resource being referenced",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"namespace": {
+					"kind": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Namespace of the referenced object.",
+							Description: "Kind is the type of resource being referenced",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Name is the name of resource being referenced",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 				},
-				Required: []string{"name", "namespace"},
+				Required: []string{"apiGroup", "kind", "name"},
 			},
 		},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_SecretEngine(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineSpec", "kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineStatus"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_SecretEngineCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"reason": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The reason for the condition's.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"message": {
+						SchemaProps: spec.SchemaProps{
+							Description: "A human readable message indicating details about the transition.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_SecretEngineConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"aws": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AWSConfig"),
+						},
+					},
+					"azure": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AzureConfig"),
+						},
+					},
+					"gcp": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.GCPConfig"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"kubevault.dev/operator/apis/engine/v1alpha1.AWSConfig", "kubevault.dev/operator/apis/engine/v1alpha1.AzureConfig", "kubevault.dev/operator/apis/engine/v1alpha1.GCPConfig"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_SecretEngineList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.SecretEngine"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "kubevault.dev/operator/apis/engine/v1alpha1.SecretEngine"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_SecretEngineSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"vaultRef": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/api/core/v1.LocalObjectReference"),
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Path defines the path used to enable this secret engine default: gcp More info: https://www.vaultproject.io/docs/auth/gcp.html#via-the-cli-helper",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"aws": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AWSConfig"),
+						},
+					},
+					"azure": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AzureConfig"),
+						},
+					},
+					"gcp": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.GCPConfig"),
+						},
+					},
+				},
+				Required: []string{"vaultRef"},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/api/core/v1.LocalObjectReference", "kubevault.dev/operator/apis/engine/v1alpha1.AWSConfig", "kubevault.dev/operator/apis/engine/v1alpha1.AzureConfig", "kubevault.dev/operator/apis/engine/v1alpha1.GCPConfig"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_SecretEngineStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"phase": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/appscode/go/encoding/json/types.IntHash"),
+						},
+					},
+					"conditions": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineCondition"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineCondition"},
 	}
 }

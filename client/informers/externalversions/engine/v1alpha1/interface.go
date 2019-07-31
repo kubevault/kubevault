@@ -36,6 +36,8 @@ type Interface interface {
 	GCPAccessKeyRequests() GCPAccessKeyRequestInformer
 	// GCPRoles returns a GCPRoleInformer.
 	GCPRoles() GCPRoleInformer
+	// SecretEngines returns a SecretEngineInformer.
+	SecretEngines() SecretEngineInformer
 }
 
 type version struct {
@@ -77,4 +79,9 @@ func (v *version) GCPAccessKeyRequests() GCPAccessKeyRequestInformer {
 // GCPRoles returns a GCPRoleInformer.
 func (v *version) GCPRoles() GCPRoleInformer {
 	return &gCPRoleInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// SecretEngines returns a SecretEngineInformer.
+func (v *version) SecretEngines() SecretEngineInformer {
+	return &secretEngineInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

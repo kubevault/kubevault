@@ -39,13 +39,15 @@ const (
 )
 
 // AWSRoleSpec contains connection information, AWS role info, etc
+// More info: https://www.vaultproject.io/api/secret/aws/index.html#parameters-3
 type AWSRoleSpec struct {
-	SecretEngineRef core.LocalObjectReference `json:"secretEngineRef"`
+	VaultRef core.LocalObjectReference `json:"vaultRef"`
 
-	SecretEnginePath string `json:"secretEnginePath",omitempty`
-
-	// links:
-	// 	- https://www.vaultproject.io/api/secret/aws/index.html
+	// Path defines the path of the AWS secret engine
+	// default: aws
+	// More info: https://www.vaultproject.io/docs/auth/aws.html#via-the-cli
+	// +optional
+	Path string `json:"path,omitempty"`
 
 	// Specifies the type of credential to be used when retrieving credentials from the role
 	CredentialType AWSCredentialType `json:"credentialType"`
@@ -63,6 +65,7 @@ type AWSRoleSpec struct {
 	// With iam_user, the policy document will be attached to the IAM user generated and
 	// augment the permissions the IAM user has. With assumed_role and federation_token,
 	// the policy document will act as a filter on what the credentials can do.
+	// +optional
 	PolicyDocument string `json:"policyDocument,omitempty"`
 
 	// Specifies the IAM policy in JSON format.

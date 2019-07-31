@@ -316,7 +316,7 @@ var _ = FDescribe("Azure Secret Engine", func() {
 					Namespace: f.Namespace(),
 				},
 				Spec: api.AzureAccessKeyRequestSpec{
-					RoleRef: api.RoleReference{
+					RoleRef: api.RoleRef{
 						Name:      azureRoleName,
 						Namespace: f.Namespace(),
 					},

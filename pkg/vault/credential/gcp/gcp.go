@@ -49,7 +49,7 @@ func NewGCPCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.A
 	}, nil
 }
 
-func GetVaultRefAndRole(cr crd.Interface, ref api.RoleReference) (*appcat.AppReference, string, api.GCPSecretType, error) {
+func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*appcat.AppReference, string, api.GCPSecretType, error) {
 	r, err := cr.EngineV1alpha1().GCPRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, "", "", errors.Wrapf(err, "GCPRole %s/%s", ref.Namespace, ref.Name)

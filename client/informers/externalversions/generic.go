@@ -72,6 +72,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Engine().V1alpha1().GCPAccessKeyRequests().Informer()}, nil
 	case enginev1alpha1.SchemeGroupVersion.WithResource("gcproles"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Engine().V1alpha1().GCPRoles().Informer()}, nil
+	case enginev1alpha1.SchemeGroupVersion.WithResource("secretengines"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Engine().V1alpha1().SecretEngines().Informer()}, nil
 
 		// Group=kubevault.com, Version=v1alpha1
 	case kubevaultv1alpha1.SchemeGroupVersion.WithResource("vaultservers"):

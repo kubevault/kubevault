@@ -316,7 +316,7 @@ var _ = Describe("GCP Role", func() {
 					Namespace: f.Namespace(),
 				},
 				Spec: api.GCPAccessKeyRequestSpec{
-					RoleRef: api.RoleReference{
+					RoleRef: api.RoleRef{
 						Name:      gcpRoleName,
 						Namespace: f.Namespace(),
 					},

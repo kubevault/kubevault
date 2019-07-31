@@ -29,3 +29,5 @@ type AzureRoleExpansion interface{}
 type GCPAccessKeyRequestExpansion interface{}
 
 type GCPRoleExpansion interface{}
+
+type SecretEngineExpansion interface{}

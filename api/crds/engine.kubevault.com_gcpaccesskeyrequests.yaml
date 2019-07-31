@@ -419,15 +419,19 @@ spec:
             roleRef:
               description: Contains vault gcp role info
               properties:
-                name:
-                  description: Name of the object being referenced.
+                apiGroup:
+                  description: APIGroup is the group for the resource being referenced
                   type: string
-                namespace:
-                  description: Namespace of the referenced object.
+                kind:
+                  description: Kind is the type of resource being referenced
+                  type: string
+                name:
+                  description: Name is the name of resource being referenced
                   type: string
               required:
+              - apiGroup
+              - kind
               - name
-              - namespace
               type: object
             subjects:
               description: Contains a reference to the object or user identities the

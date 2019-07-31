@@ -33,6 +33,7 @@ type EngineV1alpha1Interface interface {
 	AzureRolesGetter
 	GCPAccessKeyRequestsGetter
 	GCPRolesGetter
+	SecretEnginesGetter
 }
 
 // EngineV1alpha1Client is used to interact with features provided by the engine.kubevault.com group.
@@ -62,6 +63,10 @@ func (c *EngineV1alpha1Client) GCPAccessKeyRequests(namespace string) GCPAccessK
 
 func (c *EngineV1alpha1Client) GCPRoles(namespace string) GCPRoleInterface {
 	return newGCPRoles(c, namespace)
+}
+
+func (c *EngineV1alpha1Client) SecretEngines(namespace string) SecretEngineInterface {
+	return newSecretEngines(c, namespace)
 }
 
 // NewForConfig creates a new EngineV1alpha1Client for the given config.

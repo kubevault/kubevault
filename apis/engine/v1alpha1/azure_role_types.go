@@ -37,13 +37,15 @@ const (
 )
 
 // AzureRoleSpec contains connection information, Azure role info, etc
+// More info: https://www.vaultproject.io/api/secret/azure/index.html#create-update-role
 type AzureRoleSpec struct {
-	SecretEngineRef core.LocalObjectReference `json:"secretEngineRef"`
+	VaultRef core.LocalObjectReference `json:"vaultRef"`
 
-	SecretEnginePath string `json:"secretEnginePath",omitempty`
-
-	// ref:
-	// - https://www.vaultproject.io/api/secret/azure/index.html#parameters
+	// Path defines the path of the Azure secret engine
+	// default: azure
+	// More info: https://www.vaultproject.io/docs/auth/azure.html#via-the-cli
+	// +optional
+	Path string `json:"path,omitempty"`
 
 	// List of Azure roles to be assigned to the generated service principal.
 	// The array must be in JSON format, properly escaped as a string

@@ -22,9 +22,15 @@ type SecretEngine struct {
 }
 
 type SecretEngineSpec struct {
-	Ref                core.LocalObjectReference `json:"ref"`
+	VaultRef core.LocalObjectReference `json:"vaultRef"`
+
+	// Path defines the path used to enable this secret engine
+	// default: gcp
+	// More info: https://www.vaultproject.io/docs/auth/gcp.html#via-the-cli-helper
+	// +optional
+	Path string `json:"path,omitempty"`
+
 	SecretEngineConfig `json:",inline"`
-	SecretEnginePath   string `json:"secretEnginePath",omitempty`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -38,9 +44,9 @@ type SecretEngineList struct {
 }
 
 type SecretEngineConfig struct {
-	AWSConfig   *AWSConfig   `json:"awsConfig,omitempty"`
-	GCPConfig   *GCPConfig   `json:"gcpConfig,omitempty"`
-	AzureConfig *AzureConfig `json:"azureConfig,omitempty"`
+	AWS   *AWSConfig   `json:"aws,omitempty"`
+	Azure *AzureConfig `json:"azure,omitempty"`
+	GCP   *GCPConfig   `json:"gcp,omitempty"`
 }
 
 // https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials

@@ -292,7 +292,7 @@ var _ = Describe("AWS role", func() {
 					Namespace: f.Namespace(),
 				},
 				Spec: api.AWSAccessKeyRequestSpec{
-					RoleRef: api.RoleReference{
+					RoleRef: api.RoleRef{
 						Name:      awsRole.Name,
 						Namespace: awsRole.Namespace,
 					},

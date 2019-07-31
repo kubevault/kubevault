@@ -35,13 +35,15 @@ const (
 )
 
 // GCPRoleSpec contains connection information, GCP role info, etc
+// More info: https://www.vaultproject.io/api/secret/gcp/index.html#parameters
 type GCPRoleSpec struct {
-	SecretEngineRef core.LocalObjectReference `json:"secretEngineRef"`
+	VaultRef core.LocalObjectReference `json:"vaultRef"`
 
-	SecretEnginePath string `json:"secretEnginePath",omitempty`
-
-	// links:
-	// 	- https://www.vaultproject.io/api/secret/gcp/index.html#parameters-1
+	// Path defines the path of the Google Cloud secret engine
+	// default: gcp
+	// More info: https://www.vaultproject.io/docs/auth/gcp.html#via-the-cli-helper
+	// +optional
+	Path string `json:"path,omitempty"`
 
 	// Specifies the type of secret generated for this role set
 	SecretType GCPSecretType `json:"secretType"`

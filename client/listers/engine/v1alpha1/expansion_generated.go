@@ -65,3 +65,11 @@ type GCPRoleListerExpansion interface{}
 // GCPRoleNamespaceListerExpansion allows custom methods to be added to
 // GCPRoleNamespaceLister.
 type GCPRoleNamespaceListerExpansion interface{}
+
+// SecretEngineListerExpansion allows custom methods to be added to
+// SecretEngineLister.
+type SecretEngineListerExpansion interface{}
+
+// SecretEngineNamespaceListerExpansion allows custom methods to be added to
+// SecretEngineNamespaceLister.
+type SecretEngineNamespaceListerExpansion interface{}

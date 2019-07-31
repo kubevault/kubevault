@@ -46,7 +46,7 @@ func NewAWSCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.A
 	}, nil
 }
 
-func GetVaultRefAndRole(cr crd.Interface, ref api.RoleReference) (*appcat.AppReference, string, error) {
+func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*appcat.AppReference, string, error) {
 	r, err := cr.EngineV1alpha1().AWSRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, "", errors.Wrapf(err, "AWSRole %s/%s", ref.Namespace, ref.Name)

@@ -52,6 +52,10 @@ func (c *FakeEngineV1alpha1) GCPRoles(namespace string) v1alpha1.GCPRoleInterfac
 	return &FakeGCPRoles{c, namespace}
 }
 
+func (c *FakeEngineV1alpha1) SecretEngines(namespace string) v1alpha1.SecretEngineInterface {
+	return &FakeSecretEngines{c, namespace}
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeEngineV1alpha1) RESTClient() rest.Interface {
