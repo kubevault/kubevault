@@ -723,6 +723,9 @@ type AwsKmsSsmSpec struct {
 	KmsKeyID string `json:"kmsKeyID"`
 
 	// +optional
+	// An optional Key prefix for SSM Parameter store
+	SsmKeyPrefix string `json:"ssmKeyPrefix,omitempty"`
+
 	Region string `json:"region,omitempty"`
 
 	// Specifies the secret name containing AWS access key and AWS secret key

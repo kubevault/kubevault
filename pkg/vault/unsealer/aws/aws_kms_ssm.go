@@ -43,6 +43,9 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	if o.KmsKeyID != "" {
 		args = append(args, fmt.Sprintf("--aws.kms-key-id=%s", o.KmsKeyID))
 	}
+	if o.SsmKeyPrefix != "" {
+		args = append(args, fmt.Sprintf("--aws.ssm-key-prefix=%s", o.SsmKeyPrefix))
+	}
 	cont.Args = append(cont.Args, args...)
 
 	var envs []core.EnvVar

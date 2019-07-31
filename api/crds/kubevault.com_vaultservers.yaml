@@ -5970,6 +5970,10 @@ spec:
                           description: The ID or ARN of the AWS KMS key to encrypt
                             values
                           type: string
+                        ssmKeyPrefix:
+                          description: An optional Key prefix for SSM Parameter store.
+                            values
+                          type: string
                         region:
                           type: string
                       required:
