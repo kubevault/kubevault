@@ -39,6 +39,7 @@ const (
 // AzureRoleSpec contains connection information, Azure role info, etc
 // More info: https://www.vaultproject.io/api/secret/azure/index.html#create-update-role
 type AzureRoleSpec struct {
+	// VaultRef is the name of a AppBinding referencing to a Vault Server
 	VaultRef core.LocalObjectReference `json:"vaultRef"`
 
 	// Path defines the path of the Azure secret engine

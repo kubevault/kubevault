@@ -16091,7 +16091,8 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleSpec(ref common.ReferenceCallba
 				Properties: map[string]spec.Schema{
 					"vaultRef": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/api/core/v1.LocalObjectReference"),
+							Description: "VaultRef is the name of a AppBinding referencing to a Vault Server",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
 					"path": {
@@ -16582,7 +16583,8 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleSpec(ref common.ReferenceCall
 				Properties: map[string]spec.Schema{
 					"vaultRef": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/api/core/v1.LocalObjectReference"),
+							Description: "VaultRef is the name of a AppBinding referencing to a Vault Server",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
 					"path": {
@@ -17061,7 +17063,8 @@ func schema_operator_apis_engine_v1alpha1_GCPRoleSpec(ref common.ReferenceCallba
 				Properties: map[string]spec.Schema{
 					"vaultRef": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/api/core/v1.LocalObjectReference"),
+							Description: "VaultRef is the name of a AppBinding referencing to a Vault Server",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
 					"path": {

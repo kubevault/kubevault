@@ -142,7 +142,7 @@ func vaultPolicyForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy {
 			Labels:    vs.OffshootLabels(),
 		},
 		Spec: policyapi.VaultPolicySpec{
-			Ref: &appcat.AppReference{
+			VaultRef: &appcat.AppReference{
 				Name:      vs.AppBindingName(),
 				Namespace: vs.Namespace,
 			},
@@ -160,7 +160,7 @@ func vaultPolicyBindingForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy
 			Labels:    vs.OffshootLabels(),
 		},
 		Spec: policyapi.VaultPolicyBindingSpec{
-			AuthPath:                 string(api.AuthTypeKubernetes),
+			Path:                     string(api.AuthTypeKubernetes),
 			ServiceAccountNames:      []string{vs.ServiceAccountName()},
 			ServiceAccountNamespaces: []string{vs.Namespace},
 			Policies:                 []string{vs.PolicyNameForAuthMethodController()},
@@ -177,7 +177,7 @@ func ensureVaultPolicy(c policycs.PolicyV1alpha1Interface, vp *policyapi.VaultPo
 		in.Labels = core_util.UpsertMap(in.Labels, vp.Labels)
 		in.Spec.PolicyDocument = vp.Spec.PolicyDocument
 		in.Spec.Policy = vp.Spec.Policy
-		in.Spec.Ref = vp.Spec.Ref
+		in.Spec.VaultRef = vp.Spec.VaultRef
 		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
 		return in
 	})

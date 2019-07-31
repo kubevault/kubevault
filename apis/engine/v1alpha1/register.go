@@ -44,6 +44,7 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&AzureRoleList{},
 		&AzureAccessKeyRequest{},
 		&AzureAccessKeyRequestList{},
+		&SecretEngine{},
 	)
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&metav1.Status{},

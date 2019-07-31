@@ -41,6 +41,7 @@ const (
 // AWSRoleSpec contains connection information, AWS role info, etc
 // More info: https://www.vaultproject.io/api/secret/aws/index.html#parameters-3
 type AWSRoleSpec struct {
+	// VaultRef is the name of a AppBinding referencing to a Vault Server
 	VaultRef core.LocalObjectReference `json:"vaultRef"`
 
 	// Path defines the path of the AWS secret engine

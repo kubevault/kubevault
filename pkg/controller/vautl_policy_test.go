@@ -75,7 +75,7 @@ func validVaultPolicy(app *appcat.AppBinding) *policyapi.VaultPolicy {
 		},
 		Spec: policyapi.VaultPolicySpec{
 			PolicyDocument: "simple {}",
-			Ref: &appcat.AppReference{
+			VaultRef: &appcat.AppReference{
 				Name:      app.Name,
 				Namespace: app.Namespace,
 			},

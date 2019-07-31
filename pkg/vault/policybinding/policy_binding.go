@@ -35,7 +35,7 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 		ttl:          pBind.Spec.TTL,
 		maxTTL:       pBind.Spec.MaxTTL,
 		period:       pBind.Spec.Period,
-		path:         pBind.Spec.AuthPath,
+		path:         pBind.Spec.Path,
 	}
 	pb.setDefaults()
 
@@ -48,10 +48,10 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 		}
 		if vaultRef == nil {
 			// take vault connection reference from policy
-			vaultRef = plcy.Spec.Ref
+			vaultRef = plcy.Spec.VaultRef
 		} else {
 			// all policy should refer the same vault
-			vr := plcy.Spec.Ref
+			vr := plcy.Spec.VaultRef
 			if vr == nil || vr.Name != vaultRef.Name || vr.Namespace != vaultRef.Namespace {
 				return nil, errors.New("all policy should refer the same vault")
 			}

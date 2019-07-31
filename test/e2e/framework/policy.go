@@ -18,7 +18,7 @@ func (f *Invocation) VaultPolicy(policy string, ref *appcat.AppReference) *api.V
 			},
 		},
 		Spec: api.VaultPolicySpec{
-			Ref:            ref,
+			VaultRef:       ref,
 			PolicyDocument: policy,
 		},
 	}

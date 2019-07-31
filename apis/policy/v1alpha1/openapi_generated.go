@@ -345,9 +345,12 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/offshoot-api/api/v1.ServicePort":                                schema_kmodulesxyz_offshoot_api_api_v1_ServicePort(ref),
 		"kmodules.xyz/offshoot-api/api/v1.ServiceSpec":                                schema_kmodulesxyz_offshoot_api_api_v1_ServiceSpec(ref),
 		"kmodules.xyz/offshoot-api/api/v1.ServiceTemplateSpec":                        schema_kmodulesxyz_offshoot_api_api_v1_ServiceTemplateSpec(ref),
+		"kubevault.dev/operator/apis/policy/v1alpha1.KubernetesSubjectRef":            schema_operator_apis_policy_v1alpha1_KubernetesSubjectRef(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.PolicyBindingCondition":          schema_operator_apis_policy_v1alpha1_PolicyBindingCondition(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.PolicyCondition":                 schema_operator_apis_policy_v1alpha1_PolicyCondition(ref),
+		"kubevault.dev/operator/apis/policy/v1alpha1.PolicyIdentifier":                schema_operator_apis_policy_v1alpha1_PolicyIdentifier(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.ServiceAccountReference":         schema_operator_apis_policy_v1alpha1_ServiceAccountReference(ref),
+		"kubevault.dev/operator/apis/policy/v1alpha1.SubjectRef":                      schema_operator_apis_policy_v1alpha1_SubjectRef(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.VaultPolicy":                     schema_operator_apis_policy_v1alpha1_VaultPolicy(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.VaultPolicyBinding":              schema_operator_apis_policy_v1alpha1_VaultPolicyBinding(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.VaultPolicyBindingList":          schema_operator_apis_policy_v1alpha1_VaultPolicyBindingList(ref),
@@ -15640,6 +15643,76 @@ func schema_kmodulesxyz_offshoot_api_api_v1_ServiceTemplateSpec(ref common.Refer
 	}
 }
 
+func schema_operator_apis_policy_v1alpha1_KubernetesSubjectRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "More info: https://www.vaultproject.io/api/auth/kubernetes/index.html#create-role",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path where kubernetes auth is enabled default : kubernetes",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"serviceAccountNames": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the names of the service account to bind with policy",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"serviceAccountNamespaces": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the namespaces of the service account",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the TTL period of tokens issued using this role in seconds.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"maxTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum allowed lifetime of tokens issued in seconds using this role.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"period": {
+						SchemaProps: spec.SchemaProps{
+							Description: "If set, indicates that the token generated using this role should never expire. The token should be renewed within the duration specified by this value. At each renewal, the token's TTL will be set to the value of this parameter.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"serviceAccountNames", "serviceAccountNamespaces"},
+			},
+		},
+	}
+}
+
 func schema_operator_apis_policy_v1alpha1_PolicyBindingCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -15722,6 +15795,32 @@ func schema_operator_apis_policy_v1alpha1_PolicyCondition(ref common.ReferenceCa
 	}
 }
 
+func schema_operator_apis_policy_v1alpha1_PolicyIdentifier(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Name is a Vault server policy name. This name should be returned by `vault read sys/policy` command. More info: https://www.vaultproject.io/docs/concepts/policies.html#listing-policies",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"ref": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Ref is name of a VaultPolicy crd object. Actual vault policy name is spec.vaultRoleName field. More info: https://www.vaultproject.io/docs/concepts/policies.html#listing-policies",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_operator_apis_policy_v1alpha1_ServiceAccountReference(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -15745,6 +15844,26 @@ func schema_operator_apis_policy_v1alpha1_ServiceAccountReference(ref common.Ref
 				Required: []string{"name", "namespace"},
 			},
 		},
+	}
+}
+
+func schema_operator_apis_policy_v1alpha1_SubjectRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kubernetes": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kubernetes refers to Vault users who are authenticated via Kubernetes auth method More info: https://www.vaultproject.io/docs/auth/kubernetes.html#configuration",
+							Ref:         ref("kubevault.dev/operator/apis/policy/v1alpha1.KubernetesSubjectRef"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"kubevault.dev/operator/apis/policy/v1alpha1.KubernetesSubjectRef"},
 	}
 }
 
@@ -15886,86 +16005,44 @@ func schema_operator_apis_policy_v1alpha1_VaultPolicyBindingSpec(ref common.Refe
 				Description: "links: https://www.vaultproject.io/api/auth/kubernetes/index.html#parameters-1",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"roleName": {
+					"vaultRef": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "VaultRef is the name of a AppBinding referencing to a Vault Server",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
-					"authPath": {
+					"vaultRoleName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the path where kubernetes auth is enabled default : kubernetes",
+							Description: "VaultRoleName is the role name which will be bound of the policies This defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"policies": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the names of the VaultPolicy",
+							Description: "Policies is a list of Vault policy identifiers.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Type:   []string{"string"},
-										Format: "",
+										Ref: ref("kubevault.dev/operator/apis/policy/v1alpha1.PolicyIdentifier"),
 									},
 								},
 							},
 						},
 					},
-					"serviceAccountNames": {
+					"subjectRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the names of the service account to bind with policy",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Type:   []string{"string"},
-										Format: "",
-									},
-								},
-							},
-						},
-					},
-					"serviceAccountNamespaces": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the namespaces of the service account",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Type:   []string{"string"},
-										Format: "",
-									},
-								},
-							},
-						},
-					},
-					"ttl": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the TTL period of tokens issued using this role in seconds.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"maxTTL": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the maximum allowed lifetime of tokens issued in seconds using this role.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"period": {
-						SchemaProps: spec.SchemaProps{
-							Description: "If set, indicates that the token generated using this role should never expire. The token should be renewed within the duration specified by this value. At each renewal, the token's TTL will be set to the value of this parameter.",
-							Type:        []string{"string"},
-							Format:      "",
+							Description: "SubjectRef refers Vault users who will be granted policies.",
+							Ref:         ref("kubevault.dev/operator/apis/policy/v1alpha1.SubjectRef"),
 						},
 					},
 				},
-				Required: []string{"policies", "serviceAccountNames", "serviceAccountNamespaces"},
+				Required: []string{"vaultRef", "policies", "subjectRef"},
 			},
 		},
+		Dependencies: []string{
+			"k8s.io/api/core/v1.LocalObjectReference", "kubevault.dev/operator/apis/policy/v1alpha1.PolicyIdentifier", "kubevault.dev/operator/apis/policy/v1alpha1.SubjectRef"},
 	}
 }
 
@@ -16058,8 +16135,22 @@ func schema_operator_apis_policy_v1alpha1_VaultPolicySpec(ref common.ReferenceCa
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
+				Description: "More info: https://www.vaultproject.io/docs/concepts/policies.html",
+				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
+					"vaultRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "VaultRef is the name of a AppBinding referencing to a Vault Server",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
+						},
+					},
+					"vaultPolicyName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "VaultPolicyName is the policy name set inside Vault. This defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"policyDocument": {
 						SchemaProps: spec.SchemaProps{
 							Description: "PolicyDocument specifies a vault policy in hcl format. For example: path \"secret/*\" {\n  capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\"]\n}",
@@ -16073,18 +16164,12 @@ func schema_operator_apis_policy_v1alpha1_VaultPolicySpec(ref common.ReferenceCa
 							Ref:         ref("k8s.io/apimachinery/pkg/runtime.RawExtension"),
 						},
 					},
-					"ref": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Vault contains the reference of kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppBinding which contains information to communicate with vault",
-							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
-						},
-					},
 				},
-				Required: []string{"ref"},
+				Required: []string{"vaultRef"},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/runtime.RawExtension", "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"},
+			"k8s.io/api/core/v1.LocalObjectReference", "k8s.io/apimachinery/pkg/runtime.RawExtension"},
 	}
 }
 
