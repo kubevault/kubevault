@@ -29,12 +29,12 @@ type AzureRoleInterface interface {
 }
 
 func NewAzureRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.AzureRole) (AzureRoleInterface, error) {
-	vClient, err := vault.NewClient(kClient, appClient, role.Spec.Ref)
+	vClient, err := vault.NewClient(kClient, appClient, role.Spec.VaultRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault api client")
 	}
 
-	azurePath, err := GetAzurePath(appClient, role.Spec.Ref)
+	azurePath, err := GetAzurePath(appClient, role.Spec.VaultRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get azure path")
 	}

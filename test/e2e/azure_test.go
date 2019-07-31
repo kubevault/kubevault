@@ -189,7 +189,7 @@ var _ = FDescribe("Azure Secret Engine", func() {
 				},
 				Spec: api.AzureRoleSpec{
 					Ref: f.VaultAppRef,
-					Config: &api.AzureConfig{
+					Config: &api.AzureConfiguration{
 						CredentialSecret: azureCredSecret,
 					},
 					ApplicationObjectID: "c1cb042d-96d7-423a-8dba-243c2e5010d3",
@@ -301,7 +301,7 @@ var _ = FDescribe("Azure Secret Engine", func() {
 				},
 				Spec: api.AzureRoleSpec{
 					Ref: f.VaultAppRef,
-					Config: &api.AzureConfig{
+					Config: &api.AzureConfiguration{
 						CredentialSecret: azureCredSecret,
 					},
 					ApplicationObjectID: "c1cb042d-96d7-423a-8dba-243c2e5010d3",

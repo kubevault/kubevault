@@ -9,8 +9,8 @@ import (
 	clientSetScheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/util/homedir"
 	appcatscheme "kmodules.xyz/custom-resources/client/clientset/versioned/scheme"
-	dbscheme "kubedb.dev/apimachinery/client/clientset/versioned/scheme"
 	"kubevault.dev/operator/client/clientset/versioned/scheme"
+	dbscheme "kubevault.dev/operator/client/clientset/versioned/scheme"
 	"kubevault.dev/operator/pkg/cmds/server"
 )
 

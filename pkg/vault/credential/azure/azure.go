@@ -54,7 +54,7 @@ func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*appcat.AppReference
 	if err != nil {
 		return nil, "", errors.Wrapf(err, "AzureRole %s/%s", ref.Namespace, ref.Name)
 	}
-	return r.Spec.Ref, r.RoleName(), nil
+	return r.Spec.VaultRef, r.RoleName(), nil
 }
 
 func (d *AzureCredManager) ParseCredential(credSecret *vaultapi.Secret) (map[string][]byte, error) {

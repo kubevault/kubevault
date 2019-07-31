@@ -16033,7 +16033,7 @@ func schema_operator_apis_policy_v1alpha1_VaultPolicyBindingSpec(ref common.Refe
 					},
 					"subjectRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "SubjectRef refers Vault users who will be granted policies.",
+							Description: "SubjectRef refers to Vault users who will be granted policies.",
 							Ref:         ref("kubevault.dev/operator/apis/policy/v1alpha1.SubjectRef"),
 						},
 					},

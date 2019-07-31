@@ -4,9 +4,9 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/client-go/kubernetes"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	dbapi "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
-	dbcrd "kubedb.dev/apimachinery/client/clientset/versioned"
+	dbapi "kubevault.dev/operator/apis/engine/v1alpha1"
 	engineapi "kubevault.dev/operator/apis/engine/v1alpha1"
+	dbcrd "kubevault.dev/operator/client/clientset/versioned"
 	vaultcrd "kubevault.dev/operator/client/clientset/versioned"
 	"kubevault.dev/operator/pkg/vault/credential/aws"
 	"kubevault.dev/operator/pkg/vault/credential/azure"
@@ -14,7 +14,10 @@ import (
 	"kubevault.dev/operator/pkg/vault/credential/gcp"
 )
 
-func NewCredentialManagerForDatabase(kubeClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr dbcrd.Interface, dbAR *dbapi.DatabaseAccessRequest) (CredentialManager, error) {
+func NewCredentialManagerForDatabase(kubeClient kubernetes.Interface,
+	appClient appcat_cs.AppcatalogV1alpha1Interface,
+	cr dbcrd.Interface,
+	dbAR *dbapi.DatabaseAccessRequest) (CredentialManager, error) {
 	dbCM, err := database.NewDatabaseCredentialManager(kubeClient, appClient, cr, dbAR)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database credential manager")
@@ -26,7 +29,10 @@ func NewCredentialManagerForDatabase(kubeClient kubernetes.Interface, appClient 
 	}, nil
 }
 
-func NewCredentialManagerForAWS(kubeClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr vaultcrd.Interface, awsAKReq *engineapi.AWSAccessKeyRequest) (CredentialManager, error) {
+func NewCredentialManagerForAWS(kubeClient kubernetes.Interface,
+	appClient appcat_cs.AppcatalogV1alpha1Interface,
+	cr vaultcrd.Interface,
+	awsAKReq *engineapi.AWSAccessKeyRequest) (CredentialManager, error) {
 	awsCM, err := aws.NewAWSCredentialManager(kubeClient, appClient, cr, awsAKReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get aws credential manager")
@@ -38,7 +44,10 @@ func NewCredentialManagerForAWS(kubeClient kubernetes.Interface, appClient appca
 	}, nil
 }
 
-func NewCredentialManagerForGCP(kubeClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr vaultcrd.Interface, gcpAKReq *engineapi.GCPAccessKeyRequest) (CredentialManager, error) {
+func NewCredentialManagerForGCP(kubeClient kubernetes.Interface,
+	appClient appcat_cs.AppcatalogV1alpha1Interface,
+	cr vaultcrd.Interface,
+	gcpAKReq *engineapi.GCPAccessKeyRequest) (CredentialManager, error) {
 	gcpCM, err := gcp.NewGCPCredentialManager(kubeClient, appClient, cr, gcpAKReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get gcp credential manager")
@@ -50,7 +59,10 @@ func NewCredentialManagerForGCP(kubeClient kubernetes.Interface, appClient appca
 	}, nil
 }
 
-func NewCredentialManagerForAzure(kubeClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr vaultcrd.Interface, azureAKReq *engineapi.AzureAccessKeyRequest) (CredentialManager, error) {
+func NewCredentialManagerForAzure(kubeClient kubernetes.Interface,
+	appClient appcat_cs.AppcatalogV1alpha1Interface,
+	cr vaultcrd.Interface,
+	azureAKReq *engineapi.AzureAccessKeyRequest) (CredentialManager, error) {
 	azureCM, err := azure.NewAzureCredentialManager(kubeClient, appClient, cr, azureAKReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get azure credential manager")

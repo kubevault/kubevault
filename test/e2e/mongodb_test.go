@@ -11,7 +11,7 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	"kubevault.dev/operator/pkg/vault"
 	"kubevault.dev/operator/test/e2e/framework"
 )

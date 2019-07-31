@@ -61,7 +61,7 @@ func TestGCPRole_reconcileGCPRole(t *testing.T) {
 				Namespace: "demo",
 				Name:      "test-212321",
 			},
-			Config: &api.GCPConfig{
+			Config: &api.GCPConfiguration{
 				CredentialSecret: "gcp-cred-32134",
 			},
 			SecretType: "access_token",

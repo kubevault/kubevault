@@ -61,7 +61,7 @@ func TestAzureRole_reconcileAzureRole(t *testing.T) {
 				Namespace: "demo",
 				Name:      "test-212321",
 			},
-			Config: &api.AzureConfig{
+			Config: &api.AzureConfiguration{
 				CredentialSecret: "azure-cred",
 				Environment:      "AzurePublicCloud",
 			},

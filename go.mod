@@ -11,6 +11,7 @@ require (
 	github.com/codeskyblue/go-sh v0.0.0-20190412065543-76bd3d59ff27
 	github.com/coreos/prometheus-operator v0.31.1
 	github.com/evanphx/json-patch v4.5.0+incompatible
+	github.com/frankban/quicktest v1.4.0 // indirect
 	github.com/go-ini/ini v1.40.0 // indirect
 	github.com/go-openapi/spec v0.19.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
@@ -26,6 +27,7 @@ require (
 	github.com/ncw/swift v1.0.47
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
+	github.com/pierrec/lz4 v2.2.5+incompatible // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/spf13/afero v1.2.2
@@ -49,7 +51,6 @@ require (
 	kmodules.xyz/monitoring-agent-api v0.0.0-20190513065523-186af167f817
 	kmodules.xyz/offshoot-api v0.0.0-20190715115723-36c8fce142c1
 	kmodules.xyz/webhook-runtime v0.0.0-20190715115250-a84fbf77dd30
-	kubedb.dev/apimachinery v0.0.0-20190718012505-6973f90fefd0
 )
 
 replace (

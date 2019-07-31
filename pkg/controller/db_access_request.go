@@ -12,17 +12,17 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
-	"kubedb.dev/apimachinery/apis"
-	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
-	patchutil "kubedb.dev/apimachinery/client/clientset/versioned/typed/authorization/v1alpha1/util"
+	"kubevault.dev/operator/apis"
 	vsapis "kubevault.dev/operator/apis"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/credential"
 )
 
 const RequestFailed api.RequestConditionType = "Failed"
 
 func (c *VaultController) initDatabaseAccessWatcher() {
-	c.dbAccessInformer = c.dbInformerFactory.Authorization().V1alpha1().DatabaseAccessRequests().Informer()
+	c.dbAccessInformer = c.extInformerFactory.Engine().V1alpha1().DatabaseAccessRequests().Informer()
 	c.dbAccessQueue = queue.New(api.ResourceKindDatabaseAccessRequest, c.MaxNumRequeues, c.NumThreads, c.runDatabaseAccessRequestInjector)
 	c.dbAccessInformer.AddEventHandler(queue.NewEventHandler(c.dbAccessQueue.GetQueue(), func(oldObj, newObj interface{}) bool {
 		old := oldObj.(*api.DatabaseAccessRequest)
@@ -45,7 +45,7 @@ func (c *VaultController) initDatabaseAccessWatcher() {
 		}
 		return nu.GetDeletionTimestamp() != nil
 	}))
-	c.dbAccessLister = c.dbInformerFactory.Authorization().V1alpha1().DatabaseAccessRequests().Lister()
+	c.dbAccessLister = c.extInformerFactory.Engine().V1alpha1().DatabaseAccessRequests().Lister()
 }
 
 func (c *VaultController) runDatabaseAccessRequestInjector(key string) error {
@@ -70,7 +70,7 @@ func (c *VaultController) runDatabaseAccessRequestInjector(key string) error {
 		} else {
 			if !core_util.HasFinalizer(dbAccessReq.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
-				_, _, err = patchutil.PatchDatabaseAccessRequest(c.dbClient.AuthorizationV1alpha1(), dbAccessReq, func(binding *api.DatabaseAccessRequest) *api.DatabaseAccessRequest {
+				_, _, err = patchutil.PatchDatabaseAccessRequest(c.extClient.EngineV1alpha1(), dbAccessReq, func(binding *api.DatabaseAccessRequest) *api.DatabaseAccessRequest {
 					binding.ObjectMeta = core_util.AddFinalizer(binding.ObjectMeta, apis.Finalizer)
 					return binding
 				})
@@ -87,7 +87,7 @@ func (c *VaultController) runDatabaseAccessRequestInjector(key string) error {
 			}
 
 			if condType == api.AccessApproved {
-				dbCredManager, err := credential.NewCredentialManagerForDatabase(c.kubeClient, c.appCatalogClient, c.dbClient, dbAccessReq)
+				dbCredManager, err := credential.NewCredentialManagerForDatabase(c.kubeClient, c.appCatalogClient, c.extClient, dbAccessReq)
 				if err != nil {
 					return err
 				}
@@ -224,7 +224,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.Credent
 }
 
 func (c *VaultController) updateDatabaseAccessRequestStatus(status *api.DatabaseAccessRequestStatus, dbAReq *api.DatabaseAccessRequest) error {
-	_, err := patchutil.UpdateDatabaseAccessRequestStatus(c.dbClient.AuthorizationV1alpha1(), dbAReq, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
+	_, err := patchutil.UpdateDatabaseAccessRequestStatus(c.extClient.EngineV1alpha1(), dbAReq, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
 		s = status
 		return s
 	}, vsapis.EnableStatusSubresource)
@@ -266,7 +266,7 @@ func (c *VaultController) runDatabaseAccessRequestFinalizer(dbAReq *api.Database
 		}
 
 		if !finalizationDone {
-			d, err := credential.NewCredentialManagerForDatabase(c.kubeClient, c.appCatalogClient, c.dbClient, dbAReq)
+			d, err := credential.NewCredentialManagerForDatabase(c.kubeClient, c.appCatalogClient, c.extClient, dbAReq)
 			if err != nil {
 				glog.Errorf("DatabaseAccessRequest %s/%s finalizer: %v", dbAReq.Namespace, dbAReq.Name, err)
 			} else {
@@ -318,14 +318,14 @@ func (c *VaultController) finalizeDatabaseAccessRequest(dbCM credential.Credenti
 }
 
 func (c *VaultController) removeDatabaseAccessRequestFinalizer(dbAReq *api.DatabaseAccessRequest) error {
-	d, err := c.dbClient.AuthorizationV1alpha1().DatabaseAccessRequests(dbAReq.Namespace).Get(dbAReq.Name, metav1.GetOptions{})
+	d, err := c.extClient.EngineV1alpha1().DatabaseAccessRequests(dbAReq.Namespace).Get(dbAReq.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
 		return err
 	}
 
-	_, _, err = patchutil.PatchDatabaseAccessRequest(c.dbClient.AuthorizationV1alpha1(), d, func(in *api.DatabaseAccessRequest) *api.DatabaseAccessRequest {
+	_, _, err = patchutil.PatchDatabaseAccessRequest(c.extClient.EngineV1alpha1(), d, func(in *api.DatabaseAccessRequest) *api.DatabaseAccessRequest {
 		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, apis.Finalizer)
 		return in
 	})

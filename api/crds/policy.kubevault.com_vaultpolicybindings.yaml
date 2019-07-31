@@ -429,7 +429,7 @@ spec:
                 type: object
               type: array
             subjectRef:
-              description: SubjectRef refers Vault users who will be granted policies.
+              description: SubjectRef refers to Vault users who will be granted policies.
               properties:
                 kubernetes:
                   description: 'Kubernetes refers to Vault users who are authenticated

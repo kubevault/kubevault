@@ -29,12 +29,12 @@ type GCPRoleInterface interface {
 }
 
 func NewGCPRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.GCPRole) (GCPRoleInterface, error) {
-	vClient, err := vault.NewClient(kClient, appClient, role.Spec.Ref)
+	vClient, err := vault.NewClient(kClient, appClient, role.Spec.VaultRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault api client")
 	}
 
-	gcpPath, err := GetGCPPath(appClient, role.Spec.Ref)
+	gcpPath, err := GetGCPPath(appClient, role.Spec.VaultRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get gcp path")
 	}

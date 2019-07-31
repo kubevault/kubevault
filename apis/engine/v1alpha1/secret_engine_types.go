@@ -30,7 +30,7 @@ type SecretEngineSpec struct {
 	// +optional
 	Path string `json:"path,omitempty"`
 
-	SecretEngineConfig `json:",inline"`
+	SecretEngineConfiguration `json:",inline"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -43,15 +43,18 @@ type SecretEngineList struct {
 	Items []SecretEngine `json:"items, omitempty"`
 }
 
-type SecretEngineConfig struct {
-	AWS   *AWSConfig   `json:"aws,omitempty"`
-	Azure *AzureConfig `json:"azure,omitempty"`
-	GCP   *GCPConfig   `json:"gcp,omitempty"`
+type SecretEngineConfiguration struct {
+	AWS      *AWSConfiguration      `json:"aws,omitempty"`
+	Azure    *AzureConfiguration    `json:"azure,omitempty"`
+	GCP      *GCPConfiguration      `json:"gcp,omitempty"`
+	Postgres *PostgresConfiguration `json:"postgres,omitempty"`
+	MongoDB  *MongoDBConfiguration  `json:"mongodb,omitempty"`
+	MySQL    *MySQLConfiguration    `json:"mysql,omitempty"`
 }
 
 // https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials
-// AWSConfig contains information to communicate with AWS
-type AWSConfig struct {
+// AWSConfiguration contains information to communicate with AWS
+type AWSConfiguration struct {
 	// Specifies the secret containing AWS access key ID and secret access key
 	// secret.Data:
 	//	- access_key=<value>
@@ -87,8 +90,8 @@ type LeaseConfig struct {
 }
 
 // https://www.vaultproject.io/api/secret/gcp/index.html#write-config
-// GCPConfig contains information to communicate with GCP
-type GCPConfig struct {
+// GCPConfiguration contains information to communicate with GCP
+type GCPConfiguration struct {
 	// Specifies the secret containing GCP credentials
 	// secret.Data:
 	//	- sa.json
@@ -108,8 +111,8 @@ type GCPConfig struct {
 // ref:
 //	- https://www.vaultproject.io/api/secret/azure/index.html#configure-access
 
-// AzureConfig contains information to communicate with Azure
-type AzureConfig struct {
+// AzureConfiguration contains information to communicate with Azure
+type AzureConfiguration struct {
 
 	// Specifies the secret name containing Azure credentials
 	// secret.Data:
@@ -124,6 +127,76 @@ type AzureConfig struct {
 	// If not specified, Vault will use Azure Public Cloud.
 	// +optional
 	Environment string `json:"environment, omitempty"`
+}
+
+// PostgresConfiguration defines a PostgreSQL app configuration.
+// https://www.vaultproject.io/api/secret/databases/index.html
+// https://www.vaultproject.io/api/secret/databases/postgresql.html#configure-connection
+type PostgresConfiguration struct {
+	// Specifies the name of the plugin to use for this connection.
+	// Default plugin:
+	//	- for postgres: postgresql-database-plugin
+	PluginName string `json:"pluginName,omitempty"`
+
+	// List of the roles allowed to use this connection.
+	// Defaults to empty (no roles), if contains a "*" any role can use this connection.
+	AllowedRoles string `json:"allowedRoles,omitempty"`
+
+	// Specifies the maximum number of open connections to the database.
+	MaxOpenConnections int `json:"maxOpenConnections,omitempty"`
+
+	// Specifies the maximum number of idle connections to the database.
+	// A zero uses the value of max_open_connections and a negative value disables idle connections.
+	// If larger than max_open_connections it will be reduced to be equal.
+	MaxIdleConnections int `json:"maxIdleConnections,omitempty"`
+
+	// Specifies the maximum amount of time a connection may be reused.
+	// If <= 0s connections are reused forever.
+	MaxConnectionLifetime string `json:"maxConnectionLifetime,omitempty"`
+}
+
+// MongoDBConfiguration defines a MongoDB app configuration.
+// https://www.vaultproject.io/api/secret/databases/index.html
+// https://www.vaultproject.io/api/secret/databases/mongodb.html#configure-connection
+type MongoDBConfiguration struct {
+	// Specifies the name of the plugin to use for this connection.
+	// Default plugin:
+	//  - for mongodb: mongodb-database-plugin
+	PluginName string `json:"pluginName,omitempty"`
+
+	// List of the roles allowed to use this connection.
+	// Defaults to empty (no roles), if contains a "*" any role can use this connection.
+	AllowedRoles string `json:"allowedRoles,omitempty"`
+
+	// Specifies the MongoDB write concern. This is set for the entirety
+	// of the session, maintained for the lifecycle of the plugin process.
+	WriteConcern string `json:"writeConcern,omitempty"`
+}
+
+// MySQLConfiguration defines a MySQL app configuration.
+// https://www.vaultproject.io/api/secret/databases/index.html
+// https://www.vaultproject.io/api/secret/databases/mysql-maria.html#configure-connection
+type MySQLConfiguration struct {
+	// Specifies the name of the plugin to use for this connection.
+	// Default plugin:
+	//  - for mysql: mysql-database-plugin
+	PluginName string `json:"pluginName,omitempty"`
+
+	// List of the roles allowed to use this connection.
+	// Defaults to empty (no roles), if contains a "*" any role can use this connection.
+	AllowedRoles string `json:"allowedRoles,omitempty"`
+
+	// Specifies the maximum number of open connections to the database.
+	MaxOpenConnections int `json:"maxOpenConnections,omitempty"`
+
+	// Specifies the maximum number of idle connections to the database.
+	// A zero uses the value of max_open_connections and a negative value disables idle connections.
+	// If larger than max_open_connections it will be reduced to be equal.
+	MaxIdleConnections int `json:"maxIdleConnections,omitempty"`
+
+	// Specifies the maximum amount of time a connection may be reused.
+	// If <= 0s connections are reused forever.
+	MaxConnectionLifetime string `json:"maxConnectionLifetime,omitempty"`
 }
 
 type SecretEnginePhase string

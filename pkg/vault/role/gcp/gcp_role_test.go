@@ -52,7 +52,7 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 						Name:       "vault-app",
 						Parameters: nil,
 					},
-					Config: &api.GCPConfig{
+					Config: &api.GCPConfiguration{
 						CredentialSecret: "gcp-cred",
 					},
 					SecretType: "access_token",
@@ -105,7 +105,7 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 						Name:       "vault-app",
 						Parameters: nil,
 					},
-					Config: &api.GCPConfig{
+					Config: &api.GCPConfiguration{
 						CredentialSecret: "gcp-cred",
 					},
 					SecretType:  "access_token",
@@ -130,7 +130,7 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 						Name:       "vault-app",
 						Parameters: nil,
 					},
-					Config: &api.GCPConfig{
+					Config: &api.GCPConfiguration{
 						CredentialSecret: "gcp-cred",
 					},
 					SecretType: "access_token",

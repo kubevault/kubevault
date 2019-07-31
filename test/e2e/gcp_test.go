@@ -187,7 +187,7 @@ var _ = Describe("GCP Role", func() {
 				},
 				Spec: api.GCPRoleSpec{
 					Ref: f.VaultAppRef,
-					Config: &api.GCPConfig{
+					Config: &api.GCPConfiguration{
 						CredentialSecret: gcpCredSecret,
 					},
 					SecretType: "access_token",
@@ -298,7 +298,7 @@ var _ = Describe("GCP Role", func() {
 				},
 				Spec: api.GCPRoleSpec{
 					Ref: f.VaultAppRef,
-					Config: &api.GCPConfig{
+					Config: &api.GCPConfiguration{
 						CredentialSecret: gcpCredSecret,
 					},
 					SecretType: "access_token",

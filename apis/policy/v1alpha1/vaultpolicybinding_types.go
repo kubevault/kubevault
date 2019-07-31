@@ -44,7 +44,7 @@ type VaultPolicyBindingSpec struct {
 	// Policies is a list of Vault policy identifiers.
 	Policies []PolicyIdentifier `json:"policies"`
 
-	// SubjectRef refers Vault users who will be granted policies.
+	// SubjectRef refers to Vault users who will be granted policies.
 	SubjectRef `json:"subjectRef"`
 }
 

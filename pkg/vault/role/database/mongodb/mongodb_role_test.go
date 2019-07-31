@@ -14,8 +14,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
-	configapi "kubedb.dev/apimachinery/apis/config/v1alpha1"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	configapi "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
 func setupVaultServer() *httptest.Server {

@@ -201,7 +201,7 @@ func TestAzureRole_CreateConfig(t *testing.T) {
 						Namespace: "demo",
 					},
 					Spec: api.AzureRoleSpec{
-						Config: &api.AzureConfig{
+						Config: &api.AzureConfiguration{
 							CredentialSecret: "azure-cred1",
 							Environment:      "",
 						},
@@ -222,7 +222,7 @@ func TestAzureRole_CreateConfig(t *testing.T) {
 						Namespace: "demo",
 					},
 					Spec: api.AzureRoleSpec{
-						Config: &api.AzureConfig{
+						Config: &api.AzureConfiguration{
 							CredentialSecret: "azure-cred1",
 							Environment:      "",
 						},
@@ -243,7 +243,7 @@ func TestAzureRole_CreateConfig(t *testing.T) {
 						Namespace: "demo",
 					},
 					Spec: api.AzureRoleSpec{
-						Config: &api.AzureConfig{
+						Config: &api.AzureConfiguration{
 							CredentialSecret: "azure-cred2",
 							Environment:      "",
 						},
@@ -264,7 +264,7 @@ func TestAzureRole_CreateConfig(t *testing.T) {
 						Namespace: "demo",
 					},
 					Spec: api.AzureRoleSpec{
-						Config: &api.AzureConfig{
+						Config: &api.AzureConfiguration{
 							CredentialSecret: "azure-cred3",
 							Environment:      "",
 						},
@@ -285,7 +285,7 @@ func TestAzureRole_CreateConfig(t *testing.T) {
 						Namespace: "demo",
 					},
 					Spec: api.AzureRoleSpec{
-						Config: &api.AzureConfig{
+						Config: &api.AzureConfiguration{
 							CredentialSecret: "unknown-cred",
 							Environment:      "",
 						},

@@ -13,10 +13,10 @@ import (
 	core_util "kmodules.xyz/client-go/core/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
-	"kubedb.dev/apimachinery/apis"
-	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
-	patchutil "kubedb.dev/apimachinery/client/clientset/versioned/typed/authorization/v1alpha1/util"
+	"kubevault.dev/operator/apis"
 	vsapis "kubevault.dev/operator/apis"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/database"
 )
 
@@ -28,10 +28,10 @@ const (
 )
 
 func (c *VaultController) initMongoDBRoleWatcher() {
-	c.mgRoleInformer = c.dbInformerFactory.Authorization().V1alpha1().MongoDBRoles().Informer()
+	c.mgRoleInformer = c.extInformerFactory.Engine().V1alpha1().MongoDBRoles().Informer()
 	c.mgRoleQueue = queue.New(api.ResourceKindMongoDBRole, c.MaxNumRequeues, c.NumThreads, c.runMongoDBRoleInjector)
 	c.mgRoleInformer.AddEventHandler(queue.NewObservableHandler(c.mgRoleQueue.GetQueue(), apis.EnableStatusSubresource))
-	c.mgRoleLister = c.dbInformerFactory.Authorization().V1alpha1().MongoDBRoles().Lister()
+	c.mgRoleLister = c.extInformerFactory.Engine().V1alpha1().MongoDBRoles().Lister()
 }
 
 func (c *VaultController) runMongoDBRoleInjector(key string) error {
@@ -56,7 +56,7 @@ func (c *VaultController) runMongoDBRoleInjector(key string) error {
 		} else {
 			if !core_util.HasFinalizer(mRole.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchMongoDBRole(c.dbClient.AuthorizationV1alpha1(), mRole, func(role *api.MongoDBRole) *api.MongoDBRole {
+				_, _, err := patchutil.PatchMongoDBRole(c.extClient.EngineV1alpha1(), mRole, func(role *api.MongoDBRole) *api.MongoDBRole {
 					role.ObjectMeta = core_util.AddFinalizer(role.ObjectMeta, apis.Finalizer)
 					return role
 				})
@@ -157,7 +157,7 @@ func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleIn
 }
 
 func (c *VaultController) updatedMongoDBRoleStatus(status *api.MongoDBRoleStatus, mRole *api.MongoDBRole) error {
-	_, err := patchutil.UpdateMongoDBRoleStatus(c.dbClient.AuthorizationV1alpha1(), mRole, func(s *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
+	_, err := patchutil.UpdateMongoDBRoleStatus(c.extClient.EngineV1alpha1(), mRole, func(s *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
 		s = status
 		return s
 	}, vsapis.EnableStatusSubresource)
@@ -252,7 +252,7 @@ func (c *VaultController) finalizeMongoDBRole(dbRClient database.DatabaseRoleInt
 }
 
 func (c *VaultController) removeMongoDBRoleFinalizer(mRole *api.MongoDBRole) error {
-	m, err := c.dbClient.AuthorizationV1alpha1().MongoDBRoles(mRole.Namespace).Get(mRole.Name, metav1.GetOptions{})
+	m, err := c.extClient.EngineV1alpha1().MongoDBRoles(mRole.Namespace).Get(mRole.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
@@ -260,7 +260,7 @@ func (c *VaultController) removeMongoDBRoleFinalizer(mRole *api.MongoDBRole) err
 	}
 
 	// remove finalizer
-	_, _, err = patchutil.PatchMongoDBRole(c.dbClient.AuthorizationV1alpha1(), m, func(role *api.MongoDBRole) *api.MongoDBRole {
+	_, _, err = patchutil.PatchMongoDBRole(c.extClient.EngineV1alpha1(), m, func(role *api.MongoDBRole) *api.MongoDBRole {
 		role.ObjectMeta = core_util.RemoveFinalizer(role.ObjectMeta, apis.Finalizer)
 		return role
 	})

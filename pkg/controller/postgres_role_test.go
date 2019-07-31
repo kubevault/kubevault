@@ -14,9 +14,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
-	dbfake "kubedb.dev/apimachinery/client/clientset/versioned/fake"
-	dbinformers "kubedb.dev/apimachinery/client/informers/externalversions"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	dbfake "kubevault.dev/operator/client/clientset/versioned/fake"
+	dbinformers "kubevault.dev/operator/client/informers/externalversions"
 	"kubevault.dev/operator/pkg/vault/role/database"
 )
 
@@ -157,9 +157,9 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 				kubeClient: kfake.NewSimpleClientset(),
 				dbClient:   dbfake.NewSimpleClientset(),
 			}
-			c.dbInformerFactory = dbinformers.NewSharedInformerFactory(c.dbClient, time.Minute*10)
+			c.extInformerFactory = dbinformers.NewSharedInformerFactory(c.extClient, time.Minute*10)
 
-			_, err := c.dbClient.AuthorizationV1alpha1().PostgresRoles(test.pRole.Namespace).Create(&test.pRole)
+			_, err := c.extClient.EngineV1alpha1().PostgresRoles(test.pRole.Namespace).Create(&test.pRole)
 			if !assert.Nil(t, err) {
 				return
 			}
@@ -168,7 +168,7 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 			if test.expectedErr {
 				if assert.NotNil(t, err) {
 					if test.hasStatusCondition {
-						p, err2 := c.dbClient.AuthorizationV1alpha1().PostgresRoles(test.pRole.Namespace).Get(test.pRole.Name, metav1.GetOptions{})
+						p, err2 := c.extClient.EngineV1alpha1().PostgresRoles(test.pRole.Namespace).Get(test.pRole.Name, metav1.GetOptions{})
 						if assert.Nil(t, err2) {
 							assert.Condition(t, func() (success bool) {
 								if len(p.Status.Conditions) == 0 {
@@ -181,7 +181,7 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 				}
 			} else {
 				if assert.Nil(t, err) {
-					p, err2 := c.dbClient.AuthorizationV1alpha1().PostgresRoles(test.pRole.Namespace).Get(test.pRole.Name, metav1.GetOptions{})
+					p, err2 := c.extClient.EngineV1alpha1().PostgresRoles(test.pRole.Namespace).Get(test.pRole.Name, metav1.GetOptions{})
 					if assert.Nil(t, err2) {
 						assert.Condition(t, func() (success bool) {
 							if len(p.Status.Conditions) != 0 {

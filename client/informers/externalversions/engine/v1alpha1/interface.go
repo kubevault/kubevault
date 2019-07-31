@@ -32,10 +32,18 @@ type Interface interface {
 	AzureAccessKeyRequests() AzureAccessKeyRequestInformer
 	// AzureRoles returns a AzureRoleInformer.
 	AzureRoles() AzureRoleInformer
+	// DatabaseAccessRequests returns a DatabaseAccessRequestInformer.
+	DatabaseAccessRequests() DatabaseAccessRequestInformer
 	// GCPAccessKeyRequests returns a GCPAccessKeyRequestInformer.
 	GCPAccessKeyRequests() GCPAccessKeyRequestInformer
 	// GCPRoles returns a GCPRoleInformer.
 	GCPRoles() GCPRoleInformer
+	// MongoDBRoles returns a MongoDBRoleInformer.
+	MongoDBRoles() MongoDBRoleInformer
+	// MySQLRoles returns a MySQLRoleInformer.
+	MySQLRoles() MySQLRoleInformer
+	// PostgresRoles returns a PostgresRoleInformer.
+	PostgresRoles() PostgresRoleInformer
 	// SecretEngines returns a SecretEngineInformer.
 	SecretEngines() SecretEngineInformer
 }
@@ -71,6 +79,11 @@ func (v *version) AzureRoles() AzureRoleInformer {
 	return &azureRoleInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
+// DatabaseAccessRequests returns a DatabaseAccessRequestInformer.
+func (v *version) DatabaseAccessRequests() DatabaseAccessRequestInformer {
+	return &databaseAccessRequestInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
 // GCPAccessKeyRequests returns a GCPAccessKeyRequestInformer.
 func (v *version) GCPAccessKeyRequests() GCPAccessKeyRequestInformer {
 	return &gCPAccessKeyRequestInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
@@ -79,6 +92,21 @@ func (v *version) GCPAccessKeyRequests() GCPAccessKeyRequestInformer {
 // GCPRoles returns a GCPRoleInformer.
 func (v *version) GCPRoles() GCPRoleInformer {
 	return &gCPRoleInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// MongoDBRoles returns a MongoDBRoleInformer.
+func (v *version) MongoDBRoles() MongoDBRoleInformer {
+	return &mongoDBRoleInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// MySQLRoles returns a MySQLRoleInformer.
+func (v *version) MySQLRoles() MySQLRoleInformer {
+	return &mySQLRoleInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// PostgresRoles returns a PostgresRoleInformer.
+func (v *version) PostgresRoles() PostgresRoleInformer {
+	return &postgresRoleInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // SecretEngines returns a SecretEngineInformer.

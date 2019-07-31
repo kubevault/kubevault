@@ -13,7 +13,6 @@ import (
 	"kmodules.xyz/client-go/logs"
 	"kmodules.xyz/client-go/tools/cli"
 	appcatscheme "kmodules.xyz/custom-resources/client/clientset/versioned/scheme"
-	dbscheme "kubedb.dev/apimachinery/client/clientset/versioned/scheme"
 	"kubevault.dev/operator/client/clientset/versioned/scheme"
 )
 
@@ -28,7 +27,6 @@ func NewRootCmd() *cobra.Command {
 
 			scheme.AddToScheme(clientsetscheme.Scheme)
 			appcatscheme.AddToScheme(clientsetscheme.Scheme)
-			dbscheme.AddToScheme(clientsetscheme.Scheme)
 			scheme.AddToScheme(legacyscheme.Scheme)
 		},
 	}

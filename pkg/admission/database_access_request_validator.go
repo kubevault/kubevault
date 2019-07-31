@@ -9,7 +9,7 @@ import (
 	"k8s.io/client-go/rest"
 	meta_util "kmodules.xyz/client-go/meta"
 	hookapi "kmodules.xyz/webhook-runtime/admission/v1beta1"
-	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
 const (

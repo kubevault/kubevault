@@ -3,7 +3,7 @@ package v1alpha1
 import (
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
-	"kubedb.dev/apimachinery/apis"
+	"kubevault.dev/operator/apis"
 )
 
 func (d AWSAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {

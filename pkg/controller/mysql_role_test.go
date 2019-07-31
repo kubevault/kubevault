@@ -13,9 +13,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
-	dbfake "kubedb.dev/apimachinery/client/clientset/versioned/fake"
-	dbinformers "kubedb.dev/apimachinery/client/informers/externalversions"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	dbfake "kubevault.dev/operator/client/clientset/versioned/fake"
+	dbinformers "kubevault.dev/operator/client/informers/externalversions"
 	"kubevault.dev/operator/pkg/vault/role/database"
 )
 
@@ -121,9 +121,9 @@ func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 				kubeClient: kfake.NewSimpleClientset(),
 				dbClient:   dbfake.NewSimpleClientset(),
 			}
-			c.dbInformerFactory = dbinformers.NewSharedInformerFactory(c.dbClient, time.Minute*10)
+			c.extInformerFactory = dbinformers.NewSharedInformerFactory(c.extClient, time.Minute*10)
 
-			_, err := c.dbClient.AuthorizationV1alpha1().MySQLRoles(test.mRole.Namespace).Create(&test.mRole)
+			_, err := c.extClient.EngineV1alpha1().MySQLRoles(test.mRole.Namespace).Create(&test.mRole)
 			if !assert.Nil(t, err) {
 				return
 			}
@@ -132,7 +132,7 @@ func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 			if test.expectedErr {
 				if assert.NotNil(t, err) {
 					if test.hasStatusCondition {
-						p, err2 := c.dbClient.AuthorizationV1alpha1().MySQLRoles(test.mRole.Namespace).Get(test.mRole.Name, metav1.GetOptions{})
+						p, err2 := c.extClient.EngineV1alpha1().MySQLRoles(test.mRole.Namespace).Get(test.mRole.Name, metav1.GetOptions{})
 						if assert.Nil(t, err2) {
 							assert.Condition(t, func() (success bool) {
 								if len(p.Status.Conditions) == 0 {
@@ -145,7 +145,7 @@ func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 				}
 			} else {
 				if assert.Nil(t, err) {
-					p, err2 := c.dbClient.AuthorizationV1alpha1().MySQLRoles(test.mRole.Namespace).Get(test.mRole.Name, metav1.GetOptions{})
+					p, err2 := c.extClient.EngineV1alpha1().MySQLRoles(test.mRole.Namespace).Get(test.mRole.Name, metav1.GetOptions{})
 					if assert.Nil(t, err2) {
 						assert.Condition(t, func() (success bool) {
 							if len(p.Status.Conditions) != 0 {

@@ -18,12 +18,6 @@ import (
 	"kmodules.xyz/client-go/tools/queue"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	dbapis "kubedb.dev/apimachinery/apis"
-	dbapi "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
-	db_cs "kubedb.dev/apimachinery/client/clientset/versioned"
-	dbinformers "kubedb.dev/apimachinery/client/informers/externalversions"
-	dblisters "kubedb.dev/apimachinery/client/listers/authorization/v1alpha1"
-	"kubevault.dev/operator/apis"
 	catalogapi "kubevault.dev/operator/apis/catalog/v1alpha1"
 	engineapi "kubevault.dev/operator/apis/engine/v1alpha1"
 	vaultapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
@@ -45,7 +39,6 @@ type VaultController struct {
 
 	kubeClient       kubernetes.Interface
 	extClient        cs.Interface
-	dbClient         db_cs.Interface
 	appCatalogClient appcat_cs.AppcatalogV1alpha1Interface
 	crdClient        crd_cs.ApiextensionsV1beta1Interface
 	recorder         record.EventRecorder
@@ -54,7 +47,6 @@ type VaultController struct {
 
 	kubeInformerFactory informers.SharedInformerFactory
 	extInformerFactory  vaultinformers.SharedInformerFactory
-	dbInformerFactory   dbinformers.SharedInformerFactory
 
 	// for VaultServer
 	vsQueue    *queue.Worker
@@ -74,17 +66,17 @@ type VaultController struct {
 	// PostgresRole
 	pgRoleQueue    *queue.Worker
 	pgRoleInformer cache.SharedIndexInformer
-	pgRoleLister   dblisters.PostgresRoleLister
+	pgRoleLister   engine_listers.PostgresRoleLister
 
 	// MySQLRole
 	myRoleQueue    *queue.Worker
 	myRoleInformer cache.SharedIndexInformer
-	myRoleLister   dblisters.MySQLRoleLister
+	myRoleLister   engine_listers.MySQLRoleLister
 
 	// MongoDBRole
 	mgRoleQueue    *queue.Worker
 	mgRoleInformer cache.SharedIndexInformer
-	mgRoleLister   dblisters.MongoDBRoleLister
+	mgRoleLister   engine_listers.MongoDBRoleLister
 
 	// AWSRole
 	awsRoleQueue    *queue.Worker
@@ -94,7 +86,7 @@ type VaultController struct {
 	// DatabaseAccessRequest
 	dbAccessQueue    *queue.Worker
 	dbAccessInformer cache.SharedIndexInformer
-	dbAccessLister   dblisters.DatabaseAccessRequestLister
+	dbAccessLister   engine_listers.DatabaseAccessRequestLister
 
 	// AWSAccessKeyRequest
 	awsAccessQueue    *queue.Worker
@@ -130,24 +122,22 @@ type VaultController struct {
 }
 
 func (c *VaultController) ensureCustomResourceDefinitions() error {
-	dbapis.EnableStatusSubresource = apis.EnableStatusSubresource
-
 	crds := []*crd_api.CustomResourceDefinition{
 		vaultapi.VaultServer{}.CustomResourceDefinition(),
 		catalogapi.VaultServerVersion{}.CustomResourceDefinition(),
 		policyapi.VaultPolicy{}.CustomResourceDefinition(),
 		policyapi.VaultPolicyBinding{}.CustomResourceDefinition(),
 		appcat.AppBinding{}.CustomResourceDefinition(),
-		dbapi.PostgresRole{}.CustomResourceDefinition(),
-		dbapi.MySQLRole{}.CustomResourceDefinition(),
-		dbapi.MongoDBRole{}.CustomResourceDefinition(),
-		dbapi.DatabaseAccessRequest{}.CustomResourceDefinition(),
-		engineapi.AWSRole{}.CustomResourceDefinition(),
 		engineapi.AWSAccessKeyRequest{}.CustomResourceDefinition(),
-		engineapi.GCPRole{}.CustomResourceDefinition(),
-		engineapi.GCPAccessKeyRequest{}.CustomResourceDefinition(),
-		engineapi.AzureRole{}.CustomResourceDefinition(),
+		engineapi.AWSRole{}.CustomResourceDefinition(),
 		engineapi.AzureAccessKeyRequest{}.CustomResourceDefinition(),
+		engineapi.AzureRole{}.CustomResourceDefinition(),
+		engineapi.DatabaseAccessRequest{}.CustomResourceDefinition(),
+		engineapi.GCPAccessKeyRequest{}.CustomResourceDefinition(),
+		engineapi.GCPRole{}.CustomResourceDefinition(),
+		engineapi.MongoDBRole{}.CustomResourceDefinition(),
+		engineapi.MySQLRole{}.CustomResourceDefinition(),
+		engineapi.PostgresRole{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }
@@ -174,14 +164,6 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 
 	c.extInformerFactory.Start(stopCh)
 	for _, v := range c.extInformerFactory.WaitForCacheSync(stopCh) {
-		if !v {
-			runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
-			return
-		}
-	}
-
-	c.dbInformerFactory.Start(stopCh)
-	for _, v := range c.dbInformerFactory.WaitForCacheSync(stopCh) {
 		if !v {
 			runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
 			return

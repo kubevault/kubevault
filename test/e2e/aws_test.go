@@ -167,7 +167,7 @@ var _ = Describe("AWS role", func() {
 							  ]
 							}
 						`,
-					Config: &api.AWSConfig{
+					Config: &api.AWSConfiguration{
 						CredentialSecret: awsCredSecret,
 						Region:           "us-east-1",
 						LeaseConfig: &api.LeaseConfig{
@@ -275,7 +275,7 @@ var _ = Describe("AWS role", func() {
 							  ]
 							}
 						`,
-					Config: &api.AWSConfig{
+					Config: &api.AWSConfiguration{
 						CredentialSecret: awsCredSecret,
 						Region:           "us-east-1",
 						LeaseConfig: &api.LeaseConfig{
