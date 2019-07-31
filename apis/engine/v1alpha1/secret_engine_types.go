@@ -2,9 +2,8 @@ package v1alpha1
 
 import (
 	"github.com/appscode/go/encoding/json/types"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/kubernetes/pkg/apis/core"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 // +genclient
@@ -23,8 +22,9 @@ type SecretEngine struct {
 }
 
 type SecretEngineSpec struct {
-	Ref    appcat.AppReference `json:"ref,omitempty"`
-	Config *SecretEngineConfig `json:"config"`
+	Ref                core.LocalObjectReference `json:"ref,omitempty"`
+	SecretEngineConfig `json:",inline"`
+	SecretEnginePath   string `json:"secretEnginePath",omitempty`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

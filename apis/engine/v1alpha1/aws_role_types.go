@@ -5,7 +5,6 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 const (
@@ -41,7 +40,9 @@ const (
 
 // AWSRoleSpec contains connection information, AWS role info, etc
 type AWSRoleSpec struct {
-	Ref *appcat.AppReference `json:"ref,omitempty"`
+	SecretEngineName core.LocalObjectReference `json:"secretEngineName"`
+
+	SecretEnginePath string `json:"secretEnginePath",omitempty`
 
 	// links:
 	// 	- https://www.vaultproject.io/api/secret/aws/index.html

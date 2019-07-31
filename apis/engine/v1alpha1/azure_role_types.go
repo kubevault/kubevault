@@ -4,7 +4,6 @@ import (
 	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 const (
@@ -39,7 +38,9 @@ const (
 
 // AzureRoleSpec contains connection information, Azure role info, etc
 type AzureRoleSpec struct {
-	Ref *appcat.AppReference `json:"ref,omitempty"`
+	SecretEngineName core.LocalObjectReference `json:"secretEngineName"`
+
+	SecretEnginePath string `json:"secretEnginePath",omitempty`
 
 	// ref:
 	// - https://www.vaultproject.io/api/secret/azure/index.html#parameters

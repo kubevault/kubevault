@@ -4,7 +4,6 @@ import (
 	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 const (
@@ -37,7 +36,9 @@ const (
 
 // GCPRoleSpec contains connection information, GCP role info, etc
 type GCPRoleSpec struct {
-	Ref *appcat.AppReference `json:"ref,omitempty"`
+	SecretEngineName core.LocalObjectReference `json:"secretEngineName"`
+
+	SecretEnginePath string `json:"secretEnginePath",omitempty`
 
 	// links:
 	// 	- https://www.vaultproject.io/api/secret/gcp/index.html#parameters-1
