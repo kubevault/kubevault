@@ -22,7 +22,7 @@ type SecretEngine struct {
 }
 
 type SecretEngineSpec struct {
-	Ref                core.LocalObjectReference `json:"ref,omitempty"`
+	Ref                core.LocalObjectReference `json:"ref"`
 	SecretEngineConfig `json:",inline"`
 	SecretEnginePath   string `json:"secretEnginePath",omitempty`
 }

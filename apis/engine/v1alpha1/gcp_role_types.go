@@ -36,7 +36,7 @@ const (
 
 // GCPRoleSpec contains connection information, GCP role info, etc
 type GCPRoleSpec struct {
-	SecretEngineName core.LocalObjectReference `json:"secretEngineName"`
+	SecretEngineRef core.LocalObjectReference `json:"secretEngineRef"`
 
 	SecretEnginePath string `json:"secretEnginePath",omitempty`
 

@@ -38,7 +38,7 @@ const (
 
 // AzureRoleSpec contains connection information, Azure role info, etc
 type AzureRoleSpec struct {
-	SecretEngineName core.LocalObjectReference `json:"secretEngineName"`
+	SecretEngineRef core.LocalObjectReference `json:"secretEngineRef"`
 
 	SecretEnginePath string `json:"secretEnginePath",omitempty`
 

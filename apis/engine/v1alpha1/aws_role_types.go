@@ -40,7 +40,7 @@ const (
 
 // AWSRoleSpec contains connection information, AWS role info, etc
 type AWSRoleSpec struct {
-	SecretEngineName core.LocalObjectReference `json:"secretEngineName"`
+	SecretEngineRef core.LocalObjectReference `json:"secretEngineRef"`
 
 	SecretEnginePath string `json:"secretEnginePath",omitempty`
 
