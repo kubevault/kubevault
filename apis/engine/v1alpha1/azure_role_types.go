@@ -39,8 +39,7 @@ const (
 
 // AzureRoleSpec contains connection information, Azure role info, etc
 type AzureRoleSpec struct {
-	Ref    *appcat.AppReference `json:"ref,omitempty"`
-	Config *AzureConfig         `json:"config"`
+	Ref *appcat.AppReference `json:"ref,omitempty"`
 
 	// ref:
 	// - https://www.vaultproject.io/api/secret/azure/index.html#parameters
@@ -74,27 +73,6 @@ type AzureRoleList struct {
 
 	// Items is a list of AzureRole objects
 	Items []AzureRole `json:"items, omitempty"`
-}
-
-// ref:
-//	- https://www.vaultproject.io/api/secret/azure/index.html#configure-access
-
-// AzureConfig contains information to communicate with Azure
-type AzureConfig struct {
-
-	// Specifies the secret name containing Azure credentials
-	// secret.Data:
-	// 	- subscription-id: <value>, The subscription id for the Azure Active Directory.
-	//	- tenant-id: <value>, The tenant id for the Azure Active Directory.
-	//	- client-id: <value>, The OAuth2 client id to connect to Azure.
-	//	- client-secret: <value>, The OAuth2 client secret to connect to Azure.
-	// +required
-	CredentialSecret string `json:"credentialSecret"`
-
-	// The Azure environment.
-	// If not specified, Vault will use Azure Public Cloud.
-	// +optional
-	Environment string `json:"environment, omitempty"`
 }
 
 type AzureRolePhase string

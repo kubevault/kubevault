@@ -39,8 +39,6 @@ const (
 type GCPRoleSpec struct {
 	Ref *appcat.AppReference `json:"ref,omitempty"`
 
-	Config *GCPConfig `json:"config"`
-
 	// links:
 	// 	- https://www.vaultproject.io/api/secret/gcp/index.html#parameters-1
 
@@ -75,25 +73,6 @@ type GCPRoleList struct {
 const (
 	GCPSACredentialJson = "sa.json"
 )
-
-// https://www.vaultproject.io/api/secret/gcp/index.html#write-config
-// GCPConfig contains information to communicate with GCP
-type GCPConfig struct {
-	// Specifies the secret containing GCP credentials
-	// secret.Data:
-	//	- sa.json
-	CredentialSecret string `json:"credentialSecret"`
-
-	// Specifies default config TTL for long-lived credentials
-	// (i.e. service account keys).
-	// +optional
-	TTL string `json:"ttl,omitempty"`
-
-	// Specifies the maximum config TTL for long-lived
-	// credentials (i.e. service account keys).
-	// +optional
-	MaxTTL string `json:"maxTTL,omitempty"`
-}
 
 type GCPRolePhase string
 

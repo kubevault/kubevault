@@ -43,8 +43,6 @@ const (
 type AWSRoleSpec struct {
 	Ref *appcat.AppReference `json:"ref,omitempty"`
 
-	Config *AWSConfig `json:"config"`
-
 	// links:
 	// 	- https://www.vaultproject.io/api/secret/aws/index.html
 
@@ -95,43 +93,6 @@ const (
 	AWSCredentialAccessKeyKey = "access_key"
 	AWSCredentialSecretKeyKey = "secret_key"
 )
-
-// https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials
-// AWSConfig contains information to communicate with AWS
-type AWSConfig struct {
-	// Specifies the secret containing AWS access key ID and secret access key
-	// secret.Data:
-	//	- access_key=<value>
-	//  - secret_key=<value>
-	CredentialSecret string `json:"credentialSecret"`
-
-	// Specifies the AWS region
-	Region string `json:"region"`
-
-	// Specifies a custom HTTP IAM enminidpoint to use
-	IAMEndpoint string `json:"iamEndpoint,omitempty"`
-
-	//Specifies a custom HTTP STS endpoint to use
-	STSEndpoint string `json:"stsEndpoint,omitempty"`
-
-	// Number of max retries the client should use for recoverable errors.
-	// The default (-1) falls back to the AWS SDK's default behavior
-	MaxRetries *int `json:"maxRetries,omitempty"`
-
-	LeaseConfig *LeaseConfig `json:"leaseConfig,omitempty"`
-}
-
-// https://www.vaultproject.io/api/secret/aws/index.html#configure-lease
-// LeaseConfig contains lease configuration
-type LeaseConfig struct {
-	// Specifies the lease value provided as a string duration with time suffix.
-	// "h" (hour) is the largest suffix.
-	Lease string `json:"lease"`
-
-	// Specifies the maximum lease value provided as a string duration with time suffix.
-	// "h" (hour) is the largest suffix
-	LeaseMax string `json:"leaseMax"`
-}
 
 type AWSRolePhase string
 
