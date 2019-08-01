@@ -5,7 +5,6 @@ import (
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
@@ -72,41 +71,41 @@ func (a *GCPRole) CreateConfig() error {
 		return errors.New("gcp engine path is empty")
 	}
 
-	path := fmt.Sprintf("/v1/%s/config", a.gcpPath)
-	req := a.vaultClient.NewRequest("POST", path)
-
-	payload := map[string]interface{}{}
-	cfg := a.gcpRole.Spec.Config
-	if cfg == nil {
-		return errors.New("gcp secret engine config is nil")
-	}
-	if cfg.TTL != "" {
-		payload["ttl"] = cfg.TTL
-	}
-	if cfg.MaxTTL != "" {
-		payload["max_ttl"] = cfg.MaxTTL
-	}
-
-	if cfg.CredentialSecret != "" {
-		sr, err := a.kubeClient.CoreV1().Secrets(a.gcpRole.Namespace).Get(cfg.CredentialSecret, metav1.GetOptions{})
-		if err != nil {
-			return errors.Wrap(err, "failed to get gcp credential secret")
-		}
-
-		if val, ok := sr.Data[api.GCPSACredentialJson]; ok {
-			payload["credentials"] = string(val)
-		}
-
-	}
-
-	if err := req.SetJSONBody(payload); err != nil {
-		return errors.Wrap(err, "failed to load payload in config create request")
-	}
-
-	_, err := a.vaultClient.RawRequest(req)
-	if err != nil {
-		return errors.Wrap(err, "failed to create gcp config")
-	}
+	//path := fmt.Sprintf("/v1/%s/config", a.gcpPath)
+	//req := a.vaultClient.NewRequest("POST", path)
+	//
+	//payload := map[string]interface{}{}
+	//cfg := a.gcpRole.Spec.Config
+	//if cfg == nil {
+	//	return errors.New("gcp secret engine config is nil")
+	//}
+	//if cfg.TTL != "" {
+	//	payload["ttl"] = cfg.TTL
+	//}
+	//if cfg.MaxTTL != "" {
+	//	payload["max_ttl"] = cfg.MaxTTL
+	//}
+	//
+	//if cfg.CredentialSecret != "" {
+	//	sr, err := a.kubeClient.CoreV1().Secrets(a.gcpRole.Namespace).Get(cfg.CredentialSecret, metav1.GetOptions{})
+	//	if err != nil {
+	//		return errors.Wrap(err, "failed to get gcp credential secret")
+	//	}
+	//
+	//	if val, ok := sr.Data[api.GCPSACredentialJson]; ok {
+	//		payload["credentials"] = string(val)
+	//	}
+	//
+	//}
+	//
+	//if err := req.SetJSONBody(payload); err != nil {
+	//	return errors.Wrap(err, "failed to load payload in config create request")
+	//}
+	//
+	//_, err := a.vaultClient.RawRequest(req)
+	//if err != nil {
+	//	return errors.Wrap(err, "failed to create gcp config")
+	//}
 	return nil
 }
 

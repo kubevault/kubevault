@@ -5,7 +5,6 @@ import (
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
@@ -73,41 +72,41 @@ func (a *AzureRole) CreateConfig() error {
 	req := a.vaultClient.NewRequest("POST", path)
 
 	payload := map[string]interface{}{}
-	cfg := a.azureRole.Spec.Config
-	if cfg == nil {
-		return errors.New("azure secret engine config is nil")
-	}
-
-	if cfg.CredentialSecret != "" {
-		sr, err := a.kubeClient.CoreV1().Secrets(a.azureRole.Namespace).Get(cfg.CredentialSecret, metav1.GetOptions{})
-		if err != nil {
-			return errors.Wrap(err, "failed to get azure credential secret")
-		}
-
-		if val, ok := sr.Data[api.AzureSubscriptionID]; ok && len(val) > 0 {
-			payload["subscription_id"] = string(val)
-		} else {
-			return errors.New("azure secret engine configuration failed: subscription id missing")
-		}
-
-		if val, ok := sr.Data[api.AzureTenantID]; ok && len(val) > 0 {
-			payload["tenant_id"] = string(val)
-		} else {
-			return errors.New("azure secret engine configuration failed: tenant id missing")
-		}
-
-		if val, ok := sr.Data[api.AzureClientID]; ok && len(val) > 0 {
-			payload["client_id"] = string(val)
-		}
-
-		if val, ok := sr.Data[api.AzureClientSecret]; ok && len(val) > 0 {
-			payload["client_secret"] = string(val)
-		}
-	}
-
-	if cfg.Environment != "" {
-		payload["environment"] = cfg.Environment
-	}
+	//cfg := a.azureRole.Spec.Config
+	//if cfg == nil {
+	//	return errors.New("azure secret engine config is nil")
+	//}
+	//
+	//if cfg.CredentialSecret != "" {
+	//	sr, err := a.kubeClient.CoreV1().Secrets(a.azureRole.Namespace).Get(cfg.CredentialSecret, metav1.GetOptions{})
+	//	if err != nil {
+	//		return errors.Wrap(err, "failed to get azure credential secret")
+	//	}
+	//
+	//	if val, ok := sr.Data[api.AzureSubscriptionID]; ok && len(val) > 0 {
+	//		payload["subscription_id"] = string(val)
+	//	} else {
+	//		return errors.New("azure secret engine configuration failed: subscription id missing")
+	//	}
+	//
+	//	if val, ok := sr.Data[api.AzureTenantID]; ok && len(val) > 0 {
+	//		payload["tenant_id"] = string(val)
+	//	} else {
+	//		return errors.New("azure secret engine configuration failed: tenant id missing")
+	//	}
+	//
+	//	if val, ok := sr.Data[api.AzureClientID]; ok && len(val) > 0 {
+	//		payload["client_id"] = string(val)
+	//	}
+	//
+	//	if val, ok := sr.Data[api.AzureClientSecret]; ok && len(val) > 0 {
+	//		payload["client_secret"] = string(val)
+	//	}
+	//}
+	//
+	//if cfg.Environment != "" {
+	//	payload["environment"] = cfg.Environment
+	//}
 
 	if err := req.SetJSONBody(payload); err != nil {
 		return errors.Wrap(err, "failed to load payload in config create request")

@@ -86,46 +86,9 @@ func (c *VaultController) runMySQLRoleInjector(key string) error {
 //	  - revoke previous lease of all the respective mysqlRoleBinding and reissue a new lease
 func (c *VaultController) reconcileMySQLRole(dbRClient database.DatabaseRoleInterface, myRole *api.MySQLRole) error {
 	status := myRole.Status
-	// enable the database secrets engine if it is not already enabled
-	err := dbRClient.EnableDatabase()
-	if err != nil {
-		status.Conditions = []api.MySQLRoleCondition{
-			{
-				Type:    "Available",
-				Status:  corev1.ConditionFalse,
-				Reason:  "FailedToEnableDatabase",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatedMySQLRoleStatus(&status, myRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to enable database secret engine")
-	}
-
-	// create database config for mysql
-	err = dbRClient.CreateConfig()
-	if err != nil {
-		status.Conditions = []api.MySQLRoleCondition{
-			{
-				Type:    "Available",
-				Status:  corev1.ConditionFalse,
-				Reason:  "FailedToCreateDatabaseConfig",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatedMySQLRoleStatus(&status, myRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to create database connection config")
-	}
 
 	// create role
-	err = dbRClient.CreateRole()
+	err := dbRClient.CreateRole()
 	if err != nil {
 		status.Conditions = []api.MySQLRoleCondition{
 			{

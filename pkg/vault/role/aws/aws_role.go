@@ -6,7 +6,6 @@ import (
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
@@ -67,68 +66,68 @@ func (a *AWSRole) CreateConfig() error {
 		return errors.New("aws engine path is empty")
 	}
 
-	path := fmt.Sprintf("/v1/%s/config/root", a.awsPath)
-	req := a.vaultClient.NewRequest("POST", path)
-
-	payload := map[string]interface{}{}
-	cfg := a.awsRole.Spec.Config
-	if cfg == nil {
-		return errors.New("aws secret engine config is nil")
-	}
-	if cfg.MaxRetries != nil {
-		payload["max_retries"] = *cfg.MaxRetries
-	}
-	if cfg.Region != "" {
-		payload["region"] = cfg.Region
-	}
-	if cfg.IAMEndpoint != "" {
-		payload["iam_endpoint"] = cfg.IAMEndpoint
-	}
-	if cfg.STSEndpoint != "" {
-		payload["sts_endpoint"] = cfg.STSEndpoint
-	}
-
-	if cfg.CredentialSecret != "" {
-		sr, err := a.kubeClient.CoreV1().Secrets(a.awsRole.Namespace).Get(cfg.CredentialSecret, metav1.GetOptions{})
-		if err != nil {
-			return errors.Wrap(err, "failed to get aws credential secret")
-		}
-
-		if val, ok := sr.Data[api.AWSCredentialAccessKeyKey]; ok {
-			payload["access_key"] = string(val)
-		}
-		if val, ok := sr.Data[api.AWSCredentialSecretKeyKey]; ok {
-			payload["secret_key"] = string(val)
-		}
-	}
-
-	if err := req.SetJSONBody(payload); err != nil {
-		return errors.Wrap(err, "failed to load payload in config create request")
-	}
-
-	_, err := a.vaultClient.RawRequest(req)
-	if err != nil {
-		return errors.Wrap(err, "failed to create aws config")
-	}
-
-	// set lease config
-	if cfg.LeaseConfig != nil {
-		path := fmt.Sprintf("/v1/%s/config/lease", a.awsPath)
-		req := a.vaultClient.NewRequest("POST", path)
-
-		payload := map[string]interface{}{
-			"lease":     cfg.LeaseConfig.Lease,
-			"lease_max": cfg.LeaseConfig.LeaseMax,
-		}
-		if err := req.SetJSONBody(payload); err != nil {
-			return errors.Wrap(err, "failed to load payload in create lease config request")
-		}
-
-		_, err := a.vaultClient.RawRequest(req)
-		if err != nil {
-			return errors.Wrap(err, "failed to create aws lease config")
-		}
-	}
+	//path := fmt.Sprintf("/v1/%s/config/root", a.awsPath)
+	//req := a.vaultClient.NewRequest("POST", path)
+	//
+	//payload := map[string]interface{}{}
+	//cfg := a.awsRole.Spec.Config
+	//if cfg == nil {
+	//	return errors.New("aws secret engine config is nil")
+	//}
+	//if cfg.MaxRetries != nil {
+	//	payload["max_retries"] = *cfg.MaxRetries
+	//}
+	//if cfg.Region != "" {
+	//	payload["region"] = cfg.Region
+	//}
+	//if cfg.IAMEndpoint != "" {
+	//	payload["iam_endpoint"] = cfg.IAMEndpoint
+	//}
+	//if cfg.STSEndpoint != "" {
+	//	payload["sts_endpoint"] = cfg.STSEndpoint
+	//}
+	//
+	//if cfg.CredentialSecret != "" {
+	//	sr, err := a.kubeClient.CoreV1().Secrets(a.awsRole.Namespace).Get(cfg.CredentialSecret, metav1.GetOptions{})
+	//	if err != nil {
+	//		return errors.Wrap(err, "failed to get aws credential secret")
+	//	}
+	//
+	//	if val, ok := sr.Data[api.AWSCredentialAccessKeyKey]; ok {
+	//		payload["access_key"] = string(val)
+	//	}
+	//	if val, ok := sr.Data[api.AWSCredentialSecretKeyKey]; ok {
+	//		payload["secret_key"] = string(val)
+	//	}
+	//}
+	//
+	//if err := req.SetJSONBody(payload); err != nil {
+	//	return errors.Wrap(err, "failed to load payload in config create request")
+	//}
+	//
+	//_, err := a.vaultClient.RawRequest(req)
+	//if err != nil {
+	//	return errors.Wrap(err, "failed to create aws config")
+	//}
+	//
+	//// set lease config
+	//if cfg.LeaseConfig != nil {
+	//	path := fmt.Sprintf("/v1/%s/config/lease", a.awsPath)
+	//	req := a.vaultClient.NewRequest("POST", path)
+	//
+	//	payload := map[string]interface{}{
+	//		"lease":     cfg.LeaseConfig.Lease,
+	//		"lease_max": cfg.LeaseConfig.LeaseMax,
+	//	}
+	//	if err := req.SetJSONBody(payload); err != nil {
+	//		return errors.Wrap(err, "failed to load payload in create lease config request")
+	//	}
+	//
+	//	_, err := a.vaultClient.RawRequest(req)
+	//	if err != nil {
+	//		return errors.Wrap(err, "failed to create aws lease config")
+	//	}
+	//}
 	return nil
 }
 

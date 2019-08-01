@@ -28,18 +28,18 @@ type MongoDBRole struct {
 }
 
 func NewMongoDBRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, v *vaultapi.Client, mdbRole *api.MongoDBRole, databasePath string) (*MongoDBRole, error) {
-	ref := mdbRole.Spec.DatabaseRef
-	dbBinding, err := appClient.AppBindings(mdbRole.Namespace).Get(ref.Name, metav1.GetOptions{})
+	dbRef := mdbRole.Spec.DatabaseRef
+	dbBinding, err := appClient.AppBindings(dbRef.Namespace).Get(dbRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	secretRef := dbBinding.Spec.Secret
-	if secretRef == nil {
+	dbSecretRef := dbBinding.Spec.Secret
+	if dbSecretRef == nil {
 		return nil, errors.New("database secret is not provided")
 	}
 
-	sr, err := kClient.CoreV1().Secrets(mdbRole.Namespace).Get(secretRef.Name, metav1.GetOptions{})
+	sr, err := kClient.CoreV1().Secrets(dbRef.Namespace).Get(dbSecretRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database secret")
 	}

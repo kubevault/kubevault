@@ -86,46 +86,9 @@ func (c *VaultController) runAWSRoleInjector(key string) error {
 //    - sync role
 func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, awsRole *api.AWSRole) error {
 	status := awsRole.Status
-	// enable the aws secrets engine if it is not already enabled
-	err := awsRClient.EnableAWS()
-	if err != nil {
-		status.Conditions = []api.AWSRoleCondition{
-			{
-				Type:    AWSRoleConditionFailed,
-				Status:  corev1.ConditionTrue,
-				Reason:  "FailedToEnableAWS",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatedAWSRoleStatus(&status, awsRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to enable aws secret engine")
-	}
-
-	// create aws config
-	err = awsRClient.CreateConfig()
-	if err != nil {
-		status.Conditions = []api.AWSRoleCondition{
-			{
-				Type:    AWSRoleConditionFailed,
-				Status:  corev1.ConditionTrue,
-				Reason:  "FailedToCreateAWSConfig",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatedAWSRoleStatus(&status, awsRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to create aws connection config")
-	}
 
 	// create role
-	err = awsRClient.CreateRole()
+	err := awsRClient.CreateRole()
 	if err != nil {
 		status.Conditions = []api.AWSRoleCondition{
 			{

@@ -15,7 +15,6 @@ import (
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
-	dbfake "kubevault.dev/operator/client/clientset/versioned/fake"
 	dbinformers "kubevault.dev/operator/client/informers/externalversions"
 	"kubevault.dev/operator/pkg/vault/role/database"
 )
@@ -77,10 +76,10 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 			Generation: 0,
 		},
 		Spec: api.PostgresRoleSpec{
-			DatabaseRef: &corev1.LocalObjectReference{
+			VaultRef: corev1.LocalObjectReference{},
+			DatabaseRef: appcat.AppReference{
 				Name: "test",
 			},
-			AuthManagerRef: &appcat.AppReference{},
 		},
 	}
 
@@ -155,7 +154,7 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 		t.Run(test.testName, func(t *testing.T) {
 			c := &VaultController{
 				kubeClient: kfake.NewSimpleClientset(),
-				dbClient:   dbfake.NewSimpleClientset(),
+				// TODO: need a fake client
 			}
 			c.extInformerFactory = dbinformers.NewSharedInformerFactory(c.extClient, time.Minute*10)
 

@@ -8,6 +8,8 @@ import (
 	"kubevault.dev/operator/apis"
 )
 
+const DefaultMongoDBDatabasePlugin = "mongodb-database-plugin"
+
 func (r MongoDBRole) RoleName() string {
 	cluster := "-"
 	if r.ClusterName != "" {
@@ -43,4 +45,14 @@ func (r MongoDBRole) CustomResourceDefinition() *apiextensions.CustomResourceDef
 
 func (r MongoDBRole) IsValid() error {
 	return nil
+}
+
+func (m *MongoDBConfiguration) SetDefaults() {
+	if m == nil {
+		return
+	}
+
+	if m.PluginName == "" {
+		m.PluginName = DefaultMongoDBDatabasePlugin
+	}
 }

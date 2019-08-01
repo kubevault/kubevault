@@ -8,6 +8,8 @@ import (
 	"kubevault.dev/operator/apis"
 )
 
+const DefaultPostgresDatabasePlugin = "postgresql-database-plugin"
+
 func (r PostgresRole) RoleName() string {
 	cluster := "-"
 	if r.ClusterName != "" {
@@ -43,4 +45,14 @@ func (r PostgresRole) CustomResourceDefinition() *apiextensions.CustomResourceDe
 
 func (r PostgresRole) IsValid() error {
 	return nil
+}
+
+func (p *PostgresConfiguration) SetDefaults() {
+	if p == nil {
+		return
+	}
+
+	if p.PluginName == "" {
+		p.PluginName = DefaultPostgresDatabasePlugin
+	}
 }

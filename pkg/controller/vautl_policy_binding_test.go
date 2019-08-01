@@ -43,7 +43,11 @@ func simpleVaultPolicyBinding() *policyapi.VaultPolicyBinding {
 func validVaultPolicyBinding(policyName string) *policyapi.VaultPolicyBinding {
 	p := simpleVaultPolicyBinding()
 	p.Name = "valid"
-	p.Spec.Policies = []string{policyName}
+	p.Spec.Policies = []policyapi.PolicyIdentifier{
+		{
+			Name: policyName,
+		},
+	}
 	return p
 }
 

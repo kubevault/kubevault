@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	opfake "kubevault.dev/operator/client/clientset/versioned/fake"
 	"kubevault.dev/operator/pkg/vault/role/gcp"
@@ -57,12 +57,8 @@ func TestGCPRole_reconcileGCPRole(t *testing.T) {
 			Namespace: "demo",
 		},
 		Spec: api.GCPRoleSpec{
-			Ref: &appcat.AppReference{
-				Namespace: "demo",
-				Name:      "test-212321",
-			},
-			Config: &api.GCPConfiguration{
-				CredentialSecret: "gcp-cred-32134",
+			VaultRef: core.LocalObjectReference{
+				Name: "test-212321",
 			},
 			SecretType: "access_token",
 			Project:    "ackube",

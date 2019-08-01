@@ -86,46 +86,9 @@ func (c *VaultController) runPostgresRoleInjector(key string) error {
 //	  - revoke previous lease of all the respective postgresRoleBinding and reissue a new lease
 func (c *VaultController) reconcilePostgresRole(dbRClient database.DatabaseRoleInterface, pgRole *api.PostgresRole) error {
 	status := pgRole.Status
-	// enable the database secrets engine if it is not already enabled
-	err := dbRClient.EnableDatabase()
-	if err != nil {
-		status.Conditions = []api.PostgresRoleCondition{
-			{
-				Type:    "Available",
-				Status:  corev1.ConditionFalse,
-				Reason:  "FailedToEnableDatabase",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatePostgresRoleStatus(&status, pgRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to enable database secret engine")
-	}
-
-	// create database config for postgres
-	err = dbRClient.CreateConfig()
-	if err != nil {
-		status.Conditions = []api.PostgresRoleCondition{
-			{
-				Type:    "Available",
-				Status:  corev1.ConditionFalse,
-				Reason:  "FailedToCreateDatabaseConnectionConfig",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatePostgresRoleStatus(&status, pgRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to created database connection config")
-	}
 
 	// create role
-	err = dbRClient.CreateRole()
+	err := dbRClient.CreateRole()
 	if err != nil {
 		status.Conditions = []api.PostgresRoleCondition{
 			{

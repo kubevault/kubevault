@@ -8,6 +8,8 @@ import (
 	"kubevault.dev/operator/apis"
 )
 
+const DefaultMySQLDatabasePlugin = "mysql-database-plugin"
+
 func (r MySQLRole) RoleName() string {
 	cluster := "-"
 	if r.ClusterName != "" {
@@ -43,4 +45,14 @@ func (r MySQLRole) CustomResourceDefinition() *apiextensions.CustomResourceDefin
 
 func (r MySQLRole) IsValid() error {
 	return nil
+}
+
+func (m *MySQLConfiguration) SetDefaults() {
+	if m == nil {
+		return
+	}
+
+	if m.PluginName == "" {
+		m.PluginName = DefaultMySQLDatabasePlugin
+	}
 }

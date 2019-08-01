@@ -3,6 +3,7 @@ package vault
 import (
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -11,12 +12,9 @@ import (
 	vaultutil "kubevault.dev/operator/pkg/vault/util"
 )
 
-func NewClient(kc kubernetes.Interface, appc appcat_cs.AppcatalogV1alpha1Interface, vAppRef *appcat.AppReference) (*vaultapi.Client, error) {
-	if vAppRef == nil {
-		return nil, errors.New(".spec.vaultAppRef is nil")
-	}
+func NewClient(kc kubernetes.Interface, appc appcat_cs.AppcatalogV1alpha1Interface, namespace string, vAppRef core.LocalObjectReference) (*vaultapi.Client, error) {
 
-	vApp, err := appc.AppBindings(vAppRef.Namespace).Get(vAppRef.Name, metav1.GetOptions{})
+	vApp, err := appc.AppBindings(namespace).Get(vAppRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}

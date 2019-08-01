@@ -88,46 +88,9 @@ func (c *VaultController) runMongoDBRoleInjector(key string) error {
 //	  - revoke previous lease of all the respective mongodbRoleBinding and reissue a new lease
 func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleInterface, mgRole *api.MongoDBRole) error {
 	status := mgRole.Status
-	// enable the database secrets engine if it is not already enabled
-	err := dbRClient.EnableDatabase()
-	if err != nil {
-		status.Conditions = []api.MongoDBRoleCondition{
-			{
-				Type:    MongoDBRoleConditionFailed,
-				Status:  corev1.ConditionTrue,
-				Reason:  "FailedToEnableDatabase",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatedMongoDBRoleStatus(&status, mgRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to enable database secret engine")
-	}
-
-	// create database config for Mongodb
-	err = dbRClient.CreateConfig()
-	if err != nil {
-		status.Conditions = []api.MongoDBRoleCondition{
-			{
-				Type:    MongoDBRoleConditionFailed,
-				Status:  corev1.ConditionTrue,
-				Reason:  "FailedToCreateDatabaseConfig",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatedMongoDBRoleStatus(&status, mgRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to create database connection config")
-	}
 
 	// create role
-	err = dbRClient.CreateRole()
+	err := dbRClient.CreateRole()
 	if err != nil {
 		status.Conditions = []api.MongoDBRoleCondition{
 			{

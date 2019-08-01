@@ -86,46 +86,9 @@ func (c *VaultController) runAzureRoleInjector(key string) error {
 //    - sync role
 func (c *VaultController) reconcileAzureRole(azureRClient azure.AzureRoleInterface, azureRole *api.AzureRole) error {
 	status := azureRole.Status
-	// enable the azure secrets engine if it is not already enabled
-	err := azureRClient.EnableAzure()
-	if err != nil {
-		status.Conditions = []api.AzureRoleCondition{
-			{
-				Type:    AzureRoleConditionFailed,
-				Status:  core.ConditionTrue,
-				Reason:  "FailedToEnableAzure",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatedAzureRoleStatus(&status, azureRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to enable azure secret engine")
-	}
-
-	// create azure config
-	err = azureRClient.CreateConfig()
-	if err != nil {
-		status.Conditions = []api.AzureRoleCondition{
-			{
-				Type:    AzureRoleConditionFailed,
-				Status:  core.ConditionTrue,
-				Reason:  "FailedToCreateAzureConfig",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatedAzureRoleStatus(&status, azureRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to create azure connection config")
-	}
 
 	// create role
-	err = azureRClient.CreateRole()
+	err := azureRClient.CreateRole()
 	if err != nil {
 		status.Conditions = []api.AzureRoleCondition{
 			{
