@@ -5,6 +5,7 @@ import (
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -28,41 +29,54 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 	if len(pBind.Spec.Policies) == 0 {
 		return nil, errors.New(".spec.policies must be non empty")
 	}
-
-	pb := &pBinding{
-		saNames:      pBind.Spec.ServiceAccountNames,
-		saNamespaces: pBind.Spec.ServiceAccountNamespaces,
-		ttl:          pBind.Spec.TTL,
-		maxTTL:       pBind.Spec.MaxTTL,
-		period:       pBind.Spec.Period,
-		path:         pBind.Spec.Path,
+	pb := &pBinding{}
+	if pBind.Spec.Kubernetes != nil {
+		pb.saNames = pBind.Spec.Kubernetes.ServiceAccountNames
+		pb.saNamespaces = pBind.Spec.Kubernetes.ServiceAccountNamespaces
+		pb.ttl = pBind.Spec.Kubernetes.TTL
+		pb.maxTTL = pBind.Spec.Kubernetes.MaxTTL
+		pb.period = pBind.Spec.Kubernetes.Period
+		pb.path = pBind.Spec.Kubernetes.Path
+		pb.setKubernetesDefaults()
 	}
-	pb.setDefaults()
 
-	var vaultRef *appcat.AppReference
+	var vaultRef core.LocalObjectReference
 	// check whether VaultPolicy exists
-	for _, pName := range pBind.Spec.Policies {
-		plcy, err := c.PolicyV1alpha1().VaultPolicies(pBind.Namespace).Get(pName, metav1.GetOptions{})
-		if err != nil {
-			return nil, errors.Wrap(err, "for .spec.policies")
-		}
-		if vaultRef == nil {
-			// take vault connection reference from policy
-			vaultRef = plcy.Spec.VaultRef
-		} else {
-			// all policy should refer the same vault
-			vr := plcy.Spec.VaultRef
-			if vr == nil || vr.Name != vaultRef.Name || vr.Namespace != vaultRef.Namespace {
-				return nil, errors.New("all policy should refer the same vault")
+	for _, pIdentifier := range pBind.Spec.Policies {
+		var policyName string
+		if pIdentifier.Ref != "" {
+			// pIdentifier.Ref species the policy crd name
+			policy, err := c.PolicyV1alpha1().VaultPolicies(pBind.Namespace).Get(pIdentifier.Ref, metav1.GetOptions{})
+			if err != nil {
+				return nil, errors.Wrap(err, "for .spec.policies")
 			}
+			if vaultRef.Name == "" {
+				// take vault connection reference from policy
+				vaultRef = policy.Spec.VaultRef
+			} else {
+				// all policy should refer the same vault
+				vr := policy.Spec.VaultRef
+				if vr.Name != vaultRef.Name {
+					return nil, errors.New("all policy should refer the same vault")
+				}
+			}
+			policyName = policy.PolicyName()
+		} else {
+			// pIdentifier.Name specifies the vault policy name
+			// If anyone wants to access a policy crd through this field
+			// they need to follow the naming format: k8s.<cluster_name>.<namespace_name>.<policy_name>
+			policyName = pIdentifier.Name
 		}
-		// add vault policy name
-		// VaultPolicy.PolicyName() is used to create policy in vault
-		pb.policies = append(pb.policies, plcy.PolicyName())
+
+		pb.policies = append(pb.policies, policyName)
 	}
 
 	var err error
-	pb.vClient, err = vault.NewClient(kc, appc, vaultRef)
+	vAppRef := &appcat.AppReference{
+		Namespace: pBind.Namespace,
+		Name:      vaultRef.Name,
+	}
+	pb.vClient, err = vault.NewClient(kc, appc, vAppRef)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +94,7 @@ type pBinding struct {
 	path         string
 }
 
-func (p *pBinding) setDefaults() {
+func (p *pBinding) setKubernetesDefaults() {
 	if p.path == "" {
 		p.path = "kubernetes"
 	}

@@ -16,7 +16,7 @@ import (
 	cs "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1"
 )
 
-func CreateOrPatchMySQLRole(c cs.AuthorizationV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.MySQLRole) *api.MySQLRole) (*api.MySQLRole, kutil.VerbType, error) {
+func CreateOrPatchMySQLRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.MySQLRole) *api.MySQLRole) (*api.MySQLRole, kutil.VerbType, error) {
 	cur, err := c.MySQLRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		glog.V(3).Infof("Creating MySQLRole %s/%s.", meta.Namespace, meta.Name)
@@ -34,11 +34,11 @@ func CreateOrPatchMySQLRole(c cs.AuthorizationV1alpha1Interface, meta metav1.Obj
 	return PatchMySQLRole(c, cur, transform)
 }
 
-func PatchMySQLRole(c cs.AuthorizationV1alpha1Interface, cur *api.MySQLRole, transform func(*api.MySQLRole) *api.MySQLRole) (*api.MySQLRole, kutil.VerbType, error) {
+func PatchMySQLRole(c cs.EngineV1alpha1Interface, cur *api.MySQLRole, transform func(*api.MySQLRole) *api.MySQLRole) (*api.MySQLRole, kutil.VerbType, error) {
 	return PatchMySQLRoleObject(c, cur, transform(cur.DeepCopy()))
 }
 
-func PatchMySQLRoleObject(c cs.AuthorizationV1alpha1Interface, cur, mod *api.MySQLRole) (*api.MySQLRole, kutil.VerbType, error) {
+func PatchMySQLRoleObject(c cs.EngineV1alpha1Interface, cur, mod *api.MySQLRole) (*api.MySQLRole, kutil.VerbType, error) {
 	curJson, err := json.Marshal(cur)
 	if err != nil {
 		return nil, kutil.VerbUnchanged, err
@@ -61,7 +61,7 @@ func PatchMySQLRoleObject(c cs.AuthorizationV1alpha1Interface, cur, mod *api.MyS
 	return out, kutil.VerbPatched, err
 }
 
-func TryUpdateMySQLRole(c cs.AuthorizationV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.MySQLRole) *api.MySQLRole) (result *api.MySQLRole, err error) {
+func TryUpdateMySQLRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.MySQLRole) *api.MySQLRole) (result *api.MySQLRole, err error) {
 	attempt := 0
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
@@ -83,7 +83,7 @@ func TryUpdateMySQLRole(c cs.AuthorizationV1alpha1Interface, meta metav1.ObjectM
 }
 
 func UpdateMySQLRoleStatus(
-	c cs.AuthorizationV1alpha1Interface,
+	c cs.EngineV1alpha1Interface,
 	in *api.MySQLRole,
 	transform func(*api.MySQLRoleStatus) *api.MySQLRoleStatus,
 	useSubresource ...bool,

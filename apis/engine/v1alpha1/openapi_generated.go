@@ -18356,8 +18356,15 @@ func schema_operator_apis_engine_v1alpha1_RoleRef(ref common.ReferenceCallback) 
 							Format:      "",
 						},
 					},
+					"namespace": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Namespace is the namespace of the resource being referenced",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
-				Required: []string{"apiGroup", "kind", "name"},
+				Required: []string{"apiGroup", "kind", "name", "namespace"},
 			},
 		},
 	}

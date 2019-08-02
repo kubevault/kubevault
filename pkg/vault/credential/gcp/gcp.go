@@ -54,7 +54,11 @@ func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*appcat.AppReference
 	if err != nil {
 		return nil, "", "", errors.Wrapf(err, "GCPRole %s/%s", ref.Namespace, ref.Name)
 	}
-	return r.Spec.VaultRef, r.RoleName(), r.Spec.SecretType, nil
+	vAppRef := &appcat.AppReference{
+		Namespace: r.Namespace,
+		Name:      r.Spec.VaultRef.Name,
+	}
+	return vAppRef, r.RoleName(), r.Spec.SecretType, nil
 }
 
 func (d *GCPCredManager) ParseCredential(credSecret *vaultapi.Secret) (map[string][]byte, error) {

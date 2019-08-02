@@ -16,7 +16,7 @@ import (
 	cs "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1"
 )
 
-func CreateOrPatchPostgresRole(c cs.AuthorizationV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.PostgresRole) *api.PostgresRole) (*api.PostgresRole, kutil.VerbType, error) {
+func CreateOrPatchPostgresRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.PostgresRole) *api.PostgresRole) (*api.PostgresRole, kutil.VerbType, error) {
 	cur, err := c.PostgresRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		glog.V(3).Infof("Creating PostgresRole %s/%s.", meta.Namespace, meta.Name)
@@ -34,11 +34,11 @@ func CreateOrPatchPostgresRole(c cs.AuthorizationV1alpha1Interface, meta metav1.
 	return PatchPostgresRole(c, cur, transform)
 }
 
-func PatchPostgresRole(c cs.AuthorizationV1alpha1Interface, cur *api.PostgresRole, transform func(*api.PostgresRole) *api.PostgresRole) (*api.PostgresRole, kutil.VerbType, error) {
+func PatchPostgresRole(c cs.EngineV1alpha1Interface, cur *api.PostgresRole, transform func(*api.PostgresRole) *api.PostgresRole) (*api.PostgresRole, kutil.VerbType, error) {
 	return PatchPostgresRoleObject(c, cur, transform(cur.DeepCopy()))
 }
 
-func PatchPostgresRoleObject(c cs.AuthorizationV1alpha1Interface, cur, mod *api.PostgresRole) (*api.PostgresRole, kutil.VerbType, error) {
+func PatchPostgresRoleObject(c cs.EngineV1alpha1Interface, cur, mod *api.PostgresRole) (*api.PostgresRole, kutil.VerbType, error) {
 	curJson, err := json.Marshal(cur)
 	if err != nil {
 		return nil, kutil.VerbUnchanged, err
@@ -61,7 +61,7 @@ func PatchPostgresRoleObject(c cs.AuthorizationV1alpha1Interface, cur, mod *api.
 	return out, kutil.VerbPatched, err
 }
 
-func TryUpdatePostgresRole(c cs.AuthorizationV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.PostgresRole) *api.PostgresRole) (result *api.PostgresRole, err error) {
+func TryUpdatePostgresRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.PostgresRole) *api.PostgresRole) (result *api.PostgresRole, err error) {
 	attempt := 0
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
@@ -83,7 +83,7 @@ func TryUpdatePostgresRole(c cs.AuthorizationV1alpha1Interface, meta metav1.Obje
 }
 
 func UpdatePostgresRoleStatus(
-	c cs.AuthorizationV1alpha1Interface,
+	c cs.EngineV1alpha1Interface,
 	in *api.PostgresRole,
 	transform func(*api.PostgresRoleStatus) *api.PostgresRoleStatus,
 	useSubresource ...bool,

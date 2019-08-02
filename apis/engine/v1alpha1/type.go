@@ -12,6 +12,8 @@ type RoleRef struct {
 	Kind string `json:"kind"`
 	// Name is the name of resource being referenced
 	Name string `json:"name"`
+	// Namespace is the namespace of the resource being referenced
+	Namespace string `json:"namespace"`
 }
 
 type RequestConditionType string

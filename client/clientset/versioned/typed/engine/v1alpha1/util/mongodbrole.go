@@ -16,7 +16,7 @@ import (
 	cs "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1"
 )
 
-func CreateOrPatchMongoDBRole(c cs.AuthorizationV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.MongoDBRole) *api.MongoDBRole) (*api.MongoDBRole, kutil.VerbType, error) {
+func CreateOrPatchMongoDBRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.MongoDBRole) *api.MongoDBRole) (*api.MongoDBRole, kutil.VerbType, error) {
 	cur, err := c.MongoDBRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		glog.V(3).Infof("Creating MongoDBRole %s/%s.", meta.Namespace, meta.Name)
@@ -34,11 +34,11 @@ func CreateOrPatchMongoDBRole(c cs.AuthorizationV1alpha1Interface, meta metav1.O
 	return PatchMongoDBRole(c, cur, transform)
 }
 
-func PatchMongoDBRole(c cs.AuthorizationV1alpha1Interface, cur *api.MongoDBRole, transform func(*api.MongoDBRole) *api.MongoDBRole) (*api.MongoDBRole, kutil.VerbType, error) {
+func PatchMongoDBRole(c cs.EngineV1alpha1Interface, cur *api.MongoDBRole, transform func(*api.MongoDBRole) *api.MongoDBRole) (*api.MongoDBRole, kutil.VerbType, error) {
 	return PatchMongoDBRoleObject(c, cur, transform(cur.DeepCopy()))
 }
 
-func PatchMongoDBRoleObject(c cs.AuthorizationV1alpha1Interface, cur, mod *api.MongoDBRole) (*api.MongoDBRole, kutil.VerbType, error) {
+func PatchMongoDBRoleObject(c cs.EngineV1alpha1Interface, cur, mod *api.MongoDBRole) (*api.MongoDBRole, kutil.VerbType, error) {
 	curJson, err := json.Marshal(cur)
 	if err != nil {
 		return nil, kutil.VerbUnchanged, err
@@ -61,7 +61,7 @@ func PatchMongoDBRoleObject(c cs.AuthorizationV1alpha1Interface, cur, mod *api.M
 	return out, kutil.VerbPatched, err
 }
 
-func TryUpdateMongoDBRole(c cs.AuthorizationV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.MongoDBRole) *api.MongoDBRole) (result *api.MongoDBRole, err error) {
+func TryUpdateMongoDBRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.MongoDBRole) *api.MongoDBRole) (result *api.MongoDBRole, err error) {
 	attempt := 0
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
@@ -83,7 +83,7 @@ func TryUpdateMongoDBRole(c cs.AuthorizationV1alpha1Interface, meta metav1.Objec
 }
 
 func UpdateMongoDBRoleStatus(
-	c cs.AuthorizationV1alpha1Interface,
+	c cs.EngineV1alpha1Interface,
 	in *api.MongoDBRole,
 	transform func(*api.MongoDBRoleStatus) *api.MongoDBRoleStatus,
 	useSubresource ...bool,

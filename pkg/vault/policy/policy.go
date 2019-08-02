@@ -4,6 +4,7 @@ import (
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	"k8s.io/client-go/kubernetes"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/policy/v1alpha1"
 	"kubevault.dev/operator/pkg/vault"
@@ -22,8 +23,11 @@ func NewPolicyClientForVault(kc kubernetes.Interface, appc appcat_cs.AppcatalogV
 	if p == nil {
 		return nil, errors.New("VaultPolicy is nil")
 	}
-
-	vc, err := vault.NewClient(kc, appc, p.Spec.VaultRef)
+	vAppRef := &appcat.AppReference{
+		Namespace: p.Namespace,
+		Name:      p.Spec.VaultRef.Name,
+	}
+	vc, err := vault.NewClient(kc, appc, vAppRef)
 	if err != nil {
 		return nil, err
 	}

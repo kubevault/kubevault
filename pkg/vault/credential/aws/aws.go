@@ -51,7 +51,11 @@ func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*appcat.AppReference
 	if err != nil {
 		return nil, "", errors.Wrapf(err, "AWSRole %s/%s", ref.Namespace, ref.Name)
 	}
-	return r.Spec.VaultRef, r.RoleName(), nil
+	vAppRef := &appcat.AppReference{
+		Namespace: r.Namespace,
+		Name:      r.Spec.VaultRef.Name,
+	}
+	return vAppRef, r.RoleName(), nil
 }
 
 func (d *AWSCredManager) ParseCredential(credSecret *vaultapi.Secret) (map[string][]byte, error) {

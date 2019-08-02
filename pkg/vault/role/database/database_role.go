@@ -11,7 +11,7 @@ import (
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
-	vaultcs "kubevault.dev/operator/pkg/vault"
+	vault "kubevault.dev/operator/pkg/vault"
 	"kubevault.dev/operator/pkg/vault/role"
 	"kubevault.dev/operator/pkg/vault/role/database/mongodb"
 	"kubevault.dev/operator/pkg/vault/role/database/mysql"
@@ -29,16 +29,17 @@ type DatabaseRole struct {
 }
 
 func NewDatabaseRoleForPostgres(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.PostgresRole) (DatabaseRoleInterface, error) {
-	ref := role.Spec.AuthManagerRef
-	vClient, err := vaultcs.NewClient(kClient, appClient, &appcat.AppReference{
-		Name:      ref.Name,
-		Namespace: ref.Namespace,
-	})
+	vAppRef := &appcat.AppReference{
+		Namespace: role.Namespace,
+		Name:      role.Spec.VaultRef.Name,
+	}
+
+	vClient, err := vault.NewClient(kClient, appClient, vAppRef)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	path, err := GetDatabasePath(appClient, *ref)
+	path, err := GetDatabasePath(appClient, vAppRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database path")
 	}
@@ -57,16 +58,16 @@ func NewDatabaseRoleForPostgres(kClient kubernetes.Interface, appClient appcat_c
 }
 
 func NewDatabaseRoleForMysql(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.MySQLRole) (DatabaseRoleInterface, error) {
-	ref := role.Spec.AuthManagerRef
-	vClient, err := vaultcs.NewClient(kClient, appClient, &appcat.AppReference{
-		Name:      ref.Name,
-		Namespace: ref.Namespace,
-	})
+	vAppRef := &appcat.AppReference{
+		Namespace: role.Name,
+		Name:      role.Spec.VaultRef.Name,
+	}
+	vClient, err := vault.NewClient(kClient, appClient, vAppRef)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	path, err := GetDatabasePath(appClient, *ref)
+	path, err := GetDatabasePath(appClient, vAppRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database path")
 	}
@@ -85,16 +86,16 @@ func NewDatabaseRoleForMysql(kClient kubernetes.Interface, appClient appcat_cs.A
 }
 
 func NewDatabaseRoleForMongodb(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.MongoDBRole) (DatabaseRoleInterface, error) {
-	ref := role.Spec.AuthManagerRef
-	vClient, err := vaultcs.NewClient(kClient, appClient, &appcat.AppReference{
-		Name:      ref.Name,
-		Namespace: ref.Namespace,
-	})
+	vAppRef := &appcat.AppReference{
+		Namespace: role.Name,
+		Name:      role.Spec.VaultRef.Name,
+	}
+	vClient, err := vault.NewClient(kClient, appClient, vAppRef)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	path, err := GetDatabasePath(appClient, *ref)
+	path, err := GetDatabasePath(appClient, vAppRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database path")
 	}
@@ -165,8 +166,8 @@ func (d *DatabaseRole) DeleteRole(name string) error {
 }
 
 // If database path does not exist, then use default database path
-func GetDatabasePath(c appcat_cs.AppcatalogV1alpha1Interface, ref appcat.AppReference) (string, error) {
-	vApp, err := c.AppBindings(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
+func GetDatabasePath(c appcat_cs.AppcatalogV1alpha1Interface, vAppRef *appcat.AppReference) (string, error) {
+	vApp, err := c.AppBindings(vAppRef.Namespace).Get(vAppRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}

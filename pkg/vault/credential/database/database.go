@@ -35,7 +35,7 @@ func NewDatabaseCredentialManager(kClient kubernetes.Interface, appClient appcat
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
-	dbPath, err := databaserole.GetDatabasePath(appClient, *vaultRef)
+	dbPath, err := databaserole.GetDatabasePath(appClient, vaultRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database path")
 	}
@@ -47,28 +47,40 @@ func NewDatabaseCredentialManager(kClient kubernetes.Interface, appClient appcat
 	}, nil
 }
 
-func GetVaultRefAndRole(cr crd.Interface, ref api.RoleReference) (*appcat.AppReference, string, error) {
+func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*appcat.AppReference, string, error) {
 	switch ref.Kind {
 	case api.ResourceKindMongoDBRole:
-		r, err := cr.AuthorizationV1alpha1().MongoDBRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
+		r, err := cr.EngineV1alpha1().MongoDBRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 		if err != nil {
 			return nil, "", errors.Wrapf(err, "MongoDBRole %s/%s", ref.Namespace, ref.Name)
 		}
-		return r.Spec.AuthManagerRef, r.RoleName(), nil
+		vAppRef := &appcat.AppReference{
+			Namespace: r.Namespace,
+			Name:      r.Spec.VaultRef.Name,
+		}
+		return vAppRef, r.RoleName(), nil
 
 	case api.ResourceKindMySQLRole:
-		r, err := cr.AuthorizationV1alpha1().MySQLRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
+		r, err := cr.EngineV1alpha1().MySQLRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 		if err != nil {
 			return nil, "", errors.Wrapf(err, "MySQLRole %s/%s", ref.Namespace, ref.Name)
 		}
-		return r.Spec.AuthManagerRef, r.RoleName(), nil
+		vAppRef := &appcat.AppReference{
+			Namespace: r.Namespace,
+			Name:      r.Spec.VaultRef.Name,
+		}
+		return vAppRef, r.RoleName(), nil
 
 	case api.ResourceKindPostgresRole:
-		r, err := cr.AuthorizationV1alpha1().PostgresRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
+		r, err := cr.EngineV1alpha1().PostgresRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 		if err != nil {
 			return nil, "", errors.Wrapf(err, "PostgresRole %s/%s", ref.Namespace, ref.Name)
 		}
-		return r.Spec.AuthManagerRef, r.RoleName(), nil
+		vAppRef := &appcat.AppReference{
+			Namespace: r.Namespace,
+			Name:      r.Spec.VaultRef.Name,
+		}
+		return vAppRef, r.RoleName(), nil
 
 	default:
 		return nil, "", errors.Errorf("unknown or unsupported role kind '%s'", ref.Kind)
