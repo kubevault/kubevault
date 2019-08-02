@@ -12,7 +12,6 @@ require (
 	github.com/coreos/prometheus-operator v0.31.1
 	github.com/evanphx/json-patch v4.5.0+incompatible
 	github.com/frankban/quicktest v1.4.0 // indirect
-	github.com/go-ini/ini v1.40.0 // indirect
 	github.com/go-openapi/spec v0.19.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/gophercloud/gophercloud v0.0.0-20190509013533-844afee4f565 // indirect
@@ -45,16 +44,20 @@ require (
 	k8s.io/component-base v0.0.0-20190508223741-40efa6d42997 // indirect
 	k8s.io/kube-aggregator v0.0.0-20190508224022-f9852b6d3a84
 	k8s.io/kube-openapi v0.0.0-20190502190224-411b2483e503
-	k8s.io/kubernetes v1.14.2
-	kmodules.xyz/client-go v0.0.0-20190715080709-7162a6c90b04
-	kmodules.xyz/custom-resources v0.0.0-20190723185639-711575c0b8a9
-	kmodules.xyz/monitoring-agent-api v0.0.0-20190513065523-186af167f817
-	kmodules.xyz/offshoot-api v0.0.0-20190715115723-36c8fce142c1
-	kmodules.xyz/webhook-runtime v0.0.0-20190715115250-a84fbf77dd30
+	k8s.io/kubernetes v1.14.0
+	kmodules.xyz/client-go v0.0.0-20190802200916-043217632b6a
+	kmodules.xyz/custom-resources v0.0.0-20190802202832-aaad432d3364
+	kmodules.xyz/monitoring-agent-api v0.0.0-20190802203207-a87aa5b2e057
+	kmodules.xyz/offshoot-api v0.0.0-20190802203449-05938be4a23b
+	kmodules.xyz/webhook-runtime v0.0.0-20190802202019-9e77ee949266
 )
 
 replace (
-	github.com/Azure/go-autorest => github.com/Azure/go-autorest/autorest v0.5.0
+	contrib.go.opencensus.io/exporter/ocagent => contrib.go.opencensus.io/exporter/ocagent v0.3.0
+	github.com/Azure/go-autorest => github.com/Azure/go-autorest v12.3.0+incompatible
+	github.com/census-instrumentation/opencensus-proto => github.com/census-instrumentation/opencensus-proto v0.1.0
+	github.com/golang/protobuf => github.com/golang/protobuf v1.2.0
+	go.opencensus.io => go.opencensus.io v0.21.0
 	k8s.io/api => k8s.io/api v0.0.0-20190313235455-40a48860b5ab
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.0.0-20190315093550-53c4693659ed
 	k8s.io/apimachinery => github.com/kmodules/apimachinery v0.0.0-20190508045248-a52a97a7a2bf
