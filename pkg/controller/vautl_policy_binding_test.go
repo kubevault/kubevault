@@ -36,7 +36,11 @@ func simpleVaultPolicyBinding() *policyapi.VaultPolicyBinding {
 			Namespace:  "test",
 			Finalizers: []string{VaultPolicyBindingFinalizer},
 		},
-		Spec: policyapi.VaultPolicyBindingSpec{},
+		Spec: policyapi.VaultPolicyBindingSpec{
+			SubjectRef: policyapi.SubjectRef{
+				Kubernetes: &policyapi.KubernetesSubjectRef{},
+			},
+		},
 	}
 }
 

@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/appscode/pat"
+	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
@@ -19,9 +19,9 @@ import (
 )
 
 func setupVaultServer() *httptest.Server {
-	m := pat.New()
+	router := mux.NewRouter()
 
-	m.Post("/v1/database/config/mongodb", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/v1/database/config/mongodb", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		var data interface{}
 		err := json.NewDecoder(r.Body).Decode(&data)
@@ -59,8 +59,9 @@ func setupVaultServer() *httptest.Server {
 
 			w.WriteHeader(http.StatusOK)
 		}
-	}))
-	m.Post("/v1/database/roles/k8s.-.m.m-read", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	}).Methods(http.MethodPost)
+
+	router.HandleFunc("/v1/database/roles/k8s.-.m.m-read", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		var data interface{}
 		err := json.NewDecoder(r.Body).Decode(&data)
@@ -77,16 +78,18 @@ func setupVaultServer() *httptest.Server {
 			}
 			w.WriteHeader(http.StatusOK)
 		}
-	}))
-	m.Del("/v1/database/roles/k8s.-.m.m-read", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	}).Methods(http.MethodPost)
+
+	router.HandleFunc("/v1/database/roles/k8s.-.m.m-read", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-	}))
-	m.Del("/v1/database/roles/error", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	}).Methods(http.MethodDelete)
+
+	router.HandleFunc("/v1/database/roles/error", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("error"))
-	}))
+	}).Methods(http.MethodDelete)
 
-	return httptest.NewServer(m)
+	return httptest.NewServer(router)
 }
 
 func TestMongoDBRole_CreateConfig(t *testing.T) {
@@ -108,8 +111,9 @@ func TestMongoDBRole_CreateConfig(t *testing.T) {
 				Namespace: "m",
 			},
 			Spec: api.MongoDBRoleSpec{
-				DatabaseRef: &corev1.LocalObjectReference{
-					Name: "mongodb",
+				DatabaseRef: appcat.AppReference{
+					Name:      "mongodb",
+					Namespace: "demo",
 				},
 			},
 		},
@@ -150,8 +154,9 @@ func TestMongoDBRole_CreateConfig(t *testing.T) {
 							Namespace: "m",
 						},
 						Spec: api.MongoDBRoleSpec{
-							DatabaseRef: &corev1.LocalObjectReference{
-								Name: "mongodb",
+							DatabaseRef: appcat.AppReference{
+								Name:      "mongodb",
+								Namespace: "demo",
 							},
 						},
 					},
@@ -207,8 +212,9 @@ func TestMongoDBRole_CreateRole(t *testing.T) {
 					},
 					Spec: api.MongoDBRoleSpec{
 						CreationStatements: []string{"create table"},
-						DatabaseRef: &corev1.LocalObjectReference{
-							Name: "mongodb",
+						DatabaseRef: appcat.AppReference{
+							Name:      "mongodb",
+							Namespace: "demo",
 						},
 					},
 				},
@@ -227,8 +233,8 @@ func TestMongoDBRole_CreateRole(t *testing.T) {
 					},
 					Spec: api.MongoDBRoleSpec{
 						CreationStatements: []string{"create table"},
-						DatabaseRef: &corev1.LocalObjectReference{
-							Name: "",
+						DatabaseRef: appcat.AppReference{
+							Namespace: "demo",
 						},
 					},
 				},
@@ -296,8 +302,9 @@ func TestNewMongoDBRoleBindingCreatConfig(t *testing.T) {
 				Name:      "mg",
 			},
 			Spec: api.MongoDBRoleSpec{
-				DatabaseRef: &corev1.LocalObjectReference{
-					Name: "mongodb",
+				DatabaseRef: appcat.AppReference{
+					Name:      "mongodb",
+					Namespace: "demo",
 				},
 			},
 		},

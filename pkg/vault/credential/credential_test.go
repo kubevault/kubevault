@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/appscode/pat"
+	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -30,17 +30,19 @@ const (
 )
 
 func vaultServer() *httptest.Server {
-	m := pat.New()
+	router := mux.NewRouter()
 
-	m.Put("/v1/sys/leases/revoke/success", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/v1/sys/leases/revoke/success", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("{}"))
-	}))
-	m.Put("/v1/sys/leases/revoke/error", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	}).Methods(http.MethodPut)
+
+	router.HandleFunc("/v1/sys/leases/revoke/error", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("error"))
-	}))
-	m.Put("/v1/sys/leases/lookup", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	}).Methods(http.MethodPut)
+
+	router.HandleFunc("/v1/sys/leases/lookup", func(w http.ResponseWriter, r *http.Request) {
 		data := struct {
 			LeaseID string `json:"lease_id"`
 		}{}
@@ -58,9 +60,9 @@ func vaultServer() *httptest.Server {
 			w.Write([]byte(`{"errors":["invalid lease"]}`))
 		}
 
-	}))
+	}).Methods(http.MethodPut)
 
-	return httptest.NewServer(m)
+	return httptest.NewServer(router)
 }
 
 type fakeDBCredM struct {

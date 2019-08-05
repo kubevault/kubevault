@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/appscode/pat"
+	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
 )
@@ -68,8 +68,9 @@ func isKeyValExist(store map[string]interface{}, key string, val interface{}) bo
 }
 
 func NewFakeVaultServer() *httptest.Server {
-	m := pat.New()
-	m.Post("/v1/auth/kubernetes/role/ok", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router := mux.NewRouter()
+
+	router.HandleFunc("/v1/auth/kubernetes/role/ok", func(w http.ResponseWriter, r *http.Request) {
 		v := map[string]interface{}{}
 		json.NewDecoder(r.Body).Decode(&v)
 		fmt.Println("***")
@@ -100,21 +101,25 @@ func NewFakeVaultServer() *httptest.Server {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-	}))
-	m.Post("/v1/auth/test/role/try", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-	m.Del("/v1/auth/kubernetes/role/ok", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-	m.Del("/v1/auth/test/role/try", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-	m.Del("/v1/auth/kubernetes/role/err", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusBadRequest)
-	}))
+	}).Methods(http.MethodPost)
 
-	return httptest.NewServer(m)
+	router.HandleFunc("/v1/auth/test/role/try", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods(http.MethodPost)
+
+	router.HandleFunc("/v1/auth/kubernetes/role/ok", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods(http.MethodDelete)
+
+	router.HandleFunc("/v1/auth/test/role/try", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods(http.MethodDelete)
+
+	router.HandleFunc("/v1/auth/kubernetes/role/err", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
+	}).Methods(http.MethodDelete)
+
+	return httptest.NewServer(router)
 }
 
 func TestEnsure(t *testing.T) {

@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/SermoDigital/jose v0.9.1 // indirect
 	github.com/appscode/go v0.0.0-20190722173419-e454bf744023
-	github.com/appscode/pat v0.0.0-20170521084856-48ff78925b79
+	github.com/appscode/pat v0.0.0-20170521084856-48ff78925b79 // indirect
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.20.20
 	github.com/codeskyblue/go-sh v0.0.0-20190412065543-76bd3d59ff27
@@ -15,6 +15,7 @@ require (
 	github.com/go-openapi/spec v0.19.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/gophercloud/gophercloud v0.0.0-20190509013533-844afee4f565 // indirect
+	github.com/gorilla/mux v1.7.3
 	github.com/hashicorp/go-cleanhttp v0.5.1
 	github.com/hashicorp/go-hclog v0.9.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.1.0 // indirect

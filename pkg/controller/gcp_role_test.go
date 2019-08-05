@@ -84,24 +84,6 @@ func TestGCPRole_reconcileGCPRole(t *testing.T) {
 			expectedErr:        false,
 		},
 		{
-			testName: "Failed to enable GCP",
-			gcpRClient: &fakeGCPRole{
-				errorOccurredInEnableGCP: true,
-			},
-			gcpRole:            gRole,
-			hasStatusCondition: true,
-			expectedErr:        true,
-		},
-		{
-			testName: "Failed to create config",
-			gcpRClient: &fakeGCPRole{
-				errorOccurredInCreateConfig: true,
-			},
-			gcpRole:            gRole,
-			hasStatusCondition: true,
-			expectedErr:        true,
-		},
-		{
 			testName: "Failed to create role",
 			gcpRClient: &fakeGCPRole{
 				errorOccurredInCreateRole: true,

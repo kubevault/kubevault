@@ -7,29 +7,31 @@ import (
 	"time"
 
 	"github.com/appscode/go/encoding/json/types"
-	"github.com/appscode/pat"
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	cs "kubevault.dev/operator/client/clientset/versioned/fake"
 	dbinformers "kubevault.dev/operator/client/informers/externalversions"
 	"kubevault.dev/operator/pkg/vault/role/database"
 )
 
 func setupVaultServerForMongodb() *httptest.Server {
-	m := pat.New()
+	router := mux.NewRouter()
 
-	m.Del("/v1/database/roles/m-read", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/v1/database/roles/m-read", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-	}))
-	m.Del("/v1/database/roles/error", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	}).Methods(http.MethodDelete)
+
+	router.HandleFunc("/v1/database/roles/error", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("error"))
-	}))
+	}).Methods(http.MethodDelete)
 
-	return httptest.NewServer(m)
+	return httptest.NewServer(router)
 }
 
 func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
@@ -40,7 +42,7 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 			Generation: 0,
 		},
 		Spec: api.MongoDBRoleSpec{
-			VaultRef:    corev1.LocalObjectReference{},
+			VaultRef:    corev1.LocalObjectReference{Name: "test121"},
 			DatabaseRef: appcat.AppReference{Name: "test"},
 		},
 	}
@@ -58,24 +60,6 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 			dbRClient:          &fakeDRole{},
 			expectedErr:        false,
 			hasStatusCondition: false,
-		},
-		{
-			testName: "initial stage, failed to enable database",
-			mRole:    mRole,
-			dbRClient: &fakeDRole{
-				errorOccurredInEnableDatabase: true,
-			},
-			expectedErr:        true,
-			hasStatusCondition: true,
-		},
-		{
-			testName: "initial stage, failed to create database connection config",
-			mRole:    mRole,
-			dbRClient: &fakeDRole{
-				errorOccurredInCreateConfig: true,
-			},
-			expectedErr:        true,
-			hasStatusCondition: true,
 		},
 		{
 			testName: "initial stage, failed to create database role",
@@ -116,7 +100,7 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 		t.Run(test.testName, func(t *testing.T) {
 			c := &VaultController{
 				kubeClient: kfake.NewSimpleClientset(),
-				// TODO: need a fake client
+				extClient:  cs.NewSimpleClientset(),
 			}
 			c.extInformerFactory = dbinformers.NewSharedInformerFactory(c.extClient, time.Minute*10)
 

@@ -82,24 +82,6 @@ func TestAzureRole_reconcileAzureRole(t *testing.T) {
 			expectedErr:        false,
 		},
 		{
-			testName: "Failed to enable Azure",
-			azureRClient: &fakeAzureRole{
-				errorOccurredInEnableAzure: true,
-			},
-			azureRole:          aRole,
-			hasStatusCondition: true,
-			expectedErr:        true,
-		},
-		{
-			testName: "Failed to create config",
-			azureRClient: &fakeAzureRole{
-				errorOccurredInCreateConfig: true,
-			},
-			azureRole:          aRole,
-			hasStatusCondition: true,
-			expectedErr:        true,
-		},
-		{
 			testName: "Failed to create role",
 			azureRClient: &fakeAzureRole{
 				errorOccurredInCreateRole: true,

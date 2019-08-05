@@ -5,23 +5,24 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/appscode/pat"
+	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
 )
 
 func setupVaultServer() *httptest.Server {
-	m := pat.New()
+	router := mux.NewRouter()
 
-	m.Del("/v1/database/roles/read", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/v1/database/roles/read", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-	}))
-	m.Del("/v1/database/roles/error", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	}).Methods(http.MethodDelete)
+
+	router.HandleFunc("/v1/database/roles/error", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("error"))
-	}))
+	}).Methods(http.MethodDelete)
 
-	return httptest.NewServer(m)
+	return httptest.NewServer(router)
 }
 
 func TestDeleteRole(t *testing.T) {

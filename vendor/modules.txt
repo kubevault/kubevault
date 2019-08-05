@@ -40,8 +40,6 @@ github.com/appscode/go/log/golog
 github.com/appscode/go/net
 github.com/appscode/go/analytics
 github.com/appscode/go/homedir
-# github.com/appscode/pat v0.0.0-20170521084856-48ff78925b79
-github.com/appscode/pat
 # github.com/armon/go-radix v1.0.0
 github.com/armon/go-radix
 # github.com/aws/aws-sdk-go v1.20.20
@@ -175,6 +173,8 @@ github.com/gophercloud/gophercloud/openstack/identity/v3/tokens
 github.com/gophercloud/gophercloud/openstack/utils
 github.com/gophercloud/gophercloud/openstack/identity/v2/tenants
 github.com/gophercloud/gophercloud/pagination
+# github.com/gorilla/mux v1.7.3
+github.com/gorilla/mux
 # github.com/gregjones/httpcache v0.0.0-20190212212710-3befbb6ad0cc
 github.com/gregjones/httpcache
 github.com/gregjones/httpcache/diskcache

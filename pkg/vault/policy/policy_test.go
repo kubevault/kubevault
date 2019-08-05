@@ -5,27 +5,31 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/appscode/pat"
+	"github.com/gorilla/mux"
 	vautlapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
 )
 
 func NewFakeVaultServer() *httptest.Server {
-	m := pat.New()
-	m.Put("/v1/sys/policies/acl/ok", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-	m.Put("/v1/sys/policies/acl/err", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusUnauthorized)
-	}))
-	m.Del("/v1/sys/policies/acl/ok", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-	m.Del("/v1/sys/policies/acl/err", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusUnauthorized)
-	}))
+	router := mux.NewRouter()
 
-	return httptest.NewServer(m)
+	router.HandleFunc("/v1/sys/policies/acl/ok", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods(http.MethodPut)
+
+	router.HandleFunc("/v1/sys/policies/acl/err", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+	}).Methods(http.MethodPut)
+
+	router.HandleFunc("/v1/sys/policies/acl/ok", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods(http.MethodDelete)
+
+	router.HandleFunc("/v1/sys/policies/acl/err", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+	}).Methods(http.MethodDelete)
+
+	return httptest.NewServer(router)
 }
 
 func TestVPolicy_EnsurePolicy(t *testing.T) {

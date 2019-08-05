@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/appscode/pat"
+	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
@@ -18,9 +18,9 @@ import (
 )
 
 func setupVaultServer() *httptest.Server {
-	m := pat.New()
+	router := mux.NewRouter()
 
-	m.Post("/v1/database/config/postgres", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/v1/database/config/postgres", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		var data interface{}
 		err := json.NewDecoder(r.Body).Decode(&data)
@@ -58,8 +58,9 @@ func setupVaultServer() *httptest.Server {
 
 			w.WriteHeader(http.StatusOK)
 		}
-	}))
-	m.Post("/v1/database/roles/k8s.-.pg.pg-read", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	}).Methods(http.MethodPost)
+
+	router.HandleFunc("/v1/database/roles/k8s.-.pg.pg-read", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		var data interface{}
 		err := json.NewDecoder(r.Body).Decode(&data)
@@ -76,16 +77,18 @@ func setupVaultServer() *httptest.Server {
 			}
 			w.WriteHeader(http.StatusOK)
 		}
-	}))
-	m.Del("/v1/database/roles/k8s.-.pg.pg-read", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	}).Methods(http.MethodPost)
+
+	router.HandleFunc("/v1/database/roles/k8s.-.pg.pg-read", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-	}))
-	m.Del("/v1/database/roles/error", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	}).Methods(http.MethodDelete)
+
+	router.HandleFunc("/v1/database/roles/error", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("error"))
-	}))
+	}).Methods(http.MethodDelete)
 
-	return httptest.NewServer(m)
+	return httptest.NewServer(router)
 }
 
 func TestPostgresRole_CreateConfig(t *testing.T) {
@@ -107,8 +110,9 @@ func TestPostgresRole_CreateConfig(t *testing.T) {
 				Namespace: "pg",
 			},
 			Spec: api.PostgresRoleSpec{
-				DatabaseRef: &corev1.LocalObjectReference{
-					Name: "postgres",
+				DatabaseRef: appcat.AppReference{
+					Name:      "postgres",
+					Namespace: "demo",
 				},
 			},
 		},
@@ -149,8 +153,9 @@ func TestPostgresRole_CreateConfig(t *testing.T) {
 							Namespace: "pg",
 						},
 						Spec: api.PostgresRoleSpec{
-							DatabaseRef: &corev1.LocalObjectReference{
-								Name: "postgres",
+							DatabaseRef: appcat.AppReference{
+								Name:      "postgres",
+								Namespace: "demo",
 							},
 						},
 					},
@@ -205,8 +210,9 @@ func TestPostgresRole_CreateRole(t *testing.T) {
 						Namespace: "pg",
 					},
 					Spec: api.PostgresRoleSpec{
-						DatabaseRef: &corev1.LocalObjectReference{
-							Name: "postgres",
+						DatabaseRef: appcat.AppReference{
+							Name:      "postgres",
+							Namespace: "demo",
 						},
 						CreationStatements: []string{"create table"},
 					},
@@ -225,8 +231,8 @@ func TestPostgresRole_CreateRole(t *testing.T) {
 						Namespace: "pg",
 					},
 					Spec: api.PostgresRoleSpec{
-						DatabaseRef: &corev1.LocalObjectReference{
-							Name: "",
+						DatabaseRef: appcat.AppReference{
+							Namespace: "demo",
 						},
 						CreationStatements: []string{"create table"},
 					},

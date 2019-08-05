@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/appscode/pat"
+	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	core "k8s.io/api/core/v1"
@@ -96,21 +96,25 @@ func vaultTokenSecret() *core.Secret {
 }
 
 func NewFakeVaultServer() *httptest.Server {
-	m := pat.New()
-	m.Del("/v1/sys/policies/acl/ok", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-	m.Del("/v1/sys/policies/acl/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-	m.Del("/v1/sys/policies/acl/simple", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-	m.Del("/v1/auth/kubernetes/role/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
+	router := mux.NewRouter()
 
-	return httptest.NewServer(m)
+	router.HandleFunc("/v1/sys/policies/acl/ok", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods(http.MethodDelete)
+
+	router.HandleFunc("/v1/sys/policies/acl/{policy}", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods(http.MethodDelete)
+
+	router.HandleFunc("/v1/sys/policies/acl/simple", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods(http.MethodDelete)
+
+	router.HandleFunc("/v1/auth/kubernetes/role/{role}", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods(http.MethodDelete)
+
+	return httptest.NewServer(router)
 }
 
 func TestReconcilePolicy(t *testing.T) {
