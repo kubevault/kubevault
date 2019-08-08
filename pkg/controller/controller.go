@@ -113,6 +113,11 @@ type VaultController struct {
 	azureAccessInformer cache.SharedIndexInformer
 	azureAccessLister   engine_listers.AzureAccessKeyRequestLister
 
+	// SecretEngine
+	secretEngineQueue    *queue.Worker
+	secretEngineInformer cache.SharedIndexInformer
+	secretEngineLister   engine_listers.SecretEngineLister
+
 	// Contain the currently processing finalizer
 	finalizerInfo *mapFinalizer
 
@@ -138,6 +143,7 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 		engineapi.MongoDBRole{}.CustomResourceDefinition(),
 		engineapi.MySQLRole{}.CustomResourceDefinition(),
 		engineapi.PostgresRole{}.CustomResourceDefinition(),
+		engineapi.SecretEngine{}.CustomResourceDefinition(),
 	}
 	return crdutils.RegisterCRDs(c.crdClient, crds)
 }
@@ -204,6 +210,9 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 
 	// For Azure access key request
 	go c.azureAccessQueue.Run(stopCh)
+
+	// For Secret Engine
+	go c.secretEngineQueue.Run(stopCh)
 
 	<-stopCh
 	glog.Info("Stopping Vault operator")
