@@ -4,6 +4,17 @@ import (
 	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+)
+
+const (
+	ResourceKindSecretEngine = "SecretEngine"
+	ResourceSecretEngine     = "secretengine"
+	ResourceSecretEngines    = "secretengines"
+	EngineTypeAWS            = "aws"
+	EngineTypeGCP            = "gcp"
+	EngineTypeAzure          = "azure"
+	EngineTypeDatabase       = "database"
 )
 
 // +genclient
@@ -25,8 +36,6 @@ type SecretEngineSpec struct {
 	VaultRef core.LocalObjectReference `json:"vaultRef"`
 
 	// Path defines the path used to enable this secret engine
-	// default: gcp
-	// More info: https://www.vaultproject.io/docs/auth/gcp.html#via-the-cli-helper
 	// +optional
 	Path string `json:"path,omitempty"`
 
@@ -133,6 +142,9 @@ type AzureConfiguration struct {
 // https://www.vaultproject.io/api/secret/databases/index.html
 // https://www.vaultproject.io/api/secret/databases/postgresql.html#configure-connection
 type PostgresConfiguration struct {
+	// Specifies the Postgres database appbinding reference
+	DatabaseRef appcat.AppReference `json:"databaseRef"`
+
 	// Specifies the name of the plugin to use for this connection.
 	// Default plugin:
 	//	- for postgres: postgresql-database-plugin
@@ -159,6 +171,9 @@ type PostgresConfiguration struct {
 // https://www.vaultproject.io/api/secret/databases/index.html
 // https://www.vaultproject.io/api/secret/databases/mongodb.html#configure-connection
 type MongoDBConfiguration struct {
+	// Specifies the database appbinding reference
+	DatabaseRef appcat.AppReference `json:"databaseRef"`
+
 	// Specifies the name of the plugin to use for this connection.
 	// Default plugin:
 	//  - for mongodb: mongodb-database-plugin
@@ -177,6 +192,9 @@ type MongoDBConfiguration struct {
 // https://www.vaultproject.io/api/secret/databases/index.html
 // https://www.vaultproject.io/api/secret/databases/mysql-maria.html#configure-connection
 type MySQLConfiguration struct {
+	// DatabaseRef refers to a MySQL/MariaDB database AppBinding in any namespace
+	DatabaseRef appcat.AppReference `json:"databaseRef"`
+
 	// Specifies the name of the plugin to use for this connection.
 	// Default plugin:
 	//  - for mysql: mysql-database-plugin

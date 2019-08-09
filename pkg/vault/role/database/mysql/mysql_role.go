@@ -11,13 +11,11 @@ import (
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	appcat_util "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/util"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	configapi "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
 type MySQLRole struct {
-	config       *configapi.MySQLConfiguration
 	secret       *core.Secret
 	mRole        *api.MySQLRole
 	vaultClient  *vaultapi.Client
@@ -59,7 +57,6 @@ func NewMySQLRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1
 	}
 
 	return &MySQLRole{
-		config:       cf,
 		secret:       sr,
 		mRole:        mRole,
 		vaultClient:  v,
@@ -68,61 +65,6 @@ func NewMySQLRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1
 		databasePath: databasePath,
 		dbConnURL:    connurl,
 	}, nil
-}
-
-// https://www.vaultproject.io/api/secret/databases/index.html#configure-connection
-// https:https://www.vaultproject.io/api/secret/databases/mysql-maria.html#configure-connection
-//
-// CreateConfig creates database configuration
-func (m *MySQLRole) CreateConfig() error {
-	if m.config == nil {
-		return errors.New("database config is nil")
-	}
-	if m.secret == nil {
-		return errors.New("database config is nil")
-	}
-
-	dRef := m.mRole.Spec.DatabaseRef
-	path := fmt.Sprintf("/v1/%s/config/%s", m.databasePath, dRef.Name)
-	req := m.vaultClient.NewRequest("POST", path)
-	payload := map[string]interface{}{
-		"plugin_name":    m.config.PluginName,
-		"allowed_roles":  m.config.AllowedRoles,
-		"connection_url": m.dbConnURL,
-	}
-
-	data := make(map[string]interface{}, len(m.secret.Data))
-	for k, v := range m.secret.Data {
-		data[k] = string(v)
-	}
-	err := appcat_util.TransformCredentials(m.kubeClient, m.dbBinding.Spec.SecretTransforms, data)
-	if err != nil {
-		return err
-	}
-
-	if v, ok := data[appcat.KeyUsername]; ok {
-		payload[appcat.KeyUsername] = v
-	}
-	if v, ok := data[appcat.KeyPassword]; ok {
-		payload[appcat.KeyPassword] = v
-	}
-
-	if m.config.MaxOpenConnections > 0 {
-		payload["max_open_connections"] = m.config.MaxOpenConnections
-	}
-	if m.config.MaxIdleConnections > 0 {
-		payload["max_idle_connections"] = m.config.MaxIdleConnections
-	}
-	if m.config.MaxConnectionLifetime != "" {
-		payload["max_connection_lifetime"] = m.config.MaxConnectionLifetime
-	}
-
-	err = req.SetJSONBody(payload)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	_, err = m.vaultClient.RawRequest(req)
-	return err
 }
 
 // https://www.vaultproject.io/api/secret/databases/index.html#create-role

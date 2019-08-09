@@ -32,8 +32,14 @@ type MySQLRoleSpec struct {
 	// VaultRef is the name of a AppBinding referencing to a Vault Server
 	VaultRef core.LocalObjectReference `json:"vaultRef"`
 
-	// DatabaseRef refers to a MySQL/MariaDB database AppBinding in any namespace
-	DatabaseRef appcat.AppReference `json:"databaseRef"`
+	// DatabaseRef specifies the database appbinding reference in any namespace.
+	DatabaseRef appcat.AppReference `json:"databaseRef,omitempty"`
+
+	// Specifies the database name under which the role will be created
+	DatabaseName string `json:"databaseName,omitempty"`
+
+	// Specifies the path where secret engine is enabled
+	Path string `json:"path,omitempty"`
 
 	// links:
 	// 	- https://www.vaultproject.io/api/secret/databases/index.html

@@ -17461,6 +17461,12 @@ func schema_operator_apis_engine_v1alpha1_MongoDBConfiguration(ref common.Refere
 				Description: "MongoDBConfiguration defines a MongoDB app configuration. https://www.vaultproject.io/api/secret/databases/index.html https://www.vaultproject.io/api/secret/databases/mongodb.html#configure-connection",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
+					"databaseRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the database appbinding reference",
+							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+						},
+					},
 					"pluginName": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the name of the plugin to use for this connection. Default plugin:\n - for mongodb: mongodb-database-plugin",
@@ -17483,8 +17489,11 @@ func schema_operator_apis_engine_v1alpha1_MongoDBConfiguration(ref common.Refere
 						},
 					},
 				},
+				Required: []string{"databaseRef"},
 			},
 		},
+		Dependencies: []string{
+			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"},
 	}
 }
 
@@ -17633,7 +17642,22 @@ func schema_operator_apis_engine_v1alpha1_MongoDBRoleSpec(ref common.ReferenceCa
 					},
 					"databaseRef": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+							Description: "DatabaseRef specifies the database appbinding reference in any namespace",
+							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+						},
+					},
+					"databaseName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the database name under which the role will be created",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path where secret engine is enabled",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"defaultTTL": {
@@ -17679,7 +17703,7 @@ func schema_operator_apis_engine_v1alpha1_MongoDBRoleSpec(ref common.ReferenceCa
 						},
 					},
 				},
-				Required: []string{"vaultRef", "databaseRef", "creationStatements"},
+				Required: []string{"vaultRef", "creationStatements"},
 			},
 		},
 		Dependencies: []string{
@@ -17733,6 +17757,12 @@ func schema_operator_apis_engine_v1alpha1_MySQLConfiguration(ref common.Referenc
 				Description: "MySQLConfiguration defines a MySQL app configuration. https://www.vaultproject.io/api/secret/databases/index.html https://www.vaultproject.io/api/secret/databases/mysql-maria.html#configure-connection",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
+					"databaseRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "DatabaseRef refers to a MySQL/MariaDB database AppBinding in any namespace",
+							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+						},
+					},
 					"pluginName": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the name of the plugin to use for this connection. Default plugin:\n - for mysql: mysql-database-plugin",
@@ -17769,8 +17799,11 @@ func schema_operator_apis_engine_v1alpha1_MySQLConfiguration(ref common.Referenc
 						},
 					},
 				},
+				Required: []string{"databaseRef"},
 			},
 		},
+		Dependencies: []string{
+			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"},
 	}
 }
 
@@ -17919,8 +17952,22 @@ func schema_operator_apis_engine_v1alpha1_MySQLRoleSpec(ref common.ReferenceCall
 					},
 					"databaseRef": {
 						SchemaProps: spec.SchemaProps{
-							Description: "DatabaseRef refers to a MySQL/MariaDB database AppBinding in any namespace",
+							Description: "DatabaseRef specifies the database appbinding reference in any namespace.",
 							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+						},
+					},
+					"databaseName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the database name under which the role will be created",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path where secret engine is enabled",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"defaultTTL": {
@@ -17966,7 +18013,7 @@ func schema_operator_apis_engine_v1alpha1_MySQLRoleSpec(ref common.ReferenceCall
 						},
 					},
 				},
-				Required: []string{"vaultRef", "databaseRef", "creationStatements"},
+				Required: []string{"vaultRef", "creationStatements"},
 			},
 		},
 		Dependencies: []string{
@@ -18020,6 +18067,12 @@ func schema_operator_apis_engine_v1alpha1_PostgresConfiguration(ref common.Refer
 				Description: "PostgresConfiguration defines a PostgreSQL app configuration. https://www.vaultproject.io/api/secret/databases/index.html https://www.vaultproject.io/api/secret/databases/postgresql.html#configure-connection",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
+					"databaseRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the Postgres database appbinding reference",
+							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+						},
+					},
 					"pluginName": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the name of the plugin to use for this connection. Default plugin:\n\t- for postgres: postgresql-database-plugin",
@@ -18056,8 +18109,11 @@ func schema_operator_apis_engine_v1alpha1_PostgresConfiguration(ref common.Refer
 						},
 					},
 				},
+				Required: []string{"databaseRef"},
 			},
 		},
+		Dependencies: []string{
+			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"},
 	}
 }
 
@@ -18206,7 +18262,22 @@ func schema_operator_apis_engine_v1alpha1_PostgresRoleSpec(ref common.ReferenceC
 					},
 					"databaseRef": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+							Description: "DatabaseRef specifies the database appbinding reference in any namespace",
+							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+						},
+					},
+					"databaseName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the database name under which the role will be created",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path where secret engine is enabled",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"defaultTTL": {
@@ -18280,7 +18351,7 @@ func schema_operator_apis_engine_v1alpha1_PostgresRoleSpec(ref common.ReferenceC
 						},
 					},
 				},
-				Required: []string{"vaultRef", "databaseRef", "creationStatements"},
+				Required: []string{"vaultRef", "creationStatements"},
 			},
 		},
 		Dependencies: []string{
@@ -18553,7 +18624,7 @@ func schema_operator_apis_engine_v1alpha1_SecretEngineSpec(ref common.ReferenceC
 					},
 					"path": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Path defines the path used to enable this secret engine default: gcp More info: https://www.vaultproject.io/docs/auth/gcp.html#via-the-cli-helper",
+							Description: "Path defines the path used to enable this secret engine",
 							Type:        []string{"string"},
 							Format:      "",
 						},

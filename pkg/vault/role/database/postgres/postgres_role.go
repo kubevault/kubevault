@@ -17,7 +17,6 @@ import (
 )
 
 type PostgresRole struct {
-	config       *configapi.PostgresConfiguration
 	secret       *core.Secret
 	pgRole       *api.PostgresRole
 	vaultClient  *vaultapi.Client

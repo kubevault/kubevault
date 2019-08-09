@@ -8,12 +8,18 @@ import (
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	"kubevault.dev/operator/pkg/vault"
+	"kubevault.dev/operator/pkg/vault/role/aws"
+	"kubevault.dev/operator/pkg/vault/role/azure"
+	"kubevault.dev/operator/pkg/vault/role/database"
+	"kubevault.dev/operator/pkg/vault/role/gcp"
 )
 
 type SecretEngine struct {
+	appClient    appcat_cs.AppcatalogV1alpha1Interface
 	secretEngine *api.SecretEngine
 	vaultClient  *vaultapi.Client
 	kubeClient   kubernetes.Interface
+	path         string
 }
 
 func NewSecretEngine(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, engine *api.SecretEngine) (*SecretEngine, error) {
@@ -21,15 +27,38 @@ func NewSecretEngine(kClient kubernetes.Interface, appClient appcat_cs.Appcatalo
 		Namespace: engine.Namespace,
 		Name:      engine.Spec.VaultRef.Name,
 	}
+
 	vClient, err := vault.NewClient(kClient, appClient, vAppRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault api client")
 	}
+	// If path is not provided then set path to
+	// default secret engine path (i.e. "gcp", "aws", "azure", "database")
+	path := GetSecretEnginePath(engine)
+
 	return &SecretEngine{
+		appClient:    appClient,
 		kubeClient:   kClient,
 		vaultClient:  vClient,
 		secretEngine: engine,
+		path:         path,
 	}, nil
+}
+
+func GetSecretEnginePath(engine *api.SecretEngine) string {
+	if engine.Spec.Path != "" {
+		return engine.Spec.Path
+	}
+	if engine.Spec.GCP != nil {
+		return gcp.DefaultGCPPath
+	}
+	if engine.Spec.AWS != nil {
+		return aws.DefaultAWSPath
+	}
+	if engine.Spec.Azure != nil {
+		return azure.DefaultAzurePath
+	}
+	return database.DefaultDatabasePath
 }
 
 // checks whether SecretEngine is enabled or not
@@ -39,7 +68,7 @@ func (secretEngineClient *SecretEngine) IsSecretEngineEnabled() (bool, error) {
 		return false, errors.Wrap(err, "failed to list mounted secrets engines")
 	}
 
-	mntPath := secretEngineClient.secretEngine.Spec.Path + "/"
+	mntPath := secretEngineClient.path + "/"
 	for k := range mnt {
 		if k == mntPath {
 			return true, nil
@@ -74,7 +103,7 @@ func (secretEngineClient *SecretEngine) EnableSecretEngine() error {
 		return errors.New("Failed to enable secret engine: Unknown secret engine type")
 	}
 
-	err = secretEngineClient.vaultClient.Sys().Mount(secretEngineClient.secretEngine.Spec.Path, &vaultapi.MountInput{
+	err = secretEngineClient.vaultClient.Sys().Mount(secretEngineClient.path, &vaultapi.MountInput{
 		Type: engineType,
 	})
 	if err != nil {
