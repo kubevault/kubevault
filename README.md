@@ -16,7 +16,7 @@ To install Vault operator & CSI driver, please follow the guide [here](https://g
 Want to learn how to use KubeVault? Please start [here](https://github.com/kubevault/docs/blob/master/docs/guides/README.md).
 
 ## Contribution guidelines
-Want to help improve KubeVault? Please start [here](https://github.com/kubevault/docs/blob/master/docs/CONTRIBUTING.md).
+Want to help improve KubeVault? Please start [here](https://github.com/kubevault/docs/blob/master/docs/setup/developer-guide/overview.md).
 
 ---
 
