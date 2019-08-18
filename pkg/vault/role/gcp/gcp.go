@@ -18,12 +18,6 @@ const DefaultGCPPath = "gcp"
 type GCPRoleInterface interface {
 	role.RoleInterface
 
-	// Enable enables gcp secret engine
-	EnableGCP() error
-
-	// IsGCPEnabled checks whether gcp is enabled or not
-	IsGCPEnabled() (bool, error)
-
 	// DeleteRole deletes role
 	DeleteRole(name string) error
 }

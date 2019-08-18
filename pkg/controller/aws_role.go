@@ -80,8 +80,6 @@ func (c *VaultController) runAWSRoleInjector(key string) error {
 
 // Will do:
 //	For vault:
-//	  - enable the aws secrets engine if it is not already enabled
-//	  - configure Vault AWS secret engine
 // 	  - configure a AWS role
 //    - sync role
 func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, awsRole *api.AWSRole) error {

@@ -79,8 +79,6 @@ func (c *VaultController) runPostgresRoleInjector(key string) error {
 
 // Will do:
 //	For vault:
-//	  - enable the database secrets engine if it is not already enabled
-//	  - configure Vault with the proper postgres plugin and connection information
 // 	  - configure a role that maps a name in Vault to an SQL statement to execute to create the database credential.
 //    - sync role
 //	  - revoke previous lease of all the respective postgresRoleBinding and reissue a new lease

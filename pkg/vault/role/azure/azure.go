@@ -18,12 +18,6 @@ const DefaultAzurePath = "azure"
 type AzureRoleInterface interface {
 	role.RoleInterface
 
-	// Enable enables azure secret engine
-	EnableAzure() error
-
-	// IsAzureEnabled checks whether azure is enabled or not
-	IsAzureEnabled() (bool, error)
-
 	// DeleteRole deletes role
 	DeleteRole(name string) error
 }

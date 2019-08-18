@@ -100,6 +100,22 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient *engine.Secre
 	}
 
 	// Create secret engine config
+	err = secretEngineClient.CreateConfig()
+	if err != nil {
+		status.Conditions = []api.SecretEngineCondition{
+			{
+				Type:    SecretEngineConditionFailed,
+				Status:  core.ConditionTrue,
+				Reason:  "FailedToCreateSecretEngineConfig",
+				Message: err.Error(),
+			},
+		}
+		err2 := c.updatedSecretEngineStatus(&status, secretEngine)
+		if err2 != nil {
+			return errors.Wrap(err2, "failed to update status")
+		}
+		return errors.Wrap(err, "failed to create secret engine config")
+	}
 
 	return nil
 }

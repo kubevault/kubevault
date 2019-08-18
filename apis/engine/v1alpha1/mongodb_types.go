@@ -33,7 +33,7 @@ type MongoDBRoleSpec struct {
 	VaultRef core.LocalObjectReference `json:"vaultRef"`
 
 	// DatabaseRef specifies the database appbinding reference in any namespace
-	DatabaseRef appcat.AppReference `json:"databaseRef,omitempty"`
+	DatabaseRef *appcat.AppReference `json:"databaseRef,omitempty"`
 
 	// Specifies the database name under which the role will be created
 	DatabaseName string `json:"databaseName,omitempty"`

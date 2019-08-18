@@ -89,18 +89,17 @@ func (secretEngineClient *SecretEngine) EnableSecretEngine() error {
 		return nil
 	}
 	var engineType string
-	if secretEngineClient.secretEngine.Spec.AWS != nil {
+	engSpec := secretEngineClient.secretEngine.Spec
+	if engSpec.AWS != nil {
 		engineType = api.EngineTypeAWS
-	} else if secretEngineClient.secretEngine.Spec.GCP != nil {
+	} else if engSpec.GCP != nil {
 		engineType = api.EngineTypeGCP
-	} else if secretEngineClient.secretEngine.Spec.Azure != nil {
+	} else if engSpec.Azure != nil {
 		engineType = api.EngineTypeAzure
-	} else if secretEngineClient.secretEngine.Spec.MongoDB != nil ||
-		secretEngineClient.secretEngine.Spec.Postgres != nil ||
-		secretEngineClient.secretEngine.Spec.MySQL != nil {
+	} else if engSpec.MongoDB != nil || engSpec.Postgres != nil || engSpec.MySQL != nil {
 		engineType = api.EngineTypeDatabase
 	} else {
-		return errors.New("Failed to enable secret engine: Unknown secret engine type")
+		return errors.New("failed to enable secret engine: unknown secret engine type")
 	}
 
 	err = secretEngineClient.vaultClient.Sys().Mount(secretEngineClient.path, &vaultapi.MountInput{

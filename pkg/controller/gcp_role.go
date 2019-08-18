@@ -80,8 +80,6 @@ func (c *VaultController) runGCPRoleInjector(key string) error {
 
 // Will do:
 //	For vault:
-//	  - enable the GCP secrets engine if it is not already enabled
-//	  - configure Vault GCP secret engine
 // 	  - configure a GCP role
 //    - sync role
 func (c *VaultController) reconcileGCPRole(gcpRClient gcp.GCPRoleInterface, gcpRole *api.GCPRole) error {

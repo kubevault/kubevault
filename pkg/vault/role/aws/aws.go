@@ -18,12 +18,6 @@ const DefaultAWSPath = "aws"
 type AWSRoleInterface interface {
 	role.RoleInterface
 
-	// Enable enables aws secret engine
-	EnableAWS() error
-
-	// IsAWSEnabled checks whether aws is enabled or not
-	IsAWSEnabled() (bool, error)
-
 	// DeleteRole deletes role
 	DeleteRole(name string) error
 }

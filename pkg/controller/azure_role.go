@@ -80,8 +80,6 @@ func (c *VaultController) runAzureRoleInjector(key string) error {
 
 // Will do:
 //	For vault:
-//	  - enable the Azure secrets engine if it is not already enabled
-//	  - configure Vault Azure secret engine
 // 	  - configure a Azure role
 //    - sync role
 func (c *VaultController) reconcileAzureRole(azureRClient azure.AzureRoleInterface, azureRole *api.AzureRole) error {

@@ -1,8 +1,12 @@
 package v1alpha1
 
 import (
+	"fmt"
+
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
+	"kmodules.xyz/client-go/tools/clusterid"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	"kubevault.dev/operator/apis"
 )
 
@@ -40,4 +44,13 @@ func (e SecretEngine) CustomResourceDefinition() *apiextensions.CustomResourceDe
 
 func (e SecretEngine) IsValid() error {
 	return nil
+}
+
+// Generates unique database name from database appbinding reference
+func GetDBNameFromAppBindingRef(dbAppRef *appcat.AppReference) string {
+	cluster := "-"
+	if clusterid.ClusterName() != "" {
+		cluster = clusterid.ClusterName()
+	}
+	return fmt.Sprintf("k8s.%s.%s.%s", cluster, dbAppRef.Namespace, dbAppRef.Name)
 }
