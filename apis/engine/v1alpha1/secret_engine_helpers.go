@@ -46,6 +46,16 @@ func (e SecretEngine) IsValid() error {
 	return nil
 }
 
+// Generates the policy name which contains
+// required permission for this secret engine
+func (e SecretEngine) GetPolicyName() string {
+	cluster := "-"
+	if clusterid.ClusterName() != "" {
+		cluster = clusterid.ClusterName()
+	}
+	return fmt.Sprintf("k8s.%s.%s.%s", cluster, e.Namespace, e.Name)
+}
+
 // Generates unique database name from database appbinding reference
 func GetDBNameFromAppBindingRef(dbAppRef *appcat.AppReference) string {
 	cluster := "-"

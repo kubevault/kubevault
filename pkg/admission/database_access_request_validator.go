@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	validatorGroupForDB   = "validators.authorization.kubedb.com"
+	validatorGroupForDB   = "validators.engine.kubevault.com"
 	validatorVersionForDB = "v1alpha1"
 )
 

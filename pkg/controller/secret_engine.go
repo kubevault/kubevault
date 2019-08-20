@@ -76,13 +76,53 @@ func (c *VaultController) runSecretEngineInjector(key string) error {
 }
 
 //	For vault:
+//	  - create policy and update auth role for s/a of VaultAppRef
 //	  - enable the secrets engine if it is not already enabled
 //	  - configure Vault secret engine
+//    - create policy and policybinding for s/a of VaultAppRef
 func (c *VaultController) reconcileSecretEngine(secretEngineClient *engine.SecretEngine, secretEngine *api.SecretEngine) error {
 	status := secretEngine.Status
+	fmt.Println("Create policy called.......!")
+	// Create required policies for secret engine
+	err := secretEngineClient.CreatePolicy()
+	if err != nil {
+		status.Conditions = []api.SecretEngineCondition{
+			{
+				Type:    SecretEngineConditionFailed,
+				Status:  core.ConditionTrue,
+				Reason:  "FailedToCreateSecretEnginePolicy",
+				Message: err.Error(),
+			},
+		}
+		err2 := c.updatedSecretEngineStatus(&status, secretEngine)
+		if err2 != nil {
+			return errors.Wrap(err2, "failed to update secret engine status")
+		}
+		return errors.Wrap(err, "failed to create secret engine policy")
+	}
 
+	fmt.Println("UpdateAuthRole called..........!")
+	// Update the policy field of the auth method
+	err = secretEngineClient.UpdateAuthRole()
+	if err != nil {
+		status.Conditions = []api.SecretEngineCondition{
+			{
+				Type:    SecretEngineConditionFailed,
+				Status:  core.ConditionTrue,
+				Reason:  "FailedToUpdateAuthRole",
+				Message: err.Error(),
+			},
+		}
+		err2 := c.updatedSecretEngineStatus(&status, secretEngine)
+		if err2 != nil {
+			return errors.Wrap(err2, "failed to update secret engine status")
+		}
+		return errors.Wrap(err, "failed to update auth role")
+	}
+
+	fmt.Println("Enable secret engine called................!")
 	// enable the secret engine if it is not already enabled
-	err := secretEngineClient.EnableSecretEngine()
+	err = secretEngineClient.EnableSecretEngine()
 	if err != nil {
 		status.Conditions = []api.SecretEngineCondition{
 			{
@@ -99,6 +139,7 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient *engine.Secre
 		return errors.Wrap(err, "failed to enable secret engine")
 	}
 
+	fmt.Println("Create config called........!")
 	// Create secret engine config
 	err = secretEngineClient.CreateConfig()
 	if err != nil {
@@ -205,6 +246,8 @@ func (c *VaultController) runSecretEngineFinalizer(secretEngine *api.SecretEngin
 }
 
 // ToDo:
+//  - disable secret engine
+//  - delete policy and policy binding
 func (c *VaultController) finalizeSecretEngine(secretEngineClient *engine.SecretEngine) error {
 	//err := gcpRClient.DeleteRole(gcpRole.RoleName())
 	//if err != nil {

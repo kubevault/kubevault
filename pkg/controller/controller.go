@@ -212,6 +212,7 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	go c.azureAccessQueue.Run(stopCh)
 
 	// For Secret Engine
+	fmt.Println("It's okay upto this point")
 	go c.secretEngineQueue.Run(stopCh)
 
 	<-stopCh

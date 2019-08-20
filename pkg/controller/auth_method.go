@@ -162,7 +162,7 @@ func vaultPolicyBindingForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy
 			VaultRef: core.LocalObjectReference{Name: vs.AppBindingName()},
 			Policies: []policyapi.PolicyIdentifier{
 				{
-					Name: vs.PolicyNameForAuthMethodController(),
+					Ref: vs.PolicyNameForAuthMethodController(),
 				},
 			},
 			SubjectRef: policyapi.SubjectRef{

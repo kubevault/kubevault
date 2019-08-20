@@ -114,5 +114,8 @@ func (c *Config) New() (*VaultController, error) {
 	ctrl.initAzureRoleWatcher()
 	ctrl.initAzureAccessKeyWatcher()
 
+	// For secretEngine
+	ctrl.initSecretEngineWatcher()
+
 	return ctrl, nil
 }
