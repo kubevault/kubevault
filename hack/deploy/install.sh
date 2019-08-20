@@ -6,16 +6,17 @@ crds=(
   vaultserverversions.catalog.kubevault.com
   vaultpolicies.policy.kubevault.com
   vaultpolicybindings.policy.kubevault.com
-  databaseaccessrequests.authorization.kubedb.com
-  mongodbroles.authorization.kubedb.com
-  mysqlroles.authorization.kubedb.com
-  postgresroles.authorization.kubedb.com
+  databaseaccessrequests.engine.kubevault.com
+  mongodbroles.engine.kubevault.com
+  mysqlroles.engine.kubevault.com
+  postgresroles.engine.kubevault.com
   awsroles.engine.kubevault.com
   awsaccesskeyrequests.engine.kubevault.com
   gcproles.engine.kubevault.com
   gcpaccesskeyrequests.engine.kubevault.com
   azureroles.engine.kubevault.com
   azureaccesskeyrequests.engine.kubevault.com
+  secretengines.engine.kubevault.com
 )
 apiServices=(
   v1alpha1.validators.kubevault.com
