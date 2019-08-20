@@ -14,7 +14,6 @@ rules:
   - catalog.kubevault.com
   - policy.kubevault.com
   - appcatalog.appscode.com
-  - authorization.kubedb.com
   - engine.kubevault.com
   resources:
   - "*"
@@ -42,16 +41,13 @@ rules:
   - vaultpolicybindings
   verbs: ["*"]
 - apiGroups:
-  - authorization.kubedb.com
+  - engine.kubevault.com
   resources:
+  - secretengines
   - databaseaccessrequests
   - mongodbroles
   - mysqlroles
   - postgresroles
-  verbs: ["*"]
-- apiGroups:
-  - engine.kubevault.com
-  resources:
   - awsroles
   - awsaccesskeyrequests
   - gcproles
@@ -92,16 +88,13 @@ rules:
   - vaultpolicybindings
   verbs: ["get", "list", "watch"]
 - apiGroups:
-  - authorization.kubedb.com
+  - engine.kubevault.com
   resources:
+  - secretengines
   - databaseaccessrequests
   - mongodbroles
   - mysqlroles
   - postgresroles
-  verbs: ["get", "list", "watch"]
-- apiGroups:
-  - engine.kubevault.com
-  resources:
   - awsroles
   - awsaccesskeyrequests
   - gcproles
