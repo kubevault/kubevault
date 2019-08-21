@@ -43,7 +43,7 @@ func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 		},
 		Spec: api.MySQLRoleSpec{
 			VaultRef: corev1.LocalObjectReference{},
-			DatabaseRef: appcat.AppReference{
+			DatabaseRef: &appcat.AppReference{
 				Name: "test",
 			},
 		},

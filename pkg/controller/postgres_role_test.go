@@ -79,7 +79,7 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 		},
 		Spec: api.PostgresRoleSpec{
 			VaultRef: corev1.LocalObjectReference{},
-			DatabaseRef: appcat.AppReference{
+			DatabaseRef: &appcat.AppReference{
 				Name: "test",
 			},
 		},

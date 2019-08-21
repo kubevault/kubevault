@@ -43,7 +43,7 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 		},
 		Spec: api.MongoDBRoleSpec{
 			VaultRef:    corev1.LocalObjectReference{Name: "test121"},
-			DatabaseRef: appcat.AppReference{Name: "test"},
+			DatabaseRef: &appcat.AppReference{Name: "test"},
 		},
 	}
 
