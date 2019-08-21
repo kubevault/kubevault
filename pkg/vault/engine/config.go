@@ -8,9 +8,23 @@ import (
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_util "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/util"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	"kubevault.dev/operator/pkg/vault"
 )
 
 func (secretEngineClient *SecretEngine) CreateConfig() error {
+	vAppRef := &appcat.AppReference{
+		Namespace: secretEngineClient.secretEngine.Namespace,
+		Name:      secretEngineClient.secretEngine.Spec.VaultRef.Name,
+	}
+
+	// Update vault client so that it has the permission
+	// to create config
+	vClient, err2 := vault.NewClient(secretEngineClient.kubeClient, secretEngineClient.appClient, vAppRef)
+	if err2 != nil {
+		return errors.Wrap(err2, "failed to create vault api client")
+	}
+	secretEngineClient.vaultClient = vClient
+
 	var err error
 	engSpec := secretEngineClient.secretEngine.Spec
 	if engSpec.GCP != nil {

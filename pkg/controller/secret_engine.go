@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/appscode/go/encoding/json/types"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
+	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
 	"kubevault.dev/operator/apis"
 	vsapis "kubevault.dev/operator/apis"
@@ -80,9 +82,9 @@ func (c *VaultController) runSecretEngineInjector(key string) error {
 //	  - enable the secrets engine if it is not already enabled
 //	  - configure Vault secret engine
 //    - create policy and policybinding for s/a of VaultAppRef
-func (c *VaultController) reconcileSecretEngine(secretEngineClient *engine.SecretEngine, secretEngine *api.SecretEngine) error {
+func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.EngineInterface, secretEngine *api.SecretEngine) error {
 	status := secretEngine.Status
-	fmt.Println("Create policy called.......!")
+
 	// Create required policies for secret engine
 	err := secretEngineClient.CreatePolicy()
 	if err != nil {
@@ -101,7 +103,6 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient *engine.Secre
 		return errors.Wrap(err, "failed to create secret engine policy")
 	}
 
-	fmt.Println("UpdateAuthRole called..........!")
 	// Update the policy field of the auth method
 	err = secretEngineClient.UpdateAuthRole()
 	if err != nil {
@@ -120,7 +121,6 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient *engine.Secre
 		return errors.Wrap(err, "failed to update auth role")
 	}
 
-	fmt.Println("Enable secret engine called................!")
 	// enable the secret engine if it is not already enabled
 	err = secretEngineClient.EnableSecretEngine()
 	if err != nil {
@@ -139,7 +139,6 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient *engine.Secre
 		return errors.Wrap(err, "failed to enable secret engine")
 	}
 
-	fmt.Println("Create config called........!")
 	// Create secret engine config
 	err = secretEngineClient.CreateConfig()
 	if err != nil {
@@ -156,6 +155,15 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient *engine.Secre
 			return errors.Wrap(err2, "failed to update status")
 		}
 		return errors.Wrap(err, "failed to create secret engine config")
+	}
+
+	// update status
+	status.ObservedGeneration = types.NewIntHash(secretEngine.Generation, meta_util.GenerationHash(secretEngine))
+	status.Conditions = []api.SecretEngineCondition{}
+	status.Phase = SecretEnginePhaseSuccess
+	err = c.updatedSecretEngineStatus(&status, secretEngine)
+	if err != nil {
+		return errors.Wrap(err, "failed to update secret engine status")
 	}
 
 	return nil
@@ -245,14 +253,20 @@ func (c *VaultController) runSecretEngineFinalizer(secretEngine *api.SecretEngin
 	c.finalizerInfo.Delete(id)
 }
 
-// ToDo:
-//  - disable secret engine
-//  - delete policy and policy binding
+// will do:
+//	- Delete the policy created for this secret engine
+//	- remove the policy from policy controller role
+//	- disable secret engine
 func (c *VaultController) finalizeSecretEngine(secretEngineClient *engine.SecretEngine) error {
-	//err := gcpRClient.DeleteRole(gcpRole.RoleName())
-	//if err != nil {
-	//	return errors.Wrap(err, "failed to delete gcp role")
-	//}
+	err := secretEngineClient.DeletePolicyAndUpdateRole()
+	if err != nil {
+		return errors.Wrap(err, "failed to delete policy or update policy controller role")
+	}
+
+	err = secretEngineClient.DisableSecretEngine()
+	if err != nil {
+		return errors.Wrap(err, "failed to disable secret engine")
+	}
 	return nil
 }
 

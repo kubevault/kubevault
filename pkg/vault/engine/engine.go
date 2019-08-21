@@ -110,3 +110,15 @@ func (secretEngineClient *SecretEngine) EnableSecretEngine() error {
 	}
 	return nil
 }
+
+func (secretEngineClient *SecretEngine) DisableSecretEngine() error {
+	enabled, err := secretEngineClient.IsSecretEngineEnabled()
+	if err != nil {
+		return err
+	}
+	if !enabled {
+		return nil
+	}
+	err = secretEngineClient.vaultClient.Sys().Unmount(secretEngineClient.path)
+	return err
+}
