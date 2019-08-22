@@ -11,34 +11,34 @@ import (
 	"kubevault.dev/operator/pkg/vault"
 )
 
-func (secretEngineClient *SecretEngine) CreateConfig() error {
+func (seClient *SecretEngine) CreateConfig() error {
 	vAppRef := &appcat.AppReference{
-		Namespace: secretEngineClient.secretEngine.Namespace,
-		Name:      secretEngineClient.secretEngine.Spec.VaultRef.Name,
+		Namespace: seClient.secretEngine.Namespace,
+		Name:      seClient.secretEngine.Spec.VaultRef.Name,
 	}
 
 	// Update vault client so that it has the permission
 	// to create config
-	vClient, err2 := vault.NewClient(secretEngineClient.kubeClient, secretEngineClient.appClient, vAppRef)
+	vClient, err2 := vault.NewClient(seClient.kubeClient, seClient.appClient, vAppRef)
 	if err2 != nil {
 		return errors.Wrap(err2, "failed to create vault api client")
 	}
-	secretEngineClient.vaultClient = vClient
+	seClient.vaultClient = vClient
 
 	var err error
-	engSpec := secretEngineClient.secretEngine.Spec
+	engSpec := seClient.secretEngine.Spec
 	if engSpec.GCP != nil {
-		err = secretEngineClient.CreateGCPConfig()
+		err = seClient.CreateGCPConfig()
 	} else if engSpec.Azure != nil {
-		err = secretEngineClient.CreateAzureConfig()
+		err = seClient.CreateAzureConfig()
 	} else if engSpec.AWS != nil {
-		err = secretEngineClient.CreateAWSConfig()
+		err = seClient.CreateAWSConfig()
 	} else if engSpec.MySQL != nil {
-		err = secretEngineClient.CreateMySQLConfig()
+		err = seClient.CreateMySQLConfig()
 	} else if engSpec.Postgres != nil {
-		err = secretEngineClient.CreatePostgresConfig()
+		err = seClient.CreatePostgresConfig()
 	} else if engSpec.MongoDB != nil {
-		err = secretEngineClient.CreateMongoDBConfig()
+		err = seClient.CreateMongoDBConfig()
 	} else {
 		return errors.New("failed to create config: unknown secret engine type")
 	}
@@ -49,8 +49,8 @@ func (secretEngineClient *SecretEngine) CreateConfig() error {
 // https:https://www.vaultproject.io/api/secret/databases/mysql-maria.html#configure-connection
 //
 // CreateMySQLConfig creates MySQL database configuration
-func (secretEngineClient *SecretEngine) CreateMySQLConfig() error {
-	config := secretEngineClient.secretEngine.Spec.MySQL
+func (seClient *SecretEngine) CreateMySQLConfig() error {
+	config := seClient.secretEngine.Spec.MySQL
 	if config == nil {
 		return errors.New("MySQL database config is nil")
 	}
@@ -59,7 +59,7 @@ func (secretEngineClient *SecretEngine) CreateMySQLConfig() error {
 	config.SetDefaults()
 
 	dbAppRef := config.DatabaseRef
-	dbApp, err := secretEngineClient.appClient.AppBindings(dbAppRef.Namespace).Get(dbAppRef.Name, metav1.GetOptions{})
+	dbApp, err := seClient.appClient.AppBindings(dbAppRef.Namespace).Get(dbAppRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return errors.Wrap(err, "failed to get DatabaseAppBinding for MySQL database config")
 	}
@@ -69,8 +69,8 @@ func (secretEngineClient *SecretEngine) CreateMySQLConfig() error {
 		return errors.Wrap(err, "failed to get MySQL database connection url")
 	}
 
-	path := fmt.Sprintf("/v1/%s/config/%s", secretEngineClient.path, api.GetDBNameFromAppBindingRef(&dbAppRef))
-	req := secretEngineClient.vaultClient.NewRequest("POST", path)
+	path := fmt.Sprintf("/v1/%s/config/%s", seClient.path, api.GetDBNameFromAppBindingRef(&dbAppRef))
+	req := seClient.vaultClient.NewRequest("POST", path)
 	payload := map[string]interface{}{
 		"plugin_name":    config.PluginName,
 		"allowed_roles":  config.AllowedRoles,
@@ -78,7 +78,7 @@ func (secretEngineClient *SecretEngine) CreateMySQLConfig() error {
 	}
 
 	if dbApp.Spec.Secret != nil {
-		secret, err := secretEngineClient.kubeClient.CoreV1().Secrets(dbAppRef.Namespace).Get(dbApp.Spec.Secret.Name, metav1.GetOptions{})
+		secret, err := seClient.kubeClient.CoreV1().Secrets(dbAppRef.Namespace).Get(dbApp.Spec.Secret.Name, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to get secret for MySQL database config")
 		}
@@ -88,7 +88,7 @@ func (secretEngineClient *SecretEngine) CreateMySQLConfig() error {
 			data[k] = string(v)
 		}
 
-		err = appcat_util.TransformCredentials(secretEngineClient.kubeClient, dbApp.Spec.SecretTransforms, data)
+		err = appcat_util.TransformCredentials(seClient.kubeClient, dbApp.Spec.SecretTransforms, data)
 		if err != nil {
 			return err
 		}
@@ -114,7 +114,7 @@ func (secretEngineClient *SecretEngine) CreateMySQLConfig() error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	_, err = secretEngineClient.vaultClient.RawRequest(req)
+	_, err = seClient.vaultClient.RawRequest(req)
 	return err
 }
 
@@ -122,8 +122,8 @@ func (secretEngineClient *SecretEngine) CreateMySQLConfig() error {
 // https://www.vaultproject.io/api/secret/databases/mongodb.html#configure-connection
 //
 // CreateMongoDBConfig creates MongoDB database configuration
-func (secretEngineClient *SecretEngine) CreateMongoDBConfig() error {
-	config := secretEngineClient.secretEngine.Spec.MongoDB
+func (seClient *SecretEngine) CreateMongoDBConfig() error {
+	config := seClient.secretEngine.Spec.MongoDB
 	if config == nil {
 		return errors.New("MongoDB database config is nil")
 	}
@@ -132,7 +132,7 @@ func (secretEngineClient *SecretEngine) CreateMongoDBConfig() error {
 	config.SetDefaults()
 
 	dbAppRef := config.DatabaseRef
-	dbApp, err := secretEngineClient.appClient.AppBindings(dbAppRef.Namespace).Get(dbAppRef.Name, metav1.GetOptions{})
+	dbApp, err := seClient.appClient.AppBindings(dbAppRef.Namespace).Get(dbAppRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return errors.Wrap(err, "failed to get DatabaseAppBinding for MongoDB database config")
 	}
@@ -142,8 +142,8 @@ func (secretEngineClient *SecretEngine) CreateMongoDBConfig() error {
 		return errors.Wrap(err, "failed to get MongoDB database connection url")
 	}
 
-	path := fmt.Sprintf("/v1/%s/config/%s", secretEngineClient.path, api.GetDBNameFromAppBindingRef(&dbAppRef))
-	req := secretEngineClient.vaultClient.NewRequest("POST", path)
+	path := fmt.Sprintf("/v1/%s/config/%s", seClient.path, api.GetDBNameFromAppBindingRef(&dbAppRef))
+	req := seClient.vaultClient.NewRequest("POST", path)
 
 	payload := map[string]interface{}{
 		"plugin_name":    config.PluginName,
@@ -152,7 +152,7 @@ func (secretEngineClient *SecretEngine) CreateMongoDBConfig() error {
 	}
 
 	if dbApp.Spec.Secret != nil {
-		secret, err := secretEngineClient.kubeClient.CoreV1().Secrets(dbAppRef.Namespace).Get(dbApp.Spec.Secret.Name, metav1.GetOptions{})
+		secret, err := seClient.kubeClient.CoreV1().Secrets(dbAppRef.Namespace).Get(dbApp.Spec.Secret.Name, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "Failed to get secret for MongoDB database config")
 		}
@@ -162,7 +162,7 @@ func (secretEngineClient *SecretEngine) CreateMongoDBConfig() error {
 			data[k] = string(v)
 		}
 
-		err = appcat_util.TransformCredentials(secretEngineClient.kubeClient, dbApp.Spec.SecretTransforms, data)
+		err = appcat_util.TransformCredentials(seClient.kubeClient, dbApp.Spec.SecretTransforms, data)
 		if err != nil {
 			return err
 		}
@@ -182,7 +182,7 @@ func (secretEngineClient *SecretEngine) CreateMongoDBConfig() error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	_, err = secretEngineClient.vaultClient.RawRequest(req)
+	_, err = seClient.vaultClient.RawRequest(req)
 	if err != nil {
 		return errors.Wrap(err, "failed to create database config")
 	}
@@ -193,8 +193,8 @@ func (secretEngineClient *SecretEngine) CreateMongoDBConfig() error {
 // https://www.vaultproject.io/api/secret/databases/postgresql.html#configure-connection
 //
 // CreatePostgresConfig creates database configuration
-func (secretEngineClient *SecretEngine) CreatePostgresConfig() error {
-	config := secretEngineClient.secretEngine.Spec.Postgres
+func (seClient *SecretEngine) CreatePostgresConfig() error {
+	config := seClient.secretEngine.Spec.Postgres
 	if config == nil {
 		return errors.New("Postgres database config is nil")
 	}
@@ -203,7 +203,7 @@ func (secretEngineClient *SecretEngine) CreatePostgresConfig() error {
 	config.SetDefaults()
 
 	dbAppRef := config.DatabaseRef
-	dbApp, err := secretEngineClient.appClient.AppBindings(dbAppRef.Namespace).Get(dbAppRef.Name, metav1.GetOptions{})
+	dbApp, err := seClient.appClient.AppBindings(dbAppRef.Namespace).Get(dbAppRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return errors.Wrap(err, "failed to get DatabaseAppBinding for Postgres database config")
 	}
@@ -213,8 +213,8 @@ func (secretEngineClient *SecretEngine) CreatePostgresConfig() error {
 		return errors.Wrap(err, "failed to get Postgres database connection url")
 	}
 
-	path := fmt.Sprintf("/v1/%s/config/%s", secretEngineClient.path, api.GetDBNameFromAppBindingRef(&dbAppRef))
-	req := secretEngineClient.vaultClient.NewRequest("POST", path)
+	path := fmt.Sprintf("/v1/%s/config/%s", seClient.path, api.GetDBNameFromAppBindingRef(&dbAppRef))
+	req := seClient.vaultClient.NewRequest("POST", path)
 
 	payload := map[string]interface{}{
 		"plugin_name":    config.PluginName,
@@ -223,7 +223,7 @@ func (secretEngineClient *SecretEngine) CreatePostgresConfig() error {
 	}
 
 	if dbApp.Spec.Secret != nil {
-		secret, err := secretEngineClient.kubeClient.CoreV1().Secrets(dbAppRef.Namespace).Get(dbApp.Spec.Secret.Name, metav1.GetOptions{})
+		secret, err := seClient.kubeClient.CoreV1().Secrets(dbAppRef.Namespace).Get(dbApp.Spec.Secret.Name, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "Failed to get secret for Postgres database config")
 		}
@@ -233,7 +233,7 @@ func (secretEngineClient *SecretEngine) CreatePostgresConfig() error {
 			data[k] = string(v)
 		}
 
-		err = appcat_util.TransformCredentials(secretEngineClient.kubeClient, dbApp.Spec.SecretTransforms, data)
+		err = appcat_util.TransformCredentials(seClient.kubeClient, dbApp.Spec.SecretTransforms, data)
 		if err != nil {
 			return err
 		}
@@ -259,7 +259,7 @@ func (secretEngineClient *SecretEngine) CreatePostgresConfig() error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	_, err = secretEngineClient.vaultClient.RawRequest(req)
+	_, err = seClient.vaultClient.RawRequest(req)
 	if err != nil {
 		return errors.Wrap(err, "failed to create database config")
 	}
@@ -270,18 +270,18 @@ func (secretEngineClient *SecretEngine) CreatePostgresConfig() error {
 // - https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials
 
 // Configures AWS secret engine at specified path
-func (secretEngineClient *SecretEngine) CreateAWSConfig() error {
-	config := secretEngineClient.secretEngine.Spec.AWS
+func (seClient *SecretEngine) CreateAWSConfig() error {
+	config := seClient.secretEngine.Spec.AWS
 	if config == nil {
 		return errors.New("AWS config is nil")
 	}
 
-	if secretEngineClient.vaultClient == nil {
+	if seClient.vaultClient == nil {
 		return errors.New("vault client is nil")
 	}
 
-	path := fmt.Sprintf("/v1/%s/config/root", secretEngineClient.path)
-	req := secretEngineClient.vaultClient.NewRequest("POST", path)
+	path := fmt.Sprintf("/v1/%s/config/root", seClient.path)
+	req := seClient.vaultClient.NewRequest("POST", path)
 
 	payload := map[string]interface{}{}
 	if config.MaxRetries != nil {
@@ -298,7 +298,7 @@ func (secretEngineClient *SecretEngine) CreateAWSConfig() error {
 	}
 
 	if config.CredentialSecret != "" {
-		sr, err := secretEngineClient.kubeClient.CoreV1().Secrets(secretEngineClient.secretEngine.Namespace).Get(config.CredentialSecret, metav1.GetOptions{})
+		sr, err := seClient.kubeClient.CoreV1().Secrets(seClient.secretEngine.Namespace).Get(config.CredentialSecret, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to get aws credential secret")
 		}
@@ -315,15 +315,15 @@ func (secretEngineClient *SecretEngine) CreateAWSConfig() error {
 		return errors.Wrap(err, "failed to load payload in config create request")
 	}
 
-	_, err := secretEngineClient.vaultClient.RawRequest(req)
+	_, err := seClient.vaultClient.RawRequest(req)
 	if err != nil {
 		return errors.Wrap(err, "failed to create aws config")
 	}
 
 	// set lease config
 	if config.LeaseConfig != nil {
-		path := fmt.Sprintf("/v1/%s/config/lease", secretEngineClient.path)
-		req := secretEngineClient.vaultClient.NewRequest("POST", path)
+		path := fmt.Sprintf("/v1/%s/config/lease", seClient.path)
+		req := seClient.vaultClient.NewRequest("POST", path)
 
 		payload := map[string]interface{}{
 			"lease":     config.LeaseConfig.Lease,
@@ -333,7 +333,7 @@ func (secretEngineClient *SecretEngine) CreateAWSConfig() error {
 			return errors.Wrap(err, "failed to load payload in create lease config request")
 		}
 
-		_, err := secretEngineClient.vaultClient.RawRequest(req)
+		_, err := seClient.vaultClient.RawRequest(req)
 		if err != nil {
 			return errors.Wrap(err, "failed to create aws lease config")
 		}
@@ -345,22 +345,22 @@ func (secretEngineClient *SecretEngine) CreateAWSConfig() error {
 //	- https://www.vaultproject.io/api/secret/azure/index.html#configure-access
 
 // Configures Azure secret engine at specified path
-func (secretEngineClient *SecretEngine) CreateAzureConfig() error {
-	config := secretEngineClient.secretEngine.Spec.Azure
+func (seClient *SecretEngine) CreateAzureConfig() error {
+	config := seClient.secretEngine.Spec.Azure
 	if config == nil {
 		return errors.New("Azure config is nil")
 	}
 
-	if secretEngineClient.vaultClient == nil {
+	if seClient.vaultClient == nil {
 		return errors.New("vault client is nil")
 	}
 
-	path := fmt.Sprintf("/v1/%s/config", secretEngineClient.path)
-	req := secretEngineClient.vaultClient.NewRequest("POST", path)
+	path := fmt.Sprintf("/v1/%s/config", seClient.path)
+	req := seClient.vaultClient.NewRequest("POST", path)
 
 	payload := map[string]interface{}{}
 	if config.CredentialSecret != "" {
-		sr, err := secretEngineClient.kubeClient.CoreV1().Secrets(secretEngineClient.secretEngine.Namespace).Get(config.CredentialSecret, metav1.GetOptions{})
+		sr, err := seClient.kubeClient.CoreV1().Secrets(seClient.secretEngine.Namespace).Get(config.CredentialSecret, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to get azure credential secret")
 		}
@@ -394,7 +394,7 @@ func (secretEngineClient *SecretEngine) CreateAzureConfig() error {
 		return errors.Wrap(err, "failed to load payload in config create request")
 	}
 
-	_, err := secretEngineClient.vaultClient.RawRequest(req)
+	_, err := seClient.vaultClient.RawRequest(req)
 	if err != nil {
 		return errors.Wrap(err, "failed to create azure config")
 	}
@@ -405,18 +405,18 @@ func (secretEngineClient *SecretEngine) CreateAzureConfig() error {
 //  - https://www.vaultproject.io/api/secret/gcp/index.html#write-config
 
 // Configures GCP secret engine at specified path
-func (secretEngineClient *SecretEngine) CreateGCPConfig() error {
-	config := secretEngineClient.secretEngine.Spec.GCP
+func (seClient *SecretEngine) CreateGCPConfig() error {
+	config := seClient.secretEngine.Spec.GCP
 	if config == nil {
 		return errors.New("GCP config is nil")
 	}
 
-	if secretEngineClient.vaultClient == nil {
+	if seClient.vaultClient == nil {
 		return errors.New("vault client is nil")
 	}
 
-	path := fmt.Sprintf("/v1/%s/config", secretEngineClient.path)
-	req := secretEngineClient.vaultClient.NewRequest("POST", path)
+	path := fmt.Sprintf("/v1/%s/config", seClient.path)
+	req := seClient.vaultClient.NewRequest("POST", path)
 
 	payload := map[string]interface{}{}
 	if config.TTL != "" {
@@ -427,7 +427,7 @@ func (secretEngineClient *SecretEngine) CreateGCPConfig() error {
 	}
 
 	if config.CredentialSecret != "" {
-		sr, err := secretEngineClient.kubeClient.CoreV1().Secrets(secretEngineClient.secretEngine.Namespace).Get(config.CredentialSecret, metav1.GetOptions{})
+		sr, err := seClient.kubeClient.CoreV1().Secrets(seClient.secretEngine.Namespace).Get(config.CredentialSecret, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to get gcp credential secret")
 		}
@@ -441,7 +441,7 @@ func (secretEngineClient *SecretEngine) CreateGCPConfig() error {
 		return errors.Wrap(err, "failed to load payload in config create request")
 	}
 
-	_, err := secretEngineClient.vaultClient.RawRequest(req)
+	_, err := seClient.vaultClient.RawRequest(req)
 	if err != nil {
 		return errors.Wrap(err, "failed to create gcp config")
 	}

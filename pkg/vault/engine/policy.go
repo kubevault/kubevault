@@ -100,10 +100,10 @@ type RoleData struct {
 	TokenType                     string      `json:"token_type"`
 }
 
-func (secretEngineClient *SecretEngine) CreatePolicy() error {
+func (seClient *SecretEngine) CreatePolicy() error {
 	var policy bytes.Buffer
 	var policyTemplate string
-	engSpec := secretEngineClient.secretEngine.Spec
+	engSpec := seClient.secretEngine.Spec
 
 	if engSpec.GCP != nil {
 		policyTemplate = SecretEnginePolicyGCP
@@ -118,13 +118,13 @@ func (secretEngineClient *SecretEngine) CreatePolicy() error {
 	}
 
 	tpl := template.Must(template.New("").Parse(policyTemplate))
-	err := tpl.Execute(&policy, secretEngineClient.path)
+	err := tpl.Execute(&policy, seClient.path)
 	if err != nil {
 		return errors.Wrap(err, "failed to execute policy template")
 	}
 
-	policyName := secretEngineClient.secretEngine.GetPolicyName()
-	err = secretEngineClient.vaultClient.Sys().PutPolicy(policyName, policy.String())
+	policyName := seClient.secretEngine.GetPolicyName()
+	err = seClient.vaultClient.Sys().PutPolicy(policyName, policy.String())
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("failed to create vault policy: %s", policyName))
 	}
@@ -175,17 +175,17 @@ func GetPolicyControllerRoleInfo(appClient appcat_cs.AppcatalogV1alpha1Interface
 	return &role, cf.PolicyControllerRole, nil
 }
 
-func (secretEngineClient *SecretEngine) UpdateAuthRole() error {
+func (seClient *SecretEngine) UpdateAuthRole() error {
 	// Get policy controller role name from appbinding and
 	// get role data from vault
-	role, roleName, err := GetPolicyControllerRoleInfo(secretEngineClient.appClient, secretEngineClient.vaultClient, secretEngineClient.secretEngine)
+	role, roleName, err := GetPolicyControllerRoleInfo(seClient.appClient, seClient.vaultClient, seClient.secretEngine)
 	if err != nil {
 		return errors.Wrap(err, "failed to get policy controller role information")
 	}
 
 	// Check whether the policy already exist or not
 	exist := false
-	policyName := secretEngineClient.secretEngine.GetPolicyName()
+	policyName := seClient.secretEngine.GetPolicyName()
 	for _, value := range role.Data.TokenPolicies {
 		if policyName == value {
 			exist = true
@@ -200,27 +200,27 @@ func (secretEngineClient *SecretEngine) UpdateAuthRole() error {
 
 	// update the policy controller role with new policies
 	path := fmt.Sprintf("/v1/auth/kubernetes/role/%s", roleName)
-	req := secretEngineClient.vaultClient.NewRequest("POST", path)
+	req := seClient.vaultClient.NewRequest("POST", path)
 	err = req.SetJSONBody(role.Data)
 	if err != nil {
 		return err
 	}
 
-	_, err = secretEngineClient.vaultClient.RawRequest(req)
+	_, err = seClient.vaultClient.RawRequest(req)
 	return err
 }
 
-func (secretEngineClient *SecretEngine) DeletePolicyAndUpdateRole() error {
+func (seClient *SecretEngine) DeletePolicyAndUpdateRole() error {
 	// delete policy created for this secret engine
-	policyName := secretEngineClient.secretEngine.GetPolicyName()
-	err := secretEngineClient.vaultClient.Sys().DeletePolicy(policyName)
+	policyName := seClient.secretEngine.GetPolicyName()
+	err := seClient.vaultClient.Sys().DeletePolicy(policyName)
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("failed to delete vault policy: %s", policyName))
 	}
 
 	// get policy controller role name from appbinding and
 	// also get policy controller role data from vault
-	role, roleName, err := GetPolicyControllerRoleInfo(secretEngineClient.appClient, secretEngineClient.vaultClient, secretEngineClient.secretEngine)
+	role, roleName, err := GetPolicyControllerRoleInfo(seClient.appClient, seClient.vaultClient, seClient.secretEngine)
 	if err != nil {
 		return errors.Wrap(err, "failed to get policy controller role information")
 	}
@@ -247,12 +247,12 @@ func (secretEngineClient *SecretEngine) DeletePolicyAndUpdateRole() error {
 
 	// Update role with new policies
 	path := fmt.Sprintf("/v1/auth/kubernetes/role/%s", roleName)
-	req := secretEngineClient.vaultClient.NewRequest("POST", path)
+	req := seClient.vaultClient.NewRequest("POST", path)
 	err = req.SetJSONBody(role.Data)
 	if err != nil {
 		return err
 	}
 
-	_, err = secretEngineClient.vaultClient.RawRequest(req)
+	_, err = seClient.vaultClient.RawRequest(req)
 	return err
 }

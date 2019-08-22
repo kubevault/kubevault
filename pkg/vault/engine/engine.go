@@ -62,13 +62,13 @@ func GetSecretEnginePath(engine *api.SecretEngine) string {
 }
 
 // checks whether SecretEngine is enabled or not
-func (secretEngineClient *SecretEngine) IsSecretEngineEnabled() (bool, error) {
-	mnt, err := secretEngineClient.vaultClient.Sys().ListMounts()
+func (seClient *SecretEngine) IsSecretEngineEnabled() (bool, error) {
+	mnt, err := seClient.vaultClient.Sys().ListMounts()
 	if err != nil {
 		return false, errors.Wrap(err, "failed to list mounted secrets engines")
 	}
 
-	mntPath := secretEngineClient.path + "/"
+	mntPath := seClient.path + "/"
 	for k := range mnt {
 		if k == mntPath {
 			return true, nil
@@ -79,8 +79,8 @@ func (secretEngineClient *SecretEngine) IsSecretEngineEnabled() (bool, error) {
 
 // It enables secret engine
 // It first checks whether secret engine is enabled or not
-func (secretEngineClient *SecretEngine) EnableSecretEngine() error {
-	enabled, err := secretEngineClient.IsSecretEngineEnabled()
+func (seClient *SecretEngine) EnableSecretEngine() error {
+	enabled, err := seClient.IsSecretEngineEnabled()
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (secretEngineClient *SecretEngine) EnableSecretEngine() error {
 		return nil
 	}
 	var engineType string
-	engSpec := secretEngineClient.secretEngine.Spec
+	engSpec := seClient.secretEngine.Spec
 	if engSpec.AWS != nil {
 		engineType = api.EngineTypeAWS
 	} else if engSpec.GCP != nil {
@@ -102,7 +102,7 @@ func (secretEngineClient *SecretEngine) EnableSecretEngine() error {
 		return errors.New("failed to enable secret engine: unknown secret engine type")
 	}
 
-	err = secretEngineClient.vaultClient.Sys().Mount(secretEngineClient.path, &vaultapi.MountInput{
+	err = seClient.vaultClient.Sys().Mount(seClient.path, &vaultapi.MountInput{
 		Type: engineType,
 	})
 	if err != nil {
@@ -111,14 +111,14 @@ func (secretEngineClient *SecretEngine) EnableSecretEngine() error {
 	return nil
 }
 
-func (secretEngineClient *SecretEngine) DisableSecretEngine() error {
-	enabled, err := secretEngineClient.IsSecretEngineEnabled()
+func (seClient *SecretEngine) DisableSecretEngine() error {
+	enabled, err := seClient.IsSecretEngineEnabled()
 	if err != nil {
 		return err
 	}
 	if !enabled {
 		return nil
 	}
-	err = secretEngineClient.vaultClient.Sys().Unmount(secretEngineClient.path)
+	err = seClient.vaultClient.Sys().Unmount(seClient.path)
 	return err
 }

@@ -64,11 +64,11 @@ func (c *VaultController) runSecretEngineInjector(key string) error {
 				}
 			}
 
-			secretEngineClient, err := engine.NewSecretEngine(c.kubeClient, c.appCatalogClient, secretEngine)
+			seClient, err := engine.NewSecretEngine(c.kubeClient, c.appCatalogClient, secretEngine)
 			if err != nil {
 				return err
 			}
-			err = c.reconcileSecretEngine(secretEngineClient, secretEngine)
+			err = c.reconcileSecretEngine(seClient, secretEngine)
 			if err != nil {
 				return errors.Wrapf(err, "for SecretEngine %s/%s:", secretEngine.Namespace, secretEngine.Name)
 			}
