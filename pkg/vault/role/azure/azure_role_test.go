@@ -19,62 +19,6 @@ import (
 func setupVaultServer() *httptest.Server {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/v1/azure/config", func(w http.ResponseWriter, r *http.Request) {
-		defer r.Body.Close()
-		var data interface{}
-		err := json.NewDecoder(r.Body).Decode(&data)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			_, err := w.Write([]byte(err.Error()))
-			log.Println(err)
-			return
-		} else {
-			m := data.(map[string]interface{})
-			if v, ok := m["subscription_id"]; !ok || len(v.(string)) == 0 {
-				w.WriteHeader(http.StatusBadRequest)
-				_, err := w.Write([]byte("subscription id isn't provided"))
-				log.Println(err)
-				return
-			}
-
-			if v, ok := m["tenant_id"]; !ok || len(v.(string)) == 0 {
-				w.WriteHeader(http.StatusBadRequest)
-				_, err := w.Write([]byte("tenant id isn't provided"))
-				log.Println(err)
-				return
-			}
-			w.WriteHeader(http.StatusOK)
-		}
-	}).Methods(http.MethodPost)
-
-	router.HandleFunc("/v1/my-azure-path/config", func(w http.ResponseWriter, r *http.Request) {
-		defer r.Body.Close()
-		var data interface{}
-		err := json.NewDecoder(r.Body).Decode(&data)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			_, err := w.Write([]byte(err.Error()))
-			log.Println(err)
-			return
-		} else {
-			m := data.(map[string]interface{})
-			if v, ok := m["subscription_id"]; !ok || len(v.(string)) == 0 {
-				w.WriteHeader(http.StatusBadRequest)
-				_, err := w.Write([]byte("subscription id isn't provided"))
-				log.Println(err)
-				return
-			}
-
-			if v, ok := m["tenant_id"]; !ok || len(v.(string)) == 0 {
-				w.WriteHeader(http.StatusBadRequest)
-				_, err := w.Write([]byte("tenant id isn't provided"))
-				log.Println(err)
-				return
-			}
-			w.WriteHeader(http.StatusOK)
-		}
-	}).Methods(http.MethodPost)
-
 	router.HandleFunc("/v1/azure/roles/k8s.-.demo.demo-role", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		var data interface{}

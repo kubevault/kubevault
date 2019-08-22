@@ -18,46 +18,6 @@ import (
 func setupVaultServer() *httptest.Server {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/v1/database/config/mysql", func(w http.ResponseWriter, r *http.Request) {
-		defer r.Body.Close()
-		var data interface{}
-		err := json.NewDecoder(r.Body).Decode(&data)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
-			return
-		} else {
-			m := data.(map[string]interface{})
-			if v, ok := m["plugin_name"]; !ok || len(v.(string)) == 0 {
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("plugin_name doesn't provided"))
-				return
-			}
-			if v, ok := m["allowed_roles"]; !ok || len(v.(string)) == 0 {
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("allowed_roles doesn't provided"))
-				return
-			}
-			if v, ok := m["connection_url"]; !ok || len(v.(string)) == 0 {
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("connection_url doesn't provided"))
-				return
-			}
-			if v, ok := m["username"]; !ok || len(v.(string)) == 0 {
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
-				return
-			}
-			if v, ok := m["password"]; !ok || len(v.(string)) == 0 {
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
-				return
-			}
-
-			w.WriteHeader(http.StatusOK)
-		}
-	}).Methods(http.MethodPost)
-
 	router.HandleFunc("/v1/database/roles/k8s.-.m.m-read", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		var data interface{}
@@ -119,7 +79,7 @@ func TestMySQLRole_CreateRole(t *testing.T) {
 						VaultRef: core.LocalObjectReference{
 							Name: "vault-app",
 						},
-						DatabaseRef: appcat.AppReference{
+						DatabaseRef: &appcat.AppReference{
 							Namespace: "demo",
 							Name:      "mysql",
 						},

@@ -135,25 +135,6 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 func setupVaultServer() *httptest.Server {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/v1/gcp/config", func(w http.ResponseWriter, r *http.Request) {
-		defer r.Body.Close()
-		var data interface{}
-		err := json.NewDecoder(r.Body).Decode(&data)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
-			return
-		} else {
-			m := data.(map[string]interface{})
-			if v, ok := m["credentials"]; !ok || len(v.(string)) == 0 {
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("credentials aren't provided"))
-				return
-			}
-			w.WriteHeader(http.StatusOK)
-		}
-	}).Methods(http.MethodPost)
-
 	router.HandleFunc("/v1/gcp/roleset/k8s.-.demo.my-role", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		var data interface{}

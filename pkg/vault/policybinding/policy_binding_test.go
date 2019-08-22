@@ -222,15 +222,21 @@ func TestDelete(t *testing.T) {
 
 func vaultClient(addr, token string) (*vaultapi.Client, error) {
 	cfg := vaultapi.DefaultConfig()
-	cfg.ConfigureTLS(&vaultapi.TLSConfig{
+	err := cfg.ConfigureTLS(&vaultapi.TLSConfig{
 		Insecure: true,
 	})
+	if err != nil {
+		return nil, err
+	}
 	c, err := vaultapi.NewClient(cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	c.SetAddress(addr)
 	c.SetToken(token)
+	err = c.SetAddress(addr)
+	if err != nil {
+		return nil, err
+	}
 	return c, nil
 }

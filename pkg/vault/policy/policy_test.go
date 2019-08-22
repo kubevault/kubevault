@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
-	vautlapi "github.com/hashicorp/vault/api"
+	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -120,17 +120,23 @@ func TestVPolicy_DeletePolicy(t *testing.T) {
 	}
 }
 
-func vaultClient(addr, token string) (*vautlapi.Client, error) {
-	cfg := vautlapi.DefaultConfig()
-	cfg.ConfigureTLS(&vautlapi.TLSConfig{
+func vaultClient(addr, token string) (*vaultapi.Client, error) {
+	cfg := vaultapi.DefaultConfig()
+	err := cfg.ConfigureTLS(&vaultapi.TLSConfig{
 		Insecure: true,
 	})
-	c, err := vautlapi.NewClient(cfg)
+	if err != nil {
+		return nil, err
+	}
+	c, err := vaultapi.NewClient(cfg)
 	if err != nil {
 		return nil, err
 	}
 
 	c.SetToken(token)
-	c.SetAddress(addr)
+	err = c.SetAddress(addr)
+	if err != nil {
+		return nil, err
+	}
 	return c, nil
 }
