@@ -48,6 +48,12 @@ func (m *MongoDBRole) CreateRole() error {
 
 	var dbName string
 	if mdb.DatabaseRef != nil {
+		if mdb.DatabaseRef.Name == "" {
+			return errors.New("DatabaseRef.Name is empty")
+		}
+		if mdb.DatabaseRef.Namespace == "" {
+			return errors.New("DatabaseRef.Namespace is empty")
+		}
 		dbName = api.GetDBNameFromAppBindingRef(mdb.DatabaseRef)
 	} else if mdb.DatabaseName != "" {
 		dbName = mdb.DatabaseName

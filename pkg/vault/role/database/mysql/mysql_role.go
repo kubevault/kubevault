@@ -48,6 +48,12 @@ func (m *MySQLRole) CreateRole() error {
 
 	var dbName string
 	if my.DatabaseRef != nil {
+		if my.DatabaseRef.Name == "" {
+			return errors.New("DatabaseRef.Name is empty")
+		}
+		if my.DatabaseRef.Namespace == "" {
+			return errors.New("DatabaseRef.Namespace is empty")
+		}
 		dbName = api.GetDBNameFromAppBindingRef(my.DatabaseRef)
 	} else if my.DatabaseName != "" {
 		dbName = my.DatabaseName

@@ -48,6 +48,12 @@ func (p *PostgresRole) CreateRole() error {
 
 	var dbName string
 	if pg.DatabaseRef != nil {
+		if pg.DatabaseRef.Name == "" {
+			return errors.New("DatabaseRef.Name is empty")
+		}
+		if pg.DatabaseRef.Namespace == "" {
+			return errors.New("DatabaseRef.Namespace is empty")
+		}
 		dbName = api.GetDBNameFromAppBindingRef(pg.DatabaseRef)
 	} else if pg.DatabaseName != "" {
 		dbName = pg.DatabaseName
