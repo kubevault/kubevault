@@ -305,10 +305,17 @@ func (seClient *SecretEngine) CreateAWSConfig() error {
 
 		if val, ok := sr.Data[api.AWSCredentialAccessKeyKey]; ok {
 			payload["access_key"] = string(val)
+		} else {
+			return errors.New("aws access_kay missing")
 		}
+
 		if val, ok := sr.Data[api.AWSCredentialSecretKeyKey]; ok {
 			payload["secret_key"] = string(val)
+		} else {
+			return errors.New("aws secret_key missing")
 		}
+	} else {
+		return errors.New("empty aws credentialSecret")
 	}
 
 	if err := req.SetJSONBody(payload); err != nil {
