@@ -82,6 +82,7 @@ spec:
       awsKmsSsm:
         region: "us-east-1"
         kmsKeyID: "218daa5f-7173-429e-a030-288b30761f79"
+        ssmKeyPrefix: "/cluster/demo"
 ```
 
 Here, `spec.version` specifies the name of the [VaultServerVersion](docs/concepts/vault-server-crds/vaultserverversion.md) CRD. If that does not exist, then create one.
@@ -132,6 +133,7 @@ $ cat examples/guides/provider/eks/my-vault.yaml
         awsKmsSsm:
           region: "us-east-1"
           kmsKeyID: "218daa5f-7173-429e-a030-288b30761f79"
+          ssmKeyPrefix: "/cluster/demo"
 
 $ kubectl apply -f examples/guides/provider/eks/my-vault.yaml
 vaultserver.kubevault.com/my-vault created

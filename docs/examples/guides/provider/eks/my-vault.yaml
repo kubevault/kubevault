@@ -17,3 +17,4 @@ spec:
       awsKmsSsm:
         region: "us-east-1"
         kmsKeyID: "218daa5f-7173-429e-a030-288b30761f79"
+        ssmKeyPrefix: "/cluster/demo"

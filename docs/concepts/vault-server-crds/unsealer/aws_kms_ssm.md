@@ -23,6 +23,7 @@ spec:
       awsKmsSsm:
         kmsKeyID: <key_id>
         region: <region>
+        ssmKeyPrefix: <key_prefix>
         credentialSecret: <secret_name>
 ```
 
@@ -50,6 +51,18 @@ spec:
     mode:
       awsKmsSsm:
         region: "us-east-1"
+```
+
+## awsKmsSsm.ssmKeyPrefix
+
+`awsKmsSsm.ssmKeyPrefix` is an optional field that specifies the prefix for SSM parameters. If this is not specified, then Unsealer will store parameters at the root of SSM.
+
+```yaml
+spec:
+  unsealer:
+    mode:
+      awsKmsSsm:
+        ssmKeyPrefix: "/cluster/demo"
 ```
 
 ## awsKmsSsm.credentialSecret
