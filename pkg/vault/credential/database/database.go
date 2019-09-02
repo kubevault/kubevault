@@ -25,7 +25,7 @@ type DBCredManager struct {
 }
 
 func NewDatabaseCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr crd.Interface, dbAR *api.DatabaseAccessRequest) (*DBCredManager, error) {
-	vaultRef, roleName, err := GetVaultRefAndRole(cr, dbAR.Spec.RoleRef)
+	vaultRef, roleName, dbPath, err := GetVaultRefAndRole(cr, dbAR.Spec.RoleRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get vault app reference and vault role")
 	}
@@ -35,10 +35,6 @@ func NewDatabaseCredentialManager(kClient kubernetes.Interface, appClient appcat
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
-	dbPath, err := databaserole.GetDatabasePath(appClient, vaultRef)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get database path")
-	}
 	return &DBCredManager{
 		DBAccessReq:  dbAR,
 		KubeClient:   kClient,
@@ -47,43 +43,55 @@ func NewDatabaseCredentialManager(kClient kubernetes.Interface, appClient appcat
 	}, nil
 }
 
-func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*appcat.AppReference, string, error) {
+func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*appcat.AppReference, string, string, error) {
 	switch ref.Kind {
 	case api.ResourceKindMongoDBRole:
 		r, err := cr.EngineV1alpha1().MongoDBRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 		if err != nil {
-			return nil, "", errors.Wrapf(err, "MongoDBRole %s/%s", ref.Namespace, ref.Name)
+			return nil, "", "", errors.Wrapf(err, "MongoDBRole %s/%s", ref.Namespace, ref.Name)
 		}
 		vAppRef := &appcat.AppReference{
 			Namespace: r.Namespace,
 			Name:      r.Spec.VaultRef.Name,
 		}
-		return vAppRef, r.RoleName(), nil
+		dbPath, err := databaserole.GetMongoDBDatabasePath(r)
+		if err != nil {
+			return nil, "", "", errors.Wrapf(err, "failed to get database path for MongoDBRole %s/%s", ref.Namespace, ref.Name)
+		}
+		return vAppRef, r.RoleName(), dbPath, nil
 
 	case api.ResourceKindMySQLRole:
 		r, err := cr.EngineV1alpha1().MySQLRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 		if err != nil {
-			return nil, "", errors.Wrapf(err, "MySQLRole %s/%s", ref.Namespace, ref.Name)
+			return nil, "", "", errors.Wrapf(err, "MySQLRole %s/%s", ref.Namespace, ref.Name)
 		}
 		vAppRef := &appcat.AppReference{
 			Namespace: r.Namespace,
 			Name:      r.Spec.VaultRef.Name,
 		}
-		return vAppRef, r.RoleName(), nil
+		dbPath, err := databaserole.GetMySQLDatabasePath(r)
+		if err != nil {
+			return nil, "", "", errors.Wrapf(err, "failed to get database path for MySQLRole %s/%s", ref.Namespace, ref.Name)
+		}
+		return vAppRef, r.RoleName(), dbPath, nil
 
 	case api.ResourceKindPostgresRole:
 		r, err := cr.EngineV1alpha1().PostgresRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 		if err != nil {
-			return nil, "", errors.Wrapf(err, "PostgresRole %s/%s", ref.Namespace, ref.Name)
+			return nil, "", "", errors.Wrapf(err, "PostgresRole %s/%s", ref.Namespace, ref.Name)
 		}
 		vAppRef := &appcat.AppReference{
 			Namespace: r.Namespace,
 			Name:      r.Spec.VaultRef.Name,
 		}
-		return vAppRef, r.RoleName(), nil
+		dbPath, err := databaserole.GetPostgresDatabasePath(r)
+		if err != nil {
+			return nil, "", "", errors.Wrapf(err, "failed to get database path for PostgresRole %s/%s", ref.Namespace, ref.Name)
+		}
+		return vAppRef, r.RoleName(), dbPath, nil
 
 	default:
-		return nil, "", errors.Errorf("unknown or unsupported role kind '%s'", ref.Kind)
+		return nil, "", "", errors.Errorf("unknown or unsupported role kind '%s'", ref.Kind)
 	}
 }
 
