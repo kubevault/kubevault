@@ -4,11 +4,15 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type RoleReference struct {
-	// Name of the object being referenced.
+// RoleRef contains information that points to the role being used
+type RoleRef struct {
+	// APIGroup is the group for the resource being referenced
+	APIGroup string `json:"apiGroup,omitempty"`
+	// Kind is the type of resource being referenced
+	Kind string `json:"kind,omitempty"`
+	// Name is the name of resource being referenced
 	Name string `json:"name"`
-
-	// Namespace of the referenced object.
+	// Namespace is the namespace of the resource being referenced
 	Namespace string `json:"namespace"`
 }
 

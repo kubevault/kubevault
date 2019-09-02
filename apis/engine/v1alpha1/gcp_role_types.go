@@ -4,7 +4,6 @@ import (
 	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 const (
@@ -36,13 +35,16 @@ const (
 )
 
 // GCPRoleSpec contains connection information, GCP role info, etc
+// More info: https://www.vaultproject.io/api/secret/gcp/index.html#parameters
 type GCPRoleSpec struct {
-	Ref *appcat.AppReference `json:"ref,omitempty"`
+	// VaultRef is the name of a AppBinding referencing to a Vault Server
+	VaultRef core.LocalObjectReference `json:"vaultRef"`
 
-	Config *GCPConfig `json:"config"`
-
-	// links:
-	// 	- https://www.vaultproject.io/api/secret/gcp/index.html#parameters-1
+	// Path defines the path of the Google Cloud secret engine
+	// default: gcp
+	// More info: https://www.vaultproject.io/docs/auth/gcp.html#via-the-cli-helper
+	// +optional
+	Path string `json:"path,omitempty"`
 
 	// Specifies the type of secret generated for this role set
 	SecretType GCPSecretType `json:"secretType"`
@@ -75,25 +77,6 @@ type GCPRoleList struct {
 const (
 	GCPSACredentialJson = "sa.json"
 )
-
-// https://www.vaultproject.io/api/secret/gcp/index.html#write-config
-// GCPConfig contains information to communicate with GCP
-type GCPConfig struct {
-	// Specifies the secret containing GCP credentials
-	// secret.Data:
-	//	- sa.json
-	CredentialSecret string `json:"credentialSecret"`
-
-	// Specifies default config TTL for long-lived credentials
-	// (i.e. service account keys).
-	// +optional
-	TTL string `json:"ttl,omitempty"`
-
-	// Specifies the maximum config TTL for long-lived
-	// credentials (i.e. service account keys).
-	// +optional
-	MaxTTL string `json:"maxTTL,omitempty"`
-}
 
 type GCPRolePhase string
 

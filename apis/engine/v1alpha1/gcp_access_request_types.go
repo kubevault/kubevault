@@ -34,7 +34,7 @@ type GCPAccessKeyRequest struct {
 type GCPAccessKeyRequestSpec struct {
 	// Contains vault gcp role info
 	// +required
-	RoleRef RoleReference `json:"roleRef"`
+	RoleRef RoleRef `json:"roleRef"`
 
 	// Contains a reference to the object or user identities the role binding is applied to
 	// +required

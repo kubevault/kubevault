@@ -5,7 +5,6 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 const (
@@ -40,13 +39,16 @@ const (
 )
 
 // AWSRoleSpec contains connection information, AWS role info, etc
+// More info: https://www.vaultproject.io/api/secret/aws/index.html#parameters-3
 type AWSRoleSpec struct {
-	Ref *appcat.AppReference `json:"ref,omitempty"`
+	// VaultRef is the name of a AppBinding referencing to a Vault Server
+	VaultRef core.LocalObjectReference `json:"vaultRef"`
 
-	Config *AWSConfig `json:"config"`
-
-	// links:
-	// 	- https://www.vaultproject.io/api/secret/aws/index.html
+	// Path defines the path of the AWS secret engine
+	// default: aws
+	// More info: https://www.vaultproject.io/docs/auth/aws.html#via-the-cli
+	// +optional
+	Path string `json:"path,omitempty"`
 
 	// Specifies the type of credential to be used when retrieving credentials from the role
 	CredentialType AWSCredentialType `json:"credentialType"`
@@ -64,6 +66,7 @@ type AWSRoleSpec struct {
 	// With iam_user, the policy document will be attached to the IAM user generated and
 	// augment the permissions the IAM user has. With assumed_role and federation_token,
 	// the policy document will act as a filter on what the credentials can do.
+	// +optional
 	PolicyDocument string `json:"policyDocument,omitempty"`
 
 	// Specifies the IAM policy in JSON format.
@@ -95,43 +98,6 @@ const (
 	AWSCredentialAccessKeyKey = "access_key"
 	AWSCredentialSecretKeyKey = "secret_key"
 )
-
-// https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials
-// AWSConfig contains information to communicate with AWS
-type AWSConfig struct {
-	// Specifies the secret containing AWS access key ID and secret access key
-	// secret.Data:
-	//	- access_key=<value>
-	//  - secret_key=<value>
-	CredentialSecret string `json:"credentialSecret"`
-
-	// Specifies the AWS region
-	Region string `json:"region"`
-
-	// Specifies a custom HTTP IAM enminidpoint to use
-	IAMEndpoint string `json:"iamEndpoint,omitempty"`
-
-	//Specifies a custom HTTP STS endpoint to use
-	STSEndpoint string `json:"stsEndpoint,omitempty"`
-
-	// Number of max retries the client should use for recoverable errors.
-	// The default (-1) falls back to the AWS SDK's default behavior
-	MaxRetries *int `json:"maxRetries,omitempty"`
-
-	LeaseConfig *LeaseConfig `json:"leaseConfig,omitempty"`
-}
-
-// https://www.vaultproject.io/api/secret/aws/index.html#configure-lease
-// LeaseConfig contains lease configuration
-type LeaseConfig struct {
-	// Specifies the lease value provided as a string duration with time suffix.
-	// "h" (hour) is the largest suffix.
-	Lease string `json:"lease"`
-
-	// Specifies the maximum lease value provided as a string duration with time suffix.
-	// "h" (hour) is the largest suffix
-	LeaseMax string `json:"leaseMax"`
-}
 
 type AWSRolePhase string
 

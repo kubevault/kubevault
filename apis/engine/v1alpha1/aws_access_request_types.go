@@ -32,7 +32,7 @@ type AWSAccessKeyRequest struct {
 // AWSAccessKeyRequestSpec contains information to request for vault aws credential
 type AWSAccessKeyRequestSpec struct {
 	// Contains vault aws role info
-	RoleRef RoleReference `json:"roleRef"`
+	RoleRef RoleRef `json:"roleRef"`
 
 	Subjects []rbac.Subject `json:"subjects"`
 

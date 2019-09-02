@@ -26,6 +26,8 @@ func SetNameSchema(openapiSpec map[string]common.OpenAPIDefinition) {
 }
 
 const (
+	Finalizer = "kubevault.com"
+
 	// Specifies the path where auth is enabled
 	AuthPathKey = "kubevault.com/auth-path"
 

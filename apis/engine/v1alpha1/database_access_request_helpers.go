@@ -6,13 +6,13 @@ import (
 	"kubevault.dev/operator/apis"
 )
 
-func (d AWSAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+func (d DatabaseAccessRequest) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crdutils.NewCustomResourceDefinition(crdutils.Config{
 		Group:         SchemeGroupVersion.Group,
-		Plural:        ResourceAWSAccessKeyRequests,
-		Singular:      ResourceAWSAccessKeyRequest,
-		Kind:          ResourceKindAWSAccessKeyRequest,
-		Categories:    []string{"vault", "appscode", "all"},
+		Plural:        ResourceDatabaseAccessRequests,
+		Singular:      ResourceDatabaseAccessRequest,
+		Kind:          ResourceKindDatabaseAccessRequest,
+		Categories:    []string{"datastore", "kubedb", "appscode", "all"},
 		ResourceScope: string(apiextensions.NamespaceScoped),
 		Versions: []apiextensions.CustomResourceDefinitionVersion{
 			{
@@ -22,15 +22,15 @@ func (d AWSAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomRes
 			},
 		},
 		Labels: crdutils.Labels{
-			LabelsMap: map[string]string{"app": "vault"},
+			LabelsMap: map[string]string{"app": "kubedb"},
 		},
-		SpecDefinitionName:      "kubevault.dev/operator/apis/kubevault/v1alpha1.AWSAccessKeyRequest",
+		SpecDefinitionName:      "kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequest",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
 		EnableStatusSubresource: apis.EnableStatusSubresource,
 	})
 }
 
-func (d AWSAccessKeyRequest) IsValid() error {
+func (d DatabaseAccessRequest) IsValid() error {
 	return nil
 }

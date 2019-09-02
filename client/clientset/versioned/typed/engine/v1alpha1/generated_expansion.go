@@ -26,6 +26,16 @@ type AzureAccessKeyRequestExpansion interface{}
 
 type AzureRoleExpansion interface{}
 
+type DatabaseAccessRequestExpansion interface{}
+
 type GCPAccessKeyRequestExpansion interface{}
 
 type GCPRoleExpansion interface{}
+
+type MongoDBRoleExpansion interface{}
+
+type MySQLRoleExpansion interface{}
+
+type PostgresRoleExpansion interface{}
+
+type SecretEngineExpansion interface{}
