@@ -3,32 +3,39 @@ module kubevault.dev/operator
 go 1.12
 
 require (
+	cloud.google.com/go v0.39.0 // indirect
+	github.com/Azure/azure-pipeline-go v0.1.9 // indirect
+	github.com/Azure/azure-storage-blob-go v0.6.0 // indirect
+	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/SermoDigital/jose v0.9.1 // indirect
-	github.com/appscode/go v0.0.0-20190722173419-e454bf744023
-	github.com/appscode/pat v0.0.0-20170521084856-48ff78925b79 // indirect
+	github.com/appscode/go v0.0.0-20190808133642-1d4ef1f1c1e0
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.20.20
+	github.com/census-instrumentation/opencensus-proto v0.2.0 // indirect
 	github.com/codeskyblue/go-sh v0.0.0-20190412065543-76bd3d59ff27
 	github.com/coreos/prometheus-operator v0.31.1
 	github.com/evanphx/json-patch v4.5.0+incompatible
 	github.com/frankban/quicktest v1.4.0 // indirect
+	github.com/go-ini/ini v1.25.4 // indirect
 	github.com/go-openapi/spec v0.19.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
-	github.com/gophercloud/gophercloud v0.0.0-20190509013533-844afee4f565 // indirect
+	github.com/google/martian v2.1.1-0.20190517191504-25dcb96d9e51+incompatible // indirect
 	github.com/gorilla/mux v1.7.3
 	github.com/hashicorp/go-cleanhttp v0.5.1
-	github.com/hashicorp/go-hclog v0.9.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.1.0 // indirect
 	github.com/hashicorp/go-plugin v1.0.1 // indirect
-	github.com/hashicorp/go-retryablehttp v0.5.4 // indirect
+	github.com/hashicorp/go-retryablehttp v0.6.2 // indirect
 	github.com/hashicorp/vault v1.0.1
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d // indirect
+	github.com/jackc/pgx v3.3.0+incompatible // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/lib/pq v1.1.0
 	github.com/ncw/swift v1.0.47
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
 	github.com/pierrec/lz4 v2.2.5+incompatible // indirect
 	github.com/pkg/errors v0.8.1
+	github.com/prometheus/client_golang v0.9.4 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.5
@@ -41,12 +48,13 @@ require (
 	k8s.io/apiextensions-apiserver v0.0.0-20190516231611-bf6753f2aa24
 	k8s.io/apimachinery v0.0.0-20190508063446-a3da69d3723c
 	k8s.io/apiserver v0.0.0-20190516230822-f89599b3f645
+	k8s.io/cli-runtime v0.0.0-20190516231937-17bc0b7fcef5 // indirect
 	k8s.io/client-go v11.0.0+incompatible
 	k8s.io/component-base v0.0.0-20190508223741-40efa6d42997 // indirect
 	k8s.io/kube-aggregator v0.0.0-20190508224022-f9852b6d3a84
 	k8s.io/kube-openapi v0.0.0-20190502190224-411b2483e503
 	k8s.io/kubernetes v1.14.0
-	kmodules.xyz/client-go v0.0.0-20190802200916-043217632b6a
+	kmodules.xyz/client-go v0.0.0-20190808141354-bbb9e14f60ab
 	kmodules.xyz/custom-resources v0.0.0-20190802202832-aaad432d3364
 	kmodules.xyz/monitoring-agent-api v0.0.0-20190802203207-a87aa5b2e057
 	kmodules.xyz/offshoot-api v0.0.0-20190802203449-05938be4a23b
@@ -71,4 +79,5 @@ replace (
 	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20190228160746-b3a7cee44a30
 	k8s.io/metrics => k8s.io/metrics v0.0.0-20190314001731-1bd6a4002213
 	k8s.io/utils => k8s.io/utils v0.0.0-20190221042446-c2654d5206da
+	kmodules.xyz/custom-resources => github.com/kamolhasan/custom-resources v0.0.0-20190826094133-83f06ebdbc32
 )
