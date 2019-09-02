@@ -12,6 +12,9 @@ const (
 	ResourceVaultPolicyBindings    = "vaultpolicybindings"
 )
 
+// VaultPolicyBinding binds a list of Vault server policies with Vault users authenticated by various auth methods.
+// Currently VaultPolicyBinding only supports users authenticated via Kubernetes auth method.
+
 // +genclient
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -30,16 +33,43 @@ type VaultPolicyBinding struct {
 
 // links: https://www.vaultproject.io/api/auth/kubernetes/index.html#parameters-1
 type VaultPolicyBindingSpec struct {
-	// +optional
-	RoleName string `json:"roleName,omitempty"`
+	// VaultRef is the name of a AppBinding referencing to a Vault Server
+	VaultRef core.LocalObjectReference `json:"vaultRef"`
 
+	// VaultRoleName is the role name which will be bound of the policies
+	// This defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}
+	// +optional
+	VaultRoleName string `json:"vaultRoleName,omitempty"`
+
+	// Policies is a list of Vault policy identifiers.
+	Policies []PolicyIdentifier `json:"policies"`
+
+	// SubjectRef refers to Vault users who will be granted policies.
+	SubjectRef `json:"subjectRef"`
+}
+
+type PolicyIdentifier struct {
+	// Name is a Vault server policy name. This name should be returned by `vault read sys/policy` command.
+	// More info: https://www.vaultproject.io/docs/concepts/policies.html#listing-policies
+	Name string `json:"name,omitempty"`
+
+	// Ref is name of a VaultPolicy crd object. Actual vault policy name is spec.vaultRoleName field.
+	// More info: https://www.vaultproject.io/docs/concepts/policies.html#listing-policies
+	Ref string `json:"ref,omitempty"`
+}
+
+type SubjectRef struct {
+	// Kubernetes refers to Vault users who are authenticated via Kubernetes auth method
+	// More info: https://www.vaultproject.io/docs/auth/kubernetes.html#configuration
+	Kubernetes *KubernetesSubjectRef `json:"kubernetes,omitempty"`
+}
+
+// More info: https://www.vaultproject.io/api/auth/kubernetes/index.html#create-role
+type KubernetesSubjectRef struct {
 	// Specifies the path where kubernetes auth is enabled
 	// default : kubernetes
 	// +optional
-	AuthPath string `json:"authPath,omitempty"`
-
-	// Specifies the names of the VaultPolicy
-	Policies []string `json:"policies"`
+	Path string `json:"path,omitempty"`
 
 	// Specifies the names of the service account to bind with policy
 	ServiceAccountNames []string `json:"serviceAccountNames"`
