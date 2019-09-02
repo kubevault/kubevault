@@ -3,6 +3,7 @@ package framework
 import (
 	"github.com/appscode/go/crypto/rand"
 	. "github.com/onsi/gomega"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	api "kubevault.dev/operator/apis/policy/v1alpha1"
 )
@@ -17,9 +18,20 @@ func (f *Invocation) VaultPolicyBinding(policies, saNames, saNamespaces []string
 			},
 		},
 		Spec: api.VaultPolicyBindingSpec{
-			Policies:                 policies,
-			ServiceAccountNames:      saNames,
-			ServiceAccountNamespaces: saNamespaces,
+			VaultRef: core.LocalObjectReference{
+				Name: f.VaultAppRef.Name,
+			},
+			SubjectRef: api.SubjectRef{
+				Kubernetes: &api.KubernetesSubjectRef{
+					ServiceAccountNames:      saNames,
+					ServiceAccountNamespaces: saNamespaces,
+				},
+			},
+			Policies: []api.PolicyIdentifier{
+				{
+					Ref: policies[0],
+				},
+			},
 		},
 	}
 }

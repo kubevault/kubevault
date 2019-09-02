@@ -14,6 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	"kubevault.dev/operator/apis/kubevault/v1alpha1"
 )
 
 var (
@@ -24,7 +25,48 @@ var (
 const (
 	nodePort         = 30088
 	VaultTokenSecret = "vault-token"
+	VaultServerName  = "test-vault-5434"
+	VaultKey         = "vault-key-6765"
 )
+
+func (f *Framework) DeployVaultServer() (*appcat.AppReference, error) {
+
+	var vServer *v1alpha1.VaultServer
+	vServer = &v1alpha1.VaultServer{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      VaultServerName,
+			Namespace: f.namespace,
+		},
+		Spec: v1alpha1.VaultServerSpec{
+			Nodes:   1,
+			Version: vaultVersion,
+			Backend: v1alpha1.BackendStorageSpec{
+				Inmem: &v1alpha1.InmemSpec{},
+			},
+			Unsealer: &v1alpha1.UnsealerSpec{
+				SecretShares:    4,
+				SecretThreshold: 2,
+				Mode: v1alpha1.ModeSpec{
+					KubernetesSecret: &v1alpha1.KubernetesSecretSpec{SecretName: VaultKey},
+				},
+			},
+		},
+	}
+
+	_, err := f.CreateVaultServer(vServer)
+	if err != nil {
+		return nil, err
+	}
+
+	// Let vault server create appBinding, policy and policy binding
+	time.Sleep(20 * time.Second)
+
+	return &appcat.AppReference{
+		Name:      vServer.Name,
+		Namespace: vServer.Namespace,
+	}, nil
+
+}
 
 // DeployVault will do
 //	- create service
@@ -138,6 +180,7 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 		Namespace: f.namespace,
 	}
 
+	fmt.Println("Creating appbinding ...!")
 	err = f.CreateAppBinding(&appcat.AppBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      appRef.Name,
@@ -157,6 +200,11 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 		return nil, err
 	}
 	return appRef, nil
+}
+
+func (f *Framework) CleanUpVaultServer() error {
+	err := f.CSClient.KubevaultV1alpha1().VaultServers(f.namespace).Delete(VaultServerName, &metav1.DeleteOptions{})
+	return err
 }
 
 func (f *Framework) DeleteVault() error {

@@ -206,7 +206,7 @@ var _ = Describe("VaultPolicy", func() {
 			})
 		})
 
-		Context("Update service account names", func() {
+		Context("Update service account names and namespaces", func() {
 			var (
 				vPBind *api.VaultPolicyBinding
 			)
@@ -227,7 +227,10 @@ var _ = Describe("VaultPolicy", func() {
 				vPBind, err = f.GetVaultPolicyBinding(vPBind)
 				Expect(err).NotTo(HaveOccurred())
 
-				vPBind.Spec.ServiceAccountNames = []string{"new"}
+				vPBind.Spec.Kubernetes = &api.KubernetesSubjectRef{
+					ServiceAccountNames:      []string{"new"},
+					ServiceAccountNamespaces: []string{"demo"},
+				}
 				vPBind, err = f.UpdateVaultPolicyBinding(vPBind)
 				Expect(err).NotTo(HaveOccurred(), "update VaultPolicyBinding")
 				// wait to apply the changes

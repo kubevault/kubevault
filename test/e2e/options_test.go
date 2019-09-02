@@ -12,6 +12,7 @@ import (
 	"kubevault.dev/operator/client/clientset/versioned/scheme"
 	dbscheme "kubevault.dev/operator/client/clientset/versioned/scheme"
 	"kubevault.dev/operator/pkg/cmds/server"
+	"kubevault.dev/operator/test/e2e/framework"
 )
 
 type E2EOptions struct {
@@ -41,6 +42,7 @@ func init() {
 	flag.StringVar(&options.KubeContext, "kube-context", "", "Name of kube context")
 	flag.BoolVar(&options.StartAPIServer, "webhook", options.StartAPIServer, "Start API server for webhook")
 	flag.BoolVar(&options.RunDynamoDBTest, "run-dynamodb-test", options.RunDynamoDBTest, "Run dynamoDB test")
+	flag.BoolVar(&framework.SelfHostedOperator, "selfhosted-operator", framework.SelfHostedOperator, "Enable this for self-hosted operator")
 	enableLogging()
 	flag.Parse()
 }
