@@ -15873,6 +15873,13 @@ func schema_operator_apis_kubevault_v1alpha1_AwsKmsSsmSpec(ref common.ReferenceC
 							Format:      "",
 						},
 					},
+					"endpoint": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Used to make AWS KMS requests. This is useful, for example, when connecting to KMS over a VPC Endpoint. If not set, Vault will use the default API endpoint for your region.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"kmsKeyID"},
 			},

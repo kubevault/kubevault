@@ -152,7 +152,7 @@ type PostgresConfiguration struct {
 
 	// List of the roles allowed to use this connection.
 	// Defaults to empty (no roles), if contains a "*" any role can use this connection.
-	AllowedRoles string `json:"allowedRoles,omitempty"`
+	AllowedRoles []string `json:"allowedRoles,omitempty"`
 
 	// Specifies the maximum number of open connections to the database.
 	MaxOpenConnections int `json:"maxOpenConnections,omitempty"`
@@ -181,7 +181,7 @@ type MongoDBConfiguration struct {
 
 	// List of the roles allowed to use this connection.
 	// Defaults to empty (no roles), if contains a "*" any role can use this connection.
-	AllowedRoles string `json:"allowedRoles,omitempty"`
+	AllowedRoles []string `json:"allowedRoles,omitempty"`
 
 	// Specifies the MongoDB write concern. This is set for the entirety
 	// of the session, maintained for the lifecycle of the plugin process.
@@ -202,7 +202,7 @@ type MySQLConfiguration struct {
 
 	// List of the roles allowed to use this connection.
 	// Defaults to empty (no roles), if contains a "*" any role can use this connection.
-	AllowedRoles string `json:"allowedRoles,omitempty"`
+	AllowedRoles []string `json:"allowedRoles,omitempty"`
 
 	// Specifies the maximum number of open connections to the database.
 	MaxOpenConnections int `json:"maxOpenConnections,omitempty"`

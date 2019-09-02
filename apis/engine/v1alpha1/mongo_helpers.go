@@ -52,6 +52,12 @@ func (m *MongoDBConfiguration) SetDefaults() {
 		return
 	}
 
+	// If user doesn't specify the list of AllowedRoles
+	// It is set to "*" (allow all)
+	if m.AllowedRoles == nil || len(m.AllowedRoles) == 0 {
+		m.AllowedRoles = []string{"*"}
+	}
+
 	if m.PluginName == "" {
 		m.PluginName = DefaultMongoDBDatabasePlugin
 	}

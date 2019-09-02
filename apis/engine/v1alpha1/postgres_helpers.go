@@ -52,6 +52,12 @@ func (p *PostgresConfiguration) SetDefaults() {
 		return
 	}
 
+	// If user doesn't specify the list of AllowedRoles
+	// It is set to "*" (allow all)
+	if p.AllowedRoles == nil || len(p.AllowedRoles) == 0 {
+		p.AllowedRoles = []string{"*"}
+	}
+
 	if p.PluginName == "" {
 		p.PluginName = DefaultPostgresDatabasePlugin
 	}

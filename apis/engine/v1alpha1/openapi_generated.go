@@ -17477,8 +17477,15 @@ func schema_operator_apis_engine_v1alpha1_MongoDBConfiguration(ref common.Refere
 					"allowedRoles": {
 						SchemaProps: spec.SchemaProps{
 							Description: "List of the roles allowed to use this connection. Defaults to empty (no roles), if contains a \"*\" any role can use this connection.",
-							Type:        []string{"string"},
-							Format:      "",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
 						},
 					},
 					"writeConcern": {
@@ -17773,8 +17780,15 @@ func schema_operator_apis_engine_v1alpha1_MySQLConfiguration(ref common.Referenc
 					"allowedRoles": {
 						SchemaProps: spec.SchemaProps{
 							Description: "List of the roles allowed to use this connection. Defaults to empty (no roles), if contains a \"*\" any role can use this connection.",
-							Type:        []string{"string"},
-							Format:      "",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
 						},
 					},
 					"maxOpenConnections": {
@@ -18083,8 +18097,15 @@ func schema_operator_apis_engine_v1alpha1_PostgresConfiguration(ref common.Refer
 					"allowedRoles": {
 						SchemaProps: spec.SchemaProps{
 							Description: "List of the roles allowed to use this connection. Defaults to empty (no roles), if contains a \"*\" any role can use this connection.",
-							Type:        []string{"string"},
-							Format:      "",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
 						},
 					},
 					"maxOpenConnections": {
@@ -18435,7 +18456,7 @@ func schema_operator_apis_engine_v1alpha1_RoleRef(ref common.ReferenceCallback) 
 						},
 					},
 				},
-				Required: []string{"apiGroup", "kind", "name", "namespace"},
+				Required: []string{"name", "namespace"},
 			},
 		},
 	}

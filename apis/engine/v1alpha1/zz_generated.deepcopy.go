@@ -1031,6 +1031,11 @@ func (in *LeaseConfig) DeepCopy() *LeaseConfig {
 func (in *MongoDBConfiguration) DeepCopyInto(out *MongoDBConfiguration) {
 	*out = *in
 	in.DatabaseRef.DeepCopyInto(&out.DatabaseRef)
+	if in.AllowedRoles != nil {
+		in, out := &in.AllowedRoles, &out.AllowedRoles
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	return
 }
 
@@ -1182,6 +1187,11 @@ func (in *MongoDBRoleStatus) DeepCopy() *MongoDBRoleStatus {
 func (in *MySQLConfiguration) DeepCopyInto(out *MySQLConfiguration) {
 	*out = *in
 	in.DatabaseRef.DeepCopyInto(&out.DatabaseRef)
+	if in.AllowedRoles != nil {
+		in, out := &in.AllowedRoles, &out.AllowedRoles
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	return
 }
 
@@ -1333,6 +1343,11 @@ func (in *MySQLRoleStatus) DeepCopy() *MySQLRoleStatus {
 func (in *PostgresConfiguration) DeepCopyInto(out *PostgresConfiguration) {
 	*out = *in
 	in.DatabaseRef.DeepCopyInto(&out.DatabaseRef)
+	if in.AllowedRoles != nil {
+		in, out := &in.AllowedRoles, &out.AllowedRoles
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	return
 }
 

@@ -7,9 +7,9 @@ import (
 // RoleRef contains information that points to the role being used
 type RoleRef struct {
 	// APIGroup is the group for the resource being referenced
-	APIGroup string `json:"apiGroup"`
+	APIGroup string `json:"apiGroup,omitempty"`
 	// Kind is the type of resource being referenced
-	Kind string `json:"kind"`
+	Kind string `json:"kind,omitempty"`
 	// Name is the name of resource being referenced
 	Name string `json:"name"`
 	// Namespace is the namespace of the resource being referenced
