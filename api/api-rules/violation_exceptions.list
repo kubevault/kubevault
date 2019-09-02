@@ -47,3 +47,5 @@ API rule violation: names_match,k8s.io/apimachinery/pkg/util/intstr,IntOrString,
 API rule violation: names_match,k8s.io/apimachinery/pkg/util/intstr,IntOrString,StrVal
 API rule violation: names_match,k8s.io/apimachinery/pkg/util/intstr,IntOrString,Type
 API rule violation: names_match,kmodules.xyz/offshoot-api/api/v1,ContainerRuntimeSettings,IONice
+API rule violation: names_match,kubevault.dev/operator/apis/engine/v1alpha1,SecretEngineConfiguration,MongoDB
+API rule violation: names_match,kubevault.dev/operator/apis/engine/v1alpha1,SecretEngineConfiguration,MySQL

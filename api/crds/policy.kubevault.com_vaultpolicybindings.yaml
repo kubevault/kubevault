@@ -414,46 +414,78 @@ spec:
         spec:
           description: 'links: https://www.vaultproject.io/api/auth/kubernetes/index.html#parameters-1'
           properties:
-            authPath:
-              description: 'Specifies the path where kubernetes auth is enabled default
-                : kubernetes'
-              type: string
-            maxTTL:
-              description: Specifies the maximum allowed lifetime of tokens issued
-                in seconds using this role.
-              type: string
-            period:
-              description: If set, indicates that the token generated using this role
-                should never expire. The token should be renewed within the duration
-                specified by this value. At each renewal, the token's TTL will be
-                set to the value of this parameter.
-              type: string
             policies:
-              description: Specifies the names of the VaultPolicy
+              description: Policies is a list of Vault policy identifiers.
               items:
-                type: string
+                properties:
+                  name:
+                    description: 'Name is a Vault server policy name. This name should
+                      be returned by `vault read sys/policy` command. More info: https://www.vaultproject.io/docs/concepts/policies.html#listing-policies'
+                    type: string
+                  ref:
+                    description: 'Ref is name of a VaultPolicy crd object. Actual
+                      vault policy name is spec.vaultRoleName field. More info: https://www.vaultproject.io/docs/concepts/policies.html#listing-policies'
+                    type: string
+                type: object
               type: array
-            roleName:
-              type: string
-            serviceAccountNames:
-              description: Specifies the names of the service account to bind with
-                policy
-              items:
-                type: string
-              type: array
-            serviceAccountNamespaces:
-              description: Specifies the namespaces of the service account
-              items:
-                type: string
-              type: array
-            ttl:
-              description: Specifies the TTL period of tokens issued using this role
-                in seconds.
+            subjectRef:
+              description: SubjectRef refers to Vault users who will be granted policies.
+              properties:
+                kubernetes:
+                  description: 'Kubernetes refers to Vault users who are authenticated
+                    via Kubernetes auth method More info: https://www.vaultproject.io/docs/auth/kubernetes.html#configuration'
+                  properties:
+                    maxTTL:
+                      description: Specifies the maximum allowed lifetime of tokens
+                        issued in seconds using this role.
+                      type: string
+                    path:
+                      description: 'Specifies the path where kubernetes auth is enabled
+                        default : kubernetes'
+                      type: string
+                    period:
+                      description: If set, indicates that the token generated using
+                        this role should never expire. The token should be renewed
+                        within the duration specified by this value. At each renewal,
+                        the token's TTL will be set to the value of this parameter.
+                      type: string
+                    serviceAccountNames:
+                      description: Specifies the names of the service account to bind
+                        with policy
+                      items:
+                        type: string
+                      type: array
+                    serviceAccountNamespaces:
+                      description: Specifies the namespaces of the service account
+                      items:
+                        type: string
+                      type: array
+                    ttl:
+                      description: Specifies the TTL period of tokens issued using
+                        this role in seconds.
+                      type: string
+                  required:
+                  - serviceAccountNames
+                  - serviceAccountNamespaces
+                  type: object
+              type: object
+            vaultRef:
+              description: VaultRef is the name of a AppBinding referencing to a Vault
+                Server
+              properties:
+                name:
+                  description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                    TODO: Add other useful fields. apiVersion, kind, uid?'
+                  type: string
+              type: object
+            vaultRoleName:
+              description: 'VaultRoleName is the role name which will be bound of
+                the policies This defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}'
               type: string
           required:
           - policies
-          - serviceAccountNames
-          - serviceAccountNamespaces
+          - subjectRef
+          - vaultRef
           type: object
         status:
           properties:

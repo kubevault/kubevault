@@ -407,55 +407,21 @@ spec:
               type: string
           type: object
         spec:
-          description: GCPRoleSpec contains connection information, GCP role info,
-            etc
+          description: 'GCPRoleSpec contains connection information, GCP role info,
+            etc More info: https://www.vaultproject.io/api/secret/gcp/index.html#parameters'
           properties:
             bindings:
               description: Bindings configuration string (expects HCL or JSON format
                 in raw or base64-encoded string)
               type: string
-            config:
-              description: https://www.vaultproject.io/api/secret/gcp/index.html#write-config
-                GCPConfig contains information to communicate with GCP
-              properties:
-                credentialSecret:
-                  description: "Specifies the secret containing GCP credentials secret.Data:
-                    \t- sa.json"
-                  type: string
-                maxTTL:
-                  description: Specifies the maximum config TTL for long-lived credentials
-                    (i.e. service account keys).
-                  type: string
-                ttl:
-                  description: Specifies default config TTL for long-lived credentials
-                    (i.e. service account keys).
-                  type: string
-              required:
-              - credentialSecret
-              type: object
+            path:
+              description: 'Path defines the path of the Google Cloud secret engine
+                default: gcp More info: https://www.vaultproject.io/docs/auth/gcp.html#via-the-cli-helper'
+              type: string
             project:
               description: Name of the GCP project that this roleset's service account
                 will belong to. Cannot be updated.
               type: string
-            ref:
-              properties:
-                name:
-                  description: '`name` is the name of the app. Required'
-                  type: string
-                namespace:
-                  description: '`namespace` is the namespace of the app. Required'
-                  type: string
-                parameters:
-                  description: "Parameters is a set of the parameters to be used to
-                    override default parameters. The inline YAML/JSON payload to be
-                    translated into equivalent JSON object. \n The Parameters field
-                    is NOT secret or secured in any way and should NEVER be used to
-                    hold sensitive information."
-                  type: object
-              required:
-              - name
-              - namespace
-              type: object
             secretType:
               description: Specifies the type of secret generated for this role set
               type: string
@@ -465,11 +431,20 @@ spec:
               items:
                 type: string
               type: array
+            vaultRef:
+              description: VaultRef is the name of a AppBinding referencing to a Vault
+                Server
+              properties:
+                name:
+                  description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                    TODO: Add other useful fields. apiVersion, kind, uid?'
+                  type: string
+              type: object
           required:
           - bindings
-          - config
           - project
           - secretType
+          - vaultRef
           type: object
         status:
           properties:

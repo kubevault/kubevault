@@ -4,7 +4,7 @@ metadata:
   creationTimestamp: null
   labels:
     app: vault
-  name: gcpaccesskeyrequests.engine.kubevault.com
+  name: postgresroles.engine.kubevault.com
 spec:
   group: engine.kubevault.com
   names:
@@ -12,9 +12,9 @@ spec:
     - vault
     - appscode
     - all
-    kind: GCPAccessKeyRequest
-    plural: gcpaccesskeyrequests
-    singular: gcpaccesskeyrequest
+    kind: PostgresRole
+    plural: postgresroles
+    singular: postgresrole
   scope: Namespaced
   subresources:
     status: {}
@@ -403,120 +403,118 @@ spec:
               type: string
           type: object
         spec:
-          description: GCPAccessKeyRequestSpec contains information to request for
-            vault gcp credentials
+          description: PostgresRoleSpec contains connection information, postgres
+            role info etc
           properties:
-            keyAlgorithm:
-              description: 'Specifies the algorithm used to generate key. Defaults
-                to 2k RSA key. Accepted values: KEY_ALG_UNSPECIFIED, KEY_ALG_RSA_1024,
-                KEY_ALG_RSA_2048'
+            creationStatements:
+              description: https://www.vaultproject.io/api/secret/databases/postgresql.html#creation_statements
+                Specifies the database statements executed to create and configure
+                a user.
+              items:
+                type: string
+              type: array
+            databaseName:
+              description: Specifies the database name under which the role will be
+                created
               type: string
-            keyType:
-              description: 'Specifies the private key type to generate. Defaults to
-                JSON credentials file Accepted values: TYPE_UNSPECIFIED, TYPE_PKCS12_FILE,
-                TYPE_GOOGLE_CREDENTIALS_FILE'
-              type: string
-            roleRef:
-              description: Contains vault gcp role info
+            databaseRef:
+              description: DatabaseRef specifies the database appbinding reference
+                in any namespace
               properties:
-                apiGroup:
-                  description: APIGroup is the group for the resource being referenced
-                  type: string
-                kind:
-                  description: Kind is the type of resource being referenced
-                  type: string
                 name:
-                  description: Name is the name of resource being referenced
+                  description: '`name` is the name of the app. Required'
                   type: string
                 namespace:
-                  description: Namespace is the namespace of the resource being referenced
+                  description: '`namespace` is the namespace of the app. Required'
                   type: string
+                parameters:
+                  description: "Parameters is a set of the parameters to be used to
+                    override default parameters. The inline YAML/JSON payload to be
+                    translated into equivalent JSON object. \n The Parameters field
+                    is NOT secret or secured in any way and should NEVER be used to
+                    hold sensitive information."
+                  type: object
               required:
               - name
               - namespace
               type: object
-            subjects:
-              description: Contains a reference to the object or user identities the
-                role binding is applied to
+            defaultTTL:
+              description: Specifies the TTL for the leases associated with this role.
+                Accepts time suffixed strings ("1h") or an integer number of seconds.
+                Defaults to system/engine default TTL time
+              type: string
+            maxTTL:
+              description: Specifies the maximum TTL for the leases associated with
+                this role. Accepts time suffixed strings ("1h") or an integer number
+                of seconds. Defaults to system/engine default TTL time.
+              type: string
+            path:
+              description: Specifies the path where secret engine is enabled
+              type: string
+            renewStatements:
+              description: https://www.vaultproject.io/api/secret/databases/postgresql.html#renew_statements
+                Specifies the database statements to be executed to renew a user.
               items:
-                description: Subject contains a reference to the object or user identities
-                  a role binding applies to.  This can either hold a direct API object
-                  reference, or a value for non-objects such as user and group names.
-                properties:
-                  apiGroup:
-                    description: APIGroup holds the API group of the referenced subject.
-                      Defaults to "" for ServiceAccount subjects. Defaults to "rbac.authorization.k8s.io"
-                      for User and Group subjects.
-                    type: string
-                  kind:
-                    description: Kind of object being referenced. Values defined by
-                      this API group are "User", "Group", and "ServiceAccount". If
-                      the Authorizer does not recognized the kind value, the Authorizer
-                      should report an error.
-                    type: string
-                  name:
-                    description: Name of the object being referenced.
-                    type: string
-                  namespace:
-                    description: Namespace of the referenced object.  If the object
-                      kind is non-namespace, such as "User" or "Group", and this value
-                      is not empty the Authorizer should report an error.
-                    type: string
-                required:
-                - kind
-                - name
-                type: object
+                type: string
               type: array
-          required:
-          - roleRef
-          - subjects
-          type: object
-        status:
-          properties:
-            conditions:
-              description: Conditions applied to the request, such as approval or
-                denial.
+            revocationStatements:
+              description: https://www.vaultproject.io/api/secret/databases/postgresql.html#revocation_statements
+                Specifies the database statements to be executed to revoke a user.
               items:
-                properties:
-                  lastUpdateTime:
-                    description: timestamp for the last update to this condition
-                    format: date-time
-                    type: string
-                  message:
-                    description: human readable message with details about the request
-                      state
-                    type: string
-                  reason:
-                    description: brief reason for the request state
-                    type: string
-                  type:
-                    description: request approval state, currently Approved or Denied.
-                    type: string
-                required:
-                - type
-                type: object
+                type: string
               type: array
-            lease:
-              description: Contains lease info
-              properties:
-                duration:
-                  description: lease duration
-                  type: string
-                id:
-                  description: lease id
-                  type: string
-                renewable:
-                  description: Specifies whether this lease is renewable
-                  type: boolean
-              type: object
-            secret:
-              description: Name of the secret containing GCPCredential
+            rollbackStatements:
+              description: https://www.vaultproject.io/api/secret/databases/postgresql.html#rollback_statements
+                Specifies the database statements to be executed rollback a create
+                operation in the event of an error.
+              items:
+                type: string
+              type: array
+            vaultRef:
+              description: VaultRef is the name of a AppBinding referencing to a Vault
+                Server
               properties:
                 name:
                   description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
                     TODO: Add other useful fields. apiVersion, kind, uid?'
                   type: string
               type: object
+          required:
+          - creationStatements
+          - vaultRef
+          type: object
+        status:
+          properties:
+            conditions:
+              description: Represents the latest available observations of a PostgresRoleBinding
+                current state.
+              items:
+                description: PostgresRoleCondition describes the state of a PostgresRole
+                  at a certain point.
+                properties:
+                  message:
+                    description: A human readable message indicating details about
+                      the transition.
+                    type: string
+                  reason:
+                    description: The reason for the condition's.
+                    type: string
+                  status:
+                    description: Status of the condition, one of True, False, Unknown.
+                    type: string
+                  type:
+                    description: Type of PostgresRole condition.
+                    type: string
+                type: object
+              type: array
+            observedGeneration:
+              description: observedGeneration is the most recent generation observed
+                for this PostgresROle. It corresponds to the PostgresROle's generation,
+                which is updated on mutation by the API Server.
+              type: string
+            phase:
+              description: Specifies the phase of the PostgresRole
+              type: string
           type: object
       type: object
   versions:

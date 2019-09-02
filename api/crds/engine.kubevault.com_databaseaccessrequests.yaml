@@ -4,7 +4,7 @@ metadata:
   creationTimestamp: null
   labels:
     app: vault
-  name: gcpaccesskeyrequests.engine.kubevault.com
+  name: databaseaccessrequests.engine.kubevault.com
 spec:
   group: engine.kubevault.com
   names:
@@ -12,9 +12,9 @@ spec:
     - vault
     - appscode
     - all
-    kind: GCPAccessKeyRequest
-    plural: gcpaccesskeyrequests
-    singular: gcpaccesskeyrequest
+    kind: DatabaseAccessRequest
+    plural: databaseaccessrequests
+    singular: databaseaccessrequest
   scope: Namespaced
   subresources:
     status: {}
@@ -403,21 +403,11 @@ spec:
               type: string
           type: object
         spec:
-          description: GCPAccessKeyRequestSpec contains information to request for
-            vault gcp credentials
+          description: DatabaseAccessRequestSpec contains information to request for
+            database credential
           properties:
-            keyAlgorithm:
-              description: 'Specifies the algorithm used to generate key. Defaults
-                to 2k RSA key. Accepted values: KEY_ALG_UNSPECIFIED, KEY_ALG_RSA_1024,
-                KEY_ALG_RSA_2048'
-              type: string
-            keyType:
-              description: 'Specifies the private key type to generate. Defaults to
-                JSON credentials file Accepted values: TYPE_UNSPECIFIED, TYPE_PKCS12_FILE,
-                TYPE_GOOGLE_CREDENTIALS_FILE'
-              type: string
             roleRef:
-              description: Contains vault gcp role info
+              description: Contains vault database role info
               properties:
                 apiGroup:
                   description: APIGroup is the group for the resource being referenced
@@ -436,8 +426,6 @@ spec:
               - namespace
               type: object
             subjects:
-              description: Contains a reference to the object or user identities the
-                role binding is applied to
               items:
                 description: Subject contains a reference to the object or user identities
                   a role binding applies to.  This can either hold a direct API object
@@ -467,6 +455,11 @@ spec:
                 - name
                 type: object
               type: array
+            ttl:
+              description: Specifies the TTL for the leases associated with this role.
+                Accepts time suffixed strings ("1h") or an integer number of seconds.
+                Defaults to roles default TTL time
+              type: string
           required:
           - roleRef
           - subjects
@@ -510,7 +503,7 @@ spec:
                   type: boolean
               type: object
             secret:
-              description: Name of the secret containing GCPCredential
+              description: Name of the secret containing database credentials
               properties:
                 name:
                   description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
