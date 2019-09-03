@@ -43,8 +43,10 @@ func init() {
 	flag.BoolVar(&options.StartAPIServer, "webhook", options.StartAPIServer, "Start API server for webhook")
 	flag.BoolVar(&options.RunDynamoDBTest, "run-dynamodb-test", options.RunDynamoDBTest, "Run dynamoDB test")
 	flag.BoolVar(&framework.SelfHostedOperator, "selfhosted-operator", framework.SelfHostedOperator, "Enable this for self-hosted operator")
+	flag.StringVar(&framework.UnsealerImage, "unsealer-image", framework.UnsealerImage, "vault unsealer image")
 	enableLogging()
 	flag.Parse()
+	framework.DockerRegistry = options.DockerRegistry
 }
 
 func enableLogging() {

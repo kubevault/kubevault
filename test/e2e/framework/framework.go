@@ -26,6 +26,8 @@ const (
 
 var (
 	SelfHostedOperator = false
+	DockerRegistry     = "kubevault"
+	UnsealerImage      = "vault-unsealer:0.2.0"
 )
 
 type Framework struct {
