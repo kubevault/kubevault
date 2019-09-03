@@ -88,7 +88,7 @@ func (v *VaultPolicyBinding) SetDefaults() {
 		v.Spec.VaultRoleName = v.PolicyBindingName()
 	}
 
-	if v.Spec.SubjectRef.Kubernetes.Path == "" {
+	if v.Spec.SubjectRef.Kubernetes != nil && v.Spec.SubjectRef.Kubernetes.Path == "" {
 		v.Spec.SubjectRef.Kubernetes.Path = "kubernetes"
 	}
 }
