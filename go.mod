@@ -31,7 +31,8 @@ require (
 	github.com/onsi/gomega v1.5.0
 	github.com/pierrec/lz4 v2.2.5+incompatible // indirect
 	github.com/pkg/errors v0.8.1
-	github.com/prometheus/client_golang v0.9.4 // indirect
+	github.com/prometheus/client_golang v0.9.4
+	github.com/prometheus/prometheus v2.10.0+incompatible
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/smartystreets/assertions v0.0.0-20190116191733-b6c0e53d7304 // indirect
 	github.com/spf13/afero v1.2.2
@@ -48,7 +49,7 @@ require (
 	k8s.io/apimachinery v0.0.0-20190508063446-a3da69d3723c
 	k8s.io/apiserver v0.0.0-20190516230822-f89599b3f645
 	k8s.io/cli-runtime v0.0.0-20190516231937-17bc0b7fcef5 // indirect
-	k8s.io/client-go v11.0.0+incompatible
+	k8s.io/client-go v11.0.1-0.20190409021438-1a26190bd76a+incompatible
 	k8s.io/component-base v0.0.0-20190508223741-40efa6d42997 // indirect
 	k8s.io/klog v0.3.1 // indirect
 	k8s.io/kube-aggregator v0.0.0-20190508224022-f9852b6d3a84
@@ -60,6 +61,7 @@ require (
 	kmodules.xyz/monitoring-agent-api v0.0.0-20190808150221-601a4005b7f7
 	kmodules.xyz/offshoot-api v0.0.0-20190901210649-de049192326c
 	kmodules.xyz/webhook-runtime v0.0.0-20190808145328-4186c470d56b
+	searchlight.dev/prometheus-metrics-exporter v0.0.0-20191024224311-92d9e3cad265
 )
 
 replace (

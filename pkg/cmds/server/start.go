@@ -6,14 +6,17 @@ import (
 	"net"
 
 	"kubevault.dev/operator/pkg/controller"
+	"kubevault.dev/operator/pkg/metrics"
 	"kubevault.dev/operator/pkg/server"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/pflag"
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 	"kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/clientcmd"
+	metricsutil "searchlight.dev/prometheus-metrics-exporter/metrics"
 )
 
 const defaultEtcdPathPrefix = "/registry/kubevault.com"
@@ -21,6 +24,7 @@ const defaultEtcdPathPrefix = "/registry/kubevault.com"
 type VaultServerOptions struct {
 	RecommendedOptions *genericoptions.RecommendedOptions
 	ExtraOptions       *ExtraOptions
+	MetricsExporterCfg *metricsutil.MetricsExporterConfigs
 
 	StdOut io.Writer
 	StdErr io.Writer
@@ -34,9 +38,10 @@ func NewVaultServerOptions(out, errOut io.Writer) *VaultServerOptions {
 			server.Codecs.LegacyCodec(admissionv1beta1.SchemeGroupVersion),
 			genericoptions.NewProcessInfo("vault-operator", meta.Namespace()),
 		),
-		ExtraOptions: NewExtraOptions(),
-		StdOut:       out,
-		StdErr:       errOut,
+		ExtraOptions:       NewExtraOptions(),
+		MetricsExporterCfg: metricsutil.NewMetricsExporterConfigs(),
+		StdOut:             out,
+		StdErr:             errOut,
 	}
 	o.RecommendedOptions.Etcd = nil
 	o.RecommendedOptions.Admission = nil
@@ -47,9 +52,13 @@ func NewVaultServerOptions(out, errOut io.Writer) *VaultServerOptions {
 func (o VaultServerOptions) AddFlags(fs *pflag.FlagSet) {
 	o.RecommendedOptions.AddFlags(fs)
 	o.ExtraOptions.AddFlags(fs)
+	o.MetricsExporterCfg.AddFlags(fs)
 }
 
 func (o VaultServerOptions) Validate(args []string) error {
+	if err := o.MetricsExporterCfg.Validate(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -90,6 +99,16 @@ func (o VaultServerOptions) Run(stopCh <-chan struct{}) error {
 	}
 
 	s, err := config.Complete().New()
+	if err != nil {
+		return err
+	}
+
+	registry, ok := prometheus.DefaultRegisterer.(*prometheus.Registry)
+	if !ok {
+		return fmt.Errorf("failed to convert  prometheus.DefaultRegisterer to *prometheus.Registry")
+	}
+	// non-blocking
+	err = metrics.RunMetricsExporter(o.MetricsExporterCfg, registry, stopCh)
 	if err != nil {
 		return err
 	}
