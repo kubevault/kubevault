@@ -46,9 +46,10 @@ menu:
 menu_name: docs_{{ .Version }}
 section_menu_id: reference
 {{- if .RootCmd }}
+url: /docs/{{ .Version }}/reference/operator/
 aliases:
-  - /docs/{{ .Version }}/reference/operator/
-{{ end }}
+- /docs/{{ .Version }}/reference/operator/{{ .ID }}/
+{{- end }}
 ---
 `))
 )
@@ -56,7 +57,7 @@ aliases:
 // ref: https://github.com/spf13/cobra/blob/master/doc/md_docs.md
 func main() {
 	rootCmd := cmds.NewRootCmd()
-	dir := runtime.GOPath() + "/src/github.com/kubevault/docs/docs/reference/operator"
+	dir := runtime.GOPath() + "/src/kubevault.dev/docs/docs/reference/operator"
 	fmt.Printf("Generating cli markdown tree in: %v\n", dir)
 	err := os.RemoveAll(dir)
 	if err != nil {
