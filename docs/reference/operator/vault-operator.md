@@ -9,9 +9,9 @@ menu:
 
 menu_name: docs_0.1.0
 section_menu_id: reference
+url: /docs/0.1.0/reference/operator/
 aliases:
-  - /docs/0.1.0/reference/operator/
-
+- /docs/0.1.0/reference/operator/vault-operator/
 ---
 ## vault-operator
 

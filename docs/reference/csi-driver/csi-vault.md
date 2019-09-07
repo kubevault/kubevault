@@ -9,9 +9,9 @@ menu:
 
 menu_name: docs_0.1.0
 section_menu_id: reference
+url: /docs/0.1.0/reference/csi-driver/
 aliases:
-  - /docs/0.1.0/reference/csi-driver/
-
+- /docs/0.1.0/reference/csi-driver/csi-vault/
 ---
 ## csi-vault
 
