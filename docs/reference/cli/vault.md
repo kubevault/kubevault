@@ -9,9 +9,9 @@ menu:
 
 menu_name: docs_0.2.0
 section_menu_id: reference
+url: /docs/0.2.0/reference/cli/
 aliases:
-  - /docs/0.2.0/reference/cli/
-
+- /docs/0.2.0/reference/cli/vault/
 ---
 ## vault
 
