@@ -1,7 +1,7 @@
 package framework
 
 import (
-	"fmt"
+	"log"
 	"path/filepath"
 	"time"
 
@@ -15,13 +15,19 @@ import (
 	ka "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	db_cs "kubedb.dev/apimachinery/client/clientset/versioned"
 	cs "kubevault.dev/operator/client/clientset/versioned"
+	db_cs "kubevault.dev/operator/client/clientset/versioned"
 )
 
 const (
 	timeOut         = 10 * time.Minute
 	pollingInterval = 10 * time.Second
+)
+
+var (
+	SelfHostedOperator = false
+	DockerRegistry     = "kubevault"
+	UnsealerImage      = "vault-unsealer:0.2.0"
 )
 
 type Framework struct {
@@ -65,22 +71,33 @@ func New(kubeClient kubernetes.Interface, extClient cs.Interface, appc appcat_cs
 
 func (f *Framework) InitialSetup() error {
 	var err error
-	f.VaultAppRef, err = f.DeployVault()
-	if err != nil {
-		return err
+	if !SelfHostedOperator {
+		log.Println("Deploying vault...")
+		f.VaultAppRef, err = f.DeployVault()
+		if err != nil {
+			return err
+		}
+	} else {
+		log.Println("Deploying vault...")
+		f.VaultAppRef, err = f.DeployVaultServer()
+		if err != nil {
+			return err
+		}
 	}
-	fmt.Println(f.VaultAppRef)
 
+	log.Println("Deploying Mongodb...")
 	f.MongoAppRef, err = f.DeployMongodb()
 	if err != nil {
 		return err
 	}
 
+	log.Println("Deploying Mysql... ")
 	f.MysqlAppRef, err = f.DeployMysql()
 	if err != nil {
 		return err
 	}
 
+	log.Println("Deploying postgres...")
 	f.PostgresAppRef, err = f.DeployPostgres()
 	if err != nil {
 		return err
@@ -90,12 +107,19 @@ func (f *Framework) InitialSetup() error {
 
 func (f *Framework) Cleanup() error {
 	errs := []error{}
-	err := f.DeleteVault()
-	if err != nil {
-		errs = append(errs, err)
+	if !SelfHostedOperator {
+		err := f.DeleteVault()
+		if err != nil {
+			errs = append(errs, err)
+		}
+	} else {
+		err := f.CleanUpVaultServer()
+		if err != nil {
+			errs = append(errs, err)
+		}
 	}
 
-	err = f.DeleteMongodb()
+	err := f.DeleteMongodb()
 	if err != nil {
 		errs = append(errs, err)
 	}

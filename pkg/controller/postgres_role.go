@@ -13,10 +13,10 @@ import (
 	core_util "kmodules.xyz/client-go/core/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
-	"kubedb.dev/apimachinery/apis"
-	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
-	patchutil "kubedb.dev/apimachinery/client/clientset/versioned/typed/authorization/v1alpha1/util"
+	"kubevault.dev/operator/apis"
 	vsapis "kubevault.dev/operator/apis"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/database"
 )
 
@@ -25,10 +25,10 @@ const (
 )
 
 func (c *VaultController) initPostgresRoleWatcher() {
-	c.pgRoleInformer = c.dbInformerFactory.Authorization().V1alpha1().PostgresRoles().Informer()
+	c.pgRoleInformer = c.extInformerFactory.Engine().V1alpha1().PostgresRoles().Informer()
 	c.pgRoleQueue = queue.New(api.ResourceKindPostgresRole, c.MaxNumRequeues, c.NumThreads, c.runPostgresRoleInjector)
 	c.pgRoleInformer.AddEventHandler(queue.NewObservableHandler(c.pgRoleQueue.GetQueue(), apis.EnableStatusSubresource))
-	c.pgRoleLister = c.dbInformerFactory.Authorization().V1alpha1().PostgresRoles().Lister()
+	c.pgRoleLister = c.extInformerFactory.Engine().V1alpha1().PostgresRoles().Lister()
 }
 
 func (c *VaultController) runPostgresRoleInjector(key string) error {
@@ -54,7 +54,7 @@ func (c *VaultController) runPostgresRoleInjector(key string) error {
 		} else {
 			if !core_util.HasFinalizer(pgRole.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchPostgresRole(c.dbClient.AuthorizationV1alpha1(), pgRole, func(role *api.PostgresRole) *api.PostgresRole {
+				_, _, err := patchutil.PatchPostgresRole(c.extClient.EngineV1alpha1(), pgRole, func(role *api.PostgresRole) *api.PostgresRole {
 					role.ObjectMeta = core_util.AddFinalizer(role.ObjectMeta, apis.Finalizer)
 					return role
 				})
@@ -79,53 +79,14 @@ func (c *VaultController) runPostgresRoleInjector(key string) error {
 
 // Will do:
 //	For vault:
-//	  - enable the database secrets engine if it is not already enabled
-//	  - configure Vault with the proper postgres plugin and connection information
 // 	  - configure a role that maps a name in Vault to an SQL statement to execute to create the database credential.
 //    - sync role
 //	  - revoke previous lease of all the respective postgresRoleBinding and reissue a new lease
 func (c *VaultController) reconcilePostgresRole(dbRClient database.DatabaseRoleInterface, pgRole *api.PostgresRole) error {
 	status := pgRole.Status
-	// enable the database secrets engine if it is not already enabled
-	err := dbRClient.EnableDatabase()
-	if err != nil {
-		status.Conditions = []api.PostgresRoleCondition{
-			{
-				Type:    "Available",
-				Status:  corev1.ConditionFalse,
-				Reason:  "FailedToEnableDatabase",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatePostgresRoleStatus(&status, pgRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to enable database secret engine")
-	}
-
-	// create database config for postgres
-	err = dbRClient.CreateConfig()
-	if err != nil {
-		status.Conditions = []api.PostgresRoleCondition{
-			{
-				Type:    "Available",
-				Status:  corev1.ConditionFalse,
-				Reason:  "FailedToCreateDatabaseConnectionConfig",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatePostgresRoleStatus(&status, pgRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to created database connection config")
-	}
 
 	// create role
-	err = dbRClient.CreateRole()
+	err := dbRClient.CreateRole()
 	if err != nil {
 		status.Conditions = []api.PostgresRoleCondition{
 			{
@@ -155,7 +116,7 @@ func (c *VaultController) reconcilePostgresRole(dbRClient database.DatabaseRoleI
 }
 
 func (c *VaultController) updatePostgresRoleStatus(status *api.PostgresRoleStatus, pgRole *api.PostgresRole) error {
-	_, err := patchutil.UpdatePostgresRoleStatus(c.dbClient.AuthorizationV1alpha1(), pgRole, func(s *api.PostgresRoleStatus) *api.PostgresRoleStatus {
+	_, err := patchutil.UpdatePostgresRoleStatus(c.extClient.EngineV1alpha1(), pgRole, func(s *api.PostgresRoleStatus) *api.PostgresRoleStatus {
 		s = status
 		return s
 	}, vsapis.EnableStatusSubresource)
@@ -250,7 +211,7 @@ func (c *VaultController) finalizePostgresRole(dbRClient database.DatabaseRoleIn
 }
 
 func (c *VaultController) removePostgresRoleFinalizer(pgRole *api.PostgresRole) error {
-	p, err := c.dbClient.AuthorizationV1alpha1().PostgresRoles(pgRole.Namespace).Get(pgRole.Name, metav1.GetOptions{})
+	p, err := c.extClient.EngineV1alpha1().PostgresRoles(pgRole.Namespace).Get(pgRole.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
@@ -258,7 +219,7 @@ func (c *VaultController) removePostgresRoleFinalizer(pgRole *api.PostgresRole) 
 	}
 
 	// remove finalizer
-	_, _, err = patchutil.PatchPostgresRole(c.dbClient.AuthorizationV1alpha1(), p, func(role *api.PostgresRole) *api.PostgresRole {
+	_, _, err = patchutil.PatchPostgresRole(c.extClient.EngineV1alpha1(), p, func(role *api.PostgresRole) *api.PostgresRole {
 		role.ObjectMeta = core_util.RemoveFinalizer(role.ObjectMeta, apis.Finalizer)
 		return role
 	})

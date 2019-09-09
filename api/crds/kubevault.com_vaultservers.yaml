@@ -5966,15 +5966,20 @@ spec:
                             key and AWS secret key secret data: \t- access_key:<value>
                             \ - secret_key:<value>"
                           type: string
+                        endpoint:
+                          description: Used to make AWS KMS requests. This is useful,
+                            for example, when connecting to KMS over a VPC Endpoint.
+                            If not set, Vault will use the default API endpoint for
+                            your region.
+                          type: string
                         kmsKeyID:
                           description: The ID or ARN of the AWS KMS key to encrypt
                             values
                           type: string
-                        ssmKeyPrefix:
-                          description: An optional Key prefix for SSM Parameter store.
-                            values
-                          type: string
                         region:
+                          type: string
+                        ssmKeyPrefix:
+                          description: An optional Key prefix for SSM Parameter store
                           type: string
                       required:
                       - kmsKeyID

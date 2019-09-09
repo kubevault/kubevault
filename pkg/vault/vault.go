@@ -12,9 +12,6 @@ import (
 )
 
 func NewClient(kc kubernetes.Interface, appc appcat_cs.AppcatalogV1alpha1Interface, vAppRef *appcat.AppReference) (*vaultapi.Client, error) {
-	if vAppRef == nil {
-		return nil, errors.New(".spec.vaultAppRef is nil")
-	}
 
 	vApp, err := appc.AppBindings(vAppRef.Namespace).Get(vAppRef.Name, metav1.GetOptions{})
 	if err != nil {

@@ -24,9 +24,13 @@ type AWSCredManager struct {
 }
 
 func NewAWSCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr crd.Interface, awsAKReq *api.AWSAccessKeyRequest) (*AWSCredManager, error) {
-	vaultRef, roleName, err := GetVaultRefAndRole(cr, awsAKReq.Spec.RoleRef)
+	role, err := GetVaultRefAndRole(cr, awsAKReq.Spec.RoleRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get vault app reference and vault role")
+	}
+	vaultRef := &appcat.AppReference{
+		Namespace: role.Namespace,
+		Name:      role.Spec.VaultRef.Name,
 	}
 
 	v, err := vault.NewClient(kClient, appClient, vaultRef)
@@ -34,7 +38,7 @@ func NewAWSCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.A
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
-	awsPath, err := awsrole.GetAWSPath(appClient, vaultRef)
+	awsPath, err := awsrole.GetAWSPath(role)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get aws path")
 	}
@@ -42,16 +46,16 @@ func NewAWSCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.A
 		AWSAccessReq: awsAKReq,
 		KubeClient:   kClient,
 		VaultClient:  v,
-		SecretGetter: aws.NewSecretGetter(v, awsPath, roleName, awsAKReq.Spec.UseSTS),
+		SecretGetter: aws.NewSecretGetter(v, awsPath, role.RoleName(), awsAKReq.Spec.UseSTS),
 	}, nil
 }
 
-func GetVaultRefAndRole(cr crd.Interface, ref api.RoleReference) (*appcat.AppReference, string, error) {
+func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*api.AWSRole, error) {
 	r, err := cr.EngineV1alpha1().AWSRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 	if err != nil {
-		return nil, "", errors.Wrapf(err, "AWSRole %s/%s", ref.Namespace, ref.Name)
+		return nil, errors.Wrapf(err, "failed to get AWSRole %s/%s", ref.Namespace, ref.Name)
 	}
-	return r.Spec.Ref, r.RoleName(), nil
+	return r, nil
 }
 
 func (d *AWSCredManager) ParseCredential(credSecret *vaultapi.Secret) (map[string][]byte, error) {

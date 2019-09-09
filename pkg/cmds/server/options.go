@@ -10,7 +10,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"kmodules.xyz/client-go/tools/clusterid"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	db_cs "kubedb.dev/apimachinery/client/clientset/versioned"
 	"kubevault.dev/operator/apis"
 	cs "kubevault.dev/operator/client/clientset/versioned"
 	"kubevault.dev/operator/pkg/controller"
@@ -84,9 +83,6 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 		return err
 	}
 	if cfg.AppCatalogClient, err = appcat_cs.NewForConfig(cfg.ClientConfig); err != nil {
-		return err
-	}
-	if cfg.DbClient, err = db_cs.NewForConfig(cfg.ClientConfig); err != nil {
 		return err
 	}
 	return nil

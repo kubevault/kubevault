@@ -12,9 +12,8 @@ import (
 	reg_util "kmodules.xyz/client-go/admissionregistration/v1beta1"
 	"kmodules.xyz/client-go/discovery"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	db_cs "kubedb.dev/apimachinery/client/clientset/versioned"
-	dbinformers "kubedb.dev/apimachinery/client/informers/externalversions"
 	cs "kubevault.dev/operator/client/clientset/versioned"
+	db_cs "kubevault.dev/operator/client/clientset/versioned"
 	vaultinformers "kubevault.dev/operator/client/informers/externalversions"
 	"kubevault.dev/operator/pkg/eventer"
 )
@@ -68,13 +67,11 @@ func (c *Config) New() (*VaultController, error) {
 		crdClient:        c.CRDClient,
 		promClient:       c.PromClient,
 		appCatalogClient: c.AppCatalogClient,
-		dbClient:         c.DbClient,
 		kubeInformerFactory: informers.NewSharedInformerFactoryWithOptions(
 			c.KubeClient,
 			c.ResyncPeriod,
 			informers.WithNamespace(core.NamespaceAll)),
 		extInformerFactory: vaultinformers.NewSharedInformerFactory(c.ExtClient, c.ResyncPeriod),
-		dbInformerFactory:  dbinformers.NewSharedInformerFactory(c.DbClient, c.ResyncPeriod),
 		recorder:           eventer.NewEventRecorder(c.KubeClient, "vault-operator"),
 	}
 
@@ -116,6 +113,9 @@ func (c *Config) New() (*VaultController, error) {
 	// For AzureRole
 	ctrl.initAzureRoleWatcher()
 	ctrl.initAzureAccessKeyWatcher()
+
+	// For secretEngine
+	ctrl.initSecretEngineWatcher()
 
 	return ctrl, nil
 }

@@ -13,6 +13,10 @@ type VaultServerConfiguration struct {
 	// +optional
 	metav1.TypeMeta `json:",inline,omitempty"`
 
+	// Specifies the path which is used for authentication by this AppBinding.
+	// If vault server is provisioned by KubeVault, this is usually `kubernetes`.
+	Path string `json:"path"`
+
 	// Specifies the service account name
 	// +optional
 	ServiceAccountName string `json:"serviceAccountName,omitempty"`
@@ -36,9 +40,4 @@ type VaultServerConfiguration struct {
 	// Specifies to use pod service account for vault csi driver
 	// +optional
 	UsePodServiceAccountForCSIDriver bool `json:"usePodServiceAccountForCsiDriver,omitempty"`
-
-	// Specifies the path where kubernetes auth is enabled
-	// default : kubernetes
-	// +optional
-	AuthPath string `json:"authPath,omitempty"`
 }

@@ -5,7 +5,6 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 const (
@@ -30,7 +29,16 @@ type VaultPolicy struct {
 	Status            VaultPolicyStatus `json:"status,omitempty"`
 }
 
+// More info: https://www.vaultproject.io/docs/concepts/policies.html
 type VaultPolicySpec struct {
+	// VaultRef is the name of a AppBinding referencing to a Vault Server
+	VaultRef core.LocalObjectReference `json:"vaultRef"`
+
+	// VaultPolicyName is the policy name set inside Vault.
+	// This defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}
+	// +optional
+	VaultPolicyName string `json:"vaultPolicyName,omitempty"`
+
 	// PolicyDocument specifies a vault policy in hcl format.
 	// For example:
 	// path "secret/*" {
@@ -42,10 +50,6 @@ type VaultPolicySpec struct {
 	// Policy specifies a vault policy in json format.
 	// +optional
 	Policy *runtime.RawExtension `json:"policy,omitempty"`
-
-	// Vault contains the reference of kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppBinding
-	// which contains information to communicate with vault
-	Ref *appcat.AppReference `json:"ref"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

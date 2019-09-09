@@ -407,51 +407,9 @@ spec:
               type: string
           type: object
         spec:
-          description: AWSRoleSpec contains connection information, AWS role info,
-            etc
+          description: 'AWSRoleSpec contains connection information, AWS role info,
+            etc More info: https://www.vaultproject.io/api/secret/aws/index.html#parameters-3'
           properties:
-            config:
-              description: https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials
-                AWSConfig contains information to communicate with AWS
-              properties:
-                credentialSecret:
-                  description: "Specifies the secret containing AWS access key ID
-                    and secret access key secret.Data: \t- access_key=<value>  - secret_key=<value>"
-                  type: string
-                iamEndpoint:
-                  description: Specifies a custom HTTP IAM enminidpoint to use
-                  type: string
-                leaseConfig:
-                  description: https://www.vaultproject.io/api/secret/aws/index.html#configure-lease
-                    LeaseConfig contains lease configuration
-                  properties:
-                    lease:
-                      description: Specifies the lease value provided as a string
-                        duration with time suffix. "h" (hour) is the largest suffix.
-                      type: string
-                    leaseMax:
-                      description: Specifies the maximum lease value provided as a
-                        string duration with time suffix. "h" (hour) is the largest
-                        suffix
-                      type: string
-                  required:
-                  - lease
-                  - leaseMax
-                  type: object
-                maxRetries:
-                  description: Number of max retries the client should use for recoverable
-                    errors. The default (-1) falls back to the AWS SDK's default behavior
-                  type: integer
-                region:
-                  description: Specifies the AWS region
-                  type: string
-                stsEndpoint:
-                  description: Specifies a custom HTTP STS endpoint to use
-                  type: string
-              required:
-              - credentialSecret
-              - region
-              type: object
             credentialType:
               description: Specifies the type of credential to be used when retrieving
                 credentials from the role
@@ -466,6 +424,10 @@ spec:
               description: The max allowed TTL for STS credentials (credentials TTL
                 are capped to max_sts_ttl). Valid only when credential_type is one
                 of assumed_role or federation_token
+              type: string
+            path:
+              description: 'Path defines the path of the AWS secret engine default:
+                aws More info: https://www.vaultproject.io/docs/auth/aws.html#via-the-cli'
               type: string
             policy:
               description: Specifies the IAM policy in JSON format.
@@ -485,25 +447,6 @@ spec:
                 IAM user has. With assumed_role and federation_token, the policy document
                 will act as a filter on what the credentials can do.
               type: string
-            ref:
-              properties:
-                name:
-                  description: '`name` is the name of the app. Required'
-                  type: string
-                namespace:
-                  description: '`namespace` is the namespace of the app. Required'
-                  type: string
-                parameters:
-                  description: "Parameters is a set of the parameters to be used to
-                    override default parameters. The inline YAML/JSON payload to be
-                    translated into equivalent JSON object. \n The Parameters field
-                    is NOT secret or secured in any way and should NEVER be used to
-                    hold sensitive information."
-                  type: object
-              required:
-              - name
-              - namespace
-              type: object
             roleARNs:
               description: Specifies the ARNs of the AWS roles this Vault role is
                 allowed to assume. Required when credential_type is assumed_role and
@@ -511,9 +454,18 @@ spec:
               items:
                 type: string
               type: array
+            vaultRef:
+              description: VaultRef is the name of a AppBinding referencing to a Vault
+                Server
+              properties:
+                name:
+                  description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                    TODO: Add other useful fields. apiVersion, kind, uid?'
+                  type: string
+              type: object
           required:
-          - config
           - credentialType
+          - vaultRef
           type: object
         status:
           properties:

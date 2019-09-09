@@ -44,12 +44,32 @@ func (c *FakeEngineV1alpha1) AzureRoles(namespace string) v1alpha1.AzureRoleInte
 	return &FakeAzureRoles{c, namespace}
 }
 
+func (c *FakeEngineV1alpha1) DatabaseAccessRequests(namespace string) v1alpha1.DatabaseAccessRequestInterface {
+	return &FakeDatabaseAccessRequests{c, namespace}
+}
+
 func (c *FakeEngineV1alpha1) GCPAccessKeyRequests(namespace string) v1alpha1.GCPAccessKeyRequestInterface {
 	return &FakeGCPAccessKeyRequests{c, namespace}
 }
 
 func (c *FakeEngineV1alpha1) GCPRoles(namespace string) v1alpha1.GCPRoleInterface {
 	return &FakeGCPRoles{c, namespace}
+}
+
+func (c *FakeEngineV1alpha1) MongoDBRoles(namespace string) v1alpha1.MongoDBRoleInterface {
+	return &FakeMongoDBRoles{c, namespace}
+}
+
+func (c *FakeEngineV1alpha1) MySQLRoles(namespace string) v1alpha1.MySQLRoleInterface {
+	return &FakeMySQLRoles{c, namespace}
+}
+
+func (c *FakeEngineV1alpha1) PostgresRoles(namespace string) v1alpha1.PostgresRoleInterface {
+	return &FakePostgresRoles{c, namespace}
+}
+
+func (c *FakeEngineV1alpha1) SecretEngines(namespace string) v1alpha1.SecretEngineInterface {
+	return &FakeSecretEngines{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

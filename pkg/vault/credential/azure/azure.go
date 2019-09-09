@@ -26,9 +26,13 @@ type AzureCredManager struct {
 }
 
 func NewAzureCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, cr crd.Interface, azureAKReq *api.AzureAccessKeyRequest) (*AzureCredManager, error) {
-	vaultRef, roleName, err := GetVaultRefAndRole(cr, azureAKReq.Spec.RoleRef)
+	role, err := GetVaultRefAndRole(cr, azureAKReq.Spec.RoleRef)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get vault app reference and AzureRole name")
+	}
+	vaultRef := &appcat.AppReference{
+		Namespace: role.Namespace,
+		Name:      role.Spec.VaultRef.Name,
 	}
 
 	vClient, err := vault.NewClient(kClient, appClient, vaultRef)
@@ -36,25 +40,25 @@ func NewAzureCredentialManager(kClient kubernetes.Interface, appClient appcat_cs
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
-	azurePath, err := azurerole.GetAzurePath(appClient, vaultRef)
+	azurePath, err := azurerole.GetAzurePath(role)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get azure path")
 	}
 
 	return &AzureCredManager{
-		SecretGetter:      azureengines.NewSecretGetter(vClient, azurePath, roleName),
+		SecretGetter:      azureengines.NewSecretGetter(vClient, azurePath, role.RoleName()),
 		AzureAccessKeyReq: azureAKReq,
 		KubeClient:        kClient,
 		VaultClient:       vClient,
 	}, nil
 }
 
-func GetVaultRefAndRole(cr crd.Interface, ref api.RoleReference) (*appcat.AppReference, string, error) {
+func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*api.AzureRole, error) {
 	r, err := cr.EngineV1alpha1().AzureRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
 	if err != nil {
-		return nil, "", errors.Wrapf(err, "AzureRole %s/%s", ref.Namespace, ref.Name)
+		return nil, errors.Wrapf(err, "failed to get AzureRole %s/%s", ref.Namespace, ref.Name)
 	}
-	return r.Spec.Ref, r.RoleName(), nil
+	return r, nil
 }
 
 func (d *AzureCredManager) ParseCredential(credSecret *vaultapi.Secret) (map[string][]byte, error) {

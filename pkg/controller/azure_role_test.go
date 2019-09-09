@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	opfake "kubevault.dev/operator/client/clientset/versioned/fake"
 	"kubevault.dev/operator/pkg/vault/role/azure"
@@ -57,13 +57,8 @@ func TestAzureRole_reconcileAzureRole(t *testing.T) {
 			Namespace: "demo",
 		},
 		Spec: api.AzureRoleSpec{
-			Ref: &appcat.AppReference{
-				Namespace: "demo",
-				Name:      "test-212321",
-			},
-			Config: &api.AzureConfig{
-				CredentialSecret: "azure-cred",
-				Environment:      "AzurePublicCloud",
+			VaultRef: core.LocalObjectReference{
+				Name: "test-212321",
 			},
 			AzureRoles:          "[{}]",
 			ApplicationObjectID: "443-324-3432-44",
@@ -85,24 +80,6 @@ func TestAzureRole_reconcileAzureRole(t *testing.T) {
 			azureRClient:       &fakeAzureRole{},
 			hasStatusCondition: false,
 			expectedErr:        false,
-		},
-		{
-			testName: "Failed to enable Azure",
-			azureRClient: &fakeAzureRole{
-				errorOccurredInEnableAzure: true,
-			},
-			azureRole:          aRole,
-			hasStatusCondition: true,
-			expectedErr:        true,
-		},
-		{
-			testName: "Failed to create config",
-			azureRClient: &fakeAzureRole{
-				errorOccurredInCreateConfig: true,
-			},
-			azureRole:          aRole,
-			hasStatusCondition: true,
-			expectedErr:        true,
 		},
 		{
 			testName: "Failed to create role",

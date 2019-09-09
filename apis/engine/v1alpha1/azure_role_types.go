@@ -4,7 +4,6 @@ import (
 	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 const (
@@ -38,12 +37,16 @@ const (
 )
 
 // AzureRoleSpec contains connection information, Azure role info, etc
+// More info: https://www.vaultproject.io/api/secret/azure/index.html#create-update-role
 type AzureRoleSpec struct {
-	Ref    *appcat.AppReference `json:"ref,omitempty"`
-	Config *AzureConfig         `json:"config"`
+	// VaultRef is the name of a AppBinding referencing to a Vault Server
+	VaultRef core.LocalObjectReference `json:"vaultRef"`
 
-	// ref:
-	// - https://www.vaultproject.io/api/secret/azure/index.html#parameters
+	// Path defines the path of the Azure secret engine
+	// default: azure
+	// More info: https://www.vaultproject.io/docs/auth/azure.html#via-the-cli
+	// +optional
+	Path string `json:"path,omitempty"`
 
 	// List of Azure roles to be assigned to the generated service principal.
 	// The array must be in JSON format, properly escaped as a string
@@ -74,27 +77,6 @@ type AzureRoleList struct {
 
 	// Items is a list of AzureRole objects
 	Items []AzureRole `json:"items, omitempty"`
-}
-
-// ref:
-//	- https://www.vaultproject.io/api/secret/azure/index.html#configure-access
-
-// AzureConfig contains information to communicate with Azure
-type AzureConfig struct {
-
-	// Specifies the secret name containing Azure credentials
-	// secret.Data:
-	// 	- subscription-id: <value>, The subscription id for the Azure Active Directory.
-	//	- tenant-id: <value>, The tenant id for the Azure Active Directory.
-	//	- client-id: <value>, The OAuth2 client id to connect to Azure.
-	//	- client-secret: <value>, The OAuth2 client secret to connect to Azure.
-	// +required
-	CredentialSecret string `json:"credentialSecret"`
-
-	// The Azure environment.
-	// If not specified, Vault will use Azure Public Cloud.
-	// +optional
-	Environment string `json:"environment, omitempty"`
 }
 
 type AzureRolePhase string

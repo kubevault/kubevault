@@ -7,13 +7,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/appscode/pat"
+	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
@@ -47,13 +46,8 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 					Namespace: "demo",
 				},
 				Spec: api.GCPRoleSpec{
-					Ref: &appcat.AppReference{
-						Namespace:  "demo",
-						Name:       "vault-app",
-						Parameters: nil,
-					},
-					Config: &api.GCPConfig{
-						CredentialSecret: "gcp-cred",
+					VaultRef: core.LocalObjectReference{
+						Name: "vault-app",
 					},
 					SecretType: "access_token",
 					Project:    "ackube",
@@ -75,10 +69,8 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 					Namespace: "demo",
 				},
 				Spec: api.GCPRoleSpec{
-					Ref: &appcat.AppReference{
-						Namespace:  "demo",
-						Name:       "vault-app",
-						Parameters: nil,
+					VaultRef: core.LocalObjectReference{
+						Name: "vault-app",
 					},
 					SecretType: "access_token",
 					Project:    "ackube",
@@ -100,13 +92,8 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 					Namespace: "demo",
 				},
 				Spec: api.GCPRoleSpec{
-					Ref: &appcat.AppReference{
-						Namespace:  "demo",
-						Name:       "vault-app",
-						Parameters: nil,
-					},
-					Config: &api.GCPConfig{
-						CredentialSecret: "gcp-cred",
+					VaultRef: core.LocalObjectReference{
+						Name: "vault-app",
 					},
 					SecretType:  "access_token",
 					Project:     "ackube",
@@ -125,13 +112,8 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 					Namespace: "demo",
 				},
 				Spec: api.GCPRoleSpec{
-					Ref: &appcat.AppReference{
-						Namespace:  "demo",
-						Name:       "vault-app",
-						Parameters: nil,
-					},
-					Config: &api.GCPConfig{
-						CredentialSecret: "gcp-cred",
+					VaultRef: core.LocalObjectReference{
+						Name: "vault-app",
 					},
 					SecretType: "access_token",
 					Project:    "ackube",
@@ -151,28 +133,9 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 }
 
 func setupVaultServer() *httptest.Server {
-	m := pat.New()
+	router := mux.NewRouter()
 
-	m.Post("/v1/gcp/config", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		defer r.Body.Close()
-		var data interface{}
-		err := json.NewDecoder(r.Body).Decode(&data)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
-			return
-		} else {
-			m := data.(map[string]interface{})
-			if v, ok := m["credentials"]; !ok || len(v.(string)) == 0 {
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("credentials aren't provided"))
-				return
-			}
-			w.WriteHeader(http.StatusOK)
-		}
-	}))
-
-	m.Post("/v1/gcp/roleset/k8s.-.demo.my-role", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/v1/gcp/roleset/k8s.-.demo.my-role", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		var data interface{}
 		err := json.NewDecoder(r.Body).Decode(&data)
@@ -208,57 +171,13 @@ func setupVaultServer() *httptest.Server {
 			w.WriteHeader(http.StatusOK)
 		}
 
-	}))
+	}).Methods(http.MethodPost)
 
-	m.Del("/v1/gcp/roleset/k8s.-.demo.my-role", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/v1/gcp/roleset/k8s.-.demo.my-role", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-	}))
+	}).Methods(http.MethodDelete)
 
-	return httptest.NewServer(m)
-}
-
-func TestGCPRole_CreateConfig(t *testing.T) {
-	demoRole, srv := CreateDemoDB()
-	defer srv.Close()
-
-	testData := []struct {
-		testName    string
-		gcpRole     *GCPRole
-		expectedErr bool
-	}{
-		{
-			testName:    "Create Config Successful",
-			gcpRole:     &demoRole[0],
-			expectedErr: false,
-		},
-		{
-			testName:    "Create Config Failed",
-			gcpRole:     &demoRole[1],
-			expectedErr: true,
-		},
-		{
-			testName:    "Create Config Successful",
-			gcpRole:     &demoRole[2],
-			expectedErr: false,
-		},
-		{
-			testName:    "Create Config Failed",
-			gcpRole:     &demoRole[3],
-			expectedErr: true,
-		},
-	}
-
-	for _, test := range testData {
-		t.Run(test.testName, func(t *testing.T) {
-			m := test.gcpRole
-			err := m.CreateConfig()
-			if test.expectedErr {
-				assert.NotNil(t, err)
-			} else {
-				assert.Nil(t, err)
-			}
-		})
-	}
+	return httptest.NewServer(router)
 }
 
 func TestGCPRole_CreateRole(t *testing.T) {

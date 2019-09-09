@@ -50,6 +50,14 @@ type AzureRoleListerExpansion interface{}
 // AzureRoleNamespaceLister.
 type AzureRoleNamespaceListerExpansion interface{}
 
+// DatabaseAccessRequestListerExpansion allows custom methods to be added to
+// DatabaseAccessRequestLister.
+type DatabaseAccessRequestListerExpansion interface{}
+
+// DatabaseAccessRequestNamespaceListerExpansion allows custom methods to be added to
+// DatabaseAccessRequestNamespaceLister.
+type DatabaseAccessRequestNamespaceListerExpansion interface{}
+
 // GCPAccessKeyRequestListerExpansion allows custom methods to be added to
 // GCPAccessKeyRequestLister.
 type GCPAccessKeyRequestListerExpansion interface{}
@@ -65,3 +73,35 @@ type GCPRoleListerExpansion interface{}
 // GCPRoleNamespaceListerExpansion allows custom methods to be added to
 // GCPRoleNamespaceLister.
 type GCPRoleNamespaceListerExpansion interface{}
+
+// MongoDBRoleListerExpansion allows custom methods to be added to
+// MongoDBRoleLister.
+type MongoDBRoleListerExpansion interface{}
+
+// MongoDBRoleNamespaceListerExpansion allows custom methods to be added to
+// MongoDBRoleNamespaceLister.
+type MongoDBRoleNamespaceListerExpansion interface{}
+
+// MySQLRoleListerExpansion allows custom methods to be added to
+// MySQLRoleLister.
+type MySQLRoleListerExpansion interface{}
+
+// MySQLRoleNamespaceListerExpansion allows custom methods to be added to
+// MySQLRoleNamespaceLister.
+type MySQLRoleNamespaceListerExpansion interface{}
+
+// PostgresRoleListerExpansion allows custom methods to be added to
+// PostgresRoleLister.
+type PostgresRoleListerExpansion interface{}
+
+// PostgresRoleNamespaceListerExpansion allows custom methods to be added to
+// PostgresRoleNamespaceLister.
+type PostgresRoleNamespaceListerExpansion interface{}
+
+// SecretEngineListerExpansion allows custom methods to be added to
+// SecretEngineLister.
+type SecretEngineListerExpansion interface{}
+
+// SecretEngineNamespaceListerExpansion allows custom methods to be added to
+// SecretEngineNamespaceLister.
+type SecretEngineNamespaceListerExpansion interface{}

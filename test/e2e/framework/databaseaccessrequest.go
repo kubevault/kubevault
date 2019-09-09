@@ -1,13 +1,13 @@
 package framework
 
 import (
-	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
-	patchutil "kubedb.dev/apimachinery/client/clientset/versioned/typed/authorization/v1alpha1/util"
 	"kubevault.dev/operator/apis"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 )
 
 func (f *Framework) UpdateDatabaseAccessRequestStatus(status *api.DatabaseAccessRequestStatus, dbAReq *api.DatabaseAccessRequest) error {
-	_, err := patchutil.UpdateDatabaseAccessRequestStatus(f.DBClient.AuthorizationV1alpha1(), dbAReq, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
+	_, err := patchutil.UpdateDatabaseAccessRequestStatus(f.CSClient.EngineV1alpha1(), dbAReq, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
 		s = status
 		return s
 	}, apis.EnableStatusSubresource)

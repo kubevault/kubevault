@@ -1,17 +1,15 @@
 package database
 
 import (
-	"encoding/json"
 	"fmt"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
-	vaultcs "kubevault.dev/operator/pkg/vault"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	vault "kubevault.dev/operator/pkg/vault"
 	"kubevault.dev/operator/pkg/vault/role"
 	"kubevault.dev/operator/pkg/vault/role/database/mongodb"
 	"kubevault.dev/operator/pkg/vault/role/database/mysql"
@@ -29,16 +27,17 @@ type DatabaseRole struct {
 }
 
 func NewDatabaseRoleForPostgres(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.PostgresRole) (DatabaseRoleInterface, error) {
-	ref := role.Spec.AuthManagerRef
-	vClient, err := vaultcs.NewClient(kClient, appClient, &appcat.AppReference{
-		Name:      ref.Name,
-		Namespace: ref.Namespace,
-	})
+	vAppRef := &appcat.AppReference{
+		Namespace: role.Namespace,
+		Name:      role.Spec.VaultRef.Name,
+	}
+
+	vClient, err := vault.NewClient(kClient, appClient, vAppRef)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	path, err := GetDatabasePath(appClient, *ref)
+	path, err := GetPostgresDatabasePath(role)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database path")
 	}
@@ -57,16 +56,16 @@ func NewDatabaseRoleForPostgres(kClient kubernetes.Interface, appClient appcat_c
 }
 
 func NewDatabaseRoleForMysql(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.MySQLRole) (DatabaseRoleInterface, error) {
-	ref := role.Spec.AuthManagerRef
-	vClient, err := vaultcs.NewClient(kClient, appClient, &appcat.AppReference{
-		Name:      ref.Name,
-		Namespace: ref.Namespace,
-	})
+	vAppRef := &appcat.AppReference{
+		Namespace: role.Namespace,
+		Name:      role.Spec.VaultRef.Name,
+	}
+	vClient, err := vault.NewClient(kClient, appClient, vAppRef)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	path, err := GetDatabasePath(appClient, *ref)
+	path, err := GetMySQLDatabasePath(role)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database path")
 	}
@@ -85,16 +84,16 @@ func NewDatabaseRoleForMysql(kClient kubernetes.Interface, appClient appcat_cs.A
 }
 
 func NewDatabaseRoleForMongodb(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.MongoDBRole) (DatabaseRoleInterface, error) {
-	ref := role.Spec.AuthManagerRef
-	vClient, err := vaultcs.NewClient(kClient, appClient, &appcat.AppReference{
-		Name:      ref.Name,
-		Namespace: ref.Namespace,
-	})
+	vAppRef := &appcat.AppReference{
+		Namespace: role.Namespace,
+		Name:      role.Spec.VaultRef.Name,
+	}
+	vClient, err := vault.NewClient(kClient, appClient, vAppRef)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	path, err := GetDatabasePath(appClient, *ref)
+	path, err := GetMongoDBDatabasePath(role)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database path")
 	}
@@ -165,25 +164,25 @@ func (d *DatabaseRole) DeleteRole(name string) error {
 }
 
 // If database path does not exist, then use default database path
-func GetDatabasePath(c appcat_cs.AppcatalogV1alpha1Interface, ref appcat.AppReference) (string, error) {
-	vApp, err := c.AppBindings(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
-	if err != nil {
-		return "", err
+func GetMySQLDatabasePath(role *api.MySQLRole) (string, error) {
+	if role.Spec.Path != "" {
+		return role.Spec.Path, nil
 	}
+	return DefaultDatabasePath, nil
+}
 
-	var cf struct {
-		DatabasePath string `json:"database_path,omitempty"`
+// If database path does not exist, then use default database path
+func GetMongoDBDatabasePath(role *api.MongoDBRole) (string, error) {
+	if role.Spec.Path != "" {
+		return role.Spec.Path, nil
 	}
+	return DefaultDatabasePath, nil
+}
 
-	if vApp.Spec.Parameters != nil {
-		err := json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
-		if err != nil {
-			return "", err
-		}
-	}
-
-	if cf.DatabasePath != "" {
-		return cf.DatabasePath, nil
+// If database path does not exist, then use default database path
+func GetPostgresDatabasePath(role *api.PostgresRole) (string, error) {
+	if role.Spec.Path != "" {
+		return role.Spec.Path, nil
 	}
 	return DefaultDatabasePath, nil
 }

@@ -55,6 +55,12 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 			Value: o.Region,
 		})
 	}
+	if o.Endpoint != "" {
+		envs = append(envs, core.EnvVar{
+			Name:  "AWS_KMS_ENDPOINT",
+			Value: o.Endpoint,
+		})
+	}
 	if o.CredentialSecret != "" {
 		envs = append(envs, core.EnvVar{
 			Name: "AWS_ACCESS_KEY_ID",

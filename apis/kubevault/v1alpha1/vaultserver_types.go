@@ -734,6 +734,11 @@ type AwsKmsSsmSpec struct {
 	//  - secret_key:<value>
 	// +optional
 	CredentialSecret string `json:"credentialSecret,omitempty"`
+
+	// Used to make AWS KMS requests. This is useful,
+	// for example, when connecting to KMS over a VPC Endpoint.
+	// If not set, Vault will use the default API endpoint for your region.
+	Endpoint string `json:"endpoint,omitempty"`
 }
 
 // AzureKeyVault contain the fields that required to unseal vault using azure key vault

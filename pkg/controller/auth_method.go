@@ -11,11 +11,11 @@ import (
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	core_util "kmodules.xyz/client-go/core/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 	vaultconfig "kubevault.dev/operator/apis/config/v1alpha1"
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
@@ -135,38 +135,46 @@ func (c *VaultController) reconcileAuthMethods(vs *api.VaultServer, ctx context.
 }
 
 func vaultPolicyForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy {
-	plcy := &policyapi.VaultPolicy{
+	policy := &policyapi.VaultPolicy{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      vs.PolicyNameForAuthMethodController(),
 			Namespace: vs.Namespace,
 			Labels:    vs.OffshootLabels(),
 		},
 		Spec: policyapi.VaultPolicySpec{
-			Ref: &appcat.AppReference{
-				Name:      vs.AppBindingName(),
-				Namespace: vs.Namespace,
+			VaultRef: core.LocalObjectReference{
+				Name: vs.AppBindingName(),
 			},
 			PolicyDocument: policyForAuthController,
 		},
 	}
-	return plcy
+	return policy
 }
 
 func vaultPolicyBindingForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicyBinding {
-	pb := &policyapi.VaultPolicyBinding{
+	var pb = &policyapi.VaultPolicyBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      vs.PolicyNameForAuthMethodController(),
 			Namespace: vs.Namespace,
 			Labels:    vs.OffshootLabels(),
 		},
 		Spec: policyapi.VaultPolicyBindingSpec{
-			AuthPath:                 string(api.AuthTypeKubernetes),
-			ServiceAccountNames:      []string{vs.ServiceAccountName()},
-			ServiceAccountNamespaces: []string{vs.Namespace},
-			Policies:                 []string{vs.PolicyNameForAuthMethodController()},
-			TTL:                      ttlForAuthMethod,
-			Period:                   ttlForAuthMethod,
-			MaxTTL:                   ttlForAuthMethod,
+			VaultRef: core.LocalObjectReference{Name: vs.AppBindingName()},
+			Policies: []policyapi.PolicyIdentifier{
+				{
+					Ref: vs.PolicyNameForAuthMethodController(),
+				},
+			},
+			SubjectRef: policyapi.SubjectRef{
+				Kubernetes: &policyapi.KubernetesSubjectRef{
+					Path:                     string(api.AuthTypeKubernetes),
+					ServiceAccountNames:      []string{vs.ServiceAccountName()},
+					ServiceAccountNamespaces: []string{vs.Namespace},
+					TTL:                      ttlForAuthMethod,
+					MaxTTL:                   ttlForAuthMethod,
+					Period:                   ttlForAuthMethod,
+				},
+			},
 		},
 	}
 	return pb
@@ -177,7 +185,7 @@ func ensureVaultPolicy(c policycs.PolicyV1alpha1Interface, vp *policyapi.VaultPo
 		in.Labels = core_util.UpsertMap(in.Labels, vp.Labels)
 		in.Spec.PolicyDocument = vp.Spec.PolicyDocument
 		in.Spec.Policy = vp.Spec.Policy
-		in.Spec.Ref = vp.Spec.Ref
+		in.Spec.VaultRef = vp.Spec.VaultRef
 		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
 		return in
 	})

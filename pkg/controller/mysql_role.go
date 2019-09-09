@@ -13,10 +13,10 @@ import (
 	core_util "kmodules.xyz/client-go/core/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
-	"kubedb.dev/apimachinery/apis"
-	api "kubedb.dev/apimachinery/apis/authorization/v1alpha1"
-	patchutil "kubedb.dev/apimachinery/client/clientset/versioned/typed/authorization/v1alpha1/util"
+	"kubevault.dev/operator/apis"
 	vsapis "kubevault.dev/operator/apis"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/database"
 )
 
@@ -25,10 +25,10 @@ const (
 )
 
 func (c *VaultController) initMySQLRoleWatcher() {
-	c.myRoleInformer = c.dbInformerFactory.Authorization().V1alpha1().MySQLRoles().Informer()
+	c.myRoleInformer = c.extInformerFactory.Engine().V1alpha1().MySQLRoles().Informer()
 	c.myRoleQueue = queue.New(api.ResourceKindMySQLRole, c.MaxNumRequeues, c.NumThreads, c.runMySQLRoleInjector)
 	c.myRoleInformer.AddEventHandler(queue.NewObservableHandler(c.myRoleQueue.GetQueue(), apis.EnableStatusSubresource))
-	c.myRoleLister = c.dbInformerFactory.Authorization().V1alpha1().MySQLRoles().Lister()
+	c.myRoleLister = c.extInformerFactory.Engine().V1alpha1().MySQLRoles().Lister()
 }
 
 func (c *VaultController) runMySQLRoleInjector(key string) error {
@@ -54,7 +54,7 @@ func (c *VaultController) runMySQLRoleInjector(key string) error {
 		} else {
 			if !core_util.HasFinalizer(mRole.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchMySQLRole(c.dbClient.AuthorizationV1alpha1(), mRole, func(role *api.MySQLRole) *api.MySQLRole {
+				_, _, err := patchutil.PatchMySQLRole(c.extClient.EngineV1alpha1(), mRole, func(role *api.MySQLRole) *api.MySQLRole {
 					role.ObjectMeta = core_util.AddFinalizer(role.ObjectMeta, apis.Finalizer)
 					return role
 				})
@@ -79,53 +79,14 @@ func (c *VaultController) runMySQLRoleInjector(key string) error {
 
 // Will do:
 //	For vault:
-//	  - enable the database secrets engine if it is not already enabled
-//	  - configure Vault with the proper mysql plugin and connection information
 // 	  - configure a role that maps a name in Vault to an SQL statement to execute to create the database credential.
 //    - sync role
 //	  - revoke previous lease of all the respective mysqlRoleBinding and reissue a new lease
 func (c *VaultController) reconcileMySQLRole(dbRClient database.DatabaseRoleInterface, myRole *api.MySQLRole) error {
 	status := myRole.Status
-	// enable the database secrets engine if it is not already enabled
-	err := dbRClient.EnableDatabase()
-	if err != nil {
-		status.Conditions = []api.MySQLRoleCondition{
-			{
-				Type:    "Available",
-				Status:  corev1.ConditionFalse,
-				Reason:  "FailedToEnableDatabase",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatedMySQLRoleStatus(&status, myRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to enable database secret engine")
-	}
-
-	// create database config for mysql
-	err = dbRClient.CreateConfig()
-	if err != nil {
-		status.Conditions = []api.MySQLRoleCondition{
-			{
-				Type:    "Available",
-				Status:  corev1.ConditionFalse,
-				Reason:  "FailedToCreateDatabaseConfig",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatedMySQLRoleStatus(&status, myRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to create database connection config")
-	}
 
 	// create role
-	err = dbRClient.CreateRole()
+	err := dbRClient.CreateRole()
 	if err != nil {
 		status.Conditions = []api.MySQLRoleCondition{
 			{
@@ -155,7 +116,7 @@ func (c *VaultController) reconcileMySQLRole(dbRClient database.DatabaseRoleInte
 }
 
 func (c *VaultController) updatedMySQLRoleStatus(status *api.MySQLRoleStatus, mRole *api.MySQLRole) error {
-	_, err := patchutil.UpdateMySQLRoleStatus(c.dbClient.AuthorizationV1alpha1(), mRole, func(s *api.MySQLRoleStatus) *api.MySQLRoleStatus {
+	_, err := patchutil.UpdateMySQLRoleStatus(c.extClient.EngineV1alpha1(), mRole, func(s *api.MySQLRoleStatus) *api.MySQLRoleStatus {
 		s = status
 		return s
 	}, vsapis.EnableStatusSubresource)
@@ -250,14 +211,14 @@ func (c *VaultController) finalizeMySQLRole(dbRClient database.DatabaseRoleInter
 }
 
 func (c *VaultController) removeMySQLRoleFinalizer(mRole *api.MySQLRole) error {
-	m, err := c.dbClient.AuthorizationV1alpha1().MySQLRoles(mRole.Namespace).Get(mRole.Name, metav1.GetOptions{})
+	m, err := c.extClient.EngineV1alpha1().MySQLRoles(mRole.Namespace).Get(mRole.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
 		return err
 	}
 	// remove finalizer
-	_, _, err = patchutil.PatchMySQLRole(c.dbClient.AuthorizationV1alpha1(), m, func(role *api.MySQLRole) *api.MySQLRole {
+	_, _, err = patchutil.PatchMySQLRole(c.extClient.EngineV1alpha1(), m, func(role *api.MySQLRole) *api.MySQLRole {
 		role.ObjectMeta = core_util.RemoveFinalizer(role.ObjectMeta, apis.Finalizer)
 		return role
 	})

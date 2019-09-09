@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/appscode/pat"
+	"github.com/gorilla/mux"
 	"github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,8 +20,8 @@ const authResp = `
 `
 
 func NewFakeVaultServer() *httptest.Server {
-	m := pat.New()
-	m.Post("/v1/auth/azure/login", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router := mux.NewRouter()
+	router.HandleFunc("/v1/auth/azure/login", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
 		json.NewDecoder(r.Body).Decode(&v)
@@ -39,9 +39,9 @@ func NewFakeVaultServer() *httptest.Server {
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(authResp))
-	}))
+	}).Methods(http.MethodPost)
 
-	m.Post("/v1/auth/my-path/login/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/v1/auth/my-path/login", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
 		json.NewDecoder(r.Body).Decode(&v)
@@ -59,9 +59,9 @@ func NewFakeVaultServer() *httptest.Server {
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(authResp))
-	}))
+	}).Methods(http.MethodPost)
 
-	return httptest.NewServer(m)
+	return httptest.NewServer(router)
 }
 
 func TestAuth_Login(t *testing.T) {

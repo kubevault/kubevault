@@ -37,7 +37,7 @@ type AzureAccessKeyRequest struct {
 type AzureAccessKeyRequestSpec struct {
 	// Contains vault azure role info
 	// +required
-	RoleRef RoleReference `json:"roleRef"`
+	RoleRef RoleRef `json:"roleRef"`
 
 	// Contains a reference to the object or user identities the role binding is applied to
 	// +required

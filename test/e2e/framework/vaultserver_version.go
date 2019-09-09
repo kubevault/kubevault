@@ -1,6 +1,8 @@
 package framework
 
 import (
+	"fmt"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	api "kubevault.dev/operator/apis/catalog/v1alpha1"
 )
@@ -13,10 +15,10 @@ func (f *Framework) CreateVaultserverVersion() error {
 		Spec: api.VaultServerVersionSpec{
 			Version: vaultVersion,
 			Vault: api.VaultServerVersionVault{
-				Image: "vault:1.0.1",
+				Image: "vault:1.2.0",
 			},
 			Unsealer: api.VaultServerVersionUnsealer{
-				Image: "kubevault/vault-unsealer:0.2.0",
+				Image: fmt.Sprintf("%s/%s", DockerRegistry, UnsealerImage),
 			},
 			Exporter: api.VaultServerVersionExporter{
 				Image: "kubevault/vault-exporter:0.1.0",

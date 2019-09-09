@@ -80,52 +80,13 @@ func (c *VaultController) runGCPRoleInjector(key string) error {
 
 // Will do:
 //	For vault:
-//	  - enable the GCP secrets engine if it is not already enabled
-//	  - configure Vault GCP secret engine
 // 	  - configure a GCP role
 //    - sync role
 func (c *VaultController) reconcileGCPRole(gcpRClient gcp.GCPRoleInterface, gcpRole *api.GCPRole) error {
 	status := gcpRole.Status
-	// enable the gcp secrets engine if it is not already enabled
-	err := gcpRClient.EnableGCP()
-	if err != nil {
-		status.Conditions = []api.GCPRoleCondition{
-			{
-				Type:    GCPRoleConditionFailed,
-				Status:  core.ConditionTrue,
-				Reason:  "FailedToEnableGCP",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatedGCPRoleStatus(&status, gcpRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to enable gcp secret engine")
-	}
-
-	// create gcp config
-	err = gcpRClient.CreateConfig()
-	if err != nil {
-		status.Conditions = []api.GCPRoleCondition{
-			{
-				Type:    GCPRoleConditionFailed,
-				Status:  core.ConditionTrue,
-				Reason:  "FailedToCreateGCPConfig",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatedGCPRoleStatus(&status, gcpRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to create gcp connection config")
-	}
 
 	// create role
-	err = gcpRClient.CreateRole()
+	err := gcpRClient.CreateRole()
 	if err != nil {
 		status.Conditions = []api.GCPRoleCondition{
 			{

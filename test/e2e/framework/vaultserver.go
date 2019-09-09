@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	vaultVersion = "test-v1.0.0"
+	vaultVersion = "test-v1.2.0"
 )
 
 func (f *Invocation) VaultServer(node int32, bs api.BackendStorageSpec) *api.VaultServer {
@@ -59,6 +59,14 @@ func (f *Framework) UpdateVaultServer(obj *api.VaultServer) (*api.VaultServer, e
 		return vs
 	})
 	return vs, err
+}
+
+func (f *Framework) DeleteVaultServerObj(obj *api.VaultServer) error {
+	err := f.CSClient.EngineV1alpha1().SecretEngines(obj.Namespace).Delete(obj.Name, &metav1.DeleteOptions{})
+	if kerr.IsNotFound(err) {
+		return nil
+	}
+	return err
 }
 
 func (f *Framework) DeleteVaultServer(meta metav1.ObjectMeta) error {

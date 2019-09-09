@@ -23,9 +23,9 @@ func (v *GCPAccessKeyRequestValidator) Resource() (plural schema.GroupVersionRes
 	return schema.GroupVersionResource{
 			Group:    validatorGroupForEngine,
 			Version:  validatorVersionForEngine,
-			Resource: api.ResourceGCPAccessKeyRequests,
+			Resource: "gcpaccesskeyrequestvalidators",
 		},
-		api.ResourceGCPAccessKeyRequest
+		"gcpaccesskeyrequestvalidator"
 }
 
 func (v *GCPAccessKeyRequestValidator) Initialize(config *rest.Config, stopCh <-chan struct{}) error {

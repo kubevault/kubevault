@@ -350,7 +350,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSAccessKeyRequestList":         schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSAccessKeyRequestSpec":         schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSAccessKeyRequestStatus":       schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestStatus(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.AWSConfig":                       schema_operator_apis_engine_v1alpha1_AWSConfig(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.AWSConfiguration":                schema_operator_apis_engine_v1alpha1_AWSConfiguration(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSRole":                         schema_operator_apis_engine_v1alpha1_AWSRole(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSRoleCondition":                schema_operator_apis_engine_v1alpha1_AWSRoleCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSRoleList":                     schema_operator_apis_engine_v1alpha1_AWSRoleList(ref),
@@ -361,18 +361,23 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureAccessKeyRequestList":       schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureAccessKeyRequestSpec":       schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureAccessKeyRequestStatus":     schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestStatus(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.AzureConfig":                     schema_operator_apis_engine_v1alpha1_AzureConfig(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.AzureConfiguration":              schema_operator_apis_engine_v1alpha1_AzureConfiguration(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureRole":                       schema_operator_apis_engine_v1alpha1_AzureRole(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleCondition":              schema_operator_apis_engine_v1alpha1_AzureRoleCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleList":                   schema_operator_apis_engine_v1alpha1_AzureRoleList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleSpec":                   schema_operator_apis_engine_v1alpha1_AzureRoleSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleStatus":                 schema_operator_apis_engine_v1alpha1_AzureRoleStatus(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequest":           schema_operator_apis_engine_v1alpha1_DatabaseAccessRequest(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestCondition":  schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestCondition(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestList":       schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestList(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestSpec":       schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestSpec(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestStatus":     schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestStatus(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequest":             schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequest(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequestCondition":    schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequestList":         schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequestSpec":         schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequestStatus":       schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestStatus(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.GCPConfig":                       schema_operator_apis_engine_v1alpha1_GCPConfig(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.GCPConfiguration":                schema_operator_apis_engine_v1alpha1_GCPConfiguration(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPRole":                         schema_operator_apis_engine_v1alpha1_GCPRole(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleCondition":                schema_operator_apis_engine_v1alpha1_GCPRoleCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleList":                     schema_operator_apis_engine_v1alpha1_GCPRoleList(ref),
@@ -380,7 +385,31 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleStatus":                   schema_operator_apis_engine_v1alpha1_GCPRoleStatus(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.Lease":                           schema_operator_apis_engine_v1alpha1_Lease(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.LeaseConfig":                     schema_operator_apis_engine_v1alpha1_LeaseConfig(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.RoleReference":                   schema_operator_apis_engine_v1alpha1_RoleReference(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBConfiguration":            schema_operator_apis_engine_v1alpha1_MongoDBConfiguration(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRole":                     schema_operator_apis_engine_v1alpha1_MongoDBRole(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleCondition":            schema_operator_apis_engine_v1alpha1_MongoDBRoleCondition(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleList":                 schema_operator_apis_engine_v1alpha1_MongoDBRoleList(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleSpec":                 schema_operator_apis_engine_v1alpha1_MongoDBRoleSpec(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleStatus":               schema_operator_apis_engine_v1alpha1_MongoDBRoleStatus(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.MySQLConfiguration":              schema_operator_apis_engine_v1alpha1_MySQLConfiguration(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.MySQLRole":                       schema_operator_apis_engine_v1alpha1_MySQLRole(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleCondition":              schema_operator_apis_engine_v1alpha1_MySQLRoleCondition(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleList":                   schema_operator_apis_engine_v1alpha1_MySQLRoleList(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleSpec":                   schema_operator_apis_engine_v1alpha1_MySQLRoleSpec(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleStatus":                 schema_operator_apis_engine_v1alpha1_MySQLRoleStatus(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.PostgresConfiguration":           schema_operator_apis_engine_v1alpha1_PostgresConfiguration(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.PostgresRole":                    schema_operator_apis_engine_v1alpha1_PostgresRole(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleCondition":           schema_operator_apis_engine_v1alpha1_PostgresRoleCondition(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleList":                schema_operator_apis_engine_v1alpha1_PostgresRoleList(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleSpec":                schema_operator_apis_engine_v1alpha1_PostgresRoleSpec(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleStatus":              schema_operator_apis_engine_v1alpha1_PostgresRoleStatus(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.RoleRef":                         schema_operator_apis_engine_v1alpha1_RoleRef(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngine":                    schema_operator_apis_engine_v1alpha1_SecretEngine(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineCondition":           schema_operator_apis_engine_v1alpha1_SecretEngineCondition(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineConfiguration":       schema_operator_apis_engine_v1alpha1_SecretEngineConfiguration(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineList":                schema_operator_apis_engine_v1alpha1_SecretEngineList(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineSpec":                schema_operator_apis_engine_v1alpha1_SecretEngineSpec(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineStatus":              schema_operator_apis_engine_v1alpha1_SecretEngineStatus(ref),
 	}
 }
 
@@ -15806,7 +15835,7 @@ func schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestSpec(ref common.Ref
 					"roleRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Contains vault aws role info",
-							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.RoleReference"),
+							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"),
 						},
 					},
 					"subjects": {
@@ -15847,7 +15876,7 @@ func schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestSpec(ref common.Ref
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/rbac/v1.Subject", "kubevault.dev/operator/apis/engine/v1alpha1.RoleReference"},
+			"k8s.io/api/rbac/v1.Subject", "kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"},
 	}
 }
 
@@ -15890,11 +15919,11 @@ func schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestStatus(ref common.R
 	}
 }
 
-func schema_operator_apis_engine_v1alpha1_AWSConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_operator_apis_engine_v1alpha1_AWSConfiguration(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials AWSConfig contains information to communicate with AWS",
+				Description: "https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials AWSConfiguration contains information to communicate with AWS",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"credentialSecret": {
@@ -16080,17 +16109,20 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleSpec(ref common.ReferenceCallba
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "AWSRoleSpec contains connection information, AWS role info, etc",
+				Description: "AWSRoleSpec contains connection information, AWS role info, etc More info: https://www.vaultproject.io/api/secret/aws/index.html#parameters-3",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"ref": {
+					"vaultRef": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+							Description: "VaultRef is the name of a AppBinding referencing to a Vault Server",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
-					"config": {
+					"path": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AWSConfig"),
+							Description: "Path defines the path of the AWS secret engine default: aws More info: https://www.vaultproject.io/docs/auth/aws.html#via-the-cli",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"credentialType": {
@@ -16156,11 +16188,11 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleSpec(ref common.ReferenceCallba
 						},
 					},
 				},
-				Required: []string{"config", "credentialType"},
+				Required: []string{"vaultRef", "credentialType"},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/runtime.RawExtension", "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference", "kubevault.dev/operator/apis/engine/v1alpha1.AWSConfig"},
+			"k8s.io/api/core/v1.LocalObjectReference", "k8s.io/apimachinery/pkg/runtime.RawExtension"},
 	}
 }
 
@@ -16343,7 +16375,7 @@ func schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestSpec(ref common.R
 					"roleRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Contains vault azure role info",
-							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.RoleReference"),
+							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"),
 						},
 					},
 					"subjects": {
@@ -16364,7 +16396,7 @@ func schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestSpec(ref common.R
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/rbac/v1.Subject", "kubevault.dev/operator/apis/engine/v1alpha1.RoleReference"},
+			"k8s.io/api/rbac/v1.Subject", "kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"},
 	}
 }
 
@@ -16407,11 +16439,11 @@ func schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestStatus(ref common
 	}
 }
 
-func schema_operator_apis_engine_v1alpha1_AzureConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_operator_apis_engine_v1alpha1_AzureConfiguration(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "AzureConfig contains information to communicate with Azure",
+				Description: "AzureConfiguration contains information to communicate with Azure",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"credentialSecret": {
@@ -16569,17 +16601,20 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleSpec(ref common.ReferenceCall
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "AzureRoleSpec contains connection information, Azure role info, etc",
+				Description: "AzureRoleSpec contains connection information, Azure role info, etc More info: https://www.vaultproject.io/api/secret/azure/index.html#create-update-role",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"ref": {
+					"vaultRef": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+							Description: "VaultRef is the name of a AppBinding referencing to a Vault Server",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
-					"config": {
+					"path": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AzureConfig"),
+							Description: "Path defines the path of the Azure secret engine default: azure More info: https://www.vaultproject.io/docs/auth/azure.html#via-the-cli",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"azureRoles": {
@@ -16611,11 +16646,11 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleSpec(ref common.ReferenceCall
 						},
 					},
 				},
-				Required: []string{"config"},
+				Required: []string{"vaultRef"},
 			},
 		},
 		Dependencies: []string{
-			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference", "kubevault.dev/operator/apis/engine/v1alpha1.AzureConfig"},
+			"k8s.io/api/core/v1.LocalObjectReference"},
 	}
 }
 
@@ -16655,6 +16690,217 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleStatus(ref common.ReferenceCa
 		},
 		Dependencies: []string{
 			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleCondition"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_DatabaseAccessRequest(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestSpec", "kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestStatus"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "request approval state, currently Approved or Denied.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"reason": {
+						SchemaProps: spec.SchemaProps{
+							Description: "brief reason for the request state",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"message": {
+						SchemaProps: spec.SchemaProps{
+							Description: "human readable message with details about the request state",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"lastUpdateTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "timestamp for the last update to this condition",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+				},
+				Required: []string{"type"},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Items is a list of DatabaseAccessRequest objects",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequest"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequest"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "DatabaseAccessRequestSpec contains information to request for database credential",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"roleRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Contains vault database role info",
+							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"),
+						},
+					},
+					"subjects": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/rbac/v1.Subject"),
+									},
+								},
+							},
+						},
+					},
+					"ttl": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the TTL for the leases associated with this role. Accepts time suffixed strings (\"1h\") or an integer number of seconds. Defaults to roles default TTL time",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"roleRef", "subjects"},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/api/rbac/v1.Subject", "kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Conditions applied to the request, such as approval or denial.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestCondition"),
+									},
+								},
+							},
+						},
+					},
+					"secret": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Name of the secret containing database credentials",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
+						},
+					},
+					"lease": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Contains lease info",
+							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.Lease"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/api/core/v1.LocalObjectReference", "kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestCondition", "kubevault.dev/operator/apis/engine/v1alpha1.Lease"},
 	}
 }
 
@@ -16799,7 +17045,7 @@ func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestSpec(ref common.Ref
 					"roleRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Contains vault gcp role info",
-							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.RoleReference"),
+							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"),
 						},
 					},
 					"subjects": {
@@ -16834,7 +17080,7 @@ func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestSpec(ref common.Ref
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/rbac/v1.Subject", "kubevault.dev/operator/apis/engine/v1alpha1.RoleReference"},
+			"k8s.io/api/rbac/v1.Subject", "kubevault.dev/operator/apis/engine/v1alpha1.RoleRef"},
 	}
 }
 
@@ -16877,11 +17123,11 @@ func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestStatus(ref common.R
 	}
 }
 
-func schema_operator_apis_engine_v1alpha1_GCPConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_operator_apis_engine_v1alpha1_GCPConfiguration(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "https://www.vaultproject.io/api/secret/gcp/index.html#write-config GCPConfig contains information to communicate with GCP",
+				Description: "https://www.vaultproject.io/api/secret/gcp/index.html#write-config GCPConfiguration contains information to communicate with GCP",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"credentialSecret": {
@@ -17046,17 +17292,20 @@ func schema_operator_apis_engine_v1alpha1_GCPRoleSpec(ref common.ReferenceCallba
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "GCPRoleSpec contains connection information, GCP role info, etc",
+				Description: "GCPRoleSpec contains connection information, GCP role info, etc More info: https://www.vaultproject.io/api/secret/gcp/index.html#parameters",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"ref": {
+					"vaultRef": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+							Description: "VaultRef is the name of a AppBinding referencing to a Vault Server",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
-					"config": {
+					"path": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.GCPConfig"),
+							Description: "Path defines the path of the Google Cloud secret engine default: gcp More info: https://www.vaultproject.io/docs/auth/gcp.html#via-the-cli-helper",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"secretType": {
@@ -17095,11 +17344,11 @@ func schema_operator_apis_engine_v1alpha1_GCPRoleSpec(ref common.ReferenceCallba
 						},
 					},
 				},
-				Required: []string{"config", "secretType", "project", "bindings"},
+				Required: []string{"vaultRef", "secretType", "project", "bindings"},
 			},
 		},
 		Dependencies: []string{
-			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference", "kubevault.dev/operator/apis/engine/v1alpha1.GCPConfig"},
+			"k8s.io/api/core/v1.LocalObjectReference"},
 	}
 }
 
@@ -17205,22 +17454,1003 @@ func schema_operator_apis_engine_v1alpha1_LeaseConfig(ref common.ReferenceCallba
 	}
 }
 
-func schema_operator_apis_engine_v1alpha1_RoleReference(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_operator_apis_engine_v1alpha1_MongoDBConfiguration(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "MongoDBConfiguration defines a MongoDB app configuration. https://www.vaultproject.io/api/secret/databases/index.html https://www.vaultproject.io/api/secret/databases/mongodb.html#configure-connection",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"databaseRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the database appbinding reference",
+							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+						},
+					},
+					"pluginName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the name of the plugin to use for this connection. Default plugin:\n - for mongodb: mongodb-database-plugin",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"allowedRoles": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of the roles allowed to use this connection. Defaults to empty (no roles), if contains a \"*\" any role can use this connection.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"writeConcern": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the MongoDB write concern. This is set for the entirety of the session, maintained for the lifecycle of the plugin process.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"databaseRef"},
+			},
+		},
+		Dependencies: []string{
+			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_MongoDBRole(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleSpec", "kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleStatus"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_MongoDBRoleCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "MongoDBRoleCondition describes the state of a MongoDBRole at a certain point.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Type of MongoDBRole condition.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Status of the condition, one of True, False, Unknown.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"reason": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The reason for the condition's.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"message": {
+						SchemaProps: spec.SchemaProps{
+							Description: "A human readable message indicating details about the transition.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_MongoDBRoleList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Items is a list of MongoDBRole objects",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRole"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRole"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_MongoDBRoleSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "MongoDBRoleSpec contains connection information, Mongodb role info etc",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"vaultRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "VaultRef is the name of a AppBinding referencing to a Vault Server",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
+						},
+					},
+					"databaseRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "DatabaseRef specifies the database appbinding reference in any namespace",
+							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+						},
+					},
+					"databaseName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the database name under which the role will be created",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path where secret engine is enabled",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"defaultTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the TTL for the leases associated with this role. Accepts time suffixed strings (\"1h\") or an integer number of seconds. Defaults to system/engine default TTL time",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"maxTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum TTL for the leases associated with this role. Accepts time suffixed strings (\"1h\") or an integer number of seconds. Defaults to system/engine default TTL time.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"creationStatements": {
+						SchemaProps: spec.SchemaProps{
+							Description: "https://www.vaultproject.io/api/secret/databases/Mongodb-maria.html#creation_statements Specifies the database statements executed to create and configure a user.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"revocationStatements": {
+						SchemaProps: spec.SchemaProps{
+							Description: "https://www.vaultproject.io/api/secret/databases/Mongodb-maria.html#revocation_statements Specifies the database statements to be executed to revoke a user.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"vaultRef", "creationStatements"},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/api/core/v1.LocalObjectReference", "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_MongoDBRoleStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"phase": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "observedGeneration is the most recent generation observed for this MongoDBRole. It corresponds to the MongoDBRole's generation, which is updated on mutation by the API Server.",
+							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+						},
+					},
+					"conditions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Represents the latest available observations of a MongoDBRole current state.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleCondition"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleCondition"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_MySQLConfiguration(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "MySQLConfiguration defines a MySQL app configuration. https://www.vaultproject.io/api/secret/databases/index.html https://www.vaultproject.io/api/secret/databases/mysql-maria.html#configure-connection",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"databaseRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "DatabaseRef refers to a MySQL/MariaDB database AppBinding in any namespace",
+							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+						},
+					},
+					"pluginName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the name of the plugin to use for this connection. Default plugin:\n - for mysql: mysql-database-plugin",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"allowedRoles": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of the roles allowed to use this connection. Defaults to empty (no roles), if contains a \"*\" any role can use this connection.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"maxOpenConnections": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum number of open connections to the database.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxIdleConnections": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum number of idle connections to the database. A zero uses the value of max_open_connections and a negative value disables idle connections. If larger than max_open_connections it will be reduced to be equal.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxConnectionLifetime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum amount of time a connection may be reused. If <= 0s connections are reused forever.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"databaseRef"},
+			},
+		},
+		Dependencies: []string{
+			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_MySQLRole(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleSpec", "kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleStatus"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_MySQLRoleCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "MySQLRoleCondition describes the state of a MySQLRole at a certain point.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Type of MySQLRole condition.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Status of the condition, one of True, False, Unknown.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"reason": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The reason for the condition's.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"message": {
+						SchemaProps: spec.SchemaProps{
+							Description: "A human readable message indicating details about the transition.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_MySQLRoleList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Items is a list of MySQLRole objects",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MySQLRole"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "kubevault.dev/operator/apis/engine/v1alpha1.MySQLRole"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_MySQLRoleSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "MySQLRoleSpec contains connection information, mysql role info etc",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"vaultRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "VaultRef is the name of a AppBinding referencing to a Vault Server",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
+						},
+					},
+					"databaseRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "DatabaseRef specifies the database appbinding reference in any namespace.",
+							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+						},
+					},
+					"databaseName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the database name under which the role will be created",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path where secret engine is enabled",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"defaultTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the TTL for the leases associated with this role. Accepts time suffixed strings (\"1h\") or an integer number of seconds. Defaults to system/engine default TTL time",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"maxTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum TTL for the leases associated with this role. Accepts time suffixed strings (\"1h\") or an integer number of seconds. Defaults to system/engine default TTL time.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"creationStatements": {
+						SchemaProps: spec.SchemaProps{
+							Description: "https://www.vaultproject.io/api/secret/databases/mysql-maria.html#creation_statements Specifies the database statements executed to create and configure a user.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"revocationStatements": {
+						SchemaProps: spec.SchemaProps{
+							Description: "https://www.vaultproject.io/api/secret/databases/mysql-maria.html#revocation_statements Specifies the database statements to be executed to revoke a user.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"vaultRef", "creationStatements"},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/api/core/v1.LocalObjectReference", "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_MySQLRoleStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"phase": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "observedGeneration is the most recent generation observed for this MySQLRole. It corresponds to the MySQLRole's generation, which is updated on mutation by the API Server.",
+							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+						},
+					},
+					"conditions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Represents the latest available observations of a MySQLRole current state.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleCondition"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleCondition"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_PostgresConfiguration(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "PostgresConfiguration defines a PostgreSQL app configuration. https://www.vaultproject.io/api/secret/databases/index.html https://www.vaultproject.io/api/secret/databases/postgresql.html#configure-connection",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"databaseRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the Postgres database appbinding reference",
+							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+						},
+					},
+					"pluginName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the name of the plugin to use for this connection. Default plugin:\n\t- for postgres: postgresql-database-plugin",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"allowedRoles": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of the roles allowed to use this connection. Defaults to empty (no roles), if contains a \"*\" any role can use this connection.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"maxOpenConnections": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum number of open connections to the database.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxIdleConnections": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum number of idle connections to the database. A zero uses the value of max_open_connections and a negative value disables idle connections. If larger than max_open_connections it will be reduced to be equal.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"maxConnectionLifetime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum amount of time a connection may be reused. If <= 0s connections are reused forever.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"databaseRef"},
+			},
+		},
+		Dependencies: []string{
+			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_PostgresRole(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleSpec", "kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleStatus"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_PostgresRoleCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "PostgresRoleCondition describes the state of a PostgresRole at a certain point.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Type of PostgresRole condition.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Status of the condition, one of True, False, Unknown.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"reason": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The reason for the condition's.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"message": {
+						SchemaProps: spec.SchemaProps{
+							Description: "A human readable message indicating details about the transition.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_PostgresRoleList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Items is a list of PostgresRole objects",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.PostgresRole"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "kubevault.dev/operator/apis/engine/v1alpha1.PostgresRole"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_PostgresRoleSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "PostgresRoleSpec contains connection information, postgres role info etc",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"vaultRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "VaultRef is the name of a AppBinding referencing to a Vault Server",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
+						},
+					},
+					"databaseRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "DatabaseRef specifies the database appbinding reference in any namespace",
+							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
+						},
+					},
+					"databaseName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the database name under which the role will be created",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path where secret engine is enabled",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"defaultTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the TTL for the leases associated with this role. Accepts time suffixed strings (\"1h\") or an integer number of seconds. Defaults to system/engine default TTL time",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"maxTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the maximum TTL for the leases associated with this role. Accepts time suffixed strings (\"1h\") or an integer number of seconds. Defaults to system/engine default TTL time.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"creationStatements": {
+						SchemaProps: spec.SchemaProps{
+							Description: "https://www.vaultproject.io/api/secret/databases/postgresql.html#creation_statements Specifies the database statements executed to create and configure a user.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"revocationStatements": {
+						SchemaProps: spec.SchemaProps{
+							Description: "https://www.vaultproject.io/api/secret/databases/postgresql.html#revocation_statements Specifies the database statements to be executed to revoke a user.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"rollbackStatements": {
+						SchemaProps: spec.SchemaProps{
+							Description: "https://www.vaultproject.io/api/secret/databases/postgresql.html#rollback_statements Specifies the database statements to be executed rollback a create operation in the event of an error.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"renewStatements": {
+						SchemaProps: spec.SchemaProps{
+							Description: "https://www.vaultproject.io/api/secret/databases/postgresql.html#renew_statements Specifies the database statements to be executed to renew a user.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"vaultRef", "creationStatements"},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/api/core/v1.LocalObjectReference", "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_PostgresRoleStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "observedGeneration is the most recent generation observed for this PostgresROle. It corresponds to the PostgresROle's generation, which is updated on mutation by the API Server.",
+							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+						},
+					},
+					"phase": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the phase of the PostgresRole",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"conditions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Represents the latest available observations of a PostgresRoleBinding current state.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleCondition"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleCondition"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_RoleRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RoleRef contains information that points to the role being used",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"apiGroup": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIGroup is the group for the resource being referenced",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is the type of resource being referenced",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"name": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name of the object being referenced.",
+							Description: "Name is the name of resource being referenced",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"namespace": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Namespace of the referenced object.",
+							Description: "Namespace is the namespace of the resource being referenced",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -17229,5 +18459,269 @@ func schema_operator_apis_engine_v1alpha1_RoleReference(ref common.ReferenceCall
 				Required: []string{"name", "namespace"},
 			},
 		},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_SecretEngine(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineSpec", "kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineStatus"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_SecretEngineCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"reason": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The reason for the condition's.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"message": {
+						SchemaProps: spec.SchemaProps{
+							Description: "A human readable message indicating details about the transition.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_SecretEngineConfiguration(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"aws": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AWSConfiguration"),
+						},
+					},
+					"azure": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AzureConfiguration"),
+						},
+					},
+					"gcp": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.GCPConfiguration"),
+						},
+					},
+					"postgres": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.PostgresConfiguration"),
+						},
+					},
+					"mongodb": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MongoDBConfiguration"),
+						},
+					},
+					"mysql": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MySQLConfiguration"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"kubevault.dev/operator/apis/engine/v1alpha1.AWSConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.AzureConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.GCPConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.MongoDBConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.MySQLConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.PostgresConfiguration"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_SecretEngineList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.SecretEngine"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "kubevault.dev/operator/apis/engine/v1alpha1.SecretEngine"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_SecretEngineSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"vaultRef": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/api/core/v1.LocalObjectReference"),
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Path defines the path used to enable this secret engine",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"aws": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AWSConfiguration"),
+						},
+					},
+					"azure": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AzureConfiguration"),
+						},
+					},
+					"gcp": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.GCPConfiguration"),
+						},
+					},
+					"postgres": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.PostgresConfiguration"),
+						},
+					},
+					"mongodb": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MongoDBConfiguration"),
+						},
+					},
+					"mysql": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MySQLConfiguration"),
+						},
+					},
+				},
+				Required: []string{"vaultRef"},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/api/core/v1.LocalObjectReference", "kubevault.dev/operator/apis/engine/v1alpha1.AWSConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.AzureConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.GCPConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.MongoDBConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.MySQLConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.PostgresConfiguration"},
+	}
+}
+
+func schema_operator_apis_engine_v1alpha1_SecretEngineStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"phase": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/appscode/go/encoding/json/types.IntHash"),
+						},
+					},
+					"conditions": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineCondition"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineCondition"},
 	}
 }

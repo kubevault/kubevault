@@ -8,54 +8,44 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	core "k8s.io/api/core/v1"
-	rbac "k8s.io/api/rbac/v1"
+	v1 "k8s.io/api/rbac/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	"kubevault.dev/operator/pkg/controller"
-	"kubevault.dev/operator/pkg/vault"
 	"kubevault.dev/operator/test/e2e/framework"
 )
 
-var _ = FDescribe("Azure Secret Engine", func() {
+var _ = Describe("Azure Secret Engine", func() {
+
 	var f *framework.Invocation
 
-	BeforeEach(func() {
-		f = root.Invoke()
-	})
-
-	AfterEach(func() {
-		time.Sleep(20 * time.Second)
-	})
-
 	var (
-		IsVaultAzureRoleCreated = func(name string) {
-			By("Checking whether vault azure role is created")
-			cl, err := vault.NewClient(f.KubeClient, f.AppcatClient, f.VaultAppRef)
-			Expect(err).NotTo(HaveOccurred(), "To get vault client")
-
-			req := cl.NewRequest("GET", fmt.Sprintf("/v1/azure/roles/%s", name))
+		IsSecretEngineCreated = func(name, namespace string) {
+			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is created", namespace, name))
 			Eventually(func() bool {
-				_, err := cl.RawRequest(req)
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
 				return err == nil
-			}, timeOut, pollingInterval).Should(BeTrue(), "Vault azure role is created")
-
+			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine is created")
 		}
-
-		IsVaultAzureRoleDeleted = func(name string) {
-			By("Checking whether vault azure role is deleted")
-			cl, err := vault.NewClient(f.KubeClient, f.AppcatClient, f.VaultAppRef)
-			Expect(err).NotTo(HaveOccurred(), "To get vault client")
-
-			req := cl.NewRequest("GET", fmt.Sprintf("/v1/azure/roles/%s", name))
+		IsSecretEngineDeleted = func(name, namespace string) {
+			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := cl.RawRequest(req)
-				return err != nil
-			}, timeOut, pollingInterval).Should(BeTrue(), "Vault azure role is deleted")
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				return kerrors.IsNotFound(err)
+			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine is deleted")
+		}
+		IsSecretEngineSucceeded = func(name, namespace string) {
+			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is succeeded", namespace, name))
+			Eventually(func() bool {
+				r, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				if err == nil {
+					return r.Status.Phase == controller.SecretEnginePhaseSuccess
+				}
+				return false
+			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine status is succeeded")
 
 		}
-
 		IsAzureRoleCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AzureRole:(%s/%s) role is created", namespace, name))
 			Eventually(func() bool {
@@ -63,15 +53,13 @@ var _ = FDescribe("Azure Secret Engine", func() {
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "AzureRole is created")
 		}
-
 		IsAzureRoleDeleted = func(name, namespace string) {
-			By(fmt.Sprintf("Checking whether AzureRole:(%s/%s) is created", namespace, name))
+			By(fmt.Sprintf("Checking whether AzureRole:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
 				_, err := f.CSClient.EngineV1alpha1().AzureRoles(namespace).Get(name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "AzureRole is deleted")
 		}
-
 		IsAzureRoleSucceeded = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AzureRole:(%s/%s) is succeeded", namespace, name))
 			Eventually(func() bool {
@@ -82,6 +70,17 @@ var _ = FDescribe("Azure Secret Engine", func() {
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), "AzureRole status is succeeded")
 
+		}
+
+		IsAzureRoleFailed = func(name, namespace string) {
+			By(fmt.Sprintf("Checking whether AzureRole:(%s/%s) is failed", namespace, name))
+			Eventually(func() bool {
+				r, err := f.CSClient.EngineV1alpha1().AzureRoles(namespace).Get(name, metav1.GetOptions{})
+				if err == nil {
+					return r.Status.Phase != controller.AzureRolePhaseSuccess && len(r.Status.Conditions) != 0
+				}
+				return false
+			}, timeOut, pollingInterval).Should(BeTrue(), "AzureRole status is failed")
 		}
 		IsAzureAccessKeyRequestCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AzureAccessKeyRequest:(%s/%s) is created", namespace, name))
@@ -148,15 +147,31 @@ var _ = FDescribe("Azure Secret Engine", func() {
 		}
 	)
 
+	BeforeEach(func() {
+		f = root.Invoke()
+		if !framework.SelfHostedOperator {
+			Skip("Skipping AzureRole test because the operator isn't running inside cluster")
+		}
+		// vault server creates appBinding, vault policy, and policy binding
+		time.Sleep(20 * time.Second)
+	})
+
+	AfterEach(func() {
+		time.Sleep(20 * time.Second)
+	})
+
 	Describe("AzureRole", func() {
+
 		var (
 			azureCredentials core.Secret
 			azureRole        api.AzureRole
+			azureSE          api.SecretEngine
 		)
 
 		const (
-			azureCredSecret = "azure-cred-3224"
-			azureRoleName   = "my-azure-role-4325"
+			azureCredSecret   = "azure-cred-3224"
+			azureRoleName     = "my-azure-role-4325"
+			azureSecretEngine = "my-azure-secretengine-3423423"
 		)
 
 		BeforeEach(func() {
@@ -167,7 +182,6 @@ var _ = FDescribe("Azure Secret Engine", func() {
 			clientSecret := os.Getenv("AZURE_CLIENT_SECRET")
 
 			azureCredentials = core.Secret{
-				TypeMeta: metav1.TypeMeta{},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      azureCredSecret,
 					Namespace: f.Namespace(),
@@ -188,98 +202,131 @@ var _ = FDescribe("Azure Secret Engine", func() {
 					Namespace: f.Namespace(),
 				},
 				Spec: api.AzureRoleSpec{
-					Ref: f.VaultAppRef,
-					Config: &api.AzureConfig{
-						CredentialSecret: azureCredSecret,
+					VaultRef: core.LocalObjectReference{
+						Name: f.VaultAppRef.Name,
 					},
 					ApplicationObjectID: "c1cb042d-96d7-423a-8dba-243c2e5010d3",
-					TTL:                 "1h",
-					MaxTTL:              "1h",
+				},
+			}
+
+			azureSE = api.SecretEngine{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      azureSecretEngine,
+					Namespace: f.Namespace(),
+				},
+				Spec: api.SecretEngineSpec{
+					VaultRef: core.LocalObjectReference{
+						Name: f.VaultAppRef.Name,
+					},
+					Path: "azure",
+					SecretEngineConfiguration: api.SecretEngineConfiguration{
+						Azure: &api.AzureConfiguration{
+							CredentialSecret: azureCredSecret,
+						},
+					},
 				},
 			}
 		})
 
 		AfterEach(func() {
 			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(azureCredSecret, &metav1.DeleteOptions{})
-			Expect(err).NotTo(HaveOccurred(), "Delete azure credentials secret")
+			Expect(err).NotTo(HaveOccurred(), "Delete Azure credentials secret")
 		})
 
 		Context("Create AzureRole", func() {
 			var p api.AzureRole
+			var se api.SecretEngine
 
 			BeforeEach(func() {
 				p = azureRole
+				se = azureSE
 			})
 
 			AfterEach(func() {
+				By("Deleting AzureRole...")
 				err := f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AzureRole")
 
-				IsVaultAzureRoleDeleted(p.RoleName())
 				IsAzureRoleDeleted(p.Name, p.Namespace)
+
+				By("Deleting SecretEngine...")
+				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(se.Name, &metav1.DeleteOptions{})
+				Expect(err).NotTo(HaveOccurred(), "Delete Secret engine")
+
+				IsSecretEngineDeleted(se.Name, se.Namespace)
 			})
 
 			It("Should be successful", func() {
-				_, err := f.CSClient.EngineV1alpha1().AzureRoles(p.Namespace).Create(&p)
+				By("Creating SecretEngine...")
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Create(&se)
+				Expect(err).NotTo(HaveOccurred(), "Create SecretEngine")
+
+				IsSecretEngineCreated(se.Name, se.Namespace)
+				IsSecretEngineSucceeded(se.Name, se.Namespace)
+
+				By("Creating AzureRole...")
+				_, err = f.CSClient.EngineV1alpha1().AzureRoles(p.Namespace).Create(&p)
 				Expect(err).NotTo(HaveOccurred(), "Create AzureRole")
 
 				IsAzureRoleCreated(p.Name, p.Namespace)
-				IsVaultAzureRoleCreated(p.RoleName())
 				IsAzureRoleSucceeded(p.Name, p.Namespace)
 			})
 
 		})
 
-		Context("Create AzureRole with invalid vault AppReference", func() {
+		Context("Create AzureRole without enabling secretEngine", func() {
 			var p api.AzureRole
 
 			BeforeEach(func() {
 				p = azureRole
-				p.Spec.Ref = &appcat.AppReference{
-					Namespace: azureRole.Namespace,
-					Name:      "invalid",
-				}
 			})
 
 			AfterEach(func() {
+				By("Deleting AzureRole...")
 				err := f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AzureRole")
 
-				IsVaultAzureRoleDeleted(p.RoleName())
 				IsAzureRoleDeleted(p.Name, p.Namespace)
+
 			})
 
-			It("Should be successful", func() {
+			It("Should be failed making AzureRole", func() {
+
+				By("Creating AzureRole...")
 				_, err := f.CSClient.EngineV1alpha1().AzureRoles(p.Namespace).Create(&p)
 				Expect(err).NotTo(HaveOccurred(), "Create AzureRole")
 
 				IsAzureRoleCreated(p.Name, p.Namespace)
-				IsVaultAzureRoleDeleted(p.RoleName())
+				IsAzureRoleFailed(p.Name, p.Namespace)
 			})
 		})
 
 	})
 
 	Describe("AzureAccessKeyRequest", func() {
+
 		var (
 			azureCredentials core.Secret
 			azureRole        api.AzureRole
-			azureAKReq       api.AzureAccessKeyRequest
+			azureSE          api.SecretEngine
+			azureAKR         api.AzureAccessKeyRequest
 		)
+
 		const (
-			azureCredSecret = "azure-cred-2343"
-			azureRoleName   = "azure-role-23432"
-			azureAKReqName  = "azure-akr-324432"
+			azureCredSecret   = "azure-cred-3224"
+			azureRoleName     = "my-azure-roleset-4325"
+			azureSecretEngine = "my-azure-secretengine-3423423"
+			azureAKRName      = "my-azure-token-2345"
 		)
 
 		BeforeEach(func() {
+
 			subscriptionID := os.Getenv("AZURE_SUBSCRIPTION_ID")
 			tenantID := os.Getenv("AZURE_TENANT_ID")
 			clientID := os.Getenv("AZURE_CLIENT_ID")
 			clientSecret := os.Getenv("AZURE_CLIENT_SECRET")
 
 			azureCredentials = core.Secret{
-				TypeMeta: metav1.TypeMeta{},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      azureCredSecret,
 					Namespace: f.Namespace(),
@@ -294,37 +341,55 @@ var _ = FDescribe("Azure Secret Engine", func() {
 			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&azureCredentials)
 			Expect(err).NotTo(HaveOccurred(), "Create azure credentials secret")
 
+			azureSE = api.SecretEngine{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      azureSecretEngine,
+					Namespace: f.Namespace(),
+				},
+				Spec: api.SecretEngineSpec{
+					VaultRef: core.LocalObjectReference{
+						Name: f.VaultAppRef.Name,
+					},
+					Path: "azure",
+					SecretEngineConfiguration: api.SecretEngineConfiguration{
+						Azure: &api.AzureConfiguration{
+							CredentialSecret: azureCredSecret,
+						},
+					},
+				},
+			}
+			_, err = f.CSClient.EngineV1alpha1().SecretEngines(azureSE.Namespace).Create(&azureSE)
+			Expect(err).NotTo(HaveOccurred(), "Create azure SecretEngine")
+			IsSecretEngineCreated(azureSE.Name, azureSE.Namespace)
+
 			azureRole = api.AzureRole{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      azureRoleName,
 					Namespace: f.Namespace(),
 				},
 				Spec: api.AzureRoleSpec{
-					Ref: f.VaultAppRef,
-					Config: &api.AzureConfig{
-						CredentialSecret: azureCredSecret,
+					VaultRef: core.LocalObjectReference{
+						Name: f.VaultAppRef.Name,
 					},
 					ApplicationObjectID: "c1cb042d-96d7-423a-8dba-243c2e5010d3",
-					TTL:                 "1h",
-					MaxTTL:              "1h",
 				},
 			}
 
-			azureAKReq = api.AzureAccessKeyRequest{
+			azureAKR = api.AzureAccessKeyRequest{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      azureAKReqName,
+					Name:      azureAKRName,
 					Namespace: f.Namespace(),
 				},
 				Spec: api.AzureAccessKeyRequestSpec{
-					RoleRef: api.RoleReference{
+					RoleRef: api.RoleRef{
 						Name:      azureRoleName,
 						Namespace: f.Namespace(),
 					},
-					Subjects: []rbac.Subject{
+					Subjects: []v1.Subject{
 						{
-							Kind:      rbac.ServiceAccountKind,
-							Name:      "sa-5576",
-							Namespace: f.Namespace(),
+							Kind:      "ServiceAccount",
+							Name:      "sa",
+							Namespace: "demo",
 						},
 					},
 				},
@@ -334,43 +399,47 @@ var _ = FDescribe("Azure Secret Engine", func() {
 		AfterEach(func() {
 			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(azureCredSecret, &metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete azure credentials secret")
+
+			err = f.CSClient.EngineV1alpha1().SecretEngines(azureSE.Namespace).Delete(azureSE.Name, &metav1.DeleteOptions{})
+			Expect(err).NotTo(HaveOccurred(), "Delete azure SecretEngine")
+			IsSecretEngineDeleted(azureSE.Name, azureSE.Namespace)
 		})
 
 		Context("Create, Approve, Deny AzureAccessKeyRequests", func() {
 			BeforeEach(func() {
-				r, err := f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Create(&azureRole)
+				_, err := f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Create(&azureRole)
 				Expect(err).NotTo(HaveOccurred(), "Create AzureRole")
 
-				IsVaultAzureRoleCreated(r.RoleName())
-				IsAzureRoleSucceeded(r.Name, r.Namespace)
+				IsAzureRoleCreated(azureRole.Name, azureRole.Namespace)
+				IsAzureRoleSucceeded(azureRole.Name, azureRole.Namespace)
+
 			})
 
 			AfterEach(func() {
-				err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKReq.Namespace).Delete(azureAKReq.Name, &metav1.DeleteOptions{})
-				Expect(err).NotTo(HaveOccurred(), "Delete AzureAccessKeyRequest")
-
-				IsAzureAccessKeyRequestDeleted(azureAKReq.Name, azureAKReq.Namespace)
+				err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKR.Namespace).Delete(azureAKR.Name, &metav1.DeleteOptions{})
+				Expect(err).NotTo(HaveOccurred(), "Delete azureAccessKeyRequest")
+				IsAzureAccessKeyRequestDeleted(azureAKR.Name, azureAKR.Namespace)
 
 				err = f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Delete(azureRole.Name, &metav1.DeleteOptions{})
-				Expect(err).NotTo(HaveOccurred(), "Delete AzureRole")
-
+				Expect(err).NotTo(HaveOccurred(), "Delete azureRole")
 				IsAzureRoleDeleted(azureRole.Name, azureRole.Namespace)
-				IsVaultAzureRoleDeleted(azureRole.RoleName())
 			})
 
 			It("Should be successful, Create AzureAccessKeyRequest", func() {
-				_, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKReq.Namespace).Create(&azureAKReq)
+				_, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKR.Namespace).Create(&azureAKR)
 				Expect(err).NotTo(HaveOccurred(), "Create AzureAccessKeyRequest")
 
-				IsAzureAccessKeyRequestCreated(azureAKReq.Name, azureAKReq.Namespace)
+				IsAzureAccessKeyRequestCreated(azureAKR.Name, azureAKR.Namespace)
 			})
 
 			It("Should be successful, Condition approved", func() {
-				r, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKReq.Namespace).Create(&azureAKReq)
+				By("Creating AzureAccessKeyRequest...")
+				r, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKR.Namespace).Create(&azureAKR)
 				Expect(err).NotTo(HaveOccurred(), "Create AzureAccessKeyRequest")
 
-				IsAzureAccessKeyRequestCreated(azureAKReq.Name, azureAKReq.Namespace)
+				IsAzureAccessKeyRequestCreated(azureAKR.Name, azureAKR.Namespace)
 
+				By("Updating Azure AccessKeyRequest status...")
 				err = f.UpdateAzureAccessKeyRequestStatus(&api.AzureAccessKeyRequestStatus{
 					Conditions: []api.AzureAccessKeyRequestCondition{
 						{
@@ -380,16 +449,17 @@ var _ = FDescribe("Azure Secret Engine", func() {
 					},
 				}, r)
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Approved")
-
-				IsAzureAKRConditionApproved(azureAKReq.Name, azureAKReq.Namespace)
+				IsAzureAKRConditionApproved(azureAKR.Name, azureAKR.Namespace)
 			})
 
 			It("Should be successful, Condition denied", func() {
-				r, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKReq.Namespace).Create(&azureAKReq)
+				By("Creating AzureAccessKeyRequest...")
+				r, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKR.Namespace).Create(&azureAKR)
 				Expect(err).NotTo(HaveOccurred(), "Create AzureAccessKeyRequest")
 
-				IsAzureAccessKeyRequestCreated(azureAKReq.Name, azureAKReq.Namespace)
+				IsAzureAccessKeyRequestCreated(azureAKR.Name, azureAKR.Namespace)
 
+				By("Updating Azure AccessKeyRequest status...")
 				err = f.UpdateAzureAccessKeyRequestStatus(&api.AzureAccessKeyRequestStatus{
 					Conditions: []api.AzureAccessKeyRequestCondition{
 						{
@@ -400,55 +470,69 @@ var _ = FDescribe("Azure Secret Engine", func() {
 				}, r)
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Denied")
 
-				IsAzureAKRConditionDenied(azureAKReq.Name, azureAKReq.Namespace)
+				IsAzureAKRConditionDenied(azureAKR.Name, azureAKR.Namespace)
 			})
 		})
 
-		Context("Create azure secret", func() {
+		Context("Generate azure service principals from Vault", func() {
 			var (
 				secretName string
 			)
 
 			BeforeEach(func() {
-				azureAKReq.Status.Conditions = []api.AzureAccessKeyRequestCondition{
-					{
-						Type: api.AccessApproved,
-					},
-				}
+
+				By("Creating AzureRole...")
 				r, err := f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Create(&azureRole)
 				Expect(err).NotTo(HaveOccurred(), "Create AzureRole")
 
-				IsVaultAzureRoleCreated(r.RoleName())
 				IsAzureRoleSucceeded(r.Name, r.Namespace)
+
 			})
 
 			AfterEach(func() {
-				err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKReq.Namespace).Delete(azureAKReq.Name, &metav1.DeleteOptions{})
+				By("Deleting azure accesskeyrequest...")
+				err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKR.Namespace).Delete(azureAKR.Name, &metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AzureAccessKeyRequest")
 
-				IsAzureAccessKeyRequestDeleted(azureAKReq.Name, azureAKReq.Namespace)
-				IsAzureAccessKeySecretDeleted(secretName, azureAKReq.Namespace)
+				IsAzureAccessKeyRequestDeleted(azureAKR.Name, azureAKR.Namespace)
+				IsAzureAccessKeySecretDeleted(secretName, azureAKR.Namespace)
 
+				By("Deleting azureRole...")
 				err = f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Delete(azureRole.Name, &metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AzureRole")
 
 				IsAzureRoleDeleted(azureRole.Name, azureRole.Namespace)
-				IsVaultAzureRoleDeleted(azureRole.RoleName())
 			})
 
 			It("Should be successful, Create Access Key Secret", func() {
-				_, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKReq.Namespace).Create(&azureAKReq)
+				By("Creating Azure accessKeyRequest...")
+				r, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKR.Namespace).Create(&azureAKR)
 				Expect(err).NotTo(HaveOccurred(), "Create AzureAccessKeyRequest")
 
-				IsAzureAccessKeyRequestCreated(azureAKReq.Name, azureAKReq.Namespace)
-				IsAzureAccessKeySecretCreated(azureAKReq.Name, azureAKReq.Namespace)
+				IsAzureAccessKeyRequestCreated(azureAKR.Name, azureAKR.Namespace)
 
-				d, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKReq.Namespace).Get(azureAKReq.Name, metav1.GetOptions{})
+				By("Updating Azure AccessKeyRequest status...")
+				err = f.UpdateAzureAccessKeyRequestStatus(&api.AzureAccessKeyRequestStatus{
+					Conditions: []api.AzureAccessKeyRequestCondition{
+						{
+							Type:           api.AccessApproved,
+							LastUpdateTime: metav1.Now(),
+						},
+					},
+				}, r)
+
+				Expect(err).NotTo(HaveOccurred(), "Update conditions: Approved")
+				IsAzureAKRConditionApproved(azureAKR.Name, azureAKR.Namespace)
+
+				IsAzureAccessKeySecretCreated(azureAKR.Name, azureAKR.Namespace)
+
+				d, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKR.Namespace).Get(azureAKR.Name, metav1.GetOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Get AzureAccessKeyRequest")
 				if d.Status.Secret != nil {
 					secretName = d.Status.Secret.Name
 				}
 			})
 		})
+
 	})
 })

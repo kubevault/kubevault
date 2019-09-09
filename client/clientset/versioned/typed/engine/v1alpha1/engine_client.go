@@ -31,8 +31,13 @@ type EngineV1alpha1Interface interface {
 	AWSRolesGetter
 	AzureAccessKeyRequestsGetter
 	AzureRolesGetter
+	DatabaseAccessRequestsGetter
 	GCPAccessKeyRequestsGetter
 	GCPRolesGetter
+	MongoDBRolesGetter
+	MySQLRolesGetter
+	PostgresRolesGetter
+	SecretEnginesGetter
 }
 
 // EngineV1alpha1Client is used to interact with features provided by the engine.kubevault.com group.
@@ -56,12 +61,32 @@ func (c *EngineV1alpha1Client) AzureRoles(namespace string) AzureRoleInterface {
 	return newAzureRoles(c, namespace)
 }
 
+func (c *EngineV1alpha1Client) DatabaseAccessRequests(namespace string) DatabaseAccessRequestInterface {
+	return newDatabaseAccessRequests(c, namespace)
+}
+
 func (c *EngineV1alpha1Client) GCPAccessKeyRequests(namespace string) GCPAccessKeyRequestInterface {
 	return newGCPAccessKeyRequests(c, namespace)
 }
 
 func (c *EngineV1alpha1Client) GCPRoles(namespace string) GCPRoleInterface {
 	return newGCPRoles(c, namespace)
+}
+
+func (c *EngineV1alpha1Client) MongoDBRoles(namespace string) MongoDBRoleInterface {
+	return newMongoDBRoles(c, namespace)
+}
+
+func (c *EngineV1alpha1Client) MySQLRoles(namespace string) MySQLRoleInterface {
+	return newMySQLRoles(c, namespace)
+}
+
+func (c *EngineV1alpha1Client) PostgresRoles(namespace string) PostgresRoleInterface {
+	return newPostgresRoles(c, namespace)
+}
+
+func (c *EngineV1alpha1Client) SecretEngines(namespace string) SecretEngineInterface {
+	return newSecretEngines(c, namespace)
 }
 
 // NewForConfig creates a new EngineV1alpha1Client for the given config.

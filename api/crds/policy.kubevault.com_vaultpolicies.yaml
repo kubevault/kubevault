@@ -413,6 +413,7 @@ spec:
               type: string
           type: object
         spec:
+          description: 'More info: https://www.vaultproject.io/docs/concepts/policies.html'
           properties:
             policy:
               description: Policy specifies a vault policy in json format.
@@ -422,29 +423,21 @@ spec:
                 For example: path "secret/*" {   capabilities = ["create", "read",
                 "update", "delete", "list"] }'
               type: string
-            ref:
-              description: Vault contains the reference of kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppBinding
-                which contains information to communicate with vault
+            vaultPolicyName:
+              description: 'VaultPolicyName is the policy name set inside Vault. This
+                defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}'
+              type: string
+            vaultRef:
+              description: VaultRef is the name of a AppBinding referencing to a Vault
+                Server
               properties:
                 name:
-                  description: '`name` is the name of the app. Required'
+                  description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                    TODO: Add other useful fields. apiVersion, kind, uid?'
                   type: string
-                namespace:
-                  description: '`namespace` is the namespace of the app. Required'
-                  type: string
-                parameters:
-                  description: "Parameters is a set of the parameters to be used to
-                    override default parameters. The inline YAML/JSON payload to be
-                    translated into equivalent JSON object. \n The Parameters field
-                    is NOT secret or secured in any way and should NEVER be used to
-                    hold sensitive information."
-                  type: object
-              required:
-              - name
-              - namespace
               type: object
           required:
-          - ref
+          - vaultRef
           type: object
         status:
           properties:
