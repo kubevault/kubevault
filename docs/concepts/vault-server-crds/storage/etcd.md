@@ -1,12 +1,12 @@
 ---
 title: Etcd | Vault Server Storage
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: etcd-storage
     name: Etcd
     parent: storage-vault-server-crds
     weight: 20
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
 

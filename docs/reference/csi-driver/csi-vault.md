@@ -1,17 +1,17 @@
 ---
 title: Csi-Vault
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: csi-vault
     name: Csi-Vault
     parent: reference-csi-driver
     weight: 0
 
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: reference
-url: /docs/0.2.0/reference/csi-driver/
+url: /docs/{{ .version }}/reference/csi-driver/
 aliases:
-- /docs/0.2.0/reference/csi-driver/csi-vault/
+- /docs/{{ .version }}/reference/csi-driver/csi-vault/
 ---
 ## csi-vault
 

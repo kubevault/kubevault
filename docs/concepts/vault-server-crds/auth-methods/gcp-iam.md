@@ -1,12 +1,12 @@
 ---
 title: Configure GCP IAM Auth Method for Vault Server
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: gcp-iam-auth-methods
     name: GCP IAM
     parent: auth-methods-vault-server-crds
     weight: 15
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
 

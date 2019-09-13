@@ -2,12 +2,12 @@
 title: Monitoring Overview | KubeVault
 description: A General Overview of Monitoring KubeVault Components
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: overview-monitoring
     name: Overview
     parent: monitoring-guides
     weight: 5
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
@@ -82,7 +82,7 @@ You have to provides these flags while installing or upgrading or updating Vault
 
 **Helm:**
 ```console
-$ helm install appscode/vault-operator --name vault-operator --version 0.2.0 --namespace kube-system \
+$ helm install appscode/vault-operator --name vault-operator --version {{< param "info.version" >}} --namespace kube-system \
   --set monitoring.agent=prometheus.io/coreos-operator \
   --set monitoring.operator=true \
   --set monitoring.prometheus.namespace=demo \
@@ -91,7 +91,7 @@ $ helm install appscode/vault-operator --name vault-operator --version 0.2.0 --n
 
 **Script:**
 ```console
-$ curl -fsSL https://github.com/kubevault/operator/raw/0.2.0/hack/deploy/install.sh  | bash -s -- \
+$ curl -fsSL https://github.com/kubevault/operator/raw/{{< param "info.version" >}}/hack/deploy/install.sh  | bash -s -- \
   --monitoring-agent=prometheus.io/coreos-operator \
   --monitor-operator=true \
   --prometheus-namespace=demo \

@@ -1,12 +1,12 @@
 ---
 title: Monitor Vault CSI Driver using CoreOS Prometheus Operator
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: coreos-csi-driver-monitoring
     name: Prometheus Operator
     parent: csi-driver-monitoring
     weight: 15
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
@@ -44,7 +44,7 @@ Here, we are going to enable monitoring for `operator` metrics.
 <b> Using Helm: </b>
 
 ```console
-$ helm install appscode/csi-vault --name csi-vault --version 0.2.0 --namespace kube-system \
+$ helm install appscode/csi-vault --name csi-vault --version {{< param "info.version" >}} --namespace kube-system \
   --set monitoring.agent=prometheus.io/coreos-operator \
   --set monitoring.attacher=true \
   --set monitoring.plugin=true \
@@ -56,7 +56,7 @@ $ helm install appscode/csi-vault --name csi-vault --version 0.2.0 --namespace k
 <b> Using Script: </b>
 
 ```console
-$ curl -fsSL https://github.com/kubevault/csi-driver/raw/0.2.0/hack/deploy/install.sh | bash -s -- \
+$ curl -fsSL https://github.com/kubevault/csi-driver/raw/{{< param "info.version" >}}/hack/deploy/install.sh | bash -s -- \
   --monitoring-agent=prometheus.io/coreos-operator \
   --monitor-attacher=true \
   --monitor-plugin=true \
@@ -126,7 +126,7 @@ Here, `spec.serviceMonitorSelector` is used to select the ServiceMonitor crd tha
 Let's create the Prometheus object we have shown above,
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/monitoring/csi-driver/prom-coreos-crd.yaml
+$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/csi-driver/prom-coreos-crd.yaml
 prometheus.monitoring.coreos.com/prometheus created
 ```
 

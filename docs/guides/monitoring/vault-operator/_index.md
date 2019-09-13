@@ -1,10 +1,10 @@
 ---
 title: Monitoring Vault Operator
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: vault-operator-monitoring
     name: Vault Operator
     parent: monitoring-guides
     weight: 20
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 ---

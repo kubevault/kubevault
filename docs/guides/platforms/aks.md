@@ -1,12 +1,12 @@
 ---
 title: Deploy Vault on Azure Kubernetes Service (AKS)
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: aks-platform
     name: AKS
     parent: platform-guides
     weight: 15
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 

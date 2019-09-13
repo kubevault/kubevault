@@ -1,12 +1,12 @@
 ---
 title: Mount Azure Secrets into Kubernetes a Pod using CSI Driver
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: csi-driver-azure
     name: CSI Driver
     parent: azure-secret-engines
     weight: 15
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
@@ -264,7 +264,7 @@ For more detailed explanation visit [Vault official website](https://www.vaultpr
 If you don't want to use vault operator and want to use Vault cli to manually configure an existing Vault server. The Vault server may be running inside a Kubernetes cluster or running outside a Kubernetes cluster. If you don't have a Vault server, you can deploy one by running the following command:
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/csi-driver/vault-install.yaml
+$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/csi-driver/vault-install.yaml
   service/vault created
   statefulset.apps/vault created
 ```

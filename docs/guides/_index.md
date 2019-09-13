@@ -1,9 +1,9 @@
 ---
 title: Guides | KubeVault
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: guides
     name: Guides
     weight: 40
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 ---

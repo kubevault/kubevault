@@ -1,12 +1,12 @@
 ---
 title: Mount PKI(certificates) Secrets into Kubernetse pod using CSI Driver
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: csi-driver-pki
     name: CSI Driver
     parent: pki-secret-engines
     weight: 15
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
@@ -68,7 +68,7 @@ Follow [this](/docs/guides/secret-engines/pki/overview.md) tutorial to manage PK
 You can use Vault cli to manually configure an existing Vault server. The Vault server may be running inside a Kubernetes cluster or running outside a Kubernetes cluster. If you don't have a Vault server, you can deploy one by running the following command:
 
    ```console
-    $ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/csi-driver/vault-install.yaml
+    $ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/csi-driver/vault-install.yaml
     service/vault created
     statefulset.apps/vault created
    ```

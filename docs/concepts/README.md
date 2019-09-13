@@ -1,16 +1,16 @@
 ---
 title: KubeVault Concepts
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: concepts-readme
     name: Overview
     parent: concepts
     weight: 10
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: concepts
-url: /docs/0.2.0/concepts/
+url: /docs/{{ .version }}/concepts/
 aliases:
-  - /docs/0.2.0/concepts/README/
+  - /docs/{{ .version }}/concepts/README/
 ---
 
 # Concepts

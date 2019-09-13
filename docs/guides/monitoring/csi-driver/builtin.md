@@ -1,12 +1,12 @@
 ---
 title: Monitor Vault CSI Driver using Builtin Prometheus Discovery
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: builtin-prometheus-csi-driver-monitoring
     name: Builtin Prometheus
     parent: csi-driver-monitoring
     weight: 10
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
@@ -42,7 +42,7 @@ Here, we are going to enable monitoring for `operator` metrics.
 <b> Using Helm: </b>
 
 ```console
-$ helm install appscode/csi-vault --name csi-vault --version 0.2.0 --namespace kube-system \
+$ helm install appscode/csi-vault --name csi-vault --version {{< param "info.version" >}} --namespace kube-system \
   --set monitoring.agent=prometheus.io/builtin \
   --set monitoring.controller=true \
   --set monitoring.node=true \
@@ -53,7 +53,7 @@ $ helm install appscode/csi-vault --name csi-vault --version 0.2.0 --namespace k
 <b> Using Script: </b>
 
 ```console
-$ curl -fsSL https://github.com/kubevault/csi-driver/raw/0.2.0/hack/deploy/install.sh | bash -s -- \
+$ curl -fsSL https://github.com/kubevault/csi-driver/raw/{{< param "info.version" >}}/hack/deploy/install.sh | bash -s -- \
   --monitoring-agent=prometheus.io/builtin \
   --monitor-controller-plugin=true \
   --monitor-node-plugin=true \
@@ -75,7 +75,7 @@ metadata:
   creationTimestamp: "2018-12-28T06:32:51Z"
   labels:
     app: csi-vault
-    chart: csi-vault-0.2.0
+    chart: csi-vault-{{< param "info.version" >}}
     component: csi-vault-attacher
     heritage: Tiller
     release: csi-vault
@@ -112,7 +112,7 @@ metadata:
   creationTimestamp: "2018-12-28T06:32:51Z"
   labels:
     app: csi-vault
-    chart: csi-vault-0.2.0
+    chart: csi-vault-{{< param "info.version" >}}
     component: csi-vault-plugin
     heritage: Tiller
     release: csi-vault
@@ -149,7 +149,7 @@ metadata:
   creationTimestamp: "2018-12-28T06:32:51Z"
   labels:
     app: csi-vault
-    chart: csi-vault-0.2.0
+    chart: csi-vault-{{< param "info.version" >}}
     component: csi-vault-provisioner
     heritage: Tiller
     release: csi-vault
@@ -324,7 +324,7 @@ Look at the `tls_config` field of `vault-apiservers` job. We have provided certi
 Let's create the ConfigMap we have shown above,
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/monitoring/csi-driver/prom-builtin-conf.yaml
+$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/csi-driver/prom-builtin-conf.yaml
 configmap/prometheus-config created
 
 ```
@@ -390,7 +390,7 @@ Notice that, we have mounted csi-vault-apiserver-cert secret as a volume at `/et
 Now, let's create the deployment,
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/monitoring/csi-driver/prom-builtin-deployment.yaml
+$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/csi-driver/prom-builtin-deployment.yaml
 deployment.apps "prometheus" deleted
 ```
 

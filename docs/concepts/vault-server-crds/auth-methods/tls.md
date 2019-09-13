@@ -1,12 +1,12 @@
 ---
 title: Configure TLS Certificates Auth Method for Vault Server
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: tls-auth-methods
     name: TLS Certificates
     parent: auth-methods-vault-server-crds
     weight: 25
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
 

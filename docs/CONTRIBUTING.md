@@ -2,16 +2,16 @@
 title: Contributing | KubeVault
 description: Contributing
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: contributing-kubevault
     name: Contributing
     parent: welcome
     weight: 10
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: welcome
-url: /docs/0.2.0/welcome/contributing/
+url: /docs/{{ .version }}/welcome/contributing/
 aliases:
-  - /docs/0.2.0/CONTRIBUTING/
+  - /docs/{{ .version }}/CONTRIBUTING/
 ---
 
 # Contribution Guidelines

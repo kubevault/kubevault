@@ -1,11 +1,11 @@
 ---
 title: Csi-Vault Version
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: csi-vault-version
     name: Csi-Vault Version
     parent: reference-csi-driver
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: reference
 ---
 ## csi-vault version

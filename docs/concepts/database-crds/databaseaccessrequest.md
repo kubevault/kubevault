@@ -1,12 +1,12 @@
 ---
 title: DatabaseAccessRequest | Vault Secret Engine
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: databaseaccessrequest-database-crds
     name: DatabaseAccessRequest
     parent: database-crds-concepts
     weight: 100
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
 

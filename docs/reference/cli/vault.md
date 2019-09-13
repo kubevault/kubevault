@@ -1,17 +1,17 @@
 ---
 title: Vault
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: vault
     name: Vault
     parent: reference-cli
     weight: 0
 
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: reference
-url: /docs/0.2.0/reference/cli/
+url: /docs/{{ .version }}/reference/cli/
 aliases:
-- /docs/0.2.0/reference/cli/vault/
+- /docs/{{ .version }}/reference/cli/vault/
 ---
 ## vault
 

@@ -1,12 +1,12 @@
 ---
 title: Monitor Vault Server using CoreOS Prometheus Operator
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: coreos-vault-server-monitoring
     name: Prometheus Operator
     parent: vault-server-monitoring
     weight: 15
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
@@ -64,7 +64,7 @@ Here,
 Now create Vault server with monitoring spec
 
 ```console
-$ kubectl create -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/monitoring/vault-server/vault-server-coreos.yaml
+$ kubectl create -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/vault-server-coreos.yaml
 
 ```
 

@@ -1,12 +1,12 @@
 ---
 title: Monitor Vault Operator using Builtin Prometheus Discovery
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: builtin-prometheus-vault-operator-monitoring
     name: Builtin Prometheus
     parent: vault-operator-monitoring
     weight: 20
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
@@ -37,7 +37,7 @@ Here, we are going to enable monitoring for `operator` metrics.
 <b> Using Helm: </b>
 
 ```console
-$ helm install appscode/vault-operator --name vault-operator --version 0.2.0 --namespace kube-system \
+$ helm install appscode/vault-operator --name vault-operator --version {{< param "info.version" >}} --namespace kube-system \
   --set monitoring.agent=prometheus.io/builtin \
   --set monitoring.operator=true \
   --set monitoring.prometheus.namespace=monitoring
@@ -46,7 +46,7 @@ $ helm install appscode/vault-operator --name vault-operator --version 0.2.0 --n
 <b> Using Script: </b>
 
 ```console
-$ curl -fsSL https://github.com/kubevault/operator/raw/0.2.0/hack/deploy/install.sh  | bash -s -- \
+$ curl -fsSL https://github.com/kubevault/operator/raw/{{< param "info.version" >}}/hack/deploy/install.sh  | bash -s -- \
   --monitoring-agent=prometheus.io/builtin \
   --monitor-operator=true \
   --prometheus-namespace=monitoring
@@ -67,7 +67,7 @@ metadata:
   creationTimestamp: "2018-12-26T06:12:51Z"
   labels:
     app: vault-operator
-    chart: vault-operator-0.2.0
+    chart: vault-operator-{{< param "info.version" >}}
     heritage: Tiller
     release: vault-operator
   name: vault-operator
@@ -193,7 +193,7 @@ In `relabel_configs` section we added `<operator_name>.<namespace>.svc:443` as t
 Let's create the ConfigMap we have shown above,
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/monitoring/vault-operator/prom-server-conf.yaml
+$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-operator/prom-server-conf.yaml
 configmap/prometheus-config created
 ```
 
@@ -258,7 +258,7 @@ Notice that, we have mounted vault-operator-apiserver-cert secret as a volume at
 Now, let's create the deployment,
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/monitoring/vault-operator/prom-builtin-deployment.yaml
+$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-operator/prom-builtin-deployment.yaml
 deployment.apps "prometheus" deleted
 ```
 

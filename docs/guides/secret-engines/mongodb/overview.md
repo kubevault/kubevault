@@ -1,12 +1,12 @@
 ---
 title: Manage MongoDB credentials using the Vault Operator
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: overview-mongodb
     name: Overview
     parent: mongodb-secret-engines
     weight: 10
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 

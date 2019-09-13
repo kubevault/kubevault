@@ -1,12 +1,12 @@
 ---
 title: Deploy Vault on Amazon EKS
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: eks-platform
     name: EKS
     parent: platform-guides
     weight: 10
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 

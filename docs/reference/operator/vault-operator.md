@@ -1,17 +1,17 @@
 ---
 title: Vault-Operator
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: vault-operator
     name: Vault-Operator
     parent: reference-operator
     weight: 0
 
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: reference
-url: /docs/0.2.0/reference/operator/
+url: /docs/{{ .version }}/reference/operator/
 aliases:
-- /docs/0.2.0/reference/operator/vault-operator/
+- /docs/{{ .version }}/reference/operator/vault-operator/
 ---
 ## vault-operator
 

@@ -1,13 +1,13 @@
 ---
 title: Install KubeVault CLI
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: install-cli
     name: Install
     parent: cli-setup
     weight: 10
 product_name: KubeVault
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: setup
 ---
 
@@ -34,7 +34,7 @@ In order to install KubeVault CLI as [kubectl-plugin](https://kubernetes.io/docs
 ## macOS
 
 ```console
-$ wget -O kubectl-vault https://github.com/kubevault/cli/releases/download/0.2.0/kubectl-vault-darwin-amd64 \
+$ wget -O kubectl-vault https://github.com/kubevault/cli/releases/download/{{< param "info.version" >}}/kubectl-vault-darwin-amd64 \
    && chmod +x kubectl-vault \
    && sudo mv kubectl-vault /usr/local/bin/
 ```
@@ -45,7 +45,7 @@ $ wget -O kubectl-vault https://github.com/kubevault/cli/releases/download/0.2.0
 ## Linux
 
 ```console
-$ wget -O kubectl-vault https://github.com/kubevault/cli/releases/download/0.2.0/kubectl-vault-linux-amd64 \
+$ wget -O kubectl-vault https://github.com/kubevault/cli/releases/download/{{< param "info.version" >}}/kubectl-vault-linux-amd64 \
    && chmod +x kubectl-vault \
    && sudo mv kubectl-vault /usr/local/bin/
 ```
@@ -55,7 +55,7 @@ $ wget -O kubectl-vault https://github.com/kubevault/cli/releases/download/0.2.0
 
 ## Windows
 
-1. Download the latest release v0.2.0 from this [link](https://github.com/kubevault/cli/releases/download/0.2.0/kubectl-vault.exe).
+1. Download the latest release v{{< param "info.version" >}} from this [link](https://github.com/kubevault/cli/releases/download/{{< param "info.version" >}}/kubectl-vault.exe).
 2. Add the binary in to your PATH.
 
 </div>

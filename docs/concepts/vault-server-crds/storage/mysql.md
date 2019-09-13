@@ -1,12 +1,12 @@
 ---
 title: MySQL | Vault Server Storage
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: mysql-storage
     name: MySQL
     parent: storage-vault-server-crds
     weight: 35
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
 

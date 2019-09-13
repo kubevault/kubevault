@@ -1,12 +1,12 @@
 ---
 title: Google Cloud KMS | Vault Unsealer
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: google-kms-gcs-unsealer
     name: Google Cloud KMS
     parent: unsealer-vault-server-crds
     weight: 1
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
 

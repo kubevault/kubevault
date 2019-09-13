@@ -1,12 +1,12 @@
 ---
 title: PostgreSQL | Vault Server Storage
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: postgresql-storage
     name: PostgreSQL
     parent: storage-vault-server-crds
     weight: 40
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
 

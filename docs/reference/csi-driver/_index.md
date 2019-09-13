@@ -2,10 +2,10 @@
 title: Reference | Vault CSI Driver
 description: Vault CSI Driver Reference
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: reference-csi-driver
     name: Vault CSI Driver
     weight: 20
     parent: reference
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 ---

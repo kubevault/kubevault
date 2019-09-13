@@ -1,12 +1,12 @@
 ---
 title: Release | Vault operator
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: release
     name: Release
     parent: developer-guide
     weight: 15
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: setup
 ---
 # Release Process

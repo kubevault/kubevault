@@ -1,12 +1,12 @@
 ---
 title: GCPAccessKeyRequest | Vault Secret Engine
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: gcpaccesskeyrequest-secret-engine-crds
     name: GCPAccessKeyRequest
     parent: secret-engine-crds-concepts
     weight: 15
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
 

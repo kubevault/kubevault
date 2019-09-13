@@ -1,12 +1,12 @@
 ---
 title: Install Vault CSI Driver
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: install-csi-driver
     name: Install
     parent: csi-driver-setup
     weight: 10
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: setup
 ---
 
@@ -33,7 +33,7 @@ To install Vault CSI driver in your Kubernetes cluster, run the following comman
 
 ```console
 # Kubernetes 1.13+ (CSI driver spec 1.0.0)
-$ curl -fsSL https://github.com/kubevault/csi-driver/raw/0.2.0/hack/deploy/install.sh | bash
+$ curl -fsSL https://github.com/kubevault/csi-driver/raw/{{< param "info.version" >}}/hack/deploy/install.sh | bash
 ```
 
 After successful installation, you should have `csi-vault-***` pod running in the `kube-system` namespace.
@@ -41,10 +41,10 @@ After successful installation, you should have `csi-vault-***` pod running in th
 
 #### Customizing Installer
 
-The installer script and associated yaml files can be found in the [/hack/deploy](https://github.com/kubevault/csi-driver/tree/0.2.0/hack/deploy) folder. You can see the full list of flags available to installer using `-h` flag.
+The installer script and associated yaml files can be found in the [/hack/deploy](https://github.com/kubevault/csi-driver/tree/{{< param "info.version" >}}/hack/deploy) folder. You can see the full list of flags available to installer using `-h` flag.
 
 ```console
-$ curl -fsSL https://github.com/kubevault/csi-driver/raw/0.2.0/hack/deploy/install.sh | bash -s -- -h
+$ curl -fsSL https://github.com/kubevault/csi-driver/raw/{{< param "info.version" >}}/hack/deploy/install.sh | bash -s -- -h
 install.sh -install Vault csi driver
 
 install.sh [options]
@@ -82,17 +82,17 @@ options:
 
 ## Using Helm
 
-Vault CSI driver can be installed via [Helm](https://helm.sh) using the [chart](https://github.com/appscode/kubevault/csi-driver/tree/0.2.0/chart/csi-vault) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `csi-vault`
+Vault CSI driver can be installed via [Helm](https://helm.sh) using the [chart](https://github.com/appscode/kubevault/csi-driver/tree/{{< param "info.version" >}}/chart/csi-vault) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `csi-vault`
 
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
 $ helm repo update
 $ helm search appscode/csi-vault
 NAME              	CHART VERSION	APP VERSION	DESCRIPTION
-appscode/csi-vault	0.2.0        	0.2.0      	HashiCorp Vault CSI Driver for Kubernetes
+appscode/csi-vault	{{< param "info.version" >}}        	{{< param "info.version" >}}      	HashiCorp Vault CSI Driver for Kubernetes
 
 # Kubernetes 1.13+ (CSI driver spec 1.0.0)
-$ helm install appscode/csi-vault --name csi-vault --version 0.2.0 --namespace kube-system
+$ helm install appscode/csi-vault --name csi-vault --version {{< param "info.version" >}} --namespace kube-system
 ```
 
 To see the detailed configuration options, visit [here](https://github.com/kubevault/csi-driver/tree/chart/chart/csi-vault)

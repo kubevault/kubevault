@@ -1,12 +1,12 @@
 ---
 title: Vault Server Version | KubeVault Concepts
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: vaultserverversion-vault-server-crds
     name: Vault Server Version
     parent: vault-server-crds-concepts
     weight: 15
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
 

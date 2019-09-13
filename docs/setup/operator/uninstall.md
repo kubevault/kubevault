@@ -1,12 +1,12 @@
 ---
 title: Uninstall Vault operator
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: uninstall-operator
     name: Uninstall
     parent: operator-setup
     weight: 20
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: setup
 ---
 
@@ -15,7 +15,7 @@ section_menu_id: setup
 To uninstall Vault operator, run the following command:
 
 ```console
-$ curl -fsSL https://github.com/kubevault/operator/raw/0.2.0/hack/deploy/vault.sh \
+$ curl -fsSL https://github.com/kubevault/operator/raw/{{< param "info.version" >}}/hack/deploy/vault.sh \
     | bash -s -- --uninstall [--namespace=NAMESPACE]
 
 + kubectl delete deployment -l app=vault -n kube-system

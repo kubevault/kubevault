@@ -1,12 +1,12 @@
 ---
 title: Developer Guide
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: developer-guide-readme
     name: Overview
     parent: developer-guide
     weight: 15
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: setup
 ---
 

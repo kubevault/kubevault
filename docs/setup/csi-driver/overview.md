@@ -1,12 +1,12 @@
 ---
 title: Overview of Vault CSI Driver
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: overview-csi-driver
     name: Overview
     parent: csi-driver-setup
     weight: 5
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: setup
 ---
 

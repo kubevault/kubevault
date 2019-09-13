@@ -1,12 +1,12 @@
 ---
 title: Use a Vault Server with Multiple Kubernetes Clusters
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: multi-cluster-platform
     name: Multi-Cluster
     parent: platform-guides
     weight: 100
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
@@ -26,7 +26,7 @@ We are going to install Vault operator in `demo-cluster-1`. We are going to set 
 $ kubectl config current-context
 gke_ackube_us-central1-a_demo-cluster-1
 
-$ curl -fsSL https://github.com/kubevault/operator/raw/0.2.0/hack/deploy/install.sh \
+$ curl -fsSL https://github.com/kubevault/operator/raw/{{< param "info.version" >}}/hack/deploy/install.sh \
     | bash -s -- --cluster-name=demo-cluster-1
 
 $ kubectl get pods -n kube-system
@@ -145,7 +145,7 @@ We are going to install Vault operator in `demo-cluster-2`.  We are going to set
 $ kubectl config current-context
 gke_ackube_us-central1-a_demo-cluster-2
 
-$ curl -fsSL https://github.com/kubevault/operator/raw/0.2.0/hack/deploy/install.sh \
+$ curl -fsSL https://github.com/kubevault/operator/raw/{{< param "info.version" >}}/hack/deploy/install.sh \
     | bash -s -- --cluster-name=demo-cluster-2
 
 $ kubectl get pods -n kube-system

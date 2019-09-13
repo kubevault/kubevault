@@ -1,12 +1,12 @@
 ---
 title: Grafana dashboard for Vault Server
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: grafana-vault-server-monitoring
     name: Grafana Dashboard
     parent: vault-server-monitoring
     weight: 20
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
@@ -24,7 +24,7 @@ If there is no grafana instance running on your cluster, then you can [read this
 We have to add our Prometheus server `prometheus-prometheus-0` as data source of grafana. We are going to use a `ClusterIP` service to connect Prometheus server with grafana. Let's create a service to select Prometheus server `prometheus-prometheus-0`,
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/0.2.0/docs/examples/monitoring/vault-server/prometheus-service.yaml
+$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/prometheus-service.yaml
 service/prometheus created
 ```
 

@@ -1,12 +1,12 @@
 ---
 title: Manage Key/Value Secrets using the Vault Operator
 menu:
-  docs_0.2.0:
+  docs_{{ .version }}:
     identifier: overview-kv
     name: Overview
     parent: kv-secret-engines
     weight: 10
-menu_name: docs_0.2.0
+menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
