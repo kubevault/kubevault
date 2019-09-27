@@ -72,7 +72,7 @@ TAG              := $(VERSION)_$(OS)_$(ARCH)
 TAG_PROD         := $(TAG)
 TAG_DBG          := $(VERSION)-dbg_$(OS)_$(ARCH)
 
-GO_VERSION       ?= 1.12.9
+GO_VERSION       ?= 1.12.10
 BUILD_IMAGE      ?= appscode/golang-dev:$(GO_VERSION)-stretch
 
 OUTBIN = bin/$(OS)_$(ARCH)/$(BIN)
@@ -408,7 +408,7 @@ $(BUILD_DIRS):
 
 .PHONY: install
 install:
-	@APPSCODE_ENV=dev  VAULT_OPERATOR_DOCKER_REGISTRY=$(REGISTRY) VAULT_OPERATOR_IMAGE_TAG=$(TAG) ./hack/deploy/install.sh
+	@APPSCODE_ENV=dev  VAULT_OPERATOR_IMAGE_TAG=$(TAG) ./hack/deploy/install.sh --docker-registry=$(REGISTRY) --image-pull-secret=$(REGISTRY_SECRET)
 
 .PHONY: uninstall
 uninstall:
