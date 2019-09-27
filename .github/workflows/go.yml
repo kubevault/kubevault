@@ -60,6 +60,7 @@ jobs:
         REGISTRY: appscodeci
         REGISTRY_SECRET: regcred
       run: |
+        env > ${GITHUB_WORKSPACE}/hack/config/.env
         export KUBECONFIG="$(kind get kubeconfig-path)"
         make install
         make e2e-tests
