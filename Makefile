@@ -351,14 +351,14 @@ TEST_ARGS   ?=
 .PHONY: e2e-tests
 e2e-tests: $(BUILD_DIRS)
 	@docker run                                                 \
-	    -it                                                     \
+	    -i                                                      \
 	    --rm                                                    \
 	    -u $$(id -u):$$(id -g)                                  \
 	    -v $$(pwd):/src                                         \
 	    -w /src                                                 \
 	    --net=host                                              \
-	    -v $(HOME)/.kube:/.kube    		                        \
-	    -v $(HOME)/.minikube:$(HOME)/.minikube					\
+	    -v $(HOME)/.kube:/.kube    		                    \
+	    -v $(HOME)/.minikube:$(HOME)/.minikube		    \
 	    -v $(HOME)/.credentials:$(HOME)/.credentials            \
 	    -v $$(pwd)/.go/bin/$(OS)_$(ARCH):/go/bin                \
 	    -v $$(pwd)/.go/bin/$(OS)_$(ARCH):/go/bin/$(OS)_$(ARCH)  \
