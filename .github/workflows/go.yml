@@ -32,7 +32,7 @@ jobs:
       id: kind
       uses: engineerd/setup-kind@v0.1.0
       with:
-        config: hack/e2e/cluster.yaml
+        config: hack/kubernetes/kind.yaml
 
     - name: Prepare cluster for testing
       id: local-path
@@ -49,8 +49,9 @@ jobs:
         echo
         echo "installing local-path provisioner ..."
         kubectl delete storageclass --all
-        kubectl apply -f https://github.com/rancher/local-path-provisioner/raw/v0.0.10/deploy/local-path-storage.yaml
+        kubectl apply -f https://github.com/rancher/local-path-provisioner/raw/v0.0.11/deploy/local-path-storage.yaml
         kubectl wait --for=condition=Ready pods -n local-path-storage --all --timeout=5m
+        kubectl apply -f ${GITHUB_WORKSPACE}/hack/kubernetes/storageclass/standard.yaml
         echo
         echo "create docker-registry secret"
         kubectl create secret docker-registry ${REGISTRY_SECRET} --namespace=kube-system --docker-server=https://index.docker.io/v1/ --docker-username=${USERNAME} --docker-password=${DOCKER_TOKEN}
@@ -59,8 +60,10 @@ jobs:
       env:
         REGISTRY: appscodeci
         REGISTRY_SECRET: regcred
+        TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
       run: |
-        env > ${GITHUB_WORKSPACE}/hack/config/.env
         export KUBECONFIG="$(kind get kubeconfig-path)"
+        $TEST_CREDENTIALS > ${GITHUB_WORKSPACE}/hack/config/.env
         make install
+        echo
         make e2e-tests
