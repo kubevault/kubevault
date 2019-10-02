@@ -38,6 +38,9 @@ var _ = Describe("VaultServer", func() {
 
 	BeforeEach(func() {
 		f = root.Invoke()
+		if framework.SelfHostedOperator {
+			Skip("Skipping vault server tests because the operator is running inside cluster")
+		}
 	})
 	AfterEach(func() {
 		time.Sleep(10 * time.Second)

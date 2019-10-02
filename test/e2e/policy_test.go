@@ -81,6 +81,9 @@ var _ = Describe("VaultPolicy", func() {
 
 	BeforeEach(func() {
 		f = root.Invoke()
+		if framework.SelfHostedOperator {
+			Skip("Skipping vault policy tests because the operator is running inside cluster")
+		}
 		// enable kubernetes auth
 		vc, err := vault.NewClient(f.KubeClient, f.AppcatClient, f.VaultAppRef)
 		Expect(err).NotTo(HaveOccurred(), "create vault client")
