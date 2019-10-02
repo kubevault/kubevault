@@ -44,7 +44,7 @@ func (f *Framework) DeployMySQLForVault() (string, error) {
 
 	mysqlCont := core.Container{
 		Name:            "mysql",
-		Image:           "mysql:5.6",
+		Image:           "mysql:5.7",
 		ImagePullPolicy: "IfNotPresent",
 		Env: []core.EnvVar{
 			{

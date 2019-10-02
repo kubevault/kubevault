@@ -56,7 +56,7 @@ func (f *Framework) DeployMysql() (*appcat.AppReference, error) {
 
 	mysqlCont := corev1.Container{
 		Name:            "mysql",
-		Image:           "mysql:5.6",
+		Image:           "mysql:5.7",
 		ImagePullPolicy: "IfNotPresent",
 		Env: []corev1.EnvVar{
 			{
