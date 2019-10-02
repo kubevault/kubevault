@@ -84,6 +84,10 @@ func (f *Framework) DeployMysql() (*appcat.AppReference, error) {
 				MountPath: "/var/lib/mysql",
 				Name:      "data",
 			},
+			{
+				MountPath: "/etc/mysql",
+				Name:      "config",
+			},
 		},
 	}
 
@@ -110,6 +114,12 @@ func (f *Framework) DeployMysql() (*appcat.AppReference, error) {
 							Name: "data",
 							VolumeSource: corev1.VolumeSource{
 								EmptyDir: &corev1.EmptyDirVolumeSource{},
+							},
+						},
+						{
+							Name: "config",
+							VolumeSource: core.VolumeSource{
+								EmptyDir: &core.EmptyDirVolumeSource{},
 							},
 						},
 					},
