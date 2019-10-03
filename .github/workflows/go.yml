@@ -64,8 +64,9 @@ jobs:
         GOOGLE_APPLICATION_CREDENTIALS_KEY: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_KEY }}
       run: |
         export KUBECONFIG="$(kind get kubeconfig-path)"
-        $TEST_CREDENTIALS > ${GITHUB_WORKSPACE}/hack/config/.env
-        mkdir -p ${HOME}/.credentials && echo ${GOOGLE_APPLICATION_CREDENTIALS_KEY} > ${HOME}/.credentials/sa.json
+        mkdir -p ${HOME}/.credentials
+        echo ${GOOGLE_APPLICATION_CREDENTIALS_KEY} > ${HOME}/.credentials/sa.json
+        echo ${TEST_CREDENTIALS} > ${GITHUB_WORKSPACE}/hack/config/.env
         make install
         echo
         make e2e-tests TEST_ARGS="--enable-status-subresource=true  --unsealer-image=vault-unsealer:new-unsealer_linux_amd64"
