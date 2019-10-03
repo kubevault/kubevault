@@ -66,4 +66,4 @@ jobs:
         $TEST_CREDENTIALS > ${GITHUB_WORKSPACE}/hack/config/.env
         make install
         echo
-        make e2e-tests
+        make e2e-tests TEST_ARGS="--enable-status-subresource=true  --unsealer-image=vault-unsealer:new-unsealer_linux_amd64"
