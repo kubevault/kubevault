@@ -349,7 +349,7 @@ TEST_ARGS   ?=
 
 .PHONY: e2e-tests
 e2e-tests: $(BUILD_DIRS)
-	@docker run                                                 \
+	docker run                                                 \
 	    -i                                                      \
 	    --rm                                                    \
 	    -u $$(id -u):$$(id -g)                                  \
