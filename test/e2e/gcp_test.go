@@ -2,7 +2,6 @@ package e2e_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -17,7 +16,7 @@ import (
 	"kubevault.dev/operator/test/e2e/framework"
 )
 
-var _ = Describe("GCP Secret Engine", func() {
+var _ = FDescribe("GCP Secret Engine", func() {
 
 	var f *framework.Invocation
 
@@ -175,9 +174,11 @@ var _ = Describe("GCP Secret Engine", func() {
 
 		BeforeEach(func() {
 
-			credentialAddr := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-			jsonBytes, err := ioutil.ReadFile(credentialAddr)
-			Expect(err).NotTo(HaveOccurred(), "Parse gcp credentials")
+			credentials := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+			if len(credentials) == 0 {
+				Skip("Skipping gcp secret engine tests because GOOGLE_APPLICATION_CREDENTIALS is empty")
+			}
+			jsonBytes := []byte(credentials)
 
 			gcpCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},
@@ -189,7 +190,7 @@ var _ = Describe("GCP Secret Engine", func() {
 					"sa.json": jsonBytes,
 				},
 			}
-			_, err = f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
+			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
 			Expect(err).NotTo(HaveOccurred(), "Create gcp credentials secret")
 
 			gcpRole = api.GCPRole{
@@ -202,8 +203,8 @@ var _ = Describe("GCP Secret Engine", func() {
 						Name: f.VaultAppRef.Name,
 					},
 					SecretType: "access_token",
-					Project:    "ackube",
-					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/ackube" {
+					Project:    "console-testing",
+					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/console-testing" {
 					roles = ["roles/viewer"]
 				}`,
 					TokenScopes: []string{"https://www.googleapis.com/auth/cloud-platform"},
@@ -322,9 +323,11 @@ var _ = Describe("GCP Secret Engine", func() {
 
 		BeforeEach(func() {
 
-			credentialAddr := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-			jsonBytes, err := ioutil.ReadFile(credentialAddr)
-			Expect(err).NotTo(HaveOccurred(), "Parse gcp credentials")
+			credentials := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+			if len(credentials) == 0 {
+				Skip("Skipping gcp secret engine tests because GOOGLE_APPLICATION_CREDENTIALS is empty")
+			}
+			jsonBytes := []byte(credentials)
 
 			gcpCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},
@@ -336,7 +339,7 @@ var _ = Describe("GCP Secret Engine", func() {
 					"sa.json": jsonBytes,
 				},
 			}
-			_, err = f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
+			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
 			Expect(err).NotTo(HaveOccurred(), "Create gcp credentials secret")
 
 			gcpSE = api.SecretEngine{
@@ -370,8 +373,8 @@ var _ = Describe("GCP Secret Engine", func() {
 						Name: f.VaultAppRef.Name,
 					},
 					SecretType: "access_token",
-					Project:    "ackube",
-					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/ackube" {
+					Project:    "console-testing",
+					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/console-testing" {
 					roles = ["roles/viewer"]
 				}`,
 					TokenScopes: []string{"https://www.googleapis.com/auth/cloud-platform"},
