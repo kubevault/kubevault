@@ -61,13 +61,13 @@ jobs:
         REGISTRY: appscodeci
         REGISTRY_SECRET: regcred
         TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
-        GOOGLE_APPLICATION_CREDENTIALS_RAW: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        GOOGLE_SERVICE_ACCOUNT_JSON_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON_KEY }}
       run: |
         export KUBECONFIG="$(kind get kubeconfig-path)"
         echo "preparing test credentials"
         echo -n "$TEST_CREDENTIALS" > hack/config/.env
         echo >> hack/config/.env
-        echo "GOOGLE_APPLICATION_CREDENTIALS=$(echo $GOOGLE_APPLICATION_CREDENTIALS_RAW)" >> hack/config/.env
+        echo "GOOGLE_SERVICE_ACCOUNT_JSON_KEY=$(echo $GOOGLE_SERVICE_ACCOUNT_JSON_KEY)" >> hack/config/.env
         make install
         echo
         make e2e-tests TEST_ARGS="--enable-status-subresource=true  --unsealer-image=vault-unsealer:new-unsealer_linux_amd64"

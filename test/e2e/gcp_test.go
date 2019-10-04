@@ -2,6 +2,7 @@ package e2e_test
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"time"
 
@@ -173,12 +174,15 @@ var _ = Describe("GCP Secret Engine", func() {
 		)
 
 		BeforeEach(func() {
-
-			credentials := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+			credentials := os.Getenv("GOOGLE_SERVICE_ACCOUNT_JSON_KEY")
 			if len(credentials) == 0 {
-				Skip("Skipping gcp secret engine tests because GOOGLE_APPLICATION_CREDENTIALS is empty")
+				if keyBytes, err := ioutil.ReadFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")); err == nil {
+					credentials = string(keyBytes)
+				}
 			}
-			jsonBytes := []byte(credentials)
+			if len(credentials) == 0 {
+				Skip("Skipping gcp secret engine tests because GOOGLE_SERVICE_ACCOUNT_JSON_KEY and GOOGLE_APPLICATION_CREDENTIALS are empty")
+			}
 
 			gcpCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},
@@ -187,7 +191,7 @@ var _ = Describe("GCP Secret Engine", func() {
 					Namespace: f.Namespace(),
 				},
 				Data: map[string][]byte{
-					"sa.json": jsonBytes,
+					"sa.json": []byte(credentials),
 				},
 			}
 			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
@@ -322,12 +326,15 @@ var _ = Describe("GCP Secret Engine", func() {
 		)
 
 		BeforeEach(func() {
-
-			credentials := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+			credentials := os.Getenv("GOOGLE_SERVICE_ACCOUNT_JSON_KEY")
 			if len(credentials) == 0 {
-				Skip("Skipping gcp secret engine tests because GOOGLE_APPLICATION_CREDENTIALS is empty")
+				if keyBytes, err := ioutil.ReadFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")); err == nil {
+					credentials = string(keyBytes)
+				}
 			}
-			jsonBytes := []byte(credentials)
+			if len(credentials) == 0 {
+				Skip("Skipping gcp secret engine tests because GOOGLE_SERVICE_ACCOUNT_JSON_KEY and GOOGLE_APPLICATION_CREDENTIALS are empty")
+			}
 
 			gcpCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},
@@ -336,7 +343,7 @@ var _ = Describe("GCP Secret Engine", func() {
 					Namespace: f.Namespace(),
 				},
 				Data: map[string][]byte{
-					"sa.json": jsonBytes,
+					"sa.json": []byte(credentials),
 				},
 			}
 			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
