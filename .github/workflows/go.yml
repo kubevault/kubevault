@@ -51,7 +51,7 @@ jobs:
         kubectl delete storageclass --all
         kubectl apply -f https://github.com/rancher/local-path-provisioner/raw/v0.0.11/deploy/local-path-storage.yaml
         kubectl wait --for=condition=Ready pods -n local-path-storage --all --timeout=5m
-        kubectl apply -f ${GITHUB_WORKSPACE}/hack/kubernetes/storageclass/standard.yaml
+        kubectl apply -f hack/kubernetes/storageclass/standard.yaml
         echo
         echo "create docker-registry secret"
         kubectl create secret docker-registry ${REGISTRY_SECRET} --namespace=kube-system --docker-server=https://index.docker.io/v1/ --docker-username=${USERNAME} --docker-password=${DOCKER_TOKEN}
@@ -64,9 +64,10 @@ jobs:
         GOOGLE_APPLICATION_CREDENTIALS_RAW: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       run: |
         export KUBECONFIG="$(kind get kubeconfig-path)"
-        echo -n "$TEST_CREDENTIALS" > ${GITHUB_WORKSPACE}/hack/config/.env
-        echo "GOOGLE_APPLICATION_CREDENTIALS=$(echo $GOOGLE_APPLICATION_CREDENTIALS_RAW)" >> ${GITHUB_WORKSPACE}/hack/config/.env
-        ls -l ${GITHUB_WORKSPACE}/hack/config/.env
+        echo "preparing test credentials"
+        echo -n "$TEST_CREDENTIALS" > hack/config/.env
+        echo >> hack/config/.env
+        echo "GOOGLE_APPLICATION_CREDENTIALS=$(echo $GOOGLE_APPLICATION_CREDENTIALS_RAW)" >> hack/config/.env
         make install
         echo
         make e2e-tests TEST_ARGS="--enable-status-subresource=true  --unsealer-image=vault-unsealer:new-unsealer_linux_amd64"
