@@ -61,13 +61,11 @@ jobs:
         REGISTRY: appscodeci
         REGISTRY_SECRET: regcred
         TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
-        GOOGLE_APPLICATION_CREDENTIALS_KEY: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_KEY }}
+        GOOGLE_APPLICATION_CREDENTIALS_RAW: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       run: |
         export KUBECONFIG="$(kind get kubeconfig-path)"
-        mkdir -p ${HOME}/.credentials
-        echo ${GOOGLE_APPLICATION_CREDENTIALS_KEY} > ${HOME}/.credentials/sa.json
-        echo ${TEST_CREDENTIALS} > ${GITHUB_WORKSPACE}/hack/config/.env
-        ls -l ${HOME}/.credentials/sa.json
+        echo -n "$TEST_CREDENTIALS" > ${GITHUB_WORKSPACE}/hack/config/.env
+        echo "GOOGLE_APPLICATION_CREDENTIALS=$(echo $GOOGLE_APPLICATION_CREDENTIALS_RAW)" >> ${GITHUB_WORKSPACE}/hack/config/.env
         ls -l ${GITHUB_WORKSPACE}/hack/config/.env
         make install
         echo
