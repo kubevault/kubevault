@@ -16,7 +16,7 @@ import (
 	"kubevault.dev/operator/test/e2e/framework"
 )
 
-var _ = Describe("Azure Secret Engine", func() {
+var _ = FDescribe("Azure Secret Engine", func() {
 
 	var f *framework.Invocation
 
@@ -180,6 +180,9 @@ var _ = Describe("Azure Secret Engine", func() {
 			tenantID := os.Getenv("AZURE_TENANT_ID")
 			clientID := os.Getenv("AZURE_CLIENT_ID")
 			clientSecret := os.Getenv("AZURE_CLIENT_SECRET")
+			if len(subscriptionID) == 0 || len(tenantID) == 0 || len(clientID) == 0 || len(clientSecret) == 0 {
+				Skip("skipping azure secret engine tests, empty env")
+			}
 
 			azureCredentials = core.Secret{
 				ObjectMeta: metav1.ObjectMeta{
@@ -325,6 +328,9 @@ var _ = Describe("Azure Secret Engine", func() {
 			tenantID := os.Getenv("AZURE_TENANT_ID")
 			clientID := os.Getenv("AZURE_CLIENT_ID")
 			clientSecret := os.Getenv("AZURE_CLIENT_SECRET")
+			if len(subscriptionID) == 0 || len(tenantID) == 0 || len(clientID) == 0 || len(clientSecret) == 0 {
+				Skip("skipping azure secret engine tests, empty env")
+			}
 
 			azureCredentials = core.Secret{
 				ObjectMeta: metav1.ObjectMeta{

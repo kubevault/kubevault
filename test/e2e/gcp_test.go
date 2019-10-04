@@ -17,7 +17,7 @@ import (
 	"kubevault.dev/operator/test/e2e/framework"
 )
 
-var _ = FDescribe("GCP Secret Engine", func() {
+var _ = Describe("GCP Secret Engine", func() {
 
 	var f *framework.Invocation
 
