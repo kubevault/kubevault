@@ -16,7 +16,7 @@ import (
 	"kubevault.dev/operator/test/e2e/framework"
 )
 
-var _ = FDescribe("Azure Secret Engine", func() {
+var _ = Describe("Azure Secret Engine", func() {
 
 	var f *framework.Invocation
 
