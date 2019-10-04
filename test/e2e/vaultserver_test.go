@@ -38,6 +38,9 @@ var _ = Describe("VaultServer", func() {
 
 	BeforeEach(func() {
 		f = root.Invoke()
+		if framework.SelfHostedOperator {
+			Skip("Skipping vault server tests because the operator is running inside cluster")
+		}
 	})
 	AfterEach(func() {
 		time.Sleep(10 * time.Second)
@@ -319,9 +322,15 @@ var _ = Describe("VaultServer", func() {
 				secretName = "google-cred"
 			)
 			BeforeEach(func() {
-				credFile := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-				data, err := ioutil.ReadFile(credFile)
-				Expect(err).NotTo(HaveOccurred())
+				credentials := os.Getenv("GOOGLE_SERVICE_ACCOUNT_JSON_KEY")
+				if len(credentials) == 0 {
+					if keyBytes, err := ioutil.ReadFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")); err == nil {
+						credentials = string(keyBytes)
+					}
+				}
+				if len(credentials) == 0 {
+					Skip("Skipping gcp secret engine tests because GOOGLE_SERVICE_ACCOUNT_JSON_KEY and GOOGLE_APPLICATION_CREDENTIALS are empty")
+				}
 
 				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
@@ -329,7 +338,7 @@ var _ = Describe("VaultServer", func() {
 						Namespace: f.Namespace(),
 					},
 					Data: map[string][]byte{
-						"sa.json": data,
+						"sa.json": []byte(credentials),
 					},
 				}
 
@@ -708,9 +717,15 @@ var _ = Describe("VaultServer", func() {
 				secretName = "google-cred"
 			)
 			BeforeEach(func() {
-				credFile := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-				data, err := ioutil.ReadFile(credFile)
-				Expect(err).NotTo(HaveOccurred())
+				credentials := os.Getenv("GOOGLE_SERVICE_ACCOUNT_JSON_KEY")
+				if len(credentials) == 0 {
+					if keyBytes, err := ioutil.ReadFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")); err == nil {
+						credentials = string(keyBytes)
+					}
+				}
+				if len(credentials) == 0 {
+					Skip("Skipping gcp secret engine tests because GOOGLE_SERVICE_ACCOUNT_JSON_KEY and GOOGLE_APPLICATION_CREDENTIALS are empty")
+				}
 
 				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
@@ -718,7 +733,7 @@ var _ = Describe("VaultServer", func() {
 						Namespace: f.Namespace(),
 					},
 					Data: map[string][]byte{
-						"sa.json": data,
+						"sa.json": []byte(credentials),
 					},
 				}
 

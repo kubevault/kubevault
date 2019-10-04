@@ -23,6 +23,6 @@ spec:
         command:
           - sh
           - -c
-          - "sleep 2; kubectl delete validatingwebhookconfigurations validators.kubevault.com || true; kubectl delete validatingwebhookconfigurations validators.authorization.kubedb.com || true;kubectl delete validatingwebhookconfigurations validators.engine.kubevault.com || true; kubectl delete mutatingwebhookconfiguration mutators.kubevault.com || true"
+          - "sleep 2; kubectl delete validatingwebhookconfigurations validators.kubevault.com || true;kubectl delete validatingwebhookconfigurations validators.engine.kubevault.com || true; kubectl delete mutatingwebhookconfiguration mutators.kubevault.com || true"
         imagePullPolicy: {{ .Values.imagePullPolicy }}
       restartPolicy: Never

@@ -176,6 +176,9 @@ var _ = Describe("AWS Secret Engine", func() {
 
 			awsAccessKeyId := os.Getenv("AWS_ACCESS_KEY_ID")
 			awsSecretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
+			if len(awsAccessKeyId) == 0 || len(awsSecretAccessKey) == 0 {
+				Skip("Skipping aws secret engine tests, empty env")
+			}
 
 			awsCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},
@@ -335,6 +338,9 @@ var _ = Describe("AWS Secret Engine", func() {
 
 			awsAccessKeyId := os.Getenv("AWS_ACCESS_KEY_ID")
 			awsSecretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
+			if len(awsAccessKeyId) == 0 || len(awsSecretAccessKey) == 0 {
+				Skip("Skipping aws secret engine tests, empty env")
+			}
 
 			awsCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},

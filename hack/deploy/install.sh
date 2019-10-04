@@ -21,7 +21,6 @@ crds=(
 apiServices=(
   v1alpha1.validators.kubevault.com
   v1alpha1.mutators.kubevault.com
-  v1alpha1.validators.authorization.kubedb.com
   v1alpha1.validators.engine.kubevault.com
 )
 

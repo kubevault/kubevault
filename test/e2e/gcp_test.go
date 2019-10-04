@@ -174,10 +174,15 @@ var _ = Describe("GCP Secret Engine", func() {
 		)
 
 		BeforeEach(func() {
-
-			credentialAddr := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-			jsonBytes, err := ioutil.ReadFile(credentialAddr)
-			Expect(err).NotTo(HaveOccurred(), "Parse gcp credentials")
+			credentials := os.Getenv("GOOGLE_SERVICE_ACCOUNT_JSON_KEY")
+			if len(credentials) == 0 {
+				if keyBytes, err := ioutil.ReadFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")); err == nil {
+					credentials = string(keyBytes)
+				}
+			}
+			if len(credentials) == 0 {
+				Skip("Skipping gcp secret engine tests because GOOGLE_SERVICE_ACCOUNT_JSON_KEY and GOOGLE_APPLICATION_CREDENTIALS are empty")
+			}
 
 			gcpCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},
@@ -186,10 +191,10 @@ var _ = Describe("GCP Secret Engine", func() {
 					Namespace: f.Namespace(),
 				},
 				Data: map[string][]byte{
-					"sa.json": jsonBytes,
+					"sa.json": []byte(credentials),
 				},
 			}
-			_, err = f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
+			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
 			Expect(err).NotTo(HaveOccurred(), "Create gcp credentials secret")
 
 			gcpRole = api.GCPRole{
@@ -202,8 +207,8 @@ var _ = Describe("GCP Secret Engine", func() {
 						Name: f.VaultAppRef.Name,
 					},
 					SecretType: "access_token",
-					Project:    "ackube",
-					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/ackube" {
+					Project:    "console-testing",
+					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/console-testing" {
 					roles = ["roles/viewer"]
 				}`,
 					TokenScopes: []string{"https://www.googleapis.com/auth/cloud-platform"},
@@ -321,10 +326,15 @@ var _ = Describe("GCP Secret Engine", func() {
 		)
 
 		BeforeEach(func() {
-
-			credentialAddr := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-			jsonBytes, err := ioutil.ReadFile(credentialAddr)
-			Expect(err).NotTo(HaveOccurred(), "Parse gcp credentials")
+			credentials := os.Getenv("GOOGLE_SERVICE_ACCOUNT_JSON_KEY")
+			if len(credentials) == 0 {
+				if keyBytes, err := ioutil.ReadFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")); err == nil {
+					credentials = string(keyBytes)
+				}
+			}
+			if len(credentials) == 0 {
+				Skip("Skipping gcp secret engine tests because GOOGLE_SERVICE_ACCOUNT_JSON_KEY and GOOGLE_APPLICATION_CREDENTIALS are empty")
+			}
 
 			gcpCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},
@@ -333,10 +343,10 @@ var _ = Describe("GCP Secret Engine", func() {
 					Namespace: f.Namespace(),
 				},
 				Data: map[string][]byte{
-					"sa.json": jsonBytes,
+					"sa.json": []byte(credentials),
 				},
 			}
-			_, err = f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
+			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
 			Expect(err).NotTo(HaveOccurred(), "Create gcp credentials secret")
 
 			gcpSE = api.SecretEngine{
@@ -370,8 +380,8 @@ var _ = Describe("GCP Secret Engine", func() {
 						Name: f.VaultAppRef.Name,
 					},
 					SecretType: "access_token",
-					Project:    "ackube",
-					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/ackube" {
+					Project:    "console-testing",
+					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/console-testing" {
 					roles = ["roles/viewer"]
 				}`,
 					TokenScopes: []string{"https://www.googleapis.com/auth/cloud-platform"},

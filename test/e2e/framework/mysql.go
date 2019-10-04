@@ -44,7 +44,7 @@ func (f *Framework) DeployMySQLForVault() (string, error) {
 
 	mysqlCont := core.Container{
 		Name:            "mysql",
-		Image:           "mysql:5.6",
+		Image:           "mysql:5.7",
 		ImagePullPolicy: "IfNotPresent",
 		Env: []core.EnvVar{
 			{
@@ -63,6 +63,10 @@ func (f *Framework) DeployMySQLForVault() (string, error) {
 			{
 				MountPath: "/var/lib/mysql/data/pgdata",
 				Name:      "data",
+			},
+			{
+				MountPath: "/etc/mysql",
+				Name:      "config",
 			},
 		},
 	}
@@ -88,6 +92,12 @@ func (f *Framework) DeployMySQLForVault() (string, error) {
 					Volumes: []core.Volume{
 						{
 							Name: "data",
+							VolumeSource: core.VolumeSource{
+								EmptyDir: &core.EmptyDirVolumeSource{},
+							},
+						},
+						{
+							Name: "config",
 							VolumeSource: core.VolumeSource{
 								EmptyDir: &core.EmptyDirVolumeSource{},
 							},

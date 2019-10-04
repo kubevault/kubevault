@@ -72,7 +72,7 @@ TAG              := $(VERSION)_$(OS)_$(ARCH)
 TAG_PROD         := $(TAG)
 TAG_DBG          := $(VERSION)-dbg_$(OS)_$(ARCH)
 
-GO_VERSION       ?= 1.12.9
+GO_VERSION       ?= 1.12.10
 BUILD_IMAGE      ?= appscode/golang-dev:$(GO_VERSION)-stretch
 
 OUTBIN = bin/$(OS)_$(ARCH)/$(BIN)
@@ -83,10 +83,10 @@ endif
 # Directories that we need created to build/test.
 BUILD_DIRS  := bin/$(OS)_$(ARCH)     \
                .go/bin/$(OS)_$(ARCH) \
-               .go/cache \
-               $(HOME)/.credentials \
-               $(HOME)/.kube \
-
+               .go/cache             \
+               $(HOME)/.credentials  \
+               $(HOME)/.kube         \
+               $(HOME)/.minikube
 
 DOCKERFILE_PROD  = Dockerfile.in
 DOCKERFILE_DBG   = Dockerfile.dbg
@@ -265,7 +265,7 @@ $(OUTBIN): .go/$(OUTBIN).stamp
 	    "
 	@if [ $(COMPRESS) = yes ] && [ $(OS) != darwin ]; then          \
 		echo "compressing $(OUTBIN)";                               \
-		docker run                                                  \
+		@docker run                                                 \
 		    -i                                                      \
 		    --rm                                                    \
 		    -u $$(id -u):$$(id -g)                                  \
@@ -316,10 +316,9 @@ docker-manifest-%:
 .PHONY: test
 test: unit-tests e2e-tests
 
-# NB: -t is used to catch ctrl-c interrupt from keyboard and -t will be problematic for CI.
 unit-tests: $(BUILD_DIRS)
 	@docker run                                                 \
-	    -it                                                     \
+	    -i                                                      \
 	    --rm                                                    \
 	    -u $$(id -u):$$(id -g)                                  \
 	    -v $$(pwd):/src                                         \
@@ -350,21 +349,22 @@ TEST_ARGS   ?=
 
 .PHONY: e2e-tests
 e2e-tests: $(BUILD_DIRS)
-	@docker run                                                 \
-	    -it                                                     \
+	docker run                                                 \
+	    -i                                                      \
 	    --rm                                                    \
 	    -u $$(id -u):$$(id -g)                                  \
 	    -v $$(pwd):/src                                         \
 	    -w /src                                                 \
 	    --net=host                                              \
-	    -v $(HOME)/.kube:/.kube    		                        \
-	    -v $(HOME)/.minikube:$(HOME)/.minikube					\
+	    -v $(HOME)/.kube:/.kube                                 \
+	    -v $(HOME)/.minikube:$(HOME)/.minikube                  \
 	    -v $(HOME)/.credentials:$(HOME)/.credentials            \
 	    -v $$(pwd)/.go/bin/$(OS)_$(ARCH):/go/bin                \
 	    -v $$(pwd)/.go/bin/$(OS)_$(ARCH):/go/bin/$(OS)_$(ARCH)  \
 	    -v $$(pwd)/.go/cache:/.cache                            \
 	    --env HTTP_PROXY=$(HTTP_PROXY)                          \
 	    --env HTTPS_PROXY=$(HTTPS_PROXY)                        \
+	    --env KUBECONFIG=$(KUBECONFIG)                          \
 	    --env-file=$$(pwd)/hack/config/.env                     \
 	    $(BUILD_IMAGE)                                          \
 	    /bin/bash -c "                                          \
@@ -373,6 +373,7 @@ e2e-tests: $(BUILD_DIRS)
 	        VERSION=$(VERSION)                                  \
 	        DOCKER_REGISTRY=$(REGISTRY)                         \
 	        TAG=$(TAG)                                          \
+	        KUBECONFIG=$${KUBECONFIG#$(HOME)}                   \
 	        GINKGO_ARGS='$(GINKGO_ARGS)'                        \
 	        TEST_ARGS='$(TEST_ARGS)'                            \
 	        ./hack/e2e.sh                                       \
@@ -408,7 +409,7 @@ $(BUILD_DIRS):
 
 .PHONY: install
 install:
-	@APPSCODE_ENV=dev  VAULT_OPERATOR_DOCKER_REGISTRY=$(REGISTRY) VAULT_OPERATOR_IMAGE_TAG=$(TAG) ./hack/deploy/install.sh
+	@APPSCODE_ENV=dev  VAULT_OPERATOR_IMAGE_TAG=$(TAG) ./hack/deploy/install.sh --docker-registry=$(REGISTRY) --image-pull-secret=$(REGISTRY_SECRET)
 
 .PHONY: uninstall
 uninstall:

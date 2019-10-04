@@ -32,8 +32,12 @@ func TestE2e(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
+	By("Using kubeconfig from " + options.KubeConfig)
 	clientConfig, err := clientcmd.BuildConfigFromContext(options.KubeConfig, options.KubeContext)
 	Expect(err).NotTo(HaveOccurred())
+	// raise throttling time. ref: https://github.com/appscode/voyager/issues/640
+	clientConfig.Burst = 100
+	clientConfig.QPS = 100
 
 	ctrlConfig := controller.NewConfig(clientConfig)
 	ctrlConfig.MaxNumRequeues = 5

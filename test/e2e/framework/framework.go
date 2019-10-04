@@ -25,7 +25,7 @@ const (
 )
 
 var (
-	SelfHostedOperator = false
+	SelfHostedOperator = true
 	DockerRegistry     = "kubevault"
 	UnsealerImage      = "vault-unsealer:0.2.0"
 )

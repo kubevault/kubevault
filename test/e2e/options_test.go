@@ -2,6 +2,7 @@ package e2e_test
 
 import (
 	"flag"
+	"os"
 	"path/filepath"
 
 	"github.com/appscode/go/flags"
@@ -26,8 +27,14 @@ type E2EOptions struct {
 
 var (
 	options = &E2EOptions{
-		ExtraOptions:   server.NewExtraOptions(),
-		KubeConfig:     filepath.Join(homedir.HomeDir(), ".kube", "config"),
+		ExtraOptions: server.NewExtraOptions(),
+		KubeConfig: func() string {
+			kubecfg := os.Getenv("KUBECONFIG")
+			if kubecfg != "" {
+				return kubecfg
+			}
+			return filepath.Join(homedir.HomeDir(), ".kube", "config")
+		}(),
 		StartAPIServer: false,
 	}
 )
