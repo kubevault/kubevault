@@ -2,7 +2,6 @@ package e2e_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -175,12 +174,11 @@ var _ = FDescribe("GCP Secret Engine", func() {
 
 		BeforeEach(func() {
 
-			credentialAddr := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-			if len(credentialAddr) == 0 {
+			credentials := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+			if len(credentials) == 0 {
 				Skip("Skipping gcp secret engine tests because GOOGLE_APPLICATION_CREDENTIALS is empty")
 			}
-			jsonBytes, err := ioutil.ReadFile(credentialAddr)
-			Expect(err).NotTo(HaveOccurred(), "Parse gcp credentials")
+			jsonBytes := []byte(credentials)
 
 			gcpCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},
@@ -192,7 +190,7 @@ var _ = FDescribe("GCP Secret Engine", func() {
 					"sa.json": jsonBytes,
 				},
 			}
-			_, err = f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
+			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
 			Expect(err).NotTo(HaveOccurred(), "Create gcp credentials secret")
 
 			gcpRole = api.GCPRole{
@@ -325,12 +323,11 @@ var _ = FDescribe("GCP Secret Engine", func() {
 
 		BeforeEach(func() {
 
-			credentialAddr := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-			if len(credentialAddr) == 0 {
+			credentials := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+			if len(credentials) == 0 {
 				Skip("Skipping gcp secret engine tests because GOOGLE_APPLICATION_CREDENTIALS is empty")
 			}
-			jsonBytes, err := ioutil.ReadFile(credentialAddr)
-			Expect(err).NotTo(HaveOccurred(), "Parse gcp credentials")
+			jsonBytes := []byte(credentials)
 
 			gcpCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},
@@ -342,7 +339,7 @@ var _ = FDescribe("GCP Secret Engine", func() {
 					"sa.json": jsonBytes,
 				},
 			}
-			_, err = f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
+			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
 			Expect(err).NotTo(HaveOccurred(), "Create gcp credentials secret")
 
 			gcpSE = api.SecretEngine{
