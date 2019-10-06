@@ -154,6 +154,17 @@ clientset:
 # Generate openapi schema
 .PHONY: openapi
 openapi: $(addprefix openapi-, $(subst :,_, $(API_GROUPS)))
+	@echo "Generating api/openapi-spec/swagger.json"
+	@docker run --rm -ti                                 \
+		-u $$(id -u):$$(id -g)                           \
+		-v /tmp:/.cache                                  \
+		-v $$(pwd):$(DOCKER_REPO_ROOT)                   \
+		-w $(DOCKER_REPO_ROOT)                           \
+		--env HTTP_PROXY=$(HTTP_PROXY)                   \
+		--env HTTPS_PROXY=$(HTTPS_PROXY)                 \
+		$(BUILD_IMAGE)                                   \
+		go run hack/gencrd/main.go
+
 openapi-%:
 	@echo "Generating openapi schema for $(subst _,/,$*)"
 	@mkdir -p api/api-rules
