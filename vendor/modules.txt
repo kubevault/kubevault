@@ -24,7 +24,7 @@ github.com/SermoDigital/jose/jws
 github.com/SermoDigital/jose
 github.com/SermoDigital/jose/crypto
 github.com/SermoDigital/jose/jwt
-# github.com/appscode/go v0.0.0-20190920081029-7b75ec783e2e
+# github.com/appscode/go v0.0.0-20191006073906-e3d193d493fc
 github.com/appscode/go/encoding/json/types
 github.com/appscode/go/version
 github.com/appscode/go/runtime
@@ -40,6 +40,7 @@ github.com/appscode/go/log/golog
 github.com/appscode/go/net
 github.com/appscode/go/analytics
 github.com/appscode/go/homedir
+github.com/appscode/go/os
 # github.com/armon/go-radix v1.0.0
 github.com/armon/go-radix
 # github.com/aws/aws-sdk-go v1.20.20
@@ -974,6 +975,8 @@ kmodules.xyz/monitoring-agent-api/api/v1
 kmodules.xyz/monitoring-agent-api/agents
 kmodules.xyz/monitoring-agent-api/agents/coreosprometheusoperator
 kmodules.xyz/monitoring-agent-api/agents/prometheusbuiltin
+# kmodules.xyz/objectstore-api v0.0.0-20191006080053-fc8b57fadcf0
+kmodules.xyz/objectstore-api/api/v1
 # kmodules.xyz/offshoot-api v0.0.0-20190901210649-de049192326c
 kmodules.xyz/offshoot-api/api/v1
 # kmodules.xyz/webhook-runtime v0.0.0-20190808145328-4186c470d56b

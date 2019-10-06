@@ -2,8 +2,6 @@ package e2e_test
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -12,6 +10,7 @@ import (
 	v1 "k8s.io/api/rbac/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	store "kmodules.xyz/objectstore-api/api/v1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	"kubevault.dev/operator/pkg/controller"
 	"kubevault.dev/operator/test/e2e/framework"
@@ -174,14 +173,9 @@ var _ = Describe("GCP Secret Engine", func() {
 		)
 
 		BeforeEach(func() {
-			credentials := os.Getenv("GOOGLE_SERVICE_ACCOUNT_JSON_KEY")
+			credentials := store.GoogleCredentialsFromEnv()
 			if len(credentials) == 0 {
-				if keyBytes, err := ioutil.ReadFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")); err == nil {
-					credentials = string(keyBytes)
-				}
-			}
-			if len(credentials) == 0 {
-				Skip("Skipping gcp secret engine tests because GOOGLE_SERVICE_ACCOUNT_JSON_KEY and GOOGLE_APPLICATION_CREDENTIALS are empty")
+				Skip("Skipping gcp secret engine tests, empty env")
 			}
 
 			gcpCredentials = core.Secret{
@@ -190,9 +184,7 @@ var _ = Describe("GCP Secret Engine", func() {
 					Name:      gcpCredSecret,
 					Namespace: f.Namespace(),
 				},
-				Data: map[string][]byte{
-					"sa.json": []byte(credentials),
-				},
+				Data: credentials,
 			}
 			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
 			Expect(err).NotTo(HaveOccurred(), "Create gcp credentials secret")
@@ -326,14 +318,9 @@ var _ = Describe("GCP Secret Engine", func() {
 		)
 
 		BeforeEach(func() {
-			credentials := os.Getenv("GOOGLE_SERVICE_ACCOUNT_JSON_KEY")
+			credentials := store.GoogleCredentialsFromEnv()
 			if len(credentials) == 0 {
-				if keyBytes, err := ioutil.ReadFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")); err == nil {
-					credentials = string(keyBytes)
-				}
-			}
-			if len(credentials) == 0 {
-				Skip("Skipping gcp secret engine tests because GOOGLE_SERVICE_ACCOUNT_JSON_KEY and GOOGLE_APPLICATION_CREDENTIALS are empty")
+				Skip("Skipping gcp secret engine tests, empty env")
 			}
 
 			gcpCredentials = core.Secret{
@@ -342,9 +329,7 @@ var _ = Describe("GCP Secret Engine", func() {
 					Name:      gcpCredSecret,
 					Namespace: f.Namespace(),
 				},
-				Data: map[string][]byte{
-					"sa.json": []byte(credentials),
-				},
+				Data: credentials,
 			}
 			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
 			Expect(err).NotTo(HaveOccurred(), "Create gcp credentials secret")

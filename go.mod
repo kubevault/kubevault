@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go v0.39.0 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/SermoDigital/jose v0.9.1 // indirect
-	github.com/appscode/go v0.0.0-20190920081029-7b75ec783e2e
+	github.com/appscode/go v0.0.0-20191006073906-e3d193d493fc
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.20.20
 	github.com/census-instrumentation/opencensus-proto v0.2.0 // indirect
@@ -53,6 +53,7 @@ require (
 	kmodules.xyz/client-go v0.0.0-20190808141354-bbb9e14f60ab
 	kmodules.xyz/custom-resources v0.0.0-20190927035424-65fe358bb045
 	kmodules.xyz/monitoring-agent-api v0.0.0-20190808150221-601a4005b7f7
+	kmodules.xyz/objectstore-api v0.0.0-20191006080053-fc8b57fadcf0
 	kmodules.xyz/offshoot-api v0.0.0-20190901210649-de049192326c
 	kmodules.xyz/webhook-runtime v0.0.0-20190808145328-4186c470d56b
 )
