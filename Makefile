@@ -210,7 +210,7 @@ patch-crd-%:
 	@mv bin/$* api/crds/$*
 
 .PHONY: label-crds
-label-crds:
+label-crds: $(BUILD_DIRS)
 	@for f in api/crds/*.yaml; do \
 		echo "applying app=vault label to $$f"; \
 		kubectl label --overwrite -f $$f --local=true -o yaml app=vault > bin/crd.yaml; \
