@@ -2,7 +2,6 @@ package e2e_test
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -11,6 +10,7 @@ import (
 	v1 "k8s.io/api/rbac/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	store "kmodules.xyz/objectstore-api/api/v1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	"kubevault.dev/operator/pkg/controller"
 	"kubevault.dev/operator/test/e2e/framework"
@@ -175,13 +175,9 @@ var _ = Describe("Azure Secret Engine", func() {
 		)
 
 		BeforeEach(func() {
-
-			subscriptionID := os.Getenv("AZURE_SUBSCRIPTION_ID")
-			tenantID := os.Getenv("AZURE_TENANT_ID")
-			clientID := os.Getenv("AZURE_CLIENT_ID")
-			clientSecret := os.Getenv("AZURE_CLIENT_SECRET")
-			if len(subscriptionID) == 0 || len(tenantID) == 0 || len(clientID) == 0 || len(clientSecret) == 0 {
-				Skip("skipping azure secret engine tests, empty env")
+			credentials := store.AzureCredentialsFromEnv()
+			if len(credentials) == 0 {
+				Skip("Skipping azure secret engine tests, empty env")
 			}
 
 			azureCredentials = core.Secret{
@@ -189,12 +185,7 @@ var _ = Describe("Azure Secret Engine", func() {
 					Name:      azureCredSecret,
 					Namespace: f.Namespace(),
 				},
-				Data: map[string][]byte{
-					api.AzureSubscriptionID: []byte(subscriptionID),
-					api.AzureTenantID:       []byte(tenantID),
-					api.AzureClientID:       []byte(clientID),
-					api.AzureClientSecret:   []byte(clientSecret),
-				},
+				Data: credentials,
 			}
 			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&azureCredentials)
 			Expect(err).NotTo(HaveOccurred(), "Create azure credentials secret")
@@ -323,13 +314,9 @@ var _ = Describe("Azure Secret Engine", func() {
 		)
 
 		BeforeEach(func() {
-
-			subscriptionID := os.Getenv("AZURE_SUBSCRIPTION_ID")
-			tenantID := os.Getenv("AZURE_TENANT_ID")
-			clientID := os.Getenv("AZURE_CLIENT_ID")
-			clientSecret := os.Getenv("AZURE_CLIENT_SECRET")
-			if len(subscriptionID) == 0 || len(tenantID) == 0 || len(clientID) == 0 || len(clientSecret) == 0 {
-				Skip("skipping azure secret engine tests, empty env")
+			credentials := store.AzureCredentialsFromEnv()
+			if len(credentials) == 0 {
+				Skip("Skipping azure secret engine tests, empty env")
 			}
 
 			azureCredentials = core.Secret{
@@ -337,12 +324,7 @@ var _ = Describe("Azure Secret Engine", func() {
 					Name:      azureCredSecret,
 					Namespace: f.Namespace(),
 				},
-				Data: map[string][]byte{
-					api.AzureSubscriptionID: []byte(subscriptionID),
-					api.AzureTenantID:       []byte(tenantID),
-					api.AzureClientID:       []byte(clientID),
-					api.AzureClientSecret:   []byte(clientSecret),
-				},
+				Data: credentials,
 			}
 			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&azureCredentials)
 			Expect(err).NotTo(HaveOccurred(), "Create azure credentials secret")

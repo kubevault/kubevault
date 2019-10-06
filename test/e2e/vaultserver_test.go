@@ -2,7 +2,6 @@ package e2e_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -19,6 +18,7 @@ import (
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	store "kmodules.xyz/objectstore-api/api/v1"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/controller"
@@ -322,14 +322,9 @@ var _ = Describe("VaultServer", func() {
 				secretName = "google-cred"
 			)
 			BeforeEach(func() {
-				credentials := os.Getenv("GOOGLE_SERVICE_ACCOUNT_JSON_KEY")
+				credentials := store.GoogleCredentialsFromEnv()
 				if len(credentials) == 0 {
-					if keyBytes, err := ioutil.ReadFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")); err == nil {
-						credentials = string(keyBytes)
-					}
-				}
-				if len(credentials) == 0 {
-					Skip("Skipping gcp secret engine tests because GOOGLE_SERVICE_ACCOUNT_JSON_KEY and GOOGLE_APPLICATION_CREDENTIALS are empty")
+					Skip("Skipping gcp secret engine tests, empty env")
 				}
 
 				sr := core.Secret{
@@ -337,9 +332,7 @@ var _ = Describe("VaultServer", func() {
 						Name:      secretName,
 						Namespace: f.Namespace(),
 					},
-					Data: map[string][]byte{
-						"sa.json": []byte(credentials),
-					},
+					Data: credentials,
 				}
 
 				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
@@ -388,10 +381,7 @@ var _ = Describe("VaultServer", func() {
 						Name:      awsCredSecret,
 						Namespace: vs.Namespace,
 					},
-					Data: map[string][]byte{
-						"access_key": []byte(os.Getenv("AWS_ACCESS_KEY_ID")),
-						"secret_key": []byte(os.Getenv("AWS_SECRET_ACCESS_KEY")),
-					},
+					Data: store.AWSCredentialsFromEnv(),
 				}
 
 				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
@@ -717,14 +707,9 @@ var _ = Describe("VaultServer", func() {
 				secretName = "google-cred"
 			)
 			BeforeEach(func() {
-				credentials := os.Getenv("GOOGLE_SERVICE_ACCOUNT_JSON_KEY")
+				credentials := store.GoogleCredentialsFromEnv()
 				if len(credentials) == 0 {
-					if keyBytes, err := ioutil.ReadFile(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")); err == nil {
-						credentials = string(keyBytes)
-					}
-				}
-				if len(credentials) == 0 {
-					Skip("Skipping gcp secret engine tests because GOOGLE_SERVICE_ACCOUNT_JSON_KEY and GOOGLE_APPLICATION_CREDENTIALS are empty")
+					Skip("Skipping gcp secret engine tests, empty env")
 				}
 
 				sr := core.Secret{
@@ -732,9 +717,7 @@ var _ = Describe("VaultServer", func() {
 						Name:      secretName,
 						Namespace: f.Namespace(),
 					},
-					Data: map[string][]byte{
-						"sa.json": []byte(credentials),
-					},
+					Data: credentials,
 				}
 
 				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
@@ -818,10 +801,7 @@ var _ = Describe("VaultServer", func() {
 						Name:      awsCredSecret,
 						Namespace: vs.Namespace,
 					},
-					Data: map[string][]byte{
-						"access_key": []byte(os.Getenv("AWS_ACCESS_KEY_ID")),
-						"secret_key": []byte(os.Getenv("AWS_SECRET_ACCESS_KEY")),
-					},
+					Data: store.AWSCredentialsFromEnv(),
 				}
 
 				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
@@ -1137,10 +1117,7 @@ var _ = Describe("VaultServer", func() {
 						Name:      awsCredSecret,
 						Namespace: f.Namespace(),
 					},
-					Data: map[string][]byte{
-						"access_key": []byte(os.Getenv("AWS_ACCESS_KEY_ID")),
-						"secret_key": []byte(os.Getenv("AWS_SECRET_ACCESS_KEY")),
-					},
+					Data: store.AWSCredentialsFromEnv(),
 				}
 
 				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())

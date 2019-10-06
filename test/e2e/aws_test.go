@@ -2,7 +2,6 @@ package e2e_test
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -11,6 +10,7 @@ import (
 	v1 "k8s.io/api/rbac/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	store "kmodules.xyz/objectstore-api/api/v1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	"kubevault.dev/operator/pkg/controller"
 	"kubevault.dev/operator/test/e2e/framework"
@@ -173,23 +173,17 @@ var _ = Describe("AWS Secret Engine", func() {
 		)
 
 		BeforeEach(func() {
-
-			awsAccessKeyId := os.Getenv("AWS_ACCESS_KEY_ID")
-			awsSecretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
-			if len(awsAccessKeyId) == 0 || len(awsSecretAccessKey) == 0 {
+			credentials := store.AWSCredentialsFromEnv()
+			if len(credentials) == 0 {
 				Skip("Skipping aws secret engine tests, empty env")
 			}
-
 			awsCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      awsCredSecret,
 					Namespace: f.Namespace(),
 				},
-				Data: map[string][]byte{
-					api.AWSCredentialAccessKeyKey: []byte(awsAccessKeyId),
-					api.AWSCredentialSecretKeyKey: []byte(awsSecretAccessKey),
-				},
+				Data: credentials,
 			}
 			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&awsCredentials)
 			Expect(err).NotTo(HaveOccurred(), "Create aws credentials secret")
@@ -335,23 +329,17 @@ var _ = Describe("AWS Secret Engine", func() {
 		)
 
 		BeforeEach(func() {
-
-			awsAccessKeyId := os.Getenv("AWS_ACCESS_KEY_ID")
-			awsSecretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
-			if len(awsAccessKeyId) == 0 || len(awsSecretAccessKey) == 0 {
+			credentials := store.AWSCredentialsFromEnv()
+			if len(credentials) == 0 {
 				Skip("Skipping aws secret engine tests, empty env")
 			}
-
 			awsCredentials = core.Secret{
 				TypeMeta: metav1.TypeMeta{},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      awsCredSecret,
 					Namespace: f.Namespace(),
 				},
-				Data: map[string][]byte{
-					api.AWSCredentialAccessKeyKey: []byte(awsAccessKeyId),
-					api.AWSCredentialSecretKeyKey: []byte(awsSecretAccessKey),
-				},
+				Data: credentials,
 			}
 			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&awsCredentials)
 			Expect(err).NotTo(HaveOccurred(), "Create aws credentials secret")
