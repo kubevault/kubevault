@@ -735,6 +735,8 @@ k8s.io/utils v0.0.0-20190221042446-c2654d5206da h1:ElyM7RPonbKnQqOcw7dG2IK5uvQQn
 k8s.io/utils v0.0.0-20190221042446-c2654d5206da/go.mod h1:8k8uAuAQ0rXslZKaEWd0c3oVhZz7sSzSiPnVZayjIX0=
 kmodules.xyz/client-go v0.0.0-20190808141354-bbb9e14f60ab h1:rnKcFaDLtqpdooase2BqPfHV9Mu1WvzbTUmucnJjLio=
 kmodules.xyz/client-go v0.0.0-20190808141354-bbb9e14f60ab/go.mod h1:1GI6h5D31op/2D+Hrn9DhXW6iUd5wsHBQRoLeY7fndM=
+kmodules.xyz/client-go v0.0.0-20191006173540-91f8ee6b6b4b h1:O2ofczznVEV+DVd0F8fPEQWA+SeVk+wdNLJaESIP7l0=
+kmodules.xyz/client-go v0.0.0-20191006173540-91f8ee6b6b4b/go.mod h1:1GI6h5D31op/2D+Hrn9DhXW6iUd5wsHBQRoLeY7fndM=
 kmodules.xyz/monitoring-agent-api v0.0.0-20190808150221-601a4005b7f7 h1:2NexswbEqyeI1bL0O7WZ3ZcQgXJ+kATJK++roRXfYDU=
 kmodules.xyz/monitoring-agent-api v0.0.0-20190808150221-601a4005b7f7/go.mod h1:9v6LM+dmaAP3jjDiPOPOLPfsvD7jNjBJsi37JNCiFho=
 kmodules.xyz/objectstore-api v0.0.0-20191006080053-fc8b57fadcf0 h1:DaHMvYoSHHVexAc+7NhyUE/H22xiI2PCMmDRUqpkV1o=
