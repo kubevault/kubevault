@@ -40,7 +40,6 @@ github.com/appscode/go/log/golog
 github.com/appscode/go/net
 github.com/appscode/go/analytics
 github.com/appscode/go/homedir
-github.com/appscode/go/os
 # github.com/armon/go-radix v1.0.0
 github.com/armon/go-radix
 # github.com/aws/aws-sdk-go v1.20.20
@@ -962,6 +961,10 @@ kmodules.xyz/client-go/tools/queue
 kmodules.xyz/client-go/dynamic
 kmodules.xyz/client-go/tools/analytics
 kmodules.xyz/client-go/apiregistration/v1beta1
+# kmodules.xyz/constants v0.0.0-20191009183447-fbd33067b8a6
+kmodules.xyz/constants/aws
+kmodules.xyz/constants/azure
+kmodules.xyz/constants/google
 # kmodules.xyz/custom-resources v0.0.0-20190927035424-65fe358bb045 => github.com/kamolhasan/custom-resources v0.0.0-20190826094133-83f06ebdbc32
 kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1
 kmodules.xyz/custom-resources/client/clientset/versioned/scheme
@@ -976,8 +979,6 @@ kmodules.xyz/monitoring-agent-api/api/v1
 kmodules.xyz/monitoring-agent-api/agents
 kmodules.xyz/monitoring-agent-api/agents/coreosprometheusoperator
 kmodules.xyz/monitoring-agent-api/agents/prometheusbuiltin
-# kmodules.xyz/objectstore-api v0.0.0-20191006080053-fc8b57fadcf0
-kmodules.xyz/objectstore-api/api/v1
 # kmodules.xyz/offshoot-api v0.0.0-20190901210649-de049192326c
 kmodules.xyz/offshoot-api/api/v1
 # kmodules.xyz/webhook-runtime v0.0.0-20190808145328-4186c470d56b

@@ -10,7 +10,7 @@ import (
 	v1 "k8s.io/api/rbac/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	store "kmodules.xyz/objectstore-api/api/v1"
+	azureconsts "kmodules.xyz/constants/azure"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	"kubevault.dev/operator/pkg/controller"
 	"kubevault.dev/operator/test/e2e/framework"
@@ -175,7 +175,7 @@ var _ = Describe("Azure Secret Engine", func() {
 		)
 
 		BeforeEach(func() {
-			credentials := store.AzureCredentialsFromEnv()
+			credentials := azureconsts.AzureCredentialsFromEnv()
 			if len(credentials) == 0 {
 				Skip("Skipping azure secret engine tests, empty env")
 			}
@@ -314,7 +314,7 @@ var _ = Describe("Azure Secret Engine", func() {
 		)
 
 		BeforeEach(func() {
-			credentials := store.AzureCredentialsFromEnv()
+			credentials := azureconsts.CredentialsFromEnv()
 			if len(credentials) == 0 {
 				Skip("Skipping azure secret engine tests, empty env")
 			}

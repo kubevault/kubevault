@@ -18,7 +18,8 @@ import (
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	store "kmodules.xyz/objectstore-api/api/v1"
+	awsconsts "kmodules.xyz/constants/aws"
+	googleconsts "kmodules.xyz/constants/google"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/controller"
@@ -322,7 +323,7 @@ var _ = Describe("VaultServer", func() {
 				secretName = "google-cred"
 			)
 			BeforeEach(func() {
-				credentials := store.GoogleCredentialsFromEnv()
+				credentials := googleconsts.CredentialsFromEnv()
 				if len(credentials) == 0 {
 					Skip("Skipping gcp secret engine tests, empty env")
 				}
@@ -381,7 +382,7 @@ var _ = Describe("VaultServer", func() {
 						Name:      awsCredSecret,
 						Namespace: vs.Namespace,
 					},
-					Data: store.AWSCredentialsFromEnv(),
+					Data: awsconsts.CredentialsFromEnv(),
 				}
 
 				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
@@ -707,7 +708,7 @@ var _ = Describe("VaultServer", func() {
 				secretName = "google-cred"
 			)
 			BeforeEach(func() {
-				credentials := store.GoogleCredentialsFromEnv()
+				credentials := googleconsts.CredentialsFromEnv()
 				if len(credentials) == 0 {
 					Skip("Skipping gcp secret engine tests, empty env")
 				}
@@ -801,7 +802,7 @@ var _ = Describe("VaultServer", func() {
 						Name:      awsCredSecret,
 						Namespace: vs.Namespace,
 					},
-					Data: store.AWSCredentialsFromEnv(),
+					Data: awsconsts.CredentialsFromEnv(),
 				}
 
 				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
@@ -1117,7 +1118,7 @@ var _ = Describe("VaultServer", func() {
 						Name:      awsCredSecret,
 						Namespace: f.Namespace(),
 					},
-					Data: store.AWSCredentialsFromEnv(),
+					Data: awsconsts.CredentialsFromEnv(),
 				}
 
 				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
