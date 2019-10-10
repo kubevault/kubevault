@@ -199,8 +199,8 @@ var _ = Describe("GCP Secret Engine", func() {
 						Name: f.VaultAppRef.Name,
 					},
 					SecretType: "access_token",
-					Project:    "console-testing",
-					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/console-testing" {
+					Project:    "appscode-testing",
+					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/appscode-testing" {
 					roles = ["roles/viewer"]
 				}`,
 					TokenScopes: []string{"https://www.googleapis.com/auth/cloud-platform"},
@@ -365,8 +365,8 @@ var _ = Describe("GCP Secret Engine", func() {
 						Name: f.VaultAppRef.Name,
 					},
 					SecretType: "access_token",
-					Project:    "console-testing",
-					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/console-testing" {
+					Project:    "appscode-testing",
+					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/appscode-testing" {
 					roles = ["roles/viewer"]
 				}`,
 					TokenScopes: []string{"https://www.googleapis.com/auth/cloud-platform"},
