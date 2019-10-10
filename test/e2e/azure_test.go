@@ -175,7 +175,7 @@ var _ = Describe("Azure Secret Engine", func() {
 		)
 
 		BeforeEach(func() {
-			credentials := azureconsts.AzureCredentialsFromEnv()
+			credentials := azureconsts.CredentialsFromEnv()
 			if len(credentials) == 0 {
 				Skip("Skipping azure secret engine tests, empty env")
 			}
