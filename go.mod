@@ -49,10 +49,11 @@ require (
 	k8s.io/cli-runtime v0.0.0-20190516231937-17bc0b7fcef5 // indirect
 	k8s.io/client-go v11.0.0+incompatible
 	k8s.io/component-base v0.0.0-20190508223741-40efa6d42997 // indirect
+	k8s.io/klog v0.3.1 // indirect
 	k8s.io/kube-aggregator v0.0.0-20190508224022-f9852b6d3a84
 	k8s.io/kube-openapi v0.0.0-20190502190224-411b2483e503
 	k8s.io/kubernetes v1.14.0
-	kmodules.xyz/client-go v0.0.0-20191006173540-91f8ee6b6b4b
+	kmodules.xyz/client-go v0.0.0-20191014080252-6458e3cb3ca6
 	kmodules.xyz/constants v0.0.0-20191009183447-fbd33067b8a6
 	kmodules.xyz/custom-resources v0.0.0-20190927035424-65fe358bb045
 	kmodules.xyz/monitoring-agent-api v0.0.0-20190808150221-601a4005b7f7

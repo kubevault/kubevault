@@ -943,7 +943,7 @@ k8s.io/kubernetes/pkg/apis/core
 k8s.io/utils/integer
 k8s.io/utils/buffer
 k8s.io/utils/trace
-# kmodules.xyz/client-go v0.0.0-20191006173540-91f8ee6b6b4b
+# kmodules.xyz/client-go v0.0.0-20191014080252-6458e3cb3ca6
 kmodules.xyz/client-go/apiextensions/v1beta1
 kmodules.xyz/client-go/tools/clusterid
 kmodules.xyz/client-go/meta
