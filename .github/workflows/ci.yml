@@ -72,6 +72,7 @@ jobs:
       run: |
         export KUBECONFIG="$(kind get kubeconfig-path)"
         echo "preparing test credentials"
+        mkdir -p hack/config
         echo -n "$TEST_CREDENTIALS" > hack/config/.env
         echo >> hack/config/.env
         echo "GOOGLE_SERVICE_ACCOUNT_JSON_KEY=$(echo $GOOGLE_SERVICE_ACCOUNT_JSON_KEY)" >> hack/config/.env
