@@ -111,12 +111,7 @@ func UpdateVaultPolicyBindingStatus(
 	c cs.PolicyV1alpha1Interface,
 	in *api.VaultPolicyBinding,
 	transform func(*api.VaultPolicyBindingStatus) *api.VaultPolicyBindingStatus,
-	useSubresource ...bool,
 ) (result *api.VaultPolicyBinding, err error) {
-	if len(useSubresource) > 1 {
-		return nil, errors.Errorf("invalid value passed for useSubresource: %v", useSubresource)
-	}
-
 	apply := func(x *api.VaultPolicyBinding, copy bool) *api.VaultPolicyBinding {
 		out := &api.VaultPolicyBinding{
 			TypeMeta:   x.TypeMeta,
@@ -131,36 +126,31 @@ func UpdateVaultPolicyBindingStatus(
 		return out
 	}
 
-	if len(useSubresource) == 1 && useSubresource[0] {
-		attempt := 0
-		cur := in.DeepCopy()
-		err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
-			attempt++
-			var e2 error
-			result, e2 = c.VaultPolicyBindings(in.Namespace).UpdateStatus(apply(cur, false))
-			if kerr.IsConflict(e2) {
-				latest, e3 := c.VaultPolicyBindings(in.Namespace).Get(in.Name, metav1.GetOptions{})
-				switch {
-				case e3 == nil:
-					cur = latest
-					return false, nil
-				case kutil.IsRequestRetryable(e3):
-					return false, nil
-				default:
-					return false, e3
-				}
-			} else if err != nil && !kutil.IsRequestRetryable(e2) {
-				return false, e2
+	attempt := 0
+	cur := in.DeepCopy()
+	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
+		attempt++
+		var e2 error
+		result, e2 = c.VaultPolicyBindings(in.Namespace).UpdateStatus(apply(cur, false))
+		if kerr.IsConflict(e2) {
+			latest, e3 := c.VaultPolicyBindings(in.Namespace).Get(in.Name, metav1.GetOptions{})
+			switch {
+			case e3 == nil:
+				cur = latest
+				return false, nil
+			case kutil.IsRequestRetryable(e3):
+				return false, nil
+			default:
+				return false, e3
 			}
-			return e2 == nil, nil
-		})
-
-		if err != nil {
-			err = fmt.Errorf("failed to update status of VaultPolicyBinding %s/%s after %d attempts due to %v", in.Namespace, in.Name, attempt, err)
+		} else if err != nil && !kutil.IsRequestRetryable(e2) {
+			return false, e2
 		}
-		return
-	}
+		return e2 == nil, nil
+	})
 
-	result, _, err = PatchVaultPolicyBindingObject(c, in, apply(in, true))
+	if err != nil {
+		err = fmt.Errorf("failed to update status of VaultPolicyBinding %s/%s after %d attempts due to %v", in.Namespace, in.Name, attempt, err)
+	}
 	return
 }

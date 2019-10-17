@@ -86,12 +86,7 @@ func UpdateMongoDBRoleStatus(
 	c cs.EngineV1alpha1Interface,
 	in *api.MongoDBRole,
 	transform func(*api.MongoDBRoleStatus) *api.MongoDBRoleStatus,
-	useSubresource ...bool,
 ) (result *api.MongoDBRole, err error) {
-	if len(useSubresource) > 1 {
-		return nil, errors.Errorf("invalid value passed for useSubresource: %v", useSubresource)
-	}
-
 	apply := func(x *api.MongoDBRole) *api.MongoDBRole {
 		return &api.MongoDBRole{
 			TypeMeta:   x.TypeMeta,
@@ -101,36 +96,31 @@ func UpdateMongoDBRoleStatus(
 		}
 	}
 
-	if len(useSubresource) == 1 && useSubresource[0] {
-		attempt := 0
-		cur := in.DeepCopy()
-		err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
-			attempt++
-			var e2 error
-			result, e2 = c.MongoDBRoles(in.Namespace).UpdateStatus(apply(cur))
-			if kerr.IsConflict(e2) {
-				latest, e3 := c.MongoDBRoles(in.Namespace).Get(in.Name, metav1.GetOptions{})
-				switch {
-				case e3 == nil:
-					cur = latest
-					return false, nil
-				case kutil.IsRequestRetryable(e3):
-					return false, nil
-				default:
-					return false, e3
-				}
-			} else if err != nil && !kutil.IsRequestRetryable(e2) {
-				return false, e2
+	attempt := 0
+	cur := in.DeepCopy()
+	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
+		attempt++
+		var e2 error
+		result, e2 = c.MongoDBRoles(in.Namespace).UpdateStatus(apply(cur))
+		if kerr.IsConflict(e2) {
+			latest, e3 := c.MongoDBRoles(in.Namespace).Get(in.Name, metav1.GetOptions{})
+			switch {
+			case e3 == nil:
+				cur = latest
+				return false, nil
+			case kutil.IsRequestRetryable(e3):
+				return false, nil
+			default:
+				return false, e3
 			}
-			return e2 == nil, nil
-		})
-
-		if err != nil {
-			err = fmt.Errorf("failed to update status of MongoDBRole %s/%s after %d attempts due to %v", in.Namespace, in.Name, attempt, err)
+		} else if err != nil && !kutil.IsRequestRetryable(e2) {
+			return false, e2
 		}
-		return
-	}
+		return e2 == nil, nil
+	})
 
-	result, _, err = PatchMongoDBRoleObject(c, in, apply(in))
+	if err != nil {
+		err = fmt.Errorf("failed to update status of MongoDBRole %s/%s after %d attempts due to %v", in.Namespace, in.Name, attempt, err)
+	}
 	return
 }

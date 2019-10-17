@@ -9,7 +9,7 @@ require (
 	github.com/Azure/go-autorest/autorest/validation v0.1.0 // indirect
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/appscode/docker-registry-client v0.0.0-20180426150142-1bb02bb202b0
-	github.com/appscode/go v0.0.0-20191006073906-e3d193d493fc
+	github.com/appscode/go v0.0.0-20191016085057-e186b6c94a3b
 	github.com/aws/aws-sdk-go v1.20.20 // indirect
 	github.com/coreos/bbolt v1.3.3 // indirect
 	github.com/coreos/etcd v3.3.13+incompatible // indirect

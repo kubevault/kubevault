@@ -5,7 +5,6 @@ import (
 
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
-	"kubevault.dev/operator/apis"
 )
 
 const DefaultMySQLDatabasePlugin = "mysql-database-plugin"
@@ -39,7 +38,7 @@ func (r MySQLRole) CustomResourceDefinition() *apiextensions.CustomResourceDefin
 		SpecDefinitionName:      "kubevault.dev/operator/apis/engine/v1alpha1.MySQLRole",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
-		EnableStatusSubresource: apis.EnableStatusSubresource,
+		EnableStatusSubresource: true,
 	})
 }
 

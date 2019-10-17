@@ -471,10 +471,11 @@ spec:
                 type: object
               type: array
             observedGeneration:
-              description: observedGeneration is the most recent generation observed
+              description: ObservedGeneration is the most recent generation observed
                 for this GCPRole. It corresponds to the GCPRole's generation, which
                 is updated on mutation by the API Server.
-              type: string
+              format: int64
+              type: integer
             phase:
               type: string
           type: object

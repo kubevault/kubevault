@@ -79,7 +79,7 @@ func (v VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDef
 		SpecDefinitionName:      "kubevault.dev/operator/apis/kubevault/v1alpha1.VaultServer",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
-		EnableStatusSubresource: apis.EnableStatusSubresource,
+		EnableStatusSubresource: true,
 		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
 			{
 				Name:     "Nodes",

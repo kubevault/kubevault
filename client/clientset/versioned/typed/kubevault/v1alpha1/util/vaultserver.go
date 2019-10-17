@@ -86,12 +86,7 @@ func UpdateVaultServerStatus(
 	c cs.KubevaultV1alpha1Interface,
 	in *api.VaultServer,
 	transform func(*api.VaultServerStatus) *api.VaultServerStatus,
-	useSubresource ...bool,
 ) (result *api.VaultServer, err error) {
-	if len(useSubresource) > 1 {
-		return nil, errors.Errorf("invalid value passed for useSubresource: %v", useSubresource)
-	}
-
 	apply := func(x *api.VaultServer, copy bool) *api.VaultServer {
 		out := &api.VaultServer{
 			TypeMeta:   x.TypeMeta,
@@ -106,36 +101,31 @@ func UpdateVaultServerStatus(
 		return out
 	}
 
-	if len(useSubresource) == 1 && useSubresource[0] {
-		attempt := 0
-		cur := in.DeepCopy()
-		err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
-			attempt++
-			var e2 error
-			result, e2 = c.VaultServers(in.Namespace).UpdateStatus(apply(cur, false))
-			if kerr.IsConflict(e2) {
-				latest, e3 := c.VaultServers(in.Namespace).Get(in.Name, metav1.GetOptions{})
-				switch {
-				case e3 == nil:
-					cur = latest
-					return false, nil
-				case kutil.IsRequestRetryable(e3):
-					return false, nil
-				default:
-					return false, e3
-				}
-			} else if err != nil && !kutil.IsRequestRetryable(e2) {
-				return false, e2
+	attempt := 0
+	cur := in.DeepCopy()
+	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
+		attempt++
+		var e2 error
+		result, e2 = c.VaultServers(in.Namespace).UpdateStatus(apply(cur, false))
+		if kerr.IsConflict(e2) {
+			latest, e3 := c.VaultServers(in.Namespace).Get(in.Name, metav1.GetOptions{})
+			switch {
+			case e3 == nil:
+				cur = latest
+				return false, nil
+			case kutil.IsRequestRetryable(e3):
+				return false, nil
+			default:
+				return false, e3
 			}
-			return e2 == nil, nil
-		})
-
-		if err != nil {
-			err = fmt.Errorf("failed to update status of VaultServer %s/%s after %d attempts due to %v", in.Namespace, in.Name, attempt, err)
+		} else if err != nil && !kutil.IsRequestRetryable(e2) {
+			return false, e2
 		}
-		return
-	}
+		return e2 == nil, nil
+	})
 
-	result, _, err = PatchVaultServerObject(c, in, apply(in, true))
+	if err != nil {
+		err = fmt.Errorf("failed to update status of VaultServer %s/%s after %d attempts due to %v", in.Namespace, in.Name, attempt, err)
+	}
 	return
 }

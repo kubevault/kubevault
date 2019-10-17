@@ -4,17 +4,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/appscode/go/encoding/json/types"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
-	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
 	"kubevault.dev/operator/apis"
-	vsapis "kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/database"
@@ -30,7 +27,7 @@ const (
 func (c *VaultController) initMongoDBRoleWatcher() {
 	c.mgRoleInformer = c.extInformerFactory.Engine().V1alpha1().MongoDBRoles().Informer()
 	c.mgRoleQueue = queue.New(api.ResourceKindMongoDBRole, c.MaxNumRequeues, c.NumThreads, c.runMongoDBRoleInjector)
-	c.mgRoleInformer.AddEventHandler(queue.NewObservableHandler(c.mgRoleQueue.GetQueue(), apis.EnableStatusSubresource))
+	c.mgRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.mgRoleQueue.GetQueue()))
 	c.mgRoleLister = c.extInformerFactory.Engine().V1alpha1().MongoDBRoles().Lister()
 }
 
@@ -108,7 +105,7 @@ func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleIn
 
 	status.Conditions = []api.MongoDBRoleCondition{}
 	status.Phase = MongoDBRolePhaseSuccess
-	status.ObservedGeneration = types.NewIntHash(mgRole.Generation, meta_util.GenerationHash(mgRole))
+	status.ObservedGeneration = mgRole.Generation
 
 	err = c.updatedMongoDBRoleStatus(&status, mgRole)
 	if err != nil {
@@ -121,7 +118,7 @@ func (c *VaultController) updatedMongoDBRoleStatus(status *api.MongoDBRoleStatus
 	_, err := patchutil.UpdateMongoDBRoleStatus(c.extClient.EngineV1alpha1(), mRole, func(s *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
 		s = status
 		return s
-	}, vsapis.EnableStatusSubresource)
+	})
 	return err
 }
 

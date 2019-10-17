@@ -191,7 +191,6 @@ show_help() {
   echo "    --enable-mutating-webhook          enable/disable mutating webhooks for Kubernetes workloads"
   echo "    --enable-validating-webhook        enable/disable validating webhooks for Vault CRDs"
   echo "    --bypass-validating-webhook-xray   if true, bypasses validating webhook xray checks"
-  echo "    --enable-status-subresource        if enabled, uses status sub resource for crds"
   echo "    --use-kubeapiserver-fqdn-for-aks   if true, uses kube-apiserver FQDN for AKS cluster to workaround https://github.com/Azure/AKS/issues/522 (default true)"
   echo "    --enable-analytics                 send usage events to Google Analytics (default: true)"
   echo "    --uninstall                        uninstall Vault operator"
@@ -253,13 +252,6 @@ while test $# -gt 0; do
         export VAULT_OPERATOR_BYPASS_VALIDATING_WEBHOOK_XRAY=false
       else
         export VAULT_OPERATOR_BYPASS_VALIDATING_WEBHOOK_XRAY=true
-      fi
-      shift
-      ;;
-    --enable-status-subresource*)
-      val=$(echo $1 | sed -e 's/^[^=]*=//g')
-      if [ "$val" = "false" ]; then
-        export VAULT_OPERATOR_ENABLE_STATUS_SUBRESOURCE=false
       fi
       shift
       ;;

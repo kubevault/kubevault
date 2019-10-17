@@ -24,7 +24,7 @@ github.com/SermoDigital/jose/jws
 github.com/SermoDigital/jose
 github.com/SermoDigital/jose/crypto
 github.com/SermoDigital/jose/jwt
-# github.com/appscode/go v0.0.0-20191006073906-e3d193d493fc
+# github.com/appscode/go v0.0.0-20191016085057-e186b6c94a3b
 github.com/appscode/go/encoding/json/types
 github.com/appscode/go/version
 github.com/appscode/go/log
@@ -943,7 +943,7 @@ k8s.io/kubernetes/pkg/apis/core
 k8s.io/utils/integer
 k8s.io/utils/buffer
 k8s.io/utils/trace
-# kmodules.xyz/client-go v0.0.0-20191014080252-6458e3cb3ca6
+# kmodules.xyz/client-go v0.0.0-20191016085444-3044854ca625
 kmodules.xyz/client-go/apiextensions/v1beta1
 kmodules.xyz/client-go/tools/clusterid
 kmodules.xyz/client-go/meta

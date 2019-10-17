@@ -16216,8 +16216,9 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleStatus(ref common.ReferenceCall
 					},
 					"observedGeneration": {
 						SchemaProps: spec.SchemaProps{
-							Description: "observedGeneration is the most recent generation observed for this AWSRole. It corresponds to the AWSRole's generation, which is updated on mutation by the API Server.",
-							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+							Description: "ObservedGeneration is the most recent generation observed for this AWSRole. It corresponds to the AWSRole's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 					"conditions": {
@@ -16237,7 +16238,7 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleStatus(ref common.ReferenceCall
 			},
 		},
 		Dependencies: []string{
-			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/engine/v1alpha1.AWSRoleCondition"},
+			"kubevault.dev/operator/apis/engine/v1alpha1.AWSRoleCondition"},
 	}
 }
 
@@ -16674,8 +16675,9 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleStatus(ref common.ReferenceCa
 					},
 					"observedGeneration": {
 						SchemaProps: spec.SchemaProps{
-							Description: "observedGeneration is the most recent generation observed for this AzureRole. It corresponds to the AzureRole's generation, which is updated on mutation by the API Server.",
-							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+							Description: "ObservedGeneration is the most recent generation observed for this AzureRole. It corresponds to the AzureRole's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 					"conditions": {
@@ -16695,7 +16697,7 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleStatus(ref common.ReferenceCa
 			},
 		},
 		Dependencies: []string{
-			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleCondition"},
+			"kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleCondition"},
 	}
 }
 
@@ -17372,8 +17374,9 @@ func schema_operator_apis_engine_v1alpha1_GCPRoleStatus(ref common.ReferenceCall
 					},
 					"observedGeneration": {
 						SchemaProps: spec.SchemaProps{
-							Description: "observedGeneration is the most recent generation observed for this GCPRole. It corresponds to the GCPRole's generation, which is updated on mutation by the API Server.",
-							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+							Description: "ObservedGeneration is the most recent generation observed for this GCPRole. It corresponds to the GCPRole's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 					"conditions": {
@@ -17393,7 +17396,7 @@ func schema_operator_apis_engine_v1alpha1_GCPRoleStatus(ref common.ReferenceCall
 			},
 		},
 		Dependencies: []string{
-			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleCondition"},
+			"kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleCondition"},
 	}
 }
 
@@ -17738,8 +17741,9 @@ func schema_operator_apis_engine_v1alpha1_MongoDBRoleStatus(ref common.Reference
 					},
 					"observedGeneration": {
 						SchemaProps: spec.SchemaProps{
-							Description: "observedGeneration is the most recent generation observed for this MongoDBRole. It corresponds to the MongoDBRole's generation, which is updated on mutation by the API Server.",
-							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+							Description: "ObservedGeneration is the most recent generation observed for this MongoDBRole. It corresponds to the MongoDBRole's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 					"conditions": {
@@ -17759,7 +17763,7 @@ func schema_operator_apis_engine_v1alpha1_MongoDBRoleStatus(ref common.Reference
 			},
 		},
 		Dependencies: []string{
-			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleCondition"},
+			"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleCondition"},
 	}
 }
 
@@ -18055,8 +18059,9 @@ func schema_operator_apis_engine_v1alpha1_MySQLRoleStatus(ref common.ReferenceCa
 					},
 					"observedGeneration": {
 						SchemaProps: spec.SchemaProps{
-							Description: "observedGeneration is the most recent generation observed for this MySQLRole. It corresponds to the MySQLRole's generation, which is updated on mutation by the API Server.",
-							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+							Description: "ObservedGeneration is the most recent generation observed for this MySQLRole. It corresponds to the MySQLRole's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 					"conditions": {
@@ -18076,7 +18081,7 @@ func schema_operator_apis_engine_v1alpha1_MySQLRoleStatus(ref common.ReferenceCa
 			},
 		},
 		Dependencies: []string{
-			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleCondition"},
+			"kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleCondition"},
 	}
 }
 
@@ -18394,8 +18399,9 @@ func schema_operator_apis_engine_v1alpha1_PostgresRoleStatus(ref common.Referenc
 				Properties: map[string]spec.Schema{
 					"observedGeneration": {
 						SchemaProps: spec.SchemaProps{
-							Description: "observedGeneration is the most recent generation observed for this PostgresROle. It corresponds to the PostgresROle's generation, which is updated on mutation by the API Server.",
-							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+							Description: "ObservedGeneration is the most recent generation observed for this PostgresROle. It corresponds to the PostgresROle's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 					"phase": {
@@ -18422,7 +18428,7 @@ func schema_operator_apis_engine_v1alpha1_PostgresRoleStatus(ref common.Referenc
 			},
 		},
 		Dependencies: []string{
-			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleCondition"},
+			"kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleCondition"},
 	}
 }
 
@@ -18709,7 +18715,8 @@ func schema_operator_apis_engine_v1alpha1_SecretEngineStatus(ref common.Referenc
 					},
 					"observedGeneration": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/appscode/go/encoding/json/types.IntHash"),
+							Type:   []string{"integer"},
+							Format: "int64",
 						},
 					},
 					"conditions": {
@@ -18728,6 +18735,6 @@ func schema_operator_apis_engine_v1alpha1_SecretEngineStatus(ref common.Referenc
 			},
 		},
 		Dependencies: []string{
-			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineCondition"},
+			"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineCondition"},
 	}
 }

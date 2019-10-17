@@ -5,16 +5,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/appscode/go/encoding/json/types"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
-	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
-	"kubevault.dev/operator/apis"
 	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/policy"
@@ -29,7 +26,7 @@ const (
 func (c *VaultController) initVaultPolicyWatcher() {
 	c.vplcyInformer = c.extInformerFactory.Policy().V1alpha1().VaultPolicies().Informer()
 	c.vplcyQueue = queue.New(policyapi.ResourceKindVaultPolicy, c.MaxNumRequeues, c.NumThreads, c.runVaultPolicyInjector)
-	c.vplcyInformer.AddEventHandler(queue.NewObservableHandler(c.vplcyQueue.GetQueue(), apis.EnableStatusSubresource))
+	c.vplcyInformer.AddEventHandler(queue.NewReconcilableHandler(c.vplcyQueue.GetQueue()))
 	c.vplcyLister = c.extInformerFactory.Policy().V1alpha1().VaultPolicies().Lister()
 }
 
@@ -118,7 +115,7 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 	}
 
 	// update status
-	status.ObservedGeneration = types.NewIntHash(vPolicy.Generation, meta_util.GenerationHash(vPolicy))
+	status.ObservedGeneration = vPolicy.Generation
 	status.Conditions = []policyapi.PolicyCondition{}
 	status.Phase = policyapi.PolicySuccess
 	err2 := c.updatePolicyStatus(&status, vPolicy)
@@ -133,7 +130,7 @@ func (c *VaultController) updatePolicyStatus(status *policyapi.VaultPolicyStatus
 	_, err := patchutil.UpdateVaultPolicyStatus(c.extClient.PolicyV1alpha1(), vPolicy, func(s *policyapi.VaultPolicyStatus) *policyapi.VaultPolicyStatus {
 		s = status
 		return s
-	}, apis.EnableStatusSubresource)
+	})
 	return err
 }
 

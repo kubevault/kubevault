@@ -5,17 +5,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/appscode/go/log"
 	gort "github.com/appscode/go/runtime"
 	"github.com/go-openapi/spec"
 	"github.com/golang/glog"
-	crd_api "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/kube-openapi/pkg/common"
-	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
 	"kmodules.xyz/client-go/openapi"
-	"kubevault.dev/operator/apis"
 	cataloginstall "kubevault.dev/operator/apis/catalog/install"
 	catalogv1alpha1 "kubevault.dev/operator/apis/catalog/v1alpha1"
 	engineinstall "kubevault.dev/operator/apis/engine/install"
@@ -25,45 +21,6 @@ import (
 	policyinstall "kubevault.dev/operator/apis/policy/install"
 	policyv1alpha1 "kubevault.dev/operator/apis/policy/v1alpha1"
 )
-
-func generateCRDDefinitions() {
-	apis.EnableStatusSubresource = true
-
-	filename := gort.GOPath() + "/src/kubevault.dev/operator/apis/kubevault/v1alpha1/crds.yaml"
-	os.Remove(filename)
-
-	err := os.MkdirAll(filepath.Join(gort.GOPath(), "/src/kubevault.dev/operator/api/crds"), 0755)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	crds := []*crd_api.CustomResourceDefinition{
-		vaultv1alpha1.VaultServer{}.CustomResourceDefinition(),
-		catalogv1alpha1.VaultServerVersion{}.CustomResourceDefinition(),
-		policyv1alpha1.VaultPolicy{}.CustomResourceDefinition(),
-		policyv1alpha1.VaultPolicyBinding{}.CustomResourceDefinition(),
-		enginev1alpha1.SecretEngine{}.CustomResourceDefinition(),
-		enginev1alpha1.AWSRole{}.CustomResourceDefinition(),
-		enginev1alpha1.AWSAccessKeyRequest{}.CustomResourceDefinition(),
-		enginev1alpha1.AzureRole{}.CustomResourceDefinition(),
-		enginev1alpha1.AzureAccessKeyRequest{}.CustomResourceDefinition(),
-		enginev1alpha1.GCPRole{}.CustomResourceDefinition(),
-		enginev1alpha1.GCPAccessKeyRequest{}.CustomResourceDefinition(),
-		enginev1alpha1.DatabaseAccessRequest{}.CustomResourceDefinition(),
-		enginev1alpha1.MongoDBRole{}.CustomResourceDefinition(),
-		enginev1alpha1.MySQLRole{}.CustomResourceDefinition(),
-		enginev1alpha1.PostgresRole{}.CustomResourceDefinition(),
-	}
-	for _, crd := range crds {
-		filename := filepath.Join(gort.GOPath(), "/src/kubevault.dev/operator/api/crds", crd.Spec.Names.Singular+".yaml")
-		f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
-		crdutils.MarshallCrd(f, crd, "yaml")
-		f.Close()
-	}
-}
 
 func generateSwaggerJson() {
 	var (
@@ -132,6 +89,5 @@ func generateSwaggerJson() {
 }
 
 func main() {
-	// generateCRDDefinitions()
 	generateSwaggerJson()
 }

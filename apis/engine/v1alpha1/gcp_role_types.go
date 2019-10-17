@@ -1,7 +1,6 @@
 package v1alpha1
 
 import (
-	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -83,9 +82,9 @@ type GCPRolePhase string
 type GCPRoleStatus struct {
 	Phase GCPRolePhase `json:"phase,omitempty"`
 
-	// observedGeneration is the most recent generation observed for this GCPRole. It corresponds to the
+	// ObservedGeneration is the most recent generation observed for this GCPRole. It corresponds to the
 	// GCPRole's generation, which is updated on mutation by the API Server.
-	ObservedGeneration *types.IntHash `json:"observedGeneration,omitempty"`
+	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
 
 	// Represents the latest available observations of a GCPRole current state.
 	Conditions []GCPRoleCondition `json:"conditions,omitempty"`

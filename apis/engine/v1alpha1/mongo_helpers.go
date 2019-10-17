@@ -5,7 +5,6 @@ import (
 
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
-	"kubevault.dev/operator/apis"
 )
 
 const DefaultMongoDBDatabasePlugin = "mongodb-database-plugin"
@@ -39,7 +38,7 @@ func (r MongoDBRole) CustomResourceDefinition() *apiextensions.CustomResourceDef
 		SpecDefinitionName:      "kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRole",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
-		EnableStatusSubresource: apis.EnableStatusSubresource,
+		EnableStatusSubresource: true,
 	})
 }
 

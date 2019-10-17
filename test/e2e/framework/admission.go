@@ -5,7 +5,6 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	shell "github.com/codeskyblue/go-sh"
@@ -15,11 +14,8 @@ import (
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/client-go/discovery"
 	restclient "k8s.io/client-go/rest"
 	kapi "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1beta1"
-	discovery_util "kmodules.xyz/client-go/discovery"
-	"kubevault.dev/operator/apis"
 	srvr "kubevault.dev/operator/pkg/cmds/server"
 )
 
@@ -41,21 +37,13 @@ func (f *Framework) NewTestVaultServerOptions(kubeConfigPath string, controllerO
 func (f *Framework) StartAPIServerAndOperator(config *restclient.Config, kubeConfigPath string, ctrlOptions *srvr.ExtraOptions) {
 	defer GinkgoRecover()
 
-	discClient, err := discovery.NewDiscoveryClientForConfig(config)
-	Expect(err).NotTo(HaveOccurred())
-	serverVersion, err := discovery_util.GetBaseVersion(discClient)
-	Expect(err).NotTo(HaveOccurred())
-	if strings.Compare(serverVersion, "1.11") >= 0 {
-		apis.EnableStatusSubresource = true
-	}
-
 	sh := shell.NewSession()
 	args := []interface{}{"--test=true"}
 	SetupServer := filepath.Join("..", "..", "hack", "dev", "run.sh")
 
 	By("Creating API server and webhook stuffs")
 	cmd := sh.Command(SetupServer, args...)
-	err = cmd.Run()
+	err := cmd.Run()
 	Expect(err).ShouldNot(HaveOccurred())
 
 	By("Starting Server and Operator")

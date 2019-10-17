@@ -14,7 +14,6 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/portforward"
-	"kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	cs_util "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/util"
@@ -173,7 +172,7 @@ func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespa
 		s.ServiceName = status.ServiceName
 		s.ClientPort = status.ClientPort
 		return s
-	}, apis.EnableStatusSubresource)
+	})
 	return vault, err
 }
 

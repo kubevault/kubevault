@@ -16060,8 +16060,9 @@ func schema_operator_apis_policy_v1alpha1_VaultPolicyBindingStatus(ref common.Re
 				Properties: map[string]spec.Schema{
 					"observedGeneration": {
 						SchemaProps: spec.SchemaProps{
-							Description: "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
-							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+							Description: "ObservedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 					"phase": {
@@ -16088,7 +16089,7 @@ func schema_operator_apis_policy_v1alpha1_VaultPolicyBindingStatus(ref common.Re
 			},
 		},
 		Dependencies: []string{
-			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/policy/v1alpha1.PolicyBindingCondition"},
+			"kubevault.dev/operator/apis/policy/v1alpha1.PolicyBindingCondition"},
 	}
 }
 
@@ -16187,8 +16188,9 @@ func schema_operator_apis_policy_v1alpha1_VaultPolicyStatus(ref common.Reference
 				Properties: map[string]spec.Schema{
 					"observedGeneration": {
 						SchemaProps: spec.SchemaProps{
-							Description: "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
-							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+							Description: "ObservedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 					"phase": {
@@ -16215,6 +16217,6 @@ func schema_operator_apis_policy_v1alpha1_VaultPolicyStatus(ref common.Reference
 			},
 		},
 		Dependencies: []string{
-			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/policy/v1alpha1.PolicyCondition"},
+			"kubevault.dev/operator/apis/policy/v1alpha1.PolicyCondition"},
 	}
 }

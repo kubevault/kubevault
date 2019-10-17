@@ -13,7 +13,6 @@ import (
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
 	"kubevault.dev/operator/apis"
-	vsapis "kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/credential"
@@ -227,7 +226,7 @@ func (c *VaultController) updateDatabaseAccessRequestStatus(status *api.Database
 	_, err := patchutil.UpdateDatabaseAccessRequestStatus(c.extClient.EngineV1alpha1(), dbAReq, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
 		s = status
 		return s
-	}, vsapis.EnableStatusSubresource)
+	})
 	return err
 }
 

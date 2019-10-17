@@ -1,7 +1,6 @@
 package v1alpha1
 
 import (
-	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -104,9 +103,9 @@ type AWSRolePhase string
 type AWSRoleStatus struct {
 	Phase AWSRolePhase `json:"phase,omitempty"`
 
-	// observedGeneration is the most recent generation observed for this AWSRole. It corresponds to the
+	// ObservedGeneration is the most recent generation observed for this AWSRole. It corresponds to the
 	// AWSRole's generation, which is updated on mutation by the API Server.
-	ObservedGeneration *types.IntHash `json:"observedGeneration,omitempty"`
+	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
 
 	// Represents the latest available observations of a AWSRole current state.
 	Conditions []AWSRoleCondition `json:"conditions,omitempty"`

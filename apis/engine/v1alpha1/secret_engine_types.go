@@ -1,7 +1,6 @@
 package v1alpha1
 
 import (
-	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -222,7 +221,7 @@ type SecretEnginePhase string
 type SecretEngineStatus struct {
 	Phase SecretEnginePhase `json:"phase,omitempty"`
 
-	ObservedGeneration *types.IntHash `json:"observedGeneration,omitempty"`
+	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
 
 	Conditions []SecretEngineCondition `json:"conditions,omitempty"`
 }

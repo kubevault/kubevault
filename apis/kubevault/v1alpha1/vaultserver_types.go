@@ -105,10 +105,10 @@ const (
 )
 
 type VaultServerStatus struct {
-	// observedGeneration is the most recent generation observed for this resource. It corresponds to the
+	// ObservedGeneration is the most recent generation observed for this resource. It corresponds to the
 	// resource's generation, which is updated on mutation by the API Server.
 	// +optional
-	ObservedGeneration *types.IntHash `json:"observedGeneration,omitempty"`
+	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
 
 	// Phase indicates the state this Vault cluster jumps in.
 	// +optional

@@ -6,10 +6,6 @@ import (
 	"k8s.io/kube-openapi/pkg/common"
 )
 
-var (
-	EnableStatusSubresource bool
-)
-
 func SetNameSchema(openapiSpec map[string]common.OpenAPIDefinition) {
 	// ref: https://kubedb.dev/project/issues/166
 	// https://github.com/kubernetes/apimachinery/blob/94ebb086c69b9fec4ddbfb6a1433d28ecca9292b/pkg/util/validation/validation.go#L153
