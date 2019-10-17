@@ -10,7 +10,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"kmodules.xyz/client-go/tools/clusterid"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	"kubevault.dev/operator/apis"
 	cs "kubevault.dev/operator/client/clientset/versioned"
 	"kubevault.dev/operator/pkg/controller"
 	"kubevault.dev/operator/pkg/docker"
@@ -49,7 +48,6 @@ func (s *ExtraOptions) AddGoFlags(fs *flag.FlagSet) {
 
 	fs.BoolVar(&s.EnableMutatingWebhook, "enable-mutating-webhook", s.EnableMutatingWebhook, "If true, enables mutating webhooks for KubeDB CRDs.")
 	fs.BoolVar(&s.EnableValidatingWebhook, "enable-validating-webhook", s.EnableValidatingWebhook, "If true, enables validating webhooks for KubeDB CRDs.")
-	fs.BoolVar(&apis.EnableStatusSubresource, "enable-status-subresource", apis.EnableStatusSubresource, "If true, uses sub resource for crds.")
 }
 
 func (s *ExtraOptions) AddFlags(fs *pflag.FlagSet) {

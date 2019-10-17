@@ -6160,10 +6160,11 @@ spec:
               description: Initialized indicates if the Vault service is initialized.
               type: boolean
             observedGeneration:
-              description: observedGeneration is the most recent generation observed
+              description: ObservedGeneration is the most recent generation observed
                 for this resource. It corresponds to the resource's generation, which
                 is updated on mutation by the API Server.
-              type: string
+              format: int64
+              type: integer
             phase:
               description: Phase indicates the state this Vault cluster jumps in.
               type: string

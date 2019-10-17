@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 
-	"github.com/appscode/go/encoding/json/types"
 	"github.com/appscode/go/log"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
@@ -14,10 +13,8 @@ import (
 	kutil "kmodules.xyz/client-go"
 	apps_util "kmodules.xyz/client-go/apps/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
-	meta_util "kmodules.xyz/client-go/meta"
 	rbac_util "kmodules.xyz/client-go/rbac/v1"
 	"kmodules.xyz/client-go/tools/queue"
-	"kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"kubevault.dev/operator/pkg/eventer"
@@ -27,7 +24,7 @@ import (
 func (c *VaultController) initVaultServerWatcher() {
 	c.vsInformer = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New(api.ResourceKindVaultServer, c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
-	c.vsInformer.AddEventHandler(queue.NewObservableHandler(c.vsQueue.GetQueue(), apis.EnableStatusSubresource))
+	c.vsInformer.AddEventHandler(queue.NewReconcilableHandler(c.vsQueue.GetQueue()))
 	c.vsLister = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Lister()
 }
 
@@ -158,7 +155,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 	}
 
 	status.Conditions = []api.VaultServerCondition{}
-	status.ObservedGeneration = types.NewIntHash(vs.Generation, meta_util.GenerationHash(vs))
+	status.ObservedGeneration = vs.Generation
 	err = c.updatedVaultServerStatus(&status, vs)
 	if err != nil {
 		return errors.Wrap(err, "failed to update status")
@@ -300,7 +297,7 @@ func (c *VaultController) updatedVaultServerStatus(status *api.VaultServerStatus
 	_, err := patchutil.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vs, func(s *api.VaultServerStatus) *api.VaultServerStatus {
 		s = status
 		return s
-	}, apis.EnableStatusSubresource)
+	})
 	if err != nil {
 		return err
 	}

@@ -36,7 +36,6 @@ spec:
         - --enable-mutating-webhook=${VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK}
         - --enable-validating-webhook=${VAULT_OPERATOR_ENABLE_VALIDATING_WEBHOOK}
         - --bypass-validating-webhook-xray=${VAULT_OPERATOR_BYPASS_VALIDATING_WEBHOOK_XRAY}
-        - --enable-status-subresource=${VAULT_OPERATOR_ENABLE_STATUS_SUBRESOURCE}
         - --use-kubeapiserver-fqdn-for-aks=${VAULT_OPERATOR_USE_KUBEAPISERVER_FQDN_FOR_AKS}
         - --enable-analytics=${VAULT_OPERATOR_ENABLE_ANALYTICS}
         - --cluster-name=${VAULT_OPERATOR_CLUSTER_NAME}

@@ -3,7 +3,6 @@ package v1alpha1
 import (
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
-	"kubevault.dev/operator/apis"
 )
 
 func (d AWSAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
@@ -27,7 +26,7 @@ func (d AWSAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomRes
 		SpecDefinitionName:      "kubevault.dev/operator/apis/kubevault/v1alpha1.AWSAccessKeyRequest",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
-		EnableStatusSubresource: apis.EnableStatusSubresource,
+		EnableStatusSubresource: true,
 	})
 }
 

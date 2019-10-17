@@ -4,17 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/appscode/go/encoding/json/types"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
-	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
-	"kubevault.dev/operator/apis"
-	vsapis "kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/azure"
@@ -29,7 +25,7 @@ const (
 func (c *VaultController) initAzureRoleWatcher() {
 	c.azureRoleInformer = c.extInformerFactory.Engine().V1alpha1().AzureRoles().Informer()
 	c.azureRoleQueue = queue.New(api.ResourceKindAzureRole, c.MaxNumRequeues, c.NumThreads, c.runAzureRoleInjector)
-	c.azureRoleInformer.AddEventHandler(queue.NewObservableHandler(c.azureRoleQueue.GetQueue(), apis.EnableStatusSubresource))
+	c.azureRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.azureRoleQueue.GetQueue()))
 	c.azureRoleLister = c.extInformerFactory.Engine().V1alpha1().AzureRoles().Lister()
 }
 
@@ -107,7 +103,7 @@ func (c *VaultController) reconcileAzureRole(azureRClient azure.AzureRoleInterfa
 	status.Conditions = []api.AzureRoleCondition{}
 
 	status.Phase = AzureRolePhaseSuccess
-	status.ObservedGeneration = types.NewIntHash(azureRole.Generation, meta_util.GenerationHash(azureRole))
+	status.ObservedGeneration = azureRole.Generation
 
 	err = c.updatedAzureRoleStatus(&status, azureRole)
 	if err != nil {
@@ -120,7 +116,7 @@ func (c *VaultController) updatedAzureRoleStatus(status *api.AzureRoleStatus, az
 	_, err := patchutil.UpdateAzureRoleStatus(c.extClient.EngineV1alpha1(), azureRole, func(s *api.AzureRoleStatus) *api.AzureRoleStatus {
 		s = status
 		return s
-	}, vsapis.EnableStatusSubresource)
+	})
 	return err
 }
 

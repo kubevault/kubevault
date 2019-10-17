@@ -13806,10 +13806,6 @@
     }
   },
   "definitions": {
-    "com.github.appscode.go.encoding.json.types.IntHash": {
-      "description": "IntHash represents as int64 Generation and string Hash. It is json serialized into \u003cint64\u003e$\u003chash_string\u003e.",
-      "type": "string"
-    },
     "dev.kubevault.operator.apis.catalog.v1alpha1.VaultServerVersion": {
       "type": "object",
       "properties": {
@@ -14248,8 +14244,9 @@
           }
         },
         "observedGeneration": {
-          "description": "observedGeneration is the most recent generation observed for this AWSRole. It corresponds to the AWSRole's generation, which is updated on mutation by the API Server.",
-          "$ref": "#/definitions/com.github.appscode.go.encoding.json.types.IntHash"
+          "description": "ObservedGeneration is the most recent generation observed for this AWSRole. It corresponds to the AWSRole's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
         },
         "phase": {
           "type": "string"
@@ -14521,8 +14518,9 @@
           }
         },
         "observedGeneration": {
-          "description": "observedGeneration is the most recent generation observed for this AzureRole. It corresponds to the AzureRole's generation, which is updated on mutation by the API Server.",
-          "$ref": "#/definitions/com.github.appscode.go.encoding.json.types.IntHash"
+          "description": "ObservedGeneration is the most recent generation observed for this AzureRole. It corresponds to the AzureRole's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
         },
         "phase": {
           "type": "string"
@@ -14940,8 +14938,9 @@
           }
         },
         "observedGeneration": {
-          "description": "observedGeneration is the most recent generation observed for this GCPRole. It corresponds to the GCPRole's generation, which is updated on mutation by the API Server.",
-          "$ref": "#/definitions/com.github.appscode.go.encoding.json.types.IntHash"
+          "description": "ObservedGeneration is the most recent generation observed for this GCPRole. It corresponds to the GCPRole's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
         },
         "phase": {
           "type": "string"
@@ -15152,8 +15151,9 @@
           }
         },
         "observedGeneration": {
-          "description": "observedGeneration is the most recent generation observed for this MongoDBRole. It corresponds to the MongoDBRole's generation, which is updated on mutation by the API Server.",
-          "$ref": "#/definitions/com.github.appscode.go.encoding.json.types.IntHash"
+          "description": "ObservedGeneration is the most recent generation observed for this MongoDBRole. It corresponds to the MongoDBRole's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
         },
         "phase": {
           "type": "string"
@@ -15338,8 +15338,9 @@
           }
         },
         "observedGeneration": {
-          "description": "observedGeneration is the most recent generation observed for this MySQLRole. It corresponds to the MySQLRole's generation, which is updated on mutation by the API Server.",
-          "$ref": "#/definitions/com.github.appscode.go.encoding.json.types.IntHash"
+          "description": "ObservedGeneration is the most recent generation observed for this MySQLRole. It corresponds to the MySQLRole's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
         },
         "phase": {
           "type": "string"
@@ -15538,8 +15539,9 @@
           }
         },
         "observedGeneration": {
-          "description": "observedGeneration is the most recent generation observed for this PostgresROle. It corresponds to the PostgresROle's generation, which is updated on mutation by the API Server.",
-          "$ref": "#/definitions/com.github.appscode.go.encoding.json.types.IntHash"
+          "description": "ObservedGeneration is the most recent generation observed for this PostgresROle. It corresponds to the PostgresROle's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
         },
         "phase": {
           "description": "Specifies the phase of the PostgresRole",
@@ -15693,7 +15695,8 @@
           }
         },
         "observedGeneration": {
-          "$ref": "#/definitions/com.github.appscode.go.encoding.json.types.IntHash"
+          "type": "integer",
+          "format": "int64"
         },
         "phase": {
           "type": "string"
@@ -16579,8 +16582,9 @@
           "type": "boolean"
         },
         "observedGeneration": {
-          "description": "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
-          "$ref": "#/definitions/com.github.appscode.go.encoding.json.types.IntHash"
+          "description": "ObservedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
         },
         "phase": {
           "description": "Phase indicates the state this Vault cluster jumps in.",
@@ -16867,8 +16871,9 @@
           }
         },
         "observedGeneration": {
-          "description": "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
-          "$ref": "#/definitions/com.github.appscode.go.encoding.json.types.IntHash"
+          "description": "ObservedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
         },
         "phase": {
           "description": "Phase indicates whether successfully bind the policy to service account in vault or not or in progress",
@@ -16941,8 +16946,9 @@
           }
         },
         "observedGeneration": {
-          "description": "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
-          "$ref": "#/definitions/com.github.appscode.go.encoding.json.types.IntHash"
+          "description": "ObservedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
         },
         "phase": {
           "description": "Phase indicates whether the policy successfully applied in vault or not or in progress",

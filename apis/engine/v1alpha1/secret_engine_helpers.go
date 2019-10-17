@@ -7,7 +7,6 @@ import (
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
 	"kmodules.xyz/client-go/tools/clusterid"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	"kubevault.dev/operator/apis"
 )
 
 func (e SecretEngine) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
@@ -31,7 +30,7 @@ func (e SecretEngine) CustomResourceDefinition() *apiextensions.CustomResourceDe
 		SpecDefinitionName:      "kubevault.dev/operator/apis/kubevault/v1alpha1.SecretEngine",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
-		EnableStatusSubresource: apis.EnableStatusSubresource,
+		EnableStatusSubresource: true,
 		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
 			{
 				Name:     "Status",

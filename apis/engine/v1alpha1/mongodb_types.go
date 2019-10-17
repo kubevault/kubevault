@@ -1,7 +1,6 @@
 package v1alpha1
 
 import (
-	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -79,9 +78,9 @@ type MongoDBRolePhase string
 type MongoDBRoleStatus struct {
 	Phase MongoDBRolePhase `json:"phase,omitempty"`
 
-	// observedGeneration is the most recent generation observed for this MongoDBRole. It corresponds to the
+	// ObservedGeneration is the most recent generation observed for this MongoDBRole. It corresponds to the
 	// MongoDBRole's generation, which is updated on mutation by the API Server.
-	ObservedGeneration *types.IntHash `json:"observedGeneration,omitempty"`
+	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
 
 	// Represents the latest available observations of a MongoDBRole current state.
 	Conditions []MongoDBRoleCondition `json:"conditions,omitempty"`

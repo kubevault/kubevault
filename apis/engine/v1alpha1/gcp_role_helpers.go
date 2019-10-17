@@ -6,7 +6,6 @@ import (
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
 	"kmodules.xyz/client-go/tools/clusterid"
-	"kubevault.dev/operator/apis"
 )
 
 func (r GCPRole) RoleName() string {
@@ -38,7 +37,7 @@ func (r GCPRole) CustomResourceDefinition() *apiextensions.CustomResourceDefinit
 		SpecDefinitionName:      "kubevault.dev/operator/apis/kubevault/v1alpha1.GCPRole",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
-		EnableStatusSubresource: apis.EnableStatusSubresource,
+		EnableStatusSubresource: true,
 		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
 			{
 				Name:     "Status",

@@ -4,17 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/appscode/go/encoding/json/types"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
-	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
-	"kubevault.dev/operator/apis"
-	vsapis "kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/gcp"
@@ -29,7 +25,7 @@ const (
 func (c *VaultController) initGCPRoleWatcher() {
 	c.gcpRoleInformer = c.extInformerFactory.Engine().V1alpha1().GCPRoles().Informer()
 	c.gcpRoleQueue = queue.New(api.ResourceKindGCPRole, c.MaxNumRequeues, c.NumThreads, c.runGCPRoleInjector)
-	c.gcpRoleInformer.AddEventHandler(queue.NewObservableHandler(c.gcpRoleQueue.GetQueue(), apis.EnableStatusSubresource))
+	c.gcpRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.gcpRoleQueue.GetQueue()))
 	c.gcpRoleLister = c.extInformerFactory.Engine().V1alpha1().GCPRoles().Lister()
 }
 
@@ -106,7 +102,7 @@ func (c *VaultController) reconcileGCPRole(gcpRClient gcp.GCPRoleInterface, gcpR
 
 	status.Conditions = []api.GCPRoleCondition{}
 	status.Phase = GCPRolePhaseSuccess
-	status.ObservedGeneration = types.NewIntHash(gcpRole.Generation, meta_util.GenerationHash(gcpRole))
+	status.ObservedGeneration = gcpRole.Generation
 
 	err = c.updatedGCPRoleStatus(&status, gcpRole)
 	if err != nil {
@@ -119,7 +115,7 @@ func (c *VaultController) updatedGCPRoleStatus(status *api.GCPRoleStatus, gcpRol
 	_, err := patchutil.UpdateGCPRoleStatus(c.extClient.EngineV1alpha1(), gcpRole, func(s *api.GCPRoleStatus) *api.GCPRoleStatus {
 		s = status
 		return s
-	}, vsapis.EnableStatusSubresource)
+	})
 	return err
 }
 

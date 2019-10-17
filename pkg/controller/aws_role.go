@@ -4,17 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/appscode/go/encoding/json/types"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
-	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
-	"kubevault.dev/operator/apis"
-	vsapis "kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/aws"
@@ -29,7 +25,7 @@ const (
 func (c *VaultController) initAWSRoleWatcher() {
 	c.awsRoleInformer = c.extInformerFactory.Engine().V1alpha1().AWSRoles().Informer()
 	c.awsRoleQueue = queue.New(api.ResourceKindAWSRole, c.MaxNumRequeues, c.NumThreads, c.runAWSRoleInjector)
-	c.awsRoleInformer.AddEventHandler(queue.NewObservableHandler(c.awsRoleQueue.GetQueue(), apis.EnableStatusSubresource))
+	c.awsRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.awsRoleQueue.GetQueue()))
 	c.awsRoleLister = c.extInformerFactory.Engine().V1alpha1().AWSRoles().Lister()
 }
 
@@ -106,7 +102,7 @@ func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, awsR
 
 	status.Conditions = []api.AWSRoleCondition{}
 	status.Phase = AWSRolePhaseSuccess
-	status.ObservedGeneration = types.NewIntHash(awsRole.Generation, meta_util.GenerationHash(awsRole))
+	status.ObservedGeneration = awsRole.Generation
 
 	err = c.updatedAWSRoleStatus(&status, awsRole)
 	if err != nil {
@@ -119,7 +115,7 @@ func (c *VaultController) updatedAWSRoleStatus(status *api.AWSRoleStatus, awsRol
 	_, err := patchutil.UpdateAWSRoleStatus(c.extClient.EngineV1alpha1(), awsRole, func(s *api.AWSRoleStatus) *api.AWSRoleStatus {
 		s = status
 		return s
-	}, vsapis.EnableStatusSubresource)
+	})
 	return err
 }
 

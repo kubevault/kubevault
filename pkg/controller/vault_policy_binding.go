@@ -3,16 +3,13 @@ package controller
 import (
 	"time"
 
-	"github.com/appscode/go/encoding/json/types"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
-	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
-	"kubevault.dev/operator/apis"
 	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
 	pbinding "kubevault.dev/operator/pkg/vault/policybinding"
@@ -25,7 +22,7 @@ const (
 func (c *VaultController) initVaultPolicyBindingWatcher() {
 	c.vplcyBindingInformer = c.extInformerFactory.Policy().V1alpha1().VaultPolicyBindings().Informer()
 	c.vplcyBindingQueue = queue.New(policyapi.ResourceKindVaultPolicyBinding, c.MaxNumRequeues, c.NumThreads, c.runVaultPolicyBindingInjector)
-	c.vplcyBindingInformer.AddEventHandler(queue.NewObservableHandler(c.vplcyBindingQueue.GetQueue(), apis.EnableStatusSubresource))
+	c.vplcyBindingInformer.AddEventHandler(queue.NewReconcilableHandler(c.vplcyBindingQueue.GetQueue()))
 	c.vplcyBindingLister = c.extInformerFactory.Policy().V1alpha1().VaultPolicyBindings().Lister()
 }
 
@@ -103,7 +100,7 @@ func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBi
 	}
 
 	// update status
-	status.ObservedGeneration = types.NewIntHash(vPBind.Generation, meta_util.GenerationHash(vPBind))
+	status.ObservedGeneration = vPBind.Generation
 	status.Conditions = []policyapi.PolicyBindingCondition{}
 	status.Phase = policyapi.PolicyBindingSuccess
 	err2 := c.updatePolicyBindingStatus(&status, vPBind)
@@ -118,7 +115,7 @@ func (c *VaultController) updatePolicyBindingStatus(status *policyapi.VaultPolic
 	_, err := patchutil.UpdateVaultPolicyBindingStatus(c.extClient.PolicyV1alpha1(), vPBind, func(s *policyapi.VaultPolicyBindingStatus) *policyapi.VaultPolicyBindingStatus {
 		s = status
 		return s
-	}, apis.EnableStatusSubresource)
+	})
 	return err
 }
 

@@ -4,17 +4,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/appscode/go/encoding/json/types"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
-	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
 	"kubevault.dev/operator/apis"
-	vsapis "kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/database"
@@ -27,7 +24,7 @@ const (
 func (c *VaultController) initPostgresRoleWatcher() {
 	c.pgRoleInformer = c.extInformerFactory.Engine().V1alpha1().PostgresRoles().Informer()
 	c.pgRoleQueue = queue.New(api.ResourceKindPostgresRole, c.MaxNumRequeues, c.NumThreads, c.runPostgresRoleInjector)
-	c.pgRoleInformer.AddEventHandler(queue.NewObservableHandler(c.pgRoleQueue.GetQueue(), apis.EnableStatusSubresource))
+	c.pgRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.pgRoleQueue.GetQueue()))
 	c.pgRoleLister = c.extInformerFactory.Engine().V1alpha1().PostgresRoles().Lister()
 }
 
@@ -104,7 +101,7 @@ func (c *VaultController) reconcilePostgresRole(dbRClient database.DatabaseRoleI
 		return errors.Wrap(err, "for postgresRole %s/%s: failed to create role")
 	}
 
-	status.ObservedGeneration = types.NewIntHash(pgRole.Generation, meta_util.GenerationHash(pgRole))
+	status.ObservedGeneration = pgRole.Generation
 	status.Conditions = []api.PostgresRoleCondition{}
 	status.Phase = PostgresRolePhaseSuccess
 
@@ -119,7 +116,7 @@ func (c *VaultController) updatePostgresRoleStatus(status *api.PostgresRoleStatu
 	_, err := patchutil.UpdatePostgresRoleStatus(c.extClient.EngineV1alpha1(), pgRole, func(s *api.PostgresRoleStatus) *api.PostgresRoleStatus {
 		s = status
 		return s
-	}, vsapis.EnableStatusSubresource)
+	})
 	return err
 }
 

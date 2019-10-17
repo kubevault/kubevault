@@ -4,17 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/appscode/go/encoding/json/types"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
-	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
-	"kubevault.dev/operator/apis"
-	vsapis "kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/engine"
@@ -29,7 +25,7 @@ const (
 func (c *VaultController) initSecretEngineWatcher() {
 	c.secretEngineInformer = c.extInformerFactory.Engine().V1alpha1().SecretEngines().Informer()
 	c.secretEngineQueue = queue.New(api.ResourceKindSecretEngine, c.MaxNumRequeues, c.NumThreads, c.runSecretEngineInjector)
-	c.secretEngineInformer.AddEventHandler(queue.NewObservableHandler(c.secretEngineQueue.GetQueue(), apis.EnableStatusSubresource))
+	c.secretEngineInformer.AddEventHandler(queue.NewReconcilableHandler(c.secretEngineQueue.GetQueue()))
 	c.secretEngineLister = c.extInformerFactory.Engine().V1alpha1().SecretEngines().Lister()
 }
 
@@ -158,7 +154,7 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 	}
 
 	// update status
-	status.ObservedGeneration = types.NewIntHash(secretEngine.Generation, meta_util.GenerationHash(secretEngine))
+	status.ObservedGeneration = secretEngine.Generation
 	status.Conditions = []api.SecretEngineCondition{}
 	status.Phase = SecretEnginePhaseSuccess
 	err = c.updatedSecretEngineStatus(&status, secretEngine)
@@ -173,7 +169,7 @@ func (c *VaultController) updatedSecretEngineStatus(status *api.SecretEngineStat
 	_, err := patchutil.UpdateSecretEngineStatus(c.extClient.EngineV1alpha1(), secretEngine, func(s *api.SecretEngineStatus) *api.SecretEngineStatus {
 		s = status
 		return s
-	}, vsapis.EnableStatusSubresource)
+	})
 	return err
 }
 func (c *VaultController) runSecretEngineFinalizer(secretEngine *api.SecretEngine, timeout time.Duration, interval time.Duration) {

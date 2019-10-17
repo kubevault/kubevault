@@ -59,7 +59,7 @@ func (v VaultPolicyBinding) CustomResourceDefinition() *apiextensions.CustomReso
 		SpecDefinitionName:      "kubevault.dev/operator/apis/policy/v1alpha1.VaultPolicyBinding",
 		EnableValidation:        true,
 		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
-		EnableStatusSubresource: apis.EnableStatusSubresource,
+		EnableStatusSubresource: true,
 		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
 			{
 				Name:     "Phase",

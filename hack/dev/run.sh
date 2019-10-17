@@ -118,7 +118,6 @@ $REPO_ROOT/hack/make.py
 if [ "$VAULT_OPERATOR_E2E_TEST" = false ]; then # don't run operator while run this script from test
 vault-operator run --v=3 \
   --secure-port=8443 \
-  --enable-status-subresource="$VAULT_OPERATOR_ENABLE_SUBRESOURCE" \
   --enable-validating-webhook="$VAULT_OPERATOR_ENABLE_WEBHOOK" \
   --enable-mutating-webhook="$VAULT_OPERATOR_ENABLE_WEBHOOK" \
   --kubeconfig="$HOME/.kube/config" \

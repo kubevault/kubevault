@@ -17102,8 +17102,9 @@ func schema_operator_apis_kubevault_v1alpha1_VaultServerStatus(ref common.Refere
 				Properties: map[string]spec.Schema{
 					"observedGeneration": {
 						SchemaProps: spec.SchemaProps{
-							Description: "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
-							Ref:         ref("github.com/appscode/go/encoding/json/types.IntHash"),
+							Description: "ObservedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 					"phase": {
@@ -17184,7 +17185,7 @@ func schema_operator_apis_kubevault_v1alpha1_VaultServerStatus(ref common.Refere
 			},
 		},
 		Dependencies: []string{
-			"github.com/appscode/go/encoding/json/types.IntHash", "kubevault.dev/operator/apis/kubevault/v1alpha1.AuthMethodStatus", "kubevault.dev/operator/apis/kubevault/v1alpha1.VaultServerCondition", "kubevault.dev/operator/apis/kubevault/v1alpha1.VaultStatus"},
+			"kubevault.dev/operator/apis/kubevault/v1alpha1.AuthMethodStatus", "kubevault.dev/operator/apis/kubevault/v1alpha1.VaultServerCondition", "kubevault.dev/operator/apis/kubevault/v1alpha1.VaultStatus"},
 	}
 }
 

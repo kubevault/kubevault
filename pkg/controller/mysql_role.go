@@ -4,17 +4,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/appscode/go/encoding/json/types"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
-	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/queue"
 	"kubevault.dev/operator/apis"
-	vsapis "kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/database"
@@ -27,7 +24,7 @@ const (
 func (c *VaultController) initMySQLRoleWatcher() {
 	c.myRoleInformer = c.extInformerFactory.Engine().V1alpha1().MySQLRoles().Informer()
 	c.myRoleQueue = queue.New(api.ResourceKindMySQLRole, c.MaxNumRequeues, c.NumThreads, c.runMySQLRoleInjector)
-	c.myRoleInformer.AddEventHandler(queue.NewObservableHandler(c.myRoleQueue.GetQueue(), apis.EnableStatusSubresource))
+	c.myRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.myRoleQueue.GetQueue()))
 	c.myRoleLister = c.extInformerFactory.Engine().V1alpha1().MySQLRoles().Lister()
 }
 
@@ -106,7 +103,7 @@ func (c *VaultController) reconcileMySQLRole(dbRClient database.DatabaseRoleInte
 
 	status.Conditions = []api.MySQLRoleCondition{}
 	status.Phase = MySQLRolePhaseSuccess
-	status.ObservedGeneration = types.NewIntHash(myRole.Generation, meta_util.GenerationHash(myRole))
+	status.ObservedGeneration = myRole.Generation
 
 	err = c.updatedMySQLRoleStatus(&status, myRole)
 	if err != nil {
@@ -119,7 +116,7 @@ func (c *VaultController) updatedMySQLRoleStatus(status *api.MySQLRoleStatus, mR
 	_, err := patchutil.UpdateMySQLRoleStatus(c.extClient.EngineV1alpha1(), mRole, func(s *api.MySQLRoleStatus) *api.MySQLRoleStatus {
 		s = status
 		return s
-	}, vsapis.EnableStatusSubresource)
+	})
 	return err
 }
 

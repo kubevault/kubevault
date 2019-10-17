@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go v0.39.0 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/SermoDigital/jose v0.9.1 // indirect
-	github.com/appscode/go v0.0.0-20191006073906-e3d193d493fc
+	github.com/appscode/go v0.0.0-20191016085057-e186b6c94a3b
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.20.20
 	github.com/census-instrumentation/opencensus-proto v0.2.0 // indirect
@@ -17,6 +17,7 @@ require (
 	github.com/go-openapi/spec v0.19.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/gorilla/mux v1.7.3
+	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1
 	github.com/hashicorp/go-immutable-radix v1.1.0 // indirect
 	github.com/hashicorp/go-plugin v1.0.1 // indirect
@@ -53,7 +54,7 @@ require (
 	k8s.io/kube-aggregator v0.0.0-20190508224022-f9852b6d3a84
 	k8s.io/kube-openapi v0.0.0-20190502190224-411b2483e503
 	k8s.io/kubernetes v1.14.0
-	kmodules.xyz/client-go v0.0.0-20191014080252-6458e3cb3ca6
+	kmodules.xyz/client-go v0.0.0-20191016085444-3044854ca625
 	kmodules.xyz/constants v0.0.0-20191009183447-fbd33067b8a6
 	kmodules.xyz/custom-resources v0.0.0-20190927035424-65fe358bb045
 	kmodules.xyz/monitoring-agent-api v0.0.0-20190808150221-601a4005b7f7

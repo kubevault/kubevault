@@ -508,10 +508,11 @@ spec:
                 type: object
               type: array
             observedGeneration:
-              description: observedGeneration is the most recent generation observed
+              description: ObservedGeneration is the most recent generation observed
                 for this PostgresROle. It corresponds to the PostgresROle's generation,
                 which is updated on mutation by the API Server.
-              type: string
+              format: int64
+              type: integer
             phase:
               description: Specifies the phase of the PostgresRole
               type: string
