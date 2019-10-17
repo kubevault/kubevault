@@ -15,6 +15,10 @@ func (v VaultPolicy) GetKey() string {
 }
 
 func (v VaultPolicy) PolicyName() string {
+	if v.Spec.VaultPolicyName != "" {
+		return v.Spec.VaultPolicyName
+	}
+
 	cluster := "-"
 	if clusterid.ClusterName() != "" {
 		cluster = clusterid.ClusterName()

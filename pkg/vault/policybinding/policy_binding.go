@@ -5,7 +5,6 @@ import (
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -40,7 +39,6 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 		pb.setKubernetesDefaults()
 	}
 
-	var vaultRef core.LocalObjectReference
 	// check whether VaultPolicy exists
 	for _, pIdentifier := range pBind.Spec.Policies {
 		var policyName string
@@ -49,16 +47,6 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 			policy, err := c.PolicyV1alpha1().VaultPolicies(pBind.Namespace).Get(pIdentifier.Ref, metav1.GetOptions{})
 			if err != nil {
 				return nil, errors.Wrap(err, "for .spec.policies")
-			}
-			if vaultRef.Name == "" {
-				// take vault connection reference from policy
-				vaultRef = policy.Spec.VaultRef
-			} else {
-				// all policy should refer the same vault
-				vr := policy.Spec.VaultRef
-				if vr.Name != vaultRef.Name {
-					return nil, errors.New("all policy should refer the same vault")
-				}
 			}
 			policyName = policy.PolicyName()
 		} else {
@@ -70,11 +58,14 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 
 		pb.policies = append(pb.policies, policyName)
 	}
-
 	var err error
+	if pBind.Spec.VaultRef.Name == "" {
+		return nil, errors.New("spec.vaultRef must not be empty")
+	}
+
 	vAppRef := &appcat.AppReference{
 		Namespace: pBind.Namespace,
-		Name:      vaultRef.Name,
+		Name:      pBind.Spec.VaultRef.Name,
 	}
 	pb.vClient, err = vault.NewClient(kc, appc, vAppRef)
 	if err != nil {
