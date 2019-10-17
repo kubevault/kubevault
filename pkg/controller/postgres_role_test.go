@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/appscode/go/encoding/json/types"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
@@ -112,7 +111,7 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 			testName: "update role, successfully updated database role",
 			pRole: func(p api.PostgresRole) api.PostgresRole {
 				p.Generation = 2
-				p.Status.ObservedGeneration = types.IntHashForGeneration(1)
+				p.Status.ObservedGeneration = 1
 				return p
 			}(pRole),
 			dbRClient:          &fakeDRole{},
@@ -123,7 +122,7 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 			testName: "update role, failed to update database role",
 			pRole: func(p api.PostgresRole) api.PostgresRole {
 				p.Generation = 2
-				p.Status.ObservedGeneration = types.IntHashForGeneration(1)
+				p.Status.ObservedGeneration = 1
 				return p
 			}(pRole),
 			dbRClient: &fakeDRole{

@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/appscode/go/encoding/json/types"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
@@ -76,7 +75,7 @@ func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 			testName: "update role, successfully updated database role",
 			mRole: func(p api.MySQLRole) api.MySQLRole {
 				p.Generation = 2
-				types.IntHashForGeneration(1)
+				p.Status.ObservedGeneration = 1
 				return p
 			}(mRole),
 			dbRClient:          &fakeDRole{},
@@ -87,7 +86,7 @@ func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 			testName: "update role, failed to update database role",
 			mRole: func(p api.MySQLRole) api.MySQLRole {
 				p.Generation = 2
-				p.Status.ObservedGeneration = types.IntHashForGeneration(1)
+				p.Status.ObservedGeneration = 1
 				return p
 			}(mRole),
 			dbRClient: &fakeDRole{
