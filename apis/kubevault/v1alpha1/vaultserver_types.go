@@ -561,7 +561,7 @@ type DynamoDBSpec struct {
 
 	// Specifies the maximum number of reads consumed per second on the table
 	// +optional
-	ReadCapacity int `json:"readCapacity,omiempty"`
+	ReadCapacity int `json:"readCapacity,omitempty"`
 
 	// Specifies the maximum number of writes performed per second on the table.
 	// +optional

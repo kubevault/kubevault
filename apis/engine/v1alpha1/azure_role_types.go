@@ -54,17 +54,17 @@ type AzureRoleSpec struct {
 	// Application Object ID for an existing service principal
 	// that will be used instead of creating dynamic service principals.
 	// If present, azure_roles will be ignored.
-	ApplicationObjectID string `json:"applicationObjectID, omitempty"`
+	ApplicationObjectID string `json:"applicationObjectID,omitempty"`
 
 	// Specifies the default TTL for service principals generated using this role.
 	// Accepts time suffixed strings ("1h") or an integer number of seconds.
 	// Defaults to the system/engine default TTL time.
-	TTL string `json:"ttl, omitempty"`
+	TTL string `json:"ttl,omitempty"`
 
 	// Specifies the maximum TTL for service principals
 	// generated using this role. Accepts time suffixed strings ("1h")
 	// or an integer number of seconds. Defaults to the system/engine max TTL time.
-	MaxTTL string `json:"maxTTL, omitempty"`
+	MaxTTL string `json:"maxTTL,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -72,10 +72,10 @@ type AzureRoleSpec struct {
 
 type AzureRoleList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata, omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty"`
 
 	// Items is a list of AzureRole objects
-	Items []AzureRole `json:"items, omitempty"`
+	Items []AzureRole `json:"items,omitempty"`
 }
 
 type AzureRolePhase string
