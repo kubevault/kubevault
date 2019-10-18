@@ -1,13 +1,14 @@
 package gcp
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"google.golang.org/api/option"
 	"time"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
 	"google.golang.org/api/iam/v1"
@@ -112,8 +113,8 @@ func getJWT(cred credentialsFile, role string) (*iam.SignJwtResponse, error) {
 	if config.TokenURL == "" {
 		config.TokenURL = google.JWTTokenURL
 	}
-	httpClient := config.Client(oauth2.NoContext)
-	iamClient, err := iam.New(httpClient)
+	ctx := context.Background()
+	iamClient, err := iam.NewService(ctx, option.WithHTTPClient(config.Client(ctx)))
 	if err != nil {
 		return nil, err
 	}

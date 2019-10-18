@@ -127,7 +127,10 @@ func TestLogin(t *testing.T) {
 		t.Skip()
 	}
 	vc, err := vaultapi.NewClient(vaultapi.DefaultConfig())
-	vc.SetAddress(addr)
+	if !assert.Nil(t, err) {
+		return
+	}
+	err = vc.SetAddress(addr)
 	if !assert.Nil(t, err) {
 		return
 	}

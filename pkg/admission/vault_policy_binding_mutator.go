@@ -62,25 +62,21 @@ func (a *PolicyBindingMutator) Admit(req *admission.AdmissionRequest) *admission
 	if err != nil {
 		return hookapi.StatusBadRequest(err)
 	}
-	dbMod, err := setDefaultValues(obj.(*api.VaultPolicyBinding).DeepCopy())
+	mod := setDefaultValues(obj.(*api.VaultPolicyBinding).DeepCopy())
+	patch, err := meta_util.CreateJSONPatch(req.Object.Raw, mod)
 	if err != nil {
-		return hookapi.StatusForbidden(err)
-	} else if dbMod != nil {
-		patch, err := meta_util.CreateJSONPatch(req.Object.Raw, dbMod)
-		if err != nil {
-			return hookapi.StatusInternalServerError(err)
-		}
-		status.Patch = patch
-		patchType := admission.PatchTypeJSONPatch
-		status.PatchType = &patchType
+		return hookapi.StatusInternalServerError(err)
 	}
+	status.Patch = patch
+	patchType := admission.PatchTypeJSONPatch
+	status.PatchType = &patchType
 
 	status.Allowed = true
 	return status
 }
 
 // setDefaultValues provides the defaulting that is performed in mutating stage of creating/updating a VaultPolicyBinding
-func setDefaultValues(pb *api.VaultPolicyBinding) (runtime.Object, error) {
+func setDefaultValues(pb *api.VaultPolicyBinding) runtime.Object {
 	pb.SetDefaults()
-	return pb, nil
+	return pb
 }

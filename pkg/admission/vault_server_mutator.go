@@ -60,29 +60,25 @@ func (v *VaultServerMutator) Admit(req *admission.AdmissionRequest) *admission.A
 	if err != nil {
 		return hookapi.StatusBadRequest(err)
 	}
-	vsMod, err := setVaultServerDefaultValues(obj.(*api.VaultServer).DeepCopy())
+	mod := setVaultServerDefaultValues(obj.(*api.VaultServer).DeepCopy())
+	patch, err := meta_util.CreateJSONPatch(req.Object.Raw, mod)
 	if err != nil {
-		return hookapi.StatusForbidden(err)
-	} else if vsMod != nil {
-		patch, err := meta_util.CreateJSONPatch(req.Object.Raw, vsMod)
-		if err != nil {
-			return hookapi.StatusInternalServerError(err)
-		}
-		status.Patch = patch
-		patchType := admission.PatchTypeJSONPatch
-		status.PatchType = &patchType
+		return hookapi.StatusInternalServerError(err)
 	}
+	status.Patch = patch
+	patchType := admission.PatchTypeJSONPatch
+	status.PatchType = &patchType
 
 	status.Allowed = true
 	return status
 }
 
-func setVaultServerDefaultValues(vs *api.VaultServer) (*api.VaultServer, error) {
+func setVaultServerDefaultValues(vs *api.VaultServer) *api.VaultServer {
 	vs.Spec.AuthMethods = upsertAuthMethods(vs.Spec.AuthMethods, api.AuthMethod{
 		Type: authTypeKubernetes,
 		Path: authTypeKubernetes,
 	})
-	return vs, nil
+	return vs
 }
 
 func upsertAuthMethods(auths []api.AuthMethod, newAuth api.AuthMethod) []api.AuthMethod {
