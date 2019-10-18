@@ -444,9 +444,6 @@ spec:
                   type: string
               type: object
           required:
-          - applicationObjectID
-          - maxTTL
-          - ttl
           - vaultRef
           type: object
         status:
