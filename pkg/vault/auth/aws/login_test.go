@@ -15,6 +15,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 const authResp = `
@@ -30,11 +31,11 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/aws/login", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
-		json.NewDecoder(r.Body).Decode(&v)
+		util.LogErr(json.NewDecoder(r.Body).Decode(&v))
 		if val, ok := v["role"]; ok {
 			if val.(string) == "good" {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(authResp))
+				util.LogWriteErr(w.Write([]byte(authResp)))
 				return
 			}
 		}
@@ -44,11 +45,11 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/test/login", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
-		json.NewDecoder(r.Body).Decode(&v)
+		util.LogErr(json.NewDecoder(r.Body).Decode(&v))
 		if val, ok := v["role"]; ok {
 			if val.(string) == "try" {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(authResp))
+				util.LogWriteErr(w.Write([]byte(authResp)))
 				return
 			}
 		}
@@ -66,7 +67,7 @@ func TestAuth_Login(t *testing.T) {
 	if !assert.Nil(t, err) {
 		return
 	}
-	vc.SetAddress(srv.URL)
+	util.LogErr(vc.SetAddress(srv.URL))
 
 	cases := []struct {
 		testName  string
@@ -154,6 +155,7 @@ func TestLogin(t *testing.T) {
 			"secret_access_key": []byte(secretKey),
 		},
 	})
+	assert.Nil(t, err)
 
 	token, err := au.Login()
 	if assert.Nil(t, err) {

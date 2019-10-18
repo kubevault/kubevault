@@ -146,7 +146,10 @@ func (a *auth) generateLoginData() (map[string]interface{}, error) {
 	if a.headerValue != "" {
 		stsRequest.HTTPRequest.Header.Add(iamServerIdHeader, a.headerValue)
 	}
-	stsRequest.Sign()
+	err = stsRequest.Sign()
+	if err != nil {
+		return nil, err
+	}
 
 	// Now extract out the relevant parts of the request
 	headersJson, err := json.Marshal(stsRequest.HTTPRequest.Header)

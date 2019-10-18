@@ -19,7 +19,6 @@ const (
 )
 
 var (
-	ctrl *controller.VaultController
 	root *framework.Framework
 )
 

@@ -1,12 +1,9 @@
 package controller
 
 import (
-	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -17,21 +14,6 @@ import (
 	dbinformers "kubevault.dev/operator/client/informers/externalversions"
 	"kubevault.dev/operator/pkg/vault/role/database"
 )
-
-func setupVaultServerForMysql() *httptest.Server {
-	router := mux.NewRouter()
-
-	router.HandleFunc("/v1/database/roles/m-read", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}).Methods(http.MethodDelete)
-
-	router.HandleFunc("/v1/database/roles/error", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("error"))
-	}).Methods(http.MethodDelete)
-
-	return httptest.NewServer(router)
-}
 
 func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 	mRole := api.MySQLRole{
@@ -117,10 +99,7 @@ func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 						p, err2 := c.extClient.EngineV1alpha1().MySQLRoles(test.mRole.Namespace).Get(test.mRole.Name, metav1.GetOptions{})
 						if assert.Nil(t, err2) {
 							assert.Condition(t, func() (success bool) {
-								if len(p.Status.Conditions) == 0 {
-									return false
-								}
-								return true
+								return len(p.Status.Conditions) != 0
 							}, "should have status.conditions")
 						}
 					}
@@ -130,10 +109,7 @@ func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 					p, err2 := c.extClient.EngineV1alpha1().MySQLRoles(test.mRole.Namespace).Get(test.mRole.Name, metav1.GetOptions{})
 					if assert.Nil(t, err2) {
 						assert.Condition(t, func() (success bool) {
-							if len(p.Status.Conditions) != 0 {
-								return false
-							}
-							return true
+							return len(p.Status.Conditions) == 0
 						}, "should not have status.conditions")
 					}
 				}

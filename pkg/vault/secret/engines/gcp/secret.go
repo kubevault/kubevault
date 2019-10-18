@@ -41,10 +41,10 @@ func NewSecretManager() secret.SecretManager {
 	return &SecretInfo{}
 }
 
-func NewSecretManagerWithOptions(c *vaultapi.Client, opts map[string]string) secret.SecretManager {
+func NewSecretManagerWithOptions(c *vaultapi.Client, opts map[string]string) (secret.SecretManager, error) {
 	s := &SecretInfo{}
-	s.SetOptions(c, opts)
-	return s
+	err := s.SetOptions(c, opts)
+	return s, err
 }
 
 func NewSecretGetter(vc *vaultapi.Client, path string, roleName string, secretType engine.GCPSecretType, reqSpec engine.GCPAccessKeyRequestSpec) secret.SecretGetter {

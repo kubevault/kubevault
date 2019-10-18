@@ -18,8 +18,8 @@ import (
 
 const (
 	SecretEnginePhaseSuccess    api.SecretEnginePhase = "Success"
-	SecretEngineConditionFailed                       = "Failed"
-	SecretEngineFinalizer                             = "secretengine.engine.kubevault.com"
+	SecretEngineConditionFailed string                = "Failed"
+	SecretEngineFinalizer       string                = "secretengine.engine.kubevault.com"
 )
 
 func (c *VaultController) initSecretEngineWatcher() {
@@ -167,8 +167,7 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 
 func (c *VaultController) updatedSecretEngineStatus(status *api.SecretEngineStatus, secretEngine *api.SecretEngine) error {
 	_, err := patchutil.UpdateSecretEngineStatus(c.extClient.EngineV1alpha1(), secretEngine, func(s *api.SecretEngineStatus) *api.SecretEngineStatus {
-		s = status
-		return s
+		return status
 	})
 	return err
 }

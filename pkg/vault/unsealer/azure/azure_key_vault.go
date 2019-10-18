@@ -50,7 +50,7 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	if o.Cloud != "" {
 		args = append(args, fmt.Sprintf("--azure.cloud=%s", o.Cloud))
 	}
-	if o.UseManagedIdentity == true {
+	if o.UseManagedIdentity {
 		args = append(args, fmt.Sprintf("--azure.use-managed-identity=true"))
 	}
 

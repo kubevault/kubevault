@@ -86,10 +86,7 @@ var _ = Describe("MySQL Secret Engine", func() {
 			By(fmt.Sprintf("Checking whether DatabaseAccessRequest:(%s/%s) is created", namespace, name))
 			Eventually(func() bool {
 				_, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
-				if err == nil {
-					return true
-				}
-				return false
+				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "DatabaseAccessRequest is created")
 		}
 		IsDatabaseAccessRequestDeleted = func(name, namespace string) {

@@ -75,10 +75,7 @@ var _ = Describe("VaultServer", func() {
 			By(fmt.Sprintf("Waiting for vault secret (%s/%s) to create", namespace, name))
 			Eventually(func() bool {
 				_, err := f.KubeClient.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
-				if err == nil {
-					return true
-				}
-				return false
+				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("secret (%s/%s) should exists", namespace, name))
 		}
 

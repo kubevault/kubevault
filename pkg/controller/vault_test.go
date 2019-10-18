@@ -85,32 +85,6 @@ func getConfigData(t *testing.T, extraConfig string, storageCfg string, exptrCfg
 	return cfg
 }
 
-func getConfigMap(meta metav1.ObjectMeta, data string) *core.ConfigMap {
-	return &core.ConfigMap{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      meta.Name + "-config",
-			Namespace: meta.Namespace,
-		},
-		Data: map[string]string{
-			"vault.hcl": data,
-		},
-	}
-}
-
-func createConfigMap(t *testing.T, client kubernetes.Interface, cm *core.ConfigMap) {
-	_, err := client.CoreV1().ConfigMaps(cm.Namespace).Create(cm)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func deleteConfigMap(t *testing.T, client kubernetes.Interface, cm *core.ConfigMap) {
-	err := client.CoreV1().ConfigMaps(cm.Namespace).Delete(cm.Name, &metav1.DeleteOptions{})
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
 func createSecret(t *testing.T, client kubernetes.Interface, s *core.Secret) {
 	_, err := client.CoreV1().Secrets(s.Namespace).Create(s)
 	if err != nil {

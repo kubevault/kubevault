@@ -175,7 +175,7 @@ func (f *Framework) DeployMysql() (*appcat.AppReference, error) {
 		},
 		Spec: appcat.AppBindingSpec{
 			Secret: &core.LocalObjectReference{
-				MysqlCredentialSecret,
+				Name: MysqlCredentialSecret,
 			},
 			ClientConfig: appcat.ClientConfig{
 				URL:                   types.StringP(fmt.Sprintf("tcp(%s.%s.svc:3306)/", mysqlDBServiceName, f.namespace)),

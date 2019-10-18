@@ -19,7 +19,7 @@ import (
 
 const (
 	GCPAccessKeyRequestFailed    api.RequestConditionType = "Failed"
-	GCPAccessKeyRequestFinalizer                          = "gcpaccesskeyrequest.engine.kubevault.com"
+	GCPAccessKeyRequestFinalizer string                   = "gcpaccesskeyrequest.engine.kubevault.com"
 )
 
 func (c *VaultController) initGCPAccessKeyWatcher() {
@@ -173,7 +173,7 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(gcpCM credential.Credenti
 		status.Lease = &api.Lease{
 			ID: credSecret.LeaseID,
 			Duration: metav1.Duration{
-				time.Second * time.Duration(credSecret.LeaseDuration),
+				Duration: time.Second * time.Duration(credSecret.LeaseDuration),
 			},
 			Renewable: credSecret.Renewable,
 		}
@@ -228,8 +228,7 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(gcpCM credential.Credenti
 
 func (c *VaultController) updateGCPAccessKeyRequestStatus(status *api.GCPAccessKeyRequestStatus, gcpAKReq *api.GCPAccessKeyRequest) error {
 	_, err := patchutil.UpdateGCPAccessKeyRequestStatus(c.extClient.EngineV1alpha1(), gcpAKReq, func(s *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
-		s = status
-		return s
+		return status
 	})
 	return err
 }

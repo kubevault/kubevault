@@ -76,7 +76,7 @@ func (o *Options) GetStorageConfig() (string, error) {
 	if o.EndPoint != "" {
 		params = append(params, fmt.Sprintf(`endpoint = "%s"`, o.EndPoint))
 	}
-	if o.HaEnabled == true {
+	if o.HaEnabled {
 		params = append(params, fmt.Sprintf(`ha_enabled = "true"`))
 	}
 	if o.Region != "" {

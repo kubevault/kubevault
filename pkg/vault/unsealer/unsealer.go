@@ -114,7 +114,7 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 		p := time.Second * unslr.RetryPeriodSeconds
 		args = append(args, fmt.Sprintf("--retry-period=%s", p.String()))
 	}
-	if unslr.OverwriteExisting == true {
+	if unslr.OverwriteExisting {
 		args = append(args, fmt.Sprintf("--overwrite-existing=true"))
 	}
 

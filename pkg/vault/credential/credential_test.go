@@ -16,19 +16,6 @@ import (
 	kfake "k8s.io/client-go/kubernetes/fake"
 )
 
-const (
-	credResponse = `
-{
-   "lease_id":"1204",
-   "lease_duration":300,
-   "data":{
-      "username":"nahid",
-      "password":"1234"
-   }
-}
-`
-)
-
 func vaultServer() *httptest.Server {
 	router := mux.NewRouter()
 
@@ -373,10 +360,7 @@ func TestDatabaseRoleBinding_IsLeaseExpired(t *testing.T) {
 			ok, err := test.credManager.IsLeaseExpired(test.leaseID)
 			if assert.Nil(t, err) {
 				assert.Condition(t, func() (success bool) {
-					if ok == test.isExpired {
-						return true
-					}
-					return false
+					return ok == test.isExpired
 				})
 			}
 		})

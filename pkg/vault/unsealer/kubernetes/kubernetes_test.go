@@ -24,7 +24,7 @@ func TestOptions_Apply(t *testing.T) {
 	}
 
 	opts, err := NewOptions(api.KubernetesSecretSpec{
-		"test",
+		SecretName: "test",
 	})
 	assert.Nil(t, err)
 

@@ -17,7 +17,9 @@ import (
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
-func vaultClient(addr, token string) (*vaultapi.Client, error) {
+const Token = "root"
+
+func vaultClient(addr string) (*vaultapi.Client, error) {
 	cfg := vaultapi.DefaultConfig()
 	err := cfg.ConfigureTLS(&vaultapi.TLSConfig{
 		Insecure: true,
@@ -30,7 +32,7 @@ func vaultClient(addr, token string) (*vaultapi.Client, error) {
 		return nil, err
 	}
 
-	c.SetToken(token)
+	c.SetToken(Token)
 	err = c.SetAddress(addr)
 	if err != nil {
 		return nil, err
@@ -317,7 +319,7 @@ func TestSecretEngine_CreateGCPConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			vc, err := vaultClient(srv.URL, "root")
+			vc, err := vaultClient(srv.URL)
 			assert.Nil(t, err, "failed to create vault client")
 
 			secretEngineClient := &SecretEngine{
@@ -498,7 +500,7 @@ func TestSecretEngine_CreateAzureConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			vc, err := vaultClient(srv.URL, "root")
+			vc, err := vaultClient(srv.URL)
 			assert.Nil(t, err, "failed to create vault client")
 
 			seClient := &SecretEngine{
@@ -647,7 +649,7 @@ func TestSecretEngine_CreateAWSConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			vc, err := vaultClient(srv.URL, "root")
+			vc, err := vaultClient(srv.URL)
 			assert.Nil(t, err, "failed to create vault client")
 
 			seClient := &SecretEngine{

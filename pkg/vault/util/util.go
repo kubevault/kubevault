@@ -34,7 +34,7 @@ func IsOwnerRefAlreadyExists(o metav1.Object, r metav1.OwnerReference) bool {
 		if u.Name == r.Name &&
 			u.UID == r.UID &&
 			u.Kind == r.Kind &&
-			u.APIVersion == u.APIVersion {
+			u.APIVersion == r.APIVersion {
 			return true
 		}
 	}

@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 var (
@@ -31,12 +32,10 @@ func isKeyValExist(store map[string]interface{}, key string, val interface{}) bo
 		return ok
 	}
 
-	switch val.(type) {
+	switch y := val.(type) {
 	case []string:
-		y := val.([]string)
-		switch v.(type) {
+		switch x := v.(type) {
 		case []string:
-			x := v.([]string)
 			for p := range x {
 				if x[p] != y[p] {
 					return false
@@ -44,7 +43,6 @@ func isKeyValExist(store map[string]interface{}, key string, val interface{}) bo
 			}
 			return true
 		case []interface{}:
-			x := v.([]interface{})
 			for p := range x {
 				if x[p].(string) != y[p] {
 					return false
@@ -55,10 +53,9 @@ func isKeyValExist(store map[string]interface{}, key string, val interface{}) bo
 			return false
 		}
 	case string:
-		y := val.(string)
-		switch v.(type) {
+		switch z := v.(type) {
 		case string:
-			return v.(string) == y
+			return z == y
 		default:
 			return false
 		}
@@ -72,7 +69,7 @@ func NewFakeVaultServer() *httptest.Server {
 
 	router.HandleFunc("/v1/auth/kubernetes/role/ok", func(w http.ResponseWriter, r *http.Request) {
 		v := map[string]interface{}{}
-		json.NewDecoder(r.Body).Decode(&v)
+		util.LogErr(json.NewDecoder(r.Body).Decode(&v))
 		fmt.Println("***")
 		fmt.Println(v)
 		fmt.Println("***")

@@ -19,7 +19,7 @@ import (
 
 const (
 	AWSAccessKeyRequestFailed    api.RequestConditionType = "Failed"
-	AWSAccessKeyRequestFinalizer                          = "awsaccesskeyrequest.engine.kubevault.com"
+	AWSAccessKeyRequestFinalizer string                   = "awsaccesskeyrequest.engine.kubevault.com"
 )
 
 func (c *VaultController) initAWSAccessKeyWatcher() {
@@ -171,7 +171,7 @@ func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.Credenti
 		status.Lease = &api.Lease{
 			ID: credSecret.LeaseID,
 			Duration: metav1.Duration{
-				time.Second * time.Duration(credSecret.LeaseDuration),
+				Duration: time.Second * time.Duration(credSecret.LeaseDuration),
 			},
 			Renewable: credSecret.Renewable,
 		}
@@ -226,8 +226,7 @@ func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.Credenti
 
 func (c *VaultController) updateAWSAccessKeyRequestStatus(status *api.AWSAccessKeyRequestStatus, awsAKReq *api.AWSAccessKeyRequest) error {
 	_, err := patchutil.UpdateAWSAccessKeyRequestStatus(c.extClient.EngineV1alpha1(), awsAKReq, func(s *api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus {
-		s = status
-		return s
+		return status
 	})
 	return err
 }

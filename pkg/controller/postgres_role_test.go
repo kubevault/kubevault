@@ -2,12 +2,9 @@ package controller
 
 import (
 	"fmt"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -52,21 +49,6 @@ func (f *fakeDRole) CreateRole() error {
 		return fmt.Errorf("error")
 	}
 	return nil
-}
-
-func setupVaultServer() *httptest.Server {
-	router := mux.NewRouter()
-
-	router.HandleFunc("/v1/database/roles/pg-read", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}).Methods(http.MethodDelete)
-
-	router.HandleFunc("/v1/database/roles/error", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("error"))
-	}).Methods(http.MethodDelete)
-
-	return httptest.NewServer(router)
 }
 
 func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
@@ -153,10 +135,7 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 						p, err2 := c.extClient.EngineV1alpha1().PostgresRoles(test.pRole.Namespace).Get(test.pRole.Name, metav1.GetOptions{})
 						if assert.Nil(t, err2) {
 							assert.Condition(t, func() (success bool) {
-								if len(p.Status.Conditions) == 0 {
-									return false
-								}
-								return true
+								return len(p.Status.Conditions) != 0
 							}, "should have status.conditions")
 						}
 					}
@@ -166,10 +145,7 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 					p, err2 := c.extClient.EngineV1alpha1().PostgresRoles(test.pRole.Namespace).Get(test.pRole.Name, metav1.GetOptions{})
 					if assert.Nil(t, err2) {
 						assert.Condition(t, func() (success bool) {
-							if len(p.Status.Conditions) != 0 {
-								return false
-							}
-							return true
+							return len(p.Status.Conditions) == 0
 						}, "should not have status.conditions")
 					}
 				}
