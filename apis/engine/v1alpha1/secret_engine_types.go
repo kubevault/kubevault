@@ -46,9 +46,9 @@ type SecretEngineSpec struct {
 
 type SecretEngineList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata, omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty"`
 
-	Items []SecretEngine `json:"items, omitempty"`
+	Items []SecretEngine `json:"items,omitempty"`
 }
 
 type SecretEngineConfiguration struct {
@@ -134,7 +134,7 @@ type AzureConfiguration struct {
 	// The Azure environment.
 	// If not specified, Vault will use Azure Public Cloud.
 	// +optional
-	Environment string `json:"environment, omitempty"`
+	Environment string `json:"environment,omitempty"`
 }
 
 // PostgresConfiguration defines a PostgreSQL app configuration.

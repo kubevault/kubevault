@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
@@ -24,13 +25,15 @@ func setupVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, err := w.Write([]byte(err.Error()))
+			utilruntime.Must(err)
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["db_name"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("db_name doesn't provided"))
+				_, err := w.Write([]byte("db_name doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			w.WriteHeader(http.StatusOK)
@@ -43,7 +46,8 @@ func setupVaultServer() *httptest.Server {
 
 	router.HandleFunc("/v1/database/roles/error", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("error"))
+		_, err := w.Write([]byte("error"))
+		utilruntime.Must(err)
 	}).Methods(http.MethodDelete)
 
 	return httptest.NewServer(router)

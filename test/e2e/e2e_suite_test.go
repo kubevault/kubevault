@@ -19,7 +19,6 @@ const (
 )
 
 var (
-	ctrl *controller.VaultController
 	root *framework.Framework
 )
 
@@ -85,7 +84,8 @@ var _ = AfterSuite(func() {
 
 	Expect(root.Cleanup()).NotTo(HaveOccurred())
 	By("Deleting Namespace...")
-	root.DeleteNamespace()
-	err := root.DeleteVaultserverVersion()
+	err := root.DeleteNamespace()
+	Expect(err).NotTo(HaveOccurred())
+	err = root.DeleteVaultserverVersion()
 	Expect(err).NotTo(HaveOccurred())
 })

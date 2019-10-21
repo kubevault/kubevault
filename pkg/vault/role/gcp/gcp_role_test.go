@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
@@ -141,31 +142,36 @@ func setupVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, err := w.Write([]byte(err.Error()))
+			utilruntime.Must(err)
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["secret_type"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusNotFound)
-				w.Write([]byte("secret_type isn't specified!"))
+				_, err := w.Write([]byte("secret_type isn't specified!"))
+				utilruntime.Must(err)
 				return
 			}
 
 			if v, ok := m["project"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusNotFound)
-				w.Write([]byte("project name isn't specified!"))
+				_, err := w.Write([]byte("project name isn't specified!"))
+				utilruntime.Must(err)
 				return
 			}
 
 			if v, ok := m["bindings"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusNotFound)
-				w.Write([]byte("bindings aren't specified!"))
+				_, err := w.Write([]byte("bindings aren't specified!"))
+				utilruntime.Must(err)
 				return
 			}
 
 			if v, ok := m["token_scopes"]; !ok || v == nil {
 				w.WriteHeader(http.StatusNotFound)
-				w.Write([]byte("token_scopes aren't specified!"))
+				_, err := w.Write([]byte("token_scopes aren't specified!"))
+				utilruntime.Must(err)
 				return
 			}
 			w.WriteHeader(http.StatusOK)

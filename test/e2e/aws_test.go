@@ -86,10 +86,7 @@ var _ = Describe("AWS Secret Engine", func() {
 			By(fmt.Sprintf("Checking whether AWSAccessKeyRequest:(%s/%s) is created", namespace, name))
 			Eventually(func() bool {
 				_, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
-				if err == nil {
-					return true
-				}
-				return false
+				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "AWSAccessKeyRequest is created")
 		}
 		IsAWSAccessKeyRequestDeleted = func(name, namespace string) {

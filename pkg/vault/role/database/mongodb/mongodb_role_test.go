@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
@@ -26,13 +27,15 @@ func setupVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, err := w.Write([]byte(err.Error()))
+			utilruntime.Must(err)
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["db_name"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("db_name doesn't provided"))
+				_, err := w.Write([]byte("db_name doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			w.WriteHeader(http.StatusOK)
@@ -45,7 +48,8 @@ func setupVaultServer() *httptest.Server {
 
 	router.HandleFunc("/v1/database/roles/error", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("error"))
+		_, err := w.Write([]byte("error"))
+		utilruntime.Must(err)
 	}).Methods(http.MethodDelete)
 
 	return httptest.NewServer(router)
@@ -133,9 +137,9 @@ func TestNewMongoDBRoleBindingCreatRole(t *testing.T) {
 	}
 
 	cfg := vaultapi.DefaultConfig()
-	cfg.ConfigureTLS(&vaultapi.TLSConfig{
+	utilruntime.Must(cfg.ConfigureTLS(&vaultapi.TLSConfig{
 		Insecure: true,
-	})
+	}))
 
 	v, _ := vaultapi.NewClient(cfg)
 
@@ -144,7 +148,7 @@ func TestNewMongoDBRoleBindingCreatRole(t *testing.T) {
 	}
 
 	k := kfake.NewSimpleClientset()
-	k.CoreV1().Secrets("default").Create(&corev1.Secret{
+	_, err := k.CoreV1().Secrets("default").Create(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "default",
 			Name:      "cred",
@@ -154,8 +158,9 @@ func TestNewMongoDBRoleBindingCreatRole(t *testing.T) {
 			"password": []byte("root"),
 		},
 	})
+	utilruntime.Must(err)
 
-	v.SetAddress(addr)
+	utilruntime.Must(v.SetAddress(addr))
 	v.SetToken(token)
 
 	m := &MongoDBRole{
@@ -177,6 +182,6 @@ func TestNewMongoDBRoleBindingCreatRole(t *testing.T) {
 		},
 	}
 
-	err := m.CreateRole()
+	err = m.CreateRole()
 	assert.Nil(t, err)
 }

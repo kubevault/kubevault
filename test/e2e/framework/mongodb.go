@@ -158,7 +158,7 @@ func (f *Framework) DeployMongodb() (*appcat.AppReference, error) {
 		},
 		Spec: appcat.AppBindingSpec{
 			Secret: &core.LocalObjectReference{
-				MongodbCredentialSecret,
+				Name: MongodbCredentialSecret,
 			},
 			ClientConfig: appcat.ClientConfig{
 				Service: &appcat.ServiceReference{

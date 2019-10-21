@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
@@ -154,7 +155,8 @@ func NewFakeVaultMountServer() *httptest.Server {
 
 	router.HandleFunc("/v1/sys/mounts", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(sampleMountResponse))
+		_, err := w.Write([]byte(sampleMountResponse))
+		utilruntime.Must(err)
 	}).Methods(http.MethodGet)
 
 	router.HandleFunc("/v1/sys/mounts/{path}", func(w http.ResponseWriter, r *http.Request) {
@@ -274,7 +276,7 @@ func TestSecretEngine_EnableSecretEngine(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			vc, err := vaultClient(srv.URL, "root")
+			vc, err := vaultClient(srv.URL)
 			assert.Nil(t, err, "failed to create vault client")
 
 			seClient := &SecretEngine{

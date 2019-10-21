@@ -18,8 +18,8 @@ import (
 
 const (
 	AWSRolePhaseSuccess    api.AWSRolePhase = "Success"
-	AWSRoleConditionFailed                  = "Failed"
-	AWSRoleFinalizer                        = "awsrole.engine.kubevault.com"
+	AWSRoleConditionFailed string           = "Failed"
+	AWSRoleFinalizer       string           = "awsrole.engine.kubevault.com"
 )
 
 func (c *VaultController) initAWSRoleWatcher() {
@@ -113,8 +113,7 @@ func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, awsR
 
 func (c *VaultController) updatedAWSRoleStatus(status *api.AWSRoleStatus, awsRole *api.AWSRole) error {
 	_, err := patchutil.UpdateAWSRoleStatus(c.extClient.EngineV1alpha1(), awsRole, func(s *api.AWSRoleStatus) *api.AWSRoleStatus {
-		s = status
-		return s
+		return status
 	})
 	return err
 }

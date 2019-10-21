@@ -128,17 +128,11 @@ func TestVaultController_reconcileSecretEngine(t *testing.T) {
 				assert.Nil(t, err2)
 				if tt.wantErr {
 					assert.Condition(t, func() (success bool) {
-						if len(se.Status.Conditions) != 0 {
-							return true
-						}
-						return false
+						return len(se.Status.Conditions) != 0
 					}, "Should have status.conditions")
 				} else {
 					assert.Condition(t, func() (success bool) {
-						if len(se.Status.Conditions) == 0 && se.Status.Phase == SecretEnginePhaseSuccess {
-							return true
-						}
-						return false
+						return len(se.Status.Conditions) == 0 && se.Status.Phase == SecretEnginePhaseSuccess
 					}, "Shouldn't have status.conditions")
 				}
 			}

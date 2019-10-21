@@ -18,8 +18,8 @@ import (
 
 const (
 	AzureRolePhaseSuccess    api.AzureRolePhase = "Success"
-	AzureRoleConditionFailed                    = "Failed"
-	AzureRoleFinalizer                          = "azurerole.engine.kubevault.com"
+	AzureRoleConditionFailed string             = "Failed"
+	AzureRoleFinalizer       string             = "azurerole.engine.kubevault.com"
 )
 
 func (c *VaultController) initAzureRoleWatcher() {
@@ -114,8 +114,7 @@ func (c *VaultController) reconcileAzureRole(azureRClient azure.AzureRoleInterfa
 
 func (c *VaultController) updatedAzureRoleStatus(status *api.AzureRoleStatus, azureRole *api.AzureRole) error {
 	_, err := patchutil.UpdateAzureRoleStatus(c.extClient.EngineV1alpha1(), azureRole, func(s *api.AzureRoleStatus) *api.AzureRoleStatus {
-		s = status
-		return s
+		return status
 	})
 	return err
 }

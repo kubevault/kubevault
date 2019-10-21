@@ -8,6 +8,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/kubernetes/scheme"
 	meta_util "kmodules.xyz/client-go/meta"
@@ -51,7 +52,7 @@ var (
 )
 
 func init() {
-	clientsetscheme.AddToScheme(scheme.Scheme)
+	utilruntime.Must(clientsetscheme.AddToScheme(scheme.Scheme))
 }
 
 func TestVaultServerValidator_Admit(t *testing.T) {
@@ -86,7 +87,7 @@ func TestVaultServerValidator_Admit(t *testing.T) {
 		{
 			testName:  "Update VaultServer unsealer, operation not allowed",
 			operation: admission.Update,
-			object:    func() api.VaultServer { u, _ := unsealerWithKubernetes(); return vaultServerWiitUnsealer(&u) }(),
+			object:    func() api.VaultServer { u := unsealerWithKubernetes(); return vaultServerWiitUnsealer(&u) }(),
 			oldObject: vaultServerWiitUnsealer(nil),
 			allowed:   false,
 		},
@@ -342,7 +343,7 @@ func TestValidateVaultServer(t *testing.T) {
 		{
 			testName: "specifies more than one modes in spec.unsealer.mode, expect error",
 			vs: func() *api.VaultServer {
-				u, _ := unsealerWithKubernetes()
+				u := unsealerWithKubernetes()
 				u.Mode.GoogleKmsGcs = &api.GoogleKmsGcsSpec{}
 				v := vaultServerWiitUnsealer(&u)
 				return &v
@@ -378,7 +379,7 @@ func TestValidateVaultServer(t *testing.T) {
 		},
 		{
 			testName:    "using kubernetes secret unsealer, expect no error",
-			vs:          func() *api.VaultServer { u, _ := unsealerWithKubernetes(); v := vaultServerWiitUnsealer(&u); return &v }(),
+			vs:          func() *api.VaultServer { u := unsealerWithKubernetes(); v := vaultServerWiitUnsealer(&u); return &v }(),
 			extraSecret: nil,
 			expectErr:   false,
 		},
@@ -446,24 +447,24 @@ func TestValidateUpdate(t *testing.T) {
 		{
 			testName: "update spec.unsealer.secretShares, expect error",
 			object: func() api.VaultServer {
-				u, _ := unsealerWithKubernetes()
+				u := unsealerWithKubernetes()
 				u.SecretShares = 100
 				return vaultServerWiitUnsealer(&u)
 			}(),
-			oldObject:   func() api.VaultServer { u, _ := unsealerWithKubernetes(); return vaultServerWiitUnsealer(&u) }(),
+			oldObject:   func() api.VaultServer { u := unsealerWithKubernetes(); return vaultServerWiitUnsealer(&u) }(),
 			expectedErr: true,
 		},
 		{
 			testName:    "update spec.backend.file.path , expect error",
-			object:      func() api.VaultServer { v, _ := vaultServerWithFile(); v.Spec.Backend.File.Path = "/new"; return v }(),
-			oldObject:   func() api.VaultServer { v, _ := vaultServerWithFile(); ; return v }(),
+			object:      func() api.VaultServer { v := vaultServerWithFile(); v.Spec.Backend.File.Path = "/new"; return v }(),
+			oldObject:   func() api.VaultServer { v := vaultServerWithFile(); ; return v }(),
 			expectedErr: true,
 		},
 	}
 
 	for _, c := range cases {
 		t.Run(c.testName, func(t *testing.T) {
-			err := validateUpdate(&c.object, &c.oldObject, api.ResourceKindVaultServer)
+			err := validateUpdate(&c.object, &c.oldObject)
 			if c.expectedErr {
 				assert.NotNil(t, err, "expected error")
 			} else {
@@ -532,14 +533,14 @@ func TestValidateSecret(t *testing.T) {
 	}
 }
 
-func vaultServerWithFile() (api.VaultServer, []core.Secret) {
+func vaultServerWithFile() api.VaultServer {
 	v := vs
 	v.Spec.Backend = api.BackendStorageSpec{
 		File: &api.FileSpec{
 			Path: "/etc/vault",
 		},
 	}
-	return v, nil
+	return v
 }
 
 func vaultServerWithEtcd() (api.VaultServer, []core.Secret) {
@@ -552,11 +553,11 @@ func vaultServerWithEtcd() (api.VaultServer, []core.Secret) {
 		Etcd: etcd,
 	}
 	extraSr := []core.Secret{
-		getSecret(etcd.CredentialSecretName, namespace, []string{
+		getSecret(etcd.CredentialSecretName, []string{
 			"username",
 			"password",
 		}),
-		getSecret(etcd.TLSSecretName, namespace, []string{
+		getSecret(etcd.TLSSecretName, []string{
 			"ca.crt",
 			"client.crt",
 			"client.key",
@@ -574,7 +575,7 @@ func vaultServerWithPostgres() (api.VaultServer, []core.Secret) {
 		PostgreSQL: pg,
 	}
 	extraSr := []core.Secret{
-		getSecret(pg.ConnectionUrlSecret, namespace, []string{
+		getSecret(pg.ConnectionUrlSecret, []string{
 			"connection_url",
 		}),
 	}
@@ -593,11 +594,11 @@ func vaultServerWithMySQL() (api.VaultServer, []core.Secret) {
 	}
 
 	extraSr := []core.Secret{
-		getSecret(my.UserCredentialSecret, namespace, []string{
+		getSecret(my.UserCredentialSecret, []string{
 			"username",
 			"password",
 		}),
-		getSecret(my.TLSCASecret, namespace, []string{
+		getSecret(my.TLSCASecret, []string{
 			"tls_ca_file",
 		}),
 	}
@@ -613,7 +614,7 @@ func vaultServerWithGcs() (api.VaultServer, []core.Secret) {
 		Gcs: gcs,
 	}
 	extraSr := []core.Secret{
-		getSecret(gcs.CredentialSecret, namespace, []string{
+		getSecret(gcs.CredentialSecret, []string{
 			"sa.json",
 		}),
 	}
@@ -630,11 +631,11 @@ func vaultServerWithS3() (api.VaultServer, []core.Secret) {
 		S3: s3,
 	}
 	extraSr := []core.Secret{
-		getSecret(s3.CredentialSecret, namespace, []string{
+		getSecret(s3.CredentialSecret, []string{
 			"access_key",
 			"secret_key",
 		}),
-		getSecret(s3.SessionTokenSecret, namespace, []string{
+		getSecret(s3.SessionTokenSecret, []string{
 			"session_token",
 		}),
 	}
@@ -650,7 +651,7 @@ func vaultServerWithAzure() (api.VaultServer, []core.Secret) {
 		Azure: az,
 	}
 	extraSr := []core.Secret{
-		getSecret(az.AccountKeySecret, namespace, []string{
+		getSecret(az.AccountKeySecret, []string{
 			"account_key",
 		}),
 	}
@@ -667,11 +668,11 @@ func vaultServerWithDynamoDB() (api.VaultServer, []core.Secret) {
 		DynamoDB: db,
 	}
 	extraSr := []core.Secret{
-		getSecret(db.CredentialSecret, namespace, []string{
+		getSecret(db.CredentialSecret, []string{
 			"access_key",
 			"secret_key",
 		}),
-		getSecret(db.SessionTokenSecret, namespace, []string{
+		getSecret(db.SessionTokenSecret, []string{
 			"session_token",
 		}),
 	}
@@ -688,11 +689,11 @@ func vaultServerWithSwift() (api.VaultServer, []core.Secret) {
 		Swift: sw,
 	}
 	extraSr := []core.Secret{
-		getSecret(sw.CredentialSecret, namespace, []string{
+		getSecret(sw.CredentialSecret, []string{
 			"username",
 			"password",
 		}),
-		getSecret(sw.AuthTokenSecret, namespace, []string{
+		getSecret(sw.AuthTokenSecret, []string{
 			"auth_token",
 		}),
 	}
@@ -708,12 +709,12 @@ func vaultServerWiitUnsealer(u *api.UnsealerSpec) api.VaultServer {
 	return v
 }
 
-func unsealerWithKubernetes() (api.UnsealerSpec, []core.Secret) {
+func unsealerWithKubernetes() api.UnsealerSpec {
 	u := unslr
 	u.Mode = api.ModeSpec{
 		KubernetesSecret: &api.KubernetesSecretSpec{},
 	}
-	return u, nil
+	return u
 }
 
 func unsealerWithGoogleKmsGcs() (api.UnsealerSpec, []core.Secret) {
@@ -724,7 +725,7 @@ func unsealerWithGoogleKmsGcs() (api.UnsealerSpec, []core.Secret) {
 		},
 	}
 	extraSr := []core.Secret{
-		getSecret("g-cred", namespace, []string{
+		getSecret("g-cred", []string{
 			"sa.json",
 		}),
 	}
@@ -739,7 +740,7 @@ func unsealerWithAwsKmsSsm() (api.UnsealerSpec, []core.Secret) {
 		},
 	}
 	extraSr := []core.Secret{
-		getSecret("aws-cred", namespace, []string{
+		getSecret("aws-cred", []string{
 			"access_key",
 			"secret_key",
 		}),
@@ -756,10 +757,10 @@ func unsealerWithAzureKeyVault() (api.UnsealerSpec, []core.Secret) {
 		},
 	}
 	extraSr := []core.Secret{
-		getSecret("az-add", namespace, []string{
+		getSecret("az-add", []string{
 			"client-id",
 			"client-secret",
-		}), getSecret("az-client", namespace, []string{
+		}), getSecret("az-client", []string{
 			"client-cert",
 			"client-cert-password",
 		}),
@@ -779,11 +780,11 @@ func invalidVaultServer() api.VaultServer {
 	return vs
 }
 
-func getSecret(name string, ns string, keys []string) core.Secret {
+func getSecret(name string, keys []string) core.Secret {
 	sr := core.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
-			Namespace: ns,
+			Namespace: namespace,
 		},
 		Data: map[string][]byte{},
 	}

@@ -18,6 +18,7 @@ import (
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	awsconsts "kmodules.xyz/constants/aws"
 	googleconsts "kmodules.xyz/constants/google"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
@@ -75,10 +76,7 @@ var _ = Describe("VaultServer", func() {
 			By(fmt.Sprintf("Waiting for vault secret (%s/%s) to create", namespace, name))
 			Eventually(func() bool {
 				_, err := f.KubeClient.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
-				if err == nil {
-					return true
-				}
-				return false
+				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("secret (%s/%s) should exists", namespace, name))
 		}
 
@@ -237,9 +235,9 @@ var _ = Describe("VaultServer", func() {
 								By(fmt.Sprintf("vault url: %s", url))
 								cfg := vaultapi.DefaultConfig()
 								cfg.Address = url
-								cfg.ConfigureTLS(&vaultapi.TLSConfig{
+								utilruntime.Must(cfg.ConfigureTLS(&vaultapi.TLSConfig{
 									Insecure: true,
-								})
+								}))
 								vc, err := vaultapi.NewClient(cfg)
 								if err == nil {
 									status, err := vc.Sys().Leader()
@@ -424,7 +422,8 @@ var _ = Describe("VaultServer", func() {
 				shouldCreateVaultServer(vs)
 			})
 			AfterEach(func() {
-				f.DeleteVaultServer(vs.ObjectMeta)
+				err := f.DeleteVaultServer(vs.ObjectMeta)
+				Expect(err).NotTo(HaveOccurred())
 				checkForVaultServerCleanup(vs)
 
 				Expect(f.DeleteSecret(vaultKeySecret, vs.Namespace)).NotTo(HaveOccurred(), "delete vault key secret")
@@ -465,10 +464,12 @@ var _ = Describe("VaultServer", func() {
 				shouldCreateVaultServer(vs)
 			})
 			AfterEach(func() {
-				f.DeleteVaultServer(vs.ObjectMeta)
+				err := f.DeleteVaultServer(vs.ObjectMeta)
+				Expect(err).NotTo(HaveOccurred())
 				checkForVaultServerCleanup(vs)
 
-				f.DeleteSecret(vaultKeySecret, vs.Namespace)
+				err = f.DeleteSecret(vaultKeySecret, vs.Namespace)
+				Expect(err).NotTo(HaveOccurred())
 				checkForSecretDeleted(vaultKeySecret, vs.Namespace)
 			})
 
@@ -490,7 +491,7 @@ var _ = Describe("VaultServer", func() {
 					}
 				}, timeOut, pollingInterval).Should(BeTrue(), "number of pods should be equal to v.spce.nodes")
 
-				p := rand.Int() % int(len(pods.Items))
+				p := rand.Int() % len(pods.Items)
 
 				err = f.DeletePod(pods.Items[p].Name, vs.Namespace)
 				Expect(err).NotTo(HaveOccurred())
@@ -531,10 +532,12 @@ var _ = Describe("VaultServer", func() {
 				shouldCreateVaultServer(vs)
 			})
 			AfterEach(func() {
-				f.DeleteVaultServer(vs.ObjectMeta)
+				err := f.DeleteVaultServer(vs.ObjectMeta)
+				Expect(err).NotTo(HaveOccurred())
 				checkForVaultServerCleanup(vs)
 
-				f.DeleteSecret("k8s-inmem-keys-123411", vs.Namespace)
+				err = f.DeleteSecret("k8s-inmem-keys-123411", vs.Namespace)
+				Expect(err).NotTo(HaveOccurred())
 				checkForSecretDeleted("k8s-inmem-keys-123411", vs.Namespace)
 			})
 
@@ -576,10 +579,11 @@ var _ = Describe("VaultServer", func() {
 		})
 
 		AfterEach(func() {
-			f.DeleteVaultServer(vs.ObjectMeta)
+			err := f.DeleteVaultServer(vs.ObjectMeta)
+			Expect(err).NotTo(HaveOccurred())
 			checkForVaultServerCleanup(vs)
 
-			err := f.DeleteSecret(secretName, vs.Namespace)
+			err = f.DeleteSecret(secretName, vs.Namespace)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -1189,10 +1193,11 @@ var _ = Describe("VaultServer", func() {
 		})
 
 		AfterEach(func() {
-			f.DeleteVaultServer(vs.ObjectMeta)
+			err := f.DeleteVaultServer(vs.ObjectMeta)
+			Expect(err).NotTo(HaveOccurred())
 			checkForVaultServerCleanup(vs)
 
-			err := f.DeleteSecret(secretName, vs.Namespace)
+			err = f.DeleteSecret(secretName, vs.Namespace)
 			Expect(err).NotTo(HaveOccurred())
 		})
 

@@ -114,8 +114,7 @@ func (c *VaultController) reconcileMySQLRole(dbRClient database.DatabaseRoleInte
 
 func (c *VaultController) updatedMySQLRoleStatus(status *api.MySQLRoleStatus, mRole *api.MySQLRole) error {
 	_, err := patchutil.UpdateMySQLRoleStatus(c.extClient.EngineV1alpha1(), mRole, func(s *api.MySQLRoleStatus) *api.MySQLRoleStatus {
-		s = status
-		return s
+		return status
 	})
 	return err
 }

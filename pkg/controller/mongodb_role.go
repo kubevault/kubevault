@@ -19,7 +19,7 @@ import (
 
 const (
 	MongoDBRolePhaseSuccess    api.MongoDBRolePhase = "Success"
-	MongoDBRoleConditionFailed                      = "Failed"
+	MongoDBRoleConditionFailed string               = "Failed"
 	finalizerInterval                               = 5 * time.Second
 	finalizerTimeout                                = 30 * time.Second
 )
@@ -116,8 +116,7 @@ func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleIn
 
 func (c *VaultController) updatedMongoDBRoleStatus(status *api.MongoDBRoleStatus, mRole *api.MongoDBRole) error {
 	_, err := patchutil.UpdateMongoDBRoleStatus(c.extClient.EngineV1alpha1(), mRole, func(s *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
-		s = status
-		return s
+		return status
 	})
 	return err
 }

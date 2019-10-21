@@ -114,8 +114,7 @@ func (c *VaultController) reconcilePostgresRole(dbRClient database.DatabaseRoleI
 
 func (c *VaultController) updatePostgresRoleStatus(status *api.PostgresRoleStatus, pgRole *api.PostgresRole) error {
 	_, err := patchutil.UpdatePostgresRoleStatus(c.extClient.EngineV1alpha1(), pgRole, func(s *api.PostgresRoleStatus) *api.PostgresRoleStatus {
-		s = status
-		return s
+		return status
 	})
 	return err
 }

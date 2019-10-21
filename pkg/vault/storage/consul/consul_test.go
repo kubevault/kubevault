@@ -11,11 +11,6 @@ import (
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 )
 
-var (
-	masterURL  string
-	kubeconfig string
-)
-
 const (
 	aclCredName     = "aclcred"
 	aclToken        = "aclToken"

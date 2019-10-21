@@ -169,7 +169,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.Credent
 		status.Lease = &api.Lease{
 			ID: credSecret.LeaseID,
 			Duration: metav1.Duration{
-				time.Second * time.Duration(credSecret.LeaseDuration),
+				Duration: time.Second * time.Duration(credSecret.LeaseDuration),
 			},
 			Renewable: credSecret.Renewable,
 		}
@@ -224,8 +224,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.Credent
 
 func (c *VaultController) updateDatabaseAccessRequestStatus(status *api.DatabaseAccessRequestStatus, dbAReq *api.DatabaseAccessRequest) error {
 	_, err := patchutil.UpdateDatabaseAccessRequestStatus(c.extClient.EngineV1alpha1(), dbAReq, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
-		s = status
-		return s
+		return status
 	})
 	return err
 }

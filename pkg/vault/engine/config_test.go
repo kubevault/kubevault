@@ -12,12 +12,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcatfake "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/fake"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
-func vaultClient(addr, token string) (*vaultapi.Client, error) {
+const Token = "root"
+
+func vaultClient(addr string) (*vaultapi.Client, error) {
 	cfg := vaultapi.DefaultConfig()
 	err := cfg.ConfigureTLS(&vaultapi.TLSConfig{
 		Insecure: true,
@@ -30,7 +33,7 @@ func vaultClient(addr, token string) (*vaultapi.Client, error) {
 		return nil, err
 	}
 
-	c.SetToken(token)
+	c.SetToken(Token)
 	err = c.SetAddress(addr)
 	if err != nil {
 		return nil, err
@@ -47,13 +50,15 @@ func NewFakeVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, err := w.Write([]byte(err.Error()))
+			utilruntime.Must(err)
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["credentials"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("credentials aren't provided"))
+				_, err := w.Write([]byte("credentials aren't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			w.WriteHeader(http.StatusOK)
@@ -150,33 +155,39 @@ func NewFakeVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, err := w.Write([]byte(err.Error()))
+			utilruntime.Must(err)
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["plugin_name"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("plugin_name doesn't provided"))
+				_, err := w.Write([]byte("plugin_name doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			if v, ok := m["allowed_roles"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("allowed_roles doesn't provided"))
+				_, err := w.Write([]byte("allowed_roles doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			if v, ok := m["connection_url"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("connection_url doesn't provided"))
+				_, err := w.Write([]byte("connection_url doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			if v, ok := m["username"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
+				_, err := w.Write([]byte("username doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			if v, ok := m["password"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
+				_, err := w.Write([]byte("username doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 
@@ -190,33 +201,39 @@ func NewFakeVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, err := w.Write([]byte(err.Error()))
+			utilruntime.Must(err)
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["plugin_name"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("plugin_name doesn't provided"))
+				_, err := w.Write([]byte("plugin_name doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			if v, ok := m["allowed_roles"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("allowed_roles doesn't provided"))
+				_, err := w.Write([]byte("allowed_roles doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			if v, ok := m["connection_url"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("connection_url doesn't provided"))
+				_, err := w.Write([]byte("connection_url doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			if v, ok := m["username"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
+				_, err := w.Write([]byte("username doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			if v, ok := m["password"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
+				_, err := w.Write([]byte("username doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 
@@ -230,33 +247,39 @@ func NewFakeVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			_, err := w.Write([]byte(err.Error()))
+			utilruntime.Must(err)
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["plugin_name"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("plugin_name doesn't provided"))
+				_, err := w.Write([]byte("plugin_name doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			if v, ok := m["allowed_roles"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("allowed_roles doesn't provided"))
+				_, err := w.Write([]byte("allowed_roles doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			if v, ok := m["connection_url"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("connection_url doesn't provided"))
+				_, err := w.Write([]byte("connection_url doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			if v, ok := m["username"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
+				_, err := w.Write([]byte("username doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 			if v, ok := m["password"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
+				_, err := w.Write([]byte("username doesn't provided"))
+				utilruntime.Must(err)
 				return
 			}
 
@@ -317,7 +340,7 @@ func TestSecretEngine_CreateGCPConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			vc, err := vaultClient(srv.URL, "root")
+			vc, err := vaultClient(srv.URL)
 			assert.Nil(t, err, "failed to create vault client")
 
 			secretEngineClient := &SecretEngine{
@@ -498,7 +521,7 @@ func TestSecretEngine_CreateAzureConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			vc, err := vaultClient(srv.URL, "root")
+			vc, err := vaultClient(srv.URL)
 			assert.Nil(t, err, "failed to create vault client")
 
 			seClient := &SecretEngine{
@@ -647,7 +670,7 @@ func TestSecretEngine_CreateAWSConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			vc, err := vaultClient(srv.URL, "root")
+			vc, err := vaultClient(srv.URL)
 			assert.Nil(t, err, "failed to create vault client")
 
 			seClient := &SecretEngine{

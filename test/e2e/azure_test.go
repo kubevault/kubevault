@@ -39,10 +39,8 @@ var _ = Describe("Azure Secret Engine", func() {
 			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is succeeded", namespace, name))
 			Eventually(func() bool {
 				r, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
-				if err == nil {
-					return r.Status.Phase == controller.SecretEnginePhaseSuccess
-				}
-				return false
+				return err == nil && r.Status.Phase == controller.SecretEnginePhaseSuccess
+
 			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine status is succeeded")
 
 		}
@@ -64,10 +62,8 @@ var _ = Describe("Azure Secret Engine", func() {
 			By(fmt.Sprintf("Checking whether AzureRole:(%s/%s) is succeeded", namespace, name))
 			Eventually(func() bool {
 				r, err := f.CSClient.EngineV1alpha1().AzureRoles(namespace).Get(name, metav1.GetOptions{})
-				if err == nil {
-					return r.Status.Phase == controller.AzureRolePhaseSuccess
-				}
-				return false
+				return err == nil && r.Status.Phase == controller.AzureRolePhaseSuccess
+
 			}, timeOut, pollingInterval).Should(BeTrue(), "AzureRole status is succeeded")
 
 		}
@@ -76,20 +72,15 @@ var _ = Describe("Azure Secret Engine", func() {
 			By(fmt.Sprintf("Checking whether AzureRole:(%s/%s) is failed", namespace, name))
 			Eventually(func() bool {
 				r, err := f.CSClient.EngineV1alpha1().AzureRoles(namespace).Get(name, metav1.GetOptions{})
-				if err == nil {
-					return r.Status.Phase != controller.AzureRolePhaseSuccess && len(r.Status.Conditions) != 0
-				}
-				return false
+				return err == nil && r.Status.Phase != controller.AzureRolePhaseSuccess && len(r.Status.Conditions) != 0
+
 			}, timeOut, pollingInterval).Should(BeTrue(), "AzureRole status is failed")
 		}
 		IsAzureAccessKeyRequestCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AzureAccessKeyRequest:(%s/%s) is created", namespace, name))
 			Eventually(func() bool {
 				_, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
-				if err == nil {
-					return true
-				}
-				return false
+				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "AzureAccessKeyRequest is created")
 		}
 		IsAzureAccessKeyRequestDeleted = func(name, namespace string) {

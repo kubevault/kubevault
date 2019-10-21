@@ -19,7 +19,7 @@ import (
 
 const (
 	AzureAccessKeyRequestFailed    api.RequestConditionType = "Failed"
-	AzureAccessKeyRequestFinalizer                          = "azureaccesskeyrequest.engine.kubevault.com"
+	AzureAccessKeyRequestFinalizer string                   = "azureaccesskeyrequest.engine.kubevault.com"
 )
 
 func (c *VaultController) initAzureAccessKeyWatcher() {
@@ -173,7 +173,7 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(azureCM credential.Cred
 		status.Lease = &api.Lease{
 			ID: credSecret.LeaseID,
 			Duration: metav1.Duration{
-				time.Second * time.Duration(credSecret.LeaseDuration),
+				Duration: time.Second * time.Duration(credSecret.LeaseDuration),
 			},
 			Renewable: credSecret.Renewable,
 		}
@@ -228,8 +228,7 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(azureCM credential.Cred
 
 func (c *VaultController) updateAzureAccessKeyRequestStatus(status *api.AzureAccessKeyRequestStatus, azureAKReq *api.AzureAccessKeyRequest) error {
 	_, err := patchutil.UpdateAzureAccessKeyRequestStatus(c.extClient.EngineV1alpha1(), azureAKReq, func(s *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
-		s = status
-		return s
+		return status
 	})
 	return err
 }

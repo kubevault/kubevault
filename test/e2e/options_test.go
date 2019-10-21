@@ -2,12 +2,14 @@ package e2e_test
 
 import (
 	"flag"
+	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/appscode/go/flags"
 	logs "github.com/appscode/go/log/golog"
-	clientSetScheme "k8s.io/client-go/kubernetes/scheme"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/util/homedir"
 	appcatscheme "kmodules.xyz/custom-resources/client/clientset/versioned/scheme"
 	"kubevault.dev/operator/client/clientset/versioned/scheme"
@@ -40,9 +42,9 @@ var (
 )
 
 func init() {
-	scheme.AddToScheme(clientSetScheme.Scheme)
-	appcatscheme.AddToScheme(clientSetScheme.Scheme)
-	dbscheme.AddToScheme(clientSetScheme.Scheme)
+	utilruntime.Must(scheme.AddToScheme(clientsetscheme.Scheme))
+	utilruntime.Must(appcatscheme.AddToScheme(clientsetscheme.Scheme))
+	utilruntime.Must(dbscheme.AddToScheme(clientsetscheme.Scheme))
 
 	options.AddGoFlags(flag.CommandLine)
 	flag.StringVar(&options.KubeConfig, "kubeconfig", options.KubeConfig, "Path to kubeconfig file with authorization information (the master location is set by the master flag).")
@@ -61,7 +63,10 @@ func enableLogging() {
 		logs.InitLogs()
 		defer logs.FlushLogs()
 	}()
-	flag.Set("logtostderr", "true")
+	err := flag.Set("logtostderr", "true")
+	if err != nil {
+		log.Printf("Set flag failed with :%v\n", err)
+	}
 	logLevelFlag := flag.Lookup("v")
 	if logLevelFlag != nil {
 		if len(logLevelFlag.Value.String()) > 0 && logLevelFlag.Value.String() != "0" {

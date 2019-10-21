@@ -7,6 +7,7 @@ import (
 	"github.com/appscode/go/flags"
 	v "github.com/appscode/go/version"
 	"github.com/spf13/cobra"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/kubernetes/pkg/api/legacyscheme"
@@ -25,9 +26,9 @@ func NewRootCmd() *cobra.Command {
 			flags.DumpAll(c.Flags())
 			cli.SendAnalytics(c, v.Version.Version)
 
-			scheme.AddToScheme(clientsetscheme.Scheme)
-			appcatscheme.AddToScheme(clientsetscheme.Scheme)
-			scheme.AddToScheme(legacyscheme.Scheme)
+			utilruntime.Must(scheme.AddToScheme(clientsetscheme.Scheme))
+			utilruntime.Must(appcatscheme.AddToScheme(clientsetscheme.Scheme))
+			utilruntime.Must(scheme.AddToScheme(legacyscheme.Scheme))
 		},
 	}
 	rootCmd.PersistentFlags().AddGoFlagSet(flag.CommandLine)

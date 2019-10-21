@@ -14,6 +14,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
@@ -30,11 +31,12 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/aws/login", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
-		json.NewDecoder(r.Body).Decode(&v)
+		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
 		if val, ok := v["role"]; ok {
 			if val.(string) == "good" {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(authResp))
+				_, err := w.Write([]byte(authResp))
+				utilruntime.Must(err)
 				return
 			}
 		}
@@ -44,11 +46,12 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/test/login", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
-		json.NewDecoder(r.Body).Decode(&v)
+		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
 		if val, ok := v["role"]; ok {
 			if val.(string) == "try" {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(authResp))
+				_, err := w.Write([]byte(authResp))
+				utilruntime.Must(err)
 				return
 			}
 		}
@@ -59,14 +62,25 @@ func NewFakeVaultServer() *httptest.Server {
 }
 
 func TestAuth_Login(t *testing.T) {
+	accessKey := os.Getenv("AWS_ACCESS_KEY_ID")
+	secretKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
+	if accessKey == "" || secretKey == "" {
+		t.Skip()
+	}
+
 	srv := NewFakeVaultServer()
 	defer srv.Close()
 
 	vc, err := vaultapi.NewClient(vaultapi.DefaultConfig())
 	if !assert.Nil(t, err) {
-		return
+		t.Skip()
 	}
-	vc.SetAddress(srv.URL)
+	utilruntime.Must(vc.SetAddress(srv.URL))
+
+	awsCred, err := retrieveCreds(accessKey, secretKey, "")
+	if !assert.Nil(t, err) {
+		t.Skip()
+	}
 
 	cases := []struct {
 		testName  string
@@ -77,6 +91,7 @@ func TestAuth_Login(t *testing.T) {
 			testName: "login success",
 			au: &auth{
 				vClient: vc,
+				creds:   awsCred,
 				role:    "good",
 				path:    "aws",
 			},
@@ -154,6 +169,7 @@ func TestLogin(t *testing.T) {
 			"secret_access_key": []byte(secretKey),
 		},
 	})
+	assert.Nil(t, err)
 
 	token, err := au.Login()
 	if assert.Nil(t, err) {

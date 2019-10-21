@@ -86,10 +86,7 @@ var _ = Describe("GCP Secret Engine", func() {
 			By(fmt.Sprintf("Checking whether GCPAccessKeyRequest:(%s/%s) is created", namespace, name))
 			Eventually(func() bool {
 				_, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
-				if err == nil {
-					return true
-				}
-				return false
+				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "GCPAccessKeyRequest is created")
 		}
 		IsGCPAccessKeyRequestDeleted = func(name, namespace string) {

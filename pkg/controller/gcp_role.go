@@ -18,8 +18,8 @@ import (
 
 const (
 	GCPRolePhaseSuccess    api.GCPRolePhase = "Success"
-	GCPRoleConditionFailed                  = "Failed"
-	GCPRoleFinalizer                        = "gcprole.engine.kubevault.com"
+	GCPRoleConditionFailed string           = "Failed"
+	GCPRoleFinalizer       string           = "gcprole.engine.kubevault.com"
 )
 
 func (c *VaultController) initGCPRoleWatcher() {
@@ -113,8 +113,7 @@ func (c *VaultController) reconcileGCPRole(gcpRClient gcp.GCPRoleInterface, gcpR
 
 func (c *VaultController) updatedGCPRoleStatus(status *api.GCPRoleStatus, gcpRole *api.GCPRole) error {
 	_, err := patchutil.UpdateGCPRoleStatus(c.extClient.EngineV1alpha1(), gcpRole, func(s *api.GCPRoleStatus) *api.GCPRoleStatus {
-		s = status
-		return s
+		return status
 	})
 	return err
 }

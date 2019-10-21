@@ -143,7 +143,7 @@ func TestSecretEngine_CreatePolicy(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			vc, err := vaultClient(srv.URL, "root")
+			vc, err := vaultClient(srv.URL)
 			assert.Nil(t, err, "failed to create vault client")
 
 			seClient := &SecretEngine{

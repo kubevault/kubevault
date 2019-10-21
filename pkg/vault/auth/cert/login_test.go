@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	core "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
@@ -29,11 +30,12 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/cert/login", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
-		json.NewDecoder(r.Body).Decode(&v)
+		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
 		if val, ok := v["name"]; ok {
 			if val.(string) == "good" {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(authResp))
+				_, err := w.Write([]byte(authResp))
+				utilruntime.Must(err)
 				return
 			}
 		}
@@ -43,11 +45,12 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/test/login", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
-		json.NewDecoder(r.Body).Decode(&v)
+		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
 		if val, ok := v["name"]; ok {
 			if val.(string) == "try" {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(authResp))
+				_, err := w.Write([]byte(authResp))
+				utilruntime.Must(err)
 				return
 			}
 		}
@@ -65,7 +68,7 @@ func TestAuth_Login(t *testing.T) {
 	if !assert.Nil(t, err) {
 		return
 	}
-	vc.SetAddress(srv.URL)
+	utilruntime.Must(vc.SetAddress(srv.URL))
 
 	cases := []struct {
 		testName  string
@@ -184,6 +187,7 @@ vZvzz7lCsjRshgwyDcgM5O+m
 `),
 		},
 	})
+	assert.Nil(t, err)
 
 	token, err := au.Login()
 	if assert.Nil(t, err) {

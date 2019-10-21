@@ -31,8 +31,7 @@ const (
 
 func (f *Framework) DeployVaultServer() (*appcat.AppReference, error) {
 
-	var vServer *v1alpha1.VaultServer
-	vServer = &v1alpha1.VaultServer{
+	vServer := &v1alpha1.VaultServer{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      VaultServerName,
 			Namespace: f.namespace,
@@ -188,7 +187,7 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 		},
 		Spec: appcat.AppBindingSpec{
 			Secret: &core.LocalObjectReference{
-				VaultTokenSecret,
+				Name: VaultTokenSecret,
 			},
 			ClientConfig: appcat.ClientConfig{
 				URL:                   &url,

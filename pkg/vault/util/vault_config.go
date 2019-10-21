@@ -51,6 +51,9 @@ func NewVaultClient(hostname string, port string, tlsConfig *vaultapi.TLSConfig)
 	cfg := vaultapi.DefaultConfig()
 	podURL := fmt.Sprintf("https://%s:%s", hostname, port)
 	cfg.Address = podURL
-	cfg.ConfigureTLS(tlsConfig)
+	err := cfg.ConfigureTLS(tlsConfig)
+	if err != nil {
+		return nil, err
+	}
 	return vaultapi.NewClient(cfg)
 }

@@ -63,7 +63,7 @@ func (o *Options) GetStorageConfig() (string, error) {
 	if o.Bucket != "" {
 		params = append(params, fmt.Sprintf(`bucket = "%s"`, o.Bucket))
 	}
-	if o.HAEnabled == true {
+	if o.HAEnabled {
 		params = append(params, fmt.Sprintf(`ha_enabled = "true"`))
 	}
 	if o.ChunkSize != "" {
