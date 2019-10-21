@@ -1,5 +1,5 @@
 [![Go Report Card](https://goreportcard.com/badge/kubevault.dev/operator)](https://goreportcard.com/report/kubevault.dev/operator)
-[![Build Status](https://travis-ci.org/kubevault/operator.svg?branch=master)](https://travis-ci.org/kubevault/operator)
+[![Build Status](https://github.com/kubevault/operator/workflows/CI/badge.svg)](https://github.com/kubevault/operator/actions?workflow=CI)
 [![codecov](https://codecov.io/gh/kubevault/operator/branch/master/graph/badge.svg)](https://codecov.io/gh/kubevault/operator)
 [![Docker Pulls](https://img.shields.io/docker/pulls/kubevault/vault-operator.svg)](https://hub.docker.com/r/kubevault/vault-operator/)
 [![Slack](https://slack.appscode.com/badge.svg)](https://slack.appscode.com)
