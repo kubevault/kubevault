@@ -15,6 +15,7 @@ import (
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcatfake "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/fake"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 const Token = "root"
@@ -49,13 +50,13 @@ func NewFakeVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			util.LogWriteErr(w.Write([]byte(err.Error())))
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["credentials"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("credentials aren't provided"))
+				util.LogWriteErr(w.Write([]byte("credentials aren't provided")))
 				return
 			}
 			w.WriteHeader(http.StatusOK)
@@ -152,33 +153,33 @@ func NewFakeVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			util.LogWriteErr(w.Write([]byte(err.Error())))
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["plugin_name"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("plugin_name doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("plugin_name doesn't provided")))
 				return
 			}
 			if v, ok := m["allowed_roles"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("allowed_roles doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("allowed_roles doesn't provided")))
 				return
 			}
 			if v, ok := m["connection_url"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("connection_url doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("connection_url doesn't provided")))
 				return
 			}
 			if v, ok := m["username"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("username doesn't provided")))
 				return
 			}
 			if v, ok := m["password"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("username doesn't provided")))
 				return
 			}
 
@@ -192,33 +193,33 @@ func NewFakeVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			util.LogWriteErr(w.Write([]byte(err.Error())))
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["plugin_name"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("plugin_name doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("plugin_name doesn't provided")))
 				return
 			}
 			if v, ok := m["allowed_roles"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("allowed_roles doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("allowed_roles doesn't provided")))
 				return
 			}
 			if v, ok := m["connection_url"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("connection_url doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("connection_url doesn't provided")))
 				return
 			}
 			if v, ok := m["username"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("username doesn't provided")))
 				return
 			}
 			if v, ok := m["password"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("username doesn't provided")))
 				return
 			}
 
@@ -232,33 +233,33 @@ func NewFakeVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			util.LogWriteErr(w.Write([]byte(err.Error())))
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["plugin_name"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("plugin_name doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("plugin_name doesn't provided")))
 				return
 			}
 			if v, ok := m["allowed_roles"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("allowed_roles doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("allowed_roles doesn't provided")))
 				return
 			}
 			if v, ok := m["connection_url"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("connection_url doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("connection_url doesn't provided")))
 				return
 			}
 			if v, ok := m["username"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("username doesn't provided")))
 				return
 			}
 			if v, ok := m["password"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("username doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("username doesn't provided")))
 				return
 			}
 

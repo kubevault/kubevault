@@ -38,7 +38,7 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, vs *api.Va
 
 	for {
 		// Do not wait to update Phase ASAP.
-		latest, err := c.updateVaultCRStatus(ctx, vs.Name, vs.Namespace, &s)
+		latest, err := c.updateVaultCRStatus(vs.Name, vs.Namespace, &s)
 		if err != nil {
 			glog.Errorf("vault status monitor: failed updating the status for the vault server %s: %v", vs.Name, err)
 		}
@@ -54,12 +54,12 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, vs *api.Va
 		case <-time.After(5 * time.Second):
 		}
 
-		c.updateLocalVaultCRStatus(ctx, vs, &s, tlsConfig)
+		c.updateLocalVaultCRStatus(vs, &s, tlsConfig)
 	}
 }
 
 // updateLocalVaultCRStatus updates local vault CR status by querying each vault pod's API.
-func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, vs *api.VaultServer, s *api.VaultServerStatus, tlsConfig *vaultapi.TLSConfig) {
+func (c *VaultController) updateLocalVaultCRStatus(vs *api.VaultServer, s *api.VaultServerStatus, tlsConfig *vaultapi.TLSConfig) {
 	name, namespace := vs.Name, vs.Namespace
 	sel := vs.OffshootSelectors()
 
@@ -147,7 +147,7 @@ func (c *VaultController) updateLocalVaultCRStatus(ctx context.Context, vs *api.
 }
 
 // updateVaultCRStatus updates the status field of the Vault CR.
-func (c *VaultController) updateVaultCRStatus(ctx context.Context, name, namespace string, status *api.VaultServerStatus) (*api.VaultServer, error) {
+func (c *VaultController) updateVaultCRStatus(name, namespace string, status *api.VaultServerStatus) (*api.VaultServer, error) {
 	vault, err := c.extClient.KubevaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		key := namespace + "/" + name

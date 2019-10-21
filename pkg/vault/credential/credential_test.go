@@ -14,6 +14,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 func vaultServer() *httptest.Server {
@@ -21,12 +22,12 @@ func vaultServer() *httptest.Server {
 
 	router.HandleFunc("/v1/sys/leases/revoke/success", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("{}"))
+		util.LogWriteErr(w.Write([]byte("{}")))
 	}).Methods(http.MethodPut)
 
 	router.HandleFunc("/v1/sys/leases/revoke/error", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("error"))
+		util.LogWriteErr(w.Write([]byte("error")))
 	}).Methods(http.MethodPut)
 
 	router.HandleFunc("/v1/sys/leases/lookup", func(w http.ResponseWriter, r *http.Request) {
@@ -36,15 +37,15 @@ func vaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			util.LogWriteErr(w.Write([]byte(err.Error())))
 		}
 
 		if data.LeaseID == "1234" {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{}`))
+			util.LogWriteErr(w.Write([]byte(`{}`)))
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(`{"errors":["invalid lease"]}`))
+			util.LogWriteErr(w.Write([]byte(`{"errors":["invalid lease"]}`)))
 		}
 
 	}).Methods(http.MethodPut)

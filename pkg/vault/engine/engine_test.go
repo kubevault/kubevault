@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 const sampleMountResponse = `
@@ -154,7 +155,7 @@ func NewFakeVaultMountServer() *httptest.Server {
 
 	router.HandleFunc("/v1/sys/mounts", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(sampleMountResponse))
+		util.LogWriteErr(w.Write([]byte(sampleMountResponse)))
 	}).Methods(http.MethodGet)
 
 	router.HandleFunc("/v1/sys/mounts/{path}", func(w http.ResponseWriter, r *http.Request) {

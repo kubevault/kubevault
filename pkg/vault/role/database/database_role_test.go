@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 func setupVaultServer() *httptest.Server {
@@ -19,7 +20,7 @@ func setupVaultServer() *httptest.Server {
 
 	router.HandleFunc("/v1/database/roles/error", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("error"))
+		util.LogWriteErr(w.Write([]byte("error")))
 	}).Methods(http.MethodDelete)
 
 	return httptest.NewServer(router)

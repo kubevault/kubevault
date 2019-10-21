@@ -19,9 +19,7 @@ import (
 const (
 	AWSRolePhaseSuccess    api.AWSRolePhase = "Success"
 	AWSRoleConditionFailed string           = "Failed"
-)
-const (
-	AWSRoleFinalizer = "awsrole.engine.kubevault.com"
+	AWSRoleFinalizer       string           = "awsrole.engine.kubevault.com"
 )
 
 func (c *VaultController) initAWSRoleWatcher() {

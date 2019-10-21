@@ -2,6 +2,7 @@ package e2e_test
 
 import (
 	"flag"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -62,7 +63,10 @@ func enableLogging() {
 		logs.InitLogs()
 		defer logs.FlushLogs()
 	}()
-	flag.Set("logtostderr", "true")
+	err := flag.Set("logtostderr", "true")
+	if err != nil {
+		log.Printf("Set flag failed with :%v\n", err)
+	}
 	logLevelFlag := flag.Lookup("v")
 	if logLevelFlag != nil {
 		if len(logLevelFlag.Value.String()) > 0 && logLevelFlag.Value.String() != "0" {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"google.golang.org/api/option"
 	"time"
 
 	vaultapi "github.com/hashicorp/vault/api"
@@ -12,6 +11,7 @@ import (
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
 	"google.golang.org/api/iam/v1"
+	"google.golang.org/api/option"
 	core "k8s.io/api/core/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	"kubevault.dev/operator/apis"

@@ -14,6 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 func CreateDemoDB() ([]GCPRole, *httptest.Server) {
@@ -141,31 +142,31 @@ func setupVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			util.LogWriteErr(w.Write([]byte(err.Error())))
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["secret_type"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusNotFound)
-				w.Write([]byte("secret_type isn't specified!"))
+				util.LogWriteErr(w.Write([]byte("secret_type isn't specified!")))
 				return
 			}
 
 			if v, ok := m["project"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusNotFound)
-				w.Write([]byte("project name isn't specified!"))
+				util.LogWriteErr(w.Write([]byte("project name isn't specified!")))
 				return
 			}
 
 			if v, ok := m["bindings"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusNotFound)
-				w.Write([]byte("bindings aren't specified!"))
+				util.LogWriteErr(w.Write([]byte("bindings aren't specified!")))
 				return
 			}
 
 			if v, ok := m["token_scopes"]; !ok || v == nil {
 				w.WriteHeader(http.StatusNotFound)
-				w.Write([]byte("token_scopes aren't specified!"))
+				util.LogWriteErr(w.Write([]byte("token_scopes aren't specified!")))
 				return
 			}
 			w.WriteHeader(http.StatusOK)

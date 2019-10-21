@@ -15,6 +15,7 @@ import (
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 func setupVaultServer() *httptest.Server {
@@ -26,13 +27,13 @@ func setupVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			util.LogWriteErr(w.Write([]byte(err.Error())))
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["db_name"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("db_name doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("db_name doesn't provided")))
 				return
 			}
 			w.WriteHeader(http.StatusOK)
@@ -45,7 +46,7 @@ func setupVaultServer() *httptest.Server {
 
 	router.HandleFunc("/v1/database/roles/error", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("error"))
+		util.LogWriteErr(w.Write([]byte("error")))
 	}).Methods(http.MethodDelete)
 
 	return httptest.NewServer(router)
@@ -133,9 +134,9 @@ func TestNewMongoDBRoleBindingCreatRole(t *testing.T) {
 	}
 
 	cfg := vaultapi.DefaultConfig()
-	cfg.ConfigureTLS(&vaultapi.TLSConfig{
+	util.LogErr(cfg.ConfigureTLS(&vaultapi.TLSConfig{
 		Insecure: true,
-	})
+	}))
 
 	v, _ := vaultapi.NewClient(cfg)
 
@@ -144,7 +145,7 @@ func TestNewMongoDBRoleBindingCreatRole(t *testing.T) {
 	}
 
 	k := kfake.NewSimpleClientset()
-	k.CoreV1().Secrets("default").Create(&corev1.Secret{
+	_, err := k.CoreV1().Secrets("default").Create(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "default",
 			Name:      "cred",
@@ -154,8 +155,9 @@ func TestNewMongoDBRoleBindingCreatRole(t *testing.T) {
 			"password": []byte("root"),
 		},
 	})
+	util.LogErr(err)
 
-	v.SetAddress(addr)
+	util.LogErr(v.SetAddress(addr))
 	v.SetToken(token)
 
 	m := &MongoDBRole{
@@ -177,6 +179,6 @@ func TestNewMongoDBRoleBindingCreatRole(t *testing.T) {
 		},
 	}
 
-	err := m.CreateRole()
+	err = m.CreateRole()
 	assert.Nil(t, err)
 }

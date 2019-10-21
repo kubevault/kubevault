@@ -13,6 +13,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/util"
 )
 
 func setupVaultServer() *httptest.Server {
@@ -24,13 +25,13 @@ func setupVaultServer() *httptest.Server {
 		err := json.NewDecoder(r.Body).Decode(&data)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
+			util.LogWriteErr(w.Write([]byte(err.Error())))
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["db_name"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("db_name doesn't provided"))
+				util.LogWriteErr(w.Write([]byte("db_name doesn't provided")))
 				return
 			}
 			w.WriteHeader(http.StatusOK)
@@ -43,7 +44,7 @@ func setupVaultServer() *httptest.Server {
 
 	router.HandleFunc("/v1/database/roles/error", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("error"))
+		util.LogWriteErr(w.Write([]byte("error")))
 	}).Methods(http.MethodDelete)
 
 	return httptest.NewServer(router)

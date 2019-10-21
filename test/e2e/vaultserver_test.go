@@ -234,9 +234,9 @@ var _ = Describe("VaultServer", func() {
 								By(fmt.Sprintf("vault url: %s", url))
 								cfg := vaultapi.DefaultConfig()
 								cfg.Address = url
-								cfg.ConfigureTLS(&vaultapi.TLSConfig{
+								util.LogErr(cfg.ConfigureTLS(&vaultapi.TLSConfig{
 									Insecure: true,
-								})
+								}))
 								vc, err := vaultapi.NewClient(cfg)
 								if err == nil {
 									status, err := vc.Sys().Leader()
@@ -421,7 +421,8 @@ var _ = Describe("VaultServer", func() {
 				shouldCreateVaultServer(vs)
 			})
 			AfterEach(func() {
-				f.DeleteVaultServer(vs.ObjectMeta)
+				err := f.DeleteVaultServer(vs.ObjectMeta)
+				Expect(err).NotTo(HaveOccurred())
 				checkForVaultServerCleanup(vs)
 
 				Expect(f.DeleteSecret(vaultKeySecret, vs.Namespace)).NotTo(HaveOccurred(), "delete vault key secret")
@@ -462,10 +463,12 @@ var _ = Describe("VaultServer", func() {
 				shouldCreateVaultServer(vs)
 			})
 			AfterEach(func() {
-				f.DeleteVaultServer(vs.ObjectMeta)
+				err := f.DeleteVaultServer(vs.ObjectMeta)
+				Expect(err).NotTo(HaveOccurred())
 				checkForVaultServerCleanup(vs)
 
-				f.DeleteSecret(vaultKeySecret, vs.Namespace)
+				err = f.DeleteSecret(vaultKeySecret, vs.Namespace)
+				Expect(err).NotTo(HaveOccurred())
 				checkForSecretDeleted(vaultKeySecret, vs.Namespace)
 			})
 
@@ -487,7 +490,7 @@ var _ = Describe("VaultServer", func() {
 					}
 				}, timeOut, pollingInterval).Should(BeTrue(), "number of pods should be equal to v.spce.nodes")
 
-				p := rand.Int() % int(len(pods.Items))
+				p := rand.Int() % len(pods.Items)
 
 				err = f.DeletePod(pods.Items[p].Name, vs.Namespace)
 				Expect(err).NotTo(HaveOccurred())
@@ -528,10 +531,12 @@ var _ = Describe("VaultServer", func() {
 				shouldCreateVaultServer(vs)
 			})
 			AfterEach(func() {
-				f.DeleteVaultServer(vs.ObjectMeta)
+				err := f.DeleteVaultServer(vs.ObjectMeta)
+				Expect(err).NotTo(HaveOccurred())
 				checkForVaultServerCleanup(vs)
 
-				f.DeleteSecret("k8s-inmem-keys-123411", vs.Namespace)
+				err = f.DeleteSecret("k8s-inmem-keys-123411", vs.Namespace)
+				Expect(err).NotTo(HaveOccurred())
 				checkForSecretDeleted("k8s-inmem-keys-123411", vs.Namespace)
 			})
 
@@ -573,10 +578,11 @@ var _ = Describe("VaultServer", func() {
 		})
 
 		AfterEach(func() {
-			f.DeleteVaultServer(vs.ObjectMeta)
+			err := f.DeleteVaultServer(vs.ObjectMeta)
+			Expect(err).NotTo(HaveOccurred())
 			checkForVaultServerCleanup(vs)
 
-			err := f.DeleteSecret(secretName, vs.Namespace)
+			err = f.DeleteSecret(secretName, vs.Namespace)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -1186,10 +1192,11 @@ var _ = Describe("VaultServer", func() {
 		})
 
 		AfterEach(func() {
-			f.DeleteVaultServer(vs.ObjectMeta)
+			err := f.DeleteVaultServer(vs.ObjectMeta)
+			Expect(err).NotTo(HaveOccurred())
 			checkForVaultServerCleanup(vs)
 
-			err := f.DeleteSecret(secretName, vs.Namespace)
+			err = f.DeleteSecret(secretName, vs.Namespace)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
