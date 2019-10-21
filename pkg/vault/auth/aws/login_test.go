@@ -60,6 +60,12 @@ func NewFakeVaultServer() *httptest.Server {
 }
 
 func TestAuth_Login(t *testing.T) {
+	accessKey := os.Getenv("AWS_ACCESS_KEY_ID")
+	secretKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
+	if accessKey == "" || secretKey == "" {
+		t.Skip()
+	}
+
 	srv := NewFakeVaultServer()
 	defer srv.Close()
 
@@ -69,6 +75,7 @@ func TestAuth_Login(t *testing.T) {
 	}
 	util.LogErr(vc.SetAddress(srv.URL))
 
+	awsCred, err := retrieveCreds(accessKey, secretKey, "")
 	cases := []struct {
 		testName  string
 		au        *auth
@@ -78,6 +85,7 @@ func TestAuth_Login(t *testing.T) {
 			testName: "login success",
 			au: &auth{
 				vClient: vc,
+				creds:   awsCred,
 				role:    "good",
 				path:    "aws",
 			},
