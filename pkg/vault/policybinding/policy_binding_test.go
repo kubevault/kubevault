@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
-	"kubevault.dev/operator/pkg/vault/util"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 )
 
 var (
@@ -69,7 +69,7 @@ func NewFakeVaultServer() *httptest.Server {
 
 	router.HandleFunc("/v1/auth/kubernetes/role/ok", func(w http.ResponseWriter, r *http.Request) {
 		v := map[string]interface{}{}
-		util.LogErr(json.NewDecoder(r.Body).Decode(&v))
+		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
 		fmt.Println("***")
 		fmt.Println(v)
 		fmt.Println("***")

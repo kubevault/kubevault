@@ -18,6 +18,7 @@ import (
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	awsconsts "kmodules.xyz/constants/aws"
 	googleconsts "kmodules.xyz/constants/google"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
@@ -234,7 +235,7 @@ var _ = Describe("VaultServer", func() {
 								By(fmt.Sprintf("vault url: %s", url))
 								cfg := vaultapi.DefaultConfig()
 								cfg.Address = url
-								util.LogErr(cfg.ConfigureTLS(&vaultapi.TLSConfig{
+								utilruntime.Must(cfg.ConfigureTLS(&vaultapi.TLSConfig{
 									Insecure: true,
 								}))
 								vc, err := vaultapi.NewClient(cfg)

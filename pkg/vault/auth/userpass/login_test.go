@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
-	"kubevault.dev/operator/pkg/vault/util"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 )
 
 const authResp = `
@@ -28,11 +28,12 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/userpass/login/{username}", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
-		util.LogErr(json.NewDecoder(r.Body).Decode(&v))
+		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
 		if val, ok := v["password"]; ok {
 			if val.(string) == "good" {
 				w.WriteHeader(http.StatusOK)
-				util.LogWriteErr(w.Write([]byte(authResp)))
+				_, err := w.Write([]byte(authResp))
+				utilruntime.Must(err)
 				return
 			}
 		}
@@ -42,11 +43,12 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/test/login/{username}", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
-		util.LogErr(json.NewDecoder(r.Body).Decode(&v))
+		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
 		if val, ok := v["password"]; ok {
 			if val.(string) == "try" {
 				w.WriteHeader(http.StatusOK)
-				util.LogWriteErr(w.Write([]byte(authResp)))
+				_, err := w.Write([]byte(authResp))
+				utilruntime.Must(err)
 				return
 			}
 		}
@@ -64,7 +66,7 @@ func TestAuth_Login(t *testing.T) {
 	if !assert.Nil(t, err) {
 		return
 	}
-	util.LogErr(vc.SetAddress(srv.URL))
+	utilruntime.Must(vc.SetAddress(srv.URL))
 
 	cases := []struct {
 		testName  string

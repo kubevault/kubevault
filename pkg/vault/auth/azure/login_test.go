@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
-	"kubevault.dev/operator/pkg/vault/util"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 )
 
 const authResp = `
@@ -25,7 +25,7 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/azure/login", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
-		util.LogErr(json.NewDecoder(r.Body).Decode(&v))
+		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
 		value, ok := v["role"]
 		if !ok || value == "" {
 			w.WriteHeader(http.StatusBadRequest)
@@ -38,13 +38,14 @@ func NewFakeVaultServer() *httptest.Server {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		util.LogWriteErr(w.Write([]byte(authResp)))
+		_, err := w.Write([]byte(authResp))
+		utilruntime.Must(err)
 	}).Methods(http.MethodPost)
 
 	router.HandleFunc("/v1/auth/my-path/login", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
-		util.LogErr(json.NewDecoder(r.Body).Decode(&v))
+		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
 
 		value, ok := v["role"]
 		if !ok || value == "" {
@@ -58,7 +59,8 @@ func NewFakeVaultServer() *httptest.Server {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		util.LogWriteErr(w.Write([]byte(authResp)))
+		_, err := w.Write([]byte(authResp))
+		utilruntime.Must(err)
 	}).Methods(http.MethodPost)
 
 	return httptest.NewServer(router)
@@ -73,7 +75,7 @@ func TestAuth_Login(t *testing.T) {
 		return
 	}
 
-	util.LogErr(vc.SetAddress(srv.URL))
+	utilruntime.Must(vc.SetAddress(srv.URL))
 
 	cases := []struct {
 		testName    string

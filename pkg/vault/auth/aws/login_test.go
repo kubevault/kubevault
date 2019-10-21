@@ -14,8 +14,8 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	"kubevault.dev/operator/pkg/vault/util"
 )
 
 const authResp = `
@@ -31,11 +31,12 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/aws/login", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
-		util.LogErr(json.NewDecoder(r.Body).Decode(&v))
+		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
 		if val, ok := v["role"]; ok {
 			if val.(string) == "good" {
 				w.WriteHeader(http.StatusOK)
-				util.LogWriteErr(w.Write([]byte(authResp)))
+				_, err := w.Write([]byte(authResp))
+				utilruntime.Must(err)
 				return
 			}
 		}
@@ -45,11 +46,12 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/test/login", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		defer r.Body.Close()
-		util.LogErr(json.NewDecoder(r.Body).Decode(&v))
+		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
 		if val, ok := v["role"]; ok {
 			if val.(string) == "try" {
 				w.WriteHeader(http.StatusOK)
-				util.LogWriteErr(w.Write([]byte(authResp)))
+				_, err := w.Write([]byte(authResp))
+				utilruntime.Must(err)
 				return
 			}
 		}
@@ -73,7 +75,7 @@ func TestAuth_Login(t *testing.T) {
 	if !assert.Nil(t, err) {
 		t.Skip()
 	}
-	util.LogErr(vc.SetAddress(srv.URL))
+	utilruntime.Must(vc.SetAddress(srv.URL))
 
 	awsCred, err := retrieveCreds(accessKey, secretKey, "")
 	if !assert.Nil(t, err) {
