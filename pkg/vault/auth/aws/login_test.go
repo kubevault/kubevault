@@ -71,11 +71,15 @@ func TestAuth_Login(t *testing.T) {
 
 	vc, err := vaultapi.NewClient(vaultapi.DefaultConfig())
 	if !assert.Nil(t, err) {
-		return
+		t.Skip()
 	}
 	util.LogErr(vc.SetAddress(srv.URL))
 
 	awsCred, err := retrieveCreds(accessKey, secretKey, "")
+	if !assert.Nil(t, err) {
+		t.Skip()
+	}
+
 	cases := []struct {
 		testName  string
 		au        *auth
