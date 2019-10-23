@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	core "k8s.io/api/core/v1"
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+
+	core "k8s.io/api/core/v1"
 )
 
 var fileStorageFmt = `

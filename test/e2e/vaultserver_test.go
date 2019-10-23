@@ -7,6 +7,11 @@ import (
 	"path/filepath"
 	"time"
 
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	"kubevault.dev/operator/pkg/controller"
+	"kubevault.dev/operator/pkg/vault/util"
+	"kubevault.dev/operator/test/e2e/framework"
+
 	rand_util "github.com/appscode/go/crypto/rand"
 	"github.com/golang/glog"
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
@@ -22,10 +27,6 @@ import (
 	awsconsts "kmodules.xyz/constants/aws"
 	googleconsts "kmodules.xyz/constants/google"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
-	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	"kubevault.dev/operator/pkg/controller"
-	"kubevault.dev/operator/pkg/vault/util"
-	"kubevault.dev/operator/test/e2e/framework"
 )
 
 const (

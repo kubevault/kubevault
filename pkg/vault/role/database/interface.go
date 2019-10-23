@@ -1,9 +1,10 @@
 package database
 
 import (
+	"kubevault.dev/operator/pkg/vault/role"
+
 	vaultapi "github.com/hashicorp/vault/api"
 	rbacv1 "k8s.io/api/rbac/v1"
-	"kubevault.dev/operator/pkg/vault/role"
 )
 
 type DatabaseRoleInterface interface {

@@ -5,13 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	gort "github.com/appscode/go/runtime"
-	"github.com/go-openapi/spec"
-	"github.com/golang/glog"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
-	"k8s.io/kube-openapi/pkg/common"
-	"kmodules.xyz/client-go/openapi"
 	cataloginstall "kubevault.dev/operator/apis/catalog/install"
 	catalogv1alpha1 "kubevault.dev/operator/apis/catalog/v1alpha1"
 	engineinstall "kubevault.dev/operator/apis/engine/install"
@@ -20,6 +13,14 @@ import (
 	vaultv1alpha1 "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	policyinstall "kubevault.dev/operator/apis/policy/install"
 	policyv1alpha1 "kubevault.dev/operator/apis/policy/v1alpha1"
+
+	gort "github.com/appscode/go/runtime"
+	"github.com/go-openapi/spec"
+	"github.com/golang/glog"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
+	"k8s.io/kube-openapi/pkg/common"
+	"kmodules.xyz/client-go/openapi"
 )
 
 func generateSwaggerJson() {

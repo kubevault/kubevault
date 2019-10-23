@@ -4,6 +4,14 @@ import (
 	"fmt"
 	"time"
 
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	sa_util "kubevault.dev/operator/pkg/util"
+	"kubevault.dev/operator/pkg/vault/unsealer/aws"
+	"kubevault.dev/operator/pkg/vault/unsealer/azure"
+	"kubevault.dev/operator/pkg/vault/unsealer/google"
+	k8s "kubevault.dev/operator/pkg/vault/unsealer/kubernetes"
+	"kubevault.dev/operator/pkg/vault/util"
+
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
@@ -14,13 +22,6 @@ import (
 	"kmodules.xyz/client-go/tools/analytics"
 	"kmodules.xyz/client-go/tools/cli"
 	"kmodules.xyz/client-go/tools/clientcmd"
-	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	sa_util "kubevault.dev/operator/pkg/util"
-	"kubevault.dev/operator/pkg/vault/unsealer/aws"
-	"kubevault.dev/operator/pkg/vault/unsealer/azure"
-	"kubevault.dev/operator/pkg/vault/unsealer/google"
-	k8s "kubevault.dev/operator/pkg/vault/unsealer/kubernetes"
-	"kubevault.dev/operator/pkg/vault/util"
 )
 
 const (

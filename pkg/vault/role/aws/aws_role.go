@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	"k8s.io/client-go/kubernetes"
-	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
 type AWSRole struct {

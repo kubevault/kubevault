@@ -3,6 +3,11 @@ package controller
 import (
 	"context"
 
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
+	"kubevault.dev/operator/pkg/eventer"
+	"kubevault.dev/operator/pkg/vault/util"
+
 	"github.com/appscode/go/log"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
@@ -15,10 +20,6 @@ import (
 	core_util "kmodules.xyz/client-go/core/v1"
 	rbac_util "kmodules.xyz/client-go/rbac/v1"
 	"kmodules.xyz/client-go/tools/queue"
-	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
-	"kubevault.dev/operator/pkg/eventer"
-	"kubevault.dev/operator/pkg/vault/util"
 )
 
 func (c *VaultController) initVaultServerWatcher() {

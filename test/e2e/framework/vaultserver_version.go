@@ -3,8 +3,9 @@ package framework
 import (
 	"fmt"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	api "kubevault.dev/operator/apis/catalog/v1alpha1"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (f *Framework) CreateVaultserverVersion() error {

@@ -1,9 +1,6 @@
 package storage
 
 import (
-	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
-	"k8s.io/client-go/kubernetes"
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/storage/azure"
 	"kubevault.dev/operator/pkg/vault/storage/consul"
@@ -16,6 +13,10 @@ import (
 	postgresql "kubevault.dev/operator/pkg/vault/storage/postgersql"
 	"kubevault.dev/operator/pkg/vault/storage/s3"
 	"kubevault.dev/operator/pkg/vault/storage/swift"
+
+	"github.com/pkg/errors"
+	core "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 type Storage interface {

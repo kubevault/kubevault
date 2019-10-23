@@ -1,17 +1,18 @@
 package engine
 
 import (
-	vaultapi "github.com/hashicorp/vault/api"
-	"github.com/pkg/errors"
-	"k8s.io/client-go/kubernetes"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	"kubevault.dev/operator/pkg/vault"
 	"kubevault.dev/operator/pkg/vault/role/aws"
 	"kubevault.dev/operator/pkg/vault/role/azure"
 	"kubevault.dev/operator/pkg/vault/role/database"
 	"kubevault.dev/operator/pkg/vault/role/gcp"
+
+	vaultapi "github.com/hashicorp/vault/api"
+	"github.com/pkg/errors"
+	"k8s.io/client-go/kubernetes"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
 
 type SecretEngine struct {

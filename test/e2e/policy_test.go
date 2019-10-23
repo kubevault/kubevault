@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"time"
 
+	api "kubevault.dev/operator/apis/policy/v1alpha1"
+	"kubevault.dev/operator/pkg/vault"
+	"kubevault.dev/operator/test/e2e/framework"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	api "kubevault.dev/operator/apis/policy/v1alpha1"
-	"kubevault.dev/operator/pkg/vault"
-	"kubevault.dev/operator/test/e2e/framework"
 )
 
 var _ = Describe("VaultPolicy", func() {

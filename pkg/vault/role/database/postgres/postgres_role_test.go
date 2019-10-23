@@ -6,13 +6,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+
 	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
 func setupVaultServer() *httptest.Server {

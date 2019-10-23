@@ -10,9 +10,10 @@ import (
 	"strings"
 	"text/template"
 
+	"kubevault.dev/operator/pkg/cmds"
+
 	"github.com/appscode/go/runtime"
 	"github.com/spf13/cobra/doc"
-	"kubevault.dev/operator/pkg/cmds"
 )
 
 const (

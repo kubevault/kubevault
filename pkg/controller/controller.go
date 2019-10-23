@@ -3,6 +3,16 @@ package controller
 import (
 	"fmt"
 
+	catalogapi "kubevault.dev/operator/apis/catalog/v1alpha1"
+	engineapi "kubevault.dev/operator/apis/engine/v1alpha1"
+	vaultapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
+	cs "kubevault.dev/operator/client/clientset/versioned"
+	vaultinformers "kubevault.dev/operator/client/informers/externalversions"
+	engine_listers "kubevault.dev/operator/client/listers/engine/v1alpha1"
+	vault_listers "kubevault.dev/operator/client/listers/kubevault/v1alpha1"
+	policy_listers "kubevault.dev/operator/client/listers/policy/v1alpha1"
+
 	pcm "github.com/coreos/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	"github.com/golang/glog"
 	crd_api "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
@@ -18,15 +28,6 @@ import (
 	"kmodules.xyz/client-go/tools/queue"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	catalogapi "kubevault.dev/operator/apis/catalog/v1alpha1"
-	engineapi "kubevault.dev/operator/apis/engine/v1alpha1"
-	vaultapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
-	cs "kubevault.dev/operator/client/clientset/versioned"
-	vaultinformers "kubevault.dev/operator/client/informers/externalversions"
-	engine_listers "kubevault.dev/operator/client/listers/engine/v1alpha1"
-	vault_listers "kubevault.dev/operator/client/listers/kubevault/v1alpha1"
-	policy_listers "kubevault.dev/operator/client/listers/policy/v1alpha1"
 )
 
 type VaultController struct {

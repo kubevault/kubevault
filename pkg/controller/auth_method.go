@@ -7,6 +7,15 @@ import (
 	"path/filepath"
 	"time"
 
+	vaultconfig "kubevault.dev/operator/apis/config/v1alpha1"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
+	vaultcs "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
+	policycs "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1"
+	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
+	"kubevault.dev/operator/pkg/vault"
+	"kubevault.dev/operator/pkg/vault/util"
+
 	"github.com/appscode/go/wait"
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
@@ -17,14 +26,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	core_util "kmodules.xyz/client-go/core/v1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	vaultconfig "kubevault.dev/operator/apis/config/v1alpha1"
-	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
-	vaultcs "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
-	policycs "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1"
-	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
-	"kubevault.dev/operator/pkg/vault"
-	"kubevault.dev/operator/pkg/vault/util"
 )
 
 const policyForAuthController = `

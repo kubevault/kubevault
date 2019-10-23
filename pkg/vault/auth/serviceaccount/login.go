@@ -5,16 +5,17 @@ import (
 	"fmt"
 	"time"
 
-	vaultapi "github.com/hashicorp/vault/api"
-	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
-	"k8s.io/client-go/kubernetes"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	config "kubevault.dev/operator/apis/config/v1alpha1"
 	vsapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	sa_util "kubevault.dev/operator/pkg/util"
 	"kubevault.dev/operator/pkg/vault/auth/types"
 	vaultuitl "kubevault.dev/operator/pkg/vault/util"
+
+	vaultapi "github.com/hashicorp/vault/api"
+	"github.com/pkg/errors"
+	core "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 const (

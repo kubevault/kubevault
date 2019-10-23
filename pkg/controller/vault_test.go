@@ -6,16 +6,17 @@ import (
 	"strconv"
 	"testing"
 
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/exporter"
+	"kubevault.dev/operator/pkg/vault/storage"
+	"kubevault.dev/operator/pkg/vault/util"
+
 	"github.com/stretchr/testify/assert"
 	core "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	kfake "k8s.io/client-go/kubernetes/fake"
-	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	"kubevault.dev/operator/pkg/vault/exporter"
-	"kubevault.dev/operator/pkg/vault/storage"
-	"kubevault.dev/operator/pkg/vault/util"
 )
 
 const (

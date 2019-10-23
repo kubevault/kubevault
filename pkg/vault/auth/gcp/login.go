@@ -6,6 +6,12 @@ import (
 	"fmt"
 	"time"
 
+	"kubevault.dev/operator/apis"
+	config "kubevault.dev/operator/apis/config/v1alpha1"
+	vsapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/auth/types"
+	vaultuitl "kubevault.dev/operator/pkg/vault/util"
+
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2/google"
@@ -14,11 +20,6 @@ import (
 	"google.golang.org/api/option"
 	core "k8s.io/api/core/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	"kubevault.dev/operator/apis"
-	config "kubevault.dev/operator/apis/config/v1alpha1"
-	vsapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	"kubevault.dev/operator/pkg/vault/auth/types"
-	vaultuitl "kubevault.dev/operator/pkg/vault/util"
 )
 
 type auth struct {

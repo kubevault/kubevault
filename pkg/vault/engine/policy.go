@@ -7,12 +7,13 @@ import (
 	"io/ioutil"
 	"text/template"
 
+	config "kubevault.dev/operator/apis/config/v1alpha1"
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	config "kubevault.dev/operator/apis/config/v1alpha1"
-	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
 // GCP secret engine policies

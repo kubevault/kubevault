@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	cfake "kubevault.dev/operator/client/clientset/versioned/fake"
+
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
@@ -12,8 +15,6 @@ import (
 	kfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/tools/record"
 	appcatfake "kmodules.xyz/custom-resources/client/clientset/versioned/fake"
-	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	cfake "kubevault.dev/operator/client/clientset/versioned/fake"
 )
 
 type vaultFake struct {

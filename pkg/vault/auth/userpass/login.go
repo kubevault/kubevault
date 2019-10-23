@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 
-	vaultapi "github.com/hashicorp/vault/api"
-	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	"kubevault.dev/operator/apis"
 	vsapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/auth/types"
 	vaultuitl "kubevault.dev/operator/pkg/vault/util"
+
+	vaultapi "github.com/hashicorp/vault/api"
+	"github.com/pkg/errors"
+	core "k8s.io/api/core/v1"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 type auth struct {

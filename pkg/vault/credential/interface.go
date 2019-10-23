@@ -1,10 +1,11 @@
 package credential
 
 import (
+	"kubevault.dev/operator/pkg/vault/secret"
+
 	vaultapi "github.com/hashicorp/vault/api"
 	rbac "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"kubevault.dev/operator/pkg/vault/secret"
 )
 
 type CredentialManager interface {

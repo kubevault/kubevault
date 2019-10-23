@@ -1,7 +1,6 @@
 package engines
 
 import (
-	"github.com/pkg/errors"
 	"kubevault.dev/operator/pkg/vault/secret"
 	"kubevault.dev/operator/pkg/vault/secret/engines/aws"
 	"kubevault.dev/operator/pkg/vault/secret/engines/azure"
@@ -9,6 +8,8 @@ import (
 	"kubevault.dev/operator/pkg/vault/secret/engines/gcp"
 	"kubevault.dev/operator/pkg/vault/secret/engines/kv"
 	"kubevault.dev/operator/pkg/vault/secret/engines/pki"
+
+	"github.com/pkg/errors"
 )
 
 func NewSecretManager(engineName string) (secret.SecretManager, error) {

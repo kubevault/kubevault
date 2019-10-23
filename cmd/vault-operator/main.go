@@ -3,8 +3,9 @@ package main
 import (
 	"os"
 
-	"kmodules.xyz/client-go/logs"
 	"kubevault.dev/operator/pkg/cmds"
+
+	"kmodules.xyz/client-go/logs"
 )
 
 func main() {

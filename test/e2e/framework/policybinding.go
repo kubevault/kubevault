@@ -1,11 +1,12 @@
 package framework
 
 import (
+	api "kubevault.dev/operator/apis/policy/v1alpha1"
+
 	"github.com/appscode/go/crypto/rand"
 	. "github.com/onsi/gomega"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	api "kubevault.dev/operator/apis/policy/v1alpha1"
 )
 
 func (f *Invocation) VaultPolicyBinding(policies, saNames, saNamespaces []string) *api.VaultPolicyBinding {

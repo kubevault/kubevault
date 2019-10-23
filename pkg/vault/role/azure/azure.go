@@ -1,13 +1,14 @@
 package azure
 
 import (
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	"kubevault.dev/operator/pkg/vault"
+	"kubevault.dev/operator/pkg/vault/role"
+
 	"github.com/pkg/errors"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	api "kubevault.dev/operator/apis/engine/v1alpha1"
-	"kubevault.dev/operator/pkg/vault"
-	"kubevault.dev/operator/pkg/vault/role"
 )
 
 const DefaultAzurePath = "azure"

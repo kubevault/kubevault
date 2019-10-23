@@ -3,12 +3,13 @@ package engine
 import (
 	"fmt"
 
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	"kubevault.dev/operator/pkg/vault"
+
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_util "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/util"
-	api "kubevault.dev/operator/apis/engine/v1alpha1"
-	"kubevault.dev/operator/pkg/vault"
 )
 
 func (seClient *SecretEngine) CreateConfig() error {

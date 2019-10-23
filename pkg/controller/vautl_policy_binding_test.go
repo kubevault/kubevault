@@ -4,14 +4,15 @@ import (
 	"testing"
 	"time"
 
+	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
+	csfake "kubevault.dev/operator/client/clientset/versioned/fake"
+	pbinding "kubevault.dev/operator/pkg/vault/policybinding"
+
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcatfake "kmodules.xyz/custom-resources/client/clientset/versioned/fake"
-	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
-	csfake "kubevault.dev/operator/client/clientset/versioned/fake"
-	pbinding "kubevault.dev/operator/pkg/vault/policybinding"
 )
 
 type fakePBind struct {
