@@ -4,6 +4,8 @@ import (
 	"flag"
 	"os"
 
+	"kubevault.dev/operator/client/clientset/versioned/scheme"
+
 	"github.com/appscode/go/flags"
 	v "github.com/appscode/go/version"
 	"github.com/spf13/cobra"
@@ -14,7 +16,6 @@ import (
 	"kmodules.xyz/client-go/logs"
 	"kmodules.xyz/client-go/tools/cli"
 	appcatscheme "kmodules.xyz/custom-resources/client/clientset/versioned/scheme"
-	"kubevault.dev/operator/client/clientset/versioned/scheme"
 )
 
 func NewRootCmd() *cobra.Command {

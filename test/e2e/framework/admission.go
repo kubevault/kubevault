@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"time"
 
+	srvr "kubevault.dev/operator/pkg/cmds/server"
+
 	shell "github.com/codeskyblue/go-sh"
 	"github.com/golang/glog"
 	. "github.com/onsi/ginkgo"
@@ -16,7 +18,6 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	restclient "k8s.io/client-go/rest"
 	kapi "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1beta1"
-	srvr "kubevault.dev/operator/pkg/cmds/server"
 )
 
 func (f *Framework) NewTestVaultServerOptions(kubeConfigPath string, controllerOptions *srvr.ExtraOptions) *srvr.VaultServerOptions {

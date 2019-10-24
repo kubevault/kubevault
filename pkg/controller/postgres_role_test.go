@@ -5,15 +5,16 @@ import (
 	"testing"
 	"time"
 
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	cs "kubevault.dev/operator/client/clientset/versioned/fake"
+	dbinformers "kubevault.dev/operator/client/informers/externalversions"
+	"kubevault.dev/operator/pkg/vault/role/database"
+
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	api "kubevault.dev/operator/apis/engine/v1alpha1"
-	cs "kubevault.dev/operator/client/clientset/versioned/fake"
-	dbinformers "kubevault.dev/operator/client/informers/externalversions"
-	"kubevault.dev/operator/pkg/vault/role/database"
 )
 
 type fakeDRole struct {

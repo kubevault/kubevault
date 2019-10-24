@@ -27,9 +27,9 @@ github.com/SermoDigital/jose/jwt
 # github.com/appscode/go v0.0.0-20191016085057-e186b6c94a3b
 github.com/appscode/go/encoding/json/types
 github.com/appscode/go/version
-github.com/appscode/go/log
 github.com/appscode/go/runtime
 github.com/appscode/go/flags
+github.com/appscode/go/log
 github.com/appscode/go/crypto/rand
 github.com/appscode/go/wait
 github.com/appscode/go/types
@@ -385,16 +385,16 @@ golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/context/ctxhttp
 golang.org/x/net/context
+golang.org/x/net/trace
 golang.org/x/net/html/charset
 golang.org/x/net/websocket
-golang.org/x/net/trace
-golang.org/x/net/html
 golang.org/x/net/internal/timeseries
+golang.org/x/net/html
 golang.org/x/net/html/atom
 # golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
-golang.org/x/oauth2
 golang.org/x/oauth2/google
 golang.org/x/oauth2/jwt
+golang.org/x/oauth2
 golang.org/x/oauth2/internal
 golang.org/x/oauth2/jws
 # golang.org/x/sync v0.0.0-20190423024810-112230192c58
@@ -435,12 +435,12 @@ gomodules.xyz/jsonpatch/v2
 gomodules.xyz/version
 # google.golang.org/api v0.7.0
 google.golang.org/api/iam/v1
+google.golang.org/api/option
 google.golang.org/api/gensupport
 google.golang.org/api/googleapi
-google.golang.org/api/option
 google.golang.org/api/transport/http
-google.golang.org/api/googleapi/internal/uritemplates
 google.golang.org/api/internal
+google.golang.org/api/googleapi/internal/uritemplates
 google.golang.org/api/googleapi/transport
 google.golang.org/api/transport/http/internal/propagation
 google.golang.org/api/support/bundler
@@ -459,18 +459,15 @@ google.golang.org/appengine/internal/remote_api
 google.golang.org/genproto/googleapis/rpc/status
 # google.golang.org/grpc v1.22.0
 google.golang.org/grpc
-google.golang.org/grpc/codes
-google.golang.org/grpc/credentials
-google.golang.org/grpc/grpclog
-google.golang.org/grpc/health/grpc_health_v1
-google.golang.org/grpc/keepalive
-google.golang.org/grpc/metadata
-google.golang.org/grpc/status
+google.golang.org/grpc/naming
 google.golang.org/grpc/balancer
 google.golang.org/grpc/balancer/roundrobin
+google.golang.org/grpc/codes
 google.golang.org/grpc/connectivity
+google.golang.org/grpc/credentials
 google.golang.org/grpc/encoding
 google.golang.org/grpc/encoding/proto
+google.golang.org/grpc/grpclog
 google.golang.org/grpc/internal
 google.golang.org/grpc/internal/backoff
 google.golang.org/grpc/internal/balancerload
@@ -480,16 +477,19 @@ google.golang.org/grpc/internal/envconfig
 google.golang.org/grpc/internal/grpcrand
 google.golang.org/grpc/internal/grpcsync
 google.golang.org/grpc/internal/transport
-google.golang.org/grpc/naming
+google.golang.org/grpc/keepalive
+google.golang.org/grpc/metadata
 google.golang.org/grpc/peer
 google.golang.org/grpc/resolver
 google.golang.org/grpc/resolver/dns
 google.golang.org/grpc/resolver/passthrough
 google.golang.org/grpc/serviceconfig
 google.golang.org/grpc/stats
+google.golang.org/grpc/status
 google.golang.org/grpc/tap
-google.golang.org/grpc/credentials/internal
+google.golang.org/grpc/health/grpc_health_v1
 google.golang.org/grpc/balancer/base
+google.golang.org/grpc/credentials/internal
 google.golang.org/grpc/binarylog/grpc_binarylog_v1
 google.golang.org/grpc/internal/syscall
 google.golang.org/grpc/health
@@ -939,11 +939,11 @@ k8s.io/kube-openapi/pkg/schemaconv
 # k8s.io/kubernetes v1.14.0
 k8s.io/kubernetes/pkg/api/legacyscheme
 k8s.io/kubernetes/pkg/apis/core
-# k8s.io/utils v0.0.0-20190506122338-8fab8cb257d5 => k8s.io/utils v0.0.0-20190221042446-c2654d5206da
+# k8s.io/utils v0.0.0-20190506122338-8fab8cb257d5 => k8s.io/utils v0.0.0-20190514214443-0a167cbac756
 k8s.io/utils/integer
 k8s.io/utils/buffer
 k8s.io/utils/trace
-# kmodules.xyz/client-go v0.0.0-20191016085444-3044854ca625
+# kmodules.xyz/client-go v0.0.0-20191023042933-b12d1ccfaf57
 kmodules.xyz/client-go/apiextensions/v1beta1
 kmodules.xyz/client-go/tools/clusterid
 kmodules.xyz/client-go/meta

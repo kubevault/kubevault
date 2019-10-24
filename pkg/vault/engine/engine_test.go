@@ -8,10 +8,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
 const sampleMountResponse = `

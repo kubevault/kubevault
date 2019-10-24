@@ -5,11 +5,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 )
 
 const (

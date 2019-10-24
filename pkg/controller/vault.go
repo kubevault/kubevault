@@ -6,6 +6,13 @@ import (
 	"path/filepath"
 	"strconv"
 
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	cs "kubevault.dev/operator/client/clientset/versioned"
+	"kubevault.dev/operator/pkg/vault/exporter"
+	"kubevault.dev/operator/pkg/vault/storage"
+	"kubevault.dev/operator/pkg/vault/unsealer"
+	"kubevault.dev/operator/pkg/vault/util"
+
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -19,12 +26,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	core_util "kmodules.xyz/client-go/core/v1"
-	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	cs "kubevault.dev/operator/client/clientset/versioned"
-	"kubevault.dev/operator/pkg/vault/exporter"
-	"kubevault.dev/operator/pkg/vault/storage"
-	"kubevault.dev/operator/pkg/vault/unsealer"
-	"kubevault.dev/operator/pkg/vault/util"
 )
 
 const (

@@ -3,10 +3,11 @@ package util
 import (
 	"testing"
 
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+
 	"github.com/stretchr/testify/assert"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 )
 
 func TestEnsureOwnerRefToObject(t *testing.T) {

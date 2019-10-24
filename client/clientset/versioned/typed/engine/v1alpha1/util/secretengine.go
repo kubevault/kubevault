@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	cs "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1"
+
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/golang/glog"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
@@ -11,8 +14,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
 	kutil "kmodules.xyz/client-go"
-	api "kubevault.dev/operator/apis/engine/v1alpha1"
-	cs "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1"
 )
 
 func PatchSecretEngine(c cs.EngineV1alpha1Interface, cur *api.SecretEngine, transform func(engine *api.SecretEngine) *api.SecretEngine) (*api.SecretEngine, kutil.VerbType, error) {

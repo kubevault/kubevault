@@ -3,14 +3,15 @@ package controller
 import (
 	"encoding/json"
 
+	vaultconfig "kubevault.dev/operator/apis/config/v1alpha1"
+	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/util"
+
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_util "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/util"
-	vaultconfig "kubevault.dev/operator/apis/config/v1alpha1"
-	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	"kubevault.dev/operator/pkg/vault/util"
 )
 
 func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error {

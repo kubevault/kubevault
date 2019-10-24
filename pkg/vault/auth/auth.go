@@ -3,11 +3,6 @@ package auth
 import (
 	"encoding/json"
 
-	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	"kubevault.dev/operator/apis"
 	config "kubevault.dev/operator/apis/config/v1alpha1"
 	awsauth "kubevault.dev/operator/pkg/vault/auth/aws"
@@ -18,6 +13,12 @@ import (
 	saauth "kubevault.dev/operator/pkg/vault/auth/serviceaccount"
 	tokenauth "kubevault.dev/operator/pkg/vault/auth/token"
 	basicauth "kubevault.dev/operator/pkg/vault/auth/userpass"
+
+	"github.com/pkg/errors"
+	core "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 type AuthInterface interface {

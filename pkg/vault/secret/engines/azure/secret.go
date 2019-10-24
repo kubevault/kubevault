@@ -3,9 +3,10 @@ package azure
 import (
 	"fmt"
 
+	"kubevault.dev/operator/pkg/vault/secret"
+
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	"kubevault.dev/operator/pkg/vault/secret"
 )
 
 const (

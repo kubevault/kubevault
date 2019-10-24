@@ -3,10 +3,11 @@ package kubernetes
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	core "k8s.io/api/core/v1"
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/util"
+
+	"github.com/stretchr/testify/assert"
+	core "k8s.io/api/core/v1"
 )
 
 func TestOptions_Apply(t *testing.T) {

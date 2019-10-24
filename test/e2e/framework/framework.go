@@ -5,6 +5,9 @@ import (
 	"path/filepath"
 	"time"
 
+	cs "kubevault.dev/operator/client/clientset/versioned"
+	db_cs "kubevault.dev/operator/client/clientset/versioned"
+
 	"github.com/appscode/go/crypto/rand"
 	aggregator "github.com/appscode/go/util/errors"
 	. "github.com/onsi/gomega"
@@ -15,8 +18,6 @@ import (
 	ka "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	cs "kubevault.dev/operator/client/clientset/versioned"
-	db_cs "kubevault.dev/operator/client/clientset/versioned"
 )
 
 const (

@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"time"
 
+	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
+	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
+	"kubevault.dev/operator/pkg/vault/policy"
+
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
@@ -12,9 +16,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
-	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
-	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
-	"kubevault.dev/operator/pkg/vault/policy"
 )
 
 const (

@@ -4,15 +4,16 @@ import (
 	"flag"
 	"time"
 
+	cs "kubevault.dev/operator/client/clientset/versioned"
+	"kubevault.dev/operator/pkg/controller"
+	"kubevault.dev/operator/pkg/docker"
+
 	prom "github.com/coreos/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	"github.com/spf13/pflag"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	"k8s.io/client-go/kubernetes"
 	"kmodules.xyz/client-go/tools/clusterid"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	cs "kubevault.dev/operator/client/clientset/versioned"
-	"kubevault.dev/operator/pkg/controller"
-	"kubevault.dev/operator/pkg/docker"
 )
 
 type ExtraOptions struct {

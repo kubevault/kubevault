@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	api "kubevault.dev/operator/apis/policy/v1alpha1"
+	cs "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1"
+
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
@@ -12,8 +15,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
 	kutil "kmodules.xyz/client-go"
-	api "kubevault.dev/operator/apis/policy/v1alpha1"
-	cs "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1"
 )
 
 func CreateOrPatchVaultPolicy(c cs.PolicyV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.VaultPolicy) *api.VaultPolicy) (*api.VaultPolicy, kutil.VerbType, error) {

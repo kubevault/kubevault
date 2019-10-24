@@ -7,13 +7,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+
 	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	core "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	kfake "k8s.io/client-go/kubernetes/fake"
-	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
 func setupVaultServer() *httptest.Server {

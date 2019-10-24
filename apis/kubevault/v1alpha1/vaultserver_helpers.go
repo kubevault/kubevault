@@ -3,11 +3,12 @@ package v1alpha1
 import (
 	"fmt"
 
+	"kubevault.dev/operator/apis"
+
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
 	meta_util "kmodules.xyz/client-go/meta"
 	mona "kmodules.xyz/monitoring-agent-api/api/v1"
-	"kubevault.dev/operator/apis"
 )
 
 func (v VaultServer) GetKey() string {

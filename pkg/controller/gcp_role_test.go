@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"testing"
 
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+	opfake "kubevault.dev/operator/client/clientset/versioned/fake"
+	"kubevault.dev/operator/pkg/vault/role/gcp"
+
 	"github.com/stretchr/testify/assert"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
-	api "kubevault.dev/operator/apis/engine/v1alpha1"
-	opfake "kubevault.dev/operator/client/clientset/versioned/fake"
-	"kubevault.dev/operator/pkg/vault/role/gcp"
 )
 
 type fakeGCPRole struct {

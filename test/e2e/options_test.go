@@ -6,16 +6,17 @@ import (
 	"os"
 	"path/filepath"
 
+	"kubevault.dev/operator/client/clientset/versioned/scheme"
+	dbscheme "kubevault.dev/operator/client/clientset/versioned/scheme"
+	"kubevault.dev/operator/pkg/cmds/server"
+	"kubevault.dev/operator/test/e2e/framework"
+
 	"github.com/appscode/go/flags"
 	logs "github.com/appscode/go/log/golog"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/util/homedir"
 	appcatscheme "kmodules.xyz/custom-resources/client/clientset/versioned/scheme"
-	"kubevault.dev/operator/client/clientset/versioned/scheme"
-	dbscheme "kubevault.dev/operator/client/clientset/versioned/scheme"
-	"kubevault.dev/operator/pkg/cmds/server"
-	"kubevault.dev/operator/test/e2e/framework"
 )
 
 type E2EOptions struct {

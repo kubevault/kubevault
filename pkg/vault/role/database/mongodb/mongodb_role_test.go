@@ -7,6 +7,8 @@ import (
 	"os"
 	"testing"
 
+	api "kubevault.dev/operator/apis/engine/v1alpha1"
+
 	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +17,6 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	api "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
 func setupVaultServer() *httptest.Server {

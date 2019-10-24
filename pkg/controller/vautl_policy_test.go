@@ -6,6 +6,11 @@ import (
 	"testing"
 	"time"
 
+	"kubevault.dev/operator/apis"
+	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
+	csfake "kubevault.dev/operator/client/clientset/versioned/fake"
+	"kubevault.dev/operator/pkg/vault/policy"
+
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -14,10 +19,6 @@ import (
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcatfake "kmodules.xyz/custom-resources/client/clientset/versioned/fake"
-	"kubevault.dev/operator/apis"
-	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
-	csfake "kubevault.dev/operator/client/clientset/versioned/fake"
-	"kubevault.dev/operator/pkg/vault/policy"
 )
 
 type fakePolicy struct {
