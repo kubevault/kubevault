@@ -10,7 +10,7 @@ spec:
   vault:
     image: "vault:1.0.1"
   unsealer:
-    image: "kubevault/vault-unsealer:0.2.0"
+    image: "kubevault/vault-unsealer:v0.3.0"
   exporter:
     image: "kubevault/vault-exporter:0.1.0"
 ---
@@ -26,6 +26,6 @@ spec:
   vault:
     image: "vault:0.11.5"
   unsealer:
-    image: "kubevault/vault-unsealer:0.2.0"
+    image: "kubevault/vault-unsealer:v0.3.0"
   exporter:
     image: "kubevault/vault-exporter:0.1.0"

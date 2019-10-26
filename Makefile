@@ -396,7 +396,7 @@ e2e-tests: $(BUILD_DIRS)
 
 .PHONY: e2e-parallel
 e2e-parallel:
-	@$(MAKE) e2e-tests GINKGO_ARGS="-p -stream" --no-print-directory
+	@$(MAKE) e2e-tests GINKGO_ARGS="-p -stream --flakeAttempts=2" --no-print-directory
 
 ADDTL_LINTERS   := goconst,gofmt,goimports,unparam
 
