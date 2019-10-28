@@ -1,14 +1,14 @@
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: "1.0.1"
+  name: "1.2.0"
   labels:
     app: vault-operator
 spec:
-  version: "1.0.1"
+  version: "1.2.0"
   deprecated: false
   vault:
-    image: "vault:1.0.1"
+    image: "vault:1.2.0"
   unsealer:
     image: "kubevault/vault-unsealer:v0.3.0"
   exporter:
@@ -17,14 +17,30 @@ spec:
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: "0.11.5"
+  name: "1.2.2"
   labels:
     app: vault-operator
 spec:
-  version: "0.11.5"
+  version: "1.2.2"
   deprecated: false
   vault:
-    image: "vault:0.11.5"
+    image: "vault:1.2.2"
+  unsealer:
+    image: "kubevault/vault-unsealer:v0.3.0"
+  exporter:
+    image: "kubevault/vault-exporter:0.1.0"
+---
+apiVersion: catalog.kubevault.com/v1alpha1
+kind: VaultServerVersion
+metadata:
+  name: "1.2.3"
+  labels:
+    app: vault-operator
+spec:
+  version: "1.2.3"
+  deprecated: false
+  vault:
+    image: "vault:1.2.3"
   unsealer:
     image: "kubevault/vault-unsealer:v0.3.0"
   exporter:
