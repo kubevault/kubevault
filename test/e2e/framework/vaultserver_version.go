@@ -16,7 +16,7 @@ func (f *Framework) CreateVaultserverVersion() error {
 		Spec: api.VaultServerVersionSpec{
 			Version: vaultVersion,
 			Vault: api.VaultServerVersionVault{
-				Image: "vault:1.2.0",
+				Image: "vault:1.2.3",
 			},
 			Unsealer: api.VaultServerVersionUnsealer{
 				Image: fmt.Sprintf("%s/%s", DockerRegistry, UnsealerImage),
