@@ -24,10 +24,11 @@ var (
 )
 
 const (
-	nodePort         = 30088
-	VaultTokenSecret = "vault-token"
-	VaultServerName  = "test-vault-5434"
-	VaultKey         = "vault-key-6765"
+	nodePort           = 30088
+	VaultTokenSecret   = "vault-token"
+	VaultServerName    = "test-vault-5434"
+	VaultServerVersion = "1.2.3"
+	VaultKey           = "vault-key-6765"
 )
 
 func (f *Framework) DeployVaultServer() (*appcat.AppReference, error) {
@@ -39,7 +40,7 @@ func (f *Framework) DeployVaultServer() (*appcat.AppReference, error) {
 		},
 		Spec: v1alpha1.VaultServerSpec{
 			Nodes:   1,
-			Version: vaultVersion,
+			Version: VaultServerVersion,
 			Backend: v1alpha1.BackendStorageSpec{
 				Inmem: &v1alpha1.InmemSpec{},
 			},

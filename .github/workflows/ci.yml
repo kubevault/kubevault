@@ -84,4 +84,4 @@ jobs:
         echo "GOOGLE_SERVICE_ACCOUNT_JSON_KEY=$(echo $GOOGLE_SERVICE_ACCOUNT_JSON_KEY)" >> hack/config/.env
         make install
         echo
-        make e2e-tests TEST_ARGS="--unsealer-image=vault-unsealer:new-unsealer_linux_amd64"
+        make e2e-tests
