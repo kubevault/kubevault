@@ -21,7 +21,7 @@ require (
 	github.com/hashicorp/go-cleanhttp v0.5.1
 	github.com/hashicorp/go-immutable-radix v1.1.0 // indirect
 	github.com/hashicorp/go-plugin v1.0.1 // indirect
-	github.com/hashicorp/go-retryablehttp v0.6.2 // indirect
+	github.com/hashicorp/go-retryablehttp v0.6.3 // indirect
 	github.com/hashicorp/vault v1.0.1
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
