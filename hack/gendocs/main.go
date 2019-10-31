@@ -40,31 +40,31 @@ var (
 title: Reference | Vault Operator
 description: Vault Operator CLI Reference
 menu:
-  docs_{{ .Version }}:
+  docs_{{ "{{ .version }}" }}:
     identifier: reference-operator
     name: Vault Operator
     weight: 10
     parent: reference
-menu_name: docs_{{ .Version }}
+menu_name: docs_{{ "{{ .version }}" }}
 ---
 `))
 
 	_ = template.Must(tplFrontMatter.New("cmd").Parse(`---
 title: {{ .Name }}
 menu:
-  docs_{{ .Version }}:
+  docs_{{ "{{ .version }}" }}:
     identifier: {{ .ID }}
     name: {{ .Name }}
     parent: reference-operator
 {{- if .RootCmd }}
     weight: 0
 {{ end }}
-menu_name: docs_{{ .Version }}
+menu_name: docs_{{ "{{ .version }}" }}
 section_menu_id: reference
 {{- if .RootCmd }}
-url: /docs/{{ .Version }}/reference/operator/
+url: /docs/{{ "{{ .version }}" }}/reference/operator/
 aliases:
-- /docs/{{ .Version }}/reference/operator/{{ .ID }}/
+- /docs/{{ "{{ .version }}" }}/reference/operator/{{ .ID }}/
 {{- end }}
 ---
 `))
