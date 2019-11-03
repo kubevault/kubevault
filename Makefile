@@ -74,6 +74,7 @@ TAG_DBG          := $(VERSION)-dbg_$(OS)_$(ARCH)
 
 GO_VERSION       ?= 1.12.12
 BUILD_IMAGE      ?= appscode/golang-dev:$(GO_VERSION)-stretch
+CHART_TEST_IMAGE ?= quay.io/helmpack/chart-testing:v2.4.0
 
 OUTBIN = bin/$(OS)_$(ARCH)/$(BIN)
 ifeq ($(OS),windows)
@@ -398,6 +399,40 @@ e2e-tests: $(BUILD_DIRS)
 e2e-parallel:
 	@$(MAKE) e2e-tests GINKGO_ARGS="-p -stream --flakeAttempts=2" --no-print-directory
 
+TEST_CHARTS ?=
+
+ifeq ($(strip $(TEST_CHARTS)),)
+	CT_ARGS = --all
+else
+	CT_ARGS = --charts=$(TEST_CHARTS)
+endif
+
+.PHONY: ct
+ct: $(BUILD_DIRS)
+	@docker run                                                 \
+	    -i                                                      \
+	    --rm                                                    \
+	    -v $$(pwd):/src                                         \
+	    -w /src                                                 \
+	    --net=host                                              \
+	    -v $(HOME)/.kube:/.kube                                 \
+	    -v $(HOME)/.minikube:$(HOME)/.minikube                  \
+	    -v $(HOME)/.credentials:$(HOME)/.credentials            \
+	    -v $$(pwd)/.go/bin/$(OS)_$(ARCH):/go/bin                \
+	    -v $$(pwd)/.go/bin/$(OS)_$(ARCH):/go/bin/$(OS)_$(ARCH)  \
+	    -v $$(pwd)/.go/cache:/.cache                            \
+	    --env HTTP_PROXY=$(HTTP_PROXY)                          \
+	    --env HTTPS_PROXY=$(HTTPS_PROXY)                        \
+	    --env KUBECONFIG=$(subst $(HOME),,$(KUBECONFIG))        \
+	    $(CHART_TEST_IMAGE)                                     \
+	    /bin/sh -c "                                            \
+			kubectl -n kube-system create sa tiller;            \
+			kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller;   \
+			helm init --service-account tiller;                 \
+			kubectl wait --for=condition=Ready pods -n kube-system --all --timeout=5m;  \
+			ct lint-and-install --debug $(CT_ARGS);                     \
+		"
+
 ADDTL_LINTERS   := goconst,gofmt,goimports,unparam
 
 .PHONY: lint
@@ -424,7 +459,7 @@ $(BUILD_DIRS):
 
 .PHONY: install
 install:
-	@APPSCODE_ENV=dev  VAULT_OPERATOR_IMAGE_TAG=$(TAG) ./hack/deploy/install.sh --docker-registry=$(REGISTRY) --image-pull-secret=$(REGISTRY_SECRET)
+	@APPSCODE_ENV=dev VAULT_OPERATOR_IMAGE_TAG=$(TAG) ./hack/deploy/install.sh --docker-registry=$(REGISTRY) --image-pull-secret=$(REGISTRY_SECRET)
 
 .PHONY: uninstall
 uninstall:

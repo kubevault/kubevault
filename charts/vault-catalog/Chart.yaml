@@ -4,7 +4,7 @@ name: vault-catalog
 version: 0.2.0
 appVersion: 0.2.0
 home: https://github.com/kubevault/operator
-icon: https://cdn.appscode.com/images/icon/kubevault.png
+icon: https://cdn.appscode.com/images/products/kubevault/icons/android-icon-192x192.png
 sources:
   - https://github.com/kubevault/operator
 maintainers:
