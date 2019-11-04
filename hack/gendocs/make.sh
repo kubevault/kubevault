@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 pushd $GOPATH/src/kubevault.dev/operator/hack/gendocs
 go run main.go
 popd
