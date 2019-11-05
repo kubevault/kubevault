@@ -154,7 +154,7 @@ func (f *Framework) DeployMysql() (*appcat.AppReference, error) {
 	}
 
 	Eventually(func() bool {
-		if obj, err := f.KubeClient.AppsV1beta1().Deployments(f.namespace).Get(mysqlDeploy.GetName(), metav1.GetOptions{}); err == nil {
+		if obj, err := f.KubeClient.AppsV1().Deployments(f.namespace).Get(mysqlDeploy.GetName(), metav1.GetOptions{}); err == nil {
 			return *obj.Spec.Replicas == obj.Status.ReadyReplicas
 		}
 		return false
