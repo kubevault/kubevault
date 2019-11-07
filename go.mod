@@ -4,9 +4,8 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.39.0 // indirect
-	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/SermoDigital/jose v0.9.1 // indirect
-	github.com/appscode/go v0.0.0-20191016085057-e186b6c94a3b
+	github.com/appscode/go v0.0.0-20191025021232-311ac347b3ef
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.20.20
 	github.com/census-instrumentation/opencensus-proto v0.2.0 // indirect
@@ -50,16 +49,15 @@ require (
 	k8s.io/cli-runtime v0.0.0-20190516231937-17bc0b7fcef5 // indirect
 	k8s.io/client-go v11.0.0+incompatible
 	k8s.io/component-base v0.0.0-20190508223741-40efa6d42997 // indirect
-	k8s.io/klog v0.3.1 // indirect
 	k8s.io/kube-aggregator v0.0.0-20190508224022-f9852b6d3a84
 	k8s.io/kube-openapi v0.0.0-20190502190224-411b2483e503
 	k8s.io/kubernetes v1.14.0
-	kmodules.xyz/client-go v0.0.0-20191023042933-b12d1ccfaf57
-	kmodules.xyz/constants v0.0.0-20191009183447-fbd33067b8a6
-	kmodules.xyz/custom-resources v0.0.0-20190927035424-65fe358bb045
-	kmodules.xyz/monitoring-agent-api v0.0.0-20190808150221-601a4005b7f7
-	kmodules.xyz/offshoot-api v0.0.0-20190901210649-de049192326c
-	kmodules.xyz/webhook-runtime v0.0.0-20190808145328-4186c470d56b
+	kmodules.xyz/client-go v0.0.0-20191107203555-78563b72c377
+	kmodules.xyz/constants v0.0.0-20191024095500-cd4313df4aa6
+	kmodules.xyz/custom-resources v0.0.0-20191106201002-d1689cc406ca
+	kmodules.xyz/monitoring-agent-api v0.0.0-20191106183021-d082663d8743
+	kmodules.xyz/offshoot-api v0.0.0-20191106182929-60420cc4a3e4
+	kmodules.xyz/webhook-runtime v0.0.0-20191106182834-bf518fbc7b19
 )
 
 replace (
