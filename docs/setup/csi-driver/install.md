@@ -82,7 +82,7 @@ options:
 
 ## Using Helm
 
-Vault CSI driver can be installed via [Helm](https://helm.sh) using the [chart](https://github.com/appscode/kubevault/csi-driver/tree/{{< param "info.version" >}}/chart/csi-vault) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `csi-vault`
+Vault CSI driver can be installed via [Helm](https://helm.sh) using the [chart](https://github.com/appscode/kubevault/csi-driver/tree/{{< param "info.version" >}}/charts/csi-vault) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `csi-vault`
 
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
@@ -95,7 +95,7 @@ appscode/csi-vault	{{< param "info.version" >}}        	{{< param "info.version"
 $ helm install appscode/csi-vault --name csi-vault --version {{< param "info.version" >}} --namespace kube-system
 ```
 
-To see the detailed configuration options, visit [here](https://github.com/kubevault/csi-driver/tree/chart/chart/csi-vault)
+To see the detailed configuration options, visit [here](https://github.com/kubevault/csi-driver/tree/charts/chart/csi-vault)
 
 </div>
 </div>
