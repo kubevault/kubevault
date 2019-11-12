@@ -1,5 +1,5 @@
 /*
-Copyright 2019 AppsCode Inc.
+Copyright The Kmodules Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,14 +19,15 @@ limitations under the License.
 package fake
 
 import (
+	clientset "kmodules.xyz/custom-resources/client/clientset/versioned"
+	appcatalogv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	fakeappcatalogv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/fake"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/testing"
-	clientset "kmodules.xyz/custom-resources/client/clientset/versioned"
-	appcatalogv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	fakeappcatalogv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/fake"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.

@@ -513,6 +513,7 @@ spec:
                     maxParallel:
                       description: ' Specifies the maximum number of concurrent operations
                         to take place.'
+                      format: int64
                       type: integer
                   required:
                   - accountKeySecret
@@ -618,10 +619,12 @@ spec:
                     maxParallel:
                       description: Specifies the maximum number of parallel operations
                         to take place.
+                      format: int64
                       type: integer
                     readCapacity:
                       description: Specifies the maximum number of reads consumed
                         per second on the table
+                      format: int64
                       type: integer
                     region:
                       description: Specifies the AWS region
@@ -638,6 +641,7 @@ spec:
                     writeCapacity:
                       description: Specifies the maximum number of writes performed
                         per second on the table.
+                      format: int64
                       type: integer
                   type: object
                 etcd:
@@ -716,6 +720,7 @@ spec:
                     maxParallel:
                       description: ' Specifies the maximum number of parallel operations
                         to take place.'
+                      format: int64
                       type: integer
                   required:
                   - bucket
@@ -738,6 +743,7 @@ spec:
                     maxParallel:
                       description: ' Specifies the maximum number of concurrent requests
                         to take place.'
+                      format: int64
                       type: integer
                     table:
                       description: Specifies the name of the table. If the table does
@@ -769,6 +775,7 @@ spec:
                     maxParallel:
                       description: ' Specifies the maximum number of concurrent requests
                         to take place.'
+                      format: int64
                       type: integer
                     table:
                       description: Specifies the name of the table in which to write
@@ -801,6 +808,7 @@ spec:
                     maxParallel:
                       description: Specifies the maximum number of parallel operations
                         to take place.
+                      format: int64
                       type: integer
                     region:
                       description: Specifies the AWS region
@@ -842,6 +850,7 @@ spec:
                     maxParallel:
                       description: ' Specifies the maximum number of concurrent requests
                         to take place.'
+                      format: int64
                       type: integer
                     projectDomain:
                       description: Specifies the name of the project's domain.
@@ -6087,9 +6096,11 @@ spec:
                   type: integer
                 secretShares:
                   description: Total count of secret shares that exist
+                  format: int64
                   type: integer
                 secretThreshold:
                   description: Minimum required secret shares to unseal
+                  format: int64
                   type: integer
                 storeRootToken:
                   description: should the root token be stored in the key store (default
@@ -6133,6 +6144,7 @@ spec:
             clientPort:
               description: ClientPort is the port for vault client to access. It's
                 the same on client LB service and vault nodes.
+              format: int64
               type: integer
             conditions:
               description: Represents the latest available observations of a VaultServer

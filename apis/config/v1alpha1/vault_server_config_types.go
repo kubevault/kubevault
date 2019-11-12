@@ -31,29 +31,29 @@ type VaultServerConfiguration struct {
 
 	// Specifies the path which is used for authentication by this AppBinding.
 	// If vault server is provisioned by KubeVault, this is usually `kubernetes`.
-	Path string `json:"path"`
+	Path string `json:"path" protobuf:"bytes,1,opt,name=path"`
 
 	// Specifies the service account name
 	// +optional
-	ServiceAccountName string `json:"serviceAccountName,omitempty"`
+	ServiceAccountName string `json:"serviceAccountName,omitempty" protobuf:"bytes,2,opt,name=serviceAccountName"`
 
 	// Specifies the service account name for token reviewer
 	// It has system:auth-delegator permission
 	// It's jwt token is used on vault kubernetes auth config
 	// +optional
-	TokenReviewerServiceAccountName string `json:"tokenReviewerServiceAccountName,omitempty"`
+	TokenReviewerServiceAccountName string `json:"tokenReviewerServiceAccountName,omitempty" protobuf:"bytes,3,opt,name=tokenReviewerServiceAccountName"`
 
 	// Specifies the vault role name for policy controller
 	// It has permission to create policy in vault
 	// +optional
-	PolicyControllerRole string `json:"policyControllerRole,omitempty"`
+	PolicyControllerRole string `json:"policyControllerRole,omitempty" protobuf:"bytes,4,opt,name=policyControllerRole"`
 
 	// Specifies the vault role name for auth controller
 	// It has permission to enable/disable auth method in vault
 	// +optional
-	AuthMethodControllerRole string `json:"authMethodControllerRole,omitempty"`
+	AuthMethodControllerRole string `json:"authMethodControllerRole,omitempty" protobuf:"bytes,5,opt,name=authMethodControllerRole"`
 
 	// Specifies to use pod service account for vault csi driver
 	// +optional
-	UsePodServiceAccountForCSIDriver bool `json:"usePodServiceAccountForCsiDriver,omitempty"`
+	UsePodServiceAccountForCSIDriver bool `json:"usePodServiceAccountForCsiDriver,omitempty" protobuf:"varint,6,opt,name=usePodServiceAccountForCsiDriver"`
 }

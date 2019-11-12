@@ -14479,8 +14479,7 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_AppBinding(ref common.Refe
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "AppBinding defines a generic user application.",
-				Type:        []string{"object"},
+				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
 					"kind": {
 						SchemaProps: spec.SchemaProps{
@@ -15981,7 +15980,7 @@ func schema_operator_apis_kubevault_v1alpha1_AzureSpec(ref common.ReferenceCallb
 						SchemaProps: spec.SchemaProps{
 							Description: "\n Specifies the maximum number of concurrent operations to take place.",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 				},
@@ -16219,14 +16218,14 @@ func schema_operator_apis_kubevault_v1alpha1_DynamoDBSpec(ref common.ReferenceCa
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the maximum number of reads consumed per second on the table",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 					"writeCapacity": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the maximum number of writes performed per second on the table.",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 					"table": {
@@ -16254,7 +16253,7 @@ func schema_operator_apis_kubevault_v1alpha1_DynamoDBSpec(ref common.ReferenceCa
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the maximum number of parallel operations to take place.",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 				},
@@ -16379,7 +16378,7 @@ func schema_operator_apis_kubevault_v1alpha1_GcsSpec(ref common.ReferenceCallbac
 						SchemaProps: spec.SchemaProps{
 							Description: "\n Specifies the maximum number of parallel operations to take place.",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 					"haEnabled": {
@@ -16571,7 +16570,7 @@ func schema_operator_apis_kubevault_v1alpha1_MySQLSpec(ref common.ReferenceCallb
 						SchemaProps: spec.SchemaProps{
 							Description: "\n Specifies the maximum number of concurrent requests to take place.",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 				},
@@ -16606,7 +16605,7 @@ func schema_operator_apis_kubevault_v1alpha1_PostgreSQLSpec(ref common.Reference
 						SchemaProps: spec.SchemaProps{
 							Description: "\n Specifies the maximum number of concurrent requests to take place.",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 				},
@@ -16662,7 +16661,7 @@ func schema_operator_apis_kubevault_v1alpha1_S3Spec(ref common.ReferenceCallback
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the maximum number of parallel operations to take place.",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 					"s3ForcePathStyle": {
@@ -16774,7 +16773,7 @@ func schema_operator_apis_kubevault_v1alpha1_SwiftSpec(ref common.ReferenceCallb
 						SchemaProps: spec.SchemaProps{
 							Description: "\n Specifies the maximum number of concurrent requests to take place.",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 				},
@@ -16823,14 +16822,14 @@ func schema_operator_apis_kubevault_v1alpha1_UnsealerSpec(ref common.ReferenceCa
 						SchemaProps: spec.SchemaProps{
 							Description: "Total count of secret shares that exist",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 					"secretThreshold": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Minimum required secret shares to unseal",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 					"retryPeriodSeconds": {
@@ -17132,7 +17131,7 @@ func schema_operator_apis_kubevault_v1alpha1_VaultServerStatus(ref common.Refere
 						SchemaProps: spec.SchemaProps{
 							Description: "ClientPort is the port for vault client to access. It's the same on client LB service and vault nodes.",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 					"vaultStatus": {

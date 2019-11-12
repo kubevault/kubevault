@@ -39,9 +39,9 @@ const (
 // +kubebuilder:subresource:status
 type AzureAccessKeyRequest struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              AzureAccessKeyRequestSpec   `json:"spec,omitempty"`
-	Status            AzureAccessKeyRequestStatus `json:"status,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
+	Spec              AzureAccessKeyRequestSpec   `json:"spec,omitempty" protobuf:"bytes,2,opt,name=spec"`
+	Status            AzureAccessKeyRequestStatus `json:"status,omitempty" protobuf:"bytes,3,opt,name=status"`
 }
 
 // Link:
@@ -53,11 +53,11 @@ type AzureAccessKeyRequest struct {
 type AzureAccessKeyRequestSpec struct {
 	// Contains vault azure role info
 	// +required
-	RoleRef RoleRef `json:"roleRef"`
+	RoleRef RoleRef `json:"roleRef" protobuf:"bytes,1,opt,name=roleRef"`
 
 	// Contains a reference to the object or user identities the role binding is applied to
 	// +required
-	Subjects []rbac.Subject `json:"subjects"`
+	Subjects []rbac.Subject `json:"subjects" protobuf:"bytes,2,rep,name=subjects"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -65,37 +65,37 @@ type AzureAccessKeyRequestSpec struct {
 
 type AzureAccessKeyRequestList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 
 	// Items is a list of AzureAccessKeyRequest objects
-	Items []AzureAccessKeyRequest `json:"items,omitempty"`
+	Items []AzureAccessKeyRequest `json:"items,omitempty" protobuf:"bytes,2,rep,name=items"`
 }
 
 type AzureAccessKeyRequestStatus struct {
 	// Conditions applied to the request, such as approval or denial.
 	// +optional
-	Conditions []AzureAccessKeyRequestCondition `json:"conditions,omitempty"`
+	Conditions []AzureAccessKeyRequestCondition `json:"conditions,omitempty" protobuf:"bytes,1,rep,name=conditions"`
 
 	// Name of the secret containing AzureCredential
-	Secret *core.LocalObjectReference `json:"secret,omitempty"`
+	Secret *core.LocalObjectReference `json:"secret,omitempty" protobuf:"bytes,2,opt,name=secret"`
 
 	// Contains lease info
-	Lease *Lease `json:"lease,omitempty"`
+	Lease *Lease `json:"lease,omitempty" protobuf:"bytes,3,opt,name=lease"`
 }
 
 type AzureAccessKeyRequestCondition struct {
 	// request approval state, currently Approved or Denied.
-	Type RequestConditionType `json:"type"`
+	Type RequestConditionType `json:"type" protobuf:"bytes,1,opt,name=type,casttype=RequestConditionType"`
 
 	// brief reason for the request state
 	// +optional
-	Reason string `json:"reason,omitempty"`
+	Reason string `json:"reason,omitempty" protobuf:"bytes,2,opt,name=reason"`
 
 	// human readable message with details about the request state
 	// +optional
-	Message string `json:"message,omitempty"`
+	Message string `json:"message,omitempty" protobuf:"bytes,3,opt,name=message"`
 
 	// timestamp for the last update to this condition
 	// +optional
-	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
+	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty" protobuf:"bytes,4,opt,name=lastUpdateTime"`
 }

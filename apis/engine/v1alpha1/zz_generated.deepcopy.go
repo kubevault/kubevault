@@ -165,7 +165,7 @@ func (in *AWSConfiguration) DeepCopyInto(out *AWSConfiguration) {
 	*out = *in
 	if in.MaxRetries != nil {
 		in, out := &in.MaxRetries, &out.MaxRetries
-		*out = new(int)
+		*out = new(int64)
 		**out = **in
 	}
 	if in.LeaseConfig != nil {

@@ -40,38 +40,38 @@ const (
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 type VaultServerVersion struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              VaultServerVersionSpec `json:"spec,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
+	Spec              VaultServerVersionSpec `json:"spec,omitempty" protobuf:"bytes,2,opt,name=spec"`
 }
 
 // VaultServerVersionSpec is the spec for postgres version
 type VaultServerVersionSpec struct {
 	// Version
-	Version string `json:"version"`
+	Version string `json:"version" protobuf:"bytes,1,opt,name=version"`
 	// Vault Image
-	Vault VaultServerVersionVault `json:"vault"`
+	Vault VaultServerVersionVault `json:"vault" protobuf:"bytes,2,opt,name=vault"`
 	// Unsealer Image
-	Unsealer VaultServerVersionUnsealer `json:"unsealer"`
+	Unsealer VaultServerVersionUnsealer `json:"unsealer" protobuf:"bytes,3,opt,name=unsealer"`
 	// Exporter Image
-	Exporter VaultServerVersionExporter `json:"exporter"`
+	Exporter VaultServerVersionExporter `json:"exporter" protobuf:"bytes,4,opt,name=exporter"`
 	// Deprecated versions usable but regarded as obsolete and best avoided, typically due to having been superseded.
 	// +optional
-	Deprecated bool `json:"deprecated,omitempty"`
+	Deprecated bool `json:"deprecated,omitempty" protobuf:"varint,5,opt,name=deprecated"`
 }
 
 // VaultServerVersionVault is the vault image
 type VaultServerVersionVault struct {
-	Image string `json:"image"`
+	Image string `json:"image" protobuf:"bytes,1,opt,name=image"`
 }
 
 // VaultServerVersionUnsealer is the image for the vault unsealer
 type VaultServerVersionUnsealer struct {
-	Image string `json:"image"`
+	Image string `json:"image" protobuf:"bytes,1,opt,name=image"`
 }
 
 // VaultServerVersionExporter is the image for the vault exporter
 type VaultServerVersionExporter struct {
-	Image string `json:"image"`
+	Image string `json:"image" protobuf:"bytes,1,opt,name=image"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -80,7 +80,7 @@ type VaultServerVersionExporter struct {
 // VaultServerVersionList is a list of VaultserverVersions
 type VaultServerVersionList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 	// Items is a list of VaultServerVersion CRD objects
-	Items []VaultServerVersion `json:"items,omitempty"`
+	Items []VaultServerVersion `json:"items,omitempty" protobuf:"bytes,2,rep,name=items"`
 }
