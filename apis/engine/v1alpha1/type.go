@@ -23,13 +23,13 @@ import (
 // RoleRef contains information that points to the role being used
 type RoleRef struct {
 	// APIGroup is the group for the resource being referenced
-	APIGroup string `json:"apiGroup,omitempty"`
+	APIGroup string `json:"apiGroup,omitempty" protobuf:"bytes,1,opt,name=apiGroup"`
 	// Kind is the type of resource being referenced
-	Kind string `json:"kind,omitempty"`
+	Kind string `json:"kind,omitempty" protobuf:"bytes,2,opt,name=kind"`
 	// Name is the name of resource being referenced
-	Name string `json:"name"`
+	Name string `json:"name" protobuf:"bytes,3,opt,name=name"`
 	// Namespace is the namespace of the resource being referenced
-	Namespace string `json:"namespace"`
+	Namespace string `json:"namespace" protobuf:"bytes,4,opt,name=namespace"`
 }
 
 type RequestConditionType string
@@ -43,11 +43,11 @@ const (
 // Lease contains lease info
 type Lease struct {
 	// lease id
-	ID string `json:"id,omitempty"`
+	ID string `json:"id,omitempty" protobuf:"bytes,1,opt,name=id"`
 
 	// lease duration
-	Duration metav1.Duration `json:"duration,omitempty"`
+	Duration metav1.Duration `json:"duration,omitempty" protobuf:"bytes,2,opt,name=duration"`
 
 	// Specifies whether this lease is renewable
-	Renewable bool `json:"renewable,omitempty"`
+	Renewable bool `json:"renewable,omitempty" protobuf:"varint,3,opt,name=renewable"`
 }

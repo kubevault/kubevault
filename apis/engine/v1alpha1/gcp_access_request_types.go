@@ -37,9 +37,9 @@ const (
 // +kubebuilder:subresource:status
 type GCPAccessKeyRequest struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              GCPAccessKeyRequestSpec   `json:"spec,omitempty"`
-	Status            GCPAccessKeyRequestStatus `json:"status,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
+	Spec              GCPAccessKeyRequestSpec   `json:"spec,omitempty" protobuf:"bytes,2,opt,name=spec"`
+	Status            GCPAccessKeyRequestStatus `json:"status,omitempty" protobuf:"bytes,3,opt,name=status"`
 }
 
 // Link:
@@ -50,23 +50,23 @@ type GCPAccessKeyRequest struct {
 type GCPAccessKeyRequestSpec struct {
 	// Contains vault gcp role info
 	// +required
-	RoleRef RoleRef `json:"roleRef"`
+	RoleRef RoleRef `json:"roleRef" protobuf:"bytes,1,opt,name=roleRef"`
 
 	// Contains a reference to the object or user identities the role binding is applied to
 	// +required
-	Subjects []rbac.Subject `json:"subjects"`
+	Subjects []rbac.Subject `json:"subjects" protobuf:"bytes,2,rep,name=subjects"`
 
 	// Specifies the algorithm used to generate key.
 	// Defaults to 2k RSA key.
 	// Accepted values: KEY_ALG_UNSPECIFIED, KEY_ALG_RSA_1024, KEY_ALG_RSA_2048
 	// +optional
-	KeyAlgorithm string `json:"keyAlgorithm,omitempty"`
+	KeyAlgorithm string `json:"keyAlgorithm,omitempty" protobuf:"bytes,3,opt,name=keyAlgorithm"`
 
 	// Specifies the private key type to generate.
 	// Defaults to JSON credentials file
 	// Accepted values: TYPE_UNSPECIFIED, TYPE_PKCS12_FILE, TYPE_GOOGLE_CREDENTIALS_FILE
 	// +optional
-	KeyType string `json:"keyType,omitempty"`
+	KeyType string `json:"keyType,omitempty" protobuf:"bytes,4,opt,name=keyType"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -74,37 +74,37 @@ type GCPAccessKeyRequestSpec struct {
 
 type GCPAccessKeyRequestList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 
 	// Items is a list of GCPAccessKeyRequest objects
-	Items []GCPAccessKeyRequest `json:"items,omitempty"`
+	Items []GCPAccessKeyRequest `json:"items,omitempty" protobuf:"bytes,2,rep,name=items"`
 }
 
 type GCPAccessKeyRequestStatus struct {
 	// Conditions applied to the request, such as approval or denial.
 	// +optional
-	Conditions []GCPAccessKeyRequestCondition `json:"conditions,omitempty"`
+	Conditions []GCPAccessKeyRequestCondition `json:"conditions,omitempty" protobuf:"bytes,1,rep,name=conditions"`
 
 	// Name of the secret containing GCPCredential
-	Secret *core.LocalObjectReference `json:"secret,omitempty"`
+	Secret *core.LocalObjectReference `json:"secret,omitempty" protobuf:"bytes,2,opt,name=secret"`
 
 	// Contains lease info
-	Lease *Lease `json:"lease,omitempty"`
+	Lease *Lease `json:"lease,omitempty" protobuf:"bytes,3,opt,name=lease"`
 }
 
 type GCPAccessKeyRequestCondition struct {
 	// request approval state, currently Approved or Denied.
-	Type RequestConditionType `json:"type"`
+	Type RequestConditionType `json:"type" protobuf:"bytes,1,opt,name=type,casttype=RequestConditionType"`
 
 	// brief reason for the request state
 	// +optional
-	Reason string `json:"reason,omitempty"`
+	Reason string `json:"reason,omitempty" protobuf:"bytes,2,opt,name=reason"`
 
 	// human readable message with details about the request state
 	// +optional
-	Message string `json:"message,omitempty"`
+	Message string `json:"message,omitempty" protobuf:"bytes,3,opt,name=message"`
 
 	// timestamp for the last update to this condition
 	// +optional
-	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
+	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty" protobuf:"bytes,4,opt,name=lastUpdateTime"`
 }

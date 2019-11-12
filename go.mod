@@ -14,6 +14,7 @@ require (
 	github.com/evanphx/json-patch v4.5.0+incompatible
 	github.com/frankban/quicktest v1.4.0 // indirect
 	github.com/go-openapi/spec v0.19.0
+	github.com/gogo/protobuf v1.2.1
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/websocket v1.4.1 // indirect
@@ -23,7 +24,6 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.6.3 // indirect
 	github.com/hashicorp/vault v1.0.1
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/lib/pq v1.1.0
 	github.com/ncw/swift v1.0.47
 	github.com/onsi/ginkgo v1.8.0
@@ -46,17 +46,15 @@ require (
 	k8s.io/apiextensions-apiserver v0.0.0-20190516231611-bf6753f2aa24
 	k8s.io/apimachinery v0.0.0-20190508063446-a3da69d3723c
 	k8s.io/apiserver v0.0.0-20190516230822-f89599b3f645
-	k8s.io/cli-runtime v0.0.0-20190516231937-17bc0b7fcef5 // indirect
 	k8s.io/client-go v11.0.0+incompatible
-	k8s.io/component-base v0.0.0-20190508223741-40efa6d42997 // indirect
-	k8s.io/kube-aggregator v0.0.0-20190508224022-f9852b6d3a84
+	k8s.io/kube-aggregator v0.0.0-20190314000639-da8327669ac5
 	k8s.io/kube-openapi v0.0.0-20190502190224-411b2483e503
 	k8s.io/kubernetes v1.14.0
 	kmodules.xyz/client-go v0.0.0-20191107203555-78563b72c377
 	kmodules.xyz/constants v0.0.0-20191024095500-cd4313df4aa6
-	kmodules.xyz/custom-resources v0.0.0-20191106201002-d1689cc406ca
-	kmodules.xyz/monitoring-agent-api v0.0.0-20191106183021-d082663d8743
-	kmodules.xyz/offshoot-api v0.0.0-20191106182929-60420cc4a3e4
+	kmodules.xyz/custom-resources v0.0.0-20191111200327-6984cba51875
+	kmodules.xyz/monitoring-agent-api v0.0.0-20191111195047-343273387550
+	kmodules.xyz/offshoot-api v0.0.0-20191111195805-1105abf4a162
 	kmodules.xyz/webhook-runtime v0.0.0-20191106182834-bf518fbc7b19
 )
 
@@ -79,6 +77,5 @@ replace (
 	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20190228160746-b3a7cee44a30
 	k8s.io/metrics => k8s.io/metrics v0.0.0-20190314001731-1bd6a4002213
 	k8s.io/utils => k8s.io/utils v0.0.0-20190514214443-0a167cbac756
-	kmodules.xyz/custom-resources => github.com/kamolhasan/custom-resources v0.0.0-20190826094133-83f06ebdbc32
 	sigs.k8s.io/structured-merge-diff => sigs.k8s.io/structured-merge-diff v0.0.0-20190302045857-e85c7b244fd2
 )

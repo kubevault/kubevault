@@ -219,11 +219,31 @@ label-crds: $(BUILD_DIRS)
 		mv bin/crd.yaml $$f; \
 	done
 
+.PHONY: gen-crd-protos
+gen-crd-protos: $(addprefix gen-crd-protos-, $(subst :,_, $(API_GROUPS)))
+
+gen-crd-protos-%:
+	@echo "Generating protobuf for $(subst _,/,$*)"
+	@docker run --rm                                     \
+		-u $$(id -u):$$(id -g)                           \
+		-v /tmp:/.cache                                  \
+		-v $$(pwd):$(DOCKER_REPO_ROOT)                   \
+		-w $(DOCKER_REPO_ROOT)                           \
+		--env HTTP_PROXY=$(HTTP_PROXY)                   \
+		--env HTTPS_PROXY=$(HTTPS_PROXY)                 \
+		$(CODE_GENERATOR_IMAGE)                          \
+		go-to-protobuf                                   \
+			--go-header-file "./hack/license/go.txt"     \
+			--proto-import=$(DOCKER_REPO_ROOT)/vendor    \
+			--proto-import=$(DOCKER_REPO_ROOT)/third_party/protobuf \
+			--apimachinery-packages=-k8s.io/apimachinery/pkg/api/resource,-k8s.io/apimachinery/pkg/apis/meta/v1,-k8s.io/apimachinery/pkg/apis/meta/v1beta1,-k8s.io/apimachinery/pkg/runtime,-k8s.io/apimachinery/pkg/runtime/schema,-k8s.io/apimachinery/pkg/util/intstr \
+			--packages=-k8s.io/api/core/v1,-k8s.io/api/apps/v1,-k8s.io/api/rbac/v1,-kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1,-kmodules.xyz/monitoring-agent-api/api/v1,-kmodules.xyz/offshoot-api/api/v1,kubevault.dev/operator/apis/$(subst _,/,$*)
+
 .PHONY: manifests
 manifests: gen-crds patch-crds label-crds
 
 .PHONY: gen
-gen: clientset openapi manifests
+gen: clientset openapi manifests gen-crd-protos
 
 fmt: $(BUILD_DIRS)
 	@docker run                                                 \

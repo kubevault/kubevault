@@ -14515,8 +14515,7 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_AppBinding(ref common.Refe
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "AppBinding defines a generic user application.",
-				Type:        []string{"object"},
+				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
 					"kind": {
 						SchemaProps: spec.SchemaProps{
@@ -15964,7 +15963,7 @@ func schema_operator_apis_engine_v1alpha1_AWSConfiguration(ref common.ReferenceC
 						SchemaProps: spec.SchemaProps{
 							Description: "Number of max retries the client should use for recoverable errors. The default (-1) falls back to the AWS SDK's default behavior",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 					"leaseConfig": {
@@ -17805,14 +17804,14 @@ func schema_operator_apis_engine_v1alpha1_MySQLConfiguration(ref common.Referenc
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the maximum number of open connections to the database.",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 					"maxIdleConnections": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the maximum number of idle connections to the database. A zero uses the value of max_open_connections and a negative value disables idle connections. If larger than max_open_connections it will be reduced to be equal.",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 					"maxConnectionLifetime": {
@@ -18123,14 +18122,14 @@ func schema_operator_apis_engine_v1alpha1_PostgresConfiguration(ref common.Refer
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the maximum number of open connections to the database.",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 					"maxIdleConnections": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the maximum number of idle connections to the database. A zero uses the value of max_open_connections and a negative value disables idle connections. If larger than max_open_connections it will be reduced to be equal.",
 							Type:        []string{"integer"},
-							Format:      "int32",
+							Format:      "int64",
 						},
 					},
 					"maxConnectionLifetime": {

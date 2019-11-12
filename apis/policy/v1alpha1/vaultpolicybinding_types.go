@@ -41,42 +41,42 @@ const (
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 type VaultPolicyBinding struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              VaultPolicyBindingSpec   `json:"spec,omitempty"`
-	Status            VaultPolicyBindingStatus `json:"status,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
+	Spec              VaultPolicyBindingSpec   `json:"spec,omitempty" protobuf:"bytes,2,opt,name=spec"`
+	Status            VaultPolicyBindingStatus `json:"status,omitempty" protobuf:"bytes,3,opt,name=status"`
 }
 
 // links: https://www.vaultproject.io/api/auth/kubernetes/index.html#parameters-1
 type VaultPolicyBindingSpec struct {
 	// VaultRef is the name of a AppBinding referencing to a Vault Server
-	VaultRef core.LocalObjectReference `json:"vaultRef"`
+	VaultRef core.LocalObjectReference `json:"vaultRef" protobuf:"bytes,1,opt,name=vaultRef"`
 
 	// VaultRoleName is the role name which will be bound of the policies
 	// This defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}
 	// +optional
-	VaultRoleName string `json:"vaultRoleName,omitempty"`
+	VaultRoleName string `json:"vaultRoleName,omitempty" protobuf:"bytes,2,opt,name=vaultRoleName"`
 
 	// Policies is a list of Vault policy identifiers.
-	Policies []PolicyIdentifier `json:"policies"`
+	Policies []PolicyIdentifier `json:"policies" protobuf:"bytes,3,rep,name=policies"`
 
 	// SubjectRef refers to Vault users who will be granted policies.
-	SubjectRef `json:"subjectRef"`
+	SubjectRef `json:"subjectRef" protobuf:"bytes,4,opt,name=subjectRef"`
 }
 
 type PolicyIdentifier struct {
 	// Name is a Vault server policy name. This name should be returned by `vault read sys/policy` command.
 	// More info: https://www.vaultproject.io/docs/concepts/policies.html#listing-policies
-	Name string `json:"name,omitempty"`
+	Name string `json:"name,omitempty" protobuf:"bytes,1,opt,name=name"`
 
 	// Ref is name of a VaultPolicy crd object. Actual vault policy name is spec.vaultRoleName field.
 	// More info: https://www.vaultproject.io/docs/concepts/policies.html#listing-policies
-	Ref string `json:"ref,omitempty"`
+	Ref string `json:"ref,omitempty" protobuf:"bytes,2,opt,name=ref"`
 }
 
 type SubjectRef struct {
 	// Kubernetes refers to Vault users who are authenticated via Kubernetes auth method
 	// More info: https://www.vaultproject.io/docs/auth/kubernetes.html#configuration
-	Kubernetes *KubernetesSubjectRef `json:"kubernetes,omitempty"`
+	Kubernetes *KubernetesSubjectRef `json:"kubernetes,omitempty" protobuf:"bytes,1,opt,name=kubernetes"`
 }
 
 // More info: https://www.vaultproject.io/api/auth/kubernetes/index.html#create-role
@@ -84,27 +84,27 @@ type KubernetesSubjectRef struct {
 	// Specifies the path where kubernetes auth is enabled
 	// default : kubernetes
 	// +optional
-	Path string `json:"path,omitempty"`
+	Path string `json:"path,omitempty" protobuf:"bytes,1,opt,name=path"`
 
 	// Specifies the names of the service account to bind with policy
-	ServiceAccountNames []string `json:"serviceAccountNames"`
+	ServiceAccountNames []string `json:"serviceAccountNames" protobuf:"bytes,2,rep,name=serviceAccountNames"`
 
 	// Specifies the namespaces of the service account
-	ServiceAccountNamespaces []string `json:"serviceAccountNamespaces"`
+	ServiceAccountNamespaces []string `json:"serviceAccountNamespaces" protobuf:"bytes,3,rep,name=serviceAccountNamespaces"`
 
 	//Specifies the TTL period of tokens issued using this role in seconds.
 	// +optional
-	TTL string `json:"ttl,omitempty"`
+	TTL string `json:"ttl,omitempty" protobuf:"bytes,4,opt,name=ttl"`
 
 	//Specifies the maximum allowed lifetime of tokens issued in seconds using this role.
 	// +optional
-	MaxTTL string `json:"maxTTL,omitempty"`
+	MaxTTL string `json:"maxTTL,omitempty" protobuf:"bytes,5,opt,name=maxTTL"`
 
 	// If set, indicates that the token generated using this role should never expire.
 	// The token should be renewed within the duration specified by this value.
 	// At each renewal, the token's TTL will be set to the value of this parameter.
 	// +optional
-	Period string `json:"period,omitempty"`
+	Period string `json:"period,omitempty" protobuf:"bytes,6,opt,name=period"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -112,14 +112,14 @@ type KubernetesSubjectRef struct {
 
 type VaultPolicyBindingList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []VaultPolicyBinding `json:"items,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
+	Items           []VaultPolicyBinding `json:"items,omitempty" protobuf:"bytes,2,rep,name=items"`
 }
 
 // ServiceAccountReference contains name and namespace of the service account
 type ServiceAccountReference struct {
-	Name      string `json:"name"`
-	Namespace string `json:"namespace"`
+	Name      string `json:"name" protobuf:"bytes,1,opt,name=name"`
+	Namespace string `json:"namespace" protobuf:"bytes,2,opt,name=namespace"`
 }
 
 type PolicyBindingPhase string
@@ -133,15 +133,15 @@ type VaultPolicyBindingStatus struct {
 	// ObservedGeneration is the most recent generation observed for this resource. It corresponds to the
 	// resource's generation, which is updated on mutation by the API Server.
 	// +optional
-	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
+	ObservedGeneration int64 `json:"observedGeneration,omitempty" protobuf:"varint,1,opt,name=observedGeneration"`
 
 	// Phase indicates whether successfully bind the policy to service account in vault or not or in progress
 	// +optional
-	Phase PolicyBindingPhase `json:"phase,omitempty"`
+	Phase PolicyBindingPhase `json:"phase,omitempty" protobuf:"bytes,2,opt,name=phase,casttype=PolicyBindingPhase"`
 
 	// Represents the latest available observations of a VaultPolicyBinding.
 	// +optional
-	Conditions []PolicyBindingCondition `json:"conditions,omitempty"`
+	Conditions []PolicyBindingCondition `json:"conditions,omitempty" protobuf:"bytes,3,rep,name=conditions"`
 }
 
 type PolicyBindingConditionType string
@@ -155,17 +155,17 @@ const (
 type PolicyBindingCondition struct {
 	// Type of PolicyBindingCondition condition.
 	// +optional
-	Type PolicyBindingConditionType `json:"type,omitempty"`
+	Type PolicyBindingConditionType `json:"type,omitempty" protobuf:"bytes,1,opt,name=type,casttype=PolicyBindingConditionType"`
 
 	// Status of the condition, one of True, False, Unknown.
 	// +optional
-	Status core.ConditionStatus `json:"status,omitempty"`
+	Status core.ConditionStatus `json:"status,omitempty" protobuf:"bytes,2,opt,name=status,casttype=k8s.io/api/core/v1.ConditionStatus"`
 
 	// The reason for the condition's.
 	// +optional
-	Reason string `json:"reason,omitempty"`
+	Reason string `json:"reason,omitempty" protobuf:"bytes,3,opt,name=reason"`
 
 	// A human readable message indicating details about the transition.
 	// +optional
-	Message string `json:"message,omitempty"`
+	Message string `json:"message,omitempty" protobuf:"bytes,4,opt,name=message"`
 }

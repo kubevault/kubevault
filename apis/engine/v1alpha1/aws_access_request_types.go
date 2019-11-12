@@ -39,23 +39,23 @@ const (
 // +kubebuilder:subresource:status
 type AWSAccessKeyRequest struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              AWSAccessKeyRequestSpec   `json:"spec,omitempty"`
-	Status            AWSAccessKeyRequestStatus `json:"status,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
+	Spec              AWSAccessKeyRequestSpec   `json:"spec,omitempty" protobuf:"bytes,2,opt,name=spec"`
+	Status            AWSAccessKeyRequestStatus `json:"status,omitempty" protobuf:"bytes,3,opt,name=status"`
 }
 
 // https://www.vaultproject.io/api/secret/aws/index.html#parameters-6
 // AWSAccessKeyRequestSpec contains information to request for vault aws credential
 type AWSAccessKeyRequestSpec struct {
 	// Contains vault aws role info
-	RoleRef RoleRef `json:"roleRef"`
+	RoleRef RoleRef `json:"roleRef" protobuf:"bytes,1,opt,name=roleRef"`
 
-	Subjects []rbac.Subject `json:"subjects"`
+	Subjects []rbac.Subject `json:"subjects" protobuf:"bytes,2,rep,name=subjects"`
 
 	// The ARN of the role to assume if credential_type on the Vault role is assumed_role.
 	// Must match one of the allowed role ARNs in the Vault role. Optional if the Vault role
 	// only allows a single AWS role ARN; required otherwise.
-	RoleARN string `json:"roleARN,omitempty"`
+	RoleARN string `json:"roleARN,omitempty" protobuf:"bytes,3,opt,name=roleARN"`
 
 	// Specifies the TTL for the use of the STS token. This is specified as a string with a duration suffix.
 	// Valid only when credential_type is assumed_role or federation_token. When not specified,
@@ -63,11 +63,11 @@ type AWSAccessKeyRequestSpec struct {
 	// 3600s will be used. AWS places limits on the maximum TTL allowed. See the AWS documentation on the
 	// DurationSeconds parameter for AssumeRole (for assumed_role credential types) and
 	// GetFederationToken (for federation_token credential types) for more details.
-	TTL string `json:"ttl,omitempty"`
+	TTL string `json:"ttl,omitempty" protobuf:"bytes,4,opt,name=ttl"`
 
 	// If true, '/aws/sts' endpoint will be used to retrieve credential
 	// Otherwise, '/aws/creds' endpoint will be used to retrieve credential
-	UseSTS bool `json:"useSTS,omitempty"`
+	UseSTS bool `json:"useSTS,omitempty" protobuf:"varint,5,opt,name=useSTS"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -75,37 +75,37 @@ type AWSAccessKeyRequestSpec struct {
 
 type AWSAccessKeyRequestList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 
 	// Items is a list of AWSAccessKeyRequest objects
-	Items []AWSAccessKeyRequest `json:"items,omitempty"`
+	Items []AWSAccessKeyRequest `json:"items,omitempty" protobuf:"bytes,2,rep,name=items"`
 }
 
 type AWSAccessKeyRequestStatus struct {
 	// Conditions applied to the request, such as approval or denial.
 	// +optional
-	Conditions []AWSAccessKeyRequestCondition `json:"conditions,omitempty"`
+	Conditions []AWSAccessKeyRequestCondition `json:"conditions,omitempty" protobuf:"bytes,1,rep,name=conditions"`
 
 	// Name of the secret containing AWSCredential AWSCredentials
-	Secret *core.LocalObjectReference `json:"secret,omitempty"`
+	Secret *core.LocalObjectReference `json:"secret,omitempty" protobuf:"bytes,2,opt,name=secret"`
 
 	// Contains lease info
-	Lease *Lease `json:"lease,omitempty"`
+	Lease *Lease `json:"lease,omitempty" protobuf:"bytes,3,opt,name=lease"`
 }
 
 type AWSAccessKeyRequestCondition struct {
 	// request approval state, currently Approved or Denied.
-	Type RequestConditionType `json:"type"`
+	Type RequestConditionType `json:"type" protobuf:"bytes,1,opt,name=type,casttype=RequestConditionType"`
 
 	// brief reason for the request state
 	// +optional
-	Reason string `json:"reason,omitempty"`
+	Reason string `json:"reason,omitempty" protobuf:"bytes,2,opt,name=reason"`
 
 	// human readable message with details about the request state
 	// +optional
-	Message string `json:"message,omitempty"`
+	Message string `json:"message,omitempty" protobuf:"bytes,3,opt,name=message"`
 
 	// timestamp for the last update to this condition
 	// +optional
-	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty"`
+	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty" protobuf:"bytes,4,opt,name=lastUpdateTime"`
 }

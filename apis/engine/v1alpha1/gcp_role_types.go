@@ -37,9 +37,9 @@ const (
 // +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
 type GCPRole struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              GCPRoleSpec   `json:"spec,omitempty"`
-	Status            GCPRoleStatus `json:"status,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
+	Spec              GCPRoleSpec   `json:"spec,omitempty" protobuf:"bytes,2,opt,name=spec"`
+	Status            GCPRoleStatus `json:"status,omitempty" protobuf:"bytes,3,opt,name=status"`
 }
 
 type GCPSecretType string
@@ -53,29 +53,29 @@ const (
 // More info: https://www.vaultproject.io/api/secret/gcp/index.html#parameters
 type GCPRoleSpec struct {
 	// VaultRef is the name of a AppBinding referencing to a Vault Server
-	VaultRef core.LocalObjectReference `json:"vaultRef"`
+	VaultRef core.LocalObjectReference `json:"vaultRef" protobuf:"bytes,1,opt,name=vaultRef"`
 
 	// Path defines the path of the Google Cloud secret engine
 	// default: gcp
 	// More info: https://www.vaultproject.io/docs/auth/gcp.html#via-the-cli-helper
 	// +optional
-	Path string `json:"path,omitempty"`
+	Path string `json:"path,omitempty" protobuf:"bytes,2,opt,name=path"`
 
 	// Specifies the type of secret generated for this role set
-	SecretType GCPSecretType `json:"secretType"`
+	SecretType GCPSecretType `json:"secretType" protobuf:"bytes,3,opt,name=secretType,casttype=GCPSecretType"`
 
 	// Name of the GCP project that this roleset's service account will belong to.
 	// Cannot be updated.
-	Project string `json:"project"`
+	Project string `json:"project" protobuf:"bytes,4,opt,name=project"`
 
 	// Bindings configuration string (expects HCL or JSON format in raw
 	// or base64-encoded string)
-	Bindings string `json:"bindings"`
+	Bindings string `json:"bindings" protobuf:"bytes,5,opt,name=bindings"`
 
 	// List of OAuth scopes to assign to access_token secrets generated
 	// under this role set (access_token role sets only)
 	// +optional
-	TokenScopes []string `json:"tokenScopes,omitempty"`
+	TokenScopes []string `json:"tokenScopes,omitempty" protobuf:"bytes,6,rep,name=tokenScopes"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -83,10 +83,10 @@ type GCPRoleSpec struct {
 
 type GCPRoleList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 
 	// Items is a list of GCPRole objects
-	Items []GCPRole `json:"items,omitempty"`
+	Items []GCPRole `json:"items,omitempty" protobuf:"bytes,2,rep,name=items"`
 }
 
 const (
@@ -96,27 +96,27 @@ const (
 type GCPRolePhase string
 
 type GCPRoleStatus struct {
-	Phase GCPRolePhase `json:"phase,omitempty"`
+	Phase GCPRolePhase `json:"phase,omitempty" protobuf:"bytes,1,opt,name=phase,casttype=GCPRolePhase"`
 
 	// ObservedGeneration is the most recent generation observed for this GCPRole. It corresponds to the
 	// GCPRole's generation, which is updated on mutation by the API Server.
-	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
+	ObservedGeneration int64 `json:"observedGeneration,omitempty" protobuf:"varint,2,opt,name=observedGeneration"`
 
 	// Represents the latest available observations of a GCPRole current state.
-	Conditions []GCPRoleCondition `json:"conditions,omitempty"`
+	Conditions []GCPRoleCondition `json:"conditions,omitempty" protobuf:"bytes,3,rep,name=conditions"`
 }
 
 // GCPRoleCondition describes the state of a GCPRole at a certain point.
 type GCPRoleCondition struct {
 	// Type of GCPRole condition.
-	Type string `json:"type,omitempty"`
+	Type string `json:"type,omitempty" protobuf:"bytes,1,opt,name=type"`
 
 	// Status of the condition, one of True, False, Unknown.
-	Status core.ConditionStatus `json:"status,omitempty"`
+	Status core.ConditionStatus `json:"status,omitempty" protobuf:"bytes,2,opt,name=status,casttype=k8s.io/api/core/v1.ConditionStatus"`
 
 	// The reason for the condition's.
-	Reason string `json:"reason,omitempty"`
+	Reason string `json:"reason,omitempty" protobuf:"bytes,3,opt,name=reason"`
 
 	// A human readable message indicating details about the transition.
-	Message string `json:"message,omitempty"`
+	Message string `json:"message,omitempty" protobuf:"bytes,4,opt,name=message"`
 }
