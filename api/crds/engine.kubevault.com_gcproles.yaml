@@ -4,7 +4,7 @@ metadata:
   creationTimestamp: null
   labels:
     app: vault
-  name: gcprole.engine.kubevault.com
+  name: gcproles.engine.kubevault.com
 spec:
   additionalPrinterColumns:
   - JSONPath: .status.phase
@@ -18,8 +18,8 @@ spec:
     - all
     kind: GCPRole
     listKind: GCPRoleList
-    plural: gcprole
-    singular: gcproles
+    plural: gcproles
+    singular: gcprole
   scope: Namespaced
   subresources:
     status: {}

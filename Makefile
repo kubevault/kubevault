@@ -52,7 +52,7 @@ endif
 ### These variables should not need tweaking.
 ###
 
-SRC_PKGS := cmd apis client pkg # directories which hold app source excluding tests (not vendored)
+SRC_PKGS := api apis client cmd pkg # directories which hold app source excluding tests (not vendored)
 SRC_DIRS := $(SRC_PKGS) test hack/gencrd hack/gendocs # directories which hold app source (not vendored)
 
 DOCKER_PLATFORMS := linux/amd64 linux/arm linux/arm64
@@ -73,7 +73,7 @@ TAG_PROD         := $(TAG)
 TAG_DBG          := $(VERSION)-dbg_$(OS)_$(ARCH)
 
 GO_VERSION       ?= 1.12.12
-BUILD_IMAGE      ?= appscode/golang-dev:$(GO_VERSION)-stretch
+BUILD_IMAGE      ?= appscode/golang-dev:$(GO_VERSION)
 CHART_TEST_IMAGE ?= quay.io/helmpack/chart-testing:v2.4.0
 
 OUTBIN = bin/$(OS)_$(ARCH)/$(BIN)
@@ -239,11 +239,25 @@ gen-crd-protos-%:
 			--apimachinery-packages=-k8s.io/apimachinery/pkg/api/resource,-k8s.io/apimachinery/pkg/apis/meta/v1,-k8s.io/apimachinery/pkg/apis/meta/v1beta1,-k8s.io/apimachinery/pkg/runtime,-k8s.io/apimachinery/pkg/runtime/schema,-k8s.io/apimachinery/pkg/util/intstr \
 			--packages=-k8s.io/api/core/v1,-k8s.io/api/apps/v1,-k8s.io/api/rbac/v1,-kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1,-kmodules.xyz/monitoring-agent-api/api/v1,-kmodules.xyz/offshoot-api/api/v1,kubevault.dev/operator/apis/$(subst _,/,$*)
 
+.PHONY: gen-bindata
+gen-bindata:
+	@docker run                                                 \
+	    -i                                                      \
+	    --rm                                                    \
+	    -u $$(id -u):$$(id -g)                                  \
+	    -v $$(pwd):/src                                         \
+	    -w /src/api/crds                                        \
+		-v /tmp:/.cache                                         \
+	    --env HTTP_PROXY=$(HTTP_PROXY)                          \
+	    --env HTTPS_PROXY=$(HTTPS_PROXY)                        \
+	    $(BUILD_IMAGE)                                          \
+	    go-bindata -ignore=\\.go -ignore=\\.DS_Store -mode=0644 -modtime=1573722179 -o bindata.go -pkg crds ./...
+
 .PHONY: manifests
-manifests: gen-crds patch-crds label-crds
+manifests: gen-crds patch-crds label-crds gen-bindata
 
 .PHONY: gen
-gen: clientset openapi manifests gen-crd-protos
+gen: clientset gen-crd-protos manifests openapi
 
 fmt: $(BUILD_DIRS)
 	@docker run                                                 \
@@ -565,3 +579,13 @@ release:
 .PHONY: clean
 clean:
 	rm -rf .go bin
+
+.PHONY: run
+run:
+	GO111MODULE=on go run -mod=vendor ./cmd/vault-operator run \
+		--v=3 \
+		--secure-port=8443 \
+		--kubeconfig=$(KUBECONFIG) \
+		--authorization-kubeconfig=$(KUBECONFIG) \
+		--authentication-kubeconfig=$(KUBECONFIG) \
+		--authentication-skip-lookup

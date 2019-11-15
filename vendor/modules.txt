@@ -944,7 +944,6 @@ k8s.io/utils/integer
 k8s.io/utils/buffer
 k8s.io/utils/trace
 # kmodules.xyz/client-go v0.0.0-20191107203555-78563b72c377
-kmodules.xyz/client-go/apiextensions/v1beta1
 kmodules.xyz/client-go/tools/clusterid
 kmodules.xyz/client-go/meta
 kmodules.xyz/client-go
@@ -953,6 +952,7 @@ kmodules.xyz/client-go/openapi
 kmodules.xyz/client-go/tools/cli
 kmodules.xyz/client-go/tools/clientcmd
 kmodules.xyz/client-go/admissionregistration/v1beta1
+kmodules.xyz/client-go/apiextensions/v1beta1
 kmodules.xyz/client-go/apps/v1
 kmodules.xyz/client-go/core/v1
 kmodules.xyz/client-go/discovery

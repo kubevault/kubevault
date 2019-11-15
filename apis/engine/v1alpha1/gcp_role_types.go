@@ -32,7 +32,7 @@ const (
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // +kubebuilder:object:root=true
-// +kubebuilder:resource:path=gcprole,singular=gcproles,categories={vault,appscode,all}
+// +kubebuilder:resource:path=gcproles,singular=gcprole,categories={vault,appscode,all}
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
 type GCPRole struct {

@@ -19,10 +19,20 @@ package v1alpha1
 import (
 	"fmt"
 
+	"kubevault.dev/operator/api/crds"
+
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"kmodules.xyz/client-go/tools/clusterid"
+	"sigs.k8s.io/yaml"
 )
+
+func (_ AWSRole) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+	data := crds.MustAsset("engine.kubevault.com_awsroles.yaml")
+	var out apiextensions.CustomResourceDefinition
+	utilruntime.Must(yaml.Unmarshal(data, &out))
+	return &out
+}
 
 func (r AWSRole) RoleName() string {
 	cluster := "-"
@@ -30,38 +40,6 @@ func (r AWSRole) RoleName() string {
 		cluster = clusterid.ClusterName()
 	}
 	return fmt.Sprintf("k8s.%s.%s.%s", cluster, r.Namespace, r.Name)
-}
-
-func (r AWSRole) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
-	return crdutils.NewCustomResourceDefinition(crdutils.Config{
-		Group:         SchemeGroupVersion.Group,
-		Plural:        ResourceAWSRoles,
-		Singular:      ResourceAWSRole,
-		Kind:          ResourceKindAWSRole,
-		Categories:    []string{"vault", "appscode", "all"},
-		ResourceScope: string(apiextensions.NamespaceScoped),
-		Versions: []apiextensions.CustomResourceDefinitionVersion{
-			{
-				Name:    SchemeGroupVersion.Version,
-				Served:  true,
-				Storage: true,
-			},
-		},
-		Labels: crdutils.Labels{
-			LabelsMap: map[string]string{"app": "vault"},
-		},
-		SpecDefinitionName:      "kubevault.dev/operator/apis/kubevault/v1alpha1.AWSRole",
-		EnableValidation:        true,
-		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
-		EnableStatusSubresource: true,
-		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
-			{
-				Name:     "Status",
-				Type:     "string",
-				JSONPath: ".status.phase",
-			},
-		},
-	})
 }
 
 func (r AWSRole) IsValid() error {
