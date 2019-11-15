@@ -19,42 +19,20 @@ package v1alpha1
 import (
 	"fmt"
 
+	"kubevault.dev/operator/api/crds"
+
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"kmodules.xyz/client-go/tools/clusterid"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
+	"sigs.k8s.io/yaml"
 )
 
-func (e SecretEngine) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
-	return crdutils.NewCustomResourceDefinition(crdutils.Config{
-		Group:         SchemeGroupVersion.Group,
-		Plural:        ResourceSecretEngines,
-		Singular:      ResourceSecretEngine,
-		Kind:          ResourceKindSecretEngine,
-		Categories:    []string{"vault", "appscode", "all"},
-		ResourceScope: string(apiextensions.NamespaceScoped),
-		Versions: []apiextensions.CustomResourceDefinitionVersion{
-			{
-				Name:    SchemeGroupVersion.Version,
-				Served:  true,
-				Storage: true,
-			},
-		},
-		Labels: crdutils.Labels{
-			LabelsMap: map[string]string{"app": "vault"},
-		},
-		SpecDefinitionName:      "kubevault.dev/operator/apis/kubevault/v1alpha1.SecretEngine",
-		EnableValidation:        true,
-		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
-		EnableStatusSubresource: true,
-		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
-			{
-				Name:     "Status",
-				Type:     "string",
-				JSONPath: ".status.phase",
-			},
-		},
-	})
+func (_ SecretEngine) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+	data := crds.MustAsset("engine.kubevault.com_secretengines.yaml")
+	var out apiextensions.CustomResourceDefinition
+	utilruntime.Must(yaml.Unmarshal(data, &out))
+	return &out
 }
 
 func (e SecretEngine) IsValid() error {

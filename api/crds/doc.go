@@ -14,23 +14,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v1alpha1
-
-import (
-	"kubevault.dev/operator/api/crds"
-
-	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	"sigs.k8s.io/yaml"
-)
-
-func (_ AWSAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
-	data := crds.MustAsset("engine.kubevault.com_awsaccesskeyrequests.yaml")
-	var out apiextensions.CustomResourceDefinition
-	utilruntime.Must(yaml.Unmarshal(data, &out))
-	return &out
-}
-
-func (d AWSAccessKeyRequest) IsValid() error {
-	return nil
-}
+package crds

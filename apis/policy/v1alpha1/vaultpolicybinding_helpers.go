@@ -19,13 +19,21 @@ package v1alpha1
 import (
 	"fmt"
 
-	"kubevault.dev/operator/apis"
+	"kubevault.dev/operator/api/crds"
 
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/clusterid"
+	"sigs.k8s.io/yaml"
 )
+
+func (_ VaultPolicyBinding) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+	data := crds.MustAsset("policy.kubevault.com_vaultpolicybindings.yaml")
+	var out apiextensions.CustomResourceDefinition
+	utilruntime.Must(yaml.Unmarshal(data, &out))
+	return &out
+}
 
 func (v VaultPolicyBinding) GetKey() string {
 	return ResourceVaultPolicyBinding + "/" + v.Namespace + "/" + v.Name
@@ -52,44 +60,6 @@ func (v VaultPolicyBinding) OffshootSelectors() map[string]string {
 
 func (v VaultPolicyBinding) OffshootLabels() map[string]string {
 	return meta_util.FilterKeys("kubevault.com", v.OffshootSelectors(), v.Labels)
-}
-
-func (v VaultPolicyBinding) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
-	return crdutils.NewCustomResourceDefinition(crdutils.Config{
-		Group:         SchemeGroupVersion.Group,
-		Plural:        ResourceVaultPolicyBindings,
-		Singular:      ResourceVaultPolicyBinding,
-		Kind:          ResourceKindVaultPolicyBinding,
-		ShortNames:    []string{"vpb"},
-		Categories:    []string{"vault", "appscode", "all"},
-		ResourceScope: string(apiextensions.NamespaceScoped),
-		Versions: []apiextensions.CustomResourceDefinitionVersion{
-			{
-				Name:    SchemeGroupVersion.Version,
-				Served:  true,
-				Storage: true,
-			},
-		},
-		Labels: crdutils.Labels{
-			LabelsMap: map[string]string{"app": "vault"},
-		},
-		SpecDefinitionName:      "kubevault.dev/operator/apis/policy/v1alpha1.VaultPolicyBinding",
-		EnableValidation:        true,
-		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
-		EnableStatusSubresource: true,
-		AdditionalPrinterColumns: []apiextensions.CustomResourceColumnDefinition{
-			{
-				Name:     "Phase",
-				Type:     "string",
-				JSONPath: ".status.phase",
-			},
-			{
-				Name:     "Age",
-				Type:     "date",
-				JSONPath: ".metadata.creationTimestamp",
-			},
-		},
-	}, apis.SetNameSchema)
 }
 
 func (v VaultPolicyBinding) IsValid() error {

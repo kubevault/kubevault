@@ -17,35 +17,18 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"kubevault.dev/operator/api/crds"
+
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	crdutils "kmodules.xyz/client-go/apiextensions/v1beta1"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	"sigs.k8s.io/yaml"
 )
 
-func (d AzureAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
-	return crdutils.NewCustomResourceDefinition(crdutils.Config{
-		Group:         SchemeGroupVersion.Group,
-		Plural:        ResourceAzureAccessKeyRequests,
-		Singular:      ResourceAzureAccessKeyRequest,
-		Kind:          ResourceKindAzureAccessKeyRequest,
-		Categories:    []string{"vault", "appscode", "all"},
-		ResourceScope: string(apiextensions.NamespaceScoped),
-		Versions: []apiextensions.CustomResourceDefinitionVersion{
-			{
-				Name:    SchemeGroupVersion.Version,
-				Served:  true,
-				Storage: true,
-			},
-		},
-		Labels: crdutils.Labels{
-			LabelsMap: map[string]string{
-				"app": "vault",
-			},
-		},
-		SpecDefinitionName:      "kubevault.dev/operator/apis/kubevault/v1alpha1.AzureAccessKeyRequest",
-		EnableValidation:        true,
-		GetOpenAPIDefinitions:   GetOpenAPIDefinitions,
-		EnableStatusSubresource: true,
-	})
+func (_ AzureAccessKeyRequest) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
+	data := crds.MustAsset("engine.kubevault.com_azureaccesskeyrequests.yaml")
+	var out apiextensions.CustomResourceDefinition
+	utilruntime.Must(yaml.Unmarshal(data, &out))
+	return &out
 }
 
 func (d AzureAccessKeyRequest) IsValid() error {

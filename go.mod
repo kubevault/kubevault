@@ -56,6 +56,7 @@ require (
 	kmodules.xyz/monitoring-agent-api v0.0.0-20191111195047-343273387550
 	kmodules.xyz/offshoot-api v0.0.0-20191111195805-1105abf4a162
 	kmodules.xyz/webhook-runtime v0.0.0-20191106182834-bf518fbc7b19
+	sigs.k8s.io/yaml v1.1.0
 )
 
 replace (
