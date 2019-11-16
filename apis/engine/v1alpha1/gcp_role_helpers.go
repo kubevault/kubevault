@@ -22,16 +22,11 @@ import (
 	"kubevault.dev/operator/api/crds"
 
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"kmodules.xyz/client-go/tools/clusterid"
-	"sigs.k8s.io/yaml"
 )
 
 func (_ GCPRole) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
-	data := crds.MustAsset("engine.kubevault.com_gcproles.yaml")
-	var out apiextensions.CustomResourceDefinition
-	utilruntime.Must(yaml.Unmarshal(data, &out))
-	return &out
+	return crds.MustCustomResourceDefinition(SchemeGroupVersion.WithResource(ResourceGCPRoles))
 }
 
 func (r GCPRole) RoleName() string {

@@ -22,17 +22,12 @@ import (
 	"kubevault.dev/operator/api/crds"
 
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	meta_util "kmodules.xyz/client-go/meta"
 	mona "kmodules.xyz/monitoring-agent-api/api/v1"
-	"sigs.k8s.io/yaml"
 )
 
 func (_ VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
-	data := crds.MustAsset("kubevault.com_vaultservers.yaml")
-	var out apiextensions.CustomResourceDefinition
-	utilruntime.Must(yaml.Unmarshal(data, &out))
-	return &out
+	return crds.MustCustomResourceDefinition(SchemeGroupVersion.WithResource(ResourceVaultServers))
 }
 
 func (v VaultServer) GetKey() string {
