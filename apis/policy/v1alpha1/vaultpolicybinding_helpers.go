@@ -22,17 +22,12 @@ import (
 	"kubevault.dev/operator/api/crds"
 
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/clusterid"
-	"sigs.k8s.io/yaml"
 )
 
 func (_ VaultPolicyBinding) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
-	data := crds.MustAsset("policy.kubevault.com_vaultpolicybindings.yaml")
-	var out apiextensions.CustomResourceDefinition
-	utilruntime.Must(yaml.Unmarshal(data, &out))
-	return &out
+	return crds.MustCustomResourceDefinition(SchemeGroupVersion.WithResource(ResourceVaultPolicyBindings))
 }
 
 func (v VaultPolicyBinding) GetKey() string {
