@@ -21,7 +21,10 @@ Vault operator can be installed via a script or as a Helm chart.
     <a class="nav-link active" id="script-tab" data-toggle="tab" href="#script" role="tab" aria-controls="script" aria-selected="true">Script</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" id="helm-tab" data-toggle="tab" href="#helm" role="tab" aria-controls="helm" aria-selected="false">Helm</a>
+    <a class="nav-link" id="helm2-tab" data-toggle="tab" href="#helm2" role="tab" aria-controls="helm2" aria-selected="false">Helm 2</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="helm3-tab" data-toggle="tab" href="#helm3" role="tab" aria-controls="helm3" aria-selected="false">Helm 3</a>
   </li>
 </ul>
 <div class="tab-content" id="installerTabContent">
@@ -111,9 +114,9 @@ $ curl -fsSL https://github.com/kubevault/operator/raw/{{< param "info.version" 
 ```
 
 </div>
-<div class="tab-pane fade" id="helm" role="tabpanel" aria-labelledby="helm-tab">
+<div class="tab-pane fade" id="helm2" role="tabpanel" aria-labelledby="helm2-tab">
 
-## Using Helm
+## Using Helm 2
 Vault operator can be installed via [Helm](https://helm.sh/) using the [chart](https://github.com/kubevault/operator/tree/{{< param "info.version" >}}/charts/vault-operator) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `my-release`:
 
 ```console
@@ -125,8 +128,7 @@ appscode/vault-operator {{< param "info.version" >}}         {{< param "info.ver
 appscode/vault-catalog  {{< param "info.version" >}}         {{< param "info.version" >}}         Vault Catalog by AppsCode - Catalog for vault versions
 
 # Step 1: Install vault-operator chart
-$ helm install appscode/vault-operator --name vault-operator --version {{< param "info.version" >}} \
-  --namespace kube-system
+$ helm install appscode/vault-operator --name vault-operator --version {{< param "info.version" >}} --namespace kube-system
 
 # Step 2: wait until crds are registered
 $ kubectl get crds -l app=vault -w
@@ -138,15 +140,48 @@ vaultserverversions.catalog.kubevault.com    8s
 $ helm install appscode/vault-catalog --name vault-catalog
 
 # Step 3(a): Install catalog of Vault versions
-$ helm install appscode/vault-catalog --name vault-catalog --version {{< param "info.version" >}} \
-  --namespace kube-system
+$ helm install appscode/vault-catalog --name vault-catalog --version {{< param "info.version" >}} --namespace kube-system
 
 # Step 3(b): Or, if previously installed, upgrade catalog of Vault versions
-$ helm upgrade vault-catalog appscode/vault-catalog --version {{< param "info.version" >}} \
-  --namespace kube-system
+$ helm upgrade vault-catalog appscode/vault-catalog --version {{< param "info.version" >}} --namespace kube-system
 ```
 
-To see the detailed configuration options, visit [here](https://github.com/kubevault/operator/tree/master/charts/vault-operator).
+To see the detailed configuration options, visit [here](https://github.com/kubevault/operator/tree/{{< param "info.version" >}}/charts/vault-operator).
+
+</div>
+<div class="tab-pane fade" id="helm3" role="tabpanel" aria-labelledby="helm3-tab">
+
+## Using Helm 3
+Vault operator can be installed via [Helm](https://helm.sh/) using the [chart](https://github.com/kubevault/operator/tree/{{< param "info.version" >}}/charts/vault-operator) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `my-release`:
+
+```console
+$ helm repo add appscode https://charts.appscode.com/stable/
+$ helm repo update
+$ helm search repo appscode/vault
+NAME                    CHART VERSION APP VERSION   DESCRIPTION
+appscode/vault-operator {{< param "info.version" >}}         {{< param "info.version" >}}         Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
+appscode/vault-catalog  {{< param "info.version" >}}         {{< param "info.version" >}}         Vault Catalog by AppsCode - Catalog for vault versions
+
+# Step 1: Install vault-operator chart
+$ helm install vault-operator appscode/vault-operator --version {{< param "info.version" >}} --namespace kube-system
+
+# Step 2: wait until crds are registered
+$ kubectl get crds -l app=vault -w
+NAME                                        AGE
+vaultservers.kubevault.com                  12s
+vaultserverversions.catalog.kubevault.com    8s
+
+# Step 3: Install catalog of Vault versions
+$ helm install appscode/vault-catalog --name vault-catalog
+
+# Step 3(a): Install catalog of Vault versions
+$ helm install vault-catalog appscode/vault-catalog --version {{< param "info.version" >}} --namespace kube-system
+
+# Step 3(b): Or, if previously installed, upgrade catalog of Vault versions
+$ helm upgrade vault-catalog appscode/vault-catalog --version {{< param "info.version" >}} --namespace kube-system
+```
+
+To see the detailed configuration options, visit [here](https://github.com/kubevault/operator/tree/{{< param "info.version" >}}/charts/vault-operator).
 
 </div>
 </div>

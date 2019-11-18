@@ -21,7 +21,10 @@ Vault CSI driver can be installed via a script or as a Helm chart.
     <a class="nav-link active" id="script-tab" data-toggle="tab" href="#script" role="tab" aria-controls="script" aria-selected="true">Script</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" id="helm-tab" data-toggle="tab" href="#helm" role="tab" aria-controls="helm" aria-selected="false">Helm</a>
+    <a class="nav-link" id="helm2-tab" data-toggle="tab" href="#helm2" role="tab" aria-controls="helm2" aria-selected="false">Helm 2</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="helm3-tab" data-toggle="tab" href="#helm3" role="tab" aria-controls="helm3" aria-selected="false">Helm 3</a>
   </li>
 </ul>
 <div class="tab-content" id="installerTabContent">
@@ -78,7 +81,7 @@ options:
 ```
 
 </div>
-<div class="tab-pane fade" id="helm" role="tabpanel" aria-labelledby="helm-tab">
+<div class="tab-pane fade" id="helm2" role="tabpanel" aria-labelledby="helm2-tab">
 
 ## Using Helm
 
@@ -95,7 +98,27 @@ appscode/csi-vault	{{< param "info.version" >}}        	{{< param "info.version"
 $ helm install appscode/csi-vault --name csi-vault --version {{< param "info.version" >}} --namespace kube-system
 ```
 
-To see the detailed configuration options, visit [here](https://github.com/kubevault/csi-driver/tree/charts/chart/csi-vault)
+To see the detailed configuration options, visit [here](https://github.com/kubevault/csi-driver/tree/{{< param "info.version" >}}/charts/csi-vault)
+
+</div>
+<div class="tab-pane fade" id="helm3" role="tabpanel" aria-labelledby="helm3-tab">
+
+## Using Helm
+
+Vault CSI driver can be installed via [Helm](https://helm.sh) using the [chart](https://github.com/appscode/kubevault/csi-driver/tree/{{< param "info.version" >}}/charts/csi-vault) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `csi-vault`
+
+```console
+$ helm repo add appscode https://charts.appscode.com/stable/
+$ helm repo update
+$ helm search repo appscode/csi-vault
+NAME                CHART VERSION   APP VERSION DESCRIPTION
+appscode/csi-vault  {{< param "info.version" >}}            {{< param "info.version" >}}        HashiCorp Vault CSI Driver for Kubernetes
+
+# Kubernetes 1.13+ (CSI driver spec 1.0.0)
+$ helm install csi-vault appscode/csi-vault --version {{< param "info.version" >}} --namespace kube-system
+```
+
+To see the detailed configuration options, visit [here](https://github.com/kubevault/csi-driver/tree/{{< param "info.version" >}}/charts/csi-vault)
 
 </div>
 </div>
