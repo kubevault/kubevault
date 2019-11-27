@@ -30,19 +30,6 @@ import (
 
 var json = jsoniter.ConfigFastest
 
-func RemoveNextInitializer(m metav1.ObjectMeta) metav1.ObjectMeta {
-	if m.GetInitializers() != nil {
-		pendingInitializers := m.GetInitializers().Pending
-		// Remove self from the list of pending Initializers while preserving ordering.
-		if len(pendingInitializers) == 1 {
-			m.Initializers = nil
-		} else {
-			m.Initializers.Pending = append(pendingInitializers[:0], pendingInitializers[1:]...)
-		}
-	}
-	return m
-}
-
 func AddFinalizer(m metav1.ObjectMeta, finalizer string) metav1.ObjectMeta {
 	for _, name := range m.Finalizers {
 		if name == finalizer {

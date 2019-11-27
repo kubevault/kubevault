@@ -76,7 +76,7 @@ func (in *AWSAccessKeyRequestCondition) DeepCopy() *AWSAccessKeyRequestCondition
 func (in *AWSAccessKeyRequestList) DeepCopyInto(out *AWSAccessKeyRequestList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]AWSAccessKeyRequest, len(*in))
@@ -234,7 +234,7 @@ func (in *AWSRoleCondition) DeepCopy() *AWSRoleCondition {
 func (in *AWSRoleList) DeepCopyInto(out *AWSRoleList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]AWSRole, len(*in))
@@ -365,7 +365,7 @@ func (in *AzureAccessKeyRequestCondition) DeepCopy() *AzureAccessKeyRequestCondi
 func (in *AzureAccessKeyRequestList) DeepCopyInto(out *AzureAccessKeyRequestList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]AzureAccessKeyRequest, len(*in))
@@ -513,7 +513,7 @@ func (in *AzureRoleCondition) DeepCopy() *AzureRoleCondition {
 func (in *AzureRoleList) DeepCopyInto(out *AzureRoleList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]AzureRole, len(*in))
@@ -629,7 +629,7 @@ func (in *DatabaseAccessRequestCondition) DeepCopy() *DatabaseAccessRequestCondi
 func (in *DatabaseAccessRequestList) DeepCopyInto(out *DatabaseAccessRequestList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]DatabaseAccessRequest, len(*in))
@@ -762,7 +762,7 @@ func (in *GCPAccessKeyRequestCondition) DeepCopy() *GCPAccessKeyRequestCondition
 func (in *GCPAccessKeyRequestList) DeepCopyInto(out *GCPAccessKeyRequestList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]GCPAccessKeyRequest, len(*in))
@@ -910,7 +910,7 @@ func (in *GCPRoleCondition) DeepCopy() *GCPRoleCondition {
 func (in *GCPRoleList) DeepCopyInto(out *GCPRoleList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]GCPRole, len(*in))
@@ -1085,7 +1085,7 @@ func (in *MongoDBRoleCondition) DeepCopy() *MongoDBRoleCondition {
 func (in *MongoDBRoleList) DeepCopyInto(out *MongoDBRoleList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]MongoDBRole, len(*in))
@@ -1237,7 +1237,7 @@ func (in *MySQLRoleCondition) DeepCopy() *MySQLRoleCondition {
 func (in *MySQLRoleList) DeepCopyInto(out *MySQLRoleList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]MySQLRole, len(*in))
@@ -1389,7 +1389,7 @@ func (in *PostgresRoleCondition) DeepCopy() *PostgresRoleCondition {
 func (in *PostgresRoleList) DeepCopyInto(out *PostgresRoleList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]PostgresRole, len(*in))
@@ -1591,7 +1591,7 @@ func (in *SecretEngineConfiguration) DeepCopy() *SecretEngineConfiguration {
 func (in *SecretEngineList) DeepCopyInto(out *SecretEngineList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]SecretEngine, len(*in))
