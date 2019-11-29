@@ -119,6 +119,8 @@ message AppBindingSpec {
   // in a Secret.
   //
   // +optional
+  // +kubebuilder:validation:EmbeddedResource
+  // +kubebuilder:pruning:PreserveUnknownFields
   optional k8s.io.apimachinery.pkg.runtime.RawExtension parameters = 6;
 }
 
@@ -139,6 +141,8 @@ message AppReference {
   // NEVER be used to hold sensitive information.
   //
   // +optional
+  // +kubebuilder:validation:EmbeddedResource
+  // +kubebuilder:pruning:PreserveUnknownFields
   optional k8s.io.apimachinery.pkg.runtime.RawExtension parameters = 3;
 }
 

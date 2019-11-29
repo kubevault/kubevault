@@ -208,6 +208,8 @@ message VaultPolicySpec {
 
   // Policy specifies a vault policy in json format.
   // +optional
+  // +kubebuilder:validation:EmbeddedResource
+  // +kubebuilder:pruning:PreserveUnknownFields
   optional k8s.io.apimachinery.pkg.runtime.RawExtension policy = 4;
 }
 

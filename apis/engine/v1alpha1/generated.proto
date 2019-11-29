@@ -196,6 +196,8 @@ message AWSRoleSpec {
 
   // Specifies the IAM policy in JSON format.
   // +optional
+  // +kubebuilder:validation:EmbeddedResource
+  // +kubebuilder:pruning:PreserveUnknownFields
   optional k8s.io.apimachinery.pkg.runtime.RawExtension policy = 7;
 
   // The default TTL for STS credentials. When a TTL is not specified when STS credentials are requested,

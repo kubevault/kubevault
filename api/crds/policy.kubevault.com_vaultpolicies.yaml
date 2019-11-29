@@ -51,6 +51,8 @@ spec:
             policy:
               description: Policy specifies a vault policy in json format.
               type: object
+              x-kubernetes-embedded-resource: true
+              x-kubernetes-preserve-unknown-fields: true
             policyDocument:
               description: 'PolicyDocument specifies a vault policy in hcl format.
                 For example: path "secret/*" {   capabilities = ["create", "read",

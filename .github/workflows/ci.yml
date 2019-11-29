@@ -70,6 +70,8 @@ jobs:
         kubectl wait --for=condition=Ready nodes --all --timeout=5m
         kubectl get nodes
         echo
+        kubectl version
+        echo
         echo "installing local-path provisioner ..."
         kubectl delete storageclass --all
         kubectl apply -f https://github.com/rancher/local-path-provisioner/raw/v0.0.11/deploy/local-path-storage.yaml
@@ -84,7 +86,8 @@ jobs:
         export KUBECONFIG="$(kind get kubeconfig-path)"
         make ct TEST_CHARTS=charts/vault-operator
         echo
-        kubectl apply -f https://github.com/kubevault/operator/raw/master/api/crds/catalog.kubevault.com_vaultserverversions.yaml
+        kubectl delete crds --all
+        kubectl apply -f https://github.com/kubevault/operator/raw/master/api/crds/catalog.kubevault.com_vaultserverversions.yaml --validate=false
         kubectl wait --for=condition=NamesAccepted crds --all --timeout=5m
         make ct TEST_CHARTS=charts/vault-catalog
 

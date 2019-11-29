@@ -65,6 +65,8 @@ spec:
             policy:
               description: Specifies the IAM policy in JSON format.
               type: object
+              x-kubernetes-embedded-resource: true
+              x-kubernetes-preserve-unknown-fields: true
             policyARNs:
               description: Specifies the ARNs of the AWS managed policies to be attached
                 to IAM users when they are requested. Valid only when credential_type
