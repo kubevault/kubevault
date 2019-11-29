@@ -21,6 +21,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"testing"
 
 	"kubevault.dev/operator/client/clientset/versioned/scheme"
 	dbscheme "kubevault.dev/operator/client/clientset/versioned/scheme"
@@ -58,7 +59,8 @@ var (
 	}
 )
 
-func init() {
+// xref: https://github.com/onsi/ginkgo/issues/602#issuecomment-559421839
+func TestMain(m *testing.M) {
 	utilruntime.Must(scheme.AddToScheme(clientsetscheme.Scheme))
 	utilruntime.Must(appcatscheme.AddToScheme(clientsetscheme.Scheme))
 	utilruntime.Must(dbscheme.AddToScheme(clientsetscheme.Scheme))
@@ -73,6 +75,7 @@ func init() {
 	enableLogging()
 	flag.Parse()
 	framework.DockerRegistry = options.DockerRegistry
+	os.Exit(m.Run())
 }
 
 func enableLogging() {

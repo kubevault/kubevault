@@ -195,7 +195,7 @@ func (in *VaultPolicyBinding) DeepCopyObject() runtime.Object {
 func (in *VaultPolicyBindingList) DeepCopyInto(out *VaultPolicyBindingList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]VaultPolicyBinding, len(*in))
@@ -272,7 +272,7 @@ func (in *VaultPolicyBindingStatus) DeepCopy() *VaultPolicyBindingStatus {
 func (in *VaultPolicyList) DeepCopyInto(out *VaultPolicyList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	out.ListMeta = in.ListMeta
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]VaultPolicy, len(*in))

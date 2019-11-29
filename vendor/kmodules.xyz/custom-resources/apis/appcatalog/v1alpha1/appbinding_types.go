@@ -37,6 +37,8 @@ const (
 
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:path=appbindings,singular=appbinding,categories={catalog,appscode,all}
+// +kubebuilder:printcolumn:name="Type",type="string",JSONPath=".spec.type"
+// +kubebuilder:printcolumn:name="Version",type="string",JSONPath=".spec.version"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 type AppBinding struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`

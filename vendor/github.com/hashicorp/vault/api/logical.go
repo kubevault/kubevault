@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/vault/helper/jsonutil"
+	"github.com/hashicorp/vault/sdk/helper/jsonutil"
 )
 
 const (
@@ -134,9 +134,20 @@ func (c *Logical) Write(path string, data map[string]interface{}) (*Secret, erro
 		return nil, err
 	}
 
+	return c.write(path, r)
+}
+
+func (c *Logical) WriteBytes(path string, data []byte) (*Secret, error) {
+	r := c.c.NewRequest("PUT", "/v1/"+path)
+	r.BodyBytes = data
+
+	return c.write(path, r)
+}
+
+func (c *Logical) write(path string, request *Request) (*Secret, error) {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	defer cancelFunc()
-	resp, err := c.c.RawRequestWithContext(ctx, r)
+	resp, err := c.c.RawRequestWithContext(ctx, request)
 	if resp != nil {
 		defer resp.Body.Close()
 	}
@@ -161,7 +172,25 @@ func (c *Logical) Write(path string, data map[string]interface{}) (*Secret, erro
 }
 
 func (c *Logical) Delete(path string) (*Secret, error) {
+	return c.DeleteWithData(path, nil)
+}
+
+func (c *Logical) DeleteWithData(path string, data map[string][]string) (*Secret, error) {
 	r := c.c.NewRequest("DELETE", "/v1/"+path)
+
+	var values url.Values
+	for k, v := range data {
+		if values == nil {
+			values = make(url.Values)
+		}
+		for _, val := range v {
+			values.Add(k, val)
+		}
+	}
+
+	if values != nil {
+		r.Params = values
+	}
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	defer cancelFunc()
