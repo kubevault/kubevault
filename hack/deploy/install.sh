@@ -155,7 +155,7 @@ export VAULT_OPERATOR_ENABLE_MUTATING_WEBHOOK=false
 export VAULT_OPERATOR_CATALOG=${VAULT_OPERATOR_CATALOG:-all}
 export VAULT_OPERATOR_DOCKER_REGISTRY=${VAULT_OPERATOR_DOCKER_REGISTRY:-kubevault}
 export VAULT_OPERATOR_IMAGE_TAG=${VAULT_OPERATOR_IMAGE_TAG:-0.2.0}
-export VAULT_OPERATOR_IMAGE_PULL_SECRET=
+export VAULT_OPERATOR_IMAGE_PULL_SECRET_NAME=
 export VAULT_OPERATOR_IMAGE_PULL_POLICY=IfNotPresent
 export VAULT_OPERATOR_ENABLE_ANALYTICS=true
 export VAULT_OPERATOR_UNINSTALL=0
@@ -243,8 +243,7 @@ while test $# -gt 0; do
             shift
             ;;
         --image-pull-secret*)
-            secret=$(echo $1 | sed -e 's/^[^=]*=//g')
-            export VAULT_OPERATOR_IMAGE_PULL_SECRET="name: '$secret'"
+            export VAULT_OPERATOR_IMAGE_PULL_SECRET_NAME=$(echo $1 | sed -e 's/^[^=]*=//g')
             shift
             ;;
         --enable-mutating-webhook*)
@@ -352,6 +351,11 @@ while test $# -gt 0; do
             ;;
     esac
 done
+
+export VAULT_OPERATOR_IMAGE_PULL_SECRET=
+if [ -n "$VAULT_OPERATOR_IMAGE_PULL_SECRET_NAME" ]; then
+    export VAULT_OPERATOR_IMAGE_PULL_SECRET="name: '$VAULT_OPERATOR_IMAGE_PULL_SECRET_NAME'"
+fi
 
 export PROMETHEUS_NAMESPACE=${PROMETHEUS_NAMESPACE:-$VAULT_OPERATOR_NAMESPACE}
 
