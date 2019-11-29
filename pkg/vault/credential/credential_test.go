@@ -36,15 +36,24 @@ import (
 func vaultServer() *httptest.Server {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/v1/sys/leases/revoke/success", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, err := w.Write([]byte("{}"))
-		utilruntime.Must(err)
-	}).Methods(http.MethodPut)
+	router.HandleFunc("/v1/sys/leases/revoke", func(w http.ResponseWriter, r *http.Request) {
+		data := struct {
+			LeaseID string `json:"lease_id"`
+		}{}
+		err := json.NewDecoder(r.Body).Decode(&data)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			_, err := w.Write([]byte(err.Error()))
+			utilruntime.Must(err)
+		}
 
-	router.HandleFunc("/v1/sys/leases/revoke/error", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotFound)
-		_, err := w.Write([]byte("error"))
+		if data.LeaseID == "success" {
+			w.WriteHeader(http.StatusOK)
+			_, err = w.Write([]byte("{}"))
+		} else {
+			w.WriteHeader(http.StatusNotFound)
+			_, err = w.Write([]byte("error"))
+		}
 		utilruntime.Must(err)
 	}).Methods(http.MethodPut)
 
