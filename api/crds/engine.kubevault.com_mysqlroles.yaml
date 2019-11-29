@@ -16,6 +16,7 @@ spec:
     listKind: MySQLRoleList
     plural: mysqlroles
     singular: mysqlrole
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     status: {}

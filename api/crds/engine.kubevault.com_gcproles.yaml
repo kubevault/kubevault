@@ -20,6 +20,7 @@ spec:
     listKind: GCPRoleList
     plural: gcproles
     singular: gcprole
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     status: {}

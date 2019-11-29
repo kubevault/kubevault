@@ -16,6 +16,7 @@ spec:
     listKind: DatabaseAccessRequestList
     plural: databaseaccessrequests
     singular: databaseaccessrequest
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     status: {}

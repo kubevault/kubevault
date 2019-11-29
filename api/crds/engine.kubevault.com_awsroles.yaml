@@ -20,6 +20,7 @@ spec:
     listKind: AWSRoleList
     plural: awsroles
     singular: awsrole
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     status: {}
