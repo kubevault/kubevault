@@ -30,6 +30,7 @@ spec:
     shortNames:
     - vsv
     singular: vaultserverversion
+  preserveUnknownFields: false
   scope: Cluster
   subresources: {}
   validation:

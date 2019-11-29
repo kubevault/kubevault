@@ -16,6 +16,7 @@ spec:
     listKind: MongoDBRoleList
     plural: mongodbroles
     singular: mongodbrole
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     status: {}

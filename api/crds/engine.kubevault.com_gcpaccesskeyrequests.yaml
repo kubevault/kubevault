@@ -16,6 +16,7 @@ spec:
     listKind: GCPAccessKeyRequestList
     plural: gcpaccesskeyrequests
     singular: gcpaccesskeyrequest
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     status: {}

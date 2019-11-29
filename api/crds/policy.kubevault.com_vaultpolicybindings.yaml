@@ -25,6 +25,7 @@ spec:
     shortNames:
     - vpb
     singular: vaultpolicybinding
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     status: {}

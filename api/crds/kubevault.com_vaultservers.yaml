@@ -31,6 +31,7 @@ spec:
     shortNames:
     - vs
     singular: vaultserver
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     status: {}

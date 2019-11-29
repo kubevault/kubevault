@@ -16,6 +16,7 @@ spec:
     listKind: AWSAccessKeyRequestList
     plural: awsaccesskeyrequests
     singular: awsaccesskeyrequest
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     status: {}

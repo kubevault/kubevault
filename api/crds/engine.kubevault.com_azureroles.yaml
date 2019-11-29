@@ -20,6 +20,7 @@ spec:
     listKind: AzureRoleList
     plural: azureroles
     singular: azurerole
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     status: {}

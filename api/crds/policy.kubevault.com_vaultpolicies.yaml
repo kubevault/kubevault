@@ -26,6 +26,7 @@ spec:
     shortNames:
     - vp
     singular: vaultpolicy
+  preserveUnknownFields: false
   scope: Namespaced
   subresources:
     status: {}
