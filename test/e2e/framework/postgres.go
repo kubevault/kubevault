@@ -26,7 +26,6 @@ import (
 	core "k8s.io/api/core/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
@@ -219,9 +218,6 @@ func (f *Framework) DeployPostgres() (*appcat.AppReference, error) {
 					Query:  "sslmode=disable",
 				},
 				InsecureSkipTLSVerify: true,
-			},
-			Parameters: &runtime.RawExtension{
-				Raw: []byte(`{"allowedRoles" : "*"}`),
 			},
 		},
 	})
