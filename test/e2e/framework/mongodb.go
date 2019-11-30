@@ -24,7 +24,6 @@ import (
 	apps "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
@@ -183,9 +182,6 @@ func (f *Framework) DeployMongodb() (*appcat.AppReference, error) {
 					Port:   27017,
 				},
 				InsecureSkipTLSVerify: true,
-			},
-			Parameters: &runtime.RawExtension{
-				Raw: []byte(`{"allowedRoles" : "*"}`),
 			},
 		},
 	})

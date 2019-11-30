@@ -27,7 +27,6 @@ import (
 	core "k8s.io/api/core/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
@@ -196,12 +195,6 @@ func (f *Framework) DeployMysql() (*appcat.AppReference, error) {
 			ClientConfig: appcat.ClientConfig{
 				URL:                   types.StringP(fmt.Sprintf("tcp(%s.%s.svc:3306)/", mysqlDBServiceName, f.namespace)),
 				InsecureSkipTLSVerify: true,
-			},
-			Parameters: &runtime.RawExtension{
-				Raw: []byte(`{
-   "allowedRoles":"*",
-   "pluginName":"mysql-rds-database-plugin"
-}`),
 			},
 		},
 	})

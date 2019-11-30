@@ -86,6 +86,8 @@ type AWSRoleSpec struct {
 
 	// Specifies the IAM policy in JSON format.
 	// +optional
+	// +kubebuilder:validation:EmbeddedResource
+	// +kubebuilder:pruning:PreserveUnknownFields
 	Policy *runtime.RawExtension `json:"policy,omitempty" protobuf:"bytes,7,opt,name=policy"`
 
 	// The default TTL for STS credentials. When a TTL is not specified when STS credentials are requested,

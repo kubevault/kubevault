@@ -78,6 +78,8 @@ type AppBindingSpec struct {
 	// in a Secret.
 	//
 	// +optional
+	// +kubebuilder:validation:EmbeddedResource
+	// +kubebuilder:pruning:PreserveUnknownFields
 	Parameters *runtime.RawExtension `json:"parameters,omitempty" protobuf:"bytes,6,opt,name=parameters"`
 }
 
@@ -180,6 +182,8 @@ type AppReference struct {
 	// NEVER be used to hold sensitive information.
 	//
 	// +optional
+	// +kubebuilder:validation:EmbeddedResource
+	// +kubebuilder:pruning:PreserveUnknownFields
 	Parameters *runtime.RawExtension `json:"parameters,omitempty" protobuf:"bytes,3,opt,name=parameters"`
 }
 

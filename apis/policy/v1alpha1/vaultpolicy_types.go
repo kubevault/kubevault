@@ -64,6 +64,8 @@ type VaultPolicySpec struct {
 
 	// Policy specifies a vault policy in json format.
 	// +optional
+	// +kubebuilder:validation:EmbeddedResource
+	// +kubebuilder:pruning:PreserveUnknownFields
 	Policy *runtime.RawExtension `json:"policy,omitempty" protobuf:"bytes,4,opt,name=policy"`
 }
 

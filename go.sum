@@ -1024,8 +1024,10 @@ kmodules.xyz/client-go v0.0.0-20191127054604-26981530831d h1:hcgo8g2vWx3jVEcbWye
 kmodules.xyz/client-go v0.0.0-20191127054604-26981530831d/go.mod h1:OFxuKCiVR+MYlR2a08FkfaF+IbXkLe0xBetu2LTUuGI=
 kmodules.xyz/constants v0.0.0-20191024095500-cd4313df4aa6 h1:hFv3DzanQJ/bjgahqosmthGLkVgMB2KuQIsltOA02t0=
 kmodules.xyz/constants v0.0.0-20191024095500-cd4313df4aa6/go.mod h1:DbiFk1bJ1KEO94t1SlAn7tzc+Zz95rSXgyUKa2nzPmY=
-kmodules.xyz/custom-resources v0.0.0-20191128182143-0f389f00aa10 h1:dPvMT8o9KkBhEiMFEaZXoaWUTIlFrYIy3/KeHBuYCW8=
-kmodules.xyz/custom-resources v0.0.0-20191128182143-0f389f00aa10/go.mod h1:GyebL2tuSWRBJ7E6yHuECW7k62gLTHbphNqBBPBsUww=
+kmodules.xyz/crd-schema-fuzz v0.0.0-20191129174258-81f984340891 h1:2W/fqLbAurvupIZL3TEFrlb7DnOIhlOXpNgzgcFFSmA=
+kmodules.xyz/crd-schema-fuzz v0.0.0-20191129174258-81f984340891/go.mod h1:9NXNZ4xhqof0WngtIuo4vl+WoCQpLJEJcyuEo3mPpiM=
+kmodules.xyz/custom-resources v0.0.0-20191130062942-f41b54f62419 h1:o6KD8XMxdyRR3rqScTsWvcufFDT7vQBnYXpHUp6UtRg=
+kmodules.xyz/custom-resources v0.0.0-20191130062942-f41b54f62419/go.mod h1:EksiAQK3p3bVU5cNBjLT0z5V7er1tvWLBWILTuf6G/0=
 kmodules.xyz/monitoring-agent-api v0.0.0-20191127151826-1eac40b764dc h1:WJzkcSsSl+LUoxjjHqLKzRRn1SYxVqOOaepVfR4F2wQ=
 kmodules.xyz/monitoring-agent-api v0.0.0-20191127151826-1eac40b764dc/go.mod h1:q5Adit2fxEoY1jSkYiK1t856Ombl8cunYJBmgL43wwc=
 kmodules.xyz/offshoot-api v0.0.0-20191127144201-724d521327c6 h1:cpETFpzpr+ppw7j06di72MQXE6nz9CxCjYFd8oRM+iw=

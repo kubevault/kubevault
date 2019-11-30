@@ -67,6 +67,8 @@ spec:
                     is NOT secret or secured in any way and should NEVER be used to
                     hold sensitive information."
                   type: object
+                  x-kubernetes-embedded-resource: true
+                  x-kubernetes-preserve-unknown-fields: true
               required:
               - name
               - namespace
