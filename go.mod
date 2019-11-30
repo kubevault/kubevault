@@ -41,7 +41,7 @@ require (
 	kmodules.xyz/crd-schema-fuzz v0.0.0-20191129174258-81f984340891
 	kmodules.xyz/custom-resources v0.0.0-20191130062942-f41b54f62419
 	kmodules.xyz/monitoring-agent-api v0.0.0-20191127151826-1eac40b764dc
-	kmodules.xyz/offshoot-api v0.0.0-20191127144201-724d521327c6
+	kmodules.xyz/offshoot-api v0.0.0-20191130172330-41f833a64423
 	kmodules.xyz/webhook-runtime v0.0.0-20191127075323-d4bfdee6974d
 	sigs.k8s.io/yaml v1.1.0
 )

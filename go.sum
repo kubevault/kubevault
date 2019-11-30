@@ -1030,8 +1030,8 @@ kmodules.xyz/custom-resources v0.0.0-20191130062942-f41b54f62419 h1:o6KD8XMxdyRR
 kmodules.xyz/custom-resources v0.0.0-20191130062942-f41b54f62419/go.mod h1:EksiAQK3p3bVU5cNBjLT0z5V7er1tvWLBWILTuf6G/0=
 kmodules.xyz/monitoring-agent-api v0.0.0-20191127151826-1eac40b764dc h1:WJzkcSsSl+LUoxjjHqLKzRRn1SYxVqOOaepVfR4F2wQ=
 kmodules.xyz/monitoring-agent-api v0.0.0-20191127151826-1eac40b764dc/go.mod h1:q5Adit2fxEoY1jSkYiK1t856Ombl8cunYJBmgL43wwc=
-kmodules.xyz/offshoot-api v0.0.0-20191127144201-724d521327c6 h1:cpETFpzpr+ppw7j06di72MQXE6nz9CxCjYFd8oRM+iw=
-kmodules.xyz/offshoot-api v0.0.0-20191127144201-724d521327c6/go.mod h1:k1M+OOFHbMeS6N6OB2j9smKfMCyQOEQjZ3SLZ/KSe+w=
+kmodules.xyz/offshoot-api v0.0.0-20191130172330-41f833a64423 h1:bpnnvvbb7lPyBb7CgkRJRhew2wvCRc9SOOea/xNpCtE=
+kmodules.xyz/offshoot-api v0.0.0-20191130172330-41f833a64423/go.mod h1:k1M+OOFHbMeS6N6OB2j9smKfMCyQOEQjZ3SLZ/KSe+w=
 kmodules.xyz/openshift v0.0.0-20191127054841-113eeb13704f/go.mod h1:de9+Zk2+wtGhRmGFBZ9T4+0lJZr4rHXW0dHffCaeO+g=
 kmodules.xyz/webhook-runtime v0.0.0-20191127075323-d4bfdee6974d h1:qLWf0Xk2sAWT9qWBcodkinrzt0jkYTKhuHCsbwpXutE=
 kmodules.xyz/webhook-runtime v0.0.0-20191127075323-d4bfdee6974d/go.mod h1:aaaxyAmKOpw0ey3LrpBkqWq0LTl35f9PW6mhwVDBMow=
