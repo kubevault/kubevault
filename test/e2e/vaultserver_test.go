@@ -29,6 +29,7 @@ import (
 	"kubevault.dev/operator/test/e2e/framework"
 
 	rand_util "github.com/appscode/go/crypto/rand"
+	"github.com/appscode/go/types"
 	"github.com/golang/glog"
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
 	vaultapi "github.com/hashicorp/vault/api"
@@ -132,7 +133,7 @@ var _ = Describe("VaultServer", func() {
 			Eventually(func() bool {
 				d, err := f.KubeClient.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
 				if err == nil {
-					return *d.Spec.Replicas == vs.Spec.Nodes
+					return *d.Spec.Replicas == vs.Spec.Replicas
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("deployment (%s/%s) replicas should be equal to v.spec.nodes", namespace, name))
@@ -197,7 +198,7 @@ var _ = Describe("VaultServer", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			By("Updating replica number")
-			vs.Spec.Nodes = replicas
+			vs.Spec.Replicas = replicas
 			vs, err = f.UpdateVaultServer(vs)
 			Expect(err).NotTo(HaveOccurred())
 
@@ -205,7 +206,7 @@ var _ = Describe("VaultServer", func() {
 			By("Getting update vault server")
 			vs, err = f.GetVaultServer(vs)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(vs.Spec.Nodes == replicas).To(BeTrue(), "should match replicas")
+			Expect(vs.Spec.Replicas == replicas).To(BeTrue(), "should match replicas")
 
 			checkForVaultDeploymentCreatedOrUpdated(vs.Name, vs.Namespace, vs)
 		}
@@ -215,7 +216,7 @@ var _ = Describe("VaultServer", func() {
 			Eventually(func() bool {
 				v, err := f.CSClient.KubevaultV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
 				if err == nil {
-					if len(v.Status.VaultStatus.Unsealed) == int(vs.Spec.Nodes) {
+					if len(v.Status.VaultStatus.Unsealed) == int(vs.Spec.Replicas) {
 						By(fmt.Sprintf("Unseal-pods: %v", v.Status.VaultStatus.Unsealed))
 						return true
 					}
@@ -289,7 +290,7 @@ var _ = Describe("VaultServer", func() {
 
 		Context("inmem backend", func() {
 			BeforeEach(func() {
-				vs = f.VaultServer(3, backendInmem)
+				vs = f.VaultServer(types.Int32P(3), backendInmem)
 			})
 
 			AfterEach(func() {
@@ -316,7 +317,7 @@ var _ = Describe("VaultServer", func() {
 					},
 				}
 
-				vs = f.VaultServer(3, etcd)
+				vs = f.VaultServer(types.Int32P(3), etcd)
 			})
 
 			AfterEach(func() {
@@ -360,7 +361,7 @@ var _ = Describe("VaultServer", func() {
 					},
 				}
 
-				vs = f.VaultServer(3, gcs)
+				vs = f.VaultServer(types.Int32P(3), gcs)
 			})
 
 			AfterEach(func() {
@@ -390,7 +391,7 @@ var _ = Describe("VaultServer", func() {
 					},
 				}
 
-				vs = f.VaultServer(1, s3)
+				vs = f.VaultServer(types.Int32P(1), s3)
 
 				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
@@ -504,7 +505,7 @@ var _ = Describe("VaultServer", func() {
 					if kerr.IsNotFound(err) {
 						return false
 					} else {
-						return len(pods.Items) == int(vs.Spec.Nodes)
+						return len(pods.Items) == int(vs.Spec.Replicas)
 					}
 				}, timeOut, pollingInterval).Should(BeTrue(), "number of pods should be equal to v.spce.nodes")
 
@@ -519,7 +520,7 @@ var _ = Describe("VaultServer", func() {
 					if kerr.IsNotFound(err) {
 						return false
 					} else {
-						return len(pods.Items) == int(vs.Spec.Nodes)
+						return len(pods.Items) == int(vs.Spec.Replicas)
 					}
 				}, timeOut, pollingInterval).Should(BeTrue(), "number of pods should be equal to v.spce.nodes")
 			})

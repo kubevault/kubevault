@@ -373,6 +373,7 @@ func (v *vaultSrv) GetService() *core.Service {
 			LoadBalancerSourceRanges: v.vs.Spec.ServiceTemplate.Spec.LoadBalancerSourceRanges,
 			ExternalTrafficPolicy:    v.vs.Spec.ServiceTemplate.Spec.ExternalTrafficPolicy,
 			HealthCheckNodePort:      v.vs.Spec.ServiceTemplate.Spec.HealthCheckNodePort,
+			SessionAffinityConfig:    v.vs.Spec.ServiceTemplate.Spec.SessionAffinityConfig,
 		},
 	}
 }
@@ -386,7 +387,7 @@ func (v *vaultSrv) GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment {
 			Annotations: v.vs.Spec.PodTemplate.Controller.Annotations,
 		},
 		Spec: apps.DeploymentSpec{
-			Replicas: &v.vs.Spec.Nodes,
+			Replicas: v.vs.Spec.Replicas,
 			Selector: &metav1.LabelSelector{MatchLabels: v.vs.OffshootSelectors()},
 			Template: *pt,
 			Strategy: apps.DeploymentStrategy{

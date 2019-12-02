@@ -97,13 +97,13 @@ func (o *Options) GetStorageConfig() (string, error) {
 	if o.Bucket != "" {
 		params = append(params, fmt.Sprintf(`bucket = "%s"`, o.Bucket))
 	}
-	if o.EndPoint != "" {
-		params = append(params, fmt.Sprintf(`endpoint = "%s"`, o.EndPoint))
+	if o.Endpoint != "" {
+		params = append(params, fmt.Sprintf(`endpoint = "%s"`, o.Endpoint))
 	}
 	if o.Region != "" {
 		params = append(params, fmt.Sprintf(`region = "%s"`, o.Region))
 	}
-	if o.S3ForcePathStyle {
+	if o.ForcePathStyle {
 		params = append(params, fmt.Sprintf(`s3_force_path_style = "true"`))
 	}
 	if o.DisableSSL {

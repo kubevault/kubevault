@@ -17273,12 +17273,12 @@ func schema_operator_apis_kubevault_v1alpha1_BackendStorageSpec(ref common.Refer
 							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.AzureSpec"),
 						},
 					},
-					"postgreSQL": {
+					"postgresql": {
 						SchemaProps: spec.SchemaProps{
 							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.PostgreSQLSpec"),
 						},
 					},
-					"mySQL": {
+					"mysql": {
 						SchemaProps: spec.SchemaProps{
 							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.MySQLSpec"),
 						},
@@ -17288,7 +17288,7 @@ func schema_operator_apis_kubevault_v1alpha1_BackendStorageSpec(ref common.Refer
 							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.FileSpec"),
 						},
 					},
-					"dynamoDB": {
+					"dynamodb": {
 						SchemaProps: spec.SchemaProps{
 							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.DynamoDBSpec"),
 						},
@@ -17443,7 +17443,7 @@ func schema_operator_apis_kubevault_v1alpha1_DynamoDBSpec(ref common.ReferenceCa
 				Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/dynamodb.html\n\nDynamoDBSpec defines configuration to set up DynamoDB Storage as backend storage in vault",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"endPoint": {
+					"endpoint": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies an alternative, AWS compatible, DynamoDB endpoint.",
 							Type:        []string{"string"},
@@ -17879,7 +17879,7 @@ func schema_operator_apis_kubevault_v1alpha1_S3Spec(ref common.ReferenceCallback
 							Format:      "",
 						},
 					},
-					"endPoint": {
+					"endpoint": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies an alternative, AWS compatible, S3 endpoint.",
 							Type:        []string{"string"},
@@ -17914,7 +17914,7 @@ func schema_operator_apis_kubevault_v1alpha1_S3Spec(ref common.ReferenceCallback
 							Format:      "int64",
 						},
 					},
-					"s3ForcePathStyle": {
+					"forcePathStyle": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies whether to use host bucket style domains with the configured endpoint.",
 							Type:        []string{"boolean"},
@@ -18252,9 +18252,9 @@ func schema_operator_apis_kubevault_v1alpha1_VaultServerSpec(ref common.Referenc
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"nodes": {
+					"replicas": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Number of nodes to deploy for a Vault deployment. Default: 1.",
+							Description: "Number of replicas to deploy for a Vault deployment. If unspecified, defaults to 1.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},

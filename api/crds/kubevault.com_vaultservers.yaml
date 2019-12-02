@@ -7,8 +7,8 @@ metadata:
   name: vaultservers.kubevault.com
 spec:
   additionalPrinterColumns:
-  - JSONPath: .spec.nodes
-    name: Nodes
+  - JSONPath: .spec.replicas
+    name: Replicas
     type: string
   - JSONPath: .spec.version
     name: Version
@@ -234,7 +234,7 @@ spec:
                         disabled. It is highly discouraged that you disable this option.
                       type: boolean
                   type: object
-                dynamoDB:
+                dynamodb:
                   description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/dynamodb.html
                     \n DynamoDBSpec defines configuration to set up DynamoDB Storage
                     as backend storage in vault"
@@ -244,7 +244,7 @@ spec:
                         key and AWS secret key secret data: \t- access_key=<value>
                         \ - secret_key=<value>"
                       type: string
-                    endPoint:
+                    endpoint:
                       description: Specifies an alternative, AWS compatible, DynamoDB
                         endpoint.
                       type: string
@@ -364,7 +364,7 @@ spec:
                 inmem:
                   description: 'ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html'
                   type: object
-                mySQL:
+                mysql:
                   description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/mysql.html
                     \n MySQLSpec defines configuration to set up MySQL Storage as
                     backend storage in vault"
@@ -396,7 +396,7 @@ spec:
                   required:
                   - userCredentialSecret
                   type: object
-                postgreSQL:
+                postgresql:
                   description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/postgresql.html
                     \n PostgreSQLSpec defines configuration to set up PostgreSQL storage
                     as backend storage in vault"
@@ -438,9 +438,13 @@ spec:
                       description: Specifies if SSL should be used for the endpoint
                         connection
                       type: boolean
-                    endPoint:
+                    endpoint:
                       description: Specifies an alternative, AWS compatible, S3 endpoint.
                       type: string
+                    forcePathStyle:
+                      description: Specifies whether to use host bucket style domains
+                        with the configured endpoint.
+                      type: boolean
                     maxParallel:
                       description: Specifies the maximum number of parallel operations
                         to take place.
@@ -449,10 +453,6 @@ spec:
                     region:
                       description: Specifies the AWS region
                       type: string
-                    s3ForcePathStyle:
-                      description: Specifies whether to use host bucket style domains
-                        with the configured endpoint.
-                      type: boolean
                     sessionTokenSecret:
                       description: "Specifies the secret name containing AWS session
                         token secret data: \t- session_token:<value>"
@@ -3130,11 +3130,6 @@ spec:
                       type: object
                   type: object
               type: object
-            nodes:
-              description: 'Number of nodes to deploy for a Vault deployment. Default:
-                1.'
-              format: int32
-              type: integer
             podTemplate:
               description: PodTemplate is an optional configuration for pods used
                 to run vault
@@ -5692,6 +5687,11 @@ spec:
                       type: array
                   type: object
               type: object
+            replicas:
+              description: Number of replicas to deploy for a Vault deployment. If
+                unspecified, defaults to 1.
+              format: int32
+              type: integer
             serviceTemplate:
               description: ServiceTemplate is an optional configuration for service
                 used to expose vault

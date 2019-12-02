@@ -130,8 +130,8 @@ func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs
 		return err
 	}
 
-	if vs.Spec.Nodes < 1 {
-		return errors.Errorf(`spec.nodes "%v" invalid. Value must be greater than zero`, vs.Spec.Nodes)
+	if vs.Spec.Replicas != nil && *vs.Spec.Replicas < 1 {
+		return errors.Errorf(`spec.nodes "%v" invalid. Value must be greater than zero`, vs.Spec.Replicas)
 	}
 
 	numOfBackend := 0

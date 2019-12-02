@@ -124,7 +124,7 @@ type Config struct {
 	//
 	// See http://docs.aws.amazon.com/AmazonS3/latest/dev/VirtualHosting.html
 	// for Amazon S3: Virtual Hosting of Buckets
-	S3ForcePathStyle *bool
+	ForcePathStyle *bool
 
 	// Set this to `true` to disable the SDK adding the `Expect: 100-Continue`
 	// header to PUT requests over 2MB of content. 100-Continue instructs the
@@ -349,10 +349,10 @@ func (c *Config) WithLogger(logger Logger) *Config {
 	return c
 }
 
-// WithS3ForcePathStyle sets a config S3ForcePathStyle value returning a Config
+// WithForcePathStyle sets a config ForcePathStyle value returning a Config
 // pointer for chaining.
-func (c *Config) WithS3ForcePathStyle(force bool) *Config {
-	c.S3ForcePathStyle = &force
+func (c *Config) WithForcePathStyle(force bool) *Config {
+	c.ForcePathStyle = &force
 	return c
 }
 
@@ -477,8 +477,8 @@ func mergeInConfig(dst *Config, other *Config) {
 		dst.DisableComputeChecksums = other.DisableComputeChecksums
 	}
 
-	if other.S3ForcePathStyle != nil {
-		dst.S3ForcePathStyle = other.S3ForcePathStyle
+	if other.ForcePathStyle != nil {
+		dst.ForcePathStyle = other.ForcePathStyle
 	}
 
 	if other.S3Disable100Continue != nil {

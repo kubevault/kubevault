@@ -201,16 +201,16 @@ message BackendStorageSpec {
   optional AzureSpec azure = 5;
 
   // +optional
-  optional PostgreSQLSpec postgreSQL = 6;
+  optional PostgreSQLSpec postgresql = 6;
 
   // +optional
-  optional MySQLSpec mySQL = 7;
+  optional MySQLSpec mysql = 7;
 
   // +optional
   optional FileSpec file = 8;
 
   // +optional
-  optional DynamoDBSpec dynamoDB = 9;
+  optional DynamoDBSpec dynamodb = 9;
 
   // +optional
   optional SwiftSpec swift = 10;
@@ -319,7 +319,7 @@ message ConsulSpec {
 message DynamoDBSpec {
   // Specifies an alternative, AWS compatible, DynamoDB endpoint.
   // +optional
-  optional string endPoint = 1;
+  optional string endpoint = 1;
 
   // Specifies the AWS region
   // +optional
@@ -551,7 +551,7 @@ message S3Spec {
 
   // Specifies an alternative, AWS compatible, S3 endpoint.
   // +optional
-  optional string endPoint = 2;
+  optional string endpoint = 2;
 
   // Specifies the AWS region
   // +optional
@@ -576,7 +576,7 @@ message S3Spec {
 
   // Specifies whether to use host bucket style domains with the configured endpoint.
   // +optional
-  optional bool s3ForcePathStyle = 7;
+  optional bool forcePathStyle = 7;
 
   // Specifies if SSL should be used for the endpoint connection
   // +optional
@@ -688,7 +688,7 @@ message UnsealerSpec {
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:path=vaultservers,singular=vaultserver,shortName=vs,categories={vault,appscode,all}
 // +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Nodes",type="string",JSONPath=".spec.nodes"
+// +kubebuilder:printcolumn:name="Replicas",type="string",JSONPath=".spec.replicas"
 // +kubebuilder:printcolumn:name="Version",type="string",JSONPath=".spec.version"
 // +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
@@ -726,10 +726,10 @@ message VaultServerList {
 }
 
 message VaultServerSpec {
-  // Number of nodes to deploy for a Vault deployment.
-  // Default: 1.
+  // Number of replicas to deploy for a Vault deployment.
+  // If unspecified, defaults to 1.
   // +optional
-  optional int32 nodes = 1;
+  optional int32 replicas = 1;
 
   // Version of Vault server to be deployed.
   optional string version = 2;

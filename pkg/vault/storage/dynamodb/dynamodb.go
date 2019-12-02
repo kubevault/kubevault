@@ -90,8 +90,8 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 // GetStorageConfig creates gcs storae config from GcsSpec
 func (o *Options) GetStorageConfig() (string, error) {
 	params := []string{}
-	if o.EndPoint != "" {
-		params = append(params, fmt.Sprintf(`endpoint = "%s"`, o.EndPoint))
+	if o.Endpoint != "" {
+		params = append(params, fmt.Sprintf(`endpoint = "%s"`, o.Endpoint))
 	}
 	if o.HaEnabled {
 		params = append(params, fmt.Sprintf(`ha_enabled = "true"`))
