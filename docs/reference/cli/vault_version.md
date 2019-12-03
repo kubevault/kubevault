@@ -23,8 +23,9 @@ vault version [flags]
 ### Options
 
 ```
-  -h, --help    help for version
-      --short   Print just the version number.
+      --check string   Check version constraint
+  -h, --help           help for version
+      --short          Print just the version number.
 ```
 
 ### Options inherited from parent commands
@@ -40,7 +41,6 @@ vault version [flags]
       --client-key string                Path to a client key file for TLS
       --cluster string                   The name of the kubeconfig cluster to use
       --context string                   The name of the kubeconfig context to use
-      --enable-status-subresource        If true, uses sub resource for crds. (default true)
       --insecure-skip-tls-verify         If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string                Path to the kubeconfig file to use for CLI requests.
       --log-backtrace-at traceLocation   when logging hits line file:N, emit a stack trace (default :0)

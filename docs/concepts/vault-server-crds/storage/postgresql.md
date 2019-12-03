@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # PostgreSQL
 
-In PostgreSQL storage backend, data will be stored in [PostgreSQL](https://www.postgresql.org/). Vault documentation for PostgreSQL storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/postgresql.html).
+In PostgreSQL storage backend, Vault data will be stored in [PostgreSQL](https://www.postgresql.org/). Vault documentation for PostgreSQL storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/postgresql.html).
 
 ```yaml
 apiVersion: kubevault.com/v1alpha1
@@ -23,59 +23,59 @@ metadata:
   name: vault-with-postgreSQL
   namespace: demo
 spec:
-  nodes: 1
-  version: "0.11.1"
+  replicas: 1
+  version: "1.2.0"
   backend:
-    postgreSQL:
+    postgresql:
       connectionUrlSecret: "my-postgres-conn"
 ```
 
-## spec.backend.postgreSQL
+## spec.backend.postgresql
 
-To use postgreSQL as backend storage in Vault specify `spec.backend.postgreSQL` in [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md) CRD.
+To use PostgreSQL as backend storage in Vault specify `spec.backend.postgresql` in [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md) CRD.
 
 ```yaml
 spec:
   backend:
-    postgreSQL:
+    postgresql:
       connectionUrlSecret: <secret_name>
       table: <table_name>
       maxParallel: <max_parallel>
 ```
 
-`spec.backend.postgreSQL` has following fields:
+Here, we are going to describe the various attributes of the `spec.backend.postgresql` field.
 
-#### postgreSQL.connectionUrlSecret
+### postgresql.connectionUrlSecret
 
-`postgreSQL.connectionUrlSecret` is a required field that specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL. The secret contains the following key:
+`postgresql.connectionUrlSecret` is a required field that specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL. The secret contains the following key:
 
 - `connection_url`
 
 ```yaml
 spec:
   backend:
-    postgreSQL:
+    postgresql:
       connectionUrlSecret: "my-postgres-conn"
 ```
 
-#### postgreSQL.table
+### postgresql.table
 
-`postgreSQL.table` is an optional field that specifies the name of the table in which to write Vault data. If it is not specified, then Vault will set value `vault_kv_store`. Vault will not create table, so this table must exist in database.
+`postgresql.table` is an optional field that specifies the name of the table in which to write Vault data. If it is not specified, then Vault will set the value `vault_kv_store`. Vault will not create the table, so this table must exist in the database.
 
 ```yaml
 spec:
   backend:
-    postgreSQL:
+    postgresql:
       table: "vault_data"
 ```
 
-#### postgreSQL.maxParallel
+### postgresql.maxParallel
 
-`maxParallel` is an optional field that specifies the maximum number of parallel operations to take place. This field accepts integer value. If this field is not specified, then Vault will set value `128`.
+`maxParallel` is an optional field that specifies the maximum number of parallel operations to take place. This field accepts integer value. If this field is not specified, then Vault will set value to `128`.
 
 ```yaml
 spec:
   backend:
-    postgreSQL:
+    postgresql:
       maxParallel: 124
 ```

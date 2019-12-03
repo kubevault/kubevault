@@ -1,5 +1,5 @@
 ---
-title: Configure Token Auth Method for Vault Server
+title: Connect to Vault using Token Auth Method
 menu:
   docs_{{ .version }}:
     identifier: token-auth-methods
@@ -12,16 +12,16 @@ section_menu_id: concepts
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Configure Token Auth Method for Vault Server
+# Connect to Vault using Token Auth Method
 
-In Vault operator, usually Vault connection information are handled by [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md). To perform [Token Authentication](https://www.vaultproject.io/docs/auth/token.html#token-auth-method),
+The KubeVault operator uses an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) to connect to an externally provisioned Vault server. To use [Token Authentication](https://www.vaultproject.io/docs/auth/token.html#token-auth-method), follow the steps below to create an appropriate AppBinding:
 
 - You have to specify `spec.secret` in the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md).
 
 - The type of the specified secret must be `kubevault.com/token`.
 
 - The specified secret data must have the following key:
-    - `Secret.Data["token"]` : `Required`. Specifies the Vault authentication token.
+  - `Secret.Data["token"]` : `Required`. Specifies the Vault authentication token.
 
 - The specified secret must be in AppBinding's namespace.
 

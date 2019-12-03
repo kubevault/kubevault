@@ -23,8 +23,9 @@ vault-operator version [flags]
 ### Options
 
 ```
-  -h, --help    help for version
-      --short   Print just the version number.
+      --check string   Check version constraint
+  -h, --help           help for version
+      --short          Print just the version number.
 ```
 
 ### Options inherited from parent commands
@@ -36,7 +37,7 @@ vault-operator version [flags]
       --log-flush-frequency duration     Maximum number of seconds between log flushes (default 5s)
       --log_backtrace_at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
       --log_dir string                   If non-empty, write log files in this directory
-      --logtostderr                      log to standard error instead of files
+      --logtostderr                      log to standard error instead of files (default true)
       --stderrthreshold severity         logs at or above this threshold go to stderr
       --test.bench regexp                run only benchmarks matching regexp
       --test.benchmem                    print memory allocations for benchmarks

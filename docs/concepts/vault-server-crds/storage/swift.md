@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # Swift
 
-In Swift storage backend, data will be stored in [OpenStack Swift Container](http://docs.openstack.org/developer/swift/). Vault documentation for Swift storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/swift.html).
+In Swift storage backend, Vault data will be stored in [OpenStack Swift Container](http://docs.openstack.org/developer/swift/). Vault documentation for Swift storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/swift.html).
 
 ```yaml
 apiVersion: kubevault.com/v1alpha1
@@ -23,8 +23,8 @@ metadata:
   name: vault-with-swift
   namespace: demo
 spec:
-  nodes: 1
-  version: "0.11.1"
+  replicas: 1
+  version: "1.2.0"
   backend:
     swift:
       authUrl: "https://auth.cloud.ovh.net/v2.0/"
@@ -54,9 +54,9 @@ spec:
       authTokenSecret: <secret_name>
 ```
 
-`spec.backend.swift` has following fields:
+Here, we are going to describe the various attributes of the `spec.backend.swift` field.
 
-#### swift.authUrl
+### swift.authUrl
 
 `swift.authUrl` is a required field that specifies the OpenStack authentication endpoint.
 
@@ -67,7 +67,7 @@ spec:
       authUrl: "https://auth.cloud.ovh.net/v2.0/"
 ```
 
-#### swift.container
+### swift.container
 
 `swift.container` is a required field that specifies the name of the Swift container.
 
@@ -78,7 +78,7 @@ spec:
       container: "my-vault-container"
 ```
 
-#### swift.credentialSecret
+### swift.credentialSecret
 
 `swift.credentialSecret` is a required field that specifies the name of the secret containing the OpenStack account/username and password. The secret contains the following keys:
 
@@ -92,9 +92,9 @@ spec:
       credentialSecret: "os-credential"
 ```
 
-#### swift.tenant
+### swift.tenant
 
-`swift.tenant` is an optional field that specifies the name of the tenant. If it is not specifies, then Vault will set value to the default tenant of the username.
+`swift.tenant` is an optional field that specifies the name of the tenant. If it is not specified, then Vault will set the value to the default tenant of the username.
 
 ```yaml
 spec:
@@ -103,7 +103,7 @@ spec:
       tenant: "123456789"
 ```
 
-#### swift.region
+### swift.region
 
 `swift.region` is an optional field that specifies the name of the region.
 
@@ -114,7 +114,7 @@ spec:
       region: "BHS1"
 ```
 
-#### swift.tenantID
+### swift.tenantID
 
 `swift.tenantID` is an optional field that specifies the id of the tenant.
 
@@ -125,7 +125,7 @@ spec:
       tenantID: "11111111"
 ```
 
-#### swift.domain
+### swift.domain
 
 `swift.domain` is an optional field that specifies the name of the user domain.
 
@@ -136,8 +136,7 @@ spec:
       domain: "my-domain"
 ```
 
-
-#### swift.projectDomain
+### swift.projectDomain
 
 `swift.domain` is an optional field that specifies the name of the project's domain.
 
@@ -148,7 +147,7 @@ spec:
       projectDomain: "my-project-domain"
 ```
 
-#### swift.trustID
+### swift.trustID
 
 `swift.trustID` is an optional field that specifies the id of the trust.
 
@@ -159,7 +158,7 @@ spec:
       trustID: "trust-id"
 ```
 
-#### swift.storageUrl
+### swift.storageUrl
 
 `swift.storageUrl` is an optional field that specifies the storage URL from alternate authentication.
 
@@ -170,7 +169,7 @@ spec:
       storageUrl: "storage.com"
 ```
 
-#### swift.authTokenSecret
+### swift.authTokenSecret
 
 `swift.authTokenSecret` is an optional field that specifies the name of the secret containing auth token from alternate authentication.
 
@@ -181,9 +180,9 @@ spec:
       authTokenSecret: "auth-token-secret"
 ```
 
-#### swift.maxParallel
+### swift.maxParallel
 
-`maxParallel` is an optional field that specifies the maximum number of parallel operations to take place. This field accepts integer value. If this field is not specified, then Vault will set value `128`.
+`maxParallel` is an optional field that specifies the maximum number of parallel operations to take place. This field accepts integer value. If this field is not specified, then Vault will set value to `128`.
 
 ```yaml
 spec:

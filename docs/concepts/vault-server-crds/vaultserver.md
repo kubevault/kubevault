@@ -12,24 +12,21 @@ section_menu_id: concepts
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# VaultServer CRD
+# VaultServer
 
-Vault operator will deploy Vault according to `VaultServer` CRD (CustomResourceDefinition) specification.
+## What is VaultServer
 
-```yaml
-apiVersion: kubevault.com/v1alpha1
-kind: VaultServer
-metadata:
-  name: <name>
-spec:
-  ...
-status:
-  ...
-```
+A `VaultServer` is a Kubernetes `CustomResourceDefinition` (CRD) which is used to deploy a HashiCorp Vault server on Kubernetes clusters in a Kubernetes native way.
 
-## VaultServer Spec
+When a `VaultServer` is created, the KubeVault operator will deploy a Vault server and create necessary Kubernetes resources required for the Vault server.
 
-VaultServer Spec contains the configuration about how to deploy Vault in Kubernetes cluster. It also covers automate unsealing of Vault.
+![VaultServer CRD](/docs/images/concepts/vault_server.svg)
+
+## VaultServer CRD Specification
+
+Like any official Kubernetes resource, a `VaultServer` object has `TypeMeta`, `ObjectMeta`, `Spec` and `Status` sections.
+
+A sample `VaultServer` object is shown below:
 
 ```yaml
 apiVersion: kubevault.com/v1alpha1
@@ -38,8 +35,8 @@ metadata:
   name: example
   namespace: default
 spec:
-  nodes: 1
-  version: "0.11.1"
+  replicas: 1
+  version: "1.2.0"
   backend:
     inmem: {}
   unsealer:
@@ -48,31 +45,39 @@ spec:
     mode:
       kubernetesSecret:
         secretName: vault-keys
+status:
+  ... ...
 ```
+
+Here, we are going to describe the various sections of the `VaultServer` crd.
+
+### VaultServer Spec
+
+VaultServer Spec contains the configuration about how to deploy Vault in the Kubernetes cluster. It also covers automate unsealing of Vault.
 
 The `spec` section has following parts:
 
-### spec.nodes
+#### spec.replicas
 
-`spec.nodes` specifies the number of vault nodes to deploy. It has to be a positive number.
+`spec.replicas` specifies the number of Vault nodes to deploy. It has to be a positive number.
 
 ```yaml
 spec:
-  nodes: 3 # 3 vault server will be deployed in Kubernetes cluster
+  replicas: 3 # 3 vault server will be deployed in Kubernetes cluster
 ```
 
-### spec.version
+#### spec.version
 
-Specifies the name of the `VaultServerVersion` CRD. This CRD holds the image name and version of the Vault, Unsealer and Exporter. To know more information about `VaultServerVersion` CRD see [here](/docs/concepts/vault-server-crds/vaultserverversion.md).
+Specifies the name of the `VaultServerVersion` CRD. This CRD holds the image name and version of the Vault, Unsealer, and Exporter. To know more information about `VaultServerVersion` CRD see [here](/docs/concepts/vault-server-crds/vaultserverversion.md).
 
 ```yaml
 spec:
   version: "1.0.0"
 ```
 
-### spec.tls
+#### spec.tls
 
-`spec.tls` is an optional field that specifies TLS policy of Vault nodes. If this is not specified, Vault operator will auto generate TLS assets and secrets.
+`spec.tls` is an optional field that specifies the TLS policy of Vault nodes. If this is not specified, the KubeVault operator will auto-generate TLS assets and secrets.
 
 ```yaml
 spec:
@@ -90,20 +95,20 @@ spec:
   - `*.<namespace>.pod`
   - `<vaultServer-name>.<namespace>.svc`
 
-  The server certificate must allow the following ip:
+  The server certificate must allow the following IP:
   - `127.0.0.1`
 
 - **`tls.caBundle`**: Specifies the PEM encoded CA bundle which will be used to validate the serving certificate.
 
-### spec.configSource
+#### spec.configSource
 
-`spec.configSource` is an optional field that allows the user to provide extra configuration for Vault. This field accepts a [VolumeSource](https://github.com/kubernetes/api/blob/release-1.11/core/v1/types.go#L47). You can use any Kubernetes supported volume source such as configMap, secret, azureDisk etc.
+`spec.configSource` is an optional field that allows the user to provide extra configuration for Vault. This field accepts a [VolumeSource](https://github.com/kubernetes/api/blob/release-1.11/core/v1/types.go#L47). You can use any Kubernetes supported volume source such as configMap, secret, azureDisk, etc.
 
-> Please note that the config file name needs to be `vault.hcl` for Vault.
+> Please note that the config file name must be `vault.hcl` to work.
 
-### spec.backend
+#### spec.backend
 
-`spec.backend` is a required field that specifies Vault backend storage configuration. Vault operator generates storage configuration according to this `spec.backend`.
+`spec.backend` is a required field that specifies the Vault backend storage configuration. KubeVault operator generates storage configuration according to this `spec.backend`.
 
 ```yaml
 spec:
@@ -114,19 +119,19 @@ spec:
 List of supported backends:
 
 - [Azure](/docs/concepts/vault-server-crds/storage/azure.md)
-- [S3](/docs/concepts/vault-server-crds/storage/s3.md)
-- [GCS](/docs/concepts/vault-server-crds/storage/gcs.md)
-- [DynamoDB](/docs/concepts/vault-server-crds/storage/dynamodb.md)
-- [PosgreSQL](/docs/concepts/vault-server-crds/storage/postgresql.md)
-- [MySQL](/docs/concepts/vault-server-crds/storage/mysql.md)
-- [In Memory](/docs/concepts/vault-server-crds/storage/inmem.md)
-- [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
-- [Etcd](/docs/concepts/vault-server-crds/storage/etcd.md)
 - [Consul](/docs/concepts/vault-server-crds/storage/consul.md)
+- [DynamoDB](/docs/concepts/vault-server-crds/storage/dynamodb.md)
+- [Etcd](/docs/concepts/vault-server-crds/storage/etcd.md)
+- [GCS](/docs/concepts/vault-server-crds/storage/gcs.md)
+- [In Memory](/docs/concepts/vault-server-crds/storage/inmem.md)
+- [MySQL](/docs/concepts/vault-server-crds/storage/mysql.md)
+- [PosgreSQL](/docs/concepts/vault-server-crds/storage/postgresql.md)
+- [AWS S3](/docs/concepts/vault-server-crds/storage/s3.md)
+- [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
 
-### spec.unsealer
+#### spec.unsealer
 
-`spec.unsealer` is an optional field that specifies [Unsealer](https://github.com/kubevault/unsealer) configuration. Unsealer handles automatic initializing and unsealing of Vault. See [here](/docs/concepts/vault-server-crds/unsealer/unsealer.md) for Unsealer fields information.
+`spec.unsealer` is an optional field that specifies [Unsealer](https://github.com/kubevault/unsealer) configuration. Unsealer handles automatic initializing and unsealing of Vault. See [here](/docs/concepts/vault-server-crds/unsealer/unsealer.md) for Unsealer documentation.
 
 ```yaml
 spec:
@@ -139,9 +144,9 @@ spec:
       ...
 ```
 
-### spec.serviceTemplate
+#### spec.serviceTemplate
 
-You can also provide a template for the services created by Vault operator for VaultServer through `spec.serviceTemplate`. This will allow you to set the type and other properties of the services. `spec.serviceTemplate` is an optional field.
+You can also provide a template for the services created by KubeVault operator for VaultServer through `spec.serviceTemplate`. This will allow you to set the type and other properties of the services. `spec.serviceTemplate` is an optional field.
 
 ```yaml
 spec:
@@ -150,10 +155,10 @@ spec:
       type: NodePort
 ```
 
-VaultServer allows following fields to set in `spec.serviceTemplate`:
+VaultServer allows following fields to be set in `spec.serviceTemplate`:
 
 - metadata:
-  - annotations
+  - annotations (set as annotations on Vault service)
 - spec:
   - type
   - ports
@@ -163,10 +168,11 @@ VaultServer allows following fields to set in `spec.serviceTemplate`:
   - loadBalancerSourceRanges
   - externalTrafficPolicy
   - healthCheckNodePort
+  - sessionAffinityConfig
 
-### spec.podTemplate
+#### spec.podTemplate
 
-VaultServer allows providing a template for Vault pod through `spec.podTemplate`. Vault operator will pass the information provided in `spec.podTemplate` to the Deployment created for Vault. `spec.podTemplate` is an optional field.
+VaultServer allows providing a template for Vault pod through `spec.podTemplate`. KubeVault operator will pass the information provided in `spec.podTemplate` to the Deployment created for Vault. `spec.podTemplate` is an optional field.
 
 ```yaml
 spec:
@@ -181,10 +187,12 @@ spec:
           cpu: "500m"
 ```
 
-VaultServer accept following fields to set in `spec.podTemplate:`
+VaultServer accepts the following fields to set in `spec.podTemplate:`
 
 - metadata:
-  - annotations (pod's annotation)
+  - annotations (set as annotations on Vault pods)
+- controller:
+  - annotations (set as annotations on Vault statefulset)
 - spec:
   - resources
   - imagePullSecrets
@@ -196,21 +204,21 @@ VaultServer accept following fields to set in `spec.podTemplate:`
   - priority
   - securityContext
 
-Uses of some field of `spec.podTemplate` is described below,
+You can find the full list of fields [here](https://github.com/kmodules/offshoot-api/blob/kubernetes-1.16.3/api/v1/types.go). Some of the fields of `spec.podTemplate` are described below:
 
-#### spec.podTemplate.spec.imagePullSecret
+##### spec.podTemplate.spec.imagePullSecret
 
-`spec.podTemplate.spec.imagePullSecrets` is an optional field that points to secrets to be used for pulling docker image if you are using a private docker registry.
+`spec.podTemplate.spec.imagePullSecrets` is an optional field that points to secrets to be used for pulling docker images if you are using a private docker registry.
 
-#### spec.podTemplate.spec.nodeSelector
+##### spec.podTemplate.spec.nodeSelector
 
 `spec.podTemplate.spec.nodeSelector` is an optional field that specifies a map of key-value pairs. For the pod to be eligible to run on a node, the node must have each of the indicated key-value pairs as labels (it can have additional labels as well). To learn more, see [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector) .
 
-#### spec.podTemplate.spec.resources
+##### spec.podTemplate.spec.resources
 
 `spec.podTemplate.spec.resources` is an optional field. This can be used to request compute resources required by Vault pods. To learn more, visit [here](http://kubernetes.io/docs/user-guide/compute-resources/).
 
-### spec.authMethods
+#### spec.authMethods
 
 `spec.authMethods` is an optional field that specifies the list of auth methods to enable in Vault.
 
@@ -225,27 +233,27 @@ spec:
 
 `spec.authMethods` has following fields:
 
-#### spec.authMethods[].type
+##### spec.authMethods[].type
 
 `spec.authMethods[].type` is a required field that specifies the name of the authentication method type.
 
-#### spec.authMethods[].path
+##### spec.authMethods[].path
 
-`spec.authMethods[].path` is a required field that specifies the path in which to enable the auth method.
+`spec.authMethods[].path` is a required field that specifies the path where to enable the auth method.
 
-#### spec.authMethods[].description
+##### spec.authMethods[].description
 
 `spec.authMethods[].description` is an optional field that specifies a human-friendly description of the auth method.
 
-#### spec.authMethods[].pluginName
+##### spec.authMethods[].pluginName
 
-`spec.authMethods[].pluginName` is an optional field that specifies the name of the auth plugin to use based from the name in the plugin catalog.
+`spec.authMethods[].pluginName` is an optional field that specifies the name of the auth plugin to use based on the name in the plugin catalog.
 
-#### spec.authMethods[].local
+##### spec.authMethods[].local
 
-`spec.authMethods[].local` is an optional field that specifies if the auth method is a local only. Local auth methods are not replicated nor (if a secondary) removed by replication.
+`spec.authMethods[].local` is an optional field that specifies if the auth method is local only. Local auth methods are not replicated nor (if a secondary) removed by replication.
 
-#### spec.authMethods[].config
+##### spec.authMethods[].config
 
 `spec.authMethods[].config` is an optional field that specifies configuration options for auth method.
 
@@ -261,13 +269,13 @@ spec:
 
 - `auditNonHMACResponseKeys`: `Optional`. Specifies the list of keys that will not be HMAC'd by audit devices in the response data object.
 
-- `listingVisibility`: `Optional`.  Specifies whether to show this mount in the UI-specific listing endpoint.
+- `listingVisibility`: `Optional`.  Specifies whether to show this is mount in the UI-specific listing endpoint.
 
-- `passthroughRequestHeaders`: `Optional`. Specifies list of headers to whitelist and pass from the request to the backend.
+- `passthroughRequestHeaders`: `Optional`. Specifies a list of headers to whitelist and pass from the request to the backend.
 
-## VaultServer Status
+### VaultServer Status
 
-VaultServer Status shows the status of Vault deployment. Status of vault is monitored and updated by Vault operator.
+VaultServer Status shows the status of a Vault deployment. The status of the Vault is monitored and updated by the KubeVault operator.
 
 ```yaml
 status:
@@ -282,30 +290,30 @@ status:
     unsealed: <names_of_the_unsealed_vault_pod>
 ```
 
-- `phase` : Indicates the phase Vault is currently in.
+- `phase`: Indicates the phase Vault is currently in.
 
-- `initialized` : Indicates whether vault is initialized or not.
+- `initialized`: Indicates whether Vault is initialized or not.
 
-- `serviceName` : Name of the service by which vault can be accessed.
+- `serviceName`: Name of the service by which Vault can be accessed.
 
-- `clientPort` : Indicates the port client will use to communicate with vault.
+- `clientPort`: Indicates the port client will use to communicate with Vault.
 
-- `vaultStatus` : Indicates the status of vault pods. It has following fields:
+- `vaultStatus`: Indicates the status of Vault pods. It has the following fields:
 
-  - `active` : Name of the active vault pod.
+  - `active`: Name of the active vault pod.
 
-  - `standby` : Names of the standby vault pods.
+  - `standby`: Names of the standby vault pods.
 
-  - `sealed` : Names of the sealed vault pods.
+  - `sealed`: Names of the sealed vault pods.
 
-  - `unsealed` : Names of the unsealed vault pods.
+  - `unsealed`: Names of the unsealed vault pods.
 
-- `authMethodStatus` : Indicates the status of the auth methods specified in `spec.authMethods`. It has following fields:
+- `authMethodStatus` : Indicates the status of the auth methods specified in `spec.authMethods`. It has the following fields:
 
-  - `type` : Specifies the name of the authentication method type
+  - `type`: Specifies the name of the authentication method type
 
-  - `path` : Specifies the path in which the auth method is enabled.
+  - `path`: Specifies the path in which the auth method is enabled.
 
-  - `status` : Specifies whether auth method is enabled or not.
+  - `status`: Specifies whether the auth method is enabled or not.
 
-  - `reason` : Specifies the reason why failed to enable auth method.
+  - `reason`: Specifies the reason why failed to enable the auth method.

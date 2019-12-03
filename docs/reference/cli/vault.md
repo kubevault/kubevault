@@ -34,7 +34,6 @@ KubeVault cli by AppsCode
       --client-key string                Path to a client key file for TLS
       --cluster string                   The name of the kubeconfig cluster to use
       --context string                   The name of the kubeconfig context to use
-      --enable-status-subresource        If true, uses sub resource for crds. (default true)
   -h, --help                             help for vault
       --insecure-skip-tls-verify         If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string                Path to the kubeconfig file to use for CLI requests.

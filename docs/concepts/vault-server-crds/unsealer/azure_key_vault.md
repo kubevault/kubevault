@@ -29,11 +29,11 @@ spec:
         cloud: <cloud_environment_identifier>
 ```
 
-`mode.azureKeyVault` has following field:
+`mode.azureKeyVault` has the following fields:
 
 ## azureKeyVault.vaultBaseUrl
 
-`azureKeyVault.vaultBaseUrl` is a required field that specifies Azure key vault url.
+`azureKeyVault.vaultBaseUrl` is a required field that specifies the Azure key vault URL.
 
 ```yaml
 spec:
@@ -57,7 +57,7 @@ spec:
 
 ## azureKeyVault.clientCertSecret
 
-`azureKeyVault.clientCertSecret` is an optional field that specifies the name of the secret containing client cert and client cert password. The secret contains following fields:
+`azureKeyVault.clientCertSecret` is an optional field that specifies the name of the secret containing client cert and client cert password. The secret contains the following fields:
 
 - `client-cert`
 - `client-cert-password`
@@ -70,9 +70,9 @@ spec:
         clientCertSecret: "azure-client-cert-cred"
 ```
 
-## azureKeyVault.addClientSecret
+## azureKeyVault.aadClientSecret
 
-`azureKeyVault.addClientSecret` is an optional field that specifies the name of the secret containing client id and client secret of AAD application. The secret contains following fields:
+`azureKeyVault.aadClientSecret` is an optional field that specifies the name of the secret containing client id and client secret of AAD application. The secret contains the following fields:
 
 - `client-id`
 - `client-secret`
@@ -82,12 +82,12 @@ spec:
   unsealer:
     mode:
       azureKeyVault:
-        addClientSecret: "azure-add-client-cred"
+        aadClientSecret: "azure-aad-client-cred"
 ```
 
 ## azureKeyVault.useManageIdentity
 
-`azureKeyVault.useManageIdentity` is an optional field that specifies to use managed service identity for the virtual machine. 
+`azureKeyVault.useManageIdentity` is an optional field that specifies to use managed service identity for the virtual machine.
 
 ```yaml
 spec:
@@ -97,7 +97,7 @@ spec:
         useManageIdentity: true
 ```
 
-> Note: `azureKeyVault.clientCertSecret` or `azureKeyVault.addClientSecret` or `azureKeyVault.useManageIdentity` has to be specified.
+> Note: One of `azureKeyVault.clientCertSecret` or `azureKeyVault.aadClientSecret` or `azureKeyVault.useManageIdentity` has to be specified.
 
 ## azureKeyVault.cloud
 

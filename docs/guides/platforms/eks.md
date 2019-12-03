@@ -69,8 +69,8 @@ metadata:
   name: my-vault
   namespace: demo
 spec:
-  nodes: 1
-  version: "0.11.1"
+  replicas: 1
+  version: "1.2.0"
   backend:
     s3:
       bucket: "demo-vault-3"
@@ -85,7 +85,7 @@ spec:
         ssmKeyPrefix: "/cluster/demo"
 ```
 
-Here, `spec.version` specifies the name of the [VaultServerVersion](docs/concepts/vault-server-crds/vaultserverversion.md) CRD. If that does not exist, then create one.
+Here, `spec.version` specifies the name of the [VaultServerVersion](/docs/concepts/vault-server-crds/vaultserverversion.md) CRD. If that does not exist, then create one.
 
 ```console
 $ kubectl get vaultserverversions
@@ -120,8 +120,8 @@ $ cat examples/guides/provider/eks/my-vault.yaml
     name: my-vault
     namespace: demo
   spec:
-    nodes: 1
-    version: "0.11.1"
+    replicas: 1
+    version: "1.2.0"
     backend:
       s3:
         bucket: "demo-vault-3"

@@ -14,49 +14,7 @@ section_menu_id: concepts
 
 # Consul
 
-To use Consul as storage backend, first we need to deploy consul. Documentations can be found [here](https://www.consul.io/docs/platform/k8s/run.html)
-
-Here is an example:
-
-Pod yaml:
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: consul-example
-  namespace: demo
-  labels:
-    app: consul
-spec:
-  containers:
-    - name: example
-      image: "consul:latest"
-  restartPolicy: Never
-```
-
-Service yaml:
-
-```yaml
-kind: Service
-apiVersion: v1
-metadata:
-  name: my-service
-  namespace: demo
-spec:
-  selector:
-    app: consul
-  ports:
-  - protocol: TCP
-    port: 8500
-  type: NodePort
-```
-
-## Consul Backend
-
-In Consul storage backend, data will be stored in consul storage container. Vault documentation for Consul storage backend can be found in [here](https://www.vaultproject.io/docs/configuration/storage/consul.html)
-
-[VaultServer](/docs/concepts/vault-server-crds/vaultserver.md) yaml:
+In the Consul storage backend, Vault data will be stored in the consul storage container. Vault documentation for Consul storage backend can be found in [here](https://www.vaultproject.io/docs/configuration/storage/consul.html)
 
 ```yaml
 apiVersion: kubevault.com/v1alpha1
@@ -65,7 +23,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  nodes: 1
+  replicas: 1
   version: "1.0.1"
   serviceTemplate:
     spec:
@@ -98,6 +56,36 @@ data:
     disable_mlock = true
 ```
 
+To use Consul as a storage backend, first, we need to deploy Consul. Documentation for deploying Consul in Kubernetes can be found [here](https://www.consul.io/docs/platform/k8s/run.html). Below is an example yaml for deploying Consul suitable for demo purposes:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: consul-example
+  namespace: demo
+  labels:
+    app: consul
+spec:
+  containers:
+    - name: example
+      image: "consul:latest"
+  restartPolicy: Never
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: my-service
+  namespace: demo
+spec:
+  selector:
+    app: consul
+  ports:
+  - protocol: TCP
+    port: 8500
+  type: NodePort
+```
+
 ## spec.backend.consul
 
 To use Consul as backend storage in Vault, we need to specify `spec.backend.consul` in [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md) CRD.
@@ -125,11 +113,11 @@ spec:
       tlsSkipVerify: <boolean_value>
 ```
 
-`spec.backend.consul` has the following fields:
+Here, we are going to describe the various attributes of the `spec.backend.consul` field.
 
 ### consul.address
 
-Specifies the address of the Consul agent to communicate with. This can be an IP address, DNS record, or unix socket. It is recommended that you communicate with a local Consul agent; do not communicate directly with a server.
+Specifies the address of the Consul agent to communicate with. This can be an IP address, DNS record, or Unix socket. It is recommended that you communicate with a local Consul agent; do not communicate directly with a server.
 
 ```yaml
 spec:
@@ -195,7 +183,7 @@ spec:
 
 ### consul.scheme
 
-Specifies the scheme to use when communicating with Consul. This can be set to "http" or "https". It is highly recommended you communicate with Consul over https over non-local connections. When communicating over a unix socket, this option is ignored.
+Specifies the scheme to use when communicating with Consul. This can be set to "http" or "https". It is highly recommended you communicate with Consul over https over non-local connections. When communicating over a Unix socket, this option is ignored.
 
 ```yaml
 spec:
@@ -228,7 +216,7 @@ spec:
 
 ### consul.serviceAddress
 
-Specifies a service-specific address to set on the service registration in Consul. If unset, Vault will use what it knows to be the HA redirect address - which is usually desirable. Setting this parameter to "" will tell Consul to leverage the configuration of the node the service is registered on dynamically.
+Specifies a service-specific address to set on the service registration in Consul. If unset, Vault will use what it knows to be the HA redirect address - which is usually desirable. Setting this parameter to `""` will tell Consul to leverage the configuration of the node the service is registered on dynamically.
 
 ```yaml
 spec:
@@ -261,7 +249,7 @@ data:
 
 ### consul.sessionTTL
 
-Specifies the minimum allowed session TTL. Consul server has a lower limit of 10s on the session TTL by default. The value of session_ttl here cannot be lesser than 10s unless the session_ttl_min on the consul server's configuration has a lesser value.
+Specifies the minimum allowed session TTL. The consul server has a lower limit of 10s on the session TTL by default. The value of session_ttl here cannot be lesser than 10s unless the session_ttl_min on the consul server's configuration has a lesser value.
 
 ```yaml
 spec:
@@ -272,7 +260,7 @@ spec:
 
 ### consul.lockWaitTime
 
-Specifies the wait time before a lock lock acquisition is made. This affects the minimum time it takes to cancel a lock acquisition.
+Specifies the wait time before a lock acquisition is made. This affects the minimum time it takes to cancel a lock acquisition.
 
 ```yaml
 spec:

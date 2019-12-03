@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # Azure
 
-In Azure storage backend, data will be stored in [Azure Storage Container](https://azure.microsoft.com/en-us/services/storage/). Vault documentation for azure storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/azure.html).
+In Azure storage backend, Vault data will be stored in [Azure Storage Container](https://azure.microsoft.com/en-us/services/storage/). Vault documentation for azure storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/azure.html).
 
 ```yaml
 apiVersion: kubevault.com/v1alpha1
@@ -23,8 +23,8 @@ metadata:
   name: vault-with-azure
   namespace: demo
 spec:
-  nodes: 1
-  version: "0.11.1"
+  replicas: 1
+  version: "1.2.0"
   backend:
     azure:
       accountName: "vault-ac"
@@ -46,9 +46,9 @@ spec:
       maxParallel: <max_parallel>
 ```
 
-`spec.backend.azure` has following fields:
+Here, we are going to describe the various attributes of the `spec.backend.azure` field.
 
-#### azure.accountName
+### azure.accountName
 
 `azure.accountName` is a required field that specifies the Azure Storage account name.
 
@@ -59,9 +59,9 @@ spec:
       accountName: "my-vault-storage"
 ```
 
-#### azure.accountKeySecret
+### azure.accountKeySecret
 
-`azure.accountKeySecret` is a required field that specifies the name of the secret containing Azure Storage account key. The secret contains following key:
+`azure.accountKeySecret` is a required field that specifies the name of the secret containing Azure Storage account key. The secret contains the following key:
 
 - `account_key`
 
@@ -72,9 +72,9 @@ spec:
       accountKeySecret: "azure-storage-key"
 ```
 
-#### azure.container
+### azure.container
 
-`azure.container` is an required field that specifies the Azure Storage Blob container name.
+`azure.container` is a required field that specifies the Azure Storage Blob container name.
 
 ```yaml
 spec:
@@ -83,9 +83,9 @@ spec:
       container: "my-vault-storage"
 ```
 
-#### azure.maxParallel
+### azure.maxParallel
 
-`maxParallel` is an optional field that specifies the maximum number of parallel operations to take place. This field accepts integer value. If this field is not specified, then Vault will set value `128`.
+`maxParallel` is an optional field that specifies the maximum number of parallel operations to take place. This field accepts integer value. If this field is not specified, then Vault will set value to `128`.
 
 ```yaml
 spec:

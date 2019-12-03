@@ -29,7 +29,7 @@ spec:
         credentialSecret: <secret_name>
 ```
 
-`mode.googleKmsGcs` has following field:
+`mode.googleKmsGcs` has the following fields:
 
 ## googleKmsGcs.bucket
 
@@ -45,7 +45,7 @@ spec:
 
 ## googleKmsGcs.kmsProject
 
-`googleKmsGcs.kmsProject` is a required field that specifies the name of the projects under which key ring is created.
+`googleKmsGcs.kmsProject` is a required field that specifies the name of the projects under which the keyring is created.
 
 ```yaml
 spec:
@@ -57,7 +57,7 @@ spec:
 
 ## googleKmsGcs.kmsLocation
 
-`googleKmsGcs.kmsLocation` is a required field that specifies the location of the key ring.
+`googleKmsGcs.kmsLocation` is a required field that specifies the location of the keyring.
 
 ```yaml
 spec:
@@ -69,7 +69,7 @@ spec:
 
 ## googleKmsGcs.kmsKeyRing
 
-`googleKmsGcs.kmsKeyRing` is a required field that specifies the name of the key ring.
+`googleKmsGcs.kmsKeyRing` is a required field that specifies the name of the keyring.
 
 ```yaml
 spec:
@@ -93,7 +93,7 @@ spec:
 
 ## googleKmsGcs.credentialSecret
 
-`googleKmsGcs.credentialSecret` is an optional field that specifies the name of the secret containing google credential. If this is not specified, then instance service account will be used (if it is running on google cloud). The secret contains following field:
+`googleKmsGcs.credentialSecret` is an optional field that specifies the name of the secret containing google credentials. If this is not specified, then the instance service account will be used (if it is running on google cloud). The secret contains the following field:
 
 - `sa.json`
 

@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # mode.kubernetesSecret
 
-To use **kubernetesSecret** mode specify `mode.kubernetesSecret`. In this mode, unseal keys and root token will be stored in Kubernetes secret.
+To use **kubernetesSecret** mode specify `mode.kubernetesSecret`. In this mode, unseal keys and root token will be stored in a Kubernetes secret.
 
 ```yaml
 spec:
@@ -24,11 +24,11 @@ spec:
         secretName: <secret_name>
 ```
 
-`mode.kubernetesSecret` has following field:
+`mode.kubernetesSecret` has the following fields:
 
 ## kubernetesSecret.secretName
 
-`kubernetesSecret.secretName` is a required field that specifies the name of Kubernetes secret. If this secret does not exist, then Unsealer will create it. The secret will be created in the same namespace of [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md).
+`kubernetesSecret.secretName` is a required field that specifies the name of the Kubernetes secret. If this secret does not exist, then Unsealer will create it. The secret will be created in the same namespace of [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md).
 
 ```yaml
 spec:

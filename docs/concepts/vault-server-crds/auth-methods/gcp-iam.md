@@ -1,5 +1,5 @@
 ---
-title: Configure GCP IAM Auth Method for Vault Server
+title: Connect to Vault using GCP IAM Auth Method
 menu:
   docs_{{ .version }}:
     identifier: gcp-iam-auth-methods
@@ -12,28 +12,30 @@ section_menu_id: concepts
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Configure GCP IAM Auth Method for Vault Server
+# Connect to Vault using GCP IAM Auth Method
 
-In Vault operator, usually Vault connection information are handled by [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md). For [GCP IAM authentication](https://www.vaultproject.io/docs/auth/gcp.html#configuration), it has to be enabled and configured in Vault. To perform this authenticaion:
+The KubeVault operator uses an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) to connect to an externally provisioned Vault server. For [GCP IAM authentication](https://www.vaultproject.io/docs/auth/gcp.html#configuration), it has to be enabled and configured in the Vault server. Follow the steps below to create an appropriate AppBinding:
 
 - You have to specify `spec.secret` in the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md).
 
 - The type of the specified secret must be `"kubevault.com/gcp"`.
 
 - The specified secret data can have the following key:
-    - `Secret.Data["sa.json"]` : `Required`. Specifies the google application credentials
+  - `Secret.Data["sa.json"]` : `Required`. Specifies the google application credentials
 
 - The specified secret annotation can have the following key:
-    - `Secret.Annotations["kubevault.com/auth-path"]` : `Optional`. Specifies the path where GCP auth is enabled in Vault. If this path is not provided, the path will be set by default path "gcp". If your gcp auth is enable some other path but "gcp", you have to specify it here.
+  - `Secret.Annotations["kubevault.com/auth-path"]` : `Optional`. Specifies the path where GCP auth is enabled in Vault. If this path is not provided, the path will be set by default path "gcp". If your GCP auth is enabled some other path but "gcp", you have to specify it here.
 
 - The specified secret must be in AppBinding's namespace.
 
 - You have to specify IAM auth type [role](https://www.vaultproject.io/api/auth/gcp/index.html#create-role) name in `spec.parameters` of the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md).
-    ```yaml
-    spec:
-      parameters:
-        policyControllerRole: my-iam-role # role name against which login will be done
-    ```
+
+  ```yaml
+  spec:
+    parameters:
+      policyControllerRole: my-iam-role # role name against which login will be done
+  ```
+
 Sample AppBinding and Secret is given below:
 
 ```yaml
@@ -57,8 +59,6 @@ spec:
 
 ```yaml
 apiVersion: v1
-data:
-  sa.json: ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb..........
 kind: Secret
 metadata:
   name: gcp-cred
@@ -66,4 +66,6 @@ metadata:
   annotations:
       kubevault.com/auth-path: my-gcp
 type: kubevault.com/gcp
+data:
+  sa.json: ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb..........
 ```

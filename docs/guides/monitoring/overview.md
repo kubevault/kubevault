@@ -100,6 +100,6 @@ $ curl -fsSL https://github.com/kubevault/operator/raw/{{< param "info.version" 
 
 ## Next Steps
 
-- Learn how to monitor Vault operator using built-in Prometheus from [here](/docs/guides/monitoring/builtin.md).
-- Learn how to monitor Vault operator using CoreOS Prometheus operator from [here](/docs/guides/monitoring/coreos.md).
-- Learn how to use Grafana dashboard to visualize monitoring data from [here](/docs/guides/monitoring/grafana.md).
+- Learn how to monitor Vault operator using built-in Prometheus from [here](/docs/guides/monitoring/vault-operator/builtin.md).
+- Learn how to monitor Vault operator using CoreOS Prometheus operator from [here](/docs/guides/monitoring/vault-operator/coreos.md).
+- Learn how to use Grafana dashboard to visualize monitoring data from [here](/docs/guides/monitoring/vault-server/grafana.md).

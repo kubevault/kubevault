@@ -75,7 +75,7 @@ metadata:
 spec:
   backend:
     inmem: {}
-  nodes: 1
+  replicas: 1
   unsealer:
     mode:
       kubernetesSecret:

@@ -29,8 +29,8 @@ metadata:
   name: exampleco
   namespace: demo
 spec:
-  nodes: 1
-  version: "0.11.1"
+  replicas: 1
+  version: "1.2.0"
   serviceTemplate:
     spec:
       type: NodePort

@@ -70,7 +70,6 @@ vault-operator run [flags]
       --contention-profiling                                    Enable lock contention profiling, if profiling is enabled
       --docker-registry string                                  Docker image registry for sidecar, init-container, check-job, recovery-job and kubectl-job (default "kubevault")
       --enable-mutating-webhook                                 If true, enables mutating webhooks for KubeDB CRDs.
-      --enable-status-subresource                               If true, uses sub resource for crds.
       --enable-validating-webhook                               If true, enables validating webhooks for KubeDB CRDs.
   -h, --help                                                    help for run
       --http2-max-streams-per-connection int                    The limit that the server gives to clients for the maximum number of streams in an HTTP/2 connection. Zero means to use golang's default. (default 1000)
@@ -100,7 +99,7 @@ vault-operator run [flags]
       --log-flush-frequency duration     Maximum number of seconds between log flushes (default 5s)
       --log_backtrace_at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
       --log_dir string                   If non-empty, write log files in this directory
-      --logtostderr                      log to standard error instead of files
+      --logtostderr                      log to standard error instead of files (default true)
       --stderrthreshold severity         logs at or above this threshold go to stderr
       --test.bench regexp                run only benchmarks matching regexp
       --test.benchmem                    print memory allocations for benchmarks

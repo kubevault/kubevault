@@ -75,7 +75,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  nodes: 1
+  replicas: 1
   version: "1.0.1"
   backend:
     inmem: {}

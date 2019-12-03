@@ -92,7 +92,7 @@ metadata:
   name: my-vault
   namespace: demo
 spec:
-  nodes: 1
+  replicas: 1
   version: "1.0.0"
   backend:
     azure:
@@ -109,7 +109,7 @@ spec:
         aadClientSecret: azure-ad-client-secret
 ```
 
-Here, `spec.version` specifies the name of the [VaultServerVersion](docs/concepts/vault-server-crds/vaultserverversion.md) CRD. If that does not exist, then create one.
+Here, `spec.version` specifies the name of the [VaultServerVersion](/docs/concepts/vault-server-crds/vaultserverversion.md) CRD. If that does not exist, then create one.
 
 ```console
 $ kubectl get vaultserverversions
@@ -176,7 +176,7 @@ metadata:
   name: my-vault
   namespace: demo
 spec:
-  nodes: 1
+  replicas: 1
   version: "1.0.0"
   backend:
     azure:
