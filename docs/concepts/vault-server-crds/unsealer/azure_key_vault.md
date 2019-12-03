@@ -21,7 +21,7 @@ spec:
   unsealer:
     mode:
       azureKeyVault:
-        vaultBaseUrl: <vault_base_url>
+        vaultBaseURL: <vault_base_url>
         tenantID: <tenant_id>
         clientCertSecret: <secret_name>
         aadClientSecret: <secret_name
@@ -31,16 +31,16 @@ spec:
 
 `mode.azureKeyVault` has the following fields:
 
-## azureKeyVault.vaultBaseUrl
+## azureKeyVault.vaultBaseURL
 
-`azureKeyVault.vaultBaseUrl` is a required field that specifies the Azure key vault URL.
+`azureKeyVault.vaultBaseURL` is a required field that specifies the Azure key vault URL.
 
 ```yaml
 spec:
   unsealer:
     mode:
       azureKeyVault:
-        vaultBaseUrl: "https://myvault.vault.azure.net"
+        vaultBaseURL: "https://myvault.vault.azure.net"
 ```
 
 ## azureKeyVault.tenantID

@@ -104,7 +104,7 @@ spec:
     secretThreshold: 2
     mode:
       azureKeyVault:
-        vaultBaseUrl: https://vault-key-store.vault.azure.net/
+        vaultBaseURL: https://vault-key-store.vault.azure.net/
         tenantID: aaaaaaa-bbbb-ccc-dddd-eeeeeeeee
         aadClientSecret: azure-ad-client-secret
 ```
@@ -162,7 +162,7 @@ type: Opaque
 
 ```
 
-`spec.unsealer.mode.azureKeyVault.vaultBaseUrl` is the DNS name of the `vault-key-store` key vault.
+`spec.unsealer.mode.azureKeyVault.vaultBaseURL` is the DNS name of the `vault-key-store` key vault.
 
 ![key vault](/docs/images/guides/provider/aks/key-vault.png)
 
@@ -188,7 +188,7 @@ spec:
     secretThreshold: 2
     mode:
       azureKeyVault:
-        vaultBaseUrl: https://vault-key-store.vault.azure.net/
+        vaultBaseURL: https://vault-key-store.vault.azure.net/
         tenantID: aaaaaaa-bbbb-ccc-dddd-eeeeeeeee
         aadClientSecret: azure-ad-client-secret
 

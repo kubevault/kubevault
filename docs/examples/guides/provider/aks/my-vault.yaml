@@ -16,6 +16,6 @@ spec:
     secretThreshold: 2
     mode:
       azureKeyVault:
-        vaultBaseUrl: https://vault-key-store.vault.azure.net/
+        vaultBaseURL: https://vault-key-store.vault.azure.net/
         tenantID: aaaaaaa-bbbb-ccc-dddd-eeeeeeeee
         aadClientSecret: azure-ad-client-secret

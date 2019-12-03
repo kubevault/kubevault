@@ -27,7 +27,7 @@ spec:
   version: "1.2.0"
   backend:
     swift:
-      authUrl: "https://auth.cloud.ovh.net/v2.0/"
+      authURL: "https://auth.cloud.ovh.net/v2.0/"
       container: "my-vault-container"
       credentialSecret: "os-credential"
       region: "BHS1"
@@ -42,7 +42,7 @@ To use Swift as backend storage in Vault specify `spec.backend.swift` in [VaultS
 spec:
   backend:
     swift:
-      authUrl: <auth_url>
+      authURL: <auth_url>
       container: <container_name>
       credentialSecret: <secret_name>
       region: <region_name>
@@ -50,21 +50,21 @@ spec:
       tenantID: <tenant_id>
       domain: <domain>
       projectDomain: <project_domain>
-      storageUrl: <storage_url>
+      storageURL: <storage_url>
       authTokenSecret: <secret_name>
 ```
 
 Here, we are going to describe the various attributes of the `spec.backend.swift` field.
 
-### swift.authUrl
+### swift.authURL
 
-`swift.authUrl` is a required field that specifies the OpenStack authentication endpoint.
+`swift.authURL` is a required field that specifies the OpenStack authentication endpoint.
 
 ```yaml
 spec:
   backend:
     swift:
-      authUrl: "https://auth.cloud.ovh.net/v2.0/"
+      authURL: "https://auth.cloud.ovh.net/v2.0/"
 ```
 
 ### swift.container
@@ -158,15 +158,15 @@ spec:
       trustID: "trust-id"
 ```
 
-### swift.storageUrl
+### swift.storageURL
 
-`swift.storageUrl` is an optional field that specifies the storage URL from alternate authentication.
+`swift.storageURL` is an optional field that specifies the storage URL from alternate authentication.
 
 ```yaml
 spec:
   backend:
     swift:
-      storageUrl: "storage.com"
+      storageURL: "storage.com"
 ```
 
 ### swift.authTokenSecret

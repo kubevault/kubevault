@@ -27,7 +27,7 @@ spec:
   version: "1.2.0"
   backend:
     postgresql:
-      connectionUrlSecret: "my-postgres-conn"
+      connectionURLSecret: "my-postgres-conn"
 ```
 
 ## spec.backend.postgresql
@@ -38,16 +38,16 @@ To use PostgreSQL as backend storage in Vault specify `spec.backend.postgresql` 
 spec:
   backend:
     postgresql:
-      connectionUrlSecret: <secret_name>
+      connectionURLSecret: <secret_name>
       table: <table_name>
       maxParallel: <max_parallel>
 ```
 
 Here, we are going to describe the various attributes of the `spec.backend.postgresql` field.
 
-### postgresql.connectionUrlSecret
+### postgresql.connectionURLSecret
 
-`postgresql.connectionUrlSecret` is a required field that specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL. The secret contains the following key:
+`postgresql.connectionURLSecret` is a required field that specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL. The secret contains the following key:
 
 - `connection_url`
 
@@ -55,7 +55,7 @@ Here, we are going to describe the various attributes of the `spec.backend.postg
 spec:
   backend:
     postgresql:
-      connectionUrlSecret: "my-postgres-conn"
+      connectionURLSecret: "my-postgres-conn"
 ```
 
 ### postgresql.table
