@@ -16994,7 +16994,7 @@
       "description": "AzureKeyVault contain the fields that required to unseal vault using azure key vault",
       "type": "object",
       "required": [
-        "vaultBaseUrl",
+        "vaultBaseURL",
         "tenantID"
       ],
       "properties": {
@@ -17018,7 +17018,7 @@
           "description": "Use managed service identity for the virtual machine",
           "type": "boolean"
         },
-        "vaultBaseUrl": {
+        "vaultBaseURL": {
           "description": "Azure key vault url, for example https://myvault.vault.azure.net",
           "type": "string"
         }
@@ -17400,10 +17400,10 @@
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/postgresql.html\n\nPostgreSQLSpec defines configuration to set up PostgreSQL storage as backend storage in vault",
       "type": "object",
       "required": [
-        "connectionUrlSecret"
+        "connectionURLSecret"
       ],
       "properties": {
-        "connectionUrlSecret": {
+        "connectionURLSecret": {
           "description": "Specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL. A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters). secret data:\n\t- connection_url:\u003cdata\u003e",
           "type": "string"
         },
@@ -17464,7 +17464,7 @@
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/swift.html\n\nSwiftSpec defines configuration to set up Swift Storage as backend storage in vault",
       "type": "object",
       "required": [
-        "authUrl",
+        "authURL",
         "container",
         "credentialSecret"
       ],
@@ -17473,7 +17473,7 @@
           "description": "Specifies secret containing auth token from alternate authentication. secret data:\n\t- auth_token=\u003cvalue\u003e",
           "type": "string"
         },
-        "authUrl": {
+        "authURL": {
           "description": "Specifies the OpenStack authentication endpoint.",
           "type": "string"
         },
@@ -17502,7 +17502,7 @@
           "description": "Specifies the name of the region.",
           "type": "string"
         },
-        "storageUrl": {
+        "storageURL": {
           "description": "Specifies storage URL from alternate authentication.",
           "type": "string"
         },

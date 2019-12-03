@@ -401,7 +401,7 @@ spec:
                     \n PostgreSQLSpec defines configuration to set up PostgreSQL storage
                     as backend storage in vault"
                   properties:
-                    connectionUrlSecret:
+                    connectionURLSecret:
                       description: "Specifies the name of the secret containing the
                         connection string to use to authenticate and connect to PostgreSQL.
                         A full list of supported parameters can be found in the pq
@@ -419,7 +419,7 @@ spec:
                         attempt to create it).
                       type: string
                   required:
-                  - connectionUrlSecret
+                  - connectionURLSecret
                   type: object
                 s3:
                   description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/s3.html
@@ -469,7 +469,7 @@ spec:
                       description: "Specifies secret containing auth token from alternate
                         authentication. secret data: \t- auth_token=<value>"
                       type: string
-                    authUrl:
+                    authURL:
                       description: Specifies the OpenStack authentication endpoint.
                       type: string
                     container:
@@ -494,7 +494,7 @@ spec:
                     region:
                       description: Specifies the name of the region.
                       type: string
-                    storageUrl:
+                    storageURL:
                       description: Specifies storage URL from alternate authentication.
                       type: string
                     tenant:
@@ -508,7 +508,7 @@ spec:
                       description: Specifies the id of the trust.
                       type: string
                   required:
-                  - authUrl
+                  - authURL
                   - container
                   - credentialSecret
                   type: object
@@ -5911,12 +5911,12 @@ spec:
                           description: Use managed service identity for the virtual
                             machine
                           type: boolean
-                        vaultBaseUrl:
+                        vaultBaseURL:
                           description: Azure key vault url, for example https://myvault.vault.azure.net
                           type: string
                       required:
                       - tenantID
-                      - vaultBaseUrl
+                      - vaultBaseURL
                       type: object
                     googleKmsGcs:
                       description: GoogleKmsGcsSpec contain the fields that required

@@ -651,21 +651,21 @@ var _ = Describe("VaultServer", func() {
 			var (
 				username  = os.Getenv("OS_USERNAME")
 				password  = os.Getenv("OS_PASSWORD")
-				authUrl   = os.Getenv("OS_AUTH_URL")
+				authURL   = os.Getenv("OS_AUTH_URL")
 				region    = os.Getenv("OS_REGION_NAME")
 				tenant    = os.Getenv("OS_TENANT_NAME")
 				container = "vault-test"
 			)
 
 			BeforeEach(func() {
-				if username == "" || password == "" || authUrl == "" || region == "" || tenant == "" {
+				if username == "" || password == "" || authURL == "" || region == "" || tenant == "" {
 					Skip("OS_USERNAME or OS_PASSWORD or OS_AUTH_URL or OS_REGION_NAME or OS_TENANT_NAME  are not provided")
 				}
 
 				cleaner := swift.Connection{
 					UserName:  username,
 					ApiKey:    password,
-					AuthUrl:   authUrl,
+					AuthURL:   authURL,
 					Tenant:    tenant,
 					Region:    region,
 					Transport: cleanhttp.DefaultPooledTransport(),
@@ -695,7 +695,7 @@ var _ = Describe("VaultServer", func() {
 
 				swift := api.BackendStorageSpec{
 					Swift: &api.SwiftSpec{
-						AuthUrl:          authUrl,
+						AuthURL:          authURL,
 						Container:        container,
 						CredentialSecret: swiftCredSecret,
 						Region:           region,
@@ -908,7 +908,7 @@ var _ = Describe("VaultServer", func() {
 					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						AzureKeyVault: &api.AzureKeyVault{
-							VaultBaseUrl:    "https://vault-test-1204.vault.azure.net/",
+							VaultBaseURL:    "https://vault-test-1204.vault.azure.net/",
 							TenantID:        tenantID,
 							AADClientSecret: azureCredSecret,
 						},
@@ -944,7 +944,7 @@ var _ = Describe("VaultServer", func() {
 
 			const (
 				k8sSecretName       = "k8s-postgres-vault-keys"
-				connectionUrlSecret = "postgresql-conn-url"
+				connectionURLSecret = "postgresql-conn-url"
 			)
 			BeforeEach(func() {
 				url, err := f.DeployPostgresSQL()
@@ -952,7 +952,7 @@ var _ = Describe("VaultServer", func() {
 
 				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      connectionUrlSecret,
+						Name:      connectionURLSecret,
 						Namespace: f.Namespace(),
 					},
 					Data: map[string][]byte{
@@ -964,7 +964,7 @@ var _ = Describe("VaultServer", func() {
 
 				postgres := api.BackendStorageSpec{
 					PostgreSQL: &api.PostgreSQLSpec{
-						ConnectionUrlSecret: connectionUrlSecret,
+						ConnectionURLSecret: connectionURLSecret,
 					},
 				}
 
@@ -988,8 +988,8 @@ var _ = Describe("VaultServer", func() {
 				Expect(f.DeleteSecret(k8sSecretName, vs.Namespace)).NotTo(HaveOccurred())
 				checkForSecretDeleted(k8sSecretName, vs.Namespace)
 
-				Expect(f.DeleteSecret(connectionUrlSecret, vs.Namespace)).NotTo(HaveOccurred())
-				checkForSecretDeleted(connectionUrlSecret, vs.Namespace)
+				Expect(f.DeleteSecret(connectionURLSecret, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(connectionURLSecret, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 				checkForVaultServerCleanup(vs)

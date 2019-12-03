@@ -188,12 +188,12 @@ func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs
 	if vs.Spec.Backend.PostgreSQL != nil {
 		numOfBackend++
 		pg := vs.Spec.Backend.PostgreSQL
-		if pg.ConnectionUrlSecret != "" {
-			err := validateSecret(client, pg.ConnectionUrlSecret, vs.Namespace, []string{
+		if pg.ConnectionURLSecret != "" {
+			err := validateSecret(client, pg.ConnectionURLSecret, vs.Namespace, []string{
 				"connection_url",
 			})
 			if err != nil {
-				return errors.Wrap(err, "for spec.backend.postgreSQL.connectionUrlSecret")
+				return errors.Wrap(err, "for spec.backend.postgreSQL.connectionURLSecret")
 			}
 		}
 	}

@@ -505,7 +505,7 @@ type PostgreSQLSpec struct {
 	// A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters).
 	// secret data:
 	//	- connection_url:<data>
-	ConnectionUrlSecret string `json:"connectionUrlSecret" protobuf:"bytes,1,opt,name=connectionUrlSecret"`
+	ConnectionURLSecret string `json:"connectionURLSecret" protobuf:"bytes,1,opt,name=connectionURLSecret"`
 
 	// Specifies the name of the table in which to write Vault data.
 	// This table must already exist (Vault will not attempt to create it).
@@ -612,7 +612,7 @@ type DynamoDBSpec struct {
 // SwiftSpec defines configuration to set up Swift Storage as backend storage in vault
 type SwiftSpec struct {
 	// Specifies the OpenStack authentication endpoint.
-	AuthUrl string `json:"authUrl" protobuf:"bytes,1,opt,name=authUrl"`
+	AuthURL string `json:"authURL" protobuf:"bytes,1,opt,name=authURL"`
 
 	// Specifies the name of the Swift container.
 	Container string `json:"container" protobuf:"bytes,2,opt,name=container"`
@@ -649,7 +649,7 @@ type SwiftSpec struct {
 
 	// Specifies storage URL from alternate authentication.
 	// +optional
-	StorageUrl string `json:"storageUrl,omitempty" protobuf:"bytes,10,opt,name=storageUrl"`
+	StorageURL string `json:"storageURL,omitempty" protobuf:"bytes,10,opt,name=storageURL"`
 
 	// Specifies secret containing auth token from alternate authentication.
 	// secret data:
@@ -760,7 +760,7 @@ type AwsKmsSsmSpec struct {
 // AzureKeyVault contain the fields that required to unseal vault using azure key vault
 type AzureKeyVault struct {
 	// Azure key vault url, for example https://myvault.vault.azure.net
-	VaultBaseUrl string `json:"vaultBaseUrl" protobuf:"bytes,1,opt,name=vaultBaseUrl"`
+	VaultBaseURL string `json:"vaultBaseURL" protobuf:"bytes,1,opt,name=vaultBaseURL"`
 
 	// The cloud environment identifier
 	// default: "AZUREPUBLICCLOUD"

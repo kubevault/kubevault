@@ -38,7 +38,7 @@ type Options struct {
 	api.PostgreSQLSpec
 
 	// the connection string to use to authenticate and connect to PostgreSQL.
-	ConnectionUrl string
+	ConnectionURL string
 }
 
 func NewOptions(kubeClient kubernetes.Interface, ns string, s api.PostgreSQLSpec) (*Options, error) {
@@ -46,16 +46,16 @@ func NewOptions(kubeClient kubernetes.Interface, ns string, s api.PostgreSQLSpec
 		url string
 	)
 
-	if s.ConnectionUrlSecret != "" {
-		sr, err := kubeClient.CoreV1().Secrets(ns).Get(s.ConnectionUrlSecret, metav1.GetOptions{})
+	if s.ConnectionURLSecret != "" {
+		sr, err := kubeClient.CoreV1().Secrets(ns).Get(s.ConnectionURLSecret, metav1.GetOptions{})
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to get connection url secret(%s)", s.ConnectionUrlSecret)
+			return nil, errors.Wrapf(err, "failed to get connection url secret(%s)", s.ConnectionURLSecret)
 		}
 
 		if value, ok := sr.Data["connection_url"]; ok {
 			url = string(value)
 		} else {
-			return nil, errors.Errorf("connection_url not found in secret(%s)", s.ConnectionUrlSecret)
+			return nil, errors.Errorf("connection_url not found in secret(%s)", s.ConnectionURLSecret)
 		}
 
 	}
@@ -74,8 +74,8 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 // GetGcsConfig creates postgresql storae config from GcsSpec
 func (o *Options) GetStorageConfig() (string, error) {
 	params := []string{}
-	if o.ConnectionUrlSecret != "" {
-		params = append(params, fmt.Sprintf(`connection_url = "%s"`, o.ConnectionUrl))
+	if o.ConnectionURLSecret != "" {
+		params = append(params, fmt.Sprintf(`connection_url = "%s"`, o.ConnectionURL))
 	}
 	if o.Table != "" {
 		params = append(params, fmt.Sprintf(`table = "%s"`, o.Table))

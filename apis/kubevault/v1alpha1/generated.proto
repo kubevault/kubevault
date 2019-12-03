@@ -132,7 +132,7 @@ message AwsKmsSsmSpec {
 // AzureKeyVault contain the fields that required to unseal vault using azure key vault
 message AzureKeyVault {
   // Azure key vault url, for example https://myvault.vault.azure.net
-  optional string vaultBaseUrl = 1;
+  optional string vaultBaseURL = 1;
 
   // The cloud environment identifier
   // default: "AZUREPUBLICCLOUD"
@@ -530,7 +530,7 @@ message PostgreSQLSpec {
   // A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters).
   // secret data:
   // 	- connection_url:<data>
-  optional string connectionUrlSecret = 1;
+  optional string connectionURLSecret = 1;
 
   // Specifies the name of the table in which to write Vault data.
   // This table must already exist (Vault will not attempt to create it).
@@ -588,7 +588,7 @@ message S3Spec {
 // SwiftSpec defines configuration to set up Swift Storage as backend storage in vault
 message SwiftSpec {
   // Specifies the OpenStack authentication endpoint.
-  optional string authUrl = 1;
+  optional string authURL = 1;
 
   // Specifies the name of the Swift container.
   optional string container = 2;
@@ -625,7 +625,7 @@ message SwiftSpec {
 
   // Specifies storage URL from alternate authentication.
   // +optional
-  optional string storageUrl = 10;
+  optional string storageURL = 10;
 
   // Specifies secret containing auth token from alternate authentication.
   // secret data:

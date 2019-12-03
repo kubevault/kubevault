@@ -58,8 +58,8 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	}
 
 	args = append(args, fmt.Sprintf("--mode=%s", ModeAzureKeyVault))
-	if o.VaultBaseUrl != "" {
-		args = append(args, fmt.Sprintf("--azure.vault-base-url=%s", o.VaultBaseUrl))
+	if o.VaultBaseURL != "" {
+		args = append(args, fmt.Sprintf("--azure.vault-base-url=%s", o.VaultBaseURL))
 	}
 	if o.TenantID != "" {
 		args = append(args, fmt.Sprintf("--azure.tenant-id=%s", o.TenantID))

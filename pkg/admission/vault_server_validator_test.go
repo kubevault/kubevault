@@ -586,14 +586,14 @@ func vaultServerWithEtcd() (api.VaultServer, []core.Secret) {
 
 func vaultServerWithPostgres() (api.VaultServer, []core.Secret) {
 	pg := &api.PostgreSQLSpec{
-		ConnectionUrlSecret: "pg-con",
+		ConnectionURLSecret: "pg-con",
 	}
 	v := vs
 	v.Spec.Backend = api.BackendStorageSpec{
 		PostgreSQL: pg,
 	}
 	extraSr := []core.Secret{
-		getSecret(pg.ConnectionUrlSecret, []string{
+		getSecret(pg.ConnectionURLSecret, []string{
 			"connection_url",
 		}),
 	}
