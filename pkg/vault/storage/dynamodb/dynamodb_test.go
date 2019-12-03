@@ -27,7 +27,7 @@ import (
 
 func TestOptions_GetStorageConfig(t *testing.T) {
 	opts, err := NewOptions(api.DynamoDBSpec{
-		EndPoint:      "endpoint",
+		Endpoint:      "endpoint",
 		HaEnabled:     true,
 		MaxParallel:   128,
 		Region:        "us",

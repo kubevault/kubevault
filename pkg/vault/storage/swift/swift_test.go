@@ -27,7 +27,7 @@ import (
 
 func TestOptions_GetStorageConfig(t *testing.T) {
 	opts, err := NewOptions(api.SwiftSpec{
-		AuthUrl:          "auth",
+		AuthURL:          "auth",
 		Container:        "vault",
 		Tenant:           "tenant",
 		CredentialSecret: "cred",
@@ -37,7 +37,7 @@ func TestOptions_GetStorageConfig(t *testing.T) {
 		Domain:           "hi.com",
 		ProjectDomain:    "p.com",
 		TrustID:          "1234",
-		StorageUrl:       "s.com",
+		StorageURL:       "s.com",
 		AuthTokenSecret:  "auth",
 	})
 	assert.Nil(t, err)

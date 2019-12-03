@@ -16994,7 +16994,7 @@
       "description": "AzureKeyVault contain the fields that required to unseal vault using azure key vault",
       "type": "object",
       "required": [
-        "vaultBaseUrl",
+        "vaultBaseURL",
         "tenantID"
       ],
       "properties": {
@@ -17018,7 +17018,7 @@
           "description": "Use managed service identity for the virtual machine",
           "type": "boolean"
         },
-        "vaultBaseUrl": {
+        "vaultBaseURL": {
           "description": "Azure key vault url, for example https://myvault.vault.azure.net",
           "type": "string"
         }
@@ -17062,7 +17062,7 @@
         "consul": {
           "$ref": "#/definitions/dev.kubevault.operator.apis.kubevault.v1alpha1.ConsulSpec"
         },
-        "dynamoDB": {
+        "dynamodb": {
           "$ref": "#/definitions/dev.kubevault.operator.apis.kubevault.v1alpha1.DynamoDBSpec"
         },
         "etcd": {
@@ -17078,10 +17078,10 @@
           "description": "ref: https://www.vaultproject.io/docs/configuration/storage/in-memory.html",
           "$ref": "#/definitions/dev.kubevault.operator.apis.kubevault.v1alpha1.InmemSpec"
         },
-        "mySQL": {
+        "mysql": {
           "$ref": "#/definitions/dev.kubevault.operator.apis.kubevault.v1alpha1.MySQLSpec"
         },
-        "postgreSQL": {
+        "postgresql": {
           "$ref": "#/definitions/dev.kubevault.operator.apis.kubevault.v1alpha1.PostgreSQLSpec"
         },
         "s3": {
@@ -17170,7 +17170,7 @@
           "description": "Specifies the secret name containing AWS access key and AWS secret key secret data:\n\t- access_key=\u003cvalue\u003e\n - secret_key=\u003cvalue\u003e",
           "type": "string"
         },
-        "endPoint": {
+        "endpoint": {
           "description": "Specifies an alternative, AWS compatible, DynamoDB endpoint.",
           "type": "string"
         },
@@ -17400,10 +17400,10 @@
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/postgresql.html\n\nPostgreSQLSpec defines configuration to set up PostgreSQL storage as backend storage in vault",
       "type": "object",
       "required": [
-        "connectionUrlSecret"
+        "connectionURLSecret"
       ],
       "properties": {
-        "connectionUrlSecret": {
+        "connectionURLSecret": {
           "description": "Specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL. A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters). secret data:\n\t- connection_url:\u003cdata\u003e",
           "type": "string"
         },
@@ -17437,9 +17437,13 @@
           "description": "Specifies if SSL should be used for the endpoint connection",
           "type": "boolean"
         },
-        "endPoint": {
+        "endpoint": {
           "description": "Specifies an alternative, AWS compatible, S3 endpoint.",
           "type": "string"
+        },
+        "forcePathStyle": {
+          "description": "Specifies whether to use host bucket style domains with the configured endpoint.",
+          "type": "boolean"
         },
         "maxParallel": {
           "description": "Specifies the maximum number of parallel operations to take place.",
@@ -17449,10 +17453,6 @@
         "region": {
           "description": "Specifies the AWS region",
           "type": "string"
-        },
-        "s3ForcePathStyle": {
-          "description": "Specifies whether to use host bucket style domains with the configured endpoint.",
-          "type": "boolean"
         },
         "sessionTokenSecret": {
           "description": "Specifies the secret name containing AWS session token secret data:\n\t- session_token:\u003cvalue\u003e",
@@ -17464,7 +17464,7 @@
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/swift.html\n\nSwiftSpec defines configuration to set up Swift Storage as backend storage in vault",
       "type": "object",
       "required": [
-        "authUrl",
+        "authURL",
         "container",
         "credentialSecret"
       ],
@@ -17473,7 +17473,7 @@
           "description": "Specifies secret containing auth token from alternate authentication. secret data:\n\t- auth_token=\u003cvalue\u003e",
           "type": "string"
         },
-        "authUrl": {
+        "authURL": {
           "description": "Specifies the OpenStack authentication endpoint.",
           "type": "string"
         },
@@ -17502,7 +17502,7 @@
           "description": "Specifies the name of the region.",
           "type": "string"
         },
-        "storageUrl": {
+        "storageURL": {
           "description": "Specifies storage URL from alternate authentication.",
           "type": "string"
         },
@@ -17684,14 +17684,14 @@
           "description": "Monitor is used monitor database instance",
           "$ref": "#/definitions/xyz.kmodules.monitoring-agent-api.api.v1.AgentSpec"
         },
-        "nodes": {
-          "description": "Number of nodes to deploy for a Vault deployment. Default: 1.",
-          "type": "integer",
-          "format": "int32"
-        },
         "podTemplate": {
           "description": "PodTemplate is an optional configuration for pods used to run vault",
           "$ref": "#/definitions/xyz.kmodules.offshoot-api.api.v1.PodTemplateSpec"
+        },
+        "replicas": {
+          "description": "Number of replicas to deploy for a Vault deployment. If unspecified, defaults to 1.",
+          "type": "integer",
+          "format": "int32"
         },
         "serviceTemplate": {
           "description": "ServiceTemplate is an optional configuration for service used to expose vault",

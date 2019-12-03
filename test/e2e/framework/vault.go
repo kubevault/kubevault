@@ -25,6 +25,7 @@ import (
 	"kubevault.dev/operator/apis/kubevault/v1alpha1"
 
 	"github.com/appscode/go/crypto/rand"
+	"github.com/appscode/go/types"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	apps "k8s.io/api/apps/v1"
@@ -55,8 +56,8 @@ func (f *Framework) DeployVaultServer() (*appcat.AppReference, error) {
 			Namespace: f.namespace,
 		},
 		Spec: v1alpha1.VaultServerSpec{
-			Nodes:   1,
-			Version: VaultServerVersion,
+			Replicas: types.Int32P(1),
+			Version:  VaultServerVersion,
 			Backend: v1alpha1.BackendStorageSpec{
 				Inmem: &v1alpha1.InmemSpec{},
 			},

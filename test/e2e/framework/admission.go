@@ -122,7 +122,7 @@ func (f *Framework) CleanAdmissionConfigs() {
 		fmt.Printf("error in deletion of Service. Error: %v", err)
 	}
 
-	// Delete EndPoints
+	// Delete Endpoints
 	if err := f.KubeClient.CoreV1().Endpoints("default").DeleteCollection(deleteInBackground(), metav1.ListOptions{
 		LabelSelector: "app=vault-operator",
 	}); err != nil && !kerr.IsNotFound(err) {

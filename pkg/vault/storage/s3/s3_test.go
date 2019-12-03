@@ -28,12 +28,12 @@ import (
 func TestOptions_GetStorageConfig(t *testing.T) {
 	opts, err := NewOptions(api.S3Spec{
 		Bucket:             "test",
-		EndPoint:           "endpoint",
+		Endpoint:           "endpoint",
 		Region:             "test-region",
 		CredentialSecret:   "credential",
 		SessionTokenSecret: "session",
 		MaxParallel:        128,
-		S3ForcePathStyle:   true,
+		ForcePathStyle:     true,
 		DisableSSL:         true,
 	})
 	assert.Nil(t, err)

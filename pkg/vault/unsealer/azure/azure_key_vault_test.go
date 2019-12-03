@@ -46,7 +46,7 @@ func TestOptions_Apply(t *testing.T) {
 	}
 
 	opts, err := NewOptions(api.AzureKeyVault{
-		VaultBaseUrl:       "vault.com",
+		VaultBaseURL:       "vault.com",
 		TenantID:           "1234",
 		Cloud:              "TEST",
 		UseManagedIdentity: true,

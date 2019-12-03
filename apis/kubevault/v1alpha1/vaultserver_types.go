@@ -39,7 +39,7 @@ const (
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:path=vaultservers,singular=vaultserver,shortName=vs,categories={vault,appscode,all}
 // +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="Nodes",type="string",JSONPath=".spec.nodes"
+// +kubebuilder:printcolumn:name="Replicas",type="string",JSONPath=".spec.replicas"
 // +kubebuilder:printcolumn:name="Version",type="string",JSONPath=".spec.version"
 // +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
@@ -51,10 +51,10 @@ type VaultServer struct {
 }
 
 type VaultServerSpec struct {
-	// Number of nodes to deploy for a Vault deployment.
-	// Default: 1.
+	// Number of replicas to deploy for a Vault deployment.
+	// If unspecified, defaults to 1.
 	// +optional
-	Nodes int32 `json:"nodes,omitempty" protobuf:"varint,1,opt,name=nodes"`
+	Replicas *int32 `json:"replicas,omitempty" protobuf:"varint,1,opt,name=replicas"`
 
 	// Version of Vault server to be deployed.
 	Version types.StrYo `json:"version" protobuf:"bytes,2,opt,name=version,casttype=github.com/appscode/go/encoding/json/types.StrYo"`
@@ -249,16 +249,16 @@ type BackendStorageSpec struct {
 	Azure *AzureSpec `json:"azure,omitempty" protobuf:"bytes,5,opt,name=azure"`
 
 	// +optional
-	PostgreSQL *PostgreSQLSpec `json:"postgreSQL,omitempty" protobuf:"bytes,6,opt,name=postgreSQL"`
+	PostgreSQL *PostgreSQLSpec `json:"postgresql,omitempty" protobuf:"bytes,6,opt,name=postgresql"`
 
 	// +optional
-	MySQL *MySQLSpec `json:"mySQL,omitempty" protobuf:"bytes,7,opt,name=mySQL"`
+	MySQL *MySQLSpec `json:"mysql,omitempty" protobuf:"bytes,7,opt,name=mysql"`
 
 	// +optional
 	File *FileSpec `json:"file,omitempty" protobuf:"bytes,8,opt,name=file"`
 
 	// +optional
-	DynamoDB *DynamoDBSpec `json:"dynamoDB,omitempty" protobuf:"bytes,9,opt,name=dynamoDB"`
+	DynamoDB *DynamoDBSpec `json:"dynamodb,omitempty" protobuf:"bytes,9,opt,name=dynamodb"`
 
 	// +optional
 	Swift *SwiftSpec `json:"swift,omitempty" protobuf:"bytes,10,opt,name=swift"`
@@ -445,7 +445,7 @@ type S3Spec struct {
 
 	// Specifies an alternative, AWS compatible, S3 endpoint.
 	// +optional
-	EndPoint string `json:"endPoint,omitempty" protobuf:"bytes,2,opt,name=endPoint"`
+	Endpoint string `json:"endpoint,omitempty" protobuf:"bytes,2,opt,name=endpoint"`
 
 	// Specifies the AWS region
 	// +optional
@@ -470,7 +470,7 @@ type S3Spec struct {
 
 	// Specifies whether to use host bucket style domains with the configured endpoint.
 	// +optional
-	S3ForcePathStyle bool `json:"s3ForcePathStyle,omitempty" protobuf:"varint,7,opt,name=s3ForcePathStyle"`
+	ForcePathStyle bool `json:"forcePathStyle,omitempty" protobuf:"varint,7,opt,name=forcePathStyle"`
 
 	// Specifies if SSL should be used for the endpoint connection
 	// +optional
@@ -505,7 +505,7 @@ type PostgreSQLSpec struct {
 	// A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters).
 	// secret data:
 	//	- connection_url:<data>
-	ConnectionUrlSecret string `json:"connectionUrlSecret" protobuf:"bytes,1,opt,name=connectionUrlSecret"`
+	ConnectionURLSecret string `json:"connectionURLSecret" protobuf:"bytes,1,opt,name=connectionURLSecret"`
 
 	// Specifies the name of the table in which to write Vault data.
 	// This table must already exist (Vault will not attempt to create it).
@@ -565,7 +565,7 @@ type FileSpec struct {
 type DynamoDBSpec struct {
 	// Specifies an alternative, AWS compatible, DynamoDB endpoint.
 	// +optional
-	EndPoint string `json:"endPoint,omitempty" protobuf:"bytes,1,opt,name=endPoint"`
+	Endpoint string `json:"endpoint,omitempty" protobuf:"bytes,1,opt,name=endpoint"`
 
 	// Specifies the AWS region
 	// +optional
@@ -612,7 +612,7 @@ type DynamoDBSpec struct {
 // SwiftSpec defines configuration to set up Swift Storage as backend storage in vault
 type SwiftSpec struct {
 	// Specifies the OpenStack authentication endpoint.
-	AuthUrl string `json:"authUrl" protobuf:"bytes,1,opt,name=authUrl"`
+	AuthURL string `json:"authURL" protobuf:"bytes,1,opt,name=authURL"`
 
 	// Specifies the name of the Swift container.
 	Container string `json:"container" protobuf:"bytes,2,opt,name=container"`
@@ -649,7 +649,7 @@ type SwiftSpec struct {
 
 	// Specifies storage URL from alternate authentication.
 	// +optional
-	StorageUrl string `json:"storageUrl,omitempty" protobuf:"bytes,10,opt,name=storageUrl"`
+	StorageURL string `json:"storageURL,omitempty" protobuf:"bytes,10,opt,name=storageURL"`
 
 	// Specifies secret containing auth token from alternate authentication.
 	// secret data:
@@ -760,7 +760,7 @@ type AwsKmsSsmSpec struct {
 // AzureKeyVault contain the fields that required to unseal vault using azure key vault
 type AzureKeyVault struct {
 	// Azure key vault url, for example https://myvault.vault.azure.net
-	VaultBaseUrl string `json:"vaultBaseUrl" protobuf:"bytes,1,opt,name=vaultBaseUrl"`
+	VaultBaseURL string `json:"vaultBaseURL" protobuf:"bytes,1,opt,name=vaultBaseURL"`
 
 	// The cloud environment identifier
 	// default: "AZUREPUBLICCLOUD"

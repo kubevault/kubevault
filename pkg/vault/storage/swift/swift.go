@@ -90,8 +90,8 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 //  GetStorageConfig creates swift storage config from SwiftSpec
 func (o *Options) GetStorageConfig() (string, error) {
 	params := []string{}
-	if o.AuthUrl != "" {
-		params = append(params, fmt.Sprintf(`auth_url = "%s"`, o.AuthUrl))
+	if o.AuthURL != "" {
+		params = append(params, fmt.Sprintf(`auth_url = "%s"`, o.AuthURL))
 	}
 	if o.Container != "" {
 		params = append(params, fmt.Sprintf(`container = "%s"`, o.Container))
@@ -117,8 +117,8 @@ func (o *Options) GetStorageConfig() (string, error) {
 	if o.TrustID != "" {
 		params = append(params, fmt.Sprintf(`trust_id = "%s"`, o.TrustID))
 	}
-	if o.StorageUrl != "" {
-		params = append(params, fmt.Sprintf(`storage_url = "%s"`, o.StorageUrl))
+	if o.StorageURL != "" {
+		params = append(params, fmt.Sprintf(`storage_url = "%s"`, o.StorageURL))
 	}
 
 	storageCfg := fmt.Sprintf(swiftStorageFmt, strings.Join(params, "\n"))

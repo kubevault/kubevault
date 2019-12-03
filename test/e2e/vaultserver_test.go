@@ -132,7 +132,7 @@ var _ = Describe("VaultServer", func() {
 			Eventually(func() bool {
 				d, err := f.KubeClient.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
 				if err == nil {
-					return *d.Spec.Replicas == vs.Spec.Nodes
+					return *d.Spec.Replicas == *vs.Spec.Replicas
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("deployment (%s/%s) replicas should be equal to v.spec.nodes", namespace, name))
@@ -197,7 +197,7 @@ var _ = Describe("VaultServer", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			By("Updating replica number")
-			vs.Spec.Nodes = replicas
+			vs.Spec.Replicas = &replicas
 			vs, err = f.UpdateVaultServer(vs)
 			Expect(err).NotTo(HaveOccurred())
 
@@ -205,7 +205,7 @@ var _ = Describe("VaultServer", func() {
 			By("Getting update vault server")
 			vs, err = f.GetVaultServer(vs)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(vs.Spec.Nodes == replicas).To(BeTrue(), "should match replicas")
+			Expect(*vs.Spec.Replicas == replicas).To(BeTrue(), "should match replicas")
 
 			checkForVaultDeploymentCreatedOrUpdated(vs.Name, vs.Namespace, vs)
 		}
@@ -215,7 +215,7 @@ var _ = Describe("VaultServer", func() {
 			Eventually(func() bool {
 				v, err := f.CSClient.KubevaultV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
 				if err == nil {
-					if len(v.Status.VaultStatus.Unsealed) == int(vs.Spec.Nodes) {
+					if len(v.Status.VaultStatus.Unsealed) == int(*vs.Spec.Replicas) {
 						By(fmt.Sprintf("Unseal-pods: %v", v.Status.VaultStatus.Unsealed))
 						return true
 					}
@@ -504,7 +504,7 @@ var _ = Describe("VaultServer", func() {
 					if kerr.IsNotFound(err) {
 						return false
 					} else {
-						return len(pods.Items) == int(vs.Spec.Nodes)
+						return len(pods.Items) == int(*vs.Spec.Replicas)
 					}
 				}, timeOut, pollingInterval).Should(BeTrue(), "number of pods should be equal to v.spce.nodes")
 
@@ -519,7 +519,7 @@ var _ = Describe("VaultServer", func() {
 					if kerr.IsNotFound(err) {
 						return false
 					} else {
-						return len(pods.Items) == int(vs.Spec.Nodes)
+						return len(pods.Items) == int(*vs.Spec.Replicas)
 					}
 				}, timeOut, pollingInterval).Should(BeTrue(), "number of pods should be equal to v.spce.nodes")
 			})
@@ -650,21 +650,21 @@ var _ = Describe("VaultServer", func() {
 			var (
 				username  = os.Getenv("OS_USERNAME")
 				password  = os.Getenv("OS_PASSWORD")
-				authUrl   = os.Getenv("OS_AUTH_URL")
+				authURL   = os.Getenv("OS_AUTH_URL")
 				region    = os.Getenv("OS_REGION_NAME")
 				tenant    = os.Getenv("OS_TENANT_NAME")
 				container = "vault-test"
 			)
 
 			BeforeEach(func() {
-				if username == "" || password == "" || authUrl == "" || region == "" || tenant == "" {
+				if username == "" || password == "" || authURL == "" || region == "" || tenant == "" {
 					Skip("OS_USERNAME or OS_PASSWORD or OS_AUTH_URL or OS_REGION_NAME or OS_TENANT_NAME  are not provided")
 				}
 
 				cleaner := swift.Connection{
 					UserName:  username,
 					ApiKey:    password,
-					AuthUrl:   authUrl,
+					AuthUrl:   authURL,
 					Tenant:    tenant,
 					Region:    region,
 					Transport: cleanhttp.DefaultPooledTransport(),
@@ -694,7 +694,7 @@ var _ = Describe("VaultServer", func() {
 
 				swift := api.BackendStorageSpec{
 					Swift: &api.SwiftSpec{
-						AuthUrl:          authUrl,
+						AuthURL:          authURL,
 						Container:        container,
 						CredentialSecret: swiftCredSecret,
 						Region:           region,
@@ -907,7 +907,7 @@ var _ = Describe("VaultServer", func() {
 					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						AzureKeyVault: &api.AzureKeyVault{
-							VaultBaseUrl:    "https://vault-test-1204.vault.azure.net/",
+							VaultBaseURL:    "https://vault-test-1204.vault.azure.net/",
 							TenantID:        tenantID,
 							AADClientSecret: azureCredSecret,
 						},
@@ -943,7 +943,7 @@ var _ = Describe("VaultServer", func() {
 
 			const (
 				k8sSecretName       = "k8s-postgres-vault-keys"
-				connectionUrlSecret = "postgresql-conn-url"
+				connectionURLSecret = "postgresql-conn-url"
 			)
 			BeforeEach(func() {
 				url, err := f.DeployPostgresSQL()
@@ -951,7 +951,7 @@ var _ = Describe("VaultServer", func() {
 
 				sr := core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      connectionUrlSecret,
+						Name:      connectionURLSecret,
 						Namespace: f.Namespace(),
 					},
 					Data: map[string][]byte{
@@ -963,7 +963,7 @@ var _ = Describe("VaultServer", func() {
 
 				postgres := api.BackendStorageSpec{
 					PostgreSQL: &api.PostgreSQLSpec{
-						ConnectionUrlSecret: connectionUrlSecret,
+						ConnectionURLSecret: connectionURLSecret,
 					},
 				}
 
@@ -987,8 +987,8 @@ var _ = Describe("VaultServer", func() {
 				Expect(f.DeleteSecret(k8sSecretName, vs.Namespace)).NotTo(HaveOccurred())
 				checkForSecretDeleted(k8sSecretName, vs.Namespace)
 
-				Expect(f.DeleteSecret(connectionUrlSecret, vs.Namespace)).NotTo(HaveOccurred())
-				checkForSecretDeleted(connectionUrlSecret, vs.Namespace)
+				Expect(f.DeleteSecret(connectionURLSecret, vs.Namespace)).NotTo(HaveOccurred())
+				checkForSecretDeleted(connectionURLSecret, vs.Namespace)
 
 				Expect(f.DeleteVaultServer(vs.ObjectMeta)).NotTo(HaveOccurred())
 				checkForVaultServerCleanup(vs)

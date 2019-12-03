@@ -45,7 +45,7 @@ func TestOptions_GetStorageConfig(t *testing.T) {
 		return
 	}
 	opts, err := NewOptions(kClient, ns, api.PostgreSQLSpec{
-		ConnectionUrlSecret: "url",
+		ConnectionURLSecret: "url",
 		Table:               "table",
 		MaxParallel:         128,
 	})

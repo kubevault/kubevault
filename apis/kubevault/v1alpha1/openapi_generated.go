@@ -17149,7 +17149,7 @@ func schema_operator_apis_kubevault_v1alpha1_AzureKeyVault(ref common.ReferenceC
 				Description: "AzureKeyVault contain the fields that required to unseal vault using azure key vault",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"vaultBaseUrl": {
+					"vaultBaseURL": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Azure key vault url, for example https://myvault.vault.azure.net",
 							Type:        []string{"string"},
@@ -17192,7 +17192,7 @@ func schema_operator_apis_kubevault_v1alpha1_AzureKeyVault(ref common.ReferenceC
 						},
 					},
 				},
-				Required: []string{"vaultBaseUrl", "tenantID"},
+				Required: []string{"vaultBaseURL", "tenantID"},
 			},
 		},
 	}
@@ -17273,12 +17273,12 @@ func schema_operator_apis_kubevault_v1alpha1_BackendStorageSpec(ref common.Refer
 							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.AzureSpec"),
 						},
 					},
-					"postgreSQL": {
+					"postgresql": {
 						SchemaProps: spec.SchemaProps{
 							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.PostgreSQLSpec"),
 						},
 					},
-					"mySQL": {
+					"mysql": {
 						SchemaProps: spec.SchemaProps{
 							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.MySQLSpec"),
 						},
@@ -17288,7 +17288,7 @@ func schema_operator_apis_kubevault_v1alpha1_BackendStorageSpec(ref common.Refer
 							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.FileSpec"),
 						},
 					},
-					"dynamoDB": {
+					"dynamodb": {
 						SchemaProps: spec.SchemaProps{
 							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.DynamoDBSpec"),
 						},
@@ -17443,7 +17443,7 @@ func schema_operator_apis_kubevault_v1alpha1_DynamoDBSpec(ref common.ReferenceCa
 				Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/dynamodb.html\n\nDynamoDBSpec defines configuration to set up DynamoDB Storage as backend storage in vault",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"endPoint": {
+					"endpoint": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies an alternative, AWS compatible, DynamoDB endpoint.",
 							Type:        []string{"string"},
@@ -17837,7 +17837,7 @@ func schema_operator_apis_kubevault_v1alpha1_PostgreSQLSpec(ref common.Reference
 				Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/postgresql.html\n\nPostgreSQLSpec defines configuration to set up PostgreSQL storage as backend storage in vault",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"connectionUrlSecret": {
+					"connectionURLSecret": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL. A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters). secret data:\n\t- connection_url:<data>",
 							Type:        []string{"string"},
@@ -17859,7 +17859,7 @@ func schema_operator_apis_kubevault_v1alpha1_PostgreSQLSpec(ref common.Reference
 						},
 					},
 				},
-				Required: []string{"connectionUrlSecret"},
+				Required: []string{"connectionURLSecret"},
 			},
 		},
 	}
@@ -17879,7 +17879,7 @@ func schema_operator_apis_kubevault_v1alpha1_S3Spec(ref common.ReferenceCallback
 							Format:      "",
 						},
 					},
-					"endPoint": {
+					"endpoint": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies an alternative, AWS compatible, S3 endpoint.",
 							Type:        []string{"string"},
@@ -17914,7 +17914,7 @@ func schema_operator_apis_kubevault_v1alpha1_S3Spec(ref common.ReferenceCallback
 							Format:      "int64",
 						},
 					},
-					"s3ForcePathStyle": {
+					"forcePathStyle": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies whether to use host bucket style domains with the configured endpoint.",
 							Type:        []string{"boolean"},
@@ -17942,7 +17942,7 @@ func schema_operator_apis_kubevault_v1alpha1_SwiftSpec(ref common.ReferenceCallb
 				Description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/swift.html\n\nSwiftSpec defines configuration to set up Swift Storage as backend storage in vault",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"authUrl": {
+					"authURL": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the OpenStack authentication endpoint.",
 							Type:        []string{"string"},
@@ -18005,7 +18005,7 @@ func schema_operator_apis_kubevault_v1alpha1_SwiftSpec(ref common.ReferenceCallb
 							Format:      "",
 						},
 					},
-					"storageUrl": {
+					"storageURL": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies storage URL from alternate authentication.",
 							Type:        []string{"string"},
@@ -18027,7 +18027,7 @@ func schema_operator_apis_kubevault_v1alpha1_SwiftSpec(ref common.ReferenceCallb
 						},
 					},
 				},
-				Required: []string{"authUrl", "container", "credentialSecret"},
+				Required: []string{"authURL", "container", "credentialSecret"},
 			},
 		},
 	}
@@ -18252,9 +18252,9 @@ func schema_operator_apis_kubevault_v1alpha1_VaultServerSpec(ref common.Referenc
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"nodes": {
+					"replicas": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Number of nodes to deploy for a Vault deployment. Default: 1.",
+							Description: "Number of replicas to deploy for a Vault deployment. If unspecified, defaults to 1.",
 							Type:        []string{"integer"},
 							Format:      "int32",
 						},

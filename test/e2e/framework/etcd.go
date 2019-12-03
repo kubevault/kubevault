@@ -61,8 +61,8 @@ func (f *Framework) DeployEtcd() (string, error) {
 		},
 	}
 
-	clientUrl := fmt.Sprintf("http://%s.%s.svc:2379", etcdServiceName, f.namespace)
-	peerUrl := fmt.Sprintf("http://%s.%s.svc:2380", etcdServiceName, f.namespace)
+	clientURL := fmt.Sprintf("http://%s.%s.svc:2379", etcdServiceName, f.namespace)
+	peerURL := fmt.Sprintf("http://%s.%s.svc:2380", etcdServiceName, f.namespace)
 
 	etcdCont := core.Container{
 		Name:  "etcd",
@@ -75,9 +75,9 @@ func (f *Framework) DeployEtcd() (string, error) {
 			"--listen-client-urls=http://0.0.0.0:2379",
 			"--initial-cluster-state=new",
 			"--initial-cluster-token=12345",
-			fmt.Sprintf("--initial-advertise-peer-urls=%s", peerUrl),
-			fmt.Sprintf("--advertise-client-urls=%s", clientUrl),
-			fmt.Sprintf("--initial-cluster=$(MY_POD_NAME)=%s", peerUrl),
+			fmt.Sprintf("--initial-advertise-peer-urls=%s", peerURL),
+			fmt.Sprintf("--advertise-client-urls=%s", clientURL),
+			fmt.Sprintf("--initial-cluster=$(MY_POD_NAME)=%s", peerURL),
 		},
 		Env: []core.EnvVar{
 			{

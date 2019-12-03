@@ -33,7 +33,7 @@ const (
 	vaultVersion = "test-v1.2.0"
 )
 
-func (f *Invocation) VaultServer(node int32, bs api.BackendStorageSpec) *api.VaultServer {
+func (f *Invocation) VaultServer(replicas int32, bs api.BackendStorageSpec) *api.VaultServer {
 	return &api.VaultServer{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      rand.WithUniqSuffix("vault-test"),
@@ -43,15 +43,15 @@ func (f *Invocation) VaultServer(node int32, bs api.BackendStorageSpec) *api.Vau
 			},
 		},
 		Spec: api.VaultServerSpec{
-			Nodes:   node,
-			Version: vaultVersion,
-			Backend: bs,
+			Replicas: &replicas,
+			Version:  vaultVersion,
+			Backend:  bs,
 		},
 	}
 }
 
-func (f *Invocation) VaultServerWithUnsealer(node int32, bs api.BackendStorageSpec, us api.UnsealerSpec) *api.VaultServer {
-	vs := f.VaultServer(node, bs)
+func (f *Invocation) VaultServerWithUnsealer(replicas int32, bs api.BackendStorageSpec, us api.UnsealerSpec) *api.VaultServer {
+	vs := f.VaultServer(replicas, bs)
 	vs.Spec.Unsealer = &us
 	return vs
 }

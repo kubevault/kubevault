@@ -26,6 +26,7 @@ import (
 	"kubevault.dev/operator/pkg/controller"
 	"kubevault.dev/operator/pkg/eventer"
 
+	"github.com/appscode/go/types"
 	admission "k8s.io/api/admission/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -207,8 +208,8 @@ func (c completedConfig) New() (*VaultServer, error) {
 							Namespace: "default",
 						},
 						Spec: api.VaultServerSpec{
-							Nodes:   1,
-							Version: "0.11.1",
+							Replicas: types.Int32P(1),
+							Version:  "0.11.1",
 						},
 					}, context.StopCh)
 					if err := xray.IsActive(); err != nil {
