@@ -79,7 +79,7 @@ AWSAccessKeyRequest spec has the following fields:
 
 #### spec.roleRef
 
-`spec.roleRef` is a `required` field that specifies the [AWSRole](/docs/concepts/secret-engine-crds/aws-secret-engine/awsrole.md) against which credential will be issued.
+`spec.roleRef` is a `required` field that specifies the [AWSRole](/docs/concepts/secret-engine-crds/aws-secret-engine/awsrole.md) against which credentials will be issued.
 
 It has the following fields:
 

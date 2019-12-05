@@ -1,5 +1,5 @@
 ---
-title: Manage PostgreSQL credentials using the Vault Operator
+title: Manage PostgreSQL credentials using the KubeVault operator
 menu:
   docs_{{ .version }}:
     identifier: overview-postgres
@@ -12,22 +12,22 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Manage PostgreSQL credentials using the Vault Operator
+# Manage PostgreSQL Credentials Using the KubeVault Operator
 
-You can easily manage [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html) using Vault operator.
+PostgreSQL is one of the supported plugins for the database secrets engine. This plugin generates database credentials dynamically based on configured roles for the PostgreSQL database, and also supports Static Roles. You can easily manage [PostgreSQL Database secret engine](https://www.vaultproject.io/docs/secrets/databases/postgresql.html) using the KubeVault operator.
 
-You should be familiar with the following CRD:
+![PostgreSQL secret engine](/docs/images/guides/secret-engines/postgresql/postgres_secret_engine_guide.svg)
 
-- [PostgresRole](/docs/concepts/database-crds/postgresrole.md)
-- [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md)
+You need to be familiar with the following CRDs:
+
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
+- [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
+- [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md)
+- [DatabaseAccessRequest](/docs/concepts/secret-engine-crds/database-secret-engine/databaseaccessrequest.md)
 
-Before you begin:
+## Before you begin
 
-- Install Vault operator in your cluster following the steps [here](/docs/setup/operator/install).
-
-- Deploy Vault. It could be in the Kubernetes cluster or external.
-
+- Install KubeVault operator in your cluster from [here](/docs/setup/operator/install.md).
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -36,76 +36,85 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-In this tutorial, we will create [role](https://www.vaultproject.io/api/secret/databases/index.html#create-role) using PostgresRole and issue credential using DatabaseAccessRequest. For this tutorial, we are going to deploy Vault using Vault operator.
+In this tutorial, we are going to create a [role](https://www.vaultproject.io/api/secret/databases/postgresql.html#statements) using PostgresRole and issue credential using DatabaseAccessRequest.
+
+## Vault Server
+
+If you don't have a Vault Server, you can deploy it by using the KubeVault operator.
+
+- [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
+
+The KubeVault operator can manage policies and secret engines of Vault servers which are not provisioned by the KubeVault operator. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
+
+- [Configure cluster and Vault server](/docs/guides/vault-server/external-vault-sever.md#configuration)
+
+Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server.
 
 ```console
-$ cat examples/guides/secret-engins/postgres/vault.yaml
-apiVersion: kubevault.com/v1alpha1
-kind: VaultServer
+$ kubectl get appbinding -n demo
+NAME    AGE
+vault   50m
+
+$ kubectl get appbinding -n demo vault -o yaml
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
 metadata:
   name: vault
   namespace: demo
 spec:
-  replicas: 1
-  version: "1.0.0"
-  backend:
-    inmem: {}
-  unsealer:
-    secretShares: 4
-    secretThreshold: 2
-    mode:
-      kubernetesSecret:
-        secretName: vault-keys
-
-$ kubectl get vaultserverversions/1.0.0 -o yaml
-apiVersion: catalog.kubevault.com/v1alpha1
-kind: VaultServerVersion
-metadata:
-  name: 1.0.0
-spec:
-  exporter:
-    image: kubevault/vault-exporter:0.1.0
-  unsealer:
-    image: kubevault/vault-unsealer:0.2.0
-  vault:
-    image: vault:1.0.0
-  version: 1.0.0
-
-$ kubectl apply -f examples/guides/secret-engins/postgres/vault.yaml
-vaultserver.kubevault.com/vault created
-
-$ kubectl get vaultserver/vault -n demo
-NAME      NODES     VERSION   STATUS    AGE
-vault     1         1.0.0     Running   1h
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: vault
+      port: 8200
+      scheme: HTTPS
+  parameters:
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
+    path: kubernetes
+    policyControllerRole: vault-policy-controller
+    serviceAccountName: vault
+    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+    usePodServiceAccountForCsiDriver: true
 ```
 
-## PostgresRole
+## Enable and Configure PostgreSQL Secret Engine
 
-Using [PostgresRole](/docs/concepts/database-crds/postgresrole.md), you can configure [connection](https://www.vaultproject.io/api/secret/databases/postgresql.html#configure-connection) and create [role](https://www.vaultproject.io/api/secret/databases/index.html#create-role). In this tutorial, we are going to create `demo-role` in `demo` namespace.
+When a [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md) crd object is created, the KubeVault operator will enable a secret engine on specified path and configure the secret engine with given configurations.
+
+A sample SecretEngine object for the PostgreSQL  secret engine:
 
 ```yaml
-apiVersion: authorization.kubedb.com/v1alpha1
-kind: PostgresRole
+apiVersion: engine.kubevault.com/v1alpha1
+kind: SecretEngine
 metadata:
-  name: demo-role
+  name: postgresql-engine
   namespace: demo
 spec:
-  creationStatements:
-    - "CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';"
-    - "GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";"
-  defaultTTL: 1h
-  maxTTL: 24h
-  databaseRef:
-    name: postgres-app
-  authManagerRef:
-    namespace: demo
-    name: vault-app
+  vaultRef:
+    name: vault
+  path: my-postgres-se
+  postgres:
+    databaseRef:
+      name: postgres-app
+      namespace: demo
+    pluginName: postgresql-database-plugin
+    allowedRoles:
+      - "*"
 ```
 
-Here, `spec.databaseRef` is the reference of AppBinding containing Postgres database connection and credential information.
+To configure the PostgreSQL secret engine, you need to provide the PostgreSQL database connection and authentication information through an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md).
+
+```console
+$ kubectl get services -n demo
+NAME       TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)     AGE
+postgres   ClusterIP   10.97.24.153     <none>        5432/TCP    86m
+```
+
+Let's consider `postgres` is the Kubernetes service name that communicate with postgres servers. You can also connect to the database server using `URL`. Visit [AppBinding documentation](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) for more details. A sample AppBinding example with necessary k8s secret is given below:
 
 ```yaml
-$ cat examples/guides/secret-engins/postgres/postgres-app.yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
@@ -122,230 +131,196 @@ spec:
       path: "postgres"
       query: "sslmode=disable"
     insecureSkipTLSVerify: true
-  parameters:
-    allowedRoles: "*" # names of the allowed roles to use this connection config in Vault, ref: https://www.vaultproject.io/api/secret/databases/index.html#allowed_roles
-
-$ kubectl apply -f examples/guides/secret-engins/postgres/postgres-app.yaml
-appbinding.appcatalog.appscode.com/postgres-app created
+---
+apiVersion: v1
+data:
+  username: cG9zdGdyZXM=
+  password: cm9vdA==
+kind: Secret
+metadata:
+  name: postgres-user-cred
+  namespace: demo
 ```
 
-`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview) for Vault authentication using AppBinding in Vault operator.
+Let's deploy SecretEngine:
+
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/postgres/postgres-app.yaml
+appbinding.appcatalog.appscode.com/postgres-app created
+secret/postgres-user-cred created
+
+$ kubectl apply -f docs/examples/guides/secret-engines/postgres/postgresSecretEngine.yaml
+secretengine.engine.kubevault.com/postgresql-engine created
+
+```
+
+Wait till the status become `Success`:
+
+```console
+$ kubectl get secretengines -n demo
+NAME                STATUS
+postgresql-engine   Success
+```
+
+Since the status is `Success`, the PostgreSQL secret engine is enabled and successfully configured. You can use `kubectl describe secretengine -n <namepsace> <name>` to check for error events, if any.
+
+## Create PostgreSQL Database Role
+
+By using [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md), you can create a [role](https://www.vaultproject.io/api/secret/databases/postgresql.html#statements) on the Vault server in Kubernetes native way.
+
+A sample PostgresRole object is given below:
 
 ```yaml
-$ cat examples/guides/secret-engins/postgres/vault-app.yaml
-apiVersion: appcatalog.appscode.com/v1alpha1
-kind: AppBinding
-metadata:
-  name: vault-app
-  namespace: demo
-spec:
-  clientConfig:
-    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9ERXlNamN3TkRVNU1qVmFGdzB5T0RFeU1qUXdORFU1TWpWYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBMVhid2wyQ1NNc2VQTU5RRzhMd3dUVWVOCkI1T05oSTlDNzFtdUoyZEZjTTlUc1VDQnlRRk1weUc5dWFvV3J1ZDhtSWpwMVl3MmVIUW5udmoybXRmWGcrWFcKSThCYkJUaUFKMWxMMFE5MlV0a1BLczlXWEt6dTN0SjJUR1hRRDhhbHZhZ0JrR1ViOFJYaUNqK2pnc1p6TDRvQQpNRWszSU9jS0xnMm9ldFZNQ0hwNktpWTBnQkZiUWdJZ1A1TnFwbksrbU02ZTc1ZW5hWEdBK2V1d09FT0YwV0Z2CmxGQmgzSEY5QlBGdTJKbkZQUlpHVDJKajBRR1FNeUxodEY5Tk1pZTdkQnhiTWhRVitvUXp2d1EvaXk1Q2pndXQKeDc3d29HQ2JtM0o4cXRybUg2Tjl6Tlc3WlR0YTdLd05PTmFoSUFEMSsrQm5rc3JvYi9BYWRKT0tMN2dLYndJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFXeWFsdUt3Wk1COWtZOEU5WkdJcHJkZFQyZnFTd0lEOUQzVjN5anBlaDVCOUZHN1UKSS8wNmpuRVcyaWpESXNHNkFDZzJKOXdyaSttZ2VIa2Y2WFFNWjFwZHRWeDZLVWplWTVnZStzcGdCRTEyR2NPdwpxMUhJb0NrekVBMk5HOGRNRGM4dkQ5WHBQWGwxdW5veWN4Y0VMeFVRSC9PRlc4eHJxNU9vcXVYUkxMMnlKcXNGCmlvM2lJV3EvU09Yajc4MVp6MW5BV1JSNCtSYW1KWjlOcUNjb1Z3b3R6VzI1UWJKWWJ3QzJOSkNENEFwOUtXUjUKU2w2blk3NVMybEdSRENsQkNnN2VRdzcwU25seW5mb3RaTUpKdmFzbStrOWR3U0xtSDh2RDNMMGNGOW5SOENTSgpiTjBiZzczeVlWRHgyY3JRYk0zcko4dUJnY3BsWlRpUy91SXJ2QT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
-    service:
-      name: vault
-      port: 8200
-      scheme: HTTPS
-  parameters:
-    serviceAccountName: demo-sa
-    policyControllerRole: postgres-role
-    authPath: kubernetes
-
-$ kubectl apply -f examples/guides/secret-engins/postgres/vault-app.yaml
-appbinding.appcatalog.appscode.com/postgres-app created
-```
-
-You need to create `demo-sa` serviceaccount by running following command:
-
-```console
-$ kubectl create serviceaccount -n demo demo-sa
-serviceaccount/demo-sa created
-```
-
-`demo-sa` serviceaccount in the above AppBinding need to have the policy with following capabilities in Vault.
-
-```hcl
-path "sys/mounts" {
-  capabilities = ["read", "list"]
-}
-
-path "sys/mounts/*" {
-  capabilities = ["create", "read", "update", "delete"]
-}
-
-path "database/config/*" {
-	capabilities = ["create", "read", "update", "delete"]
-}
-
-path "database/roles/*" {
-	capabilities = ["create", "update", "read", "delete"]
-}
-
-path "database/creds/*" {
-    capabilities = ["read"]
-}
-
-path "sys/leases/revoke/*" {
-    capabilities = ["update"]
-}
-```
-
-You can manage policy in Vault using Vault operator, see [here](/docs/guides/policy-management/policy-management).
-
-To create policy with above capabilities run following command
-
-```console
-$ kubectl apply -f examples/guides/secret-engins/postgres/policy.yaml
-vaultpolicy.policy.kubevault.com/postgres-role-policy created
-vaultpolicybinding.policy.kubevault.com/postgres-role created
-```
-
-Now, we are going to create `demo-role`.
-
-```console
-$ cat examples/guides/secret-engins/postgres/demo-role.yaml
-apiVersion: authorization.kubedb.com/v1alpha1
+apiVersion: engine.kubevault.com/v1alpha1
 kind: PostgresRole
 metadata:
-  name: demo-role
+  name: psql-role
   namespace: demo
 spec:
+  vaultRef:
+    name: vault
+  path: my-postgres-se
+  databaseRef:
+    name: postgres-app
+    namespace: demo
   creationStatements:
     - "CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';"
     - "GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";"
   defaultTTL: 1h
   maxTTL: 24h
-  authManagerRef:
-    namespace: demo
-    name: vault-app
-  databaseRef:
-    name: postgres-app
-
-$ kubectl apply -f examples/guides/secret-engins/postgres/demo-role.yaml
-postgresrole.authorization.kubedb.com/demo-role created
 ```
 
-Check whether PostgresRole is successful.
+Let's deploy PostgresRole:
 
 ```console
-$ kubectl get  postgresroles/demo-role -n demo -o json | jq '.status'
-{
-  "observedGeneration": "1$6208915667192219204",
-  "phase": "Success"
-}
+$ kubectl apply -f docs/examples/guides/secret-engines/postgres/postgresRole.yaml
+postgresrole.engine.kubevault.com/psql-role created
+
+$ kubectl get postgresrole -n demo
+NAME        AGE
+psql-role   12s
 ```
 
-To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{spec.clusterName or -}.{spec.namespace}.{spec.name}`.
+You can also check from Vault that the role is created.
+To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`.
+
+> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
 ```console
-$ vault list database/roles
+$ vault list my-postgres-se/roles
 Keys
 ----
-k8s.-.demo.demo-role
+k8s.-.demo.psql-role
 
-$ vault read database/roles/k8s.-.demo.demo-role
+$ vault read my-postgres-se/roles/k8s.-.demo.psql-role
 Key                      Value
 ---                      -----
 creation_statements      [CREATE ROLE "{{name}}" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; GRANT SELECT ON ALL TABLES IN SCHEMA public TO "{{name}}";]
-db_name                  postgres-app
+db_name                  k8s.-.demo.postgres-app
 default_ttl              1h
 max_ttl                  24h
-renew_statements         <nil>
-revocation_statements    <nil>
-rollback_statements      <nil>
-
+renew_statements         []
+revocation_statements    []
+rollback_statements      []
 ```
 
-If we delete PostgresRole, then respective role will be deleted from Vault.
+If we delete the PostgresRole, then the respective role will be deleted from the Vault.
 
 ```console
-$ kubectl delete postgresroles/demo-role -n demo
-postgresrole.authorization.kubedb.com "demo-role" deleted
-
-# check in vault whether role exists
-$ vault read database/roles/k8s.-.demo.demo-role
-Error reading database/roles/k8s.-.demo.demo-role: Error making API request.
-
-URL: GET https://127.0.0.1:8200/v1/database/roles/k8s.-.demo.demo-role
-Code: 400. Errors:
-
-* Role 'k8s.-.demo.demo-role' not found
-
-$ vault list database/roles
-No value found at database/roles/
+$ kubectl delete postgresrole -n demo psql-role
+postgresrole.engine.kubevault.com "psql-role" deleted
 ```
 
-## DatabaseAccessRequest
+Check from Vault whether the role exists:
 
-Using [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md), you can issue Postgres credential from Vault. In this tutorial, we are going to issue Postgres credential by creating `demo-cred` DatabaseAccessRequest in `demo` namespace.
+```console
+$ vault read my-postgres-se/roles/k8s.-.demo.psql-role
+No value found at my-postgres-se/roles/k8s.-.demo.psql-role
+
+$ vault list my-postgres-se/roles
+No value found at my-postgres-se/roles/
+```
+
+## Generate PostgreSQL Database Credentials
+
+By using [DatabaseAccessRequest](/docs/concepts/secret-engine-crds/database-secret-engine/databaseaccessrequest.md), you can generate database access credentials from Vault.
+
+Here, we are going to make a request to Vault for PostgreSQL database credentials by creating `postgres-cred-rqst` DatabaseAccessRequest in `demo` namespace.
 
 ```yaml
-apiVersion: authorization.kubedb.com/v1alpha1
+apiVersion: engine.kubevault.com/v1alpha1
 kind: DatabaseAccessRequest
 metadata:
-  name: demo-cred
+  name: postgres-cred-rqst
   namespace: demo
 spec:
   roleRef:
     kind: PostgresRole
-    name: demo-role
+    name: psql-role
     namespace: demo
   subjects:
-    - kind: User
-      name: nahid
-      apiGroup: rbac.authorization.k8s.io
+    - kind: ServiceAccount
+      name: demo-sa
+      namespace: demo
 ```
 
-Here, `spec.roleRef` is the reference of PostgresRole against which credential will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret. Also, Vault operator will use AppBinding reference from PostgresRole which is specified in `spec.roleRef`.
+Here, `spec.roleRef` is the reference of PostgresRole against which credentials will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret.
 
-Now, we are going to create `demo-cred` DatabaseAccessRequest.
+Now, we are going to create DatabaseAccessRequest.
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/postgres/demo-cred.yaml
-databaseaccessrequest.authorization.kubedb.com/demo-cred created
+$ kubectl apply -f docs/examples/guides/secret-engines/postgres/postgresAccessRequest.yaml
+databaseaccessrequest.engine.kubevault.com/postgres-cred-rqst created
 
-$ kubectl get databaseaccessrequests -n demo
-NAME        AGE
-demo-cred   1m
+$ kubectl get databaseaccessrequest -n demo
+NAME                 AGE
+postgres-cred-rqst   34s
 ```
 
-Postgres credential will not be issued until it is approved. To approve it, you have to add `Approved` in `status.conditions[].type` field. You can use [KubeVault CLI](https://github.com/kubevault/cli) as [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) to approve or deny DatabaseAccessRequest.
+Database credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny DatabaseAccessRequest.
 
 ```console
-# using KubeVault cli as kubectl plugin to approve request
-$ kubectl vault approve databaseaccessrequest demo-cred -n demo
+# using KubeVault CLI as kubectl plugin to approve request
+$ kubectl vault approve databaseaccessrequest postgres-cred-rqst -n demo
 approved
 
-$ kubectl get databaseaccessrequest demo-cred -n demo -o yaml
-apiVersion: authorization.kubedb.com/v1alpha1
+$ kubectl get databaseaccessrequest -n demo postgres-cred-rqst -o yaml
+apiVersion: engine.kubevault.com/v1alpha1
 kind: DatabaseAccessRequest
 metadata:
-  name: demo-cred
+  name: postgres-cred-rqst
   namespace: demo
 spec:
   roleRef:
     kind: PostgresRole
-    name: demo-role
+    name: psql-role
     namespace: demo
   subjects:
-  - apiGroup: rbac.authorization.k8s.io
-    kind: User
-    name: nahid
+  - kind: ServiceAccount
+    name: demo-sa
+    namespace: demo
 status:
   conditions:
-  - lastUpdateTime: "2018-12-31T08:07:19Z"
+  - lastUpdateTime: "2019-11-20T11:40:26Z"
     message: This was approved by kubectl vault approve databaseaccessrequest
     reason: KubectlApprove
     type: Approved
+  lease:
+    duration: 1h0m0s
+    id: my-postgres-se/creds/k8s.-.demo.psql-role/chQO2c89Wf2zieXYA9KoL9sb
+    renewable: true
+  secret:
+    name: postgres-cred-rqst-pmq5gp
 ```
 
-Once DatabaseAccessRequest is approved, Vault operator will issue credential from Vault and create a secret containing the credential. Also it will create rbac role and rolebinding so that `spec.subjects` can access secret. You can view the information in `status` field.
+Once DatabaseAccessRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
 
 ```console
-$ kubectl get databaseaccessrequest demo-cred -n demo -o json | jq '.status'
+$ kubectl get databaseaccessrequest postgres-cred-rqst -n demo -o json | jq '.status'
 {
   "conditions": [
     {
-      "lastUpdateTime": "2018-12-31T08:07:19Z",
+      "lastUpdateTime": "2019-11-20T11:40:26Z",
       "message": "This was approved by kubectl vault approve databaseaccessrequest",
       "reason": "KubectlApprove",
       "type": "Approved"
@@ -353,34 +328,44 @@ $ kubectl get databaseaccessrequest demo-cred -n demo -o json | jq '.status'
   ],
   "lease": {
     "duration": "1h0m0s",
-    "id": "database/creds/k8s.-.demo.demo-role/3AiGu2wmuH01sN7FPrsXWEmr",
+    "id": "my-postgres-se/creds/k8s.-.demo.psql-role/chQO2c89Wf2zieXYA9KoL9sb",
     "renewable": true
   },
   "secret": {
-    "name": "demo-cred-3v6ro3"
+    "name": "postgres-cred-rqst-pmq5gp"
   }
 }
 
-
-$ kubectl get secrets/demo-cred-3v6ro3 -n demo -o yaml
+$ kubectl get secret -n demo postgres-cred-rqst-pmq5gp -o yaml
 apiVersion: v1
 data:
-  password: QTFhLTRyTUd1amxicks2eExkU28=
-  username: di1rdWJlcm5ldC1rOHMuLS5kZS0zdVRWYkpaT1JxWDlyM0xFbVpsZS0xNTQ2MjQzNjM5
+  password: QTFhLWdxYTBCeExneXdjS1hkRmI=
+  username: di1rdWJlcm5ldC1rOHMuLS5kZS1lWmlkSFloyNUNUQy0xNTc0MjUwMDI2
 kind: Secret
 metadata:
-  name: demo-cred-3v6ro3
+  name: postgres-cred-rqst-pmq5gp
   namespace: demo
+  ownerReferences:
+  - apiVersion: engine.kubevault.com/v1alpha1
+    controller: true
+    kind: DatabaseAccessRequest
+    name: postgres-cred-rqst
+    uid: a13e98a9-22d9-4e81-975e-a8408d8cb380
 type: Opaque
 ```
 
-If DatabaseAccessRequest is deleted, then credential lease (if have any) will be revoked.
+If DatabaseAccessRequest is deleted, then credential lease (if any) will be revoked.
 
 ```console
-$ kubectl delete databaseaccessrequest demo-cred -n demo
-databaseaccessrequest.authorization.kubedb.com "demo-cred" deleted
+$ kubectl delete databaseaccessrequest -n demo postgres-cred-rqst
+databaseaccessrequest.engine.kubevault.com "postgres-cred-rqst" deleted
 ```
 
-If DatabaseAccessRequest is `Denied`, then Vault operator will not issue any credential.
+If DatabaseAccessRequest is `Denied`, then the KubeVault operator will not issue any credential.
 
-> Note: Once DatabaseAccessRequest is `Approved` or `Denied`, you can not change `spec.roleRef` and `spec.subjects` field.
+```console
+$ kubectl vault deny databaseaccessrequest postgres-cred-rqst -n demo
+  Denied
+```
+
+> Note: Once DatabaseAccessRequest is `Approved` or `Denied`, you cannot change `spec.roleRef` and `spec.subjects` field.

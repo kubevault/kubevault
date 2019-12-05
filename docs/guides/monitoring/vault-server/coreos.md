@@ -14,13 +14,11 @@ section_menu_id: guides
 
 # Monitoring Vault Server Using CoreOS Prometheus Operator
 
-The prometheus server is needed to configure so that it can discover endpoints of services. If a Prometheus server is already running in cluster and if it is configured in a way that it can discover service endpoints, no extra configuration will be needed.
-
-If there is no existing Prometheus server running, [read this tutorial](https://github.com/appscode/third-party-tools/tree/master/monitoring/prometheus/coreos-operator/README.md) to see how to install [CoreOS Prometheus Operator](https://github.com/coreos/prometheus-operator).
-
-This tutorial will show you how to monitor Vault server using Prometheus via [CoreOS Prometheus Operator](https://github.com/coreos/prometheus-operator).
+CoreOS [prometheus-operator](https://github.com/coreos/prometheus-operator) provides simple and Kubernetes native way to deploy and configure Prometheus server. This tutorial will show you how to monitor Vault server using Prometheus via CoreOS Prometheus Operator).
 
 ## Monitor Vault server
+
+To enable monitoring, configure `spec.monitor` field in a `VaultServer` custom resource. Below is an example:
 
 ```yaml
 apiVersion: kubevault.com/v1alpha1
@@ -54,21 +52,21 @@ spec:
 
 Here,
 
-- `monitor.agent` indicates the monitoring agent. Currently only valid value currently is `coreos-prometheus-operator`
-- `monitor.prometheus` specifies the information for monitoring by prometheus
+- `monitor.agent` indicates the monitoring agent `coreos-prometheus-operator`.
+- `monitor.prometheus` specifies the information for monitoring by Prometheus.
   - `prometheus.namespace` specifies the namespace where ServiceMonitor is created.
   - `prometheus.labels` specifies the labels applied to ServiceMonitor.
-  - `prometheus.port` indicates the port for PostgreSQL exporter endpoint (default is `56790`)
+  - `prometheus.port` indicates the port for Vault statsd exporter endpoint (default is `56790`)
   - `prometheus.interval` indicates the scraping interval (eg, '10s')
 
-Now create Vault server with monitoring spec
+Now create Vault server with the monitoring spec
 
 ```console
 $ kubectl create -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/vault-server-coreos.yaml
 
 ```
 
-Vault operator will create a ServiceMonitor object once the Vault server is successfully running.
+KubeVault operator will create a ServiceMonitor object once the Vault server is successfully running.
 
 ```console
 $ kubectl get servicemonitor -n demo
@@ -76,7 +74,7 @@ NAME                   AGE
 vault-demo-exampleco   23s
 ```
 
-Now, if you go the Prometheus Dashboard, you should see that this database endpoint as one of the targets.
+Now, if you go the Prometheus Dashboard, you should see that this Vault endpoint as one of the targets.
 
 <p align="center">
   <kbd>

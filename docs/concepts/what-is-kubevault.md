@@ -68,4 +68,4 @@ Postgres database secret engine in Vault generates Postgres database credentials
 
 ### Monitor Vault using Prometheus
 
-KubeVault operator has native support for monitoring via [Prometheus](https://prometheus.io/). You can use builtin [Prometheus](https://github.com/prometheus/prometheus) scrapper or [CoreOS Prometheus Operator](https://github.com/coreos/prometheus-operator) to monitor KubeVault operator.
+KubeVault operator has native support for monitoring via [Prometheus](https://prometheus.io/). You can use builtin [Prometheus](https://github.com/prometheus/prometheus) scraper or [CoreOS Prometheus Operator](https://github.com/coreos/prometheus-operator) to monitor KubeVault operator.

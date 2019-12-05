@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: mysql:5.6
+        image: mysql:5.7
         imagePullPolicy: IfNotPresent
         env:
         - name: MYSQL_ROOT_PASSWORD
@@ -34,8 +34,12 @@ spec:
         volumeMounts:
         - mountPath: /var/lib/mysql
           name: data
+        - mountPath: /etc/mysql
+          name: config
       volumes:
       - name: data
+        emptyDir: {}
+      - name: config
         emptyDir: {}
 ---
 apiVersion: v1

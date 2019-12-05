@@ -14,13 +14,13 @@ section_menu_id: guides
 
 # Use a Vault Server with Multiple Kubernetes Clusters
 
-In this tutorial, we are going to show how to use Vault operator in multiple Kubernetes clusters with a single  Vault server.
+In this tutorial, we are going to show how to use KubeVault operators in multiple Kubernetes clusters against a shared Vault server.
 
 To being with, we have created two GKE clusters.
 
-![cluser image](/docs/images/guides/provider/multi-cluster/gke-cluster.png)
+![cluster image](/docs/images/guides/provider/multi-cluster/gke-cluster.png)
 
-We are going to install Vault operator in `demo-cluster-1`. We are going to set `--cluster-name` flag. This flag value will be used by Vault operator when creating resources in Vault.
+We are going to install KubeVault operator in `demo-cluster-1`. We are going to set `--cluster-name` flag. This flag value will be used by KubeVault operator when creating resources in Vault.
 
 ```console
 $ kubectl config current-context
@@ -34,23 +34,23 @@ NAME                                                       READY   STATUS    RES
 vault-operator-5fc7666575-8v6ft                            1/1     Running   0          1h
 ```
 
-We are going to deploy Vault in `demo-cluster-1` using Vault operator. Guides to deploy Vault in GKE can be found [here](/docs/guides/platforms/gke.md).
+We are going to deploy Vault in `demo-cluster-1` using KubeVault operator. Guides to deploy Vault in GKE can be found [here](/docs/guides/platforms/gke.md).
 
 ```console
-$ kubectl get vaultserverversions/1.0.0 -o yaml
+$ kubectl get vaultserverversions/1.2.0 -o yaml
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: 1.0.0
+  name: 1.2.0
 spec:
+  version: 1.2.0
   deprecated: false
+  vault:
+    image: vault:1.2.0
+  unsealer:
+    image: kubevault/vault-unsealer:v0.3.0
   exporter:
     image: kubevault/vault-exporter:0.1.0
-  unsealer:
-    image: kubevault/vault-unsealer:0.2.0
-  vault:
-    image: vault:1.0.0
-  version: 1.0.0
 
 $ cat examples/guides/provider/multi-cluster/my-vault.yaml
 cat examples/guides/provider/multi-cluster/my-vault.yaml
@@ -61,7 +61,7 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: "1.0.0"
+  version: "1.2.0"
   backend:
     gcs:
       bucket: "demo-vault"
@@ -90,7 +90,7 @@ vaultserver.kubevault.com/my-vault created
 
 $ kubectl get vaultserver my-vault -n demo
 NAME       NODES   VERSION   STATUS    AGE
-my-vault   1       1.0.0     Running   1m
+my-vault   1       1.2.0     Running   1m
 
 $ kubectl get services -n demo
 NAME       TYPE           CLUSTER-IP     EXTERNAL-IP       PORT(S)                                        AGE
@@ -122,7 +122,7 @@ NAME                              STATUS    AGE
 demo-policy-secret-admin          Success   1m
 ```
 
-Check the created `demo-policy-secret-admin` [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) in Vault. To resolve the naming conflict, name of policy in Vault will follow this format: `k8s.{spec.clusterName or -}.{spec.namespace}.{spec.name}`. For this case, it is `k8s.demo-cluster-1.demo.demo-policy-secret-admin`.
+Check the created `demo-policy-secret-admin` [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) in Vault. To resolve the naming conflict, name of policy in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`. For this case, it is `k8s.demo-cluster-1.demo.demo-policy-secret-admin`.
 
 ```console
 $ export VAULT_ADDR='https://104.155.177.205:31542'
@@ -139,7 +139,7 @@ root
 
 ```
 
-We are going to install Vault operator in `demo-cluster-2`.  We are going to set `--cluster-name`, this flag value will be used by Vault operator when creating resource in Vault.
+We are going to install KubeVault operator in `demo-cluster-2`.  We are going to set `--cluster-name`, this flag value will be used by KubeVault operator when creating resource in Vault.
 
 ```console
 $ kubectl config current-context
@@ -199,7 +199,7 @@ NAME                        STATUS    AGE
 demo-policy-secret-reader   Success   1m
 ```
 
-Check the created `demo-policy-secret-reader` [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) in Vault. To resolve the naming conflict, name of policy in Vault will follow this format: `k8s.{spec.clusterName or -}.{spec.namespace}.{spec.name}`. For this case, it is `k8s.demo-cluster-2.demo.demo-policy-secret-reader`.
+Check the created `demo-policy-secret-reader` [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) in Vault. To resolve the naming conflict, name of policy in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`. For this case, it is `k8s.demo-cluster-2.demo.demo-policy-secret-reader`.
 
 ```console
 $ vault policy list
@@ -211,4 +211,4 @@ root
 
 ```
 
-This how we can use Vault operator in multiple Kubernetes clusters with a single Vault Server without naming conflict.
+This how we can use KubeVault operator in multiple Kubernetes clusters with a shared Vault Server without naming conflict.

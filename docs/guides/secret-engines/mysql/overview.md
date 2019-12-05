@@ -1,5 +1,5 @@
 ---
-title: Manage MySQL/MariaDB credentials using the Vault Operator
+title: Manage MySQL/MariaDB credentials using the KubeVault operator
 menu:
   docs_{{ .version }}:
     identifier: overview-mysql
@@ -12,22 +12,22 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Manage MySQL/MariaDB credentials using the Vault Operator
+# Manage MySQL/MariaDB credentials using the KubeVault operator
 
-You can easily manage [MySQL Database secret engine](https://www.vaultproject.io/api/secret/databases/mysql-maria.html) using Vault operator.
+MySQL is one of the supported plugins for the database secrets engine. This plugin generates database credentials dynamically based on configured roles for the MySQL database, and also supports Static Roles. You can easily manage [MySQL Database secret engine](https://www.vaultproject.io/docs/secrets/databases/mysql-maria.html) using the KubeVault operator.
 
-You should be familiar with the following CRD:
+![MySQL secret engine](/docs/images/guides/secret-engines/mysql/mysql_secret_engine_guide.svg)
 
-- [MySQLRole](/docs/concepts/database-crds/mysql.md)
-- [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md)
+You need to be familiar with the following CRDs:
+
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
+- [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
+- [MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md)
+- [DatabaseAccessRequest](/docs/concepts/secret-engine-crds/database-secret-engine/databaseaccessrequest.md)
 
-Before you begin:
+## Before you begin
 
-- Install Vault operator in your cluster following the steps [here](/docs/setup/operator/install).
-
-- Deploy Vault. It could be in the Kubernetes cluster or external.
-
+- Install KubeVault operator in your cluster from [here](/docs/setup/operator/install.md).
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -36,76 +36,85 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-In this tutorial, we will create [role](https://www.vaultproject.io/api/secret/databases/index.html#create-role) using MySQLRole and issue credential using DatabaseAccessRequest. For this tutorial, we are going to deploy Vault using Vault operator.
+In this tutorial, we are going to create a [role](https://www.vaultproject.io/api/secret/mysql/index.html#create-role) using MySQLRole and issue credential using DatabaseAccessRequest.
+
+## Vault Server
+
+If you don't have a Vault Server, you can deploy it by using the KubeVault operator.
+
+- [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
+
+The KubeVault operator can manage policies and secret engines of Vault servers which are not provisioned by the KubeVault operator. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
+
+- [Configure cluster and Vault server](/docs/guides/vault-server/external-vault-sever.md#configuration)
+
+Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server.
 
 ```console
-$ cat examples/guides/secret-engins/mysql/vault.yaml
-apiVersion: kubevault.com/v1alpha1
-kind: VaultServer
+$ kubectl get appbinding -n demo
+NAME    AGE
+vault   50m
+
+$ kubectl get appbinding -n demo vault -o yaml
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
 metadata:
   name: vault
   namespace: demo
 spec:
-  replicas: 1
-  version: "1.0.0"
-  backend:
-    inmem: {}
-  unsealer:
-    secretShares: 4
-    secretThreshold: 2
-    mode:
-      kubernetesSecret:
-        secretName: vault-keys
-
-$ kubectl get vaultserverversions/1.0.0 -o yaml
-apiVersion: catalog.kubevault.com/v1alpha1
-kind: VaultServerVersion
-metadata:
-  name: 1.0.0
-spec:
-  exporter:
-    image: kubevault/vault-exporter:0.1.0
-  unsealer:
-    image: kubevault/vault-unsealer:0.2.0
-  vault:
-    image: vault:1.0.0
-  version: 1.0.0
-
-$ kubectl apply -f examples/guides/secret-engins/mysql/vault.yaml
-vaultserver.kubevault.com/vault created
-
-$ kubectl get vaultserver/vault -n demo
-NAME      NODES     VERSION   STATUS    AGE
-vault     1         1.0.0     Running   1h
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: vault
+      port: 8200
+      scheme: HTTPS
+  parameters:
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
+    path: kubernetes
+    policyControllerRole: vault-policy-controller
+    serviceAccountName: vault
+    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+    usePodServiceAccountForCsiDriver: true
 ```
 
-## MySQLRole
+## Enable and Configure MySQL Secret Engine
 
-Using [MySQLRole](/docs/concepts/database-crds/mysql.md), you can configure [connection](https://www.vaultproject.io/api/secret/databases/mysql-maria.html#configure-connection) and create [role](https://www.vaultproject.io/api/secret/databases/index.html#create-role). In this tutorial, we are going to create `demo-role` in `demo` namespace.
+When a [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md) crd object is created, the KubeVault operator will enable a secret engine on specified path and configure the secret engine with given configurations.
+
+A sample SecretEngine object for the MySQL  secret engine:
 
 ```yaml
-apiVersion: authorization.kubedb.com/v1alpha1
-kind: MySQLRole
+apiVersion: engine.kubevault.com/v1alpha1
+kind: SecretEngine
 metadata:
-  name: demo-role
+  name: mysql-engine
   namespace: demo
 spec:
-  creationStatements:
-    - "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';"
-    - "GRANT SELECT ON *.* TO '{{name}}'@'%';"
-  defaultTTL: 1h
-  maxTTL: 24h
-  authManagerRef:
-    namespace: demo
-    name: vault-app
-  databaseRef:
-    name: mysql-app
+  vaultRef:
+    name: vault
+  path: mysql-se
+  mysql:
+    databaseRef:
+      name: mysql-app
+      namespace: demo
+    pluginName: "mysql-rds-database-plugin"
+    allowedRoles:
+      - "*"
 ```
 
-Here, `spec.databaseRef` is the reference of AppBinding containing Mysql database connection and credential information.
+To configure the MySQL secret engine, you need to provide the MySQL database connection and authentication information through an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md).
+
+```console
+$ kubectl get services -n demo
+NAME    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)       AGE
+mysql   ClusterIP   10.96.33.240    <none>        3306/TCP      3h41
+```
+
+Let's consider `mysql` is the Kubernetes service name that communicate with MySQL servers. The connection `URL` generated using the service will be `mysql.demo.svc:3306`. Visit [AppBinding documentation](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) for more details. A sample AppBinding example with necessary k8s secret is given below:
 
 ```yaml
-$ cat examples/guides/secret-engins/mysql/mysql-app.yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
@@ -113,235 +122,196 @@ metadata:
   namespace: demo
 spec:
   secret:
-    name: mysql-user-cred # secret
+    name: mysql-cred # secret name
   clientConfig:
-    url: tcp(mysql.demo.svc:3306)/ # format: [protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN], url in DSN(Data Source Name) format without username and password, ref: https://github.com/go-sql-driver/mysql#dsn-data-source-name
+    url: tcp(mysql.demo.svc:3306)/
     insecureSkipTLSVerify: true
-  parameters:
-    allowedRoles: "*" # names of the allowed roles to use this connection config in Vault, ref: https://www.vaultproject.io/api/secret/databases/index.html#allowed_roles
-    pluginName: "mysql-rds-database-plugin" # name of the plugin to use, ref: https://www.vaultproject.io/api/secret/databases/index.html#plugin_name
-
-$ kubectl apply -f examples/guides/secret-engins/mysql/mysql-app.yaml
-appbinding.appcatalog.appscode.com/mysql-app created
+---
+apiVersion: v1
+data:
+  username: cm9vdA== # mysql username
+  password: cm9vdA== # mysql password
+kind: Secret
+metadata:
+  name: mysql-cred
+  namespace: demo
 ```
 
-`spec.authManagerRef` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview) for Vault authentication using AppBinding in Vault operator.
+Let's deploy SecretEngine:
+
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/mysql/mysql-app.yaml 
+appbinding.appcatalog.appscode.com/mysql-app created
+secret/mysql-cred created
+
+$ kubectl apply -f docs/examples/guides/secret-engines/mysql/mysqlSecretEngine.yaml
+secretengine.engine.kubevault.com/mysql-engine created
+```
+
+Wait till the status become `Success`:
+
+```console
+$ kubectl get secretengines -n demo
+NAME           STATUS
+mysql-engine   Success
+```
+
+Since the status is `Success`, the MySQL secret engine is enabled and successfully configured. You can use `kubectl describe secretengine -n <namepsace> <name>` to check for error events, if any.
+
+## Create MySQL Role
+
+By using [MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md), you can create a [role](https://www.vaultproject.io/api/secret/mysql/index.html#create-role) on the Vault server in Kubernetes native way.
+
+A sample MySQLRole object is given below:
 
 ```yaml
-$ cat examples/guides/secret-engins/mysql/vault-app.yaml
-apiVersion: appcatalog.appscode.com/v1alpha1
-kind: AppBinding
-metadata:
-  name: vault-app
-  namespace: demo
-spec:
-  clientConfig:
-    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9ERXlNamN3TkRVNU1qVmFGdzB5T0RFeU1qUXdORFU1TWpWYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBMVhid2wyQ1NNc2VQTU5RRzhMd3dUVWVOCkI1T05oSTlDNzFtdUoyZEZjTTlUc1VDQnlRRk1weUc5dWFvV3J1ZDhtSWpwMVl3MmVIUW5udmoybXRmWGcrWFcKSThCYkJUaUFKMWxMMFE5MlV0a1BLczlXWEt6dTN0SjJUR1hRRDhhbHZhZ0JrR1ViOFJYaUNqK2pnc1p6TDRvQQpNRWszSU9jS0xnMm9ldFZNQ0hwNktpWTBnQkZiUWdJZ1A1TnFwbksrbU02ZTc1ZW5hWEdBK2V1d09FT0YwV0Z2CmxGQmgzSEY5QlBGdTJKbkZQUlpHVDJKajBRR1FNeUxodEY5Tk1pZTdkQnhiTWhRVitvUXp2d1EvaXk1Q2pndXQKeDc3d29HQ2JtM0o4cXRybUg2Tjl6Tlc3WlR0YTdLd05PTmFoSUFEMSsrQm5rc3JvYi9BYWRKT0tMN2dLYndJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFXeWFsdUt3Wk1COWtZOEU5WkdJcHJkZFQyZnFTd0lEOUQzVjN5anBlaDVCOUZHN1UKSS8wNmpuRVcyaWpESXNHNkFDZzJKOXdyaSttZ2VIa2Y2WFFNWjFwZHRWeDZLVWplWTVnZStzcGdCRTEyR2NPdwpxMUhJb0NrekVBMk5HOGRNRGM4dkQ5WHBQWGwxdW5veWN4Y0VMeFVRSC9PRlc4eHJxNU9vcXVYUkxMMnlKcXNGCmlvM2lJV3EvU09Yajc4MVp6MW5BV1JSNCtSYW1KWjlOcUNjb1Z3b3R6VzI1UWJKWWJ3QzJOSkNENEFwOUtXUjUKU2w2blk3NVMybEdSRENsQkNnN2VRdzcwU25seW5mb3RaTUpKdmFzbStrOWR3U0xtSDh2RDNMMGNGOW5SOENTSgpiTjBiZzczeVlWRHgyY3JRYk0zcko4dUJnY3BsWlRpUy91SXJ2QT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
-    service:
-      name: vault
-      port: 8200
-      scheme: HTTPS
-  parameters:
-    serviceAccountName: demo-sa
-    policyControllerRole: mysql-role
-    authPath: kubernetes
-
-$ kubectl apply -f examples/guides/secret-engins/mysql/vault-app.yaml
-appbinding.appcatalog.appscode.com/vault-app created
-```
-
-You need to create `demo-sa` serviceaccount by running following command:
-
-```console
-$ kubectl create serviceaccount -n demo demo-sa
-serviceaccount/demo-sa created
-```
-
-`demo-sa` serviceaccount in the above AppBinding need to have the policy with following capabilities in Vault.
-
-```hcl
-path "sys/mounts" {
-  capabilities = ["read", "list"]
-}
-
-path "sys/mounts/*" {
-  capabilities = ["create", "read", "update", "delete"]
-}
-
-path "database/config/*" {
-	capabilities = ["create", "read", "update", "delete"]
-}
-
-path "database/roles/*" {
-	capabilities = ["create", "update", "read", "delete"]
-}
-
-path "database/creds/*" {
-    capabilities = ["read"]
-}
-
-path "sys/leases/revoke/*" {
-    capabilities = ["update"]
-}
-```
-
-You can manage policy in Vault using Vault operator, see [here](/docs/guides/policy-management/policy-management).
-
-To create policy with above capabilities run following command
-
-```console
-$ kubectl apply -f examples/guides/secret-engins/mysql/policy.yaml
-vaultpolicy.policy.kubevault.com/mysql-role-policy created
-vaultpolicybinding.policy.kubevault.com/mysql-role created
-```
-
-Now, we are going to create `demo-role`.
-
-```console
-$ cat examples/guides/secret-engins/mysql/demo-role.yaml
-apiVersion: authorization.kubedb.com/v1alpha1
+apiVersion: engine.kubevault.com/v1alpha1
 kind: MySQLRole
 metadata:
-  name: demo-role
+  name: mysql-role
   namespace: demo
 spec:
+  vaultRef:
+    name: vault
+  path: mysql-se
+  databaseRef:
+    name: mysql-app
+    namespace: demo
   creationStatements:
     - "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';"
     - "GRANT SELECT ON *.* TO '{{name}}'@'%';"
   defaultTTL: 1h
   maxTTL: 24h
-  authManagerRef:
-    namespace: demo
-    name: vault-app
-  databaseRef:
-    name: mysql-app
-
-$ kubectl apply -f examples/guides/secret-engins/mysql/demo-role.yaml
-mysqlrole.authorization.kubedb.com/demo-role created
 ```
 
-Check whether MySQLRole is successful.
+Let's deploy MySQLRole:
 
 ```console
-$ kubectl get  mysqlroles/demo-role -n demo -o json | jq '.status'
-{
-  "observedGeneration": "1$6208915667192219204",
-  "phase": "Success"
-}
+$ kubectl apply -f docs/examples/guides/secret-engines/mysql/mysqlRole.yaml
+mysqlrole.engine.kubevault.com/mysql-role created
+
+$ kubectl get mysqlrole -n demo mysql-role 
+NAME         AGE
+mysql-role   83m
 ```
 
-To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{spec.clusterName or -}.{spec.namespace}.{spec.name}`.
+You can also check from Vault that the role is created.
+To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`.
+
+> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
 ```console
-$ vault list database/roles
+$ vault list mysql-se/roles
 Keys
 ----
-k8s.-.demo.demo-role
+k8s.-.demo.mysql-role
 
-$ vault read database/roles/k8s.-.demo.demo-role
-Key                      Value
----                      -----
-creation_statements      [CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT SELECT ON *.* TO '{{name}}'@'%';]
-db_name                  mysql-app
-default_ttl              1h
-max_ttl                  24h
-renew_statements         <nil>
-revocation_statements    <nil>
-rollback_statements      <nil>
-
+$ vault read mysql-se/config/k8s.-.demo.mysql-app
+Key                                   Value
+---                                   -----
+allowed_roles                         [*]
+connection_details                    map[connection_url:{{username}}:{{password}}@tcp(mysql.demo.svc:3306)/ username:root]
+plugin_name                           mysql-rds-database-plugin
+root_credentials_rotate_statements    []
 ```
 
-If we delete MySQLRole, then respective role will be deleted from Vault.
+If we delete the MySQLRole, then the respective role will be deleted from the Vault.
 
 ```console
-$ kubectl delete mysqlroles demo-role -n demo
-mysqlrole.authorization.kubedb.com "demo-role" deleted
-
-# check in vault whether role exists
-$ vault read database/roles/k8s.-.demo.demo-role
-Error reading database/roles/k8s.-.demo.demo-role: Error making API request.
-
-URL: GET https://127.0.0.1:8200/v1/database/roles/k8s.-.demo.demo-role
-Code: 400. Errors:
-
-* Role 'k8s.-.demo.demo-role' not found
-
-$ vault list database/roles
-No value found at database/roles/
+$ kubectl delete mysqlrole -n demo mysql-role
+mysqlrole.engine.kubevault.com "mysql-role" deleted
 ```
 
-## DatabaseAccessRequest
+Check from Vault whether the role exists:
 
-Using [DatabaseAccessRequest](/docs/concepts/database-crds/databaseaccessrequest.md), you can issue Mysql credential from Vault. In this tutorial, we are going to issue Mysql credential by creating `demo-cred` DatabaseAccessRequest in `demo` namespace.
+```console
+$ vault read mysql-se/roles/k8s.-.demo.mysql-role
+No value found at mysql-se/roles/k8s.-.demo.mysql-role
+
+$ vault list mysql-se/roles
+No value found at mysql-se/roles/
+```
+
+## Generate MySQL credentials
+
+By using [DatabaseAccessRequest](/docs/concepts/secret-engine-crds/database-secret-engine/databaseaccessrequest.md), you can generate database access credentials from Vault.
+
+Here, we are going to make a request to Vault for MySQL database credentials by creating `mysql-cred-rqst` DatabaseAccessRequest in `demo` namespace.
 
 ```yaml
-apiVersion: authorization.kubedb.com/v1alpha1
+apiVersion: engine.kubevault.com/v1alpha1
 kind: DatabaseAccessRequest
 metadata:
-  name: demo-cred
+  name: mysql-cred-rqst
   namespace: demo
 spec:
   roleRef:
     kind: MySQLRole
-    name: demo-role
+    name: mysql-role
     namespace: demo
   subjects:
-    - kind: User
-      name: nahid
-      apiGroup: rbac.authorization.k8s.io
+    - kind: ServiceAccount
+      name: sa
+      namespace: demo
 ```
 
-Here, `spec.roleRef` is the reference of MySQLRole against which credential will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret. Also, Vault operator will use AppBinding reference from MySQLRole which is specified in `spec.roleRef`.
+Here, `spec.roleRef` is the reference of MySQLRole against which credentials will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secrets.
 
-Now, we are going to create `demo-cred` DatabaseAccessRequest.
+Now, we are going to create DatabaseAccessRequest.
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/mysql/demo-cred.yaml
-databaseaccessrequest.authorization.kubedb.com/demo-cred created
+$ kubectl apply -f docs/examples/guides/secret-engines/mysql/mysqlAccessRequest.yaml
+databaseaccessrequest.engine.kubevault.com/mysql-cred-rqst created
 
-$ kubectl get databaseaccessrequests -n demo
-NAME        AGE
-demo-cred   1m
+$  kubectl get databaseaccessrequest -n demo mysql-cred-rqst 
+NAME              AGE
+mysql-cred-rqst   48s
 ```
 
-Mysql credential will not be issued until it is approved. To approve it, you have to add `Approved` in `status.conditions[].type` field. You can use [KubeVault CLI](https://github.com/kubevault/cli) as [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) to approve or deny DatabaseAccessRequest.
+Database credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny DatabaseAccessRequest.
 
 ```console
-# using KubeVault cli as kubectl plugin to approve request
-$ kubectl vault approve databaseaccessrequest demo-cred -n demo
+# using KubeVault CLI as kubectl plugin to approve request
+$ kubectl vault approve databaseaccessrequest mysql-cred-rqst -n demo
 approved
 
-$ kubectl get databaseaccessrequest demo-cred -n demo -o yaml
-apiVersion: authorization.kubedb.com/v1alpha1
+$ kubectl get databaseaccessrequest -n demo mysql-cred-rqst -o yaml
+apiVersion: engine.kubevault.com/v1alpha1
 kind: DatabaseAccessRequest
 metadata:
-  name: demo-cred
+  name: mysql-cred-rqst
   namespace: demo
 spec:
   roleRef:
     kind: MySQLRole
-    name: demo-role
+    name: mysql-role
     namespace: demo
   subjects:
-  - apiGroup: rbac.authorization.k8s.io
-    kind: User
-    name: nahid
+  - kind: ServiceAccount
+    name: sa
+    namespace: demo
 status:
   conditions:
-  - lastUpdateTime: "2018-12-31T08:07:19Z"
+  - lastUpdateTime: "2019-11-19T09:22:21Z"
     message: This was approved by kubectl vault approve databaseaccessrequest
     reason: KubectlApprove
     type: Approved
+  lease:
+    duration: 1h0m0s
+    id: mysql-se/creds/k8s.-.demo.mysql-role/egCyKUcRZH8rVW09kUbtX3Z3
+    renewable: true
+  secret:
+    name: mysql-cred-rqst-nx7gyv
 ```
 
-Once DatabaseAccessRequest is approved, Vault operator will issue credential from Vault and create a secret containing the credential. Also it will create rbac role and rolebinding so that `spec.subjects` can access secret. You can view the information in `status` field.
+Once DatabaseAccessRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
 
 ```console
-$ kubectl get databaseaccessrequest demo-cred -n demo -o json | jq '.status'
+$ kubectl get databaseaccessrequest mysql-cred-rqst -n demo -o json | jq '.status'
 {
   "conditions": [
     {
-      "lastUpdateTime": "2018-12-31T10:02:17Z",
+      "lastUpdateTime": "2019-11-19T09:22:21Z",
       "message": "This was approved by kubectl vault approve databaseaccessrequest",
       "reason": "KubectlApprove",
       "type": "Approved"
@@ -349,34 +319,44 @@ $ kubectl get databaseaccessrequest demo-cred -n demo -o json | jq '.status'
   ],
   "lease": {
     "duration": "1h0m0s",
-    "id": "database/creds/k8s.-.demo.demo-role/8pZ4bfPdKad2olxBbexh1O08",
+    "id": "mysql-se/creds/k8s.-.demo.mysql-role/egCyKUcRZH8rVW09kUbtX3Z3",
     "renewable": true
   },
   "secret": {
-    "name": "demo-cred-5nr4ah"
+    "name": "mysql-cred-rqst-nx7gyv"
   }
 }
 
-$ kubectl get secrets/demo-cred-5nr4ah -n demo -o yaml
+$ kubectl get secret -n demo mysql-cred-rqst-nx7gyv -o yaml
 apiVersion: v1
 data:
-  password: QTFhLTVKZXBjZHBBYlpyV3FwWE8=
-  username: di1rOHMuLTZmQ000ZlBSaw==
+  password: QTFhLWYwdk9YeWE=
+  username: di1rOHMuLVdjNDJSRGJuNA==
 kind: Secret
 metadata:
-  name: demo-cred-5nr4ah
+  name: mysql-cred-rqst-nx7gyv
   namespace: demo
+  ownerReferences:
+  - apiVersion: engine.kubevault.com/v1alpha1
+    controller: true
+    kind: DatabaseAccessRequest
+    name: mysql-cred-rqst
+    uid: bc479f76-5a3d-4cbf-9e21-60dc6cb3285b
 type: Opaque
-
 ```
 
-If DatabaseAccessRequest is deleted, then credential lease (if have any) will be revoked.
+If DatabaseAccessRequest is deleted, then credential lease (if any) will be revoked.
 
 ```console
-$ kubectl delete databaseaccessrequest demo-cred -n demo
-databaseaccessrequest.authorization.kubedb.com "demo-cred" deleted
+$ kubectl delete databaseaccessrequest -n demo mysql-cred-rqst 
+databaseaccessrequest.engine.kubevault.com "mysql-cred-rqst" deleted
 ```
 
-If DatabaseAccessRequest is `Denied`, then Vault operator will not issue any credential.
+If DatabaseAccessRequest is `Denied`, then the KubeVault operator will not issue any credential.
 
-> Note: Once DatabaseAccessRequest is `Approved` or `Denied`, you can not change `spec.roleRef` and `spec.subjects` field.
+```console
+$ kubectl vault deny databaseaccessrequest mysql-cred-rqst -n demo
+  Denied
+```
+
+> Note: Once DatabaseAccessRequest is `Approved` or `Denied`, you cannot change `spec.roleRef` and `spec.subjects` field.

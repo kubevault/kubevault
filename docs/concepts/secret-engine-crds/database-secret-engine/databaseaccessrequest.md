@@ -79,7 +79,7 @@ DatabaseAccessRequest spec has the following fields:
 
 `spec.roleRef` is a `required` field that specifies the reference to a database Role CR (i.e.[MongoDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mongodb.md),
 [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md),
-[MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md)) against which credential will be issued.
+[MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md)) against which credentials will be issued.
 
 It has the following fields:
 

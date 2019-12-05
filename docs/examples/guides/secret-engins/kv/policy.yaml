@@ -4,9 +4,8 @@ metadata:
   name: kv-policy
   namespace: demo
 spec:
-  ref:
+  vaultRef:
     name: vault
-    namespace: demo
   policyDocument: |
     path "sys/mounts" {
       capabilities = ["read", "list"]
@@ -17,27 +16,9 @@ spec:
     }
 
     path "kv/*" {
-        capabilities = ["read"]
-    }
-
-    path "gcp/*" {
-        capabilities = ["read"]
+        capabilities = ["create","list", "read", "update", "delete"]
     }
 
     path "sys/leases/revoke/*" {
         capabilities = ["update"]
     }
----
-apiVersion: policy.kubevault.com/v1alpha1
-kind: VaultPolicyBinding
-metadata:
-  name: kv-role
-  namespace: demo
-spec:
-  roleName: "kv-role"
-  policies : ["kv-policy"]
-  serviceAccountNames: ["demo-sa"]
-  serviceAccountNamespaces: ["demo"]
-  ttl: "1000"
-  maxTTL: "2000"
-  period: "1000"

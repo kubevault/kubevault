@@ -16,7 +16,7 @@ section_menu_id: guides
 
 ## Before you Begin
 
-At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Minikube](https://github.com/kubernetes/minikube). To check the version of your cluster, run:
+At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
 ```console
 $ kubectl version --short
@@ -41,11 +41,11 @@ The following steps are required to retrieve secrets from Azure secrets engine u
 - **Appbinding:** required to connect `CSI driver` with Vault server.
 - **Role:** using this role `CSI driver` can access credentials from Vault server.
 
-There are two ways to configure Vault server. You can use either use `Vault Operator` or use `vault` cli to manually configure a Vault server.
+There are two ways to configure Vault server. You can use either use `KubeVault operator` or use `vault` cli to manually configure a Vault server.
 
 <ul class="nav nav-tabs" id="conceptsTab" role="tablist">
   <li class="nav-item">
-    <a class="nav-link active" id="operator-tab" data-toggle="tab" href="#operator" role="tab" aria-controls="operator" aria-selected="true">Using Vault Operator</a>
+    <a class="nav-link active" id="operator-tab" data-toggle="tab" href="#operator" role="tab" aria-controls="operator" aria-selected="true">Using KubeVault operator</a>
   </li>
   <li class="nav-item">
     <a class="nav-link" id="csi-driver-tab" data-toggle="tab" href="#csi-driver" role="tab" aria-controls="csi-driver" aria-selected="false">Using Vault CLI</a>
@@ -54,9 +54,9 @@ There are two ways to configure Vault server. You can use either use `Vault Oper
 <div class="tab-content" id="conceptsTabContent">
   <details open class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
 
-<summary>Using Vault Operator</summary>
+<summary>Using KubeVault operator</summary>
 
-Let's assume that you have Vault operator installed in your cluster. If you don't have Vault operator yet, you can follow the [installation guide](/docs/setup/operator/install.md).
+Let's assume that you have KubeVault operator installed in your cluster. If you don't have KubeVault operator yet, you can follow the [installation guide](/docs/setup/operator/install.md).
 
 You should be familiar with the following CRDs:
 
@@ -65,7 +65,7 @@ You should be familiar with the following CRDs:
 - [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md)
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 
-We are going to start our tutorial by deploying Vault using Vault Operator.
+We are going to start our tutorial by deploying Vault using KubeVault operator.
 
 ```console
 $ cat examples/csi-driver/azure/vault.yaml
@@ -221,7 +221,7 @@ Seal Type       shamir
 Sealed          false
 Total Shares    4
 Threshold       2
-Version         1.0.0
+Version         1.2.0
 Cluster Name    vault-cluster-1bfbb939
 Cluster ID      3db2acdf-28b6-8afb-ed52-fed6cf55379d
 HA Enabled      false
@@ -261,7 +261,7 @@ For more detailed explanation visit [Vault official website](https://www.vaultpr
 
 <summary>Using Vault CLI</summary>
 
-If you don't want to use vault operator and want to use Vault cli to manually configure an existing Vault server. The Vault server may be running inside a Kubernetes cluster or running outside a Kubernetes cluster. If you don't have a Vault server, you can deploy one by running the following command:
+If you don't want to use KubeVault operator and want to use Vault cli to manually configure an existing Vault server. The Vault server may be running inside a Kubernetes cluster or running outside a Kubernetes cluster. If you don't have a Vault server, you can deploy one by running the following command:
 
 ```console
 $ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/csi-driver/vault-install.yaml

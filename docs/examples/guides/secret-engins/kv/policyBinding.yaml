@@ -1,0 +1,19 @@
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicyBinding
+metadata:
+  name: kv-admin-role
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  policies:
+  - ref: kv-policy
+  subjectRef:
+    kubernetes:
+      serviceAccountNames:
+        - "kv-admin"
+      serviceAccountNamespaces:
+        - "demo"
+      ttl: "1000"
+      maxTTL: "2000"
+      period: "1000"

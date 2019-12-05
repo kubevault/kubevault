@@ -1,8 +1,0 @@
-apiVersion: v1
-data:
-  token: cy40cFptR3hnWTZHb2FIVEVac3ZQZVZhaG4=
-kind: Secret
-metadata:
-  name: vault-token
-  namespace: demo
-type: kubevault.com/token

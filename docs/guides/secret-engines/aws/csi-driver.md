@@ -16,7 +16,7 @@ section_menu_id: guides
 
 ## Before you Begin
 
-At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Minikube](https://github.com/kubernetes/minikube). To check the version of your cluster, run:
+At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
 ```console
 $ kubectl version --short
@@ -78,11 +78,11 @@ The following steps are required to retrieve `AWS` IAM secrets using Vault serve
 - **Appbinding:** required to connect `CSI driver` with Vault server
 - **Role:** using this role `CSI driver` can access credentials from Vault server
 
-There are two ways to configure Vault server. You can use either use `Vault Operator` or use `vault` cli to manually configure a Vault server.
+There are two ways to configure Vault server. You can use either use `KubeVault operator` or use `vault` cli to manually configure a Vault server.
 
 <ul class="nav nav-tabs" id="conceptsTab" role="tablist">
   <li class="nav-item">
-    <a class="nav-link active" id="operator-tab" data-toggle="tab" href="#operator" role="tab" aria-controls="operator" aria-selected="true">Using Vault Operator</a>
+    <a class="nav-link active" id="operator-tab" data-toggle="tab" href="#operator" role="tab" aria-controls="operator" aria-selected="true">Using KubeVault operator</a>
   </li>
   <li class="nav-item">
     <a class="nav-link" id="csi-driver-tab" data-toggle="tab" href="#csi-driver" role="tab" aria-controls="csi-driver" aria-selected="false">Using Vault CLI</a>
@@ -91,9 +91,9 @@ There are two ways to configure Vault server. You can use either use `Vault Oper
 <div class="tab-content" id="conceptsTabContent">
   <details open class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
 
-<summary>Using Vault Operator</summary>
+<summary>Using KubeVault operator</summary>
 
-Follow [this](/docs/guides/secret-engines/aws/overview.md) tutorial to manage AWS IAM secrets with `Vault operator`. After successful configuration you should have following resources present in your cluster.
+Follow [this](/docs/guides/secret-engines/aws/overview.md) tutorial to manage AWS IAM secrets with `KubeVault operator`. After successful configuration you should have following resources present in your cluster.
 
 - AppBinding: An appbinding with name `vault-app` in `demo` namespace
 - Role: A role named `k8s.-.demo.demo-role` which have access to read database credential

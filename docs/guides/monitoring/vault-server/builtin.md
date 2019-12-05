@@ -12,13 +12,13 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Monitor Vault server with builtin Prometheus
+# Monitor Vault server with builtin Prometheus scraper
 
-The prometheus server is needed to configure so that it can discover endpoints of services. If a Prometheus server is already running in cluster and if it is configured in a way that it can discover service endpoints, no extra configuration will be needed.
+This tutorial will show you how to configure builtin [Prometheus](https://github.com/prometheus/prometheus) scraper to monitor Vault server provisioned by the KubeVault operator.
 
-If there is no existing Prometheus server running, [read this tutorial](https://github.com/appscode/third-party-tools/tree/master/monitoring/prometheus/builtin/README.md) to see how to create a builtin Prometheus server with appropriate configuration.
+The prometheus server is needed to configure so that it can discover endpoints of Kubernetes services. If a Prometheus server is already running in cluster and if it is configured in a way that it can discover service endpoints, no extra configuration will be needed.Otherwise, read this [tutorial](https://github.com/appscode/third-party-tools/tree/master/monitoring/prometheus/builtin/README.md) to deploy a Prometheus server with appropriate configuration.
 
-The configuration file of Prometheus server will be provided by ConfigMap. Create following ConfigMap with Prometheus configuration.
+Create the following configmap with Prometheus configuration and pass it to a Prometheus server.
 
 ```yaml
 apiVersion: v1
@@ -80,7 +80,7 @@ configmap/prometheus-server-conf created
 
 ## Monitor Vault server
 
-Below is the Vault server object created in this tutorial.
+To enable monitoring, configure `spec.monitor` field in a `VaultServer` custom resource. Below is an example:
 
 ```yaml
 apiVersion: kubevault.com/v1alpha1
@@ -105,25 +105,26 @@ spec:
   monitor:
     agent: prometheus.io/builtin
     prometheus:
-      namespace: demo
-      labels:
-        app: vault
+      port: 9102
       interval: 10s
 
 ```
 
 Here,
 
-- `spec.monitor` specifies that built-in [prometheus](https://github.com/prometheus/prometheus) is used to monitor this database instance.
+- `spec.monitor` specifies that built-in [prometheus](https://github.com/prometheus/prometheus) is used to monitor this Vault server instance.
+- `monitor.prometheus` specifies the information for monitoring by Prometheus.
+  - `prometheus.port` indicates the port for Vault statsd exporter endpoint (default is `56790`)
+  - `prometheus.interval` indicates the scraping interval (eg, '10s')
 
-Run following command to create example above.
+Run the following command to create it.
 
 ```console
 $ kubectl create -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/vault-server-builtin.yaml
 vaultserver.kubevault.com/example created
 ```
 
-Vault operator will configure its service once the Vault server is successfully running.
+KubeVault operator will configure its service once the Vault server is successfully running.
 
 ```console
 $ kubectl get vs -n demo
@@ -196,7 +197,7 @@ prometheus.io/port: "9102"
 prometheus.io/scrape: "true"
 ```
 
-The prometheus server will discover the service endpoint using these specifications and will scrape metrics from exporter.
+The Prometheus server will discover the Vault service endpoint and will scrape metrics from the exporter sidecar.
 
 <p align="center">
   <kbd>

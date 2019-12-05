@@ -16,9 +16,9 @@ aliases:
 
 # Guides
 
-Guides show you how to perform tasks with Vault operator and Vault CSI driver.
+Guides show you how to perform tasks with KubeVault operator and Vault CSI driver.
 
-## Using Vault operator
+## Using KubeVault operator
 
 - To deploy Vault in AWS EKS see [here](/docs/guides/platforms/eks.md).
 - To deploy Vault in Google GKE see [here](/docs/guides/platforms/gke.md).
@@ -31,10 +31,11 @@ Guides show you how to perform tasks with Vault operator and Vault CSI driver.
 - To manage Vault [MySQL Database secret engine](https://www.vaultproject.io/api/secret/databases/mysql-maria.html) see [here](/docs/guides/secret-engines/mysql/overview.md).
 - To manage Vault [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html) see [here](/docs/guides/secret-engines/postgres/overview.md).
 - To set up monitoring see [here](/docs/guides/monitoring/overview.md).
-- To use Vault operator for external Vault see [here](/docs/guides/platforms/external-vault.md).
-- To use Vault operator in multiple cluster for same Vault see [here](/docs/guides/platforms/multi-cluster-vault.md).
+- To use KubeVault operator for external Vault see [here](/docs/guides/platforms/external-vault.md).
+- To use KubeVault operator in multiple cluster for same Vault see [here](/docs/guides/platforms/multi-cluster-vault.md).
 
 ## Using Vault CSI driver
+
 - To mount [Azure secret engine](https://www.vaultproject.io/docs/secrets/azure/index.html) secret in pod see [here](/docs/guides/secret-engines/azure/csi-driver.md)
 - To mount [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html) secret in pod see [here](/docs/guides/secret-engines/aws/csi-driver.md).
 - To mount [GCP secret engine](https://www.vaultproject.io/docs/secrets/gcp/index.html) secret in pod see [here](/docs/guides/secret-engines/gcp/csi-driver.md)

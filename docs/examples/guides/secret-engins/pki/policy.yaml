@@ -4,9 +4,8 @@ metadata:
   name: pki-policy
   namespace: demo
 spec:
-  ref:
+  vaultRef:
     name: vault
-    namespace: demo
   policyDocument: |
     path "sys/mounts" {
       capabilities = ["read", "list"]
@@ -17,23 +16,9 @@ spec:
     }
 
     path "pki/*" {
-        capabilities = ["read"]
+        capabilities = ["read","create", "list", "update", "delete"]
     }
 
     path "sys/leases/revoke/*" {
         capabilities = ["update"]
     }
----
-apiVersion: policy.kubevault.com/v1alpha1
-kind: VaultPolicyBinding
-metadata:
-  name: pki-role
-  namespace: demo
-spec:
-  roleName: "pki-role"
-  policies : ["pki-policy"]
-  serviceAccountNames: ["demo-sa"]
-  serviceAccountNamespaces: ["demo"]
-  ttl: "1000"
-  maxTTL: "2000"
-  period: "1000"

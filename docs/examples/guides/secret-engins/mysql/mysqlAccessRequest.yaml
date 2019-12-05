@@ -1,0 +1,14 @@
+apiVersion: engine.kubevault.com/v1alpha1
+kind: DatabaseAccessRequest
+metadata:
+  name: mysql-cred-rqst
+  namespace: demo
+spec:
+  roleRef:
+    kind: MySQLRole
+    name: mysql-role
+    namespace: demo
+  subjects:
+    - kind: ServiceAccount
+      name: sa
+      namespace: demo

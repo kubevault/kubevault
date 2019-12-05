@@ -1,5 +1,5 @@
 ---
-title: Manage AWS IAM Secrets using the Vault Operator
+title: Manage AWS IAM Secrets using the KubeVault operator
 menu:
   docs_{{ .version }}:
     identifier: overview-aws
@@ -12,21 +12,22 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Manage AWS IAM Secrets using the Vault Operator
+# Manage AWS IAM Secrets using the KubeVault operator
 
-You can easily manage [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html#aws-secrets-engine) using Vault operator.
+The AWS secrets engine generates AWS access credentials dynamically based on IAM policies. The AWS IAM credentials are time-based and are automatically revoked when the Vault lease expires. You can easily manage the [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html) using KubeVault operator.
 
-You should be familiar with the following CRD:
+![AWS secret engine](/docs/images/guides/secret-engines/aws/aws_secret_engine_guide.svg)
 
-- [AWSRole](/docs/concepts/secret-engine-crds/awsrole.md)
-- [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/awsaccesskeyrequest)
+You need to be familiar with the following CRDs:
+
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
+- [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
+- [AWSRole](/docs/concepts/secret-engine-crds/aws-secret-engine/awsrole.md)
+- [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/aws-secret-engine/awsaccesskeyrequest.md)
 
-Before you begin:
+## Before you begin
 
-- Install Vault operator in your cluster following the steps [here](/docs/setup/operator/install).
-
-- Deploy Vault. It could be in the Kubernetes cluster or external.
+- Install KubeVault operator in your cluster from [here](/docs/setup/operator/install.md).
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -35,349 +36,308 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-In this tutorial, we will create [role](https://www.vaultproject.io/api/secret/aws/index.html#create-update-role) using AWSRole and issue credential using AWSAccessKeyRequest. For this tutorial, we are going to deploy Vault using Vault operator.
+In this tutorial, we are going to create a [role](https://www.vaultproject.io/api/secret/aws/index.html#create-update-role) using AWSRole and issue credential using AWSAccessKeyRequest.
+
+## Vault Server
+
+If you don't have a Vault Server, you can deploy it by using the KubeVault operator.
+
+- [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
+
+The KubeVault operator can manage policies and secret engines of Vault servers which are not provisioned by the KubeVault operator. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
+
+- [Configure cluster and Vault server](/docs/guides/vault-server/external-vault-sever.md#configuration)
+
+Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server.
 
 ```console
-$ cat examples/guides/secret-engins/aws/vault.yaml
-apiVersion: kubevault.com/v1alpha1
-kind: VaultServer
+$ kubectl get appbinding -n demo
+NAME    AGE
+vault   50m
+
+$ kubectl get appbinding -n demo vault -o yaml
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
 metadata:
   name: vault
   namespace: demo
 spec:
-  replicas: 1
-  version: "1.0.0"
-  backend:
-    inmem: {}
-  unsealer:
-    secretShares: 4
-    secretThreshold: 2
-    mode:
-      kubernetesSecret:
-        secretName: vault-keys
-
-$ kubectl get vaultserverversions/1.0.0 -o yaml
-apiVersion: catalog.kubevault.com/v1alpha1
-kind: VaultServerVersion
-metadata:
-  name: 1.0.0
-spec:
-  exporter:
-    image: kubevault/vault-exporter:0.1.0
-  unsealer:
-    image: kubevault/vault-unsealer:0.2.0
-  vault:
-    image: vault:1.0.0
-  version: 1.0.0
-
-$ kubectl apply -f examples/guides/secret-engins/aws/vault.yaml
-vaultserver.kubevault.com/vault created
-
-$ kubectl get vaultserver/vault -n demo
-NAME      NODES     VERSION   STATUS    AGE
-vault     1         1.0.0     Running   1h
-```
-
-## AWSRole
-
-Using [AWSRole](/docs/concepts/secret-engine-crds/awsrole.md), you can configure [root IAM credentials](https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials) and create [role](https://www.vaultproject.io/api/secret/aws/index.html#create-update-role). In this tutorial, we are going to create `demo-role` in `demo` namespace.
-
-```yaml
-apiVersion: engine.kubevault.com/v1alpha1
-kind: AWSRole
-metadata:
-  name: demo-role
-  namespace: demo
-spec:
-  credentialType: iam_user
-  policy:
-    Version: '2012-10-17'
-    Statement:
-    - Effect: Allow
-      Action: ec2:*
-      Resource: "*"
-  ref:
-    name: vault-app
-    namespace: demo
-  config:
-    credentialSecret: aws-cred
-    region: us-east-1
-    leaseConfig:
-      lease: 1h
-      leaseMax: 1h
-```
-
-Here, `spec.config.credentialSecret` will be used to configure [root iam credentials](https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials).
-
-```yaml
-$ cat examples/guides/secret-engins/aws/aws-cred.yaml
-apiVersion: v1
-data:
-  access_key: QUAAAAA=
-  secret_key: LKUHGHGJAAAAAAAAAAAAAAAAA==
-kind: Secret
-metadata:
-  name: aws-cred
-  namespace: demo
-type: Opaque
-
-$ kubectl apply -f examples/guides/secret-engins/aws/aws-cred.yaml
-```
-
-`spec.ref` is the reference of AppBinding containing Vault connection and credential information. See [here](/docs/concepts/vault-server-crds/auth-methods/overview.md) for Vault authentication using AppBinding in Vault operator.
-
-```yaml
-$ cat examples/guides/secret-engins/aws/vault-app.yaml
-apiVersion: appcatalog.appscode.com/v1alpha1
-kind: AppBinding
-metadata:
-  name: vault-app
-  namespace: demo
-spec:
   clientConfig:
-    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9ERXlNamN3TkRVNU1qVmFGdzB5T0RFeU1qUXdORFU1TWpWYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBMVhid2wyQ1NNc2VQTU5RRzhMd3dUVWVOCkI1T05oSTlDNzFtdUoyZEZjTTlUc1VDQnlRRk1weUc5dWFvV3J1ZDhtSWpwMVl3MmVIUW5udmoybXRmWGcrWFcKSThCYkJUaUFKMWxMMFE5MlV0a1BLczlXWEt6dTN0SjJUR1hRRDhhbHZhZ0JrR1ViOFJYaUNqK2pnc1p6TDRvQQpNRWszSU9jS0xnMm9ldFZNQ0hwNktpWTBnQkZiUWdJZ1A1TnFwbksrbU02ZTc1ZW5hWEdBK2V1d09FT0YwV0Z2CmxGQmgzSEY5QlBGdTJKbkZQUlpHVDJKajBRR1FNeUxodEY5Tk1pZTdkQnhiTWhRVitvUXp2d1EvaXk1Q2pndXQKeDc3d29HQ2JtM0o4cXRybUg2Tjl6Tlc3WlR0YTdLd05PTmFoSUFEMSsrQm5rc3JvYi9BYWRKT0tMN2dLYndJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFXeWFsdUt3Wk1COWtZOEU5WkdJcHJkZFQyZnFTd0lEOUQzVjN5anBlaDVCOUZHN1UKSS8wNmpuRVcyaWpESXNHNkFDZzJKOXdyaSttZ2VIa2Y2WFFNWjFwZHRWeDZLVWplWTVnZStzcGdCRTEyR2NPdwpxMUhJb0NrekVBMk5HOGRNRGM4dkQ5WHBQWGwxdW5veWN4Y0VMeFVRSC9PRlc4eHJxNU9vcXVYUkxMMnlKcXNGCmlvM2lJV3EvU09Yajc4MVp6MW5BV1JSNCtSYW1KWjlOcUNjb1Z3b3R6VzI1UWJKWWJ3QzJOSkNENEFwOUtXUjUKU2w2blk3NVMybEdSRENsQkNnN2VRdzcwU25seW5mb3RaTUpKdmFzbStrOWR3U0xtSDh2RDNMMGNGOW5SOENTSgpiTjBiZzczeVlWRHgyY3JRYk0zcko4dUJnY3BsWlRpUy91SXJ2QT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
     service:
       name: vault
       port: 8200
       scheme: HTTPS
   parameters:
-    serviceAccountName: demo-sa
-    policyControllerRole: aws-role
-    authPath: kubernetes
-
-$ kubectl apply -f examples/guides/secret-engins/aws/vault-app.yaml
-appbinding.appcatalog.appscode.com/vault-app create
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
+    path: kubernetes
+    policyControllerRole: vault-policy-controller
+    serviceAccountName: vault
+    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+    usePodServiceAccountForCsiDriver: true
 ```
 
-You need to create `demo-sa` serviceaccount by running following command:
+## Enable and Configure AWS Secret Engine
 
-```console
-$ kubectl create serviceaccount -n demo demo-sa
-serviceaccount/demo-sa created
-```
+When a [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md) crd object is created, the KubeVault operator will enable a secret engine on specified path and configure the secret engine with given configurations.
 
-`demo-sa` serviceaccount in the above AppBinding need to have the policy with following capabilities in Vault.
+A sample SecretEngine object for AWS secret engine:
 
-```hcl
-path "sys/mounts" {
-    capabilities = ["read", "list"]
-}
-
-path "sys/mounts/*" {
-    capabilities = ["create", "read", "update", "delete"]
-}
-
-path "aws/config/root" {
-	capabilities = ["create", "read", "update", "delete"]
-}
-
-path "aws/config/lease" {
-	capabilities = ["create", "read", "update", "delete"]
-}
-
-path "aws/roles/*" {
-	capabilities = ["create", "update", "read", "delete"]
-}
-
-path "aws/creds/*" {
-    capabilities = ["read"]
-}
-
-path "sys/leases/revoke/*" {
-    capabilities = ["update"]
-}
-```
-
-You can manage policy in Vault using Vault operator, see [here](/docs/guides/policy-management/policy-management).
-
-To create policy with above capabilities run following command
-
-```console
-$ kubectl apply -f examples/guides/secret-engins/aws/policy.yaml
-vaultpolicy.policy.kubevault.com/aws-role-policy created
-vaultpolicybinding.policy.kubevault.com/aws-role created
-```
-
-Now, we are going to create `demo-role`.
-
-```console
-$ cat examples/guides/secret-engins/aws/demo-role.yaml
+```yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: AWSRole
+kind: SecretEngine
 metadata:
-  name: demo-role
+  name: aws-secret-engine
   namespace: demo
 spec:
-  credentialType: iam_user
-  policy:
-    Version: '2012-10-17'
-    Statement:
-    - Effect: Allow
-      Action: ec2:*
-      Resource: "*"
-  ref:
-    name: vault-app
-    namespace: demo
-  config:
+  vaultRef:
+    name: vault
+  aws:
     credentialSecret: aws-cred
     region: us-east-1
     leaseConfig:
       lease: 1h
       leaseMax: 1h
-
-$ kubectl apply -f examples/guides/secret-engins/aws/demo-role.yaml
-awsrole.engine.kubevault.com/demo-role created
 ```
 
-Check whether AWSRole is successful.
+To configure the AWS secret engine, you need to provide `aws_access_key_id` and `aws_secret_access_key` through a Kubernetes secret.
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aws-cred
+  namespace: demo
+data:
+  access_key: QUtJQVdT...= # base64 encoded aws access key id
+  secret_key: bHFvRVlv...== # base64 encoded aws secret access key
+```
+
+Let's deploy SecretEngine:
 
 ```console
-$ kubectl get awsroles/demo-role -n demo -o json | jq '.status'
-{
-  "observedGeneration": "1$6208915667192219204",
-  "phase": "Success"
-}
+$ kubectl apply -f docs/examples/guides/secret-engines/aws/awsCred.yaml
+secret/aws-cred created
+
+$ kubectl apply -f docs/examples/guides/secret-engines/aws/awsSecretEngine.yaml
+secretengine.engine.kubevault.com/aws-secret-engine created
 ```
 
-To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{spec.clusterName or -}.{spec.namespace}.{spec.name}`.
+Wait till the status become `Success`:
+
+```console
+$ kubectl get secretengines -n demo
+NAME                STATUS
+aws-secret-engine   Success
+```
+
+Since the status is `Success`, the AWS secret engine is enabled and successfully configured. You can use `kubectl describe secretengine -n <namepsace> <name>` to check the error-events if any.
+
+## Create AWS Role
+
+By using [AWSRole](/docs/concepts/secret-engine-crds/aws-secret-engine/awsrole.md), you can create a [role](https://www.vaultproject.io/api/secret/aws/index.html#create-update-role) on the Vault server in Kubernetes native way.
+
+A sample AWSRole object is given below:
+
+```yaml
+apiVersion: engine.kubevault.com/v1alpha1
+kind: AWSRole
+metadata:
+  name: aws-role
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  credentialType: iam_user
+  policyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": "ec2:*",
+          "Resource": "*"
+        }
+      ]
+    }
+```
+
+Let's deploy AWSRole:
+
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/aws/awsRole.yaml
+awsrole.engine.kubevault.com/aws-role created
+
+$ kubectl get awsrole -n demo
+NAME       STATUS
+aws-role   Success
+```
+
+You can also check from Vault that the role is created.
+To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`.
+
+> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
 ```console
 $ vault list aws/roles
 Keys
 ----
-k8s.-.demo.demo-role
+k8s.-.demo.aws-role
 
-$ vault read aws/roles/k8s.-.demo.demo-role
-Key                 Value
----                 -----
-credential_types    [iam_user]
-default_sts_ttl     0s
-max_sts_ttl         0s
-policy_arns         <nil>
-policy_document     {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"ec2:*","Resource":"*"}]}
-role_arns           <nil>
+$ vault read aws/roles/k8s.-.demo.aws-role
+Key                Value
+---                -----
+credential_type    iam_user
+default_sts_ttl    0s
+max_sts_ttl        0s
+policy_arns        <nil>
+policy_document    {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"ec2:*","Resource":"*"}]}
+role_arns          <nil>
+user_path          n/a
 ```
 
-If we delete AWSRole, then respective role will be deleted from Vault.
+If we delete the AWSRole, then the respective role will be deleted from the Vault.
 
 ```console
-$ kubectl delete -f examples/guides/secret-engins/aws/demo-role.yaml
-awsrole.engine.kubevault.com "demo-role" deleted
+$ kubectl delete awsrole -n demo aws-role
+awsrole.engine.kubevault.com "aws-role" deleted
+```
 
-# check in vault whether role exists
-$ vault read aws/roles/k8s.-.demo.demo-role
-Error reading aws/roles/k8s.-.demo.demo-role: Error making API request.
+Check from Vault whether the role exists:
 
-URL: GET https://127.0.0.1:8200/v1/aws/roles/k8s.-.demo.demo-role
-Code: 400. Errors:
-
-* Role 'k8s.-.demo.demo-role' not found
+```console
+$ vault read aws/roles/k8s.-.demo.aws-role
+No value found at aws/roles/k8s.-.demo.aws-role
 
 $ vault list aws/roles
 No value found at aws/roles/
 ```
 
-## AWSAccessKeyRequest
+## Generate AWS credentials
 
-Using [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/awsaccesskeyrequest), you can issue AWS credential from Vault. In this tutorial, we are going to issue AWS credential by creating `demo-cred` AWSAccessKeyRequest in `demo` namespace.
+By using [AWSAccessKeyRequest](//docs/concepts/secret-engine-crds/aws-secret-engine/awsaccesskeyrequest.md), you can generate AWS credentials from Vault.
+
+Here, we are going to make a request to Vault for AWS credential by creating `aws-cred-rqst` AWSAccessKeyRequest in `demo` namespace.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
 kind: AWSAccessKeyRequest
 metadata:
-  name: demo-cred
+  name: aws-cred-rqst
   namespace: demo
 spec:
   roleRef:
-    name: demo-role
+    name: aws-role
     namespace: demo
   subjects:
-  - kind: User
-    name: nahid
-    apiGroup: rbac.authorization.k8s.io
+    - kind: ServiceAccount
+      name: demo-sa
+      namespace: demo
 ```
 
-Here, `spec.roleRef` is the reference of AWSRole against which credential will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret. Also, Vault operator will use AppBinding reference from AWSRole which is specified in `spec.roleRef`.
+Here, `spec.roleRef` is the reference of AWSRole against which credentials will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret.
 
-Now, we are going to create `demo-cred` AWSAccessKeyRequest.
+Now, we are going to create an AWSAccessKeyRequest.
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/aws/demo-cred.yaml
-awsaccesskeyrequest.engine.kubevault.com/demo-cred created
+$ kubectl apply -f docs/examples/guides/secret-engines/aws/awsAccessKeyRequest.yaml
+awsaccesskeyrequest.engine.kubevault.com/aws-cred-rqst created
 
-$ kubectl get awsaccesskeyrequests -n demo
-NAME        AGE
-demo-cred   3s
+$ kubectl get awsaccesskeyrequest -n demo
+NAME            AGE
+aws-cred-rqst   35s
 ```
 
-AWS credential will not be issued until it is approved. To approve it, you have to add `Approved` in `status.conditions[].type` field. You can use [KubeVault CLI](https://github.com/kubevault/cli) as [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) to approve or deny DatabaseAccessRequest.
+AWS credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny AWSAccessKeyRequest.
 
 ```console
-# using KubeVault cli as kubectl plugin to approve request
-$ kubectl vault approve awsaccesskeyrequest demo-cred -n demo
-approved
+# using KubeVault CLI as kubectl plugin to approve request
+$ kubectl vault approve awsaccesskeyrequest aws-cred-rqst -n demo
+  approved
 
-$ kubectl get awsaccesskeyrequest demo-cred -n demo -o yaml
+$ kubectl get awsaccesskeyrequest -n demo aws-cred-rqst -o yaml
 apiVersion: engine.kubevault.com/v1alpha1
 kind: AWSAccessKeyRequest
 metadata:
-  finalizers:
-  - awsaccesskeyrequest.engine.kubevault.com
-  name: demo-cred
+  name: aws-cred-rqst
   namespace: demo
 spec:
   roleRef:
-    name: demo-role
+    name: aws-role
     namespace: demo
   subjects:
-  - apiGroup: rbac.authorization.k8s.io
-    kind: User
-    name: nahid
+  - kind: ServiceAccount
+    name: demo-sa
+    namespace: demo
 status:
   conditions:
-  - type: Approved
+  - lastUpdateTime: "2019-11-13T12:18:07Z"
+    message: This was approved by kubectl vault approve awsaccesskeyrequest
+    reason: KubectlApprove
+    type: Approved
+  lease:
+    duration: 1h0m0s
+    id: aws/creds/k8s.-.demo.aws-role/X9dCjtiQCykbuJ7UmzM64xfh
+    renewable: true
+  secret:
+    name: aws-cred-rqst-ryym7w
 ```
 
-Once AWSAccessKeyRequest is approved, Vault operator will issue credential from Vault and create a secret containing the credential. Also it will create rbac role and rolebinding so that `spec.subjects` can access secret. You can view the information in `status` field.
+Once AWSAccessKeyRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
 
 ```console
-$ kubectl get awsaccesskeyrequest/demo-cred -n demo -o json | jq '.status'
+$ kubectl get awsaccesskeyrequest aws-cred-rqst -n demo -o json | jq '.status'
 {
   "conditions": [
     {
+      "lastUpdateTime": "2019-11-13T12:18:07Z",
+      "message": "This was approved by kubectl vault approve awsaccesskeyrequest",
+      "reason": "KubectlApprove",
       "type": "Approved"
     }
   ],
   "lease": {
     "duration": "1h0m0s",
-    "id": "aws/creds/k8s.-.demo.demo-role/1KljT3F5ZrYMC66JsPIgOgXr",
+    "id": "aws/creds/k8s.-.demo.aws-role/X9dCjtiQCykbuJ7UmzM64xfh",
     "renewable": true
   },
   "secret": {
-    "name": "demo-cred-wttlrm"
+    "name": "aws-cred-rqst-ryym7w"
   }
 }
 
-$ kubectl get secrets/demo-cred-wttlrm -n demo -o yaml
+$ kubectl get secret -n demo aws-cred-rqst-ryym7w -o yaml
 apiVersion: v1
 data:
-  access_key: QUtJQUo3TVVIyVFE=
-  secret_key: ZFdrNG04Rk05ZkhDbjBlZWNkMk5KUkFBaXB5TkUybw==
-  security_token: null
+  access_key: QUtJQVdTWV....=
+  secret_key: RVA1dXdXWnVlTX....==
+  security_token: ""
 kind: Secret
 metadata:
-  name: demo-cred-wttlrm
+  name: aws-cred-rqst-ryym7w
   namespace: demo
+  ownerReferences:
+  - apiVersion: engine.kubevault.com/v1alpha1
+    controller: true
+    kind: AWSAccessKeyRequest
+    name: aws-cred-rqst
 type: Opaque
 ```
 
-If AWSAccessKeyRequest is deleted, then credential lease (if have any) will be revoked.
+If AWSAccessKeyRequest is deleted, then credential lease (if any) will be revoked.
 
 ```console
-$ kubectl delete awsaccesskeyrequest/demo-cred -n demo
-awsaccesskeyrequest.engine.kubevault.com "demo-cred" deleted
+$ kubectl delete awsaccesskeyrequest -n demo aws-cred-rqst
+awsaccesskeyrequest.engine.kubevault.com "aws-cred-rqst" deleted
 ```
 
-If AWSAccessKeyRequest is `Denied`, then Vault operator will not issue any credential.
+If AWSAccessKeyRequest is `Denied`, then the KubeVault operator will not issue any credential.
+
+```console
+$ kubectl vault deny awsaccesskeyrequest aws-cred-rqst -n demo
+  Denied
+```
 
 > Note: Once AWSAccessKeyRequest is `Approved` or `Denied`, you can not change `spec.roleRef` and `spec.subjects` field.

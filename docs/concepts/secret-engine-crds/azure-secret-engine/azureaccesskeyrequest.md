@@ -78,7 +78,7 @@ AzureAccessKeyRequest spec has the following fields:
 
 #### spec.roleRef
 
-`spec.roleRef` is a `required` field that specifies the [AzureRole](/docs/concepts/secret-engine-crds/azure-secret-engine/azurerole.md) against which credential will be issued.
+`spec.roleRef` is a `required` field that specifies the [AzureRole](/docs/concepts/secret-engine-crds/azure-secret-engine/azurerole.md) against which credentials will be issued.
 
 It has the following fields:
 

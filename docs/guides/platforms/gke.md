@@ -14,13 +14,13 @@ section_menu_id: guides
 
 # Deploy Vault on Google Kubernetes Engine (GKE)
 
-Here, we are going to deploy Vault in GKE using Vault operator. We are going to use [GCS bucket](https://cloud.google.com/storage/docs/) as Vault backend and `googleKmsGcs` unsealer mode for automatic unsealing the Vault.
+Here, we are going to deploy Vault in GKE using KubeVault operator. We are going to use [GCS bucket](https://cloud.google.com/storage/docs/) as Vault backend and `googleKmsGcs` unsealer mode for automatically unsealing the Vault.
 
 ## Before You Begin
 
 At first, you need to have a GKE cluster. If you don't already have a cluster, create one from [here](https://cloud.google.com/kubernetes-engine/).
 
-- Install Vault operator in your cluster following the steps [here](/docs/setup/operator/install.md).
+- Install KubeVault operator in your cluster following the steps [here](/docs/setup/operator/install.md).
 
 - You should be familiar with the following CRD:
   - [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md)
@@ -83,7 +83,7 @@ $ gcloud kms keys add-iam-policy-binding \
       --project ackube
 ```
 
-### Install Vault operator
+### Install KubeVault operator
 
 See [here](/docs/setup/operator/install.md).
 
@@ -112,7 +112,7 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: "1.0.0"
+  version: "1.2.0"
   backend:
     gcs:
       bucket: "demo-vault"
@@ -135,22 +135,22 @@ Here, `spec.version` specifies the name of the [VaultServerVersion](docs/concept
 ```console
 $ kubectl get vaultserverversions
 NAME     VERSION   VAULT_IMAGE    DEPRECATED   AGE
-1.0.0    1.0.0     vault:1.0.0    false        1m
+1.2.0    1.2.0     vault:1.2.0    false        1m
 
-$ kubectl get vaultserverversions/1.0.0 -o yaml
+$ kubectl get vaultserverversions/1.2.0 -o yaml
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: 1.0.0
+  name: 1.2.0
 spec:
+  version: 1.2.0
   deprecated: false
+  vault:
+    image: vault:1.2.0
+  unsealer:
+    image: kubevault/vault-unsealer:v0.3.0
   exporter:
     image: kubevault/vault-exporter:0.1.0
-  unsealer:
-    image: kubevault/vault-unsealer:0.2.0
-  vault:
-    image: vault:1.0.0
-  version: 1.0.0
 ```
 
 `spec.backend.gcs.credentialSecret` and `spec.unsealer.mode.googleKmsGcs.credentialSecret` specifies the name of the Kubernetes secret containing `vault-sa@ackube.iam.gserviceaccount.com` credential.
@@ -179,7 +179,7 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: "1.0.0"
+  version: "1.2.0"
   backend:
     gcs:
       bucket: "demo-vault"
@@ -205,7 +205,7 @@ Check the `my-vault` status. It may take some time to reach `Running` stage.
 ```console
 $ kubectl get vaultserver/my-vault -n demo
 NAME       NODES   VERSION   STATUS    AGE
-my-vault   1       1.0.0     Running   2m
+my-vault   1       1.2.0     Running   2m
 ```
 
 `status` field in `my-vault` will show more detail information.
@@ -231,7 +231,7 @@ $ kubectl get vaultserver/my-vault -n demo -o json | jq '.status'
 
 ```
 
-Vault operator will create a service `{metadata.name}` for `my-vault` in the same namespace. For this case, service name is `my-vault`. You can specify service configuration in [spec.serviceTemplate](/docs/concepts/vault-server-crds/vaultserver.md#specservicetemplate). Vault operator will use that configuration to create service.
+KubeVault operator will create a service `{metadata.name}` for `my-vault` in the same namespace. For this case, service name is `my-vault`. You can specify service configuration in [spec.serviceTemplate](/docs/concepts/vault-server-crds/vaultserver.md#specservicetemplate). KubeVault operator will use that configuration to create service.
 
 ```console
 $ kubectl get services -n demo
@@ -271,7 +271,7 @@ metadata:
   namespace: demo
 ```
 
-In this `my-vault`, Vault operator will use self-signed certificates for Vault and also will create `{metadata.name}-vault-tls` secret containing certificates. You can optionally specify certificates in [spec.tls](/docs/concepts/vault-server-crds/vaultserver.md#spectls).
+In this `my-vault`, KubeVault operator will use self-signed certificates for Vault and also will create `{metadata.name}-vault-tls` secret containing certificates. You can optionally specify certificates in [spec.tls](/docs/concepts/vault-server-crds/vaultserver.md#spectls).
 
 ```console
 $ kubectl get secrets -n demo
@@ -321,7 +321,7 @@ Seal Type       shamir
 Sealed          false
 Total Shares    4
 Threshold       2
-Version         1.0.0
+Version         1.2.0
 Cluster Name    vault-cluster-84d6b1b0
 Cluster ID      bb6487bb-0deb-9e95-144e-e85c9ebd07eb
 HA Enabled      false

@@ -1,5 +1,5 @@
 ---
-title: Monitor Vault Operator using CoreOS Prometheus Operator
+title: Monitor KubeVault operator using CoreOS Prometheus Operator
 menu:
   docs_{{ .version }}:
     identifier: coreos-vault-operator-monitoring
@@ -12,13 +12,13 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Monitoring Vault Operator Using CoreOS Prometheus Operator
+# Monitoring KubeVault operator Using CoreOS Prometheus Operator
 
-CoreOS [prometheus-operator](https://github.com/coreos/prometheus-operator) provides simple and Kubernetes native way to deploy and configure Prometheus server. This tutorial will show you how to use CoreOS Prometheus operator for monitoring Vault operator.
+CoreOS [prometheus-operator](https://github.com/coreos/prometheus-operator) provides simple and Kubernetes native way to deploy and configure Prometheus server. This tutorial will show you how to use CoreOS Prometheus operator for monitoring KubeVault operator.
 
 ## Before You Begin
 
-- At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Minikube](https://github.com/kubernetes/minikube).
+- At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/).
 
 - To keep Prometheus resources isolated, we are going to use a separate namespace to deploy Prometheus operator and respective resources.
 
@@ -29,13 +29,23 @@ namespace/monitoring created
 
 - We need a CoreOS prometheus-operator instance running. If you already don't have a running instance, deploy one following the docs from [here](https://github.com/appscode/third-party-tools/blob/master/monitoring/prometheus/coreos-operator/README.md).
 
-## Enable Monitoring in Vault operator
+## Enable Monitoring in KubeVault operator
 
-Enable Prometheus monitoring using `prometheus.io/coreos-operator` agent while installing Vault operator. To know details about how to enable monitoring see [here](/docs/guides/monitoring/overview.md#how-to-enable-monitoring)
+Enable Prometheus monitoring using `prometheus.io/coreos-operator` agent while installing KubeVault operator. To know details about how to enable monitoring see [here](/docs/guides/monitoring/overview.md#how-to-enable-monitoring)
 
 Here, we are going to enable monitoring for `operator` metrics.
 
-<b> Using Helm: </b>
+**Using Helm 3:**
+
+```console
+$ helm install vault-operator appscode/vault-operator --version {{< param "info.version" >}} --namespace kube-system \
+  --set monitoring.agent=prometheus.io/coreos-operator \
+  --set monitoring.operator=true \
+  --set monitoring.prometheus.namespace=monitoring \
+  --set monitoring.serviceMonitor.labels.k8s-app=prometheus
+```
+
+**Using Helm 2:**
 
 ```console
 $ helm install appscode/vault-operator --name vault-operator --version {{< param "info.version" >}} --namespace kube-system \
@@ -45,7 +55,7 @@ $ helm install appscode/vault-operator --name vault-operator --version {{< param
   --set monitoring.serviceMonitor.labels.k8s-app=prometheus
 ```
 
-<b> Using Script: </b>
+**Using Script:**
 
 ```console
 $ curl -fsSL https://github.com/kubevault/operator/raw/{{< param "info.version" >}}/hack/deploy/install.sh  | bash -s -- \
@@ -92,7 +102,7 @@ spec:
 
 Here, `api` endpoint exports operator metrics.
 
-Vault operator exports operator metrics via TLS secured `api` endpoint. So, Prometheus server need to provide certificate while scrapping metrics from this endpoint. Vault operator has created a secret named `vault-operator-apiserver-certs` with this certificate in `monitoring` namespace as we have specified that we are going to deploy Prometheus in that namespace through `--prometheus-namespace` flag. We have to specify this secret in Prometheus crd through `spec.secrets` field. Prometheus operator will mount this secret at `/etc/prometheus/secrets/vault-operator-apiserver-cert` directory of respective Prometheus pod. So, we need to configure `tlsConfig` field to use that certificate. Here, `caFile` indicates the certificate to use and serverName is used to verify hostname. In our case, the certificate is valid for hostname server and `vault-operator.kube-system.svc`.
+KubeVault operator exports operator metrics via TLS secured `api` endpoint. So, Prometheus server need to provide certificate while scrapping metrics from this endpoint. KubeVault operator has created a secret named `vault-operator-apiserver-certs` with this certificate in `monitoring` namespace as we have specified that we are going to deploy Prometheus in that namespace through `--prometheus-namespace` flag. We have to specify this secret in Prometheus crd through `spec.secrets` field. Prometheus operator will mount this secret at `/etc/prometheus/secrets/vault-operator-apiserver-cert` directory of respective Prometheus pod. So, we need to configure `tlsConfig` field to use that certificate. Here, `caFile` indicates the certificate to use and serverName is used to verify hostname. In our case, the certificate is valid for hostname server and `vault-operator.kube-system.svc`.
 
 Let's check secret vault-operator-apiserver-cert has been created in monitoring namespace.
 
@@ -102,7 +112,7 @@ NAME                            TYPE                DATA   AGE
 vault-operator-apiserver-cert   kubernetes.io/tls   2      8m27s
 ```
 
-Also note that, there is a bearerTokenFile field. This file is token for the serviceaccount that will be created while creating RBAC stuff for Prometheus crd. This is required for authorizing Prometheus to scrape Vault operator API server.
+Also note that, there is a bearerTokenFile field. This file is token for the serviceaccount that will be created while creating RBAC stuff for Prometheus crd. This is required for authorizing Prometheus to scrape KubeVault operator API server.
 
 Now, we are ready to deploy Prometheus server.
 
@@ -137,7 +147,7 @@ spec:
       memory: 400Mi
 ```
 
-Here, `spec.serviceMonitorSelector` is used to select the ServiceMonitor crd that is created by Vault operator. We have provided `vault-operator-apiserver-cert` secret in `spec.secrets` field. This will be mounted in Prometheus pod.
+Here, `spec.serviceMonitorSelector` is used to select the ServiceMonitor crd that is created by KubeVault operator. We have provided `vault-operator-apiserver-cert` secret in `spec.secrets` field. This will be mounted in Prometheus pod.
 
 Let's create the Prometheus object we have shown above,
 
@@ -186,7 +196,7 @@ Now, we can access the dashboard at localhost:9090. Open [http://localhost:9090]
 
 ## Cleaning up
 
-To uninstall Vault operator follow [this](https://github.com/kubevault/docs/blob/master/docs/setup/operator/uninstall.md#uninstall-vault-operator).
+To uninstall KubeVault operator follow [this](https://github.com/kubevault/docs/blob/master/docs/setup/operator/uninstall.md#uninstall-vault-operator).
 
 To cleanup the Kubernetes resources created by this tutorial, run:
 

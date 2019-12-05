@@ -1,5 +1,5 @@
 ---
-title: Manage PKI(certificates) secrets using the Vault Operator
+title: Manage PKI(certificates) secrets using the KubeVault operator
 menu:
   docs_{{ .version }}:
     identifier: overview-pki
@@ -12,9 +12,11 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Manage PKI(certificates) secrets using the Vault Operator
+# Manage PKI(certificates) secrets using the KubeVault operator
 
-You can easily manage [PKI secret engine](https://www.vaultproject.io/docs/secrets/pki/index.html#pki-secrets-engine) using Vault operator.
+The [PKI secrets engine](https://www.vaultproject.io/docs/secrets/pki/index.html) generates dynamic X.509 certificates. With this secrets engine, services can get certificates without going through the usual manual process of generating a private key and CSR, submitting to a CA, and waiting for a verification and signing process to complete. Vault's built-in authentication and authorization mechanisms provide the verification functionality.
+
+You can easily manage [PKI secret engine](https://www.vaultproject.io/docs/secrets/pki/index.html) using the KubeVault operator.
 
 You should be familiar with the following CRD:
 
@@ -22,11 +24,9 @@ You should be familiar with the following CRD:
 - [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md)
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 
-Before you begin:
+## Before you begin
 
-- Install Vault operator in your cluster following the steps [here](/docs/setup/operator/install).
-
-- Deploy Vault. It could be in the Kubernetes cluster or external.
+- Install KubeVault operator in your cluster from [here](/docs/setup/operator/install.md).
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -35,90 +35,255 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-For this tutorial, we are going to deploy Vault using Vault operator.
+In this tutorial, we are going to demonstrate the use of the PKI secret engine.
+
+## Vault Server
+
+If you don't have a Vault Server, you can deploy it by using the KubeVault operator.
+
+- [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
+
+The KubeVault operator can manage policies and secret engines of Vault servers which are not provisioned by the KubeVault operator. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
+
+- [Configure cluster and Vault server](/docs/guides/vault-server/external-vault-sever.md#configuration)
+
+Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server.
 
 ```console
-$ cat examples/guides/secret-engins/pki/vault.yaml
-apiVersion: kubevault.com/v1alpha1
-kind: VaultServer
+$ kubectl get appbinding -n demo
+NAME    AGE
+vault   50m
+
+$ kubectl get appbinding -n demo vault -o yaml
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
 metadata:
   name: vault
   namespace: demo
 spec:
-  replicas: 1
-  version: "1.0.0"
-  backend:
-    inmem: {}
-  unsealer:
-    secretShares: 4
-    secretThreshold: 2
-    mode:
-      kubernetesSecret:
-        secretName: vault-keys
-
-$ cat examples/guides/secret-engins/pki/vaultserverversion.yaml
-apiVersion: catalog.kubevault.com/v1alpha1
-kind: VaultServerVersion
-metadata:
-  name: 1.0.0
-spec:
-  exporter:
-    image: kubevault/vault-exporter:0.1.0
-  unsealer:
-    image: kubevault/vault-unsealer:0.2.0
-  vault:
-    image: vault:1.0.0
-  version: 1.0.0
-
-$ kubectl apply -f docs/examples/guides/secret-engins/pki/vaultserverversion.yaml
-vaultserverversion.catalog.kubevault.com/1.0.0 created
-
-$ kubectl apply -f examples/guides/secret-engins/pki/vault.yaml
-vaultserver.kubevault.com/vault created
-
-$ kubectl get vaultserver/vault -n demo
-NAME      NODES     VERSION   STATUS    AGE
-vault     1         1.0.0     Running   1h
-```
-
-## Create Policy for PKI secrets
-
-In this tutorial, we are going to create policy `pki-policy` and policybinding  `pki-role`.
-
-```yaml
-$ cat examples/guides/secret-engins/pki/vault-app.yaml
-apiVersion: appcatalog.appscode.com/v1alpha1
-kind: AppBinding
-metadata:
-  name: vault-app
-  namespace: demo
-spec:
   clientConfig:
-    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9ERXlNamN3TkRVNU1qVmFGdzB5T0RFeU1qUXdORFU1TWpWYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBMVhid2wyQ1NNc2VQTU5RRzhMd3dUVWVOCkI1T05oSTlDNzFtdUoyZEZjTTlUc1VDQnlRRk1weUc5dWFvV3J1ZDhtSWpwMVl3MmVIUW5udmoybXRmWGcrWFcKSThCYkJUaUFKMWxMMFE5MlV0a1BLczlXWEt6dTN0SjJUR1hRRDhhbHZhZ0JrR1ViOFJYaUNqK2pnc1p6TDRvQQpNRWszSU9jS0xnMm9ldFZNQ0hwNktpWTBnQkZiUWdJZ1A1TnFwbksrbU02ZTc1ZW5hWEdBK2V1d09FT0YwV0Z2CmxGQmgzSEY5QlBGdTJKbkZQUlpHVDJKajBRR1FNeUxodEY5Tk1pZTdkQnhiTWhRVitvUXp2d1EvaXk1Q2pndXQKeDc3d29HQ2JtM0o4cXRybUg2Tjl6Tlc3WlR0YTdLd05PTmFoSUFEMSsrQm5rc3JvYi9BYWRKT0tMN2dLYndJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFXeWFsdUt3Wk1COWtZOEU5WkdJcHJkZFQyZnFTd0lEOUQzVjN5anBlaDVCOUZHN1UKSS8wNmpuRVcyaWpESXNHNkFDZzJKOXdyaSttZ2VIa2Y2WFFNWjFwZHRWeDZLVWplWTVnZStzcGdCRTEyR2NPdwpxMUhJb0NrekVBMk5HOGRNRGM4dkQ5WHBQWGwxdW5veWN4Y0VMeFVRSC9PRlc4eHJxNU9vcXVYUkxMMnlKcXNGCmlvM2lJV3EvU09Yajc4MVp6MW5BV1JSNCtSYW1KWjlOcUNjb1Z3b3R6VzI1UWJKWWJ3QzJOSkNENEFwOUtXUjUKU2w2blk3NVMybEdSRENsQkNnN2VRdzcwU25seW5mb3RaTUpKdmFzbStrOWR3U0xtSDh2RDNMMGNGOW5SOENTSgpiTjBiZzczeVlWRHgyY3JRYk0zcko4dUJnY3BsWlRpUy91SXJ2QT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
     service:
       name: vault
       port: 8200
       scheme: HTTPS
   parameters:
-    serviceAccountName: demo-sa
-    policyControllerRole: pki-role
-    authPath: kubernetes
-
-$ kubectl apply -f examples/guides/secret-engins/pki/vault-app.yaml
-appbinding.appcatalog.appscode.com/vault-app created
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
+    path: kubernetes
+    policyControllerRole: vault-policy-controller
+    serviceAccountName: vault
+    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+    usePodServiceAccountForCsiDriver: true
 ```
 
-You need to create `demo-sa` serviceaccount by running following command:
+## Use PKI Secret Engine as Root User
+
+Here, we are going to use the Vault root token to perform authentication to the Vault server. We will use the [Vault CLI](https://www.vaultproject.io/docs/commands/#vault-commands-cli-) throughout the tutorial.
+
+> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
+
+Export the root token as environment variable:
 
 ```console
-$ kubectl create serviceaccount -n demo demo-sa
-serviceaccount/demo-sa created
+export VAULT_TOKEN=s.diWLjSzmfSmF0qUNYV3qOIeX
 ```
 
-`demo-sa` serviceaccount in the above AppBinding need to have the policy with following capabilities in Vault.
+Enable the PKI secrets engine:
 
-```hcl
-path "sys/mounts" {
+```console
+$ vault secrets enable pki
+Success! Enabled the pki secrets engine at: pki/
+```
+
+Increase the TTL by tuning the secrets engine. The default value of 30 days may be too short, so increase it to 1 year:
+
+```console
+$ vault secrets tune -max-lease-ttl=8760h pki
+Success! Tuned the secrets engine at: pki/
+```
+
+Configure a CA certificate and private key:
+
+```console
+$ vault write pki/root/generate/internal \
+                          common_name=my-website.com \
+                          ttl=8760h
+Key              Value
+---              -----
+certificate      -----BEGIN CERTIFICATE-----
+MIIDPjCCAiagAwIBAgIUEDmnAmC0siISlrezD3/CeUXTSfswDQYJKoZIhvcNAQEL
+... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ...
+CsFVu+vfMM9XEMYeKHRWAq9onJFyGuwKGhF0/7RbZ3EunTj6Zph+UMucGoL4xfXj
+ITltdU1N4JPvihQq+8Omryay
+-----END CERTIFICATE-----
+expiration       1606200496
+issuing_ca       -----BEGIN CERTIFICATE-----
+MIIDPjCCAiagAwIBAgIUEDmnAmC0siISlrezD3/CeUXTSfswDQYJKoZIhvcNAQEL
+... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ...
+CsFVu+vfMM9XEMYeKHRWAq9onJFyGuwKGhF0/7RbZ3EunTj6Zph+UMucGoL4xfXj
+ITltdU1N4JPvihQq+8Omryay
+-----END CERTIFICATE-----
+serial_number    10:39:a7:02:60:b4:b2:22:12:96:b7:b3:0f:7f:c2:79:45:d3:49:fb
+```
+
+Configure a role that maps a name in Vault to a procedure for generating a certificate. When users or machines generate credentials, they are generated against this role:
+
+```console
+$ vault write pki/roles/example-dot-com \
+                          allowed_domains=my-website.com \
+                          allow_subdomains=true \
+                          max_ttl=72h
+Success! Data written to: pki/roles/example-dot-com
+```
+
+Generate a new credential by writing to the /issue endpoint with the name of the role:
+
+```console
+$ vault write pki/issue/example-dot-com \
+                        common_name=www.my-website.com
+Key                 Value
+---                 -----
+certificate         -----BEGIN CERTIFICATE-----
+MIIDVjCCAj6gAwIBAgIUWQhPLW6R/nk/3x3XReHC1Ze4BWUwDQYJKoZIhvcNAQEL
+... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ...
+TSuguIiSBt5NN0ou4aY01FbeJJOHZhtpj31XdXOCAKR40lPCmWtEUAbcuEhLlkm+
+vmhNYxBqkx33jEIMxk95P4eKIYPyr45/8o7bV1jq7G26aBzj1Mjd0JmU
+-----END CERTIFICATE-----
+expiration          1574924103
+issuing_ca          -----BEGIN CERTIFICATE-----
+MIIDPjCCAiagAwIBAgIUEDmnAmC0siISlrezD3/CeUXTSfswDQYJKoZIhvcNAQEL
+... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ...
+CsFVu+vfMM9XEMYeKHRWAq9onJFyGuwKGhF0/7RbZ3EunTj6Zph+UMucGoL4xfXj
+ITltdU1N4JPvihQq+8Omryay
+-----END CERTIFICATE-----
+private_key         -----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEAuK7V4GuoHSF8pnlr4hApeU7V3zpuQ2rWt3pXgi9TPBCmIuye
+... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ...
++o8HetGW5xWvuQ/ObkiSzdQ8nxMyiQj/whe4riYriOw1fYwPrjZfxTm1jsyEmbbm
+gYewhfHP3hOgTCVu3SjhvOXS3pnW7hUP4wtvpLLdRumEUM/fK7pwNg==
+-----END RSA PRIVATE KEY-----
+private_key_type    rsa
+serial_number       59:008:4f:2d:6e:91:fe:79:3f:df:1d:d7:45:e1:c2:d5:97:b8:05:65
+```
+
+For more details visit the [official Vault documentation](https://www.vaultproject.io/docs/secrets/pki/index.html#setup).
+
+## Use PKI Secret Engine as Non-root User
+
+Here, we are going to create a Kubernetes service account and give it limited access (i.e only PKI secret engine) from the Vault using the VaultPolicy and the VaultPolicyBinding.
+
+### Create Kubernetes Service Account
+
+Create a service account `pki-admin` to the `demo` namespace:
+
+```console
+$  kubectl create serviceaccount -n demo pki-admin
+serviceaccount/pki-admin created
+
+# get service account JWT token which will be required while performing
+# login operation to the Vault
+$ kubectl get secrets -n demo pki-admin-token-26kwb  -o jsonpath="{.data.token}" | base64 --decode;
+eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZW1vIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6InBraS1hZG1pbi10b2tlbi0yNmt3YiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJwa2ktYWRtaW4iLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiJkYmVkZDQ2Ni0yYzc0LTQ0OGItOTBlZS01MDlkNGI4MTJjOTEiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6ZGVtbzpwa2ktYWRtaW4ifQ.ce7OqA05nsfBMRsEOiG1Lje_mOBdUZRKALB9Sc9LVqjKIJZHdxvZ7NT4ZKrIyPEe02aItzxlXLAP4Fa8dUMshZuNyuxBYN7p2qHRCwVKHqOuz8LdRQWypKiLozL9v0DHk-vbFWFcm0eye57vJBFtriYyYRUA84WZhxRb9wz-f8z7PSmO2mpjkrICt7wi48j-4FObdhFWk6HAKXFD7bCzL4j3CWUcx2wTIsnOEz9SifjYZuGaog6tpWhnj-guEKpXJzBLAoMBU0Vr3U7Zv_z1qvKFF4ZherUBxSOMo27lL2xbhkpbW2wf_DCAjLx8pScoh9mxv7AK2WJCHeA0JRzrug
+```
+
+### Create VaultPolicy and VaultPolicyBinding
+
+A sample VaultPolicy object with necessary path permission for the PKI secret engine:
+
+```yaml
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicy
+metadata:
+  name: pki-policy
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  policyDocument: |
+    path "sys/mounts" {
+      capabilities = ["read", "list"]
+    }
+
+    path "sys/mounts/*" {
+      capabilities = ["create", "read", "update", "delete"]
+    }
+
+    path "pki/*" {
+        capabilities = ["read","create", "list", "update", "delete"]
+    }
+
+    path "sys/leases/revoke/*" {
+        capabilities = ["update"]
+    }
+```
+
+Create VaultPolicy and check status:
+
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/pki/policy.yaml
+vaultpolicy.policy.kubevault.com/pki-policy created
+
+$ kubectl get vaultpolicy -n demo
+NAME                           STATUS    AGE
+pki-policy                     Success   3m15s
+```
+
+A sample VaultPolicyBinding object that binds the `pki-policy` to the `pki-admin` service account:
+
+```yaml
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicyBinding
+metadata:
+  name: pki-admin-role
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  policies:
+  - ref: pki-policy
+  subjectRef:
+    kubernetes:
+      serviceAccountNames:
+        - "pki-admin"
+      serviceAccountNamespaces:
+        - "demo"
+      ttl: "1000"
+      maxTTL: "2000"
+      period: "1000"
+```
+
+Create VaultPolicyBinding and check status:
+
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/pki/policyBinding.yaml
+vaultpolicybinding.policy.kubevault.com/pki-admin-role created
+
+$ kubectl get vaultpolicybindings -n demo
+NAME                           STATUS    AGE
+pki-admin-role                 Success   43m
+```
+
+### Login Vault and Use PKI Secret Engine
+
+To resolve the naming conflict, name of the policy and role in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`.
+
+> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
+
+List Vault policies and Kubernetes auth roles:
+
+```console
+$ vault list sys/policy
+Keys
+----
+k8s.-.demo.pki-policy
+
+$ vault read sys/policy/k8s.-.demo.pki-policy
+Key      Value
+---      -----
+name     k8s.-.demo.pki-policy
+rules    path "sys/mounts" {
   capabilities = ["read", "list"]
 }
 
@@ -127,135 +292,147 @@ path "sys/mounts/*" {
 }
 
 path "pki/*" {
-        capabilities = ["read"]
+    capabilities = ["read","create", "list", "update", "delete"]
 }
 
 path "sys/leases/revoke/*" {
     capabilities = ["update"]
 }
+
+$ vault list auth/kubernetes/role
+Keys
+----
+k8s.-.demo.pki-admin-role
+
+$ vault read auth/kubernetes/role/k8s.-.demo.pki-admin-role
+Key                                 Value
+---                                 -----
+bound_service_account_names         [pki-admin]
+bound_service_account_namespaces    [demo]
+max_ttl                             33m20s
+period                              16m40s
+policies                            [k8s.-.demo.pki-policy]
+token_bound_cidrs                   []
+token_explicit_max_ttl              0s
+token_max_ttl                       33m20s
+token_no_default_policy             false
+token_num_uses                      0
+token_period                        16m40s
+token_policies                      [k8s.-.demo.pki-policy]
+token_ttl                           16m40s
+token_type                          default
+ttl                                 16m40s
 ```
 
-You can manage policy in Vault using Vault operator, see [here](/docs/guides/policy-management/policy-management).
+So, we can see that the `pki-policy` is added to the `pki-admin-role`.
 
-To create policy with above capabilities run following command
+Now, login to the Vault using `pki-admin`'s JWT token under `pki-admin-role` role.
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/pki/policy.yaml
-vaultpolicy.policy.kubevault.com/pki-policy created
-vaultpolicybinding.policy.kubevault.com/pki-role created
+$ vault write auth/kubernetes/login \
+                       role=k8s.-.demo.pki-admin-role \
+                       jwt=eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZW1vIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6InBraS1hZG1pbi10b2tlbi0yNmt3YiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJwa2ktYWRtaW4iLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiJkYmVkZDQ2Ni0yYzc0LTQ0OGItOTBlZS01MDlkNGI4MTJjOTEiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6ZGVtbzpwa2ktYWRtaW4ifQ.ce7OqA05nsfBMRsEOiG1Lje_mOBdUZRKALB9Sc9LVqjKIJZHdxvZ7NT4ZKrIyPEe02aItzxlXLAP4Fa8dUMshZuNyuxBYN7p2qHRCwVKHqOuz8LdRQWypKiLozL9v0DHk-vbFWFcm0eye57vJBFtriYyYRUA84WZhxRb9wz-f8z7PSmO2mpjkrICt7wi48j-4FObdhFWk6HAKXFD7bCzL4j3CWUcx2wTIsnOEz9SifjYZuGaog6tpWhnj-guEKpXJzBLAoMBU0Vr3U7Zv_z1qvKFF4ZherUBxSOMo27lL2xbhkpbW2wf_DCAjLx8pScoh9mxv7AK2WJCHeA0JRzrug
+
+Key                                       Value
+---                                       -----
+token                                     s.ZPu4zcyaajjpxtS1t8fnh2LV
+token_accessor                            5OknOf72h8WnP1v0I1C01626
+token_duration                            16m40s
+token_renewable                           true
+token_policies                            ["default" "k8s.-.demo.pki-policy"]
+identity_policies                         []
+policies                                  ["default" "k8s.-.demo.pki-policy"]
+token_meta_role                           k8s.-.demo.pki-admin-role
+token_meta_service_account_name           pki-admin
+token_meta_service_account_namespace      demo
+token_meta_service_account_secret_name    pki-admin-token-26kwb
+token_meta_service_account_uid            dbedd466-2c74-448b-90ee-509d4b812c91
 ```
 
-
-## Read/Write secrets into Vault
-
-From your local machine check the Vault server is running with following command:
+Export the new Vault token as an environment variable:
 
 ```console
-$ kubectl get pods -l app=vault -n demo
-NAME                     READY   STATUS    RESTARTS   AGE
-vault-848797ffdf-xdnn8   3/3     Running   0          8m44s
+export VAULT_TOKEN=s.ZPu4zcyaajjpxtS1t8fnh2LV
 ```
 
-Vault server is running on port 8200. We are going to use [port forwarding](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/) to access Vault server from local machine. Run following commands on a separate terminal,
+Now generate a new certificate using the PKI secret engine:
 
-```console
-$ kubectl port-forward -n vault-848797ffdf-xdnn8 8200
-Forwarding from 127.0.0.1:8200 -> 8200
-Forwarding from [::1]:8200 -> 8200
-```
-
-Now, you can access the Vault server at https://127.0.0.1:8200.
-
-To retrieve `CACert` of Vault server run following command:
-
-```console
-$ kubectl get pods vault-848797ffdf-xdnn8 -n demo -o jsonpath='{.spec.containers[?(@.name=="vault-unsealer")].args}'
-[run --v=3 --secret-shares=4 --secret-threshold=2 --vault.ca-cert=-----BEGIN CERTIFICATE-----
-MIICuDCCAaCgAwIBAgIBADANBgkqhkiG9w0BAQsFADANMQswCQYDVQQDEwJjYTAe
-Fw0xOTAzMDEwNTI1MzlaFw0yOTAyMjYwNTI1MzlaMA0xCzAJBgNVBAMTAmNhMIIB
-IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsd+CM6/GpA13afJpIjnL+2B7
-kjP6EnkIkrOaVm2tSf61r4HknjZYmENLvuiByCAwUIcWa+qa6LXgAQ+bV2EYOpyA
-uU1oJAphR2ARJsAjrzKDPtOLLu00/gCY6fJ4ueelwV2HlPIqjKTKZQHm6/yFCbp3
-mnTmGSf0kYGefcuf1BfZsA3wWKy9uetom8OHkUe+ufWGcbSVEVuGTV5jfbVZ/uo+
-AiNuR+qc4N1hIIVdVJxc98I2FTiII1vMYk7GjwubDcudxXzuKAYbJpY8No89Y8OT
-YDCl5YCILZyssMlRSa31S65nMJsZjkjKRtxMqIDCcpWcCO5Ij/qfoUexqNgQZQID
-AQABoyMwITAOBgNVHQ8BAf8EBAMCAqQwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG
-9w0BAQsFAAOCAQEAkBidD4V8vWHwnBip4psyMLdHG08H1KzcsDOfZ1n2q957Pfb9
-f2A0aq6My0/TdSEQaEHeOSruQonQDvnUOSZ0JDhjf5aKssggwzbHCmS6JqVEm+eb
-RW0OHJepJj382umj5qP/dUKBRM+cM56S1aheVw+H9cR4ltX2kRw98nPi7Ilwbd8a
-pjrlb2brUszDjaR0DGVOoeiSPFw7qv1EQA8xhu7a+K6woKwwd8a/VrRgfDQkeTLH
-R1RqEYe1Uk5t2sGIQ2q1ymWQfl2218P4Hh1TpAF4gzDrc5t3VOThy3ZLS9i2/XIu
-89cKx7f8pb6/ybfCARI96S+WcNbZHv+SKEL2MQ==
------END CERTIFICATE-----
- --auth.k8s-host=https://10.96.0.1:443 ...
-```
-
-From the output grep `vault.ca-cert` key and store the value int `ca.crt` file.
-
-We need to configure following environment variable.
-
-```console
-export VAULT_ADDR=https://127.0.0.1:8200
-export VAULT_TOKEN=$(kubectl get secrets -n demo vault-keys -o jsonpath="{.data.vault-root-token}" | base64 --decode; echo)
-
-export VAULT_CACERT=ca.crt #Put the path where you stored ca.crt
-
-$ kubectl get secrets -n demo vault-vault-tls -o jsonpath="{.data.tls\.crt}" | base64 -d>tls.crt
-export VAULT_CLIENT_CERT=tls.crt
-
-$ kubectl get secrets -n demo vault-vault-tls -o jsonpath="{.data.tls\.key}" | base64 -d>tls.key
-export VAULT_CLIENT_KEY=tls.key
-
-```
-
-Check whether Vault server can be accessed
-
-```console
-$ vault status
-Key             Value
----             -----
-Seal Type       shamir
-Sealed          false
-Total Shares    4
-Threshold       2
-Version         1.0.0
-Cluster Name    vault-cluster-1bfbb939
-Cluster ID      3db2acdf-28b6-8afb-ed52-fed6cf55379d
-HA Enabled      false
-```
-
-To enable `PKI` engine, run:
+Enable the PKI secrets engine:
 
 ```console
 $ vault secrets enable pki
 Success! Enabled the pki secrets engine at: pki/
 ```
 
-#### Write Certificate Data
+Increase the TTL by tuning the secrets engine. The default value of 30 days may be too short, so increase it to 1 year:
 
-To write certificate into Vault run following command:
+```console
+$ vault secrets tune -max-lease-ttl=8760h pki
+Success! Tuned the secrets engine at: pki/
+```
+
+Configure a CA certificate and private key:
 
 ```console
 $ vault write pki/root/generate/internal \
-    common_name=my-website.com \
-    ttl=8760h
+                          common_name=my-website.com \
+                          ttl=8760h
+Key              Value
+---              -----
+certificate      -----BEGIN CERTIFICATE-----
+MIIDPjCCAiagAwIBAgIUEDmnAmC0siISlrezD3/CeUXTSfswDQYJKoZIhvcNAQEL
+... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ...
+CsFVu+vfMM9XEMYeKHRWAq9onJFyGuwKGhF0/7RbZ3EunTj6Zph+UMucGoL4xfXj
+ITltdU1N4JPvihQq+8Omryay
+-----END CERTIFICATE-----
+expiration       1606200496
+issuing_ca       -----BEGIN CERTIFICATE-----
+MIIDPjCCAiagAwIBAgIUEDmnAmC0siISlrezD3/CeUXTSfswDQYJKoZIhvcNAQEL
+... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ...
+CsFVu+vfMM9XEMYeKHRWAq9onJFyGuwKGhF0/7RbZ3EunTj6Zph+UMucGoL4xfXj
+ITltdU1N4JPvihQq+8Omryay
+-----END CERTIFICATE-----
+serial_number    10:39:a7:02:60:b4:b2:22:12:96:b7:b3:0f:7f:c2:79:45:d3:49:fb
 ```
 
-#### Issue Certificate Data
-
-To issue certificate from Vault run following command:
+Configure a role that maps a name in Vault to a procedure for generating a certificate. When users or machines generate credentials, they are generated against this role:
 
 ```console
-$ vault write pki/issue/my-role \
-    common_name=www.my-website.com
-
-Key                 Value
----                 -----
-certificate         -----BEGIN CERTIFICATE-----...
-issuing_ca          -----BEGIN CERTIFICATE-----...
-private_key         -----BEGIN RSA PRIVATE KEY-----...
-private_key_type    rsa
-serial_number       1d:2e:c6:06:45:18:60:0e:23:d6:c5:17:43:c0:fe:46:ed:d1:50:be
+$ vault write pki/roles/example-dot-com \
+                          allowed_domains=my-website.com \
+                          allow_subdomains=true \
+                          max_ttl=72h
+Success! Data written to: pki/roles/example-dot-com
 ```
 
-To learn more usages of Vault `PKI(certificates)` secret engine click [this](https://www.vaultproject.io/docs/secrets/pki/index.html#setup).
+Generate a new credential by writing to the /issue endpoint with the name of the role:
+
+```console
+$ vault write pki/issue/example-dot-com \
+                        common_name=www.my-website.com
+Key                 Value
+---                 -----
+certificate         -----BEGIN CERTIFICATE-----
+MIIDVjCCAj6gAwIBAgIUWQhPLW6R/nk/3x3XReHC1Ze4BWUwDQYJKoZIhvcNAQEL
+... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ...
+TSuguIiSBt5NN0ou4aY01FbeJJOHZhtpj31XdXOCAKR40lPCmWtEUAbcuEhLlkm+
+vmhNYxBqkx33jEIMxk95P4eKIYPyr45/8o7bV1jq7G26aBzj1Mjd0JmU
+-----END CERTIFICATE-----
+expiration          1574924103
+issuing_ca          -----BEGIN CERTIFICATE-----
+MIIDPjCCAiagAwIBAgIUEDmnAmC0siISlrezD3/CeUXTSfswDQYJKoZIhvcNAQEL
+... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ...
+CsFVu+vfMM9XEMYeKHRWAq9onJFyGuwKGhF0/7RbZ3EunTj6Zph+UMucGoL4xfXj
+ITltdU1N4JPvihQq+8Omryay
+-----END CERTIFICATE-----
+private_key         -----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEAuK7V4GuoHSF8pnlr4hApeU7V3zpuQ2rWt3pXgi9TPBCmIuye
+... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ...
++o8HetGW5xWvuQ/ObkiSzdQ8nxMyiQj/whe4riYriOw1fYwPrjZfxTm1jsyEmbbm
+gYewhfHP3hOgTCVu3SjhvOXS3pnW7hUP4wtvpLLdRumEUM/fK7pwNg==
+-----END RSA PRIVATE KEY-----
+private_key_type    rsa
+serial_number       59:008:4f:2d:6e:91:fe:79:3f:df:1d:d7:45:e1:c2:d5:97:b8:05:65
+```
+
+For more details visit the [official Vault documentation](https://www.vaultproject.io/docs/secrets/pki/index.html#setup).

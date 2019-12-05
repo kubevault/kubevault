@@ -1,13 +1,16 @@
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicyBinding
 metadata:
-  name: demo-role
+  name: policy-reader-role
   namespace: demo
 spec:
-  roleName: "demo-role"
-  policies : ["demo-policy"]
-  serviceAccountNames: ["demo-sa"]
-  serviceAccountNamespaces: ["demo"]
-  ttl: "1000"
-  maxTTL: "2000"
-  period: "1000"
+  vaultRef:
+    name: vault
+  policies:
+  - ref: read-only-policy
+  subjectRef:
+    kubernetes:
+      serviceAccountNames:
+        - "demo-sa"
+      serviceAccountNamespaces:
+        - "demo"

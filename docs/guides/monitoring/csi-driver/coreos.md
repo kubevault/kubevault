@@ -18,7 +18,7 @@ CoreOS [prometheus-operator](https://github.com/coreos/prometheus-operator) prov
 
 ## Before You Begin
 
-- At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Minikube](https://github.com/kubernetes/minikube). To check the version of your cluster, run:
+- At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
 ```console
 $ kubectl version --short
@@ -41,7 +41,19 @@ Enable Prometheus monitoring using `prometheus.io/coreos-operator` agent while i
 
 Here, we are going to enable monitoring for `operator` metrics.
 
-<b> Using Helm: </b>
+**Using Helm 3:**
+
+```console
+$ helm install csi-vault appscode/csi-vault --version {{< param "info.version" >}} --namespace kube-system \
+  --set monitoring.agent=prometheus.io/coreos-operator \
+  --set monitoring.attacher=true \
+  --set monitoring.plugin=true \
+  --set monitoring.provisioner=true \
+  --set monitoring.prometheus.namespace=monitoring \
+  --set monitoring.serviceMonitor.labels.k8s-app=prometheus
+```
+
+**Using Helm 2:**
 
 ```console
 $ helm install appscode/csi-vault --name csi-vault --version {{< param "info.version" >}} --namespace kube-system \
@@ -53,7 +65,7 @@ $ helm install appscode/csi-vault --name csi-vault --version {{< param "info.ver
   --set monitoring.serviceMonitor.labels.k8s-app=prometheus
 ```
 
-<b> Using Script: </b>
+**Using Script:**
 
 ```console
 $ curl -fsSL https://github.com/kubevault/csi-driver/raw/{{< param "info.version" >}}/hack/deploy/install.sh | bash -s -- \

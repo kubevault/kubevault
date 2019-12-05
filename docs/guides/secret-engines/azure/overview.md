@@ -1,5 +1,5 @@
 ---
-title: Manage Azure service principals using the Vault Operator
+title: Manage Azure service principals using the KubeVault operator
 menu:
   docs_{{ .version }}:
     identifier: overview-azure
@@ -12,21 +12,22 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Manage Azure service principals using the Vault Operator
+# Manage Azure service principals using the KubeVault operator
 
-You can easily manage [Azure secret engine](https://www.vaultproject.io/docs/secrets/azure/index.html) using Vault operator.
+The Azure secrets engine dynamically generates Azure service principals and role assignments. Vault roles can be mapped to one or more Azure roles, providing a simple, flexible way to manage the permissions granted to generated service principals. You can easily manage the [Azure secret engine](https://www.vaultproject.io/docs/secrets/azure/index.html) using the KubeVault operator.
+
+![Azure secret engine](/docs/images/guides/secret-engines/azure/azure_secret_engine_guide.svg)
 
 You need to be familiar with the following CRDs:
 
-- [AzureRole](/docs/concepts/secret-engine-crds/azurerole.md)
-- [AzureAccessKeyRequest](/docs/concepts/secret-engine-crds/azureaccesskeyrequest)
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
+- [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
+- [AzureRole](/docs/concepts/secret-engine-crds/azure-secret-engine/azurerole.md)
+- [AzureAccessKeyRequest](/docs/concepts/secret-engine-crds/azure-secret-engine/azureaccesskeyrequest.md)
 
-Before you begin:
+## Before you begin
 
-- Install Vault operator in your cluster following the steps [here](/docs/setup/operator/install).
-
-- Deploy Vault. It could be in the Kubernetes cluster or external.
+- Install KubeVault operator in your cluster from [here](/docs/setup/operator/install.md).
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -35,318 +36,302 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-In this tutorial, we are going to create a [role](https://www.vaultproject.io/api/secret/azure/index.html#create-update-role) using AzureRole and issue credential using AzureAccessKeyRequest. For this tutorial, we are going to deploy Vault using Vault operator.
+In this tutorial, we are going to create a [role](https://www.vaultproject.io/api/secret/azure/index.html#create-update-role) using AzureRole and issue credential using AzureAccessKeyRequest.
+
+## Vault Server
+
+If you don't have a Vault Server, you can deploy it by using the KubeVault operator.
+
+- [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
+
+The KubeVault operator can manage policies and secret engines of Vault servers which are not provisioned by the KubeVault operator. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
+
+- [Configure cluster and Vault server](/docs/guides/vault-server/external-vault-sever.md#configuration)
+
+Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server.
 
 ```console
-$ cat examples/guides/secret-engins/azure/vaultseverInmem.yaml
+$ kubectl get appbinding -n demo
+NAME    AGE
+vault   50m
 
-apiVersion: kubevault.com/v1alpha1
-kind: VaultServer
+$ kubectl get appbinding -n demo vault -o yaml
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
 metadata:
   name: vault
   namespace: demo
 spec:
-  replicas: 1
-  version: "1.0.1"
-  serviceTemplate:
-    spec:
-      type: NodePort
-  backend:
-    inmem: {}
-  unsealer:
-    secretShares: 4
-    secretThreshold: 2
-    mode:
-      kubernetesSecret:
-        secretName: vault-keys
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: vault
+      port: 8200
+      scheme: HTTPS
+  parameters:
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
+    path: kubernetes
+    policyControllerRole: vault-policy-controller
+    serviceAccountName: vault
+    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+    usePodServiceAccountForCsiDriver: true
 ```
 
-```console
-$ kubectl get vaultserverversions/1.0.1 -o yaml
+## Enable and Configure Azure Secret Engine
 
-apiVersion: catalog.kubevault.com/v1alpha1
-kind: VaultServerVersion
+When a [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md) crd object is created, the KubeVault operator will enable a secret engine on specified path and configure the secret engine with given configurations.
+
+A sample SecretEngine object for Azure secret engine:
+
+```yaml
+apiVersion: engine.kubevault.com/v1alpha1
+kind: SecretEngine
 metadata:
-  labels:
-    app: vault-operator
-  name: 1.0.1
+  name: azure-engine
+  namespace: demo
 spec:
-  deprecated: false
-  exporter:
-    image: kubevault/vault-exporter:0.1.0
-  unsealer:
-    image: kubevault/vault-unsealer:0.2.0
-  vault:
-    image: vault:1.0.1
-  version: 1.0.1
+  vaultRef:
+    name: vault
+  azure:
+    credentialSecret: azure-cred
 ```
 
-```console
-$ kubectl apply -f examples/guides/secret-engins/azure/vaultseverInmem.yaml
-  vaultserver.kubevault.com/vault created
+To configure the Azure secret engine, you need to provide azure credentials through a Kubernetes secret.
 
-$ kubectl get vaultserver/vault -n demo
-  NAME    NODES   VERSION   STATUS    AGE
-  vault   1       1.0.1     Running   15m
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: azure-cred
+  namespace: demo
+data:
+  client-secret: TU1hRjdRZWVzTG...=
+  subscription-id: MWJmYzlmNjYt....
+  client-id: MmI4NzFkNGEtNzU3......
+  tenant-id: NzcyMjY4ZTUtZDk0MC....
 ```
 
-## AzureRole
-
-Using [AzureRole](/docs/concepts/secret-engine-crds/azurerole.md), you can [configure azure secret backend](https://www.vaultproject.io/docs/secrets/azure/index.html#setup) and [create azure role](https://www.vaultproject.io/api/secret/azure/index.html#create-update-role).
+Let's deploy SecretEngine:
 
 ```console
-$ cat examples/guides/secret-engins/azure/azureRole.yaml
+$ kubectl apply -f examples/guides/secret-engins/azure/azureCred.yaml
+secret/azure-cred created
 
+$ kubectl apply -f examples/guides/secret-engins/azure/azureSecretEngine.yaml
+secretengine.engine.kubevault.com/azure-engine created
+```
+
+Wait till the status become `Success`:
+
+```console
+$ kubectl get azureroles -n demo
+NAME         STATUS
+azure-role   Success
+```
+
+Since the status is `Success`, the Azure secret engine is enabled and successfully configured. You can use `kubectl describe secretengine -n <namepsace> <name>` to check for error events, if any.
+
+## Create Azure Role
+
+By using [AzureRole](/docs/concepts/secret-engine-crds/azure-secret-engine/azurerole.md), you can create a [role](https://www.vaultproject.io/api/secret/azure/index.html#create-update-role) on the Vault server in Kubernetes native way.
+
+A sample AzureRole object is given below:
+
+```yaml
 apiVersion: engine.kubevault.com/v1alpha1
 kind: AzureRole
 metadata:
-  name: demo-role
+  name: azure-role
   namespace: demo
 spec:
-  ref:
-    name: vault-app
-    namespace: demo
+  vaultRef:
+    name: vault
   applicationObjectID: c1cb042d-96d7-423a-8dba-243c2e5010d3
-  config:
-    credentialSecret: azure-cred
   ttl: 1h
-  maxTTL: 1h
 ```
 
-Before deploying a AzureRole crd, you need to make sure that `spec.ref` and `config.clientSecret` fields are valid.
-
-`spec.ref` contains [appbinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference. You can use any valid [auth method](/docs/concepts/vault-server-crds/auth-methods/overview.md) while creating appbinding. We will use [token auth method](/docs/concepts/vault-server-crds/auth-methods/token.md) in this tutorial.
-
-```console
-$ cat examples/guides/secret-engins/azure/token.yaml
-
-apiVersion: v1
-data:
-  token: cy4xUnpySndvakZ6WjlYRU9vNjVaWmR6Q2Y=
-kind: Secret
-metadata:
-  name: vault-token
-  namespace: demo
-type: kubevault.com/token
-
-$ kubectl apply -f examples/guides/secret-engins/azure/token.yaml
-  secret/vault-token created
-```
-
-```console
-$ cat examples/guides/secret-engins/azure/tokenAppbinding.yaml
-  apiVersion: appcatalog.appscode.com/v1alpha1
-  kind: AppBinding
-  metadata:
-    name: vault-app
-    namespace: demo
-  spec:
-    secret:
-      name: vault-token
-    clientConfig:
-      service:
-        name: vault
-        scheme: HTTPS
-        port: 8200
-      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9UQTFNVFV4TURFMU5EUmFGdzB5T1RBMU1USXhNREUxTkRSYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBc0E0VzVBVTZaZ29nKzhISjFKcTYvV3MrCkI1VDdDMDdOeGNpbEZwdkJleEVoMnZ2ZFpmQkp3NEw3QmNkaExQYzc1OGVOMUxnaEpaSlRQRjdvRXJRbzFZM0EKaUp0YUtURHlVU1ZZSXdvOVZhSG9zWkMyWFdRTEFWZ0NOVmlVbjN3Y0pnT043cjJUVSs2dWNxY2RidUVsYWJkWgpVbzBRNHRSUDgvaWEwcElCWnV2a0ZqY2R3QUpEMzFKaGE5WGdibFBVSnROdW9pYVcvSytXWjM1TU5iK2JGQ2tRCk14Zm1aMTFNb1dsZzlUYjBRQ1ZoRzBPSWdHVy9ySU1LTHphWS85MXJSNmFFU25JRWdyUjZTczhPZ0NKVEVLUzMKaS8zd2laNVVPVlI5MVFPSkRMSkROeXJCc1lRcENGVjJ2VHcydVpoYWZUWUZ4UWZrNTlvU0w5aGpoMFZyQ1FJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFyelJ1TnpUc2tpd0JPZzBFdHcrc2Y4UU00ZG01eklHS2huQ3pkVUw2Z2w3azhhUVgKUlkxM1RrME9EZnBlbEM1KzVIZTYrK1U1aUo2amFYcEIyUEZhQWtwRVJ3a0h3Qm1lOHN0b01rVHRWd1hhUVVBcwpyT1A2Y2REOVJJMlBjbFZXaG5NdVdSVnJKZStYVG1lakVjRW53cWJIT0hMTlhSYkNpNW1XNVU4a0xVc2JISmZRClB0T3RRdlYySStFNmJ4MjdaNjduQXg3QnVCWlpKbm1SQUJoc1lQQzllbFdmdlFoOVVFcVk0QWUvaTh2MEdTamcKTjRVbVNUMXFDaGQ5dG9IZVlORURMM2hDMkpORExJNWhSMy80eTBDRUcvclhsQ1ZwSmtpTlJhSm9CVmErckhNdQorM0IwZW85MGo0UUhBbVpQWTkxVmdZc09ZaGdOc2s3ZUtFdmxYZz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
-
-$ kubectl apply -f examples/guides/secret-engins/azure/tokenAppbinding.yaml
-  appbinding.appcatalog.appscode.com/vault-app created
-```
-
-`spec.config.credentialSecret` contains the name of the Kubernetes secret that holds the credential for Azure Active Directory(AAD)
-
-```console
-$ cat examples/guides/secret-engins/azure/azure-secret.yaml
-  apiVersion: v1
-  kind: Secret
-  metadata:
-    name: azure-cred
-    namespace: demo
-  data:
-    subscription-id: MWJmYzlmNjYtMzE2ZC0****
-    tenant-id: NzcyMjY4ZTUtZDk0MC00Ym*******
-    client-id: MmI4NzFkNGEtNzU3ZS00YjJ******
-    client-secret: TU1hRjdRZWVzTGZxbGRpVD***
-
-$ kubectl apply -f examples/guides/secret-engins/azure/azure-secret.yaml
-  secret/azure-client-secret created
-```
-
-Now we can deploy our AzureRole
+Let's deploy AzureRole:
 
 ```console
 $ kubectl apply -f examples/guides/secret-engins/azure/azureRole.yaml
-  azurerole.engine.kubevault.com/demo-role created
+azurerole.engine.kubevault.com/azure-role created
 
 $ kubectl get azureroles -n demo
-  NAME        STATUS
-  demo-role   Success
+NAME         STATUS
+azure-role   Success
 ```
 
-To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{spec.clusterName or -}.{spec.namespace}.{spec.name}`.
+You can also check from Vault that the role is created.
+To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`.
+
+> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
 ```console
 $ vault list azure/roles
-  Keys
-  ----
-  k8s.-.demo.demo-role
+Keys
+----
+k8s.-.demo.azure-role
 
-$ vault read azure/roles/k8s.-.demo.demo-role
-  Key                      Value
-  ---                      -----
-  application_object_id    c1cb042d-96d7-423a-8dba-...
-  azure_roles              <nil>
-  max_ttl                  1h
-  ttl                      1h
+$ vault read azure/roles/k8s.-.demo.azure-role
+Key                      Value
+---                      -----
+application_object_id    c1cb042d-96d7-423a-8dba-243c2e5010d3
+azure_roles              <nil>
+max_ttl                  0s
+ttl                      1h
 ```
 
-If we delete AzureRole, then respective role will be deleted from Vault.
+If we delete the AzureRole, then the respective role will be deleted from the Vault.
 
 ```console
 $ kubectl delete -f examples/guides/secret-engins/azure/azureRole.yaml
-  azurerole.engine.kubevault.com "demo-role" deleted
+  azurerole.engine.kubevault.com "azure-role" deleted
+```
 
-# check in vault whether role exists
-$ vault read azure/roles/k8s.-.demo.demo-role
-  No value found at azure/roles/k8s.-.demo.demo-role
+Check from Vault whether the role exists:
+
+```console
+$ vault read azure/roles/k8s.-.demo.azure-role
+  No value found at azure/roles/k8s.-.demo.azure-role
 
 $ vault list azure/roles
   No value found at azure/roles/
 ```
 
-## AzureAccessKeyRequest
+## Generate Azure credentials
 
-Using [AzureAccessKeyRequest](/docs/concepts/secret-engine-crds/azureaccesskeyrequest), you can generate azure service principals from Vault. In this tutorial, we are going to azure service principals by creating `azure-credential` AzureAccessKeyRequest in `demo` namespace.
+By using [AzureAccessKeyRequest](/docs/concepts/secret-engine-crds/azure-secret-engine/azureaccesskeyrequest.md), you can generate Azure credential from Vault.
 
-```console
-$ cat examples/guides/secret-engins/azure/azureAKR.yaml
-  apiVersion: engine.kubevault.com/v1alpha1
-  kind: AzureAccessKeyRequest
-  metadata:
-    name: azure-credential
+Here, we are going to make a request to Vault for Azure credentials by creating `azure-cred-rqst` AzureAccessKeyRequest in `demo` namespace.
+
+```yaml
+apiVersion: engine.kubevault.com/v1alpha1
+kind: AzureAccessKeyRequest
+metadata:
+  name: azure-cred-rqst
+  namespace: demo
+spec:
+  roleRef:
+    name: azure-role
     namespace: demo
-  spec:
-    roleRef:
-      name: demo-role
-      namespace: demo
-    subjects:
-    - kind: ServiceAccount
-      name: sa
-      namespace: demo
+  subjects:
+  - kind: ServiceAccount
+    name: demo-sa
+    namespace: demo
 ```
 
-Here, `spec.roleRef` is the reference of AzureRole against which credentials will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret. Also, Vault operator will use AppBinding reference from AzureRole which is specified in `spec.roleRef`.
+Here, `spec.roleRef` is the reference of AzureRole against which credentials will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret.
 
-Now, we are going to create `azure-credential` AzureAccessKeyRequest.
+Now, we are going to create AzureAccessKeyRequest.
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/azure/azureAKR.yaml
-  azureaccesskeyrequest.engine.kubevault.com/azure-credential created
+$ kubectl apply -f examples/guides/secret-engins/azure/azureAccessKeyRequest.yaml
+azureaccesskeyrequest.engine.kubevault.com/azure-cred-rqst created
 
-$ kubectl get azureaccesskeyrequest -n demo
-  NAME               AGE
-  azure-credential   31s
+$ kubectl get azureaccesskeyrequests -n demo
+NAME        AGE
+azure-cred-rqst  3s
 ```
 
-Azure credential will not be issued until it is approved. To approve it, you have to add `Approved` in `status.conditions[].type` field. You can use [KubeVault CLI](https://github.com/kubevault/cli) as [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/) to approve or deny AzureAccessKeyRequest.
+Azure credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny AzureAccessKeyRequest.
 
 ```console
-# using KubeVault cli as kubectl plugin to approve request
-$ kubectl vault approve azureaccesskeyrequest azure-credential -n demo
+# using KubeVault CLI as kubectl plugin to approve request
+$ kubectl vault approve azureaccesskeyrequest azure-cred-rqst -n demo
   approved
 
-$ kubectl get azureaccesskeyrequest -n demo azure-credential -o yaml
-  apiVersion: engine.kubevault.com/v1alpha1
-  kind: AzureAccessKeyRequest
-  metadata:
-    name: azure-credential
+$ kubectl get azureaccesskeyrequests -n demo azure-cred-rqst -o yaml
+apiVersion: engine.kubevault.com/v1alpha1
+kind: AzureAccessKeyRequest
+metadata:
+  name: azure-cred-rqst
+  namespace: demo
+spec:
+  roleRef:
+    name: azure-role
     namespace: demo
-  spec:
-    roleRef:
-      name: demo-role
-      namespace: demo
-    subjects:
-    - kind: ServiceAccount
-      name: sa
-      namespace: demo
-  status:
-    conditions:
-    - lastUpdateTime: 2019-05-15T10:40:55Z
-      message: This was approved by kubectl vault approve azureaccesskeyrequest
-      reason: KubectlApprove
-      type: Approved
-    lease:
-      duration: 1h0m0s
-      id: azure/creds/k8s.-.demo.demo-role/qelACTqQw7ELFcTItfWNz4Aq
-      renewable: true
-    secret:
-      name: azure-credential-z3qwsi
+  subjects:
+  - kind: ServiceAccount
+    name: demo-sa
+    namespace: demo
+status:
+  conditions:
+  - lastUpdateTime: "2019-11-14T09:21:49Z"
+    message: This was approved by kubectl vault approve azureaccesskeyrequest
+    reason: KubectlApprove
+    type: Approved
+  lease:
+    duration: 1h0m0s
+    id: azure/creds/k8s.-.demo.azure-role/FJVEWUW9NpGlFOdIIMd900Zr
+    renewable: true
+  secret:
+    name: azure-cred-rqst-luc5p4
+
+
 ```
 
-Once AzureAccessKeyRequest is approved, Vault operator will issue credential from Vault and create a secret containing the credential. Also it will create rbac role and rolebinding so that `spec.subjects` can access secret. You can view the information in `status` field.
+Once AzureAccessKeyRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
 
 ```console
-$ kubectl get azureaccesskeyrequest/azure-credential -n demo -o json | jq '.status'
-  {
-    "conditions": [
-      {
-        "lastUpdateTime": "2019-05-15T10:40:55Z",
-        "message": "This was approved by kubectl vault approve azureaccesskeyrequest",
-        "reason": "KubectlApprove",
-        "type": "Approved"
-      }
-    ],
-    "lease": {
-      "duration": "1h0m0s",
-      "id": "azure/creds/k8s.-.demo.demo-role/qelACTqQw7ELFcTItfWNz4Aq",
-      "renewable": true
-    },
-    "secret": {
-      "name": "azure-credential-z3qwsi"
+$ kubectl get azureaccesskeyrequest azure-cred-rqst -n demo -o json | jq '.status'
+{
+  "conditions": [
+    {
+      "lastUpdateTime": "2019-11-14T09:21:49Z",
+      "message": "This was approved by kubectl vault approve azureaccesskeyrequest",
+      "reason": "KubectlApprove",
+      "type": "Approved"
     }
+  ],
+  "lease": {
+    "duration": "1h0m0s",
+    "id": "azure/creds/k8s.-.demo.azure-role/FJVEWUW9NpGlFOdIIMd900Zr",
+    "renewable": true
+  },
+  "secret": {
+    "name": "azure-cred-rqst-luc5p4"
   }
+}
 
-$ kubectl get secret -n demo azure-credential-z3qwsi -o yaml
-  apiVersion: v1
-  data:
-    client_id: MmI4NzFkNGEtNzU3ZS00Y.....
-    client_secret: N2VjODRhZmUtM2YzMS.....
-  kind: Secret
-  metadata:
-    creationTimestamp: 2019-05-15T10:40:57Z
-    name: azure-credential-z3qwsi
-    namespace: demo
-    ownerReferences:
-    - apiVersion: engine.kubevault.com/v1alpha1
-      controller: true
-      kind: AzureAccessKeyRequest
-      name: azure-credential
-      uid: ab115819-76fd-11e9-8494-08002770ee4f
-    resourceVersion: "6650"
-    selfLink: /api/v1/namespaces/demo/secrets/azure-credential-z3qwsi
-    uid: ec4fa1a2-76fd-11e9-8494-08002770ee4f
-  type: Opaque
+$  kubectl get secret -n demo azure-cred-rqst-luc5p4 -o yaml
+apiVersion: v1
+data:
+  client_id: MmI4NzFkNGEtN...
+  client_secret: ZjJlMjA3N...
+kind: Secret
+metadata:
+  name: azure-cred-rqst-luc5p4
+  namespace: demo
+  ownerReferences:
+  - apiVersion: engine.kubevault.com/v1alpha1
+    controller: true
+    kind: AzureAccessKeyRequest
+    name: azure-cred-rqst
+    uid: d944491b-a22c-4777-bc8f-2e2c94b47b7b
+type: Opaque
+
 ```
 
-If AzureAccessKeyRequest is deleted, then credential lease (if have any) will be revoked.
+If AzureAccessKeyRequest is deleted, then credential lease (if any) will be revoked.
 
 ```console
-$ kubectl delete azureaccesskeyrequest -n demo azure-credential
-  azureaccesskeyrequest.engine.kubevault.com "azure-credential" deleted
+$ kubectl delete azureaccesskeyrequest -n demo azure-cred-rqst
+azureaccesskeyrequest.engine.kubevault.com "azure-cred-rqst" deleted
 ```
 
-If AzureAccessKeyRequest is `Denied`, then Vault operator will not issue any credential.
+If AzureAccessKeyRequest is `Denied`, then the KubeVault operator will not issue any credentials.
 
 ```console
-$ kubectl vault deny azureaccesskeyrequest azure-credential -n demo
+$ kubectl vault deny azureaccesskeyrequest azure-cred-rqst -n demo
   Denied
 
-$ kubectl get azureaccesskeyrequest/azure-credential -n demo -o json | jq '.status'
+$ kubectl get azureaccesskeyrequest  azure-cred-rqst -n demo -o json | jq '.status'
   {
     "conditions": [
       {
-        "lastUpdateTime": "2019-05-15T11:10:39Z",
+        "lastUpdateTime": "2019-11-14T09:21:49Z",
         "message": "This was denied by kubectl vault deny azureaccesskeyrequest",
         "reason": "KubectlDeny",
         "type": "Denied"

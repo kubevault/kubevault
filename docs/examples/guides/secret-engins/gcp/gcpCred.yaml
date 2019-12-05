@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gcp-cred
+  namespace: demo
+data:
+  sa.json: ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb3Vud==

@@ -72,7 +72,7 @@ Specifies the name of the `VaultServerVersion` CRD. This CRD holds the image nam
 
 ```yaml
 spec:
-  version: "1.0.0"
+  version: "1.2.0"
 ```
 
 #### spec.tls

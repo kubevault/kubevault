@@ -5,7 +5,7 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: "1.0.0"
+  version: "1.2.0"
   backend:
     azure:
       container: demo-vault

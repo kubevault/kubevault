@@ -1,0 +1,15 @@
+apiVersion: engine.kubevault.com/v1alpha1
+kind: MongoDBRole
+metadata:
+  name: mdb-role
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  databaseRef:
+    name: mongo-app
+    namespace: demo
+  creationStatements:
+    - "{ \"db\": \"admin\", \"roles\": [{ \"role\": \"readWrite\" }, {\"role\": \"read\", \"db\": \"foo\"}] }"
+  defaultTTL: 1h
+  maxTTL: 24h

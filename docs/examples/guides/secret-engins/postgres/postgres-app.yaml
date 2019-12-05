@@ -14,8 +14,6 @@ spec:
       path: "postgres"
       query: "sslmode=disable"
     insecureSkipTLSVerify: true
-  parameters:
-    allowedRoles: "*"
 ---
 apiVersion: v1
 data:

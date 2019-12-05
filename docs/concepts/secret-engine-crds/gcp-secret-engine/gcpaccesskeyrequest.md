@@ -82,7 +82,7 @@ GCPAccessKeyRequest spec has the following fields:
 #### spec.roleRef
 
 `spec.roleRef` is a `required` field that specifies the
-[GCPRole](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md) against which credential will be issued.
+[GCPRole](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md) against which credentials will be issued.
 
 It has the following fields:
 
