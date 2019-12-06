@@ -64,7 +64,7 @@ You should be familiar with the following CRDs:
 - [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md)
 - [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md)
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
-- [GCPRole](/docs/concepts/secret-engine-crds/gcprole.md)
+- [GCPRole](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md)
 
 We are going to start our tutorial by deploying Vault using KubeVault operator.
 
@@ -165,7 +165,7 @@ NAME                     READY   STATUS    RESTARTS   AGE
 vault-848797ffdf-xdnn8   3/3     Running   0          8m44s
 ```
 
-To generate gcp secret under a roleset, we need to `enable` gcp secret engine and `configure` it using google service account credentials. We can do it using [GCPRole](/docs/concepts/secret-engine-crds/gcprole.md) CRD. 
+To generate gcp secret under a roleset, we need to `enable` gcp secret engine and `configure` it using google service account credentials. We can do it using [GCPRole](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md) CRD.
 
 Deploy secret containing google service account credentials.
 

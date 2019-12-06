@@ -217,7 +217,7 @@ No value found at aws/roles/
 
 ## Generate AWS credentials
 
-By using [AWSAccessKeyRequest](//docs/concepts/secret-engine-crds/aws-secret-engine/awsaccesskeyrequest.md), you can generate AWS credentials from Vault.
+By using [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/aws-secret-engine/awsaccesskeyrequest.md), you can generate AWS credentials from Vault.
 
 Here, we are going to make a request to Vault for AWS credential by creating `aws-cred-rqst` AWSAccessKeyRequest in `demo` namespace.
 
