@@ -4,7 +4,7 @@ menu:
   docs_{{ .version }}:
     identifier: awsaccesskeyrequest-secret-engine-crds
     name: AWSAccessKeyRequest
-    parent: secret-engine-crds-concepts
+    parent: aws-crds-concepts
     weight: 15
 menu_name: docs_{{ .version }}
 section_menu_id: concepts

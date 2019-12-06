@@ -4,7 +4,7 @@ menu:
   docs_{{ .version }}:
     identifier: awsrole-secret-engine-crds
     name: AwsRole
-    parent: secret-engine-crds-concepts
+    parent: aws-crds-concepts
     weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: concepts

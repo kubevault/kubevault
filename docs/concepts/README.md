@@ -32,7 +32,6 @@ Concepts help you learn about the different parts of KubeVault and the abstracti
     <a class="nav-link" id="vault-policy-tab" data-toggle="tab" href="#vault-policy" role="tab" aria-controls="vault-policy" aria-selected="false">Vault Policies</a>
   </li>
 </ul>
-
 <div class="tab-content" id="conceptsTabContent">
   <div class="tab-pane fade show active" id="vault-server" role="tabpanel" aria-labelledby="vault-server-tab">
 

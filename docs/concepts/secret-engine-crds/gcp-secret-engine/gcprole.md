@@ -4,7 +4,7 @@ menu:
   docs_{{ .version }}:
     identifier: gcprole-secret-engine-crds
     name: GCPRole
-    parent: secret-engine-crds-concepts
+    parent: gcp-crds-concepts
     weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: concepts

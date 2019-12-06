@@ -4,7 +4,7 @@ menu:
   docs_{{ .version }}:
     identifier: gcpaccesskeyrequest-secret-engine-crds
     name: GCPAccessKeyRequest
-    parent: secret-engine-crds-concepts
+    parent: gcp-crds-concepts
     weight: 15
 menu_name: docs_{{ .version }}
 section_menu_id: concepts

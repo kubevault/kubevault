@@ -4,7 +4,7 @@ menu:
   docs_{{ .version }}:
     identifier: azureaccesskeyrequest-secret-engine-crds
     name: AzureAccessKeyRequest
-    parent: secret-engine-crds-concepts
+    parent: azure-crds-concepts
     weight: 15
 menu_name: docs_{{ .version }}
 section_menu_id: concepts

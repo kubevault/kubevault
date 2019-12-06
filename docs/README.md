@@ -21,8 +21,8 @@ aliases:
 
 KubeVault by AppsCode is a collection of tools for running HashiCorp [Vault](https://www.vaultproject.io/) on Kubernetes. 
 
-## [Operator](https://github.com/kubevault/operator)
-You can deploy and manage Vault on Kubernetes clusters using Vault operator. Using Vault operator, you can deploy Vault for following storage backends:
+## Operator
+You can deploy and manage Vault on Kubernetes clusters using [KubeVault operator](https://github.com/kubevault/operator). Using Vault operator, you can deploy Vault for following storage backends:
 
 - [Azure Storage](/docs/concepts/vault-server-crds/storage/azure.md)
 - [DynamoDB](/docs/concepts/vault-server-crds/storage/dynamodb.md)
@@ -49,18 +49,17 @@ From here you can learn all about Vault operator's architecture and how to deplo
 - [Reference](/docs/reference/). Detailed exhaustive lists of
 command-line options, configuration options, API definitions, and procedures.
 
-### [CLI](https://github.com/kubevault/cli)
+## CLI
 
-Command line interface for KubeVault. This is intended to be used as a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/).
+[Command line interface](https://github.com/kubevault/cli) for KubeVault. This is intended to be used as a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/).
 
-### [Unsealer](https://github.com/kubevault/unsealer)
+## Unsealer
 
-This project automates the process of [initializing](https://www.vaultproject.io/docs/commands/operator/init.html) and [unsealing](https://www.vaultproject.io/docs/concepts/seal.html#unsealing) HashiCorp Vault instances running.
+[Unsealer](https://github.com/kubevault/unsealer) automates the process of [initializing](https://www.vaultproject.io/docs/commands/operator/init.html) and [unsealing](https://www.vaultproject.io/docs/concepts/seal.html#unsealing) HashiCorp Vault instances running.
 
-### [CSI Driver](https://github.com/kubevault/csi-driver)
+## CSI Driver
 
-This project implements a Kubernetes CSI driver for HashiCorp Vault servers.
-
+[CSI Driver](https://github.com/kubevault/csi-driver) project implements a Kubernetes CSI driver for HashiCorp Vault servers.
 
 We're always looking for help improving our documentation, so please don't hesitate to [file an issue](https://github.com/kubevault/project/issues/new) if you see some problem. Or better yet, submit your own [contributions](/docs/CONTRIBUTING.md) to help
 make our docs better.

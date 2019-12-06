@@ -1,9 +1,9 @@
 ---
-title: Concepts Policy Crds
+title: Concepts | Vault Policy
 menu:
   docs_{{ .version }}:
     identifier: policy-crds-concepts
-    name: Concepts Policy Crds
+    name: Vault Policy
     parent: concepts
     weight: 50
 menu_name: docs_{{ .version }}
