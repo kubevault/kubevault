@@ -106,7 +106,14 @@ spec:
 
 > Please note that the config file name must be `vault.hcl` to work.
 
-#### spec.backend
+```yaml
+spec:
+  configSource:
+    <type of volume>: # for example `configMap`
+      name: <name of volume>
+```
+
+### spec.backend
 
 `spec.backend` is a required field that specifies the Vault backend storage configuration. KubeVault operator generates storage configuration according to this `spec.backend`.
 
