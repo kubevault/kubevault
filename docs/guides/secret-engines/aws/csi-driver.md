@@ -265,7 +265,7 @@ EOF
 Success! Data written to: aws/roles/k8s.-.demo.aws-role
 ```
 
-Here, `k8s.-.demo.aws-role` will be treated as secret name on storage class.
+Here, `k8s.-.demo.aws-role` will be treated as a secret name on storage class.
 
 - **Read the role:**
 
@@ -302,7 +302,7 @@ NAME             CREATED AT
 2gb-pool-jrvtj   2019-12-09T04:32:58Z
 ```
 
-After configuring `Vault server`, now we have the AppBinding `vault` in `demo` namespace.
+After configuring the `Vault server`, now we have the AppBinding `vault` in `demo` namespace.
 
 So, we can create `StorageClass` now.
 
@@ -331,7 +331,7 @@ storageclass.storage.k8s.io/vault-aws-storage created
 
 ## Test & Verify
 
-- **Create PVC:** Create a `PersistentVolumeClaim` with following data. This makes sure a volume will be created and provisioned on your behalf.
+- **Create PVC:** Create a `PersistentVolumeClaim` with the following data. This makes sure a volume will be created and provisioned on your behalf.
 
 ```yaml
 apiVersion: v1
@@ -401,7 +401,7 @@ AKIAWS2...
 9Qa5WP.....
 ```
 
-So, we can see that the aws IAM credentials `access_key` and  `secret_key` are mounted into the pod
+So, we can see that the aws IAM credentials `access_key` and  `secret_key` are mounted into the pod.
 
 ## Cleaning up
 
