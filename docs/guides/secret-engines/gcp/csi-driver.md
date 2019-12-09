@@ -34,7 +34,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-> Note: YAML files used in this tutorial stored in [examples](/docs/examples/csi-driver/gcp) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
+> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engins/gcp) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
 
 ## Vault Server
 
@@ -214,7 +214,7 @@ You can also use [Vault CLI](https://www.vaultproject.io/docs/commands/) to [ena
 
 > Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
-To generate secret from the GCP secret engine, you have to do the following things.
+To generate secret from the GCP secret engine, you have to perform the following steps.
 
 - **Enable GCP Secret Engine:** To enable the GCP secret engine, run the following command.
 
@@ -255,6 +255,8 @@ secret_type              access_token
 service_account_email    vaultk8s---demo-gcp-424523423@ackube.iam.gserviceaccount.com
 token_scopes             [https://www.googleapis.com/auth/cloud-platform]
 ```
+
+If you use Vault CLI to enable and configure the GCP secret engine then you need to update the vault policy for the service account 'vault' [created during vault server configuration] and add the permission to read at "gcp/roleset/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
 
   </details>
 </div>
