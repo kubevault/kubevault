@@ -1,0 +1,13 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: vault-aws-storage
+  namespace: demo
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: secrets.csi.kubevault.com
+parameters:
+  ref: demo/vault # namespace/AppBinding, we created this in previous step
+  engine: AWS # vault engine name
+  role: k8s.-.demo.aws-role # role name on vault which you want get access
+  path: aws # specify the secret engine path, default is aws

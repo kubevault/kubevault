@@ -16,69 +16,78 @@ section_menu_id: guides
 
 ## Before you Begin
 
-At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
+At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Kind](https://github.com/kubernetes-sigs/kind). To check the version of your cluster, run:
 
 ```console
 $ kubectl version --short
-Client Version: v1.15.0
-Server Version: v1.15.0
+Client Version: v1.16.2
+Server Version: v1.14.0
+
 ```
 
-To keep things isolated, this tutorial uses a separate namespace called `demo` throughout this tutorial.
+Before you begin:
+
+- Install KubeVault operator in your cluster from [here](/docs/setup/operator/install).
+
+To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
 ```console
 $ kubectl create ns demo
 namespace/demo created
 ```
 
->Note: YAML files used in this tutorial stored in [docs/examples/csi-driver/aws](https://github.com/kubevault/docs/tree/master/docs/examples/csi-driver/aws) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
+> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engins/aws) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
 
-## Configure AWS
+## Vault Server
 
-Create IAM policy on AWS with following and copy the value of policy ARN:
+If you don't have a Vault Server, you can deploy it by using the KubeVault operator.
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "iam:AttachUserPolicy",
-        "iam:CreateAccessKey",
-        "iam:CreateUser",
-        "iam:DeleteAccessKey",
-        "iam:DeleteUser",
-        "iam:DeleteUserPolicy",
-        "iam:DetachUserPolicy",
-        "iam:ListAccessKeys",
-        "iam:ListAttachedUserPolicies",
-        "iam:ListGroupsForUser",
-        "iam:ListUserPolicies",
-        "iam:PutUserPolicy",
-        "iam:RemoveUserFromGroup"
-      ],
-      "Resource": [
-        "arn:aws:iam::ACCOUNT-ID-WITHOUT-HYPHENS:user/vault-*"
-      ]
-    }
-  ]
-}
+- [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
+
+The KubeVault operator is also compatible with external Vault servers that are not provisioned by itself. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
+
+- [Configure cluster and Vault server](/docs/guides/vault-server/external-vault-sever.md#configuration)
+
+Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server. And we also have the service account that the Vault server can authenticate.
+
+```console
+$ kubectl get serviceaccounts -n demo
+NAME                       SECRETS   AGE
+vault                      1         20h
+
+$ kubectl get appbinding -n demo
+NAME    AGE
+vault   50m
+
+$ kubectl get appbinding -n demo vault -o yaml
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
+metadata:
+  name: vault
+  namespace: demo
+spec:
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: vault
+      port: 8200
+      scheme: HTTPS
+  parameters:
+    apiVersion: config.kubevault.com/v1alpha1
+    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
+    kind: VaultServerConfiguration
+    path: kubernetes
+    policyControllerRole: vault-policy-controller
+    serviceAccountName: vault
+    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+    usePodServiceAccountForCsiDriver: true
 ```
 
-<p align="center">
-  <img alt="AWS IAM Policy" src="/docs/images/csi-driver-policy-aws.jpg" style="padding: 10px;">
-</p>
+## Enable and Configure AWS Secret Engine
 
-## Configure Vault
+The following steps are required to enable and configure the AWS secrets engine in the Vault server.
 
-The following steps are required to retrieve `AWS` IAM secrets using Vault server into a Kubernetes pod.
-
-- **Vault server:** used to provision and manager AWS IAM credentials
-- **Appbinding:** required to connect `CSI driver` with Vault server
-- **Role:** using this role `CSI driver` can access credentials from Vault server
-
-There are two ways to configure Vault server. You can use either use `KubeVault operator` or use `vault` cli to manually configure a Vault server.
+There are two ways to configure the Vault server. You can use either use the `KubeVault operator` or the  `Vault CLI` to manually configure a Vault server.
 
 <ul class="nav nav-tabs" id="conceptsTab" role="tablist">
   <li class="nav-item">
@@ -93,66 +102,75 @@ There are two ways to configure Vault server. You can use either use `KubeVault 
 
 <summary>Using KubeVault operator</summary>
 
-Follow [this](/docs/guides/secret-engines/aws/overview.md) tutorial to manage AWS IAM secrets with `KubeVault operator`. After successful configuration you should have following resources present in your cluster.
+You need to be familiar with the following CRDs:
 
-- AppBinding: An appbinding with name `vault-app` in `demo` namespace
-- Role: A role named `k8s.-.demo.demo-role` which have access to read database credential
+- [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
+- [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
+- [AWSRole](/docs/concepts/secret-engine-crds/aws-secret-engine/awsrole.md)
 
-</details>
-<details class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
+Let's enable and configure AWS secret engine by deploying the following `SecretEngine` yaml:
 
-<summary>Using Vault CLI</summary>
+```yaml
+apiVersion: engine.kubevault.com/v1alpha1
+kind: SecretEngine
+metadata:
+  name: aws-secret-engine
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  aws:
+    credentialSecret: aws-cred
+    region: us-east-1
+    leaseConfig:
+      lease: 1h
+      leaseMax: 1h
+```
 
-You can use Vault cli to manually configure an existing Vault server. The Vault server may be running inside a Kubernetes cluster or running outside a Kubernetes cluster. If you don't have a Vault server, you can deploy one by running the following command:
+To configure the AWS secret engine, you need to provide `aws_access_key_id` and `aws_secret_access_key` through a Kubernetes secret.
 
-    ```console
-    $ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/csi-driver/vault-install.yaml
-    service/vault created
-    statefulset.apps/vault created
-    ```
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aws-cred
+  namespace: demo
+data:
+  access_key: QUtJQVdT...= # base64 encoded aws access key id
+  secret_key: bHFvRVlv...== # base64 encoded aws secret access key
+```
 
-To use secret from `AWS` secret engine, you have to do following things.
+Let's deploy SecretEngine:
 
-1. **Enable `AWS` Engine:** To enable `AWS` secret engine run the following command.
+```console
+$ kubectl apply -f examples/guides/secret-engins/aws/awsCred.yaml
+secret/aws-cred created
 
-    ```console
-    $ vault secrets enable aws
-    Success! Enabled the aws secrets engine at: aws/
-    ```
+$ kubectl apply -f examples/guides/secret-engins/aws/awsSecretEngine.yaml
+secretengine.engine.kubevault.com/aws-secret-engine created
+```
 
-2. **Create Engine Policy:**  To read secret from engine, we need to create a policy with `read` capability. Create a `policy.hcl` file and write the following content:
+Wait till the status become `Success`:
 
-    ```yaml
-    # capability of get secret
-    path "aws/creds/*" {
-        capabilities = ["read"]
-    }
-    ```
+```console
+$ kubectl get secretengines -n demo
+NAME                STATUS
+aws-secret-engine   Success
+```
 
-    Write this policy into vault naming `test-policy` with following command:
+Configure an AWS role using the following `AWSRole` yaml:
 
-    ```console
-    $ vault policy write test-policy policy.hcl
-    Success! Uploaded policy: test-policy
-    ```
-
-3. **Crete AWS config:** To communicate with AWS for generating IAM credentials, Vault needs to configure credentials. Run:
-
-    ```console
-    $ vault write aws/config/root \
-      access_key=AKIAJWVN5Z4FOFT7NLNA \
-      secret_key=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 \
-      region=us-east-1
-    Success! Data written to: aws/config/root
-    ```
-
-4. **Configure a Vault Role:** We need to configure a vault role that maps to a set of permissions in AWS and an AWS credential type. When users generate credentials, they are generated against this role,
-
-    ```console
-    $ vault write aws/roles/k8s.-.demo.demo-role \
-      arn=arn:aws:iam::452618475015:policy/vaultiampolicy \ # In AWS configuration ACCOUNT-ID-WITHOUT-HYPHENS = vaultiampolicy
-      credential_type=iam_user \
-      policy_document=-<<EOF
+```yaml
+apiVersion: engine.kubevault.com/v1alpha1
+kind: AWSRole
+metadata:
+  name: aws-role
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  credentialType: iam_user
+  policyDocument: |
     {
       "Version": "2012-10-17",
       "Statement": [
@@ -163,107 +181,108 @@ To use secret from `AWS` secret engine, you have to do following things.
         }
       ]
     }
-    EOF
-    Success! Data written to: aws/roles/k8s.-.demo.demo-role
-    ```
+```
 
-   Here, `k8s.-.demo.demo-role` will be treated as secret name on storage class.
+Let's deploy AWSRole:
 
-## Configure Cluster
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/aws/awsRole.yaml
+awsrole.engine.kubevault.com/aws-role created
 
-1. **Create Service Account:** Create `service.yaml` file with following content:
+$ kubectl get awsrole -n demo
+NAME       STATUS
+aws-role   Success
+```
 
-    ```yaml
-    apiVersion: rbac.authorization.k8s.io/v1beta1
-    kind: ClusterRoleBinding
-    metadata:
-      name: role-awscreds-binding
-      namespace: demo
-    roleRef:
-      apiGroup: rbac.authorization.k8s.io
-      kind: ClusterRole
-      name: system:auth-delegator
-    subjects:
-    - kind: ServiceAccount
-      name: aws-vault
-      namespace: demo
-    ---
-    apiVersion: v1
-    kind: ServiceAccount
-    metadata:
-      name: aws-vault
-      namespace: demo
-    ```
-   After that, run `kubectl apply -f service.yaml` to create a service account.
+You can also check from Vault that the role is created.
+To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`.
 
-2. **Enable Kubernetes Auth:**  To enable Kubernetes auth back-end, we need to extract the token reviewer JWT, Kubernetes CA certificate and Kubernetes host information.
+> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
-    ```console
-    export VAULT_SA_NAME=$(kubectl get sa aws-vault -n demo -o jsonpath="{.secrets[*]['name']}")
+```console
+$ vault list aws/roles
+Keys
+----
+k8s.-.demo.aws-role
 
-    export SA_JWT_TOKEN=$(kubectl get secret $VAULT_SA_NAME -n demo -o jsonpath="{.data.token}" | base64 --decode; echo)
+$ vault read aws/roles/k8s.-.demo.aws-role
+Key                Value
+---                -----
+credential_type    iam_user
+default_sts_ttl    0s
+max_sts_ttl        0s
+policy_arns        <nil>
+policy_document    {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"ec2:*","Resource":"*"}]}
+role_arns          <nil>
+user_path          n/a
+```
 
-    export SA_CA_CRT=$(kubectl get secret $VAULT_SA_NAME -n demo -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
+</details>
+<details class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
 
-    export K8S_HOST=<host-ip>
-    export K8s_PORT=6443
-    ```
+<summary>Using Vault CLI</summary>
 
-    Now, we can enable the Kubernetes authentication back-end and create a Vault named role that is attached to this service account. Run:
+You can also use [Vault CLI](https://www.vaultproject.io/docs/commands/) to [enable and configure](https://www.vaultproject.io/docs/secrets/aws/index.html#setup) the AWS secret engine.
 
-    ```console
-    $ vault auth enable kubernetes
-    Success! Enabled Kubernetes auth method at: kubernetes/
+> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
-    $ vault write auth/kubernetes/config \
-        token_reviewer_jwt="$SA_JWT_TOKEN" \
-        kubernetes_host="https://$K8S_HOST:$K8s_PORT" \
-        kubernetes_ca_cert="$SA_CA_CRT"
-    Success! Data written to: auth/kubernetes/config
+To generate secret from the AWS secret engine, you have to perform the following steps.
 
-    $ vault write auth/kubernetes/role/aws-cred-role \
-        bound_service_account_names=aws-vault \
-        bound_service_account_namespaces=demo \
-        policies=test-policy \
-        ttl=24h
-    Success! Data written to: auth/kubernetes/role/aws-cred-role
-    ```
+- **Enable `AWS`  secret engine:** To enable `AWS` secret engine run the following command.
 
-    Here, `aws-cred-role` is the name of the role.
+```console
+$ vault secrets enable aws
+Success! Enabled the aws secrets engine at: aws/
+```
 
-3. **Create AppBinding:** To connect CSI driver with Vault, we need to create an `AppBinding`. First we need to make sure, if `AppBinding` CRD is installed in your cluster by running:
+- **Crete AWS config:** To communicate with AWS for generating IAM credentials, Vault needs to configure credentials. Run:
 
-    ```console
-    $ kubectl get crd -l app=catalog
-    NAME                                          CREATED AT
-    appbindings.appcatalog.appscode.com           2018-12-12T06:09:34Z
-    ```
+```console
+$ vault write aws/config/root \
+  access_key=AKIAJWVN5Z4FOFT7NLNA \
+  secret_key=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 \
+  region=us-east-1
+Success! Data written to: aws/config/root
+```
 
-    If you don't see that CRD, you can register it via the following command:
+- **Configure a role:** We need to configure a vault role that maps to a set of permissions in AWS and an AWS credential type. When users generate credentials, they are generated against this role,
 
-    ```console
-    kubectl apply -f https://github.com/kmodules/custom-resources/raw/master/api/crds/appbinding.yaml
+```console
+$ vault write aws/roles/k8s.-.demo.aws-role \
+  credential_type=iam_user \
+  policy_document=-<<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "ec2:*",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+Success! Data written to: aws/roles/k8s.-.demo.aws-role
+```
 
-    ```
+Here, `k8s.-.demo.aws-role` will be treated as secret name on storage class.
 
-    If AppBinding CRD is installed, Create AppBinding with the following data:
+- **Read the role:**
 
-    ```yaml
-    apiVersion: appcatalog.appscode.com/v1alpha1
-    kind: AppBinding
-    metadata:
-      name: vault-app
-      namespace: demo
-    spec:
-    clientConfig:
-      url: http://165.227.190.238:30001 # Replace this with Vault URL
-    parameters:
-      apiVersion: "kubevault.com/v1alpha1"
-      kind: "VaultServerConfiguration"
-      usePodServiceAccountForCSIDriver: true
-      authPath: "kubernetes"
-      policyControllerRole: aws-cred-role # we created this in previous step
-    ```
+```console
+$ vault read aws/roles/k8s.-.demo.aws-role
+Key                Value
+---                -----
+credential_type    iam_user
+default_sts_ttl    0s
+max_sts_ttl        0s
+policy_arns        <nil>
+policy_document    {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"ec2:*","Resource":"*"}]}
+role_arns          <nil>
+user_path          n/a
+```
+
+If you use Vault CLI to enable and configure the AWS secret engine then you need to update the vault policy for the service account 'vault' [created during vault server configuration] and add the permission to read at "aws/roles/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
 
   </details>
 </div>
@@ -274,91 +293,106 @@ After configuring `Vault server`, now we have ` vault-app` AppBinding in `demo` 
 
 So, we can create `StorageClass` now.
 
-**Create StorageClass:** Create `storage-class.yaml` file with following content, then run `kubectl apply -f storage-class.yaml`
+**Create StorageClass:** Create `storage-class.yaml` file with following content:
 
-   ```yaml
-    kind: StorageClass
-    apiVersion: storage.k8s.io/v1
-    metadata:
-      name: vault-aws-storage
-      namespace: demo
-    annotations:
-      storageclass.kubernetes.io/is-default-class: "false"
-    provisioner: secrets.csi.kubevault.com
-    parameters:
-      ref: demo/vault-app # namespace/AppBinding, we created this in previous step
-      engine: AWS # vault engine name
-      role: k8s.-.demo.demo-role # role name on vault which you want get access
-      path: aws # specify the secret engine path, default is aws
-   ```
+```yaml
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: vault-aws-storage
+  namespace: demo
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: secrets.csi.kubevault.com
+parameters:
+  ref: demo/vault # namespace/AppBinding, we created this while configuring vault server
+  engine: AWS # vault engine name
+  role: k8s.-.demo.aws-role # role name on vault which you want get access
+  path: aws # specify the secret engine path, default is aws
+```
+
+```console
+$ kubectl apply -f examples/guides/secret-engins/aws/storageClass.yaml
+storageclass.storage.k8s.io/vault-aws-storage created
+```
 
 ## Test & Verify
 
 - **Create PVC:** Create a `PersistentVolumeClaim` with following data. This makes sure a volume will be created and provisioned on your behalf.
 
-    ```yaml
-      apiVersion: v1
-      kind: PersistentVolumeClaim
-      metadata:
-        name: csi-pvc
-        namespace: demo
-      spec:
-        accessModes:
-        - ReadWriteOnce
-        resources:
-          requests:
-            storage: 1Gi
-        storageClassName: vault-aws-storage
-        volumeMode: DirectoryOrCreate
-    ```
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: csi-pvc-aws
+  namespace: demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+  storageClassName: vault-aws-storage
+```
+
+```console
+$ kubectl apply -f examples/guides/secret-engins/aws/pvc.yaml
+persistentvolumeclaim/csi-pvc-aws created
+```
 
 - **Create Pod:** Now we can create a Pod which refers to this volume. When the Pod is created, the volume will be attached, formatted and mounted to the specific container.
 
-    ```yaml
-      apiVersion: v1
-      kind: Pod
-      metadata:
-        name: mypod
-        namespace: demo
-      spec:
-        containers:
-        - name: mypod
-          image: busybox
-          command:
-            - sleep
-            - "3600"
-          volumeMounts:
-          - name: my-vault-volume
-            mountPath: "/etc/foo"
-            readOnly: true
-        serviceAccountName: aws-vault
-        volumes:
-          - name: my-vault-volume
-            persistentVolumeClaim:
-              claimName: csi-pvc
-    ```
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+  namespace: demo
+spec:
+  containers:
+  - name: mypod
+    image: busybox
+    command:
+      - sleep
+      - "3600"
+    volumeMounts:
+    - name: my-vault-volume
+      mountPath: "/etc/aws"
+      readOnly: true
+  serviceAccountName: vault
+  volumes:
+    - name: my-vault-volume
+      persistentVolumeClaim:
+        claimName: csi-pvc-aws
+```
 
-    Check if the Pod is running successfully, by running:
+Check if the Pod is running successfully, by running:
 
-    ```console
-    $kubectl describe pods/my-pod
-    ```
+```console
+$ kubectl get pods -n demo
+NAME                    READY   STATUS    RESTARTS   AGE
+mypod                   1/1     Running   0          5m21s
+```
 
 - **Verify Secret:** If the Pod is running successfully, then check inside the app container by running
 
-    ```console
-    $ kubectl exec -ti mypod /bin/sh -n demo
-    / # ls /etc/foo
-    access_key  secret_key
-    / # cat /etc/foo/access_key
-    AKIAIH4QGZQOCMIWYLDA
-    ```
+```console
+$ kubectl exec -it -n demo  mypod sh
+/ # ls /etc/aws
+access_key  secret_key
 
-   So, we can see that the aws IAM credentials `access_key` and  `secret_key` are mounted into the pod
+/ # cat /etc/aws/access_key
+AKIAWS2...
+
+/ # cat /etc/aws/secret_key
+9Qa5WP.....
+```
+
+So, we can see that the aws IAM credentials `access_key` and  `secret_key` are mounted into the pod
 
 ## Cleaning up
 
-To cleanup the Kubernetes resources created by this tutorial, run:
+To clean up the Kubernetes resources created by this tutorial, run:
 
 ```console
 $ kubectl delete ns demo
