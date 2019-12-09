@@ -8,7 +8,8 @@ spec:
     name: vault
   secretType: access_token
   project: ackube
-  bindings: 'resource "//cloudresourcemanager.googleapis.com/projects/ackube" {
-    roles = ["roles/viewer"]
-    }'
+  bindings: |
+    resource "//cloudresourcemanager.googleapis.com/projects/ackube" {
+      roles = ["roles/viewer"]
+    }
   tokenScopes: ["https://www.googleapis.com/auth/cloud-platform"]
