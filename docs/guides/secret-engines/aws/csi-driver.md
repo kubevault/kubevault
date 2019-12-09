@@ -372,7 +372,7 @@ spec:
     - name: my-vault-volume
       mountPath: "/etc/aws"
       readOnly: true
-  serviceAccountName: vault
+  serviceAccountName: vault # service account that was created during vault server configuration
   volumes:
     - name: my-vault-volume
       persistentVolumeClaim:
