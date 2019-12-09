@@ -280,7 +280,7 @@ After configuring the `Vault server`, now we have AppBinding `vault` in `demo` n
 
 So, we can create `StorageClass` now.
 
-**Create StorageClass:** Create `storage-class.yaml` file with following content:
+- **Create StorageClass:** Create `storage-class.yaml` file with following content:
 
 ```yaml
 kind: StorageClass

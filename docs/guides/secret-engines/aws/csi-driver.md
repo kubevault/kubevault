@@ -289,11 +289,24 @@ If you use Vault CLI to enable and configure the AWS secret engine then you need
 
 ## Mount secrets into a Kubernetes pod
 
-After configuring `Vault server`, now we have ` vault-app` AppBinding in `demo` namespace, `k8s.-.demo.demo-role` access role which have access into `database` path.
+Since Kubernetes 1.14, `storage.k8s.io/v1beta1` `CSINode` and `CSIDriver` objects were introduced. Let's check [CSIDriver](https://kubernetes-csi.github.io/docs/csi-driver-object.html) and [CSINode](https://kubernetes-csi.github.io/docs/csi-node-object.html) are available or not.
+
+```console
+$ kubectl get csidrivers
+NAME                        CREATED AT
+secrets.csi.kubevault.com   2019-12-09T04:32:50Z
+
+$ kubectl get csinodes
+NAME             CREATED AT
+2gb-pool-57jj7   2019-12-09T04:32:52Z
+2gb-pool-jrvtj   2019-12-09T04:32:58Z
+```
+
+After configuring `Vault server`, now we have the AppBinding `vault` in `demo` namespace.
 
 So, we can create `StorageClass` now.
 
-**Create StorageClass:** Create `storage-class.yaml` file with following content:
+- **Create StorageClass:** Create `storage-class.yaml` file with following content:
 
 ```yaml
 kind: StorageClass
