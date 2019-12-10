@@ -280,7 +280,7 @@ After configuring the `Vault server`, now we have AppBinding `vault` in `demo` n
 
 So, we can create `StorageClass` now.
 
-- **Create StorageClass:** Create `storage-class.yaml` file with following content:
+- **Create StorageClass:** Create `StorageClass` object with the following content:
 
 ```yaml
 kind: StorageClass
@@ -354,6 +354,11 @@ spec:
     - name: my-vault-volume
       persistentVolumeClaim:
         claimName: csi-pvc-gcp
+```
+
+```console
+$ kubectl apply -f examples/guides/secret-engins/gcp/pod.yaml
+pod/mypod created
 ```
 
 Check if the Pod is running successfully, by running:

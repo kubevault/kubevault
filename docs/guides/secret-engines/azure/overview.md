@@ -126,9 +126,9 @@ secretengine.engine.kubevault.com/azure-engine created
 Wait till the status become `Success`:
 
 ```console
-$ kubectl get azureroles -n demo
-NAME         STATUS
-azure-role   Success
+$ kubectl get secretengines -n demo
+NAME           STATUS
+azure-engine   Success
 ```
 
 Since the status is `Success`, the Azure secret engine is enabled and successfully configured. You can use `kubectl describe secretengine -n <namepsace> <name>` to check for error events, if any.

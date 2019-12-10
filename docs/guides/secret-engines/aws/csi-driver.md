@@ -14,8 +14,6 @@ section_menu_id: guides
 
 # Mount AWS IAM Secrets into Kubernetes pod using CSI Driver
 
-## Before you Begin
-
 At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Kind](https://github.com/kubernetes-sigs/kind). To check the version of your cluster, run:
 
 ```console
@@ -306,7 +304,7 @@ After configuring the `Vault server`, now we have the AppBinding `vault` in `dem
 
 So, we can create `StorageClass` now.
 
-- **Create StorageClass:** Create `storage-class.yaml` file with following content:
+- **Create StorageClass:** Create `StorageClass` object with the following content:
 
 ```yaml
 kind: StorageClass
@@ -377,6 +375,11 @@ spec:
     - name: my-vault-volume
       persistentVolumeClaim:
         claimName: csi-pvc-aws
+```
+
+```console
+$ kubectl apply -f examples/guides/secret-engins/aws/pod.yaml
+pod/mypod created
 ```
 
 Check if the Pod is running successfully, by running:
