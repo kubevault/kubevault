@@ -1,5 +1,5 @@
 ---
-title: Monitor Vault Server using CoreOS Prometheus Operator
+title: Monitor Vault Server using Prometheus Operator
 menu:
   docs_{{ .version }}:
     identifier: coreos-vault-server-monitoring
@@ -12,9 +12,9 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Monitoring Vault Server Using CoreOS Prometheus Operator
+# Monitoring Vault Server Using Prometheus Operator
 
-CoreOS [prometheus-operator](https://github.com/coreos/prometheus-operator) provides simple and Kubernetes native way to deploy and configure Prometheus server. This tutorial will show you how to monitor Vault server using Prometheus via CoreOS Prometheus Operator).
+CoreOS [prometheus-operator](https://github.com/coreos/prometheus-operator) provides simple and Kubernetes native way to deploy and configure Prometheus server. This tutorial will show you how to monitor Vault server using Prometheus via Prometheus Operator).
 
 ## Monitor Vault server
 

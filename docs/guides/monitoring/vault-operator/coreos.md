@@ -1,5 +1,5 @@
 ---
-title: Monitor KubeVault operator using CoreOS Prometheus Operator
+title: Monitor KubeVault operator using Prometheus Operator
 menu:
   docs_{{ .version }}:
     identifier: coreos-vault-operator-monitoring
@@ -12,7 +12,7 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Monitoring KubeVault operator Using CoreOS Prometheus Operator
+# Monitoring KubeVault operator Using Prometheus Operator
 
 CoreOS [prometheus-operator](https://github.com/coreos/prometheus-operator) provides simple and Kubernetes native way to deploy and configure Prometheus server. This tutorial will show you how to use CoreOS Prometheus operator for monitoring KubeVault operator.
 
@@ -102,7 +102,7 @@ spec:
 
 Here, `api` endpoint exports operator metrics.
 
-KubeVault operator exports operator metrics via TLS secured `api` endpoint. So, Prometheus server need to provide certificate while scrapping metrics from this endpoint. KubeVault operator has created a secret named `vault-operator-apiserver-certs` with this certificate in `monitoring` namespace as we have specified that we are going to deploy Prometheus in that namespace through `--prometheus-namespace` flag. We have to specify this secret in Prometheus crd through `spec.secrets` field. Prometheus operator will mount this secret at `/etc/prometheus/secrets/vault-operator-apiserver-cert` directory of respective Prometheus pod. So, we need to configure `tlsConfig` field to use that certificate. Here, `caFile` indicates the certificate to use and serverName is used to verify hostname. In our case, the certificate is valid for hostname server and `vault-operator.kube-system.svc`.
+KubeVault operator exports operator metrics via TLS secured `api` endpoint. So, Prometheus server need to provide certificate while scraping metrics from this endpoint. KubeVault operator has created a secret named `vault-operator-apiserver-certs` with this certificate in `monitoring` namespace as we have specified that we are going to deploy Prometheus in that namespace through `--prometheus-namespace` flag. We have to specify this secret in Prometheus crd through `spec.secrets` field. Prometheus operator will mount this secret at `/etc/prometheus/secrets/vault-operator-apiserver-cert` directory of respective Prometheus pod. So, we need to configure `tlsConfig` field to use that certificate. Here, `caFile` indicates the certificate to use and serverName is used to verify hostname. In our case, the certificate is valid for hostname server and `vault-operator.kube-system.svc`.
 
 Let's check secret vault-operator-apiserver-cert has been created in monitoring namespace.
 

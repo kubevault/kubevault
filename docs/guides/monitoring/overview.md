@@ -15,7 +15,7 @@ section_menu_id: guides
 
 # Monitoring KubeVault Components
 
-KubeVault operator has native support for monitoring via [Prometheus](https://prometheus.io/). You can use builtin [Prometheus](https://github.com/prometheus/prometheus) scraper or [CoreOS Prometheus Operator](https://github.com/coreos/prometheus-operator) to monitor KubeVault operator. This tutorial will show you how this monitoring works with KubeVault operator and how to enable them.
+KubeVault operator has native support for monitoring via [Prometheus](https://prometheus.io/). You can use builtin [Prometheus](https://github.com/prometheus/prometheus) scraper or [Prometheus Operator](https://github.com/coreos/prometheus-operator) to monitor KubeVault operator. This tutorial will show you how this monitoring works with KubeVault operator and how to enable them.
 
 ## Vault Server Metrics
 

@@ -197,7 +197,7 @@ Now, we are ready to configure our Prometheus server to scrap those metrics.
 
 ## Deploy Prometheus Server
 
-We have deployed Vault CSI driver in `kube-system` namespace. Vault exports driver metrics via TLS secured `api` endpoint. So, Prometheus server need to provide certificate while scrapping metrics from this endpoint. Vault CSI driver has created a secret named `csi-vault-apiserver-cert` with this certificate in `monitoring` namespaces as we have specified that we are going to deploy Prometheus in that namespace through `--prometheus-namespace` or `monitoring.prometheus.namespace` flag. We have to mount this secret in Prometheus deployment.
+We have deployed Vault CSI driver in `kube-system` namespace. Vault exports driver metrics via TLS secured `api` endpoint. So, Prometheus server need to provide certificate while scraping metrics from this endpoint. Vault CSI driver has created a secret named `csi-vault-apiserver-cert` with this certificate in `monitoring` namespaces as we have specified that we are going to deploy Prometheus in that namespace through `--prometheus-namespace` or `monitoring.prometheus.namespace` flag. We have to mount this secret in Prometheus deployment.
 
 Let's check `csi-vault-apiserver-cert` secret has been created in `monitoring` namespace.
 
