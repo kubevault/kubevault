@@ -69,7 +69,8 @@ spec:
   gcp:
     credentialSecret: "gcp-cred"
 status:
-... ...
+  observedGeneration: 1
+  phase: Success
 ```
 
 Here, we are going to describe the various sections of the `SecretEngine` crd.

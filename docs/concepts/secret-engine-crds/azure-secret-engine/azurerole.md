@@ -47,7 +47,8 @@ spec:
           ]`
   applicationObjectID: c1cb042d-96d7-423a-8dba-243c2e5010d3
 status:
-... ...
+  observedGeneration: 1
+  phase: Success
 ```
 
 > Note: To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`

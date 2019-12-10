@@ -51,7 +51,15 @@ spec:
       name: sa
       namespace: demo
 status:
-  ... ...
+  conditions:
+  - lastUpdateTime: "2019-11-14T09:21:49Z"
+    message: This was approved by kubectl vault approve gcpaccesskeyrequest
+    reason: KubectlApprove
+    type: Approved
+  lease:
+    duration: 0s
+  secret:
+    name: gcp-cred-req-luc5p4
 ```
 
 Here, we are going to describe the various sections of the `GCPAccessKeyRequest` crd.

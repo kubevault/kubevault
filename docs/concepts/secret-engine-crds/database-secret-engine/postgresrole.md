@@ -45,7 +45,8 @@ spec:
     - "CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';"
     - "GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";"
 status:
-  ... ...
+  observedGeneration: 1
+  phase: Success
 ```
 
 > Note: To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`

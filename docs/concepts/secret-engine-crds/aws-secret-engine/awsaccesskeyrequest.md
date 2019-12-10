@@ -49,7 +49,17 @@ spec:
       name: sa
       namespace: demo
 status:
-  ... ...
+  conditions:
+  - lastUpdateTime: "2019-11-13T12:18:07Z"
+    message: This was approved by kubectl vault approve awsaccesskeyrequest
+    reason: KubectlApprove
+    type: Approved
+  lease:
+    duration: 1h0m0s
+    id: aws/creds/k8s.-.demo.aws-role/X9dCjtiQCykbuJ7UmzM64xfh
+    renewable: true
+  secret:
+    name: aws-cred-rqst-ryym7w
 ```
 
 Here, we are going to describe the various sections of the `AWSAccessKeyRequest` crd.

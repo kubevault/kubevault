@@ -46,7 +46,21 @@ spec:
       kubernetesSecret:
         secretName: vault-keys
 status:
-  ... ...
+  authMethodStatus:
+  - path: kubernetes
+    status: EnableSucceeded
+    type: kubernetes
+  clientPort: 8200
+  initialized: true
+  observedGeneration: 2
+  phase: Running
+  serviceName: vault
+  updatedNodes:
+  - vault-745564bddb-4pt98
+  vaultStatus:
+    active: vault-745564bddb-4pt98
+    unsealed:
+    - vault-745564bddb-4pt98
 ```
 
 Here, we are going to describe the various sections of the `VaultServer` crd.

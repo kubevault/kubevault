@@ -42,7 +42,8 @@ spec:
     name: mongodb-app
     namespace: demo
 status:
-  ... ...
+  observedGeneration: 1
+  phase: Success
 ```
 
 > Note: To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`

@@ -46,7 +46,8 @@ spec:
     - "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';"
     - "GRANT SELECT ON *.* TO '{{name}}'@'%';"
 status:
-  ... ...
+  observedGeneration: 1
+  phase: Success
 ```
 
 > Note: To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`

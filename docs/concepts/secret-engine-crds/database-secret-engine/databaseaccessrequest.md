@@ -49,7 +49,17 @@ spec:
       name: sa
       namespace: demo
 status:
-  ... ...
+  conditions:
+  - lastUpdateTime: "2019-11-18T06:41:57Z"
+    message: This was approved by kubectl vault approve databaseaccessrequest
+    reason: KubectlApprove
+    type: Approved
+  lease:
+    duration: 1h0m0s
+    id: database/creds/k8s.-.demo.mdb-role/ni3TCo2HkSwCUb8kmQuvIDdx
+    renewable: true
+  secret:
+    name: mdb-cred-rqst-gy66wq
 ```
 
 Here, we are going to describe the various sections of the `DatabaseAccessRequest` crd.

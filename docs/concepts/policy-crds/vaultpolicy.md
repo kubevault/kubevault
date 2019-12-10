@@ -41,7 +41,8 @@ spec:
       capabilities = ["create", "read", "update", "delete", "list"]
     }
 status:
-  ... ...
+  observedGeneration: 1
+  phase: Success
 ```
 
 Here, we are going to describe the various sections of the `VaultPolicy` crd.

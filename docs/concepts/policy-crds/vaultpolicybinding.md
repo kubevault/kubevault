@@ -38,6 +38,7 @@ apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicyBinding
 metadata:
   name: admin-role
+  namespace: demo
 spec:
   vaultRef:
     name: vault
@@ -53,7 +54,8 @@ spec:
       maxTTL: "2000"
       period: "1000"
 status:
-  ... ...
+  observedGeneration: 1
+  phase: Success
 ```
 
 Here, we are going to describe the various sections of the `VaultPolicyBinding` crd.
