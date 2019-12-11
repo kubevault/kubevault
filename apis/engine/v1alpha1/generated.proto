@@ -133,6 +133,7 @@ message AWSConfiguration {
 // +kubebuilder:resource:path=awsroles,singular=awsrole,categories={vault,appscode,all}
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 message AWSRole {
   optional k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta metadata = 1;
 
@@ -299,6 +300,7 @@ message AzureConfiguration {
 // +kubebuilder:resource:path=azureroles,singular=azurerole,categories={vault,appscode,all}
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 message AzureRole {
   optional k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta metadata = 1;
 
@@ -525,6 +527,7 @@ message GCPConfiguration {
 // +kubebuilder:resource:path=gcproles,singular=gcprole,categories={vault,appscode,all}
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 message GCPRole {
   optional k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta metadata = 1;
 
@@ -643,6 +646,8 @@ message MongoDBConfiguration {
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:path=mongodbroles,singular=mongodbrole,categories={vault,appscode,all}
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 message MongoDBRole {
   optional k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta metadata = 1;
 
@@ -749,6 +754,8 @@ message MySQLConfiguration {
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:path=mysqlroles,singular=mysqlrole,categories={vault,appscode,all}
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 message MySQLRole {
   optional k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta metadata = 1;
 
@@ -855,6 +862,8 @@ message PostgresConfiguration {
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:path=postgresroles,singular=postgresrole,categories={vault,appscode,all}
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 message PostgresRole {
   optional k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta metadata = 1;
 
@@ -957,6 +966,7 @@ message RoleRef {
 // +kubebuilder:resource:path=secretengines,singular=secretengine,categories={vault,appscode,all}
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 message SecretEngine {
   optional k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta metadata = 1;
 
