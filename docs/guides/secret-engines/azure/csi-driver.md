@@ -83,7 +83,7 @@ spec:
 
 ## Enable and Configure Azure Secret Engine
 
-The following steps are required to retrieve secrets from Azure secrets engine using `Vault server` into a Kubernetes pod.
+The following steps are required to enable and configure the Azure secrets engine in the Vault server.
 
 There are two ways to configure the Vault server. You can use either use the `KubeVault operator` or the  `Vault CLI` to manually configure a Vault server.
 
