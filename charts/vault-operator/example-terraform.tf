@@ -102,7 +102,7 @@ resource "helm_release" "kubevault" {
   #   version    = "0.2.0"
 
   set {
-    name  = "apiserver.k8s2operatorCerts.generate"
+    name  = "apiserver.servingCerts.generate"
     value = "false"
   }
 
@@ -112,17 +112,17 @@ resource "helm_release" "kubevault" {
   }
 
   set_sensitive {
-    name  = "apiserver.k8s2operatorCerts.caCrt"
+    name  = "apiserver.servingCerts.caCrt"
     value = base64encode(tls_self_signed_cert.kubevault_ca.cert_pem)
   }
 
   set_sensitive {
-    name  = "apiserver.k8s2operatorCerts.serverKey"
+    name  = "apiserver.servingCerts.serverKey"
     value = base64encode(tls_private_key.kubevault_server.private_key_pem)
   }
 
   set_sensitive {
-    name  = "apiserver.k8s2operatorCerts.serverCrt"
+    name  = "apiserver.servingCerts.serverCrt"
     value = base64encode(tls_locally_signed_cert.kubevault_server.cert_pem)
   }
 }
