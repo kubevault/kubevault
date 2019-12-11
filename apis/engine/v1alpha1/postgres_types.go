@@ -35,6 +35,8 @@ const (
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:path=postgresroles,singular=postgresrole,categories={vault,appscode,all}
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 type PostgresRole struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
