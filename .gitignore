@@ -32,3 +32,6 @@ _testmain.go
 /hack/config/.env
 /test/e2e/junit.xml
 /test/e2e/report.xml
+
+.terraform
+*.tfstate*

@@ -60,11 +60,6 @@ tolerations: {}
 ##
 affinity: {}
 
-## Install Default RBAC roles and bindings
-rbac:
-  # Specifies whether RBAC resources should be created
-  create: true
-
 serviceAccount:
   # Specifies whether a ServiceAccount should be created
   create: true
@@ -97,6 +92,14 @@ apiserver:
   # healthcheck configures the readiness and liveliness probes for the operator pod.
   healthcheck:
     enabled: false
+  servingCerts:
+    # If true, generate on install/upgrade the certs that allow the kube-apiserver (and potentially ServiceMonitor) to authenticate vault-operator pods.
+    # Otherwise specify in `apiserver.servingCerts.{caCrt, serverCrt, serverKey}`.
+    # See also: [example terraform](https://github.com/kubevault/operator/blob/master/charts/vault-operator/example-terraform.tf)
+    generate: true
+    caCrt:
+    serverCrt: ""
+    serverKey: ""
 
 # Send usage events to Google Analytics
 enableAnalytics: true
