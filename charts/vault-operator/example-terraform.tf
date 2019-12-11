@@ -65,7 +65,7 @@ resource "tls_cert_request" "kubevault_server" {
 
   dns_names = [
     "${local.kubevault_release_fullname}.${local.kubevault_namespace}",
-    "${local.kubevault_release_fullname}.${local.kubevault_namespace}.svc",
+    "${local.kubevault_release_fullname}.${local.kubevault_namespace}.svc"
   ]
 }
 
