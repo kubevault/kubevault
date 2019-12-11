@@ -372,7 +372,6 @@ if [ "$VAULT_OPERATOR_UNINSTALL" -eq 1 ]; then
     kubectl delete deployment -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
     kubectl delete service -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
     kubectl delete secret -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
-    # delete RBAC objects, if --rbac flag was used.
     kubectl delete serviceaccount -l app=vault-operator --namespace $VAULT_OPERATOR_NAMESPACE
     kubectl delete clusterrolebindings -l app=vault-operator
     kubectl delete clusterrole -l app=vault-operator

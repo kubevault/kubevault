@@ -24,6 +24,7 @@ import (
 	catalogv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/catalog/v1alpha1"
 	configv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/config/v1alpha1"
 	enginev1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1"
+	installerv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/installer/v1alpha1"
 	kubevaultv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
 	policyv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1"
 
@@ -37,6 +38,7 @@ type Interface interface {
 	CatalogV1alpha1() catalogv1alpha1.CatalogV1alpha1Interface
 	ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface
 	EngineV1alpha1() enginev1alpha1.EngineV1alpha1Interface
+	InstallerV1alpha1() installerv1alpha1.InstallerV1alpha1Interface
 	KubevaultV1alpha1() kubevaultv1alpha1.KubevaultV1alpha1Interface
 	PolicyV1alpha1() policyv1alpha1.PolicyV1alpha1Interface
 }
@@ -48,6 +50,7 @@ type Clientset struct {
 	catalogV1alpha1   *catalogv1alpha1.CatalogV1alpha1Client
 	configV1alpha1    *configv1alpha1.ConfigV1alpha1Client
 	engineV1alpha1    *enginev1alpha1.EngineV1alpha1Client
+	installerV1alpha1 *installerv1alpha1.InstallerV1alpha1Client
 	kubevaultV1alpha1 *kubevaultv1alpha1.KubevaultV1alpha1Client
 	policyV1alpha1    *policyv1alpha1.PolicyV1alpha1Client
 }
@@ -65,6 +68,11 @@ func (c *Clientset) ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface {
 // EngineV1alpha1 retrieves the EngineV1alpha1Client
 func (c *Clientset) EngineV1alpha1() enginev1alpha1.EngineV1alpha1Interface {
 	return c.engineV1alpha1
+}
+
+// InstallerV1alpha1 retrieves the InstallerV1alpha1Client
+func (c *Clientset) InstallerV1alpha1() installerv1alpha1.InstallerV1alpha1Interface {
+	return c.installerV1alpha1
 }
 
 // KubevaultV1alpha1 retrieves the KubevaultV1alpha1Client
@@ -110,6 +118,10 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	if err != nil {
 		return nil, err
 	}
+	cs.installerV1alpha1, err = installerv1alpha1.NewForConfig(&configShallowCopy)
+	if err != nil {
+		return nil, err
+	}
 	cs.kubevaultV1alpha1, err = kubevaultv1alpha1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
@@ -133,6 +145,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 	cs.catalogV1alpha1 = catalogv1alpha1.NewForConfigOrDie(c)
 	cs.configV1alpha1 = configv1alpha1.NewForConfigOrDie(c)
 	cs.engineV1alpha1 = enginev1alpha1.NewForConfigOrDie(c)
+	cs.installerV1alpha1 = installerv1alpha1.NewForConfigOrDie(c)
 	cs.kubevaultV1alpha1 = kubevaultv1alpha1.NewForConfigOrDie(c)
 	cs.policyV1alpha1 = policyv1alpha1.NewForConfigOrDie(c)
 
@@ -146,6 +159,7 @@ func New(c rest.Interface) *Clientset {
 	cs.catalogV1alpha1 = catalogv1alpha1.New(c)
 	cs.configV1alpha1 = configv1alpha1.New(c)
 	cs.engineV1alpha1 = enginev1alpha1.New(c)
+	cs.installerV1alpha1 = installerv1alpha1.New(c)
 	cs.kubevaultV1alpha1 = kubevaultv1alpha1.New(c)
 	cs.policyV1alpha1 = policyv1alpha1.New(c)
 
