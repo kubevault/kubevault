@@ -99,8 +99,8 @@ func (f *fakeDBCredM) ParseCredential(secret *vaultapi.Secret) (map[string][]byt
 	return nil, nil
 }
 
-func (f *fakeDBCredM) GetOwnerReference() metav1.OwnerReference {
-	return metav1.OwnerReference{}
+func (f *fakeDBCredM) GetOwnerReference() *metav1.OwnerReference {
+	return &metav1.OwnerReference{}
 }
 
 func TestCreateSecret(t *testing.T) {

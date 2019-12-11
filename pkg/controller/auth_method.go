@@ -30,7 +30,6 @@ import (
 	policycs "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault"
-	"kubevault.dev/operator/pkg/vault/util"
 
 	"github.com/appscode/go/wait"
 	"github.com/golang/glog"
@@ -203,7 +202,7 @@ func ensureVaultPolicy(c policycs.PolicyV1alpha1Interface, vp *policyapi.VaultPo
 		in.Spec.PolicyDocument = vp.Spec.PolicyDocument
 		in.Spec.Policy = vp.Spec.Policy
 		in.Spec.VaultRef = vp.Spec.VaultRef
-		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
 	})
 	if err != nil {
@@ -216,7 +215,7 @@ func ensureVaultPolicyBinding(c policycs.PolicyV1alpha1Interface, vpb *policyapi
 	_, _, err := patchutil.CreateOrPatchVaultPolicyBinding(c, vpb.ObjectMeta, func(in *policyapi.VaultPolicyBinding) *policyapi.VaultPolicyBinding {
 		in.Labels = core_util.UpsertMap(in.Labels, vpb.Labels)
 		in.Spec = vpb.Spec
-		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
 	})
 	if err != nil {

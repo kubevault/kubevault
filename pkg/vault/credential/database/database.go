@@ -128,13 +128,6 @@ func (d *DBCredManager) ParseCredential(credSecret *vaultapi.Secret) (map[string
 	}, nil
 }
 
-func (d *DBCredManager) GetOwnerReference() metav1.OwnerReference {
-	trueVar := true
-	return metav1.OwnerReference{
-		APIVersion: api.SchemeGroupVersion.String(),
-		Kind:       api.ResourceKindDatabaseAccessRequest,
-		Name:       d.DBAccessReq.Name,
-		UID:        d.DBAccessReq.UID,
-		Controller: &trueVar,
-	}
+func (d *DBCredManager) GetOwnerReference() *metav1.OwnerReference {
+	return metav1.NewControllerRef(d.DBAccessReq, api.SchemeGroupVersion.WithKind(api.ResourceKindDatabaseAccessRequest))
 }

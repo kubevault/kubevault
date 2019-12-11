@@ -89,13 +89,6 @@ func (d *AWSCredManager) ParseCredential(credSecret *vaultapi.Secret) (map[strin
 	return data, nil
 }
 
-func (d *AWSCredManager) GetOwnerReference() metav1.OwnerReference {
-	trueVar := true
-	return metav1.OwnerReference{
-		APIVersion: api.SchemeGroupVersion.String(),
-		Kind:       api.ResourceKindAWSAccessKeyRequest,
-		Name:       d.AWSAccessReq.Name,
-		UID:        d.AWSAccessReq.UID,
-		Controller: &trueVar,
-	}
+func (d *AWSCredManager) GetOwnerReference() *metav1.OwnerReference {
+	return metav1.NewControllerRef(d.AWSAccessReq, api.SchemeGroupVersion.WithKind(api.ResourceKindAWSAccessKeyRequest))
 }

@@ -173,7 +173,7 @@ API rule violation: list_type_missing,kmodules.xyz/monitoring-agent-api/api/v1,A
 API rule violation: list_type_missing,kmodules.xyz/monitoring-agent-api/api/v1,AgentSpec,Env
 API rule violation: list_type_missing,kmodules.xyz/offshoot-api/api/v1,ContainerRuntimeSettings,Env
 API rule violation: list_type_missing,kmodules.xyz/offshoot-api/api/v1,ContainerRuntimeSettings,EnvFrom
-API rule violation: list_type_missing,kmodules.xyz/offshoot-api/api/v1,PersistentVolumeClaimObjectMeta,OwnerReferences
+API rule violation: list_type_missing,kmodules.xyz/offshoot-api/api/v1,PartialObjectMeta,OwnerReferences
 API rule violation: list_type_missing,kmodules.xyz/offshoot-api/api/v1,PodRuntimeSettings,ImagePullSecrets
 API rule violation: list_type_missing,kmodules.xyz/offshoot-api/api/v1,PodRuntimeSettings,ReadinessGates
 API rule violation: list_type_missing,kmodules.xyz/offshoot-api/api/v1,PodRuntimeSettings,Tolerations

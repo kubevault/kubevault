@@ -45,5 +45,5 @@ type CredentialManager interface {
 type SecretEngine interface {
 	secret.SecretGetter
 	ParseCredential(secret *vaultapi.Secret) (map[string][]byte, error)
-	GetOwnerReference() metav1.OwnerReference
+	GetOwnerReference() *metav1.OwnerReference
 }

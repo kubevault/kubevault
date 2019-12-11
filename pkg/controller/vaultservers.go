@@ -22,7 +22,6 @@ import (
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"kubevault.dev/operator/pkg/eventer"
-	"kubevault.dev/operator/pkg/vault/util"
 
 	"github.com/appscode/go/log"
 	"github.com/golang/glog"
@@ -30,6 +29,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	kutil "kmodules.xyz/client-go"
 	apps_util "kmodules.xyz/client-go/apps/v1"
@@ -324,7 +324,7 @@ func (c *VaultController) updatedVaultServerStatus(status *api.VaultServerStatus
 func ensureServiceAccount(kc kubernetes.Interface, vs *api.VaultServer, sa *core.ServiceAccount) error {
 	_, _, err := core_util.CreateOrPatchServiceAccount(kc, sa.ObjectMeta, func(in *core.ServiceAccount) *core.ServiceAccount {
 		in.Labels = core_util.UpsertMap(in.Labels, sa.Labels)
-		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
 	})
 	return err
@@ -356,7 +356,7 @@ func ensureDeployment(kc kubernetes.Interface, vs *api.VaultServer, d *appsv1.De
 		in.Spec.Template.Spec.SecurityContext = d.Spec.Template.Spec.SecurityContext
 		in.Spec.Template.Spec.Volumes = core_util.UpsertVolume(in.Spec.Template.Spec.Volumes, d.Spec.Template.Spec.Volumes...)
 
-		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
 	})
 	return err
@@ -385,7 +385,7 @@ func ensureService(kc kubernetes.Interface, vs *api.VaultServer, svc *core.Servi
 		if svc.Spec.HealthCheckNodePort > 0 {
 			in.Spec.HealthCheckNodePort = svc.Spec.HealthCheckNodePort
 		}
-		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
 	})
 	return err
@@ -398,7 +398,7 @@ func ensureRoleAndRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, role
 			in.Labels = core_util.UpsertMap(in.Labels, role.Labels)
 			in.Annotations = core_util.UpsertMap(in.Annotations, role.Annotations)
 			in.Rules = role.Rules
-			util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+			core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 			return in
 		})
 		if err != nil {
@@ -411,7 +411,7 @@ func ensureRoleAndRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, role
 			in.Labels = core_util.UpsertMap(in.Labels, rb.Labels)
 			in.RoleRef = rb.RoleRef
 			in.Subjects = rb.Subjects
-			util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+			core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 			return in
 		})
 		if err != nil {
@@ -427,7 +427,7 @@ func ensureSecret(kc kubernetes.Interface, vs *api.VaultServer, s *core.Secret) 
 		in.Labels = core_util.UpsertMap(in.Labels, s.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, s.Annotations)
 		in.Data = s.Data
-		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
 	})
 	return err
@@ -439,7 +439,7 @@ func ensureConfigMap(kc kubernetes.Interface, vs *api.VaultServer, cm *core.Conf
 		in.Labels = core_util.UpsertMap(in.Labels, cm.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, cm.Annotations)
 		in.Data = cm.Data
-		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
 	})
 	return err
@@ -451,7 +451,7 @@ func ensurClusterRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, cRBin
 		in.Labels = core_util.UpsertMap(in.Labels, cRBinding.Labels)
 		in.RoleRef = cRBinding.RoleRef
 		in.Subjects = cRBinding.Subjects
-		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
 	})
 	if err != nil {

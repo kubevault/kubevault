@@ -19,8 +19,6 @@ package credential
 import (
 	"encoding/json"
 
-	"kubevault.dev/operator/pkg/vault/util"
-
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
@@ -54,7 +52,7 @@ func (c *CredManager) CreateSecret(name string, namespace string, credSecret *va
 	}
 	_, _, err := core_util.CreateOrPatchSecret(c.kubeClient, obj, func(in *core.Secret) *core.Secret {
 		in.Data = data
-		util.EnsureOwnerRefToObject(in, c.secretEngine.GetOwnerReference())
+		core_util.EnsureOwnerReference(in, c.secretEngine.GetOwnerReference())
 		return in
 	})
 	if err != nil {
@@ -88,7 +86,8 @@ func (c *CredManager) CreateRole(name string, namespace string, secretName strin
 			},
 		}
 
-		util.EnsureOwnerRefToObject(in, c.secretEngine.GetOwnerReference())
+		core_util.EnsureOwnerReference(in, c.secretEngine.GetOwnerReference())
+
 		return in
 	})
 	if err != nil {
@@ -112,7 +111,7 @@ func (c *CredManager) CreateRoleBinding(name string, namespace string, roleName 
 		}
 		in.Subjects = subjects
 
-		util.EnsureOwnerRefToObject(in, c.secretEngine.GetOwnerReference())
+		core_util.EnsureOwnerReference(in, c.secretEngine.GetOwnerReference())
 		return in
 	})
 	if err != nil {
