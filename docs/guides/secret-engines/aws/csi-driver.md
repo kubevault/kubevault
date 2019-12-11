@@ -25,7 +25,7 @@ Server Version: v1.14.0
 
 Before you begin:
 
-- Install KubeVault operator in your cluster from [here](/docs/setup/operator/install).
+- Install KubeVault operator in your cluster from [here](/docs/setup/operator/install.md).
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
