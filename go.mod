@@ -36,12 +36,12 @@ require (
 	k8s.io/kube-aggregator v0.0.0-20191114103820-f023614fb9ea
 	k8s.io/kube-openapi v0.0.0-20190816220812-743ec37842bf
 	k8s.io/kubernetes v1.16.3
-	kmodules.xyz/client-go v0.0.0-20191127054604-26981530831d
+	kmodules.xyz/client-go v0.0.0-20191211113554-dc49699dbc3e
 	kmodules.xyz/constants v0.0.0-20191024095500-cd4313df4aa6
 	kmodules.xyz/crd-schema-fuzz v0.0.0-20191129174258-81f984340891
 	kmodules.xyz/custom-resources v0.0.0-20191130062942-f41b54f62419
-	kmodules.xyz/monitoring-agent-api v0.0.0-20191127151826-1eac40b764dc
-	kmodules.xyz/offshoot-api v0.0.0-20191130172330-41f833a64423
+	kmodules.xyz/monitoring-agent-api v0.0.0-20191209232713-25b3711f847f
+	kmodules.xyz/offshoot-api v0.0.0-20191204032627-ee9a85c51ab3
 	kmodules.xyz/webhook-runtime v0.0.0-20191127075323-d4bfdee6974d
 	sigs.k8s.io/yaml v1.1.0
 )

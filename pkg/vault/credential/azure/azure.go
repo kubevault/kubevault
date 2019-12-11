@@ -94,13 +94,6 @@ func (d *AzureCredManager) ParseCredential(credSecret *vaultapi.Secret) (map[str
 	return data, nil
 }
 
-func (d *AzureCredManager) GetOwnerReference() metav1.OwnerReference {
-	trueVar := true
-	return metav1.OwnerReference{
-		APIVersion: api.SchemeGroupVersion.String(),
-		Kind:       api.ResourceKindAzureAccessKeyRequest,
-		Name:       d.AzureAccessKeyReq.Name,
-		UID:        d.AzureAccessKeyReq.UID,
-		Controller: &trueVar,
-	}
+func (d *AzureCredManager) GetOwnerReference() *metav1.OwnerReference {
+	return metav1.NewControllerRef(d.AzureAccessKeyReq, api.SchemeGroupVersion.WithKind(api.ResourceKindAzureAccessKeyRequest))
 }

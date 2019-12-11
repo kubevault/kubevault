@@ -21,7 +21,6 @@ import (
 
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/exporter"
-	"kubevault.dev/operator/pkg/vault/util"
 
 	"github.com/appscode/go/log"
 	"github.com/pkg/errors"
@@ -43,7 +42,7 @@ func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service
 
 	return core_util.CreateOrPatchService(c.kubeClient, meta, func(in *core.Service) *core.Service {
 		in.Labels = vs.StatsLabels()
-		util.EnsureOwnerRefToObject(in, util.AsOwner(vs))
+		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 
 		in.Spec.Selector = vs.OffshootSelectors()
 		monSpec := vs.Spec.Monitor

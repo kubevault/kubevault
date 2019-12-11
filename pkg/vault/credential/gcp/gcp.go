@@ -94,13 +94,6 @@ func (d *GCPCredManager) ParseCredential(credSecret *vaultapi.Secret) (map[strin
 	return data, nil
 }
 
-func (d *GCPCredManager) GetOwnerReference() metav1.OwnerReference {
-	trueVar := true
-	return metav1.OwnerReference{
-		APIVersion: api.SchemeGroupVersion.String(),
-		Kind:       api.ResourceKindGCPAccessKeyRequest,
-		Name:       d.GCPAccessKeyReq.Name,
-		UID:        d.GCPAccessKeyReq.UID,
-		Controller: &trueVar,
-	}
+func (d *GCPCredManager) GetOwnerReference() *metav1.OwnerReference {
+	return metav1.NewControllerRef(d.GCPAccessKeyReq, api.SchemeGroupVersion.WithKind(api.ResourceKindGCPAccessKeyRequest))
 }
