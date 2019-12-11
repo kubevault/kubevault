@@ -6,8 +6,7 @@
 {{- $cn := include "vault-operator.fullname" . -}}
 {{- $altName1 := printf "%s.%s" $cn .Release.Namespace }}
 {{- $altName2 := printf "%s.%s.svc" $cn .Release.Namespace }}
-{{- $altName3 := printf "%s.%s.svc.cluster.local" $cn .Release.Namespace }}
-{{- $server := genSignedCert $cn nil (list $altName1 $altName2 $altName3) 3650 $ca }}
+{{- $server := genSignedCert $cn nil (list $altName1 $altName2) 3650 $ca }}
 {{- $caCrt =  b64enc $ca.Cert }}
 {{- $serverCrt = b64enc $server.Cert }}
 {{- $serverKey = b64enc $server.Key }}
