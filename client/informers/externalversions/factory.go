@@ -26,6 +26,7 @@ import (
 	versioned "kubevault.dev/operator/client/clientset/versioned"
 	catalog "kubevault.dev/operator/client/informers/externalversions/catalog"
 	engine "kubevault.dev/operator/client/informers/externalversions/engine"
+	installer "kubevault.dev/operator/client/informers/externalversions/installer"
 	internalinterfaces "kubevault.dev/operator/client/informers/externalversions/internalinterfaces"
 	kubevault "kubevault.dev/operator/client/informers/externalversions/kubevault"
 	policy "kubevault.dev/operator/client/informers/externalversions/policy"
@@ -178,6 +179,7 @@ type SharedInformerFactory interface {
 
 	Catalog() catalog.Interface
 	Engine() engine.Interface
+	Installer() installer.Interface
 	Kubevault() kubevault.Interface
 	Policy() policy.Interface
 }
@@ -188,6 +190,10 @@ func (f *sharedInformerFactory) Catalog() catalog.Interface {
 
 func (f *sharedInformerFactory) Engine() engine.Interface {
 	return engine.New(f, f.namespace, f.tweakListOptions)
+}
+
+func (f *sharedInformerFactory) Installer() installer.Interface {
+	return installer.New(f, f.namespace, f.tweakListOptions)
 }
 
 func (f *sharedInformerFactory) Kubevault() kubevault.Interface {
