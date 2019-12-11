@@ -283,8 +283,6 @@ $ vault write my-postgres-se/roles/k8s.-.demo.psql-role \
 Success! Data written to: my-postgres-se/roles/k8s.-.demo.psql-role
 ```
 
-If you use Vault CLI to enable and configure the PostgreSQL secret engine then you need to update the vault policy for the service account 'vault' [created during vault server configuration] and add the permission to read at "my-postgres-se/roles/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
-
 - **Read the Role:**
 
 ```console
@@ -304,6 +302,8 @@ renew_statements         []
 revocation_statements    []
 rollback_statements      []
 ```
+
+If you use Vault CLI to enable and configure the PostgreSQL secret engine then you need to update the vault policy for the service account 'vault' [created during vault server configuration] and add the permission to read at "my-postgres-se/roles/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
 
   </details>
 </div>
