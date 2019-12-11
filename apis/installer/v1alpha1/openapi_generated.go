@@ -368,6 +368,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevault.dev/operator/apis/installer/v1alpha1.PrometheusSpec":               schema_operator_apis_installer_v1alpha1_PrometheusSpec(ref),
 		"kubevault.dev/operator/apis/installer/v1alpha1.ServiceAccountSpec":           schema_operator_apis_installer_v1alpha1_ServiceAccountSpec(ref),
 		"kubevault.dev/operator/apis/installer/v1alpha1.ServiceMonitorLabels":         schema_operator_apis_installer_v1alpha1_ServiceMonitorLabels(ref),
+		"kubevault.dev/operator/apis/installer/v1alpha1.ServingCerts":                 schema_operator_apis_installer_v1alpha1_ServingCerts(ref),
 		"kubevault.dev/operator/apis/installer/v1alpha1.WebHookSpec":                  schema_operator_apis_installer_v1alpha1_WebHookSpec(ref),
 	}
 }
@@ -16913,7 +16914,6 @@ func schema_operator_apis_installer_v1alpha1_HealthcheckSpec(ref common.Referenc
 						},
 					},
 				},
-				Required: []string{"enabled"},
 			},
 		},
 	}
@@ -17048,7 +17048,7 @@ func schema_operator_apis_installer_v1alpha1_KubeVaultOperatorSpec(ref common.Re
 							Format: "int32",
 						},
 					},
-					"kubevault": {
+					"operator": {
 						SchemaProps: spec.SchemaProps{
 							Ref: ref("kubevault.dev/operator/apis/installer/v1alpha1.ImageRef"),
 						},
@@ -17123,6 +17123,12 @@ func schema_operator_apis_installer_v1alpha1_KubeVaultOperatorSpec(ref common.Re
 							Ref:         ref("k8s.io/api/core/v1.Affinity"),
 						},
 					},
+					"resources": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Compute Resources required by the sidecar container.",
+							Ref:         ref("k8s.io/api/core/v1.ResourceRequirements"),
+						},
+					},
 					"serviceAccount": {
 						SchemaProps: spec.SchemaProps{
 							Ref: ref("kubevault.dev/operator/apis/installer/v1alpha1.ServiceAccountSpec"),
@@ -17151,11 +17157,11 @@ func schema_operator_apis_installer_v1alpha1_KubeVaultOperatorSpec(ref common.Re
 						},
 					},
 				},
-				Required: []string{"replicaCount", "kubevault", "cleaner", "imagePullPolicy", "criticalAddon", "logLevel", "annotations", "nodeSelector", "serviceAccount", "apiserver", "enableAnalytics", "monitoring", "clusterName"},
+				Required: []string{"replicaCount", "operator", "cleaner", "imagePullPolicy", "logLevel", "serviceAccount", "apiserver", "enableAnalytics", "monitoring"},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.Affinity", "k8s.io/api/core/v1.Toleration", "kubevault.dev/operator/apis/installer/v1alpha1.ImageRef", "kubevault.dev/operator/apis/installer/v1alpha1.Monitoring", "kubevault.dev/operator/apis/installer/v1alpha1.ServiceAccountSpec", "kubevault.dev/operator/apis/installer/v1alpha1.WebHookSpec"},
+			"k8s.io/api/core/v1.Affinity", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.Toleration", "kubevault.dev/operator/apis/installer/v1alpha1.ImageRef", "kubevault.dev/operator/apis/installer/v1alpha1.Monitoring", "kubevault.dev/operator/apis/installer/v1alpha1.ServiceAccountSpec", "kubevault.dev/operator/apis/installer/v1alpha1.WebHookSpec"},
 	}
 }
 
@@ -17267,6 +17273,43 @@ func schema_operator_apis_installer_v1alpha1_ServiceMonitorLabels(ref common.Ref
 	}
 }
 
+func schema_operator_apis_installer_v1alpha1_ServingCerts(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"generate": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
+					"caCrt": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"serverCrt": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"serverKey": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"generate"},
+			},
+		},
+	}
+}
+
 func schema_operator_apis_installer_v1alpha1_WebHookSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -17320,11 +17363,16 @@ func schema_operator_apis_installer_v1alpha1_WebHookSpec(ref common.ReferenceCal
 							Ref: ref("kubevault.dev/operator/apis/installer/v1alpha1.HealthcheckSpec"),
 						},
 					},
+					"servingCerts": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/installer/v1alpha1.ServingCerts"),
+						},
+					},
 				},
-				Required: []string{"groupPriorityMinimum", "versionPriority", "enableMutatingWebhook", "enableValidatingWebhook", "ca", "bypassValidatingWebhookXray", "useKubeapiserverFqdnForAks", "healthcheck"},
+				Required: []string{"groupPriorityMinimum", "versionPriority", "enableMutatingWebhook", "enableValidatingWebhook", "ca", "useKubeapiserverFqdnForAks", "healthcheck", "servingCerts"},
 			},
 		},
 		Dependencies: []string{
-			"kubevault.dev/operator/apis/installer/v1alpha1.HealthcheckSpec"},
+			"kubevault.dev/operator/apis/installer/v1alpha1.HealthcheckSpec", "kubevault.dev/operator/apis/installer/v1alpha1.ServingCerts"},
 	}
 }
