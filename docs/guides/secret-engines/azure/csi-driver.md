@@ -261,6 +261,8 @@ ttl                      1h
 
 If you use Vault CLI to enable and configure the Azure secret engine then you need to **update the vault policy** for the service account 'vault' [created during vault server configuration] and add the permission to read at "azure/roles/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
 
+Find how to update the policy for service account in [here](/docs/guides/secret-engines/kv/csi-driver.md#update-vault-policy).
+
 For more detailed explanation visit [Vault official website](https://www.vaultproject.io/docs/secrets/azure/index.html#setup)
 
 ## Mount secrets into a Kubernetes pod
