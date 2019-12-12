@@ -61,7 +61,7 @@ message KubeVaultOperatorList {
 message KubeVaultOperatorSpec {
   optional int32 replicaCount = 1;
 
-  optional ImageRef kubevault = 2;
+  optional ImageRef operator = 2;
 
   optional ImageRef cleaner = 3;
 
@@ -83,15 +83,18 @@ message KubeVaultOperatorSpec {
   // +optional
   optional k8s.io.api.core.v1.Affinity affinity = 10;
 
-  optional ServiceAccountSpec serviceAccount = 11;
+  // Compute Resources required by the sidecar container.
+  optional k8s.io.api.core.v1.ResourceRequirements resources = 11;
 
-  optional WebHookSpec apiserver = 12;
+  optional ServiceAccountSpec serviceAccount = 12;
 
-  optional bool enableAnalytics = 13;
+  optional WebHookSpec apiserver = 13;
 
-  optional Monitoring monitoring = 14;
+  optional bool enableAnalytics = 14;
 
-  optional string clusterName = 15;
+  optional Monitoring monitoring = 15;
+
+  optional string clusterName = 16;
 }
 
 message Monitoring {
@@ -118,6 +121,16 @@ message ServiceMonitorLabels {
   map<string, string> labels = 1;
 }
 
+message ServingCerts {
+  optional bool generate = 1;
+
+  optional string caCrt = 2;
+
+  optional string serverCrt = 3;
+
+  optional string serverKey = 4;
+}
+
 message WebHookSpec {
   optional int32 groupPriorityMinimum = 1;
 
@@ -134,5 +147,7 @@ message WebHookSpec {
   optional bool useKubeapiserverFqdnForAks = 7;
 
   optional HealthcheckSpec healthcheck = 8;
+
+  optional ServingCerts servingCerts = 9;
 }
 

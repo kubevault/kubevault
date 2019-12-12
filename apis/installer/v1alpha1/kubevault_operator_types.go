@@ -51,24 +51,26 @@ type ImageRef struct {
 // KubeVaultOperatorSpec is the spec for redis version
 type KubeVaultOperatorSpec struct {
 	ReplicaCount    int32             `json:"replicaCount" protobuf:"varint,1,opt,name=replicaCount"`
-	KubeVault       ImageRef          `json:"kubevault" protobuf:"bytes,2,opt,name=kubevault"`
+	Operator        ImageRef          `json:"operator" protobuf:"bytes,2,opt,name=operator"`
 	Cleaner         ImageRef          `json:"cleaner" protobuf:"bytes,3,opt,name=cleaner"`
 	ImagePullPolicy string            `json:"imagePullPolicy" protobuf:"bytes,4,opt,name=imagePullPolicy"`
-	CriticalAddon   bool              `json:"criticalAddon" protobuf:"varint,5,opt,name=criticalAddon"`
+	CriticalAddon   bool              `json:"criticalAddon,omitempty" protobuf:"varint,5,opt,name=criticalAddon"`
 	LogLevel        int32             `json:"logLevel" protobuf:"varint,6,opt,name=logLevel"`
-	Annotations     map[string]string `json:"annotations" protobuf:"bytes,7,rep,name=annotations"`
-	NodeSelector    map[string]string `json:"nodeSelector" protobuf:"bytes,8,rep,name=nodeSelector"`
+	Annotations     map[string]string `json:"annotations,omitempty" protobuf:"bytes,7,rep,name=annotations"`
+	NodeSelector    map[string]string `json:"nodeSelector,omitempty" protobuf:"bytes,8,rep,name=nodeSelector"`
 	// If specified, the pod's tolerations.
 	// +optional
 	Tolerations []core.Toleration `json:"tolerations,omitempty" protobuf:"bytes,9,rep,name=tolerations"`
 	// If specified, the pod's scheduling constraints
 	// +optional
-	Affinity        *core.Affinity     `json:"affinity,omitempty" protobuf:"bytes,10,opt,name=affinity"`
-	ServiceAccount  ServiceAccountSpec `json:"serviceAccount" protobuf:"bytes,11,opt,name=serviceAccount"`
-	Apiserver       WebHookSpec        `json:"apiserver" protobuf:"bytes,12,opt,name=apiserver"`
-	EnableAnalytics bool               `json:"enableAnalytics" protobuf:"varint,13,opt,name=enableAnalytics"`
-	Monitoring      Monitoring         `json:"monitoring" protobuf:"bytes,14,opt,name=monitoring"`
-	ClusterName     string             `json:"clusterName" protobuf:"bytes,15,opt,name=clusterName"`
+	Affinity *core.Affinity `json:"affinity,omitempty" protobuf:"bytes,10,opt,name=affinity"`
+	// Compute Resources required by the sidecar container.
+	Resources       core.ResourceRequirements `json:"resources,omitempty" protobuf:"bytes,11,opt,name=resources"`
+	ServiceAccount  ServiceAccountSpec        `json:"serviceAccount" protobuf:"bytes,12,opt,name=serviceAccount"`
+	Apiserver       WebHookSpec               `json:"apiserver" protobuf:"bytes,13,opt,name=apiserver"`
+	EnableAnalytics bool                      `json:"enableAnalytics" protobuf:"varint,14,opt,name=enableAnalytics"`
+	Monitoring      Monitoring                `json:"monitoring" protobuf:"bytes,15,opt,name=monitoring"`
+	ClusterName     string                    `json:"clusterName,omitempty" protobuf:"bytes,16,opt,name=clusterName"`
 }
 
 type ServiceAccountSpec struct {
@@ -81,21 +83,29 @@ type WebHookSpec struct {
 	VersionPriority             int32           `json:"versionPriority" protobuf:"varint,2,opt,name=versionPriority"`
 	EnableMutatingWebhook       bool            `json:"enableMutatingWebhook" protobuf:"varint,3,opt,name=enableMutatingWebhook"`
 	EnableValidatingWebhook     bool            `json:"enableValidatingWebhook" protobuf:"varint,4,opt,name=enableValidatingWebhook"`
-	Ca                          string          `json:"ca" protobuf:"bytes,5,opt,name=ca"`
-	BypassValidatingWebhookXray bool            `json:"bypassValidatingWebhookXray" protobuf:"varint,6,opt,name=bypassValidatingWebhookXray"`
+	CA                          string          `json:"ca" protobuf:"bytes,5,opt,name=ca"`
+	BypassValidatingWebhookXray bool            `json:"bypassValidatingWebhookXray,omitempty" protobuf:"varint,6,opt,name=bypassValidatingWebhookXray"`
 	UseKubeapiserverFqdnForAks  bool            `json:"useKubeapiserverFqdnForAks" protobuf:"varint,7,opt,name=useKubeapiserverFqdnForAks"`
 	Healthcheck                 HealthcheckSpec `json:"healthcheck" protobuf:"bytes,8,opt,name=healthcheck"`
+	ServingCerts                ServingCerts    `json:"servingCerts" protobuf:"bytes,9,opt,name=servingCerts"`
 }
 
 type HealthcheckSpec struct {
-	Enabled bool `json:"enabled" protobuf:"varint,1,opt,name=enabled"`
+	Enabled bool `json:"enabled,omitempty" protobuf:"varint,1,opt,name=enabled"`
+}
+
+type ServingCerts struct {
+	Generate  bool   `json:"generate" protobuf:"varint,1,opt,name=generate"`
+	CaCrt     string `json:"caCrt,omitempty" protobuf:"bytes,2,opt,name=caCrt"`
+	ServerCrt string `json:"serverCrt,omitempty" protobuf:"bytes,3,opt,name=serverCrt"`
+	ServerKey string `json:"serverKey,omitempty" protobuf:"bytes,4,opt,name=serverKey"`
 }
 
 type Monitoring struct {
-	Agent          string               `json:"agent" protobuf:"bytes,1,opt,name=agent"`
-	Operator       bool                 `json:"operator" protobuf:"varint,2,opt,name=operator"`
-	Prometheus     PrometheusSpec       `json:"prometheus" protobuf:"bytes,3,opt,name=prometheus"`
-	ServiceMonitor ServiceMonitorLabels `json:"serviceMonitor" protobuf:"bytes,4,opt,name=serviceMonitor"`
+	Agent          string                `json:"agent" protobuf:"bytes,1,opt,name=agent"`
+	Operator       bool                  `json:"operator" protobuf:"varint,2,opt,name=operator"`
+	Prometheus     *PrometheusSpec       `json:"prometheus" protobuf:"bytes,3,opt,name=prometheus"`
+	ServiceMonitor *ServiceMonitorLabels `json:"serviceMonitor" protobuf:"bytes,4,opt,name=serviceMonitor"`
 }
 
 type PrometheusSpec struct {
