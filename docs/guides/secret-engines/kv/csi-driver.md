@@ -14,204 +14,199 @@ section_menu_id: guides
 
 # Mount Key/Value Secrets into Kubernetes pod using CSI Driver
 
-## Before you Begin
-
-At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
+At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Kind](https://github.com/kubernetes-sigs/kind). To check the version of your cluster, run:
 
 ```console
 $ kubectl version --short
-Client Version: v1.15.0
-Server Version: v1.15.0
+Client Version: v1.16.2
+Server Version: v1.14.0
+
 ```
 
-To keep things isolated, this tutorial uses a separate namespace called `demo` throughout this tutorial.
+Before you begin:
+
+- Install KubeVault operator in your cluster from [here](/docs/setup/operator/install.md).
+
+To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
 ```console
 $ kubectl create ns demo
-namespace "demo" created
+namespace/demo created
 ```
 
->Note: YAML files used in this tutorial stored in [docs/examples/csi-driver/kv](https://github.com/kubevault/docs/tree/master/docs/examples/csi-driver/kv) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
+> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engins/kv) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
 
-## Configure Vault
+## Vault Server
 
-The following steps are required to retrieve secrets from `Key/Value` secrets engine using `Vault server` into a Kubernetes pod.
+If you don't have a Vault Server, you can deploy it by using the KubeVault operator.
 
-- **Vault server:** used to provision and manager Key/Value secrets
-- **Appbinding:** required to connect `CSI driver` with Vault server
-- **Role:** using this role `CSI driver` can access credentials from Vault server
+- [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
 
-There are two ways to configure Vault server. You can use either use `KubeVault operator` or use `vault` cli to manually configure a Vault server.
+The KubeVault operator is also compatible with external Vault servers that are not provisioned by itself. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
 
-<ul class="nav nav-tabs" id="conceptsTab" role="tablist">
-  <li class="nav-item">
-    <a class="nav-link active" id="operator-tab" data-toggle="tab" href="#operator" role="tab" aria-controls="operator" aria-selected="true">Using KubeVault operator</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" id="csi-driver-tab" data-toggle="tab" href="#csi-driver" role="tab" aria-controls="csi-driver" aria-selected="false">Using Vault CLI</a>
-  </li>
-</ul>
-<div class="tab-content" id="conceptsTabContent">
-  <details open class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
+- [Configure cluster and Vault server](/docs/guides/vault-server/external-vault-sever.md#configuration)
 
-<summary>Using KubeVault operator</summary>
-
-Follow [this](/docs/guides/secret-engines/kv/overview.md) tutorial to manage Key/Value secrets with `KubeVault operator`. After successful configuration you should have following resources present in your cluster.
-
-- AppBinding: An appbinding with name `vault-app` in `demo` namespace
-
-</details>
-<details class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
-
-<summary>Using Vault CLI</summary>
-
-You can use Vault cli to manually configure an existing Vault server. The Vault server may be running inside a Kubernetes cluster or running outside a Kubernetes cluster. If you don't have a Vault server, you can deploy one by running the following command:
+Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server. And we also have the service account that the Vault server can authenticate.
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/csi-driver/vault-install.yaml
-service/vault created
-statefulset.apps/vault created
+$ kubectl get serviceaccounts -n demo
+NAME                       SECRETS   AGE
+vault                      1         20h
+
+$ kubectl get appbinding -n demo
+NAME    AGE
+vault   50m
+
+$ kubectl get appbinding -n demo vault -o yaml
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
+metadata:
+  name: vault
+  namespace: demo
+spec:
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: vault
+      port: 8200
+      scheme: HTTPS
+  parameters:
+    apiVersion: config.kubevault.com/v1alpha1
+    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
+    kind: VaultServerConfiguration
+    path: kubernetes
+    policyControllerRole: vault-policy-controller
+    serviceAccountName: vault
+    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+    usePodServiceAccountForCsiDriver: true
 ```
 
-To use secret from `KV` engine, you have to do following things.
+## Enable and Configure KV Secret Engine
 
-1. **Enable `KV` Engine:** To enable `KV` secret engine run the following command.
+We will use the [Vault CLI](https://www.vaultproject.io/docs/commands/#vault-commands-cli-) throughout the tutorial to [enable and configure](https://www.vaultproject.io/docs/secrets/kv/kv-v1.html#setup) the KV secret engine.
 
-    ```console
-    $ vault secrets enable -version=1 kv
-    Success! Enabled the kv secrets engine at: kv/
-    ```
+> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
-2. **Create Engine Policy:**  To read secret from engine, we need to create a policy with `read` capability. Create a `policy.hcl` file and write the following content:
+### Enable KV Secret Engine
 
-    ```yaml
-    # capability of get secret
-    path "kv/*" {
-        capabilities = ["read"]
-    }
-    ```
+Enable the KV secret engine:
 
-    Write this policy into vault naming `test-policy` with following command:
+```console
+$ vault secrets enable -version=1 kv
+Success! Enabled the kv secrets engine at: kv/
+```
 
-    ```console
-    $ vault policy write test-policy policy.hcl
-    Success! Uploaded policy: test-policy
-    ```
+### Write KV Secret
 
-3. **Write Secret on Vault:** Create a secret on vault by running:
+Write arbitrary key-value pairs:
 
-    ```console
-    $ vault kv put kv/my-secret my-value=s3cr3t
-    Success! Data written to: kv/my-secret
-    ```
+```console
+$ vault kv put kv/my-secret my-value=s3cr3t
+Success! Data written to: kv/my-secret
+```
 
-## Configure Cluster
+### Read KV Secret
 
-1. **Create Service Account:** Create `service.yaml` file with following content:
+Read a specific key-value pair:
 
-      ```yaml
-        apiVersion: rbac.authorization.k8s.io/v1beta1
-        kind: ClusterRoleBinding
-        metadata:
-          name: role-tokenreview-binding
-          namespace: demo
-        roleRef:
-          apiGroup: rbac.authorization.k8s.io
-          kind: ClusterRole
-          name: system:auth-delegator
-        subjects:
-        - kind: ServiceAccount
-          name: kv-vault
-          namespace: demo
-        ---
-        apiVersion: v1
-        kind: ServiceAccount
-        metadata:
-          name: kv-vault
-          namespace: demo
-      ```
+```console
+$ vault kv get kv/my-secret
+====== Data ======
+Key         Value
+---         -----
+my-value    s3cr3t
+```
 
-   After that, run `kubectl apply -f service.yaml` to create a service account.
+## Update Vault Policy
 
-2. **Enable Kubernetes Auth:**  To enable Kubernetes auth backend, we need to extract the token reviewer JWT, Kubernetes CA certificate and Kubernetes host information.
+Since Pod's service account will be used by the CSI driver to perform [Kubernetes authentication](https://www.vaultproject.io/docs/auth/kubernetes.html) to the Vault server, the auth method role must have the permission to read secret at `kv/*` path.
 
-    ```console
-    $ export VAULT_SA_NAME=$(kubectl get sa kv-vault -n demo -o jsonpath="{.secrets[*]['name']}")
+During the Vault server configuration, we have created a Kubernetes service account and registered an auth method role at the Vault server. If you have used the KubeVault operator to deploy the Vault server, then the operator has performed these tasks for you.
 
-    $ export SA_JWT_TOKEN=$(kubectl get secret $VAULT_SA_NAME -n demo -o jsonpath="{.data.token}" | base64 --decode; echo)
+So, we have the service account that will be referenced from the Pod.
 
-    $ export SA_CA_CRT=$(kubectl get secret $VAULT_SA_NAME -n demo -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
+```console
+kubectl get serviceaccounts -n demo
+NAME                       SECRETS   AGE
+vault                      1         7h23m
+```
 
-    $ export K8S_HOST=<host-ip>
-    $ export K8s_PORT=6443
-    ```
+> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
-    Now, we can enable the Kubernetes authentication backend and create a Vault named role that is attached to this service account. Run:
+You can find the name of the auth method role in the AppBinding's `spec.parameters.policyControllerRole`. Let's list the token policies assigned for `vault` service account:
 
-    ```console
-    $ vault auth enable kubernetes
-    Success! Enabled Kubernetes auth method at: kubernetes/
+```console
+$ vault read auth/kubernetes/role/vault-policy-controller
+Key                                 Value
+---                                 -----
+bound_service_account_names         [vault]
+bound_service_account_namespaces    [demo]
+token_bound_cidrs                   []
+token_explicit_max_ttl              0s
+token_max_ttl                       24h
+token_no_default_policy             false
+token_num_uses                      0
+token_period                        24h
+token_policies                      [default vault-policy-controller]
+token_ttl                           24h
+token_type                          default
+```
 
-    $ vault write auth/kubernetes/config \
-        token_reviewer_jwt="$SA_JWT_TOKEN" \
-        kubernetes_host="https://$K8S_HOST:$K8s_PORT" \
-        kubernetes_ca_cert="$SA_CA_CRT"
-    Success! Data written to: auth/kubernetes/config
+Now, we will update the Vault policy `vault-policy-controller` and add the permission to read at `kv/*` path with existing permissions.
 
-    $ vault write auth/kubernetes/role/kvrole \
-        bound_service_account_names=kv-vault \
-        bound_service_account_namespaces=demo \
-        policies=test-policy \
-        ttl=24h
-    Success! Data written to: auth/kubernetes/role/kvrole
-    ```
+`kv-readonly-policy.hcl:`
 
-    Here, `kvrole` is the name of the role.
+```yaml
 
-3. **Create AppBinding:** To connect CSI driver with Vault, we need to create an `AppBinding`. First we need to make sure, if `AppBinding` CRD is installed in your cluster by running:
+path "kv/*" {
+    capabilities = ["read"]
+}
+```
 
-    ```console
-    $ kubectl get crd -l app=catalog
-    NAME                                          CREATED AT
-    appbindings.appcatalog.appscode.com           2018-12-12T06:09:34Z
-    ```
+Update the `vault-policy-controller` policy:
 
-    If you don't see that CRD, you can register it via the following command:
+```console
+# write existing polices to a file
+$ vault policy read vault-policy-controller > examples/guides/secret-engins/kv/policy.hcl
 
-    ```console
-    $ kubectl apply -f https://github.com/kmodules/custom-resources/raw/master/api/crds/appbinding.yaml
+# append the kv-readonly-policy at the end of the existing policies
+$ cat examples/guides/secret-engins/kv/kv-readonly-policy.hcl >> examples/guides/secret-engins/kv/policy.hcl
 
-    ```
+# write the update policy to Vault
+$ vault policy write vault-policy-controller examples/guides/secret-engins/kv/policy.hcl
+Success! Uploaded policy: vault-policy-controller
 
-    If AppBinding CRD is installed, Create AppBinding with the following data:
+# read updated policy
+$ vault policy read vault-policy-controller
+... ...
+... ...
+path "kv/*" {
+    capabilities = ["read"]
+}
+```
 
-    ```yaml
-    apiVersion: appcatalog.appscode.com/v1alpha1
-    kind: AppBinding
-    metadata:
-      name: vault-app
-      namespace: demo
-    spec:
-    clientConfig:
-      url: http://165.227.190.238:30001 # Replace this with Vault URL
-    parameters:
-      apiVersion: "kubevault.com/v1alpha1"
-      kind: "VaultServerConfiguration"
-      usePodServiceAccountForCSIDriver: true
-      authPath: "kubernetes"
-      policyControllerRole: kvrole # we created this in previous step
-    ```
-
-  </details>
-</div>
+So, we have updated the policy successfully and ready to mount the secrets into Kubernetes pods.
 
 ## Mount secrets into a Kubernetes pod
 
-After configuring `Vault server`, now we have ` vault-app` AppBinding in `demo` namespace.
+Since Kubernetes 1.14, `storage.k8s.io/v1beta1` `CSINode` and `CSIDriver` objects were introduced. Let's check [CSIDriver](https://kubernetes-csi.github.io/docs/csi-driver-object.html) and [CSINode](https://kubernetes-csi.github.io/docs/csi-node-object.html) are available or not.
+
+```console
+$ kubectl get csidrivers
+NAME                        CREATED AT
+secrets.csi.kubevault.com   2019-12-09T04:32:50Z
+
+$ kubectl get csinodes
+NAME             CREATED AT
+2gb-pool-57jj7   2019-12-09T04:32:52Z
+2gb-pool-jrvtj   2019-12-09T04:32:58Z
+```
+
+After configuring the `Vault server`, now we have AppBinding `vault` in `demo` namespace.
 
 So, we can create `StorageClass` now.
 
-**Create StorageClass:** Create `storage-class.yaml` file with following content, then run `kubectl apply -f storage-class.yaml`
+- **Create StorageClass:** Create `StorageClass` object with the following content:
 
 ```yaml
 kind: StorageClass
@@ -219,90 +214,102 @@ apiVersion: storage.k8s.io/v1
 metadata:
   name: vault-kv-storage
   namespace: demo
-annotations:
-  storageclass.kubernetes.io/is-default-class: "false"
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
 provisioner: secrets.csi.kubevault.com
 parameters:
-  ref: demo/vault-app # namespace/AppBinding, we created this in previous step
+  ref: demo/vault # namespace/AppBinding, we created during vault server configuration
   engine: KV # vault engine name
   secret: my-secret # secret name on vault which you want get access
   path: kv # specify the secret engine path, default is kv
 ```
 
+```console
+$ kubectl apply -f examples/guides/secret-engins/kv/storageClass.yaml 
+storageclass.storage.k8s.io/vault-kv-storage created
+```
+
 ## Test & Verify
 
-1. **Create PVC:** Create a `PersistentVolumeClaim` with following data. This makes sure a volume will be created and provisioned on your behalf.
+- **Create PVC:** Create a `PersistentVolumeClaim` with the following data. This makes sure a volume will be created and provisioned on your behalf.
 
-    ```yaml
-    apiVersion: v1
-    kind: PersistentVolumeClaim
-    metadata:
-      name: csi-pvc
-      namespace: demo
-    spec:
-      accessModes:
-      - ReadWriteOnce
-      resources:
-        requests:
-          storage: 1Gi
-      storageClassName: vault-kv-storage
-      volumeMode: DirectoryOrCreate
-    ```
-2. **Create Service Account:** Create service account for the pod we are going to create in next step.
-    ```yaml
-    apiVersion: v1
-    kind: ServiceAccount
-    metadata:
-      name: kv-vault
-      namespace: demo
-    ```
-3. **Create Pod:** Now we can create a Pod which refers to this volume. When the Pod is created, the volume will be attached, formatted and mounted to the specific container.
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: csi-pvc-kv
+  namespace: demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+  storageClassName: vault-kv-storage
+```
 
-    ```yaml
-    apiVersion: v1
-    kind: Pod
-    metadata:
-      name: mypod
-      namespace: demo
-    spec:
-      containers:
-      - name: mypod
-        image: busybox
-        command:
-          - sleep
-          - "3600"
-        volumeMounts:
+```console
+$ kubectl apply -f examples/guides/secret-engins/kv/pvc.yaml 
+persistentvolumeclaim/csi-pvc-kv created
+```
+
+- **Create Pod:** Now we can create a Pod which refers to this volume. When the Pod is created, the volume will be attached, formatted and mounted to the specific container.
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+  namespace: demo
+spec:
+  containers:
+    - name: mypod
+      image: busybox
+      command:
+        - sleep
+        - "3600"
+      volumeMounts:
         - name: my-vault-volume
-          mountPath: "/etc/foo"
+          mountPath: "/etc/kv"
           readOnly: true
-      serviceAccountName: kv-vault
-      volumes:
-        - name: my-vault-volume
-          persistentVolumeClaim:
-            claimName: csi-pvc
-    ```
+  serviceAccountName: vault # service account that was created during vault server configuration
+  volumes:
+    - name: my-vault-volume
+      persistentVolumeClaim:
+        claimName: csi-pvc-kv
+```
 
-   Check if the Pod is running successfully, by running:
+```console
+$ kubectl apply -f examples/guides/secret-engins/kv/pod.yaml 
+pod/mypod created
+```
 
-    ```console
-    kubectl describe pods -n demo mypod
-    ```
+Check if the Pod is running successfully, by running:
 
-4. **Verify Secret:** If the Pod is running successfully, then check inside the app container by running
+```console
+$ kubectl get pods -n demo
+NAME                    READY   STATUS    RESTARTS   AGE
+mypod                   1/1     Running   0          11s
+```
 
-    ```console
-    $ kubectl exec -n demo -ti mypod /bin/sh
-    / # ls /etc/foo
-    my-value
-    / # cat /etc/foo/my-value
-    s3cr3t
-    ```
+- **Verify Secret:** If the Pod is running successfully, then check inside the app container by running
 
-   So, we can see that the secret `my-secret` is mounted into the pod, where the secret key is mounted as file and value is the content of that file.
+```console
+$ kubectl exec -it -n demo  mypod sh
+/ # ls /etc/kv/
+my-value
+
+/ # cat /etc/kv/my-value
+s3cr3t
+
+/ # exit
+```
+
+So, we can see that the secret `my-secret` is mounted into the pod, where the secret key is mounted as file and value is the content of that file.
 
 ## Cleaning up
 
-To cleanup the Kubernetes resources created by this tutorial, run:
+To clean up the Kubernetes resources created by this tutorial, run:
 
 ```console
 $ kubectl delete ns demo

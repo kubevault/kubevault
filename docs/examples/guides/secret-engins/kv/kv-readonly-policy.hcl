@@ -1,0 +1,4 @@
+
+path "kv/*" {
+    capabilities = ["read"]
+}

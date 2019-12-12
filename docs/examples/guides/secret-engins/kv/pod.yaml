@@ -5,17 +5,17 @@ metadata:
   namespace: demo
 spec:
   containers:
-  - name: mypod
-    image: busybox
-    command:
-      - sleep
-      - "3600"
-    volumeMounts:
-    - name: my-vault-volume
-      mountPath: "/etc/foo"
-      readOnly: true
-  serviceAccountName: kv-vault
+    - name: mypod
+      image: busybox
+      command:
+        - sleep
+        - "3600"
+      volumeMounts:
+        - name: my-vault-volume
+          mountPath: "/etc/kv"
+          readOnly: true
+  serviceAccountName: vault
   volumes:
     - name: my-vault-volume
       persistentVolumeClaim:
-        claimName: csi-pvc
+        claimName: csi-pvc-kv
