@@ -1,0 +1,13 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: vault-mdb-storage
+  namespace: demo
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: secrets.csi.kubevault.com
+parameters:
+  ref: demo/vault # namespace/AppBinding, we created during vault server configuration
+  engine: DATABASE # vault engine name
+  role: k8s.-.demo.mdb-role # role name on vault which you want get access
+  path: database # specify the secret engine path, default is database

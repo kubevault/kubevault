@@ -85,7 +85,7 @@ spec:
 
 The following steps are required to enable and configure the GCP secrets engine in the Vault server.
 
-There are two ways to configure the Vault server. You can use either use the `KubeVault operator` or the  `Vault CLI` to manually configure a Vault server.
+There are two ways to configure the Vault server. You can either use the `KubeVault operator` or the  `Vault CLI` to manually configure a Vault server.
 
 <ul class="nav nav-tabs" id="conceptsTab" role="tablist">
   <li class="nav-item">
@@ -256,7 +256,7 @@ service_account_email    vaultk8s---demo-gcp-424523423@ackube.iam.gserviceaccoun
 token_scopes             [https://www.googleapis.com/auth/cloud-platform]
 ```
 
-If you use Vault CLI to enable and configure the GCP secret engine then you need to update the vault policy for the service account 'vault' [created during vault server configuration] and add the permission to read at "gcp/roleset/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
+If you use Vault CLI to enable and configure the GCP secret engine then you need to **update the vault policy** for the service account 'vault' [created during vault server configuration] and add the permission to read at "gcp/roleset/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
 
   </details>
 </div>
