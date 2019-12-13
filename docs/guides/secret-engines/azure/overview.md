@@ -116,10 +116,10 @@ data:
 Let's deploy SecretEngine:
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/azure/azureCred.yaml
+$ kubectl apply -f examples/guides/secret-engines/azure/azureCred.yaml
 secret/azure-cred created
 
-$ kubectl apply -f examples/guides/secret-engins/azure/azureSecretEngine.yaml
+$ kubectl apply -f examples/guides/secret-engines/azure/azureSecretEngine.yaml
 secretengine.engine.kubevault.com/azure-engine created
 ```
 
@@ -155,7 +155,7 @@ spec:
 Let's deploy AzureRole:
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/azure/azureRole.yaml
+$ kubectl apply -f examples/guides/secret-engines/azure/azureRole.yaml
 azurerole.engine.kubevault.com/azure-role created
 
 $ kubectl get azureroles -n demo
@@ -186,7 +186,7 @@ ttl                      1h
 If we delete the AzureRole, then the respective role will be deleted from the Vault.
 
 ```console
-$ kubectl delete -f examples/guides/secret-engins/azure/azureRole.yaml
+$ kubectl delete -f examples/guides/secret-engines/azure/azureRole.yaml
   azurerole.engine.kubevault.com "azure-role" deleted
 ```
 
@@ -227,7 +227,7 @@ Here, `spec.roleRef` is the reference of AzureRole against which credentials wil
 Now, we are going to create AzureAccessKeyRequest.
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/azure/azureAccessKeyRequest.yaml
+$ kubectl apply -f examples/guides/secret-engines/azure/azureAccessKeyRequest.yaml
 azureaccesskeyrequest.engine.kubevault.com/azure-cred-rqst created
 
 $ kubectl get azureaccesskeyrequests -n demo

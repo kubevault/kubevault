@@ -12,15 +12,14 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Mount Azure Secrets into a Kubernetes Pod using CSI Driver
+# Mount Azure Secrets using CSI Driver
 
-At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
+At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
 ```console
 $ kubectl version --short
 Client Version: v1.16.2
 Server Version: v1.14.0
-
 ```
 
 Before you begin:
@@ -35,7 +34,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engins/azure) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
+> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engines/azure) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
 
 ## Vault Server
 
@@ -43,7 +42,7 @@ If you don't have a Vault Server, you can deploy it by using the KubeVault opera
 
 - [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
 
-The KubeVault operator is also compatible with external Vault servers that are not provisioned by itself. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
+The KubeVault operator can manage policies and secret engines of Vault servers which are not provisioned by the KubeVault operator. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
 
 - [Configure cluster and Vault server](/docs/guides/vault-server/external-vault-sever.md#configuration)
 
@@ -97,9 +96,9 @@ There are two ways to configure the Vault server. You can either use the `KubeVa
   </li>
 </ul>
 <div class="tab-content" id="conceptsTabContent">
-  <details open class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
+  <div open class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
 
-<summary>Using KubeVault operator</summary>
+### Using KubeVault operator
 
 You need to be familiar with the following CRDs:
 
@@ -140,10 +139,10 @@ data:
 Let's deploy SecretEngine:
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/azure/azureCred.yaml
+$ kubectl apply -f examples/guides/secret-engines/azure/azureCred.yaml
 secret/azure-cred created
 
-$ kubectl apply -f examples/guides/secret-engins/azure/azureSecretEngine.yaml
+$ kubectl apply -f examples/guides/secret-engines/azure/azureSecretEngine.yaml
 secretengine.engine.kubevault.com/azure-engine created
 ```
 
@@ -173,7 +172,7 @@ spec:
 Let's deploy AzureRole:
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/azure/azureRole.yaml
+$ kubectl apply -f examples/guides/secret-engines/azure/azureRole.yaml
 azurerole.engine.kubevault.com/azure-role created
 
 $ kubectl get azureroles -n demo
@@ -203,11 +202,10 @@ ttl                      1h
 
 For more detailed explanation visit [Vault official website](https://www.vaultproject.io/docs/secrets/azure/index.html#setup)
 
-</details>
+</div>
+<div class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
 
-<details class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
-
-<summary>Using Vault CLI</summary>
+### Using Vault CLI
 
 You can also use [Vault CLI](https://www.vaultproject.io/docs/commands/) to [enable and configure](https://www.vaultproject.io/docs/secrets/azure/index.html#setup) the Azure secret engine.
 
@@ -226,10 +224,10 @@ Success! Enabled the azure secrets engine at: azure/
 
 ```console
 $ vault write azure/config \
-subscription_id=$AZURE_SUBSCRIPTION_ID \
-tenant_id=$AZURE_TENANT_ID \
-client_id=$AZURE_CLIENT_ID \
-client_secret=$AZURE_CLIENT_SECRET
+  subscription_id=$AZURE_SUBSCRIPTION_ID \
+  tenant_id=$AZURE_TENANT_ID \
+  client_id=$AZURE_CLIENT_ID \
+  client_secret=$AZURE_CLIENT_SECRET
 
 Success! Data written to: azure/config
 ```
@@ -260,7 +258,7 @@ max_ttl                  0s
 ttl                      1h
 ```
 
-If you use Vault CLI to enable and configure the Azure secret engine then you need to **update the vault policy** for the service account 'vault' [created during vault server configuration] and add the permission to read at "azure/roles/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
+If you use Vault CLI to enable and configure the Azure secret engine then you need to **update the vault policy** for the service account 'vault' created during vault server configuration and add the permission to read at "azure/roles/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
 
 Find how to update the policy for service account in [here](/docs/guides/secret-engines/kv/csi-driver.md#update-vault-policy).
 
@@ -280,8 +278,6 @@ NAME             CREATED AT
 2gb-pool-57jj7   2019-12-09T04:32:52Z
 2gb-pool-jrvtj   2019-12-09T04:32:58Z
 ```
-
-After configuring the `Vault server`, now we have AppBinding `vault` in `demo` namespace.
 
 So, we can create `StorageClass` now.
 
@@ -306,7 +302,7 @@ parameters:
 ```
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/azure/storageClass.yaml
+$ kubectl apply -f examples/guides/secret-engines/azure/storageClass.yaml
 storageclass.storage.k8s.io/vault-azure-storage created
 ```
 
@@ -332,7 +328,7 @@ spec:
 ```
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/azure/pvc.yaml 
+$ kubectl apply -f examples/guides/secret-engines/azure/pvc.yaml
 persistentvolumeclaim/csi-pvc-azure created
 ```
 
@@ -365,7 +361,7 @@ spec:
 ```
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/azure/pod.yaml
+$ kubectl apply -f examples/guides/secret-engines/azure/pod.yaml
 pod/mypod created
 ```
 

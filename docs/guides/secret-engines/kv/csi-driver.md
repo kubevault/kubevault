@@ -1,5 +1,5 @@
 ---
-title: Mount Key/Value Secrets into Kubernetes pod using CSI Driver
+title: Mount Key/Value Secrets using CSI Driver
 menu:
   docs_{{ .version }}:
     identifier: csi-driver-kv
@@ -12,9 +12,9 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Mount Key/Value Secrets into Kubernetes pod using CSI Driver
+# Mount Key/Value Secrets using CSI Driver
 
-At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
+At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
 ```console
 $ kubectl version --short
@@ -34,7 +34,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engins/kv) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
+> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engines/kv) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
 
 ## Vault Server
 
@@ -42,7 +42,7 @@ If you don't have a Vault Server, you can deploy it by using the KubeVault opera
 
 - [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
 
-The KubeVault operator is also compatible with external Vault servers that are not provisioned by itself. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
+The KubeVault operator can manage policies and secret engines of Vault servers which are not provisioned by the KubeVault operator. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
 
 - [Configure cluster and Vault server](/docs/guides/vault-server/external-vault-sever.md#configuration)
 
@@ -157,7 +157,6 @@ Now, we will update the Vault policy `vault-policy-controller` and add the permi
 `kv-readonly-policy.hcl:`
 
 ```yaml
-
 path "kv/*" {
     capabilities = ["read"]
 }
@@ -167,13 +166,13 @@ Update the `vault-policy-controller` policy:
 
 ```console
 # write existing polices to a file
-$ vault policy read vault-policy-controller > examples/guides/secret-engins/kv/policy.hcl
+$ vault policy read vault-policy-controller > examples/guides/secret-engines/kv/policy.hcl
 
 # append the kv-readonly-policy at the end of the existing policies
-$ cat examples/guides/secret-engins/kv/kv-readonly-policy.hcl >> examples/guides/secret-engins/kv/policy.hcl
+$ cat examples/guides/secret-engines/kv/kv-readonly-policy.hcl >> examples/guides/secret-engines/kv/policy.hcl
 
 # write the update policy to Vault
-$ vault policy write vault-policy-controller examples/guides/secret-engins/kv/policy.hcl
+$ vault policy write vault-policy-controller examples/guides/secret-engines/kv/policy.hcl
 Success! Uploaded policy: vault-policy-controller
 
 # read updated policy
@@ -202,8 +201,6 @@ NAME             CREATED AT
 2gb-pool-jrvtj   2019-12-09T04:32:58Z
 ```
 
-After configuring the `Vault server`, now we have AppBinding `vault` in `demo` namespace.
-
 So, we can create `StorageClass` now.
 
 ### Create StorageClass
@@ -227,7 +224,7 @@ parameters:
 ```
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/kv/storageClass.yaml 
+$ kubectl apply -f examples/guides/secret-engines/kv/storageClass.yaml
 storageclass.storage.k8s.io/vault-kv-storage created
 ```
 
@@ -253,7 +250,7 @@ spec:
 ```
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/kv/pvc.yaml 
+$ kubectl apply -f examples/guides/secret-engines/kv/pvc.yaml
 persistentvolumeclaim/csi-pvc-kv created
 ```
 
@@ -286,7 +283,7 @@ spec:
 ```
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/kv/pod.yaml
+$ kubectl apply -f examples/guides/secret-engines/kv/pod.yaml
 pod/mypod created
 ```
 

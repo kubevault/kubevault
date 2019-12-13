@@ -133,7 +133,7 @@ NAME                STATUS
 aws-secret-engine   Success
 ```
 
-Since the status is `Success`, the AWS secret engine is enabled and successfully configured. You can use `kubectl describe secretengine -n <namepsace> <name>` to check the error-events if any.
+Since the status is `Success`, the AWS secret engine is enabled and successfully configured. You can use `kubectl describe secretengine -n <namepsace> <name>` to check for error events if any.
 
 ## Create AWS Role
 

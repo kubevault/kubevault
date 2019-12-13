@@ -157,7 +157,7 @@ spec:
 Let's deploy GCPRole:
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/gcp/gcpRole.yaml
+$ kubectl apply -f examples/guides/secret-engines/gcp/gcpRole.yaml
 gcprole.engine.kubevault.com/gcp-role created
 
 $ kubectl get gcprole -n demo
@@ -189,7 +189,7 @@ token_scopes             [https://www.googleapis.com/auth/cloud-platform]
 If we delete the GCPRole, then the respective role will be deleted from the Vault.
 
 ```console
-$ kubectl delete -f examples/guides/secret-engins/gcp/gcpRole.yaml
+$ kubectl delete -f examples/guides/secret-engines/gcp/gcpRole.yaml
   gcprole.engine.kubevault.com "gcp-role" deleted
 ```
 

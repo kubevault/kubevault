@@ -1,5 +1,5 @@
 ---
-title: Mount AWS IAM Secrets into Kubernetes pod using CSI Driver
+title: Mount AWS IAM Secrets using CSI Driver
 menu:
   docs_{{ .version }}:
     identifier: csi-driver-aws
@@ -12,15 +12,14 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Mount AWS IAM Secrets into Kubernetes pod using CSI Driver
+# Mount AWS IAM Secrets using CSI Driver
 
-At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
+At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
 ```console
 $ kubectl version --short
 Client Version: v1.16.2
 Server Version: v1.14.0
-
 ```
 
 Before you begin:
@@ -35,7 +34,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engins/aws) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
+> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engines/aws) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
 
 ## Vault Server
 
@@ -43,7 +42,7 @@ If you don't have a Vault Server, you can deploy it by using the KubeVault opera
 
 - [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
 
-The KubeVault operator is also compatible with external Vault servers that are not provisioned by itself. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
+The KubeVault operator can manage policies and secret engines of Vault servers which are not provisioned by the KubeVault operator. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
 
 - [Configure cluster and Vault server](/docs/guides/vault-server/external-vault-sever.md#configuration)
 
@@ -97,9 +96,9 @@ There are two ways to configure the Vault server. You can either use the `KubeVa
   </li>
 </ul>
 <div class="tab-content" id="conceptsTabContent">
-  <details open class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
+  <div open class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
 
-<summary>Using KubeVault operator</summary>
+### Using KubeVault operator
 
 You need to be familiar with the following CRDs:
 
@@ -142,10 +141,10 @@ data:
 Let's deploy SecretEngine:
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/aws/awsCred.yaml
+$ kubectl apply -f examples/guides/secret-engines/aws/awsCred.yaml
 secret/aws-cred created
 
-$ kubectl apply -f examples/guides/secret-engins/aws/awsSecretEngine.yaml
+$ kubectl apply -f examples/guides/secret-engines/aws/awsSecretEngine.yaml
 secretengine.engine.kubevault.com/aws-secret-engine created
 ```
 
@@ -216,10 +215,10 @@ role_arns          <nil>
 user_path          n/a
 ```
 
-</details>
-<details class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
+</div>
+<div class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
 
-<summary>Using Vault CLI</summary>
+### Using Vault CLI
 
 You can also use [Vault CLI](https://www.vaultproject.io/docs/commands/) to [enable and configure](https://www.vaultproject.io/docs/secrets/aws/index.html#setup) the AWS secret engine.
 
@@ -238,8 +237,8 @@ Success! Enabled the aws secrets engine at: aws/
 
 ```console
 $ vault write aws/config/root \
-  access_key=AKIAJWVN5Z4FOFT7NLNA \
-  secret_key=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 \
+  access_key=AKIAJWVN5ZFT7NLNA \
+  secret_key=R4nm063hgMVo4BTT5xOs5nH3Nt0i \
   region=us-east-1
 Success! Data written to: aws/config/root
 ```
@@ -281,11 +280,11 @@ role_arns          <nil>
 user_path          n/a
 ```
 
-If you use Vault CLI to enable and configure the AWS secret engine then you need to **update the vault policy** for the service account 'vault' [created during vault server configuration] and add the permission to read at "aws/roles/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
+If you use Vault CLI to enable and configure the AWS secret engine then you need to **update the vault policy** for the service account 'vault' created during vault server configuration and add the permission to read at "aws/roles/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
 
 Find how to update the policy for service account in [here](/docs/guides/secret-engines/kv/csi-driver.md#update-vault-policy).
 
-  </details>
+  </div>
 </div>
 
 ## Mount secrets into a Kubernetes pod
@@ -302,8 +301,6 @@ NAME             CREATED AT
 2gb-pool-57jj7   2019-12-09T04:32:52Z
 2gb-pool-jrvtj   2019-12-09T04:32:58Z
 ```
-
-After configuring the `Vault server`, now we have the AppBinding `vault` in `demo` namespace.
 
 So, we can create `StorageClass` now.
 
@@ -328,7 +325,7 @@ parameters:
 ```
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/aws/storageClass.yaml
+$ kubectl apply -f examples/guides/secret-engines/aws/storageClass.yaml
 storageclass.storage.k8s.io/vault-aws-storage created
 ```
 
@@ -354,7 +351,7 @@ spec:
 ```
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/aws/pvc.yaml
+$ kubectl apply -f examples/guides/secret-engines/aws/pvc.yaml
 persistentvolumeclaim/csi-pvc-aws created
 ```
 
@@ -387,7 +384,7 @@ spec:
 ```
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/aws/pod.yaml
+$ kubectl apply -f examples/guides/secret-engines/aws/pod.yaml
 pod/mypod created
 ```
 
