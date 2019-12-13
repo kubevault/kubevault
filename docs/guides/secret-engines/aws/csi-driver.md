@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Mount AWS IAM Secrets into Kubernetes pod using CSI Driver
 
-At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Kind](https://github.com/kubernetes-sigs/kind). To check the version of your cluster, run:
+At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
 ```console
 $ kubectl version --short
@@ -26,6 +26,7 @@ Server Version: v1.14.0
 Before you begin:
 
 - Install KubeVault operator in your cluster from [here](/docs/setup/operator/install.md).
+- Install KubeVault CSI driver in your cluster from [here](/docs/setup/csi-driver/install.md).
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -306,7 +307,9 @@ After configuring the `Vault server`, now we have the AppBinding `vault` in `dem
 
 So, we can create `StorageClass` now.
 
-- **Create StorageClass:** Create `StorageClass` object with the following content:
+### Create StorageClass
+
+Create `StorageClass` object with the following content:
 
 ```yaml
 kind: StorageClass
@@ -331,7 +334,9 @@ storageclass.storage.k8s.io/vault-aws-storage created
 
 ## Test & Verify
 
-- **Create PVC:** Create a `PersistentVolumeClaim` with the following data. This makes sure a volume will be created and provisioned on your behalf.
+### Create PVC
+
+Create a `PersistentVolumeClaim` with the following data. This makes sure a volume will be created and provisioned on your behalf.
 
 ```yaml
 apiVersion: v1
@@ -353,7 +358,9 @@ $ kubectl apply -f examples/guides/secret-engins/aws/pvc.yaml
 persistentvolumeclaim/csi-pvc-aws created
 ```
 
-- **Create Pod:** Now we can create a Pod which refers to this volume. When the Pod is created, the volume will be attached, formatted and mounted to the specific container.
+### Create Pod
+
+Now we can create a Pod which refers to this volume. When the Pod is created, the volume will be attached, formatted and mounted to the specific container.
 
 ```yaml
 apiVersion: v1
@@ -392,7 +399,9 @@ NAME                    READY   STATUS    RESTARTS   AGE
 mypod                   1/1     Running   0          5m21s
 ```
 
-- **Verify Secret:** If the Pod is running successfully, then check inside the app container by running
+### Verify Secret
+
+If the Pod is running successfully, then check inside the app container by running
 
 ```console
 $ kubectl exec -it -n demo  mypod sh

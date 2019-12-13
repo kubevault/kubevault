@@ -1,0 +1,14 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: vault-pki-storage
+  namespace: demo
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: secrets.csi.kubevault.com
+parameters:
+  ref: demo/vault # namespace/AppBinding, we created during vault configuration
+  engine: PKI # vault engine name
+  role: example-dot-com # role name created
+  path: pki # specifies the secret engine path, default is gcp
+  common_name: www.my-website.com # specifies the requested CN for the certificate
