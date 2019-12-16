@@ -78,18 +78,18 @@ jobs:
         kubectl wait --for=condition=Ready pods -n local-path-storage --all --timeout=5m
         kubectl apply -f hack/kubernetes/storageclass/standard.yaml
         echo
+        echo "install helm 3"
+        curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+        echo
         echo "create docker-registry secret"
         kubectl create secret docker-registry ${REGISTRY_SECRET} --namespace=kube-system --docker-server=https://index.docker.io/v1/ --docker-username=${USERNAME} --docker-password=${DOCKER_TOKEN}
 
-    - name: Test charts
+    - name: Check out installer
       run: |
-        export KUBECONFIG="$(kind get kubeconfig-path)"
-        make ct TEST_CHARTS=charts/vault-operator
-        echo
-        kubectl delete crds --all
-        kubectl apply -f https://github.com/kubevault/operator/raw/master/api/crds/catalog.kubevault.com_vaultserverversions.yaml --validate=false
-        kubectl wait --for=condition=NamesAccepted crds --all --timeout=5m
-        make ct TEST_CHARTS=charts/vault-catalog
+        cd ..
+        git clone https://github.com/kubevault/installer.git
+        cd installer
+        git checkout master
 
     - name: Run e2e tests
       env:
