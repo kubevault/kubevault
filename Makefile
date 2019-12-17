@@ -23,7 +23,7 @@ COMPRESS ?= no
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS          ?= "crd:trivialVersions=true,preserveUnknownFields=false"
 CODE_GENERATOR_IMAGE ?= appscode/gengo:release-1.16
-API_GROUPS           ?= kubevault:v1alpha1 catalog:v1alpha1 config:v1alpha1 policy:v1alpha1 engine:v1alpha1 installer:v1alpha1
+API_GROUPS           ?= kubevault:v1alpha1 catalog:v1alpha1 config:v1alpha1 policy:v1alpha1 engine:v1alpha1
 
 # Where to push the docker image.
 REGISTRY ?= kubevault
@@ -435,40 +435,6 @@ e2e-tests: $(BUILD_DIRS)
 e2e-parallel:
 	@$(MAKE) e2e-tests GINKGO_ARGS="-p -stream --flakeAttempts=2" --no-print-directory
 
-TEST_CHARTS ?=
-
-ifeq ($(strip $(TEST_CHARTS)),)
-	CT_ARGS = --all
-else
-	CT_ARGS = --charts=$(TEST_CHARTS)
-endif
-
-.PHONY: ct
-ct: $(BUILD_DIRS)
-	@docker run                                                 \
-	    -i                                                      \
-	    --rm                                                    \
-	    -v $$(pwd):/src                                         \
-	    -w /src                                                 \
-	    --net=host                                              \
-	    -v $(HOME)/.kube:/.kube                                 \
-	    -v $(HOME)/.minikube:$(HOME)/.minikube                  \
-	    -v $(HOME)/.credentials:$(HOME)/.credentials            \
-	    -v $$(pwd)/.go/bin/$(OS)_$(ARCH):/go/bin                \
-	    -v $$(pwd)/.go/bin/$(OS)_$(ARCH):/go/bin/$(OS)_$(ARCH)  \
-	    -v $$(pwd)/.go/cache:/.cache                            \
-	    --env HTTP_PROXY=$(HTTP_PROXY)                          \
-	    --env HTTPS_PROXY=$(HTTPS_PROXY)                        \
-	    --env KUBECONFIG=$(subst $(HOME),,$(KUBECONFIG))        \
-	    $(CHART_TEST_IMAGE)                                     \
-	    /bin/sh -c "                                            \
-			kubectl -n kube-system create sa tiller;            \
-			kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller;   \
-			helm init --service-account tiller;                 \
-			kubectl wait --for=condition=Ready pods -n kube-system --all --timeout=5m;  \
-			ct lint-and-install --debug $(CT_ARGS);                     \
-		"
-
 ADDTL_LINTERS   := goconst,gofmt,goimports,unparam
 
 .PHONY: lint
@@ -493,17 +459,36 @@ lint: $(BUILD_DIRS)
 $(BUILD_DIRS):
 	@mkdir -p $@
 
+REGISTRY_SECRET ?=
+
+ifeq ($(strip $(REGISTRY_SECRET)),)
+	IMAGE_PULL_SECRETS =
+else
+	IMAGE_PULL_SECRETS = --set imagePullSecrets[0]=$(REGISTRY_SECRET)
+endif
+
 .PHONY: install
 install:
-	@APPSCODE_ENV=dev VAULT_OPERATOR_IMAGE_TAG=$(TAG) ./hack/deploy/install.sh --docker-registry=$(REGISTRY) --image-pull-secret=$(REGISTRY_SECRET)
+	@cd ../installer; \
+	helm install vault-operator charts/vault-operator \
+		--namespace=kube-system \
+		--set operator.registry=$(REGISTRY) \
+		--set operator.tag=$(TAG) \
+		--set imagePullPolicy=Always \
+		$(IMAGE_PULL_SECRETS); \
+	kubectl wait --for=condition=Ready pods -n kube-system -l app=vault-operator --timeout=5m; \
+	kubectl wait --for=condition=Available apiservice -l app=vault-operator --timeout=5m; \
+	helm install vault-catalog charts/vault-catalog --namespace=kube-system
 
 .PHONY: uninstall
 uninstall:
-	@./hack/deploy/install.sh --uninstall
+	@cd ../installer; \
+	helm uninstall vault-operator --namespace=kube-system || true; \
+	helm uninstall vault-catalog --namespace=kube-system || true
 
 .PHONY: purge
-purge:
-	@./hack/deploy/install.sh --uninstall --purge
+purge: uninstall
+	kubectl delete crds --all
 
 .PHONY: dev
 dev: gen fmt push

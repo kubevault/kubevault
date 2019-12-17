@@ -1,3 +1,0 @@
-dockerRegistry: "kubevault"
-catalog:
-  vaultServer: true

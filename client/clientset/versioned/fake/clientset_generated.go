@@ -26,8 +26,6 @@ import (
 	fakeconfigv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/config/v1alpha1/fake"
 	enginev1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1"
 	fakeenginev1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/fake"
-	installerv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/installer/v1alpha1"
-	fakeinstallerv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/installer/v1alpha1/fake"
 	kubevaultv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
 	fakekubevaultv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/fake"
 	policyv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1"
@@ -100,11 +98,6 @@ func (c *Clientset) ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface {
 // EngineV1alpha1 retrieves the EngineV1alpha1Client
 func (c *Clientset) EngineV1alpha1() enginev1alpha1.EngineV1alpha1Interface {
 	return &fakeenginev1alpha1.FakeEngineV1alpha1{Fake: &c.Fake}
-}
-
-// InstallerV1alpha1 retrieves the InstallerV1alpha1Client
-func (c *Clientset) InstallerV1alpha1() installerv1alpha1.InstallerV1alpha1Interface {
-	return &fakeinstallerv1alpha1.FakeInstallerV1alpha1{Fake: &c.Fake}
 }
 
 // KubevaultV1alpha1 retrieves the KubevaultV1alpha1Client

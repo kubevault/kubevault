@@ -23,7 +23,6 @@ import (
 
 	v1alpha1 "kubevault.dev/operator/apis/catalog/v1alpha1"
 	enginev1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
-	installerv1alpha1 "kubevault.dev/operator/apis/installer/v1alpha1"
 	kubevaultv1alpha1 "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	policyv1alpha1 "kubevault.dev/operator/apis/policy/v1alpha1"
 
@@ -84,10 +83,6 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Engine().V1alpha1().PostgresRoles().Informer()}, nil
 	case enginev1alpha1.SchemeGroupVersion.WithResource("secretengines"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Engine().V1alpha1().SecretEngines().Informer()}, nil
-
-		// Group=installer.kubevault.com, Version=v1alpha1
-	case installerv1alpha1.SchemeGroupVersion.WithResource("kubevaultoperators"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Installer().V1alpha1().KubeVaultOperators().Informer()}, nil
 
 		// Group=kubevault.com, Version=v1alpha1
 	case kubevaultv1alpha1.SchemeGroupVersion.WithResource("vaultservers"):
