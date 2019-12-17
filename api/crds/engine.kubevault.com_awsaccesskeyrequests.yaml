@@ -3,7 +3,7 @@ kind: CustomResourceDefinition
 metadata:
   creationTimestamp: null
   labels:
-    app: vault
+    app: kubevault
   name: awsaccesskeyrequests.engine.kubevault.com
 spec:
   group: engine.kubevault.com
