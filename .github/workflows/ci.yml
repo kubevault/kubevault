@@ -107,7 +107,3 @@ jobs:
         make install || ( kubectl describe deployment -n kube-system vault-operator; kubectl logs -n kube-system deployment/vault-operator; exit 1; )
         echo
         make e2e-tests
-        echo
-        make uninstall
-        echo
-        make purge
