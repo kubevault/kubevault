@@ -25,7 +25,7 @@ import (
 	"kubevault.dev/operator/pkg/vault/engine"
 
 	"github.com/stretchr/testify/assert"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 )
@@ -77,7 +77,7 @@ func TestVaultController_reconcileSecretEngine(t *testing.T) {
 			Namespace: "demo",
 		},
 		Spec: api.SecretEngineSpec{
-			VaultRef: corev1.LocalObjectReference{},
+			VaultRef: core.LocalObjectReference{},
 			Path:     "",
 			SecretEngineConfiguration: api.SecretEngineConfiguration{
 				GCP: &api.GCPConfiguration{

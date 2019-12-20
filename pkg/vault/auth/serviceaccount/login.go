@@ -29,9 +29,8 @@ import (
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/kubernetes/pkg/apis/core"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
@@ -47,7 +46,7 @@ type auth struct {
 	path    string
 }
 
-func New(kc kubernetes.Interface, vApp *appcat.AppBinding, saRef *corev1.ObjectReference) (*auth, error) {
+func New(kc kubernetes.Interface, vApp *appcat.AppBinding, saRef *core.ObjectReference) (*auth, error) {
 	if vApp.Spec.Parameters == nil {
 		return nil, errors.New("parameters are not provided")
 	}

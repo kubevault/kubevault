@@ -28,7 +28,7 @@ import (
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -111,7 +111,7 @@ func (c *VaultController) updateLocalVaultCRStatus(vs *api.VaultServer, s *api.V
 
 	for _, p := range pods.Items {
 		// If a pod is Terminating, it is still Running but has no IP.
-		if p.Status.Phase != corev1.PodRunning || p.DeletionTimestamp != nil {
+		if p.Status.Phase != core.PodRunning || p.DeletionTimestamp != nil {
 			continue
 		}
 
@@ -193,7 +193,7 @@ func (c *VaultController) updateVaultCRStatus(name, namespace string, status *ap
 	return vault, err
 }
 
-func (c *VaultController) getVaultStatus(p *corev1.Pod, tlsConfig *vaultapi.TLSConfig) (*vaultapi.HealthResponse, error) {
+func (c *VaultController) getVaultStatus(p *core.Pod, tlsConfig *vaultapi.TLSConfig) (*vaultapi.HealthResponse, error) {
 	// podAddr contains pod access url
 	// PodDNSName is reachable if operator running in cluster mode
 	podAddr := util.PodDNSName(*p)

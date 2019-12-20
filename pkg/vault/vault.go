@@ -25,7 +25,7 @@ import (
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -46,7 +46,7 @@ func NewClientWithAppBinding(kc kubernetes.Interface, vApp *appcat.AppBinding) (
 	// If k8s service account name is provided as AppBinding parameters,
 	// the operator will perform Kubernetes authentication to the Vault server.
 	// Generate service account reference from AppBinding parameters
-	var saRef *corev1.ObjectReference
+	var saRef *core.ObjectReference
 	if vApp.Spec.Parameters != nil && vApp.Spec.Parameters.Raw != nil {
 		var cf config.VaultServerConfiguration
 		err := json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
@@ -55,7 +55,7 @@ func NewClientWithAppBinding(kc kubernetes.Interface, vApp *appcat.AppBinding) (
 		}
 
 		if cf.ServiceAccountName != "" {
-			saRef = &corev1.ObjectReference{
+			saRef = &core.ObjectReference{
 				Namespace: vApp.Namespace,
 				Name:      cf.ServiceAccountName,
 			}
@@ -65,7 +65,7 @@ func NewClientWithAppBinding(kc kubernetes.Interface, vApp *appcat.AppBinding) (
 	return NewClientWithAppBindingAndSaRef(kc, vApp, saRef)
 }
 
-func NewClientWithAppBindingAndSaRef(kc kubernetes.Interface, vApp *appcat.AppBinding, saRef *corev1.ObjectReference) (*vaultapi.Client, error) {
+func NewClientWithAppBindingAndSaRef(kc kubernetes.Interface, vApp *appcat.AppBinding, saRef *core.ObjectReference) (*vaultapi.Client, error) {
 	if vApp == nil {
 		return nil, errors.New("AppBinding is nil")
 	}

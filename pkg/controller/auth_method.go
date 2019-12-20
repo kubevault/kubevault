@@ -35,7 +35,7 @@ import (
 	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
@@ -158,7 +158,7 @@ func vaultPolicyForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy {
 			Labels:    vs.OffshootLabels(),
 		},
 		Spec: policyapi.VaultPolicySpec{
-			VaultRef: corev1.LocalObjectReference{
+			VaultRef: core.LocalObjectReference{
 				Name: vs.AppBindingName(),
 			},
 			PolicyDocument: policyForAuthController,
@@ -175,7 +175,7 @@ func vaultPolicyBindingForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy
 			Labels:    vs.OffshootLabels(),
 		},
 		Spec: policyapi.VaultPolicyBindingSpec{
-			VaultRef: corev1.LocalObjectReference{Name: vs.AppBindingName()},
+			VaultRef: core.LocalObjectReference{Name: vs.AppBindingName()},
 			Policies: []policyapi.PolicyIdentifier{
 				{
 					Ref: vs.PolicyNameForAuthMethodController(),

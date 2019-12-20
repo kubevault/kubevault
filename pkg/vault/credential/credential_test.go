@@ -26,7 +26,7 @@ import (
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -149,7 +149,7 @@ func TestCreateSecret(t *testing.T) {
 			d.kubeClient = kfake.NewSimpleClientset()
 
 			if test.createSecret {
-				_, err := d.kubeClient.CoreV1().Secrets(test.namespace).Create(&corev1.Secret{
+				_, err := d.kubeClient.CoreV1().Secrets(test.namespace).Create(&core.Secret{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: test.namespace,
 						Name:      test.secretName,

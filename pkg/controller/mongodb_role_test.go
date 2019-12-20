@@ -26,7 +26,7 @@ import (
 	"kubevault.dev/operator/pkg/vault/role/database"
 
 	"github.com/stretchr/testify/assert"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -40,7 +40,7 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 			Generation: 0,
 		},
 		Spec: api.MongoDBRoleSpec{
-			VaultRef:    corev1.LocalObjectReference{Name: "test121"},
+			VaultRef:    core.LocalObjectReference{Name: "test121"},
 			DatabaseRef: &appcat.AppReference{Name: "test"},
 		},
 	}

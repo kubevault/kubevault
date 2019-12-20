@@ -28,7 +28,7 @@ import (
 	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	kfake "k8s.io/client-go/kubernetes/fake"
@@ -368,7 +368,7 @@ func TestSecretEngine_CreateGCPConfig(t *testing.T) {
 				path:         tt.path,
 			}
 			// Create fake secret for gcp config
-			_, err = secretEngineClient.kubeClient.CoreV1().Secrets("demo").Create(&corev1.Secret{
+			_, err = secretEngineClient.kubeClient.CoreV1().Secrets("demo").Create(&core.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "gcp-cred",
 				},
@@ -393,7 +393,7 @@ func TestSecretEngine_CreateAzureConfig(t *testing.T) {
 		name         string
 		path         string
 		secretEngine *api.SecretEngine
-		secret       *corev1.Secret
+		secret       *core.Secret
 		wantErr      bool
 	}{
 		{
@@ -412,7 +412,7 @@ func TestSecretEngine_CreateAzureConfig(t *testing.T) {
 					},
 				},
 			},
-			secret: &corev1.Secret{
+			secret: &core.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "azure-cred",
 					Namespace: "demo",
@@ -440,7 +440,7 @@ func TestSecretEngine_CreateAzureConfig(t *testing.T) {
 					},
 				},
 			},
-			secret: &corev1.Secret{
+			secret: &core.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "azure-cred",
 					Namespace: "demo",
@@ -468,7 +468,7 @@ func TestSecretEngine_CreateAzureConfig(t *testing.T) {
 					},
 				},
 			},
-			secret: &corev1.Secret{
+			secret: &core.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "azure-cred",
 					Namespace: "demo",
@@ -495,7 +495,7 @@ func TestSecretEngine_CreateAzureConfig(t *testing.T) {
 					},
 				},
 			},
-			secret: &corev1.Secret{
+			secret: &core.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "azure-cred",
 					Namespace: "demo",
@@ -522,7 +522,7 @@ func TestSecretEngine_CreateAzureConfig(t *testing.T) {
 					},
 				},
 			},
-			secret: &corev1.Secret{
+			secret: &core.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "azure-cred23",
 					Namespace: "demo",
@@ -566,7 +566,7 @@ func TestSecretEngine_CreateAWSConfig(t *testing.T) {
 		name         string
 		path         string
 		secretEngine *api.SecretEngine
-		secret       *corev1.Secret
+		secret       *core.Secret
 		wantErr      bool
 	}{
 		{
@@ -586,7 +586,7 @@ func TestSecretEngine_CreateAWSConfig(t *testing.T) {
 					},
 				},
 			},
-			secret: &corev1.Secret{
+			secret: &core.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "aws-cred",
 					Namespace: "demo",
@@ -615,7 +615,7 @@ func TestSecretEngine_CreateAWSConfig(t *testing.T) {
 					},
 				},
 			},
-			secret: &corev1.Secret{
+			secret: &core.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "aws-cred",
 					Namespace: "demo",
@@ -643,7 +643,7 @@ func TestSecretEngine_CreateAWSConfig(t *testing.T) {
 					},
 				},
 			},
-			secret: &corev1.Secret{
+			secret: &core.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "aws-cred",
 					Namespace: "demo",
@@ -671,7 +671,7 @@ func TestSecretEngine_CreateAWSConfig(t *testing.T) {
 					},
 				},
 			},
-			secret: &corev1.Secret{
+			secret: &core.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "aws-cred-2343324",
 					Namespace: "demo",

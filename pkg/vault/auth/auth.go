@@ -28,7 +28,7 @@ import (
 	basicauth "kubevault.dev/operator/pkg/vault/auth/userpass"
 
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -40,7 +40,7 @@ type AuthInterface interface {
 	Login() (string, error)
 }
 
-func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding, saRef *corev1.ObjectReference) (AuthInterface, error) {
+func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding, saRef *core.ObjectReference) (AuthInterface, error) {
 	if vApp == nil {
 		return nil, errors.New("vault AppBinding is not provided")
 	}
@@ -62,11 +62,11 @@ func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding, saRef *corev1.Obj
 	}
 
 	switch secret.Type {
-	case corev1.SecretTypeBasicAuth:
+	case core.SecretTypeBasicAuth:
 		return basicauth.New(vApp, secret)
-	case corev1.SecretTypeTLS:
+	case core.SecretTypeTLS:
 		return certauth.New(vApp, secret)
-	case corev1.SecretTypeServiceAccountToken:
+	case core.SecretTypeServiceAccountToken:
 		return k8sauth.New(vApp, secret)
 	case apis.SecretTypeTokenAuth:
 		return tokenauth.New(secret)

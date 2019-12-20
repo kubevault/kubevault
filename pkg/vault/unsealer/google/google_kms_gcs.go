@@ -24,7 +24,7 @@ import (
 	"kubevault.dev/operator/pkg/vault/util"
 
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 )
@@ -46,13 +46,13 @@ func NewOptions(s api.GoogleKmsGcsSpec) (*Options, error) {
 	}, nil
 }
 
-func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
+func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	if pt == nil {
 		return errors.New("podTempleSpec is nil")
 	}
 
 	var args []string
-	var cont corev1.Container
+	var cont core.Container
 
 	for _, c := range pt.Spec.Containers {
 		if c.Name == util.VaultUnsealerContainerName {
@@ -80,21 +80,21 @@ func (o *Options) Apply(pt *corev1.PodTemplateSpec) error {
 	cont.Args = append(cont.Args, args...)
 
 	if o.CredentialSecret != "" {
-		pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, corev1.Volume{
+		pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, core.Volume{
 			Name: GoogleCredentialVolume,
-			VolumeSource: corev1.VolumeSource{
-				Secret: &corev1.SecretVolumeSource{
+			VolumeSource: core.VolumeSource{
+				Secret: &core.SecretVolumeSource{
 					SecretName: o.CredentialSecret,
 				},
 			},
 		})
 
-		cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, corev1.VolumeMount{
+		cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{
 			Name:      GoogleCredentialVolume,
 			MountPath: filepath.Dir(GoogleCredentialFile),
 		})
 
-		cont.Env = core_util.UpsertEnvVars(cont.Env, corev1.EnvVar{
+		cont.Env = core_util.UpsertEnvVars(cont.Env, core.EnvVar{
 			Name:  GoogleCredentialEnv,
 			Value: GoogleCredentialFile,
 		})
