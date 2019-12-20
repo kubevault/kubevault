@@ -17,11 +17,15 @@ limitations under the License.
 package vault
 
 import (
+	"encoding/json"
+
+	config "kubevault.dev/operator/apis/config/v1alpha1"
 	vaultauth "kubevault.dev/operator/pkg/vault/auth"
 	vaultutil "kubevault.dev/operator/pkg/vault/util"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -39,11 +43,34 @@ func NewClient(kc kubernetes.Interface, appc appcat_cs.AppcatalogV1alpha1Interfa
 }
 
 func NewClientWithAppBinding(kc kubernetes.Interface, vApp *appcat.AppBinding) (*vaultapi.Client, error) {
+	// If k8s service account name is provided as AppBinding parameters,
+	// the operator will perform Kubernetes authentication to the Vault server.
+	// Generate service account reference from AppBinding parameters
+	var saRef *corev1.ObjectReference
+	if vApp.Spec.Parameters != nil && vApp.Spec.Parameters.Raw != nil {
+		var cf config.VaultServerConfiguration
+		err := json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to unmarshal parameters")
+		}
+
+		if cf.ServiceAccountName != "" {
+			saRef = &corev1.ObjectReference{
+				Namespace: vApp.Namespace,
+				Name:      cf.ServiceAccountName,
+			}
+		}
+	}
+
+	return NewClientWithAppBindingAndSaRef(kc, vApp, saRef)
+}
+
+func NewClientWithAppBindingAndSaRef(kc kubernetes.Interface, vApp *appcat.AppBinding, saRef *corev1.ObjectReference) (*vaultapi.Client, error) {
 	if vApp == nil {
 		return nil, errors.New("AppBinding is nil")
 	}
 
-	auth, err := vaultauth.NewAuth(kc, vApp)
+	auth, err := vaultauth.NewAuth(kc, vApp, saRef)
 	if err != nil {
 		return nil, err
 	}

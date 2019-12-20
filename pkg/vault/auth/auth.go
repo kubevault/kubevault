@@ -17,10 +17,7 @@ limitations under the License.
 package auth
 
 import (
-	"encoding/json"
-
 	"kubevault.dev/operator/apis"
-	config "kubevault.dev/operator/apis/config/v1alpha1"
 	awsauth "kubevault.dev/operator/pkg/vault/auth/aws"
 	azureauth "kubevault.dev/operator/pkg/vault/auth/azure"
 	certauth "kubevault.dev/operator/pkg/vault/auth/cert"
@@ -31,7 +28,7 @@ import (
 	basicauth "kubevault.dev/operator/pkg/vault/auth/userpass"
 
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -43,24 +40,15 @@ type AuthInterface interface {
 	Login() (string, error)
 }
 
-func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding) (AuthInterface, error) {
+func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding, saRef *corev1.ObjectReference) (AuthInterface, error) {
 	if vApp == nil {
 		return nil, errors.New("vault AppBinding is not provided")
 	}
 
-	// if ServiceAccountName exits in .spec.parameters, then use s/a authentication
+	// if ServiceAccountReference exists, use Kubernetes service account authentication
 	// otherwise use secret
-
-	if vApp.Spec.Parameters != nil && vApp.Spec.Parameters.Raw != nil {
-		var cf config.VaultServerConfiguration
-		err := json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to unmarshal parameters")
-		}
-
-		if cf.ServiceAccountName != "" {
-			return saauth.New(kc, vApp)
-		}
+	if saRef != nil {
+		return saauth.New(kc, vApp, saRef)
 	}
 
 	if vApp.Spec.Secret == nil {
@@ -74,11 +62,11 @@ func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding) (AuthInterface, e
 	}
 
 	switch secret.Type {
-	case core.SecretTypeBasicAuth:
+	case corev1.SecretTypeBasicAuth:
 		return basicauth.New(vApp, secret)
-	case core.SecretTypeTLS:
+	case corev1.SecretTypeTLS:
 		return certauth.New(vApp, secret)
-	case core.SecretTypeServiceAccountToken:
+	case corev1.SecretTypeServiceAccountToken:
 		return k8sauth.New(vApp, secret)
 	case apis.SecretTypeTokenAuth:
 		return tokenauth.New(secret)
