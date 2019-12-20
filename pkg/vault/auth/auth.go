@@ -40,15 +40,15 @@ type AuthInterface interface {
 	Login() (string, error)
 }
 
-func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding, saRef *core.ObjectReference) (AuthInterface, error) {
+func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding, sa *core.ObjectReference) (AuthInterface, error) {
 	if vApp == nil {
 		return nil, errors.New("vault AppBinding is not provided")
 	}
 
 	// if ServiceAccountReference exists, use Kubernetes service account authentication
 	// otherwise use secret
-	if saRef != nil {
-		return saauth.New(kc, vApp, saRef)
+	if sa != nil {
+		return saauth.New(kc, vApp, sa)
 	}
 
 	if vApp.Spec.Secret == nil {
