@@ -21,7 +21,7 @@ import (
 	"path/filepath"
 
 	vaultapi "github.com/hashicorp/vault/api"
-	"k8s.io/kubernetes/pkg/apis/core"
+	core "k8s.io/api/core/v1"
 )
 
 const (

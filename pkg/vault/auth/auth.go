@@ -17,10 +17,7 @@ limitations under the License.
 package auth
 
 import (
-	"encoding/json"
-
 	"kubevault.dev/operator/apis"
-	config "kubevault.dev/operator/apis/config/v1alpha1"
 	awsauth "kubevault.dev/operator/pkg/vault/auth/aws"
 	azureauth "kubevault.dev/operator/pkg/vault/auth/azure"
 	certauth "kubevault.dev/operator/pkg/vault/auth/cert"
@@ -43,24 +40,15 @@ type AuthInterface interface {
 	Login() (string, error)
 }
 
-func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding) (AuthInterface, error) {
+func NewAuth(kc kubernetes.Interface, vApp *appcat.AppBinding, sa *core.ObjectReference) (AuthInterface, error) {
 	if vApp == nil {
 		return nil, errors.New("vault AppBinding is not provided")
 	}
 
-	// if ServiceAccountName exits in .spec.parameters, then use s/a authentication
+	// if ServiceAccountReference exists, use Kubernetes service account authentication
 	// otherwise use secret
-
-	if vApp.Spec.Parameters != nil && vApp.Spec.Parameters.Raw != nil {
-		var cf config.VaultServerConfiguration
-		err := json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to unmarshal parameters")
-		}
-
-		if cf.ServiceAccountName != "" {
-			return saauth.New(kc, vApp)
-		}
+	if sa != nil {
+		return saauth.New(kc, vApp, sa)
 	}
 
 	if vApp.Spec.Secret == nil {

@@ -28,7 +28,7 @@ import (
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
@@ -51,7 +51,7 @@ type auth struct {
 // - https://www.vaultproject.io/api/auth/azure/index.html
 // - https://www.vaultproject.io/docs/auth/azure.html
 
-func New(vApp *appcat.AppBinding, secret *corev1.Secret) (*auth, error) {
+func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	if vApp.Spec.Parameters == nil {
 		return nil, errors.New("parameters are not provided in AppBinding spec")
 	}

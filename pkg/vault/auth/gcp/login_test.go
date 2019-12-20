@@ -24,7 +24,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -53,14 +53,14 @@ func TestLogin(t *testing.T) {
 				URL:                   &addr,
 				InsecureSkipTLSVerify: true,
 			},
-			Secret: &corev1.LocalObjectReference{
+			Secret: &core.LocalObjectReference{
 				Name: "gcp",
 			},
 			Parameters: &runtime.RawExtension{
 				Raw: []byte(fmt.Sprintf(`{ "PolicyControllerRole" : "%s" }`, role)),
 			},
 		},
-	}, &corev1.Secret{
+	}, &core.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "gcp",
 			Namespace: "default",

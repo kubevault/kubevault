@@ -28,7 +28,7 @@ import (
 	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	kfake "k8s.io/client-go/kubernetes/fake"
@@ -165,7 +165,7 @@ func TestNewMongoDBRoleBindingCreatRole(t *testing.T) {
 	}
 
 	k := kfake.NewSimpleClientset()
-	_, err := k.CoreV1().Secrets("default").Create(&corev1.Secret{
+	_, err := k.CoreV1().Secrets("default").Create(&core.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "default",
 			Name:      "cred",

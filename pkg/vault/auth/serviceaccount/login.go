@@ -46,7 +46,7 @@ type auth struct {
 	path    string
 }
 
-func New(kc kubernetes.Interface, vApp *appcat.AppBinding) (*auth, error) {
+func New(kc kubernetes.Interface, vApp *appcat.AppBinding, sa *core.ObjectReference) (*auth, error) {
 	if vApp.Spec.Parameters == nil {
 		return nil, errors.New("parameters are not provided")
 	}
@@ -67,11 +67,11 @@ func New(kc kubernetes.Interface, vApp *appcat.AppBinding) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to unmarshal parameters")
 	}
 
-	if cf.ServiceAccountName == "" {
-		return nil, errors.Wrap(err, "service account is not found")
+	if sa == nil {
+		return nil, errors.New("service account reference is empty")
 	}
 
-	secret, err := sa_util.TryGetJwtTokenSecretNameFromServiceAccount(kc, cf.ServiceAccountName, vApp.Namespace, timeInterval, timeout)
+	secret, err := sa_util.TryGetJwtTokenSecretNameFromServiceAccount(kc, sa.Name, sa.Namespace, timeInterval, timeout)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get jwt token secret of service account %s/%s", vApp.Namespace, cf.ServiceAccountName)
 	}

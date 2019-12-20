@@ -27,7 +27,7 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
@@ -107,7 +107,7 @@ func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleIn
 		status.Conditions = []api.MongoDBRoleCondition{
 			{
 				Type:    MongoDBRoleConditionFailed,
-				Status:  corev1.ConditionTrue,
+				Status:  core.ConditionTrue,
 				Reason:  "FailedToCreateRole",
 				Message: err.Error(),
 			},
