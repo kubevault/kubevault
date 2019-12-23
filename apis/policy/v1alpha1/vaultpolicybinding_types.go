@@ -53,6 +53,7 @@ type VaultPolicyBindingSpec struct {
 
 	// VaultRoleName is the role name which will be bound of the policies
 	// This defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}
+	// xref: https://www.vaultproject.io/api/auth/kubernetes/index.html#create-role
 	// +optional
 	VaultRoleName string `json:"vaultRoleName,omitempty" protobuf:"bytes,2,opt,name=vaultRoleName"`
 
