@@ -56,6 +56,9 @@ func New(authInfo *authtype.AuthInfo) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
+	if authInfo.Secret == nil {
+		return nil, errors.New("authentication secret is missing")
+	}
 	secret := authInfo.Secret
 	user, ok := secret.Data[core.BasicAuthUsernameKey]
 	if !ok {
