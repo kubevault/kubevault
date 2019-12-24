@@ -17,8 +17,6 @@ limitations under the License.
 package controller
 
 import (
-	"fmt"
-
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/exporter"
 
@@ -46,7 +44,7 @@ func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service
 
 		in.Spec.Selector = vs.OffshootSelectors()
 		monSpec := vs.Spec.Monitor
-		port := monSpec.Prometheus.Port
+		port := monSpec.Prometheus.Exporter.Port
 		if port <= 0 {
 			port = exporter.VaultExporterFetchMetricsPort
 		}
@@ -75,7 +73,6 @@ func (c *VaultController) ensureStatsServiceDeleted(vs *api.VaultServer) error {
 func (c *VaultController) newMonitorController(vs *api.VaultServer) (mona.Agent, error) {
 	monitorSpec := vs.Spec.Monitor
 
-	fmt.Println(monitorSpec)
 	if monitorSpec == nil {
 		return nil, errors.Errorf("MonitorSpec not found in %v", vs.Spec)
 	}
@@ -93,7 +90,7 @@ func (c *VaultController) addOrUpdateMonitor(vs *api.VaultServer) (kutil.VerbTyp
 		return kutil.VerbUnchanged, err
 	}
 
-	vs.Spec.Monitor.Prometheus.Port = exporter.VaultExporterFetchMetricsPort
+	vs.Spec.Monitor.Prometheus.Exporter.Port = exporter.VaultExporterFetchMetricsPort
 
 	return agent.CreateOrUpdate(vs.StatsService(), vs.Spec.Monitor)
 }

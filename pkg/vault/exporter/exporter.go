@@ -57,7 +57,7 @@ func (exp monitor) Apply(pt *core.PodTemplateSpec, vs *api.VaultServer) error {
 
 	agent := vs.Spec.Monitor
 
-	cont := core.Container{
+	c := core.Container{
 		Name:            util.VaultExporterContainerName,
 		Image:           exp.image,
 		ImagePullPolicy: core.PullIfNotPresent,
@@ -76,17 +76,17 @@ func (exp monitor) Apply(pt *core.PodTemplateSpec, vs *api.VaultServer) error {
 	}
 
 	if vs.Spec.TLS != nil && vs.Spec.TLS.CABundle != nil {
-		cont.Args = append(cont.Args, fmt.Sprintf("--vault.tls-cacert=%s", vs.Spec.TLS.CABundle))
+		c.Args = append(c.Args, fmt.Sprintf("--vault.tls-cacert=%s", vs.Spec.TLS.CABundle))
 	}
 
-	if agent != nil {
-		cont.Args = append(cont.Args, agent.Args...)
-		cont.Env = agent.Env
-		cont.Resources = agent.Resources
-		cont.SecurityContext = agent.SecurityContext
+	if agent != nil && agent.Prometheus != nil && agent.Prometheus.Exporter != nil {
+		c.Args = append(c.Args, agent.Prometheus.Exporter.Args...)
+		c.Env = agent.Prometheus.Exporter.Env
+		c.Resources = agent.Prometheus.Exporter.Resources
+		c.SecurityContext = agent.Prometheus.Exporter.SecurityContext
 	}
 
-	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)
+	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, c)
 	return nil
 }
 
