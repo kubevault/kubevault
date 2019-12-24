@@ -113,7 +113,8 @@ spec:
               type: object
             vaultRoleName:
               description: 'VaultRoleName is the role name which will be bound of
-                the policies This defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}'
+                the policies This defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}
+                xref: https://www.vaultproject.io/api/auth/kubernetes/index.html#create-role'
               type: string
           required:
           - policies
