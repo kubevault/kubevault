@@ -21,15 +21,12 @@ import (
 	"fmt"
 
 	"kubevault.dev/operator/apis"
-	config "kubevault.dev/operator/apis/config/v1alpha1"
 	"kubevault.dev/operator/apis/kubevault/v1alpha1"
-	"kubevault.dev/operator/pkg/vault/auth/types"
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 	vaultutil "kubevault.dev/operator/pkg/vault/util"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 // ref:
@@ -51,21 +48,15 @@ type auth struct {
 // - https://www.vaultproject.io/api/auth/azure/index.html
 // - https://www.vaultproject.io/docs/auth/azure.html
 
-func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
-	if vApp.Spec.Parameters == nil {
-		return nil, errors.New("parameters are not provided in AppBinding spec")
+func New(authInfo *authtype.AuthInfo) (*auth, error) {
+	if authInfo == nil {
+		return nil, errors.New("authentication information is empty")
+	}
+	if authInfo.VaultApp == nil {
+		return nil, errors.New("AppBinding is empty")
 	}
 
-	var cf config.VaultServerConfiguration
-	err := json.Unmarshal([]byte(vApp.Spec.Parameters.Raw), &cf)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal parameters")
-	}
-
-	if cf.PolicyControllerRole == "" {
-		return nil, errors.New("PolicyControllerRole is missing")
-	}
-
+	vApp := authInfo.VaultApp
 	cfg, err := vaultutil.VaultConfigFromAppBinding(vApp)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault config from AppBinding")
@@ -76,6 +67,11 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client from config")
 	}
 
+	if authInfo.Secret == nil {
+		return nil, errors.New("authentication secret is missing")
+	}
+
+	secret := authInfo.Secret
 	signedJwt, ok := secret.Data[apis.AzureMSIToken]
 	if !ok {
 		return nil, errors.Errorf("msiToken is missing in %s/%s", secret.Namespace, secret.Name)
@@ -106,9 +102,13 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		vmssName = val
 	}
 
+	if authInfo.VaultRole == "" {
+		return nil, errors.New("Vault role is empty")
+	}
+
 	return &auth{
 		vClient:           vc,
-		role:              cf.PolicyControllerRole,
+		role:              authInfo.VaultRole,
 		path:              authPath,
 		signedJwt:         string(signedJwt),
 		subscriptionId:    subscriptionId,
@@ -149,7 +149,7 @@ func (a *auth) Login() (string, error) {
 		return "", err
 	}
 
-	var loginResp types.AuthLoginResponse
+	var loginResp authtype.AuthLoginResponse
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&loginResp)
 	if err != nil {

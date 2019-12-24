@@ -30,6 +30,7 @@ import (
 	policycs "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault"
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 
 	"github.com/appscode/go/wait"
 	"github.com/golang/glog"
@@ -405,5 +406,11 @@ func newVaultClientForAuthMethodController(kc kubernetes.Interface, appc appcat_
 	vApp.Spec.Parameters = &runtime.RawExtension{
 		Raw: conf,
 	}
-	return vault.NewClientWithAppBinding(kc, vApp)
+
+	authInfo, err := authtype.GetAuthInfoFromAppBinding(kc, vApp)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get authentication information")
+	}
+
+	return vault.NewClientWithAppBinding(kc, authInfo)
 }

@@ -23,9 +23,9 @@ import (
 	"time"
 
 	"kubevault.dev/operator/apis"
-	config "kubevault.dev/operator/apis/config/v1alpha1"
 	vsapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/auth/types"
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 	vaultuitl "kubevault.dev/operator/pkg/vault/util"
 
 	vaultapi "github.com/hashicorp/vault/api"
@@ -34,8 +34,6 @@ import (
 	"golang.org/x/oauth2/jwt"
 	"google.golang.org/api/iam/v1"
 	"google.golang.org/api/option"
-	core "k8s.io/api/core/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 type auth struct {
@@ -64,12 +62,15 @@ type credentialsFile struct {
 }
 
 // https://www.vaultproject.io/api/auth/gcp/index.html
-func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
-
-	if vApp.Spec.Parameters == nil {
-		return nil, errors.New("parameters are not provided")
+func New(authInfo *authtype.AuthInfo) (*auth, error) {
+	if authInfo == nil {
+		return nil, errors.New("authentication information is empty")
+	}
+	if authInfo.VaultApp == nil {
+		return nil, errors.New("AppBinding is empty")
 	}
 
+	vApp := authInfo.VaultApp
 	cfg, err := vaultuitl.VaultConfigFromAppBinding(vApp)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault config from AppBinding")
@@ -80,29 +81,14 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
+	if authInfo.Secret == nil {
+		return nil, errors.New("authentication secret is missing")
+	}
+
+	secret := authInfo.Secret
 	saJson, ok := secret.Data[apis.GCPAuthSACredentialJson]
 	if !ok {
-		return nil, errors.New("sa.json is missing")
-	}
-
-	var cf config.VaultServerConfiguration
-	err = json.Unmarshal([]byte(vApp.Spec.Parameters.Raw), &cf)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal parameters")
-	}
-
-	if cf.PolicyControllerRole == "" {
-		return nil, errors.Wrap(err, "policyControllerRole is empty")
-	}
-
-	var cred credentialsFile
-	if err := json.Unmarshal(saJson, &cred); err != nil {
-		return nil, errors.Wrap(err, "credential Unmarshal failed!")
-	}
-
-	resp, err := getJWT(cred, cf.PolicyControllerRole)
-	if err != nil {
-		return nil, errors.Wrap(err, "JWT generation failed!")
+		return nil, errors.New("google service account credential (i.e. sa.json) is missing")
 	}
 
 	authPath := string(vsapi.AuthTypeGcp)
@@ -110,10 +96,24 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		authPath = val
 	}
 
+	if authInfo.VaultRole == "" {
+		return nil, errors.New("Vault role is empty")
+	}
+
+	var cred credentialsFile
+	if err := json.Unmarshal(saJson, &cred); err != nil {
+		return nil, errors.Wrap(err, "credential Unmarshal failed!")
+	}
+
+	resp, err := getJWT(cred, authInfo.VaultRole)
+	if err != nil {
+		return nil, errors.Wrap(err, "JWT generation failed!")
+	}
+
 	return &auth{
 		vClient:   vc,
 		signedJwt: resp.SignedJwt,
-		role:      cf.PolicyControllerRole,
+		role:      authInfo.VaultRole,
 		path:      authPath,
 	}, nil
 }

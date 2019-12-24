@@ -21,15 +21,14 @@ import (
 	"fmt"
 
 	"kubevault.dev/operator/apis"
-	config "kubevault.dev/operator/apis/config/v1alpha1"
 	vsapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/auth/types"
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 	vaultuitl "kubevault.dev/operator/pkg/vault/util"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 type auth struct {
@@ -39,11 +38,15 @@ type auth struct {
 	path    string
 }
 
-func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
-	if vApp.Spec.Parameters == nil {
-		return nil, errors.New("parameters are not provided")
+func New(authInfo *authtype.AuthInfo) (*auth, error) {
+	if authInfo == nil {
+		return nil, errors.New("authentication information is empty")
+	}
+	if authInfo.VaultApp == nil {
+		return nil, errors.New("AppBinding is empty")
 	}
 
+	vApp := authInfo.VaultApp
 	cfg, err := vaultuitl.VaultConfigFromAppBinding(vApp)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault config from AppBinding")
@@ -54,26 +57,27 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
-	jwt, ok := secret.Data[core.ServiceAccountTokenKey]
+	if authInfo.Secret == nil {
+		return nil, errors.New("authentication secret is missing")
+	}
+
+	jwt, ok := authInfo.Secret.Data[core.ServiceAccountTokenKey]
 	if !ok {
 		return nil, errors.New("jwt is missing")
 	}
 
-	var cf config.VaultServerConfiguration
-	err = json.Unmarshal([]byte(vApp.Spec.Parameters.Raw), &cf)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal parameters")
-	}
-
 	authPath := string(vsapi.AuthTypeKubernetes)
-	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
+	if val, ok := authInfo.Secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
 		authPath = val
+	}
+	if authInfo.VaultRole == "" {
+		return nil, errors.New("Vault role is empty")
 	}
 
 	return &auth{
 		vClient: vc,
 		jwt:     string(jwt),
-		role:    cf.PolicyControllerRole,
+		role:    authInfo.VaultRole,
 		path:    authPath,
 	}, nil
 }

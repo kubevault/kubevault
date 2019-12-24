@@ -18,17 +18,24 @@ package token
 
 import (
 	"kubevault.dev/operator/apis"
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
 )
 
 type auth struct {
 	token string
 }
 
-func New(secret *core.Secret) (*auth, error) {
-	token, ok := secret.Data[apis.TokenAuthTokenKey]
+func New(authInfo *authtype.AuthInfo) (*auth, error) {
+	if authInfo == nil {
+		return nil, errors.New("authentication information is empty")
+	}
+	if authInfo.Secret == nil {
+		return nil, errors.New("authentication secret is missing")
+	}
+
+	token, ok := authInfo.Secret.Data[apis.TokenAuthTokenKey]
 	if !ok {
 		return nil, errors.New("token is missing")
 	}
