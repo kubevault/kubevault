@@ -24,6 +24,8 @@ import (
 	"os"
 	"testing"
 
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
+
 	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
@@ -152,9 +154,12 @@ func TestLogin(t *testing.T) {
 			},
 		},
 	}
-	au, err := New(app, &core.Secret{
-		Data: map[string][]byte{
-			"tls.key": []byte(`-----BEGIN RSA PRIVATE KEY-----
+	au, err := New(&authtype.AuthInfo{
+		VaultApp:          app,
+		ServiceAccountRef: nil,
+		Secret: &core.Secret{
+			Data: map[string][]byte{
+				"tls.key": []byte(`-----BEGIN RSA PRIVATE KEY-----
 MIIEpQIBAAKCAQEAvzavl3xpk8A08Mq2zjdLX7wbl6rny8dPJ2gPTwbMi+rto+q8
 73+6vKfDsTN/p+Wr7r7oaXv2xd5Dd0WVaQzkJ3yAg5VhrhT9YCVOeQ8ND4+FQjO7
 hcvXIzVyhphX2RFs0ASvT8bxAttyHZyaPyKhZ15XAnOyZNw3918cQbZT1TwtKXo7
@@ -182,7 +187,7 @@ UsZgpyOlbAaENmheid3lBke/z+lljcyJE5EUW3estslRAQWvaEQUtq/2NDVAMmFf
 Gqe3rYqAdJ3bWBBk+8gi8zyY2pbQpTIg6MSSMazHFPoThdBZ1pWIkss=
 -----END RSA PRIVATE KEY-----
 `),
-			"tls.crt": []byte(`-----BEGIN CERTIFICATE-----
+				"tls.crt": []byte(`-----BEGIN CERTIFICATE-----
 MIIC3jCCAcagAwIBAgIIL7N6jjiZ5p0wDQYJKoZIhvcNAQELBQAwDTELMAkGA1UE
 AxMCY2EwHhcNMTgwOTI3MDQ1NDI5WhcNMTkwOTI4MDQ1MTM2WjAoMQ8wDQYDVQQK
 EwZnb29nbGUxFTATBgNVBAMTDGFwcHNjb2RlLmNvbTCCASIwDQYJKoZIhvcNAQEB
@@ -201,8 +206,12 @@ YatctDlrGk9IQeKwea8u4LlRrX9eHBNDKTpxmxsiBuBWxwSkK3eyVC7PKUzerBj6
 vZvzz7lCsjRshgwyDcgM5O+m
 -----END CERTIFICATE-----
 `),
+			},
 		},
+		VaultRole: "",
+		Path:      "",
 	})
+
 	assert.Nil(t, err)
 
 	token, err := au.Login()
