@@ -37,8 +37,8 @@ type auth struct {
 	vClient           *vaultapi.Client
 	role              string
 	path              string
-	signedJwt         string
-	subscriptionId    string
+	signedJWT         string
+	subscriptionID    string
 	resourceGroupName string
 	vmName            string
 	vmssName          string
@@ -78,28 +78,17 @@ func New(authInfo *authtype.AuthInfo) (*auth, error) {
 	}
 
 	authPath := string(v1alpha1.AuthTypeAzure)
-	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
-		authPath = val
+	if authInfo.Path != "" {
+		authPath = authInfo.Path
 	}
 
-	subscriptionId := ""
-	if val, ok := secret.Annotations[apis.AzureSubscriptionId]; ok && len(val) > 0 {
-		subscriptionId = val
-	}
-
-	resourceGroupName := ""
-	if val, ok := secret.Annotations[apis.AzureResourceGroupName]; ok && len(val) > 0 {
-		resourceGroupName = val
-	}
-
-	vmName := ""
-	if val, ok := secret.Annotations[apis.AzureVmName]; ok && len(val) > 0 {
-		vmName = val
-	}
-
-	vmssName := ""
-	if val, ok := secret.Annotations[apis.AzureVmssName]; ok && len(val) > 0 {
-		vmssName = val
+	var subscriptionID, resourceGroupName, vmName, vmssName string
+	if authInfo.ExtraInfo != nil && authInfo.ExtraInfo.Azure != nil {
+		params := authInfo.ExtraInfo.Azure
+		subscriptionID = params.SubscriptionID
+		resourceGroupName = params.ResourceGroupName
+		vmName = params.VmName
+		vmssName = params.VmssName
 	}
 
 	if authInfo.VaultRole == "" {
@@ -110,8 +99,8 @@ func New(authInfo *authtype.AuthInfo) (*auth, error) {
 		vClient:           vc,
 		role:              authInfo.VaultRole,
 		path:              authPath,
-		signedJwt:         string(signedJwt),
-		subscriptionId:    subscriptionId,
+		signedJWT:         string(signedJwt),
+		subscriptionID:    subscriptionID,
 		resourceGroupName: resourceGroupName,
 		vmName:            vmName,
 		vmssName:          vmssName,
@@ -125,10 +114,10 @@ func (a *auth) Login() (string, error) {
 
 	payload := make(map[string]interface{})
 	payload["role"] = a.role
-	payload["jwt"] = a.signedJwt
+	payload["jwt"] = a.signedJWT
 
-	if len(a.subscriptionId) > 0 {
-		payload["subscription_id"] = a.subscriptionId
+	if len(a.subscriptionID) > 0 {
+		payload["subscription_id"] = a.subscriptionID
 	}
 	if len(a.resourceGroupName) > 0 {
 		payload["resource_group_name"] = a.resourceGroupName

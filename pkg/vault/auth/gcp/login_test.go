@@ -60,7 +60,7 @@ func TestLogin(t *testing.T) {
 					Name: "gcp",
 				},
 				Parameters: &runtime.RawExtension{
-					Raw: []byte(fmt.Sprintf(`{ "PolicyControllerRole" : "%s" }`, role)),
+					Raw: []byte(fmt.Sprintf(`{ "VaultRole" : "%s" }`, role)),
 				},
 			},
 		},

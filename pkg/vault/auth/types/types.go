@@ -40,20 +40,27 @@ type AuthInfo struct {
 	VaultApp          *appcat.AppBinding
 	ServiceAccountRef *core.ObjectReference
 	Secret            *core.Secret
+	ExtraInfo         *AuthExtraInfo
 	VaultRole         string
 	Path              string
 }
 
+type AuthExtraInfo struct {
+	Kubernetes *config.KubernetesAuthConfig
+	Azure      *config.AzureAuthConfig
+	AWS        *config.AWSAuthConfig
+}
+
 func GetAuthInfoFromAppBinding(kc kubernetes.Interface, vApp *appcat.AppBinding) (*AuthInfo, error) {
 	if vApp == nil {
-		return nil, errors.New("empty AppBinding")
+		return nil, errors.New("AppBinding is empty")
 	}
 
 	// If k8s service account name is provided as AppBinding parameters,
 	// the operator will perform Kubernetes authentication to the Vault server.
 	// Generate service account reference from AppBinding parameters
 	var sa *core.ObjectReference
-	var cf config.VaultServerConfiguration
+	var cf *config.VaultServerConfiguration
 	var secret *core.Secret
 	if vApp.Spec.Parameters != nil && vApp.Spec.Parameters.Raw != nil {
 		err := json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
@@ -61,10 +68,10 @@ func GetAuthInfoFromAppBinding(kc kubernetes.Interface, vApp *appcat.AppBinding)
 			return nil, errors.Wrap(err, "failed to unmarshal parameters")
 		}
 
-		if cf.ServiceAccountName != "" {
+		if cf.Kubernetes != nil && cf.Kubernetes.ServiceAccountName != "" {
 			sa = &core.ObjectReference{
 				Namespace: vApp.Namespace,
-				Name:      cf.ServiceAccountName,
+				Name:      cf.Kubernetes.ServiceAccountName,
 			}
 		}
 	}
@@ -81,8 +88,13 @@ func GetAuthInfoFromAppBinding(kc kubernetes.Interface, vApp *appcat.AppBinding)
 	return &AuthInfo{
 		VaultApp:          vApp,
 		ServiceAccountRef: sa,
-		VaultRole:         cf.PolicyControllerRole,
+		VaultRole:         cf.VaultRole,
 		Secret:            secret,
 		Path:              cf.Path,
+		ExtraInfo: &AuthExtraInfo{
+			Kubernetes: cf.Kubernetes,
+			Azure:      cf.Azure,
+			AWS:        cf.AWS,
+		},
 	}, nil
 }

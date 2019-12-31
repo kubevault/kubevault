@@ -392,8 +392,10 @@ func waitUntilVaultPolicyBindingIsReady(c policycs.PolicyV1alpha1Interface, vpb 
 
 func newVaultClientForAuthMethodController(kc kubernetes.Interface, appc appcat_cs.AppcatalogV1alpha1Interface, vs *api.VaultServer) (*vaultapi.Client, error) {
 	conf, err := json.Marshal(vaultconfig.VaultServerConfiguration{
-		ServiceAccountName:   vs.ServiceAccountName(),
-		PolicyControllerRole: vaultPolicyBindingForAuthMethod(vs).PolicyBindingName(),
+		Kubernetes: &vaultconfig.KubernetesAuthConfig{
+			ServiceAccountName: vs.ServiceAccountName(),
+		},
+		VaultRole: vaultPolicyBindingForAuthMethod(vs).PolicyBindingName(),
 	})
 	if err != nil {
 		return nil, err

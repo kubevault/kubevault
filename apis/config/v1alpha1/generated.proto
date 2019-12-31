@@ -28,34 +28,80 @@ import "k8s.io/apimachinery/pkg/runtime/schema/generated.proto";
 // Package-wide variables from generator "generated".
 option go_package = "v1alpha1";
 
-// VaultServerConfiguration defines a Vault Server configuration.
-message VaultServerConfiguration {
-  // Specifies the path which is used for authentication by this AppBinding.
-  // If vault server is provisioned by KubeVault, this is usually `kubernetes`.
-  optional string path = 1;
-
-  // Specifies the service account name
+// AWSAuthConfig contains necessary information for
+// performing AWS authentication to the Vault server.
+message AWSAuthConfig {
+  // Specifies the header value that required
+  // if X-Vault-AWS-IAM-Server-ID Header is set in Vault.
   // +optional
-  optional string serviceAccountName = 2;
+  optional string headerValue = 1;
+}
+
+// AzureAuthConfig contains necessary information for
+// performing Azure authentication to the Vault server.
+message AzureAuthConfig {
+  // Specifies the subscription ID for the machine
+  // that generated the MSI token.
+  // +optional
+  optional string subscriptionID = 1;
+
+  // Specifies the resource group for the machine
+  // that generated the MSI token.
+  // +optional
+  optional string resourceGroupName = 2;
+
+  // Specifies the virtual machine name for the machine
+  // that generated the MSI token. If VmssName is provided,
+  // this value is ignored.
+  // +optional
+  optional string vmName = 3;
+
+  // Specifies the virtual machine scale set name
+  // for the machine that generated the MSI token.
+  // +optional
+  optional string vmssName = 4;
+}
+
+// KubernetesAuthConfiguration contains necessary information for
+// performing Kubernetes authentication to the Vault server.
+message KubernetesAuthConfig {
+  // Specifies the service account name
+  // +required
+  optional string serviceAccountName = 1;
 
   // Specifies the service account name for token reviewer
   // It has system:auth-delegator permission
   // It's jwt token is used on vault kubernetes auth config
   // +optional
-  optional string tokenReviewerServiceAccountName = 3;
+  optional string tokenReviewerServiceAccountName = 2;
+
+  // Specifies to use pod service account for vault csi driver
+  // +optional
+  optional bool usePodServiceAccountForCsiDriver = 3;
+}
+
+// VaultServerConfiguration defines a Vault Server configuration.
+message VaultServerConfiguration {
+  // Specifies the path which is used for authentication by this AppBinding.
+  // If vault server is provisioned by KubeVault, this is usually `kubernetes`.
+  // +optional
+  optional string path = 1;
 
   // Specifies the vault role name for policy controller
   // It has permission to create policy in vault
   // +optional
-  optional string policyControllerRole = 4;
+  optional string vaultRole = 2;
 
-  // Specifies the vault role name for auth controller
-  // It has permission to enable/disable auth method in vault
+  // Specifies the Kubernetes authentication information
   // +optional
-  optional string authMethodControllerRole = 5;
+  optional KubernetesAuthConfig kubernetes = 3;
 
-  // Specifies to use pod service account for vault csi driver
+  // Specifies the Azure authentication information
   // +optional
-  optional bool usePodServiceAccountForCsiDriver = 6;
+  optional AzureAuthConfig azure = 4;
+
+  // Specifies the AWS authentication information
+  // +optional
+  optional AWSAuthConfig aws = 5;
 }
 

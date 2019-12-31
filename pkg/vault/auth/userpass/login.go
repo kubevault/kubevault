@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"kubevault.dev/operator/apis"
 	vsapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/auth/types"
 	authtype "kubevault.dev/operator/pkg/vault/auth/types"
@@ -70,8 +69,8 @@ func New(authInfo *authtype.AuthInfo) (*auth, error) {
 	}
 
 	authPath := string(vsapi.AuthTypeUserPass)
-	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
-		authPath = val
+	if authInfo.Path != "" {
+		authPath = authInfo.Path
 	}
 
 	return &auth{

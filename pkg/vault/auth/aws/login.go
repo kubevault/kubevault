@@ -85,13 +85,13 @@ func New(authInfo *authtype.AuthInfo) (*auth, error) {
 	securityToken := secret.Data[apis.AWSAuthSecurityTokenKey]
 
 	authPath := string(vsapi.AuthTypeAws)
-	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
-		authPath = val
+	if authInfo.Path != "" {
+		authPath = authInfo.Path
 	}
 
 	var headerValue string
-	if val, ok := secret.Annotations[apis.AWSHeaderValueKey]; ok && len(val) > 0 {
-		headerValue = val
+	if authInfo.ExtraInfo != nil && authInfo.ExtraInfo.AWS != nil {
+		headerValue = authInfo.ExtraInfo.AWS.HeaderValue
 	}
 
 	creds, err := retrieveCreds(string(accessKeyID), string(secretAccessKey), string(securityToken))

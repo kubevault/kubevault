@@ -82,6 +82,7 @@ func New(kc kubernetes.Interface, authInfo *authtype.AuthInfo) (*auth, error) {
 	if !ok {
 		return nil, errors.New("jwt is missing")
 	}
+
 	if authInfo.Path == "" {
 		authInfo.Path = string(vsapi.AuthTypeKubernetes)
 	}

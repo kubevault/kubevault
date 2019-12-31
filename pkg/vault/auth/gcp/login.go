@@ -92,8 +92,8 @@ func New(authInfo *authtype.AuthInfo) (*auth, error) {
 	}
 
 	authPath := string(vsapi.AuthTypeGcp)
-	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
-		authPath = val
+	if authInfo.Path != "" {
+		authPath = authInfo.Path
 	}
 
 	if authInfo.VaultRole == "" {
