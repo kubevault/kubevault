@@ -52,6 +52,9 @@ type AuthExtraInfo struct {
 }
 
 func GetAuthInfoFromAppBinding(kc kubernetes.Interface, vApp *appcat.AppBinding) (*AuthInfo, error) {
+	if kc == nil {
+		return nil, errors.New("Kubernetes client is empty")
+	}
 	if vApp == nil {
 		return nil, errors.New("AppBinding is empty")
 	}
@@ -60,7 +63,7 @@ func GetAuthInfoFromAppBinding(kc kubernetes.Interface, vApp *appcat.AppBinding)
 	// the operator will perform Kubernetes authentication to the Vault server.
 	// Generate service account reference from AppBinding parameters
 	var sa *core.ObjectReference
-	var cf *config.VaultServerConfiguration
+	cf := new(config.VaultServerConfiguration)
 	var secret *core.Secret
 	if vApp.Spec.Parameters != nil && vApp.Spec.Parameters.Raw != nil {
 		err := json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
