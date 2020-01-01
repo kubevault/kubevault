@@ -67,7 +67,7 @@ type KubernetesAuthConfig struct {
 
 	// Specifies to use pod service account for vault csi driver
 	// +optional
-	UsePodServiceAccountForCSIDriver bool `json:"usePodServiceAccountForCsiDriver,omitempty" protobuf:"varint,3,opt,name=usePodServiceAccountForCsiDriver"`
+	UsePodServiceAccountForCSIDriver bool `json:"usePodServiceAccountForCSIDriver,omitempty" protobuf:"varint,3,opt,name=usePodServiceAccountForCSIDriver"`
 }
 
 // AzureAuthConfig contains necessary information for

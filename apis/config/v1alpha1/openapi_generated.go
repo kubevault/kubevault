@@ -17050,7 +17050,7 @@ func schema_operator_apis_config_v1alpha1_KubernetesAuthConfig(ref common.Refere
 							Format:      "",
 						},
 					},
-					"usePodServiceAccountForCsiDriver": {
+					"usePodServiceAccountForCSIDriver": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies to use pod service account for vault csi driver",
 							Type:        []string{"boolean"},

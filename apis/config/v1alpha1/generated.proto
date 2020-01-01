@@ -77,7 +77,7 @@ message KubernetesAuthConfig {
 
   // Specifies to use pod service account for vault csi driver
   // +optional
-  optional bool usePodServiceAccountForCsiDriver = 3;
+  optional bool usePodServiceAccountForCSIDriver = 3;
 }
 
 // VaultServerConfiguration defines a Vault Server configuration.
