@@ -23,9 +23,8 @@ import (
 	"io/ioutil"
 
 	"kubevault.dev/operator/apis"
-	config "kubevault.dev/operator/apis/config/v1alpha1"
 	vsapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	"kubevault.dev/operator/pkg/vault/auth/types"
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 	vaultuitl "kubevault.dev/operator/pkg/vault/util"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -35,8 +34,6 @@ import (
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/helper/awsutil"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 const (
@@ -53,11 +50,15 @@ type auth struct {
 
 // links : https://www.vaultproject.io/docs/auth/aws.html
 
-func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
-	if vApp.Spec.Parameters == nil {
-		return nil, errors.New("parameters are not provided")
+func New(authInfo *authtype.AuthInfo) (*auth, error) {
+	if authInfo == nil {
+		return nil, errors.New("authentication information is empty")
+	}
+	if authInfo.VaultApp == nil {
+		return nil, errors.New("AppBinding is empty")
 	}
 
+	vApp := authInfo.VaultApp
 	cfg, err := vaultuitl.VaultConfigFromAppBinding(vApp)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault config from AppBinding")
@@ -68,6 +69,11 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
+	if authInfo.Secret == nil {
+		return nil, errors.New("authentication secret is missing")
+	}
+
+	secret := authInfo.Secret
 	accessKeyID, ok := secret.Data[apis.AWSAuthAccessKeyIDKey]
 	if !ok {
 		return nil, errors.New("access_key_id is missing")
@@ -78,24 +84,14 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	}
 	securityToken := secret.Data[apis.AWSAuthSecurityTokenKey]
 
-	var cf config.VaultServerConfiguration
-	err = json.Unmarshal([]byte(vApp.Spec.Parameters.Raw), &cf)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal parameters")
-	}
-
 	authPath := string(vsapi.AuthTypeAws)
-	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
-		authPath = val
+	if authInfo.Path != "" {
+		authPath = authInfo.Path
 	}
 
 	var headerValue string
-	if val, ok := secret.Annotations[apis.AWSHeaderValueKey]; ok && len(val) > 0 {
-		headerValue = val
-	}
-
-	if cf.PolicyControllerRole == "" {
-		return nil, errors.Wrap(err, "policyControllerRole is empty")
+	if authInfo.ExtraInfo != nil && authInfo.ExtraInfo.AWS != nil {
+		headerValue = authInfo.ExtraInfo.AWS.HeaderValue
 	}
 
 	creds, err := retrieveCreds(string(accessKeyID), string(secretAccessKey), string(securityToken))
@@ -103,10 +99,14 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to retrieve credentials")
 	}
 
+	if authInfo.VaultRole == "" {
+		return nil, errors.Wrap(err, "Vault role is empty")
+	}
+
 	return &auth{
 		vClient:     vc,
 		creds:       creds,
-		role:        cf.PolicyControllerRole,
+		role:        authInfo.VaultRole,
 		headerValue: headerValue,
 		path:        authPath,
 	}, nil
@@ -133,7 +133,7 @@ func (a *auth) Login() (string, error) {
 		return "", err
 	}
 
-	var loginResp types.AuthLoginResponse
+	var loginResp authtype.AuthLoginResponse
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&loginResp)
 	if err != nil {

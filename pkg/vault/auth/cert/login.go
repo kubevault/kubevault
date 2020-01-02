@@ -22,16 +22,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"kubevault.dev/operator/apis"
-	config "kubevault.dev/operator/apis/config/v1alpha1"
 	vsapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/auth/types"
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 	vaultuitl "kubevault.dev/operator/pkg/vault/util"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 type auth struct {
@@ -42,12 +40,25 @@ type auth struct {
 
 // links : https://www.vaultproject.io/docs/auth/aws.html
 
-func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
+func New(authInfo *authtype.AuthInfo) (*auth, error) {
+	if authInfo == nil {
+		return nil, errors.New("authentication information is empty")
+	}
+	if authInfo.VaultApp == nil {
+		return nil, errors.New("AppBinding is empty")
+	}
+
+	vApp := authInfo.VaultApp
 	cfg, err := vaultuitl.VaultConfigFromAppBinding(vApp)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault config from AppBinding")
 	}
 
+	if authInfo.Secret == nil {
+		return nil, errors.New("authentication secret is missing")
+	}
+
+	secret := authInfo.Secret
 	clientTLSConfig := cfg.HttpClient.Transport.(*http.Transport).TLSClientConfig
 	clientTLSConfig.InsecureSkipVerify = true
 	clientTLSConfig.GetClientCertificate = func(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
@@ -63,22 +74,14 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
-	var cf config.VaultServerConfiguration
-	if vApp.Spec.Parameters != nil {
-		err = json.Unmarshal([]byte(vApp.Spec.Parameters.Raw), &cf)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to unmarshal parameters")
-		}
-	}
-
 	authPath := string(vsapi.AuthTypeCert)
-	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
-		authPath = val
+	if authInfo.Path != "" {
+		authPath = authInfo.Path
 	}
 
 	return &auth{
 		vClient: vc,
-		name:    cf.PolicyControllerRole,
+		name:    authInfo.VaultRole,
 		path:    authPath,
 	}, nil
 }

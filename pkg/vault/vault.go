@@ -17,15 +17,12 @@ limitations under the License.
 package vault
 
 import (
-	"encoding/json"
-
-	config "kubevault.dev/operator/apis/config/v1alpha1"
 	vaultauth "kubevault.dev/operator/pkg/vault/auth"
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 	vaultutil "kubevault.dev/operator/pkg/vault/util"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
@@ -39,40 +36,25 @@ func NewClient(kc kubernetes.Interface, appc appcat_cs.AppcatalogV1alpha1Interfa
 		return nil, err
 	}
 
-	return NewClientWithAppBinding(kc, vApp)
-}
-
-func NewClientWithAppBinding(kc kubernetes.Interface, vApp *appcat.AppBinding) (*vaultapi.Client, error) {
-	// If k8s service account name is provided as AppBinding parameters,
-	// the operator will perform Kubernetes authentication to the Vault server.
-	// Generate service account reference from AppBinding parameters
-	var sa *core.ObjectReference
-	if vApp.Spec.Parameters != nil && vApp.Spec.Parameters.Raw != nil {
-		var cf config.VaultServerConfiguration
-		err := json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to unmarshal parameters")
-		}
-
-		if cf.ServiceAccountName != "" {
-			sa = &core.ObjectReference{
-				Namespace: vApp.Namespace,
-				Name:      cf.ServiceAccountName,
-			}
-		}
-	}
-
-	return NewClientWithAppBindingAndSaRef(kc, vApp, sa)
-}
-
-func NewClientWithAppBindingAndSaRef(kc kubernetes.Interface, vApp *appcat.AppBinding, sa *core.ObjectReference) (*vaultapi.Client, error) {
-	if vApp == nil {
-		return nil, errors.New("AppBinding is nil")
-	}
-
-	auth, err := vaultauth.NewAuth(kc, vApp, sa)
+	authInfo, err := authtype.GetAuthInfoFromAppBinding(kc, vApp)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get authentication information")
+	}
+
+	return NewClientWithAppBinding(kc, authInfo)
+}
+
+func NewClientWithAppBinding(kc kubernetes.Interface, authInfo *authtype.AuthInfo) (*vaultapi.Client, error) {
+	if authInfo == nil {
+		return nil, errors.New("authentication information is empty")
+	}
+	if authInfo.VaultApp == nil {
+		return nil, errors.New("AppBinding is empty")
+	}
+
+	auth, err := vaultauth.NewAuth(kc, authInfo)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create auth method")
 	}
 
 	token, err := auth.Login()
@@ -80,7 +62,7 @@ func NewClientWithAppBindingAndSaRef(kc kubernetes.Interface, vApp *appcat.AppBi
 		return nil, errors.Wrap(err, "failed to login")
 	}
 
-	cfg, err := vaultutil.VaultConfigFromAppBinding(vApp)
+	cfg, err := vaultutil.VaultConfigFromAppBinding(authInfo.VaultApp)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to create vault client config")
 	}

@@ -23,6 +23,8 @@ import (
 	"os"
 	"testing"
 
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
+
 	"github.com/stretchr/testify/assert"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -43,31 +45,37 @@ func TestLogin(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	au, err := New(&appcat.AppBinding{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "gcp",
-			Namespace: "default",
-		},
-		Spec: appcat.AppBindingSpec{
-			ClientConfig: appcat.ClientConfig{
-				URL:                   &addr,
-				InsecureSkipTLSVerify: true,
+	au, err := New(&authtype.AuthInfo{
+		VaultApp: &appcat.AppBinding{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "gcp",
+				Namespace: "default",
 			},
-			Secret: &core.LocalObjectReference{
-				Name: "gcp",
+			Spec: appcat.AppBindingSpec{
+				ClientConfig: appcat.ClientConfig{
+					URL:                   &addr,
+					InsecureSkipTLSVerify: true,
+				},
+				Secret: &core.LocalObjectReference{
+					Name: "gcp",
+				},
+				Parameters: &runtime.RawExtension{
+					Raw: []byte(fmt.Sprintf(`{ "VaultRole" : "%s" }`, role)),
+				},
 			},
-			Parameters: &runtime.RawExtension{
-				Raw: []byte(fmt.Sprintf(`{ "PolicyControllerRole" : "%s" }`, role)),
+		},
+		ServiceAccountRef: nil,
+		Secret: &core.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "gcp",
+				Namespace: "default",
+			},
+			Data: map[string][]byte{
+				"sa.json": []byte(jsonBytes),
 			},
 		},
-	}, &core.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "gcp",
-			Namespace: "default",
-		},
-		Data: map[string][]byte{
-			"sa.json": []byte(jsonBytes),
-		},
+		VaultRole: "",
+		Path:      "",
 	})
 
 	if err != nil {

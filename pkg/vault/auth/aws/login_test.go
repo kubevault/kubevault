@@ -24,6 +24,8 @@ import (
 	"os"
 	"testing"
 
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
+
 	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
@@ -158,33 +160,40 @@ func TestLogin(t *testing.T) {
 		t.Skip()
 	}
 
-	au, err := New(&appcat.AppBinding{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "aws",
-			Namespace: "default",
-		},
-		Spec: appcat.AppBindingSpec{
-			ClientConfig: appcat.ClientConfig{
-				URL:                   &addr,
-				InsecureSkipTLSVerify: true,
+	au, err := New(&authtype.AuthInfo{
+		VaultApp: &appcat.AppBinding{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "aws",
+				Namespace: "default",
 			},
-			Secret: &core.LocalObjectReference{
-				Name: "aws",
+			Spec: appcat.AppBindingSpec{
+				ClientConfig: appcat.ClientConfig{
+					URL:                   &addr,
+					InsecureSkipTLSVerify: true,
+				},
+				Secret: &core.LocalObjectReference{
+					Name: "aws",
+				},
+				Parameters: &runtime.RawExtension{
+					Raw: []byte(fmt.Sprintf(`{ "role" : "%s" }`, role)),
+				},
 			},
-			Parameters: &runtime.RawExtension{
-				Raw: []byte(fmt.Sprintf(`{ "role" : "%s" }`, role)),
+		},
+		ServiceAccountRef: nil,
+		Secret: &core.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "aws",
+				Namespace: "default",
+			},
+			Data: map[string][]byte{
+				"access_key_id":     []byte(accessKey),
+				"secret_access_key": []byte(secretKey),
 			},
 		},
-	}, &core.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "aws",
-			Namespace: "default",
-		},
-		Data: map[string][]byte{
-			"access_key_id":     []byte(accessKey),
-			"secret_access_key": []byte(secretKey),
-		},
+		VaultRole: "",
+		Path:      "",
 	})
+
 	assert.Nil(t, err)
 
 	token, err := au.Login()

@@ -31,7 +31,7 @@ func TestTry(t *testing.T) {
    "authMethodControllerRole":"k8s.-.default.example-auth-method-controller",
    "authPath":"kubernetes",
    "kind":"VaultServerConfiguration",
-   "policyControllerRole":"example-policy-controller",
+   "vaultRole":"example-policy-controller",
    "serviceAccountName":"example",
    "tokenReviewerServiceAccountName":"example-k8s-token-reviewer",
    "usePodServiceAccountForCsiDriver":true

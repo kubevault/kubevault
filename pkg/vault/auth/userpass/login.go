@@ -20,15 +20,14 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"kubevault.dev/operator/apis"
 	vsapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/auth/types"
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 	vaultuitl "kubevault.dev/operator/pkg/vault/util"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 type auth struct {
@@ -38,8 +37,15 @@ type auth struct {
 	path    string
 }
 
-func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
-	cfg, err := vaultuitl.VaultConfigFromAppBinding(vApp)
+func New(authInfo *authtype.AuthInfo) (*auth, error) {
+	if authInfo == nil {
+		return nil, errors.New("authentication information is empty")
+	}
+	if authInfo.VaultApp == nil {
+		return nil, errors.New("AppBinding is empty")
+	}
+
+	cfg, err := vaultuitl.VaultConfigFromAppBinding(authInfo.VaultApp)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault config from AppBinding")
 	}
@@ -49,6 +55,10 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
 
+	if authInfo.Secret == nil {
+		return nil, errors.New("authentication secret is missing")
+	}
+	secret := authInfo.Secret
 	user, ok := secret.Data[core.BasicAuthUsernameKey]
 	if !ok {
 		return nil, errors.New("username is missing")
@@ -59,8 +69,8 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 	}
 
 	authPath := string(vsapi.AuthTypeUserPass)
-	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
-		authPath = val
+	if authInfo.Path != "" {
+		authPath = authInfo.Path
 	}
 
 	return &auth{

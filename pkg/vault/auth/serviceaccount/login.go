@@ -21,17 +21,16 @@ import (
 	"fmt"
 	"time"
 
-	config "kubevault.dev/operator/apis/config/v1alpha1"
 	vsapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	sa_util "kubevault.dev/operator/pkg/util"
 	"kubevault.dev/operator/pkg/vault/auth/types"
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 	vaultuitl "kubevault.dev/operator/pkg/vault/util"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 const (
@@ -46,11 +45,16 @@ type auth struct {
 	path    string
 }
 
-func New(kc kubernetes.Interface, vApp *appcat.AppBinding, sa *core.ObjectReference) (*auth, error) {
-	if vApp.Spec.Parameters == nil {
-		return nil, errors.New("parameters are not provided")
+func New(kc kubernetes.Interface, authInfo *authtype.AuthInfo) (*auth, error) {
+	if authInfo == nil {
+		return nil, errors.New("authentication information is empty")
 	}
 
+	if authInfo.VaultApp == nil {
+		return nil, errors.New("AppBinding is empty")
+	}
+
+	vApp := authInfo.VaultApp
 	cfg, err := vaultuitl.VaultConfigFromAppBinding(vApp)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault config from AppBinding")
@@ -60,20 +64,18 @@ func New(kc kubernetes.Interface, vApp *appcat.AppBinding, sa *core.ObjectRefere
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault client")
 	}
-
-	var cf config.VaultServerConfiguration
-	err = json.Unmarshal(vApp.Spec.Parameters.Raw, &cf)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal parameters")
+	if authInfo.ServiceAccountRef == nil {
+		return nil, errors.New("service account reference is empty")
 	}
 
-	if sa == nil {
-		return nil, errors.New("service account reference is empty")
+	sa := authInfo.ServiceAccountRef
+	if sa.Name == "" || sa.Namespace == "" {
+		return nil, errors.New("name or namespace is missing in service account reference")
 	}
 
 	secret, err := sa_util.TryGetJwtTokenSecretNameFromServiceAccount(kc, sa.Name, sa.Namespace, timeInterval, timeout)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get jwt token secret of service account %s/%s", vApp.Namespace, cf.ServiceAccountName)
+		return nil, errors.Wrapf(err, "failed to get jwt token secret of service account %s/%s", sa.Namespace, sa.Name)
 	}
 
 	jwt, ok := secret.Data[core.ServiceAccountTokenKey]
@@ -81,18 +83,18 @@ func New(kc kubernetes.Interface, vApp *appcat.AppBinding, sa *core.ObjectRefere
 		return nil, errors.New("jwt is missing")
 	}
 
-	if cf.Path == "" {
-		cf.Path = string(vsapi.AuthTypeKubernetes)
+	if authInfo.Path == "" {
+		authInfo.Path = string(vsapi.AuthTypeKubernetes)
 	}
-	if cf.PolicyControllerRole == "" {
-		return nil, errors.Wrap(err, "policyControllerRole is empty")
+	if authInfo.VaultRole == "" {
+		return nil, errors.Wrap(err, "VaultRole is empty")
 	}
 
 	return &auth{
 		vClient: vc,
 		jwt:     string(jwt),
-		role:    cf.PolicyControllerRole,
-		path:    cf.Path,
+		role:    authInfo.VaultRole,
+		path:    authInfo.Path,
 	}, nil
 }
 

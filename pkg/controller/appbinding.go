@@ -54,12 +54,13 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 			APIVersion: vaultconfig.SchemeGroupVersion.String(),
 			Kind:       vaultconfig.ResourceKindVaultServerConfiguration,
 		},
-		UsePodServiceAccountForCSIDriver: true,
-		Path:                             string(api.AuthTypeKubernetes),
-		ServiceAccountName:               vs.ServiceAccountName(),
-		PolicyControllerRole:             vs.PolicyNameForPolicyController(),
-		AuthMethodControllerRole:         vaultPolicyBindingForAuthMethod(vs).PolicyBindingName(),
-		TokenReviewerServiceAccountName:  vs.ServiceAccountForTokenReviewer(),
+		Kubernetes: &vaultconfig.KubernetesAuthConfig{
+			ServiceAccountName:               vs.ServiceAccountName(),
+			TokenReviewerServiceAccountName:  vs.ServiceAccountForTokenReviewer(),
+			UsePodServiceAccountForCSIDriver: true,
+		},
+		Path:      string(api.AuthTypeKubernetes),
+		VaultRole: vs.PolicyNameForPolicyController(),
 	}
 	dataConf, err := json.Marshal(vsConf)
 	if err != nil {

@@ -21,15 +21,12 @@ import (
 	"fmt"
 
 	"kubevault.dev/operator/apis"
-	config "kubevault.dev/operator/apis/config/v1alpha1"
 	"kubevault.dev/operator/apis/kubevault/v1alpha1"
-	"kubevault.dev/operator/pkg/vault/auth/types"
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 	vaultutil "kubevault.dev/operator/pkg/vault/util"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
-	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 // ref:
@@ -40,8 +37,8 @@ type auth struct {
 	vClient           *vaultapi.Client
 	role              string
 	path              string
-	signedJwt         string
-	subscriptionId    string
+	signedJWT         string
+	subscriptionID    string
 	resourceGroupName string
 	vmName            string
 	vmssName          string
@@ -51,21 +48,15 @@ type auth struct {
 // - https://www.vaultproject.io/api/auth/azure/index.html
 // - https://www.vaultproject.io/docs/auth/azure.html
 
-func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
-	if vApp.Spec.Parameters == nil {
-		return nil, errors.New("parameters are not provided in AppBinding spec")
+func New(authInfo *authtype.AuthInfo) (*auth, error) {
+	if authInfo == nil {
+		return nil, errors.New("authentication information is empty")
+	}
+	if authInfo.VaultApp == nil {
+		return nil, errors.New("AppBinding is empty")
 	}
 
-	var cf config.VaultServerConfiguration
-	err := json.Unmarshal([]byte(vApp.Spec.Parameters.Raw), &cf)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal parameters")
-	}
-
-	if cf.PolicyControllerRole == "" {
-		return nil, errors.New("PolicyControllerRole is missing")
-	}
-
+	vApp := authInfo.VaultApp
 	cfg, err := vaultutil.VaultConfigFromAppBinding(vApp)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault config from AppBinding")
@@ -76,42 +67,40 @@ func New(vApp *appcat.AppBinding, secret *core.Secret) (*auth, error) {
 		return nil, errors.Wrap(err, "failed to create vault client from config")
 	}
 
+	if authInfo.Secret == nil {
+		return nil, errors.New("authentication secret is missing")
+	}
+
+	secret := authInfo.Secret
 	signedJwt, ok := secret.Data[apis.AzureMSIToken]
 	if !ok {
 		return nil, errors.Errorf("msiToken is missing in %s/%s", secret.Namespace, secret.Name)
 	}
 
 	authPath := string(v1alpha1.AuthTypeAzure)
-	if val, ok := secret.Annotations[apis.AuthPathKey]; ok && len(val) > 0 {
-		authPath = val
+	if authInfo.Path != "" {
+		authPath = authInfo.Path
 	}
 
-	subscriptionId := ""
-	if val, ok := secret.Annotations[apis.AzureSubscriptionId]; ok && len(val) > 0 {
-		subscriptionId = val
+	var subscriptionID, resourceGroupName, vmName, vmssName string
+	if authInfo.ExtraInfo != nil && authInfo.ExtraInfo.Azure != nil {
+		params := authInfo.ExtraInfo.Azure
+		subscriptionID = params.SubscriptionID
+		resourceGroupName = params.ResourceGroupName
+		vmName = params.VmName
+		vmssName = params.VmssName
 	}
 
-	resourceGroupName := ""
-	if val, ok := secret.Annotations[apis.AzureResourceGroupName]; ok && len(val) > 0 {
-		resourceGroupName = val
-	}
-
-	vmName := ""
-	if val, ok := secret.Annotations[apis.AzureVmName]; ok && len(val) > 0 {
-		vmName = val
-	}
-
-	vmssName := ""
-	if val, ok := secret.Annotations[apis.AzureVmssName]; ok && len(val) > 0 {
-		vmssName = val
+	if authInfo.VaultRole == "" {
+		return nil, errors.New("Vault role is empty")
 	}
 
 	return &auth{
 		vClient:           vc,
-		role:              cf.PolicyControllerRole,
+		role:              authInfo.VaultRole,
 		path:              authPath,
-		signedJwt:         string(signedJwt),
-		subscriptionId:    subscriptionId,
+		signedJWT:         string(signedJwt),
+		subscriptionID:    subscriptionID,
 		resourceGroupName: resourceGroupName,
 		vmName:            vmName,
 		vmssName:          vmssName,
@@ -125,10 +114,10 @@ func (a *auth) Login() (string, error) {
 
 	payload := make(map[string]interface{})
 	payload["role"] = a.role
-	payload["jwt"] = a.signedJwt
+	payload["jwt"] = a.signedJWT
 
-	if len(a.subscriptionId) > 0 {
-		payload["subscription_id"] = a.subscriptionId
+	if len(a.subscriptionID) > 0 {
+		payload["subscription_id"] = a.subscriptionID
 	}
 	if len(a.resourceGroupName) > 0 {
 		payload["resource_group_name"] = a.resourceGroupName
@@ -149,7 +138,7 @@ func (a *auth) Login() (string, error) {
 		return "", err
 	}
 
-	var loginResp types.AuthLoginResponse
+	var loginResp authtype.AuthLoginResponse
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&loginResp)
 	if err != nil {

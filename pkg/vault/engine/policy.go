@@ -149,7 +149,7 @@ func (seClient *SecretEngine) CreatePolicy() error {
 	return nil
 }
 
-func GetPolicyControllerRoleInfo(appClient appcat_cs.AppcatalogV1alpha1Interface, vClient *vaultapi.Client, secretEngine *api.SecretEngine) (*KubernetesAuthRole, string, error) {
+func GetVaultRoleInfo(appClient appcat_cs.AppcatalogV1alpha1Interface, vClient *vaultapi.Client, secretEngine *api.SecretEngine) (*KubernetesAuthRole, string, error) {
 	// Get appbinding referred in SecretEngine spec
 	vApp, err := appClient.AppBindings(secretEngine.Namespace).Get(secretEngine.Spec.VaultRef.Name, metav1.GetOptions{})
 	if err != nil {
@@ -166,12 +166,12 @@ func GetPolicyControllerRoleInfo(appClient appcat_cs.AppcatalogV1alpha1Interface
 	if err != nil {
 		return nil, "", errors.Wrap(err, "failed to unmarshal appbinding parameters")
 	}
-	if cf.PolicyControllerRole == "" {
-		return nil, "", errors.New("policyControllerRole is empty")
+	if cf.VaultRole == "" {
+		return nil, "", errors.New("vaultRole is empty")
 	}
 
 	// Get policy controller role data from vault
-	path := fmt.Sprintf("/v1/auth/kubernetes/role/%s", cf.PolicyControllerRole)
+	path := fmt.Sprintf("/v1/auth/kubernetes/role/%s", cf.VaultRole)
 	req := vClient.NewRequest("GET", path)
 	resp, err := vClient.RawRequest(req)
 	if err != nil {
@@ -189,13 +189,13 @@ func GetPolicyControllerRoleInfo(appClient appcat_cs.AppcatalogV1alpha1Interface
 		return nil, "", err
 	}
 
-	return &role, cf.PolicyControllerRole, nil
+	return &role, cf.VaultRole, nil
 }
 
 func (seClient *SecretEngine) UpdateAuthRole() error {
 	// Get policy controller role name from appbinding and
 	// get role data from vault
-	role, roleName, err := GetPolicyControllerRoleInfo(seClient.appClient, seClient.vaultClient, seClient.secretEngine)
+	role, roleName, err := GetVaultRoleInfo(seClient.appClient, seClient.vaultClient, seClient.secretEngine)
 	if err != nil {
 		return errors.Wrap(err, "failed to get policy controller role information")
 	}
@@ -237,7 +237,7 @@ func (seClient *SecretEngine) DeletePolicyAndUpdateRole() error {
 
 	// get policy controller role name from appbinding and
 	// also get policy controller role data from vault
-	role, roleName, err := GetPolicyControllerRoleInfo(seClient.appClient, seClient.vaultClient, seClient.secretEngine)
+	role, roleName, err := GetVaultRoleInfo(seClient.appClient, seClient.vaultClient, seClient.secretEngine)
 	if err != nil {
 		return errors.Wrap(err, "failed to get policy controller role information")
 	}

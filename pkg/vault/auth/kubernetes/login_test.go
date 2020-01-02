@@ -24,6 +24,8 @@ import (
 	"os"
 	"testing"
 
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
+
 	"github.com/gorilla/mux"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/stretchr/testify/assert"
@@ -148,20 +150,27 @@ func TestLogin(t *testing.T) {
 		t.Skip()
 	}
 
-	au, err := New(&appcat.AppBinding{
-		Spec: appcat.AppBindingSpec{
-			ClientConfig: appcat.ClientConfig{
-				URL: &addr,
-			},
-			Parameters: &runtime.RawExtension{
-				Raw: []byte(fmt.Sprintf(`{"role":"%s"}`, role)),
+	au, err := New(&authtype.AuthInfo{
+		VaultApp: &appcat.AppBinding{
+			Spec: appcat.AppBindingSpec{
+				ClientConfig: appcat.ClientConfig{
+					URL: &addr,
+				},
+				Parameters: &runtime.RawExtension{
+					Raw: []byte(fmt.Sprintf(`{"role":"%s"}`, role)),
+				},
 			},
 		},
-	}, &core.Secret{
-		Data: map[string][]byte{
-			"token": []byte(jwt),
+		ServiceAccountRef: nil,
+		Secret: &core.Secret{
+			Data: map[string][]byte{
+				"token": []byte(jwt),
+			},
 		},
+		VaultRole: "",
+		Path:      "",
 	})
+
 	if !assert.Nil(t, err) {
 		return
 	}

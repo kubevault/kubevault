@@ -30,6 +30,7 @@ import (
 	policycs "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault"
+	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 
 	"github.com/appscode/go/wait"
 	"github.com/golang/glog"
@@ -391,8 +392,10 @@ func waitUntilVaultPolicyBindingIsReady(c policycs.PolicyV1alpha1Interface, vpb 
 
 func newVaultClientForAuthMethodController(kc kubernetes.Interface, appc appcat_cs.AppcatalogV1alpha1Interface, vs *api.VaultServer) (*vaultapi.Client, error) {
 	conf, err := json.Marshal(vaultconfig.VaultServerConfiguration{
-		ServiceAccountName:   vs.ServiceAccountName(),
-		PolicyControllerRole: vaultPolicyBindingForAuthMethod(vs).PolicyBindingName(),
+		Kubernetes: &vaultconfig.KubernetesAuthConfig{
+			ServiceAccountName: vs.ServiceAccountName(),
+		},
+		VaultRole: vaultPolicyBindingForAuthMethod(vs).PolicyBindingName(),
 	})
 	if err != nil {
 		return nil, err
@@ -405,5 +408,11 @@ func newVaultClientForAuthMethodController(kc kubernetes.Interface, appc appcat_
 	vApp.Spec.Parameters = &runtime.RawExtension{
 		Raw: conf,
 	}
-	return vault.NewClientWithAppBinding(kc, vApp)
+
+	authInfo, err := authtype.GetAuthInfoFromAppBinding(kc, vApp)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get authentication information")
+	}
+
+	return vault.NewClientWithAppBinding(kc, authInfo)
 }
