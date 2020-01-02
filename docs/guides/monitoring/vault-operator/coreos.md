@@ -38,7 +38,8 @@ Here, we are going to enable monitoring for `operator` metrics.
 **Using Helm 3:**
 
 ```console
-$ helm install vault-operator appscode/vault-operator --version {{< param "info.version" >}} --namespace kube-system \
+$ helm install vault-operator appscode/vault-operator --version {{< param "info.version" >}} \
+  --namespace kube-system \
   --set monitoring.agent=prometheus.io/coreos-operator \
   --set monitoring.operator=true \
   --set monitoring.prometheus.namespace=monitoring \
@@ -48,21 +49,24 @@ $ helm install vault-operator appscode/vault-operator --version {{< param "info.
 **Using Helm 2:**
 
 ```console
-$ helm install appscode/vault-operator --name vault-operator --version {{< param "info.version" >}} --namespace kube-system \
+$ helm install appscode/vault-operator --name vault-operator --version {{< param "info.version" >}} \
+  --namespace kube-system \
   --set monitoring.agent=prometheus.io/coreos-operator \
   --set monitoring.operator=true \
   --set monitoring.prometheus.namespace=monitoring \
   --set monitoring.serviceMonitor.labels.k8s-app=prometheus
 ```
 
-**Using Script:**
+**Using YAML (with Helm 3):**
 
 ```console
-$ curl -fsSL https://github.com/kubevault/operator/raw/{{< param "info.version" >}}/hack/deploy/install.sh  | bash -s -- \
-  --monitoring-agent=prometheus.io/coreos-operator \
-  --monitor-operator=true \
-  --prometheus-namespace=monitoring \
-  --servicemonitor-label=k8s-app=prometheus
+$ helm template vault-operator appscode/vault-operator --version {{< param "info.version" >}} \
+  --namespace kube-system \
+  --no-hooks \
+  --set monitoring.agent=prometheus.io/coreos-operator \
+  --set monitoring.operator=true \
+  --set monitoring.prometheus.namespace=monitoring \
+  --set monitoring.serviceMonitor.labels.k8s-app=prometheus | kubectl apply -f -
 ```
 
 This will create a `ServiceMonitor` crd with name `vault-operator-servicemonitor` in `monitoring` namespace for monitoring endpoints of `vault-operator` service. This ServiceMonitor will have label `k8s-app: prometheus` provided by `--servicemonitor-label` flag. This label will be used by Prometheus crd to select this ServiceMonitor.

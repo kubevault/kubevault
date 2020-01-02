@@ -20,14 +20,16 @@ To being with, we have created two GKE clusters.
 
 ![cluster image](/docs/images/guides/provider/multi-cluster/gke-cluster.png)
 
-We are going to install KubeVault operator in `demo-cluster-1`. We are going to set `--cluster-name` flag. This flag value will be used by KubeVault operator when creating resources in Vault.
+We are going to install KubeVault operator in `demo-cluster-1` using Helm 3. We are going to set `--cluster-name` flag. This flag value will be used by KubeVault operator when creating resources in Vault.
 
 ```console
 $ kubectl config current-context
 gke_ackube_us-central1-a_demo-cluster-1
 
-$ curl -fsSL https://github.com/kubevault/operator/raw/{{< param "info.version" >}}/hack/deploy/install.sh \
-    | bash -s -- --cluster-name=demo-cluster-1
+$ helm install vault-operator appscode/vault-operator \
+  --version {{< param "info.version" >}} \
+  --namespace kube-system \
+  --set clusterName=demo-cluster-1
 
 $ kubectl get pods -n kube-system
 NAME                                                       READY   STATUS    RESTARTS   AGE
@@ -139,14 +141,16 @@ root
 
 ```
 
-We are going to install KubeVault operator in `demo-cluster-2`.  We are going to set `--cluster-name`, this flag value will be used by KubeVault operator when creating resource in Vault.
+We are going to install KubeVault operator in `demo-cluster-2` using Helm 3.  We are going to set `--cluster-name`, this flag value will be used by KubeVault operator when creating resource in Vault.
 
 ```console
 $ kubectl config current-context
 gke_ackube_us-central1-a_demo-cluster-2
 
-$ curl -fsSL https://github.com/kubevault/operator/raw/{{< param "info.version" >}}/hack/deploy/install.sh \
-    | bash -s -- --cluster-name=demo-cluster-2
+$ helm install vault-operator appscode/vault-operator \
+  --version {{< param "info.version" >}} \
+  --namespace kube-system \
+  --set clusterName=demo-cluster-2
 
 $ kubectl get pods -n kube-system
 NAME                                                       READY   STATUS    RESTARTS   AGE

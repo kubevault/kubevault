@@ -12,18 +12,49 @@ section_menu_id: setup
 
 # Uninstall Vault CSI Driver
 
-If you installed csi driver using YAML then run:
+To uninstall Vault CSI driver, run the following command:
+
+<ul class="nav nav-tabs" id="installerTab" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" id="helm3-tab" data-toggle="tab" href="#helm3" role="tab" aria-controls="helm3" aria-selected="true">Helm 3</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="helm2-tab" data-toggle="tab" href="#helm2" role="tab" aria-controls="helm2" aria-selected="false">Helm 2</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="script-tab" data-toggle="tab" href="#script" role="tab" aria-controls="script" aria-selected="false">YAML</a>
+  </li>
+</ul>
+<div class="tab-content" id="installerTabContent">
+  <div class="tab-pane fade" id="helm3" role="tabpanel" aria-labelledby="helm3-tab">
+
+## Using Helm 3
+
+In Helm 3, release names are [scoped to a namespace](https://v3.helm.sh/docs/faq/#release-names-are-now-scoped-to-the-namespace). So, provide the namespace you used to install the CSI driver when installing.
 
 ```console
-$ curl -fsSL https://github.com/kubevault/csi-driver/raw/{{< param "info.version" >}}/hack/deploy/install.sh \
-    | bash -s -- --uninstall [--namespace=NAMESPACE]
-
+$ helm uninstall csi-vault --namespace kube-system
 ```
 
-The above command will leave the csidriver crd objects as-is. If you wish to nuke all csidriver crd objects, also pass the `--purge` flag.
+</div>
+<div class="tab-pane fade" id="helm2" role="tabpanel" aria-labelledby="helm2-tab">
 
-If you used HELM to install Vault CSI driver, then run following command
+## Using Helm 2
 
 ```console
-helm del --purge <name>
+$ helm delete csi-vault
 ```
+
+</div>
+<div class="tab-pane fade show active" id="script" role="tabpanel" aria-labelledby="script-tab">
+
+## Using YAML (with Helm 3)
+
+If you prefer to not use Helm, you can generate YAMLs from Vault CSI driver chart and uninstall using `kubectl`.
+
+```console
+$ helm template vault-operator appscode/csi-vault --namespace kube-system | kubectl delete -f -
+```
+
+</div>
+</div>

@@ -36,7 +36,8 @@ Here, we are going to enable monitoring for `operator` metrics.
 **Using Helm 3:**
 
 ```console
-$ helm install vault-operator appscode/vault-operator --version {{< param "info.version" >}} --namespace kube-system \
+$ helm install vault-operator appscode/vault-operator --version {{< param "info.version" >}} \
+  --namespace kube-system \
   --set monitoring.agent=prometheus.io/builtin \
   --set monitoring.operator=true \
   --set monitoring.prometheus.namespace=monitoring
@@ -45,19 +46,22 @@ $ helm install vault-operator appscode/vault-operator --version {{< param "info.
 **Using Helm 2:**
 
 ```console
-$ helm install appscode/vault-operator --name vault-operator --version {{< param "info.version" >}} --namespace kube-system \
+$ helm install appscode/vault-operator --name vault-operator --version {{< param "info.version" >}} \
+  --namespace kube-system \
   --set monitoring.agent=prometheus.io/builtin \
   --set monitoring.operator=true \
   --set monitoring.prometheus.namespace=monitoring
 ```
 
-**Using Script:**
+**Using YAML (with Helm 3):**
 
 ```console
-$ curl -fsSL https://github.com/kubevault/operator/raw/{{< param "info.version" >}}/hack/deploy/install.sh  | bash -s -- \
-  --monitoring-agent=prometheus.io/builtin \
-  --monitor-operator=true \
-  --prometheus-namespace=monitoring
+$ helm template vault-operator appscode/vault-operator --version {{< param "info.version" >}} \
+  --namespace kube-system \
+  --no-hooks \
+  --set monitoring.agent=prometheus.io/builtin \
+  --set monitoring.operator=true \
+  --set monitoring.prometheus.namespace=monitoring | kubectl apply -f -
 ```
 
 This will add necessary annotations to `vault-operator` service. Prometheus server will scrap metrics using those annotations. Let's check which annotations are added to the service,

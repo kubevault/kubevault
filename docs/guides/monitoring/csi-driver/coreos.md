@@ -44,7 +44,8 @@ Here, we are going to enable monitoring for `operator` metrics.
 **Using Helm 3:**
 
 ```console
-$ helm install csi-vault appscode/csi-vault --version {{< param "info.version" >}} --namespace kube-system \
+$ helm install csi-vault appscode/csi-vault --version {{< param "info.version" >}} \
+  --namespace kube-system \
   --set monitoring.agent=prometheus.io/coreos-operator \
   --set monitoring.attacher=true \
   --set monitoring.plugin=true \
@@ -56,7 +57,8 @@ $ helm install csi-vault appscode/csi-vault --version {{< param "info.version" >
 **Using Helm 2:**
 
 ```console
-$ helm install appscode/csi-vault --name csi-vault --version {{< param "info.version" >}} --namespace kube-system \
+$ helm install appscode/csi-vault --name csi-vault --version {{< param "info.version" >}} \
+  --namespace kube-system \
   --set monitoring.agent=prometheus.io/coreos-operator \
   --set monitoring.attacher=true \
   --set monitoring.plugin=true \
@@ -65,16 +67,18 @@ $ helm install appscode/csi-vault --name csi-vault --version {{< param "info.ver
   --set monitoring.serviceMonitor.labels.k8s-app=prometheus
 ```
 
-**Using Script:**
+**Using YAML (with Helm 3):**
 
 ```console
-$ curl -fsSL https://github.com/kubevault/csi-driver/raw/{{< param "info.version" >}}/hack/deploy/install.sh | bash -s -- \
-  --monitoring-agent=prometheus.io/coreos-operator \
-  --monitor-attacher=true \
-  --monitor-plugin=true \
-  --monitor-provisioner=true \
-  --prometheus-namespace=monitoring \
-  --servicemonitor-label=k8s-app=prometheus
+$ helm template csi-vault appscode/csi-vault --version {{< param "info.version" >}} \
+  --namespace kube-system \
+  --no-hooks \
+  --set monitoring.agent=prometheus.io/coreos-operator \
+  --set monitoring.attacher=true \
+  --set monitoring.plugin=true \
+  --set monitoring.provisioner=true \
+  --set monitoring.prometheus.namespace=monitoring \
+  --set monitoring.serviceMonitor.labels.k8s-app=prometheus | kubectl apply -f -
 ```
 
 This will create two `ServiceMonitor` crds with name `csi-vault-controller-servicemonitor`, `csi-vault-node-servicemonitor` in `monitoring` namespace for monitoring endpoints of corresponding services. These ServiceMonitor will have label `k8s-app: prometheus` provided by `--servicemonitor-label` flag. This label will be used by Prometheus crd to select this ServiceMonitor.

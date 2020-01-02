@@ -42,7 +42,8 @@ Here, we are going to enable monitoring for `operator` metrics.
 **Using Helm 3:**
 
 ```console
-$ helm install csi-vault appscode/csi-vault --version {{< param "info.version" >}} --namespace kube-system \
+$ helm install csi-vault appscode/csi-vault --version {{< param "info.version" >}} \
+  --namespace kube-system \
   --set monitoring.agent=prometheus.io/builtin \
   --set monitoring.controller=true \
   --set monitoring.node=true \
@@ -52,21 +53,24 @@ $ helm install csi-vault appscode/csi-vault --version {{< param "info.version" >
 **Using Helm 2:**
 
 ```console
-$ helm install appscode/csi-vault --name csi-vault --version {{< param "info.version" >}} --namespace kube-system \
+$ helm install appscode/csi-vault --name csi-vault --version {{< param "info.version" >}} \
+  --namespace kube-system \
   --set monitoring.agent=prometheus.io/builtin \
   --set monitoring.controller=true \
   --set monitoring.node=true \
   --set monitoring.prometheus.namespace=monitoring
 ```
 
-**Using Script:**
+**Using YAML (with Helm 3):**
 
 ```console
-$ curl -fsSL https://github.com/kubevault/csi-driver/raw/{{< param "info.version" >}}/hack/deploy/install.sh | bash -s -- \
-  --monitoring-agent=prometheus.io/builtin \
-  --monitor-controller-plugin=true \
-  --monitor-node-plugin=true \
-  --prometheus-namespace=monitoring
+$ helm template csi-vault appscode/csi-vault --version {{< param "info.version" >}} \
+  --namespace kube-system \
+  --no-hooks \
+  --set monitoring.agent=prometheus.io/builtin \
+  --set monitoring.controller=true \
+  --set monitoring.node=true \
+  --set monitoring.prometheus.namespace=monitoring | kubectl apply -f -
 ```
 
 This will add necessary annotations to `csi-vault-controller`, `csi-vault-node` services. Prometheus server will scrap metrics using those annotations. Let's check which annotations are added to the services,
