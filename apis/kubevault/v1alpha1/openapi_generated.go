@@ -17676,10 +17676,18 @@ func schema_operator_apis_kubevault_v1alpha1_FileSpec(ref common.ReferenceCallba
 							Format:      "",
 						},
 					},
+					"volumeClaimTemplate": {
+						SchemaProps: spec.SchemaProps{
+							Description: "volumeClaimTemplate is a claim that pods are allowed to reference. The VaultServer controller is responsible for deploying the claim and update the volumeMounts in the Vault server container in the template.",
+							Ref:         ref("kmodules.xyz/offshoot-api/api/v1.PersistentVolumeClaim"),
+						},
+					},
 				},
 				Required: []string{"path"},
 			},
 		},
+		Dependencies: []string{
+			"kmodules.xyz/offshoot-api/api/v1.PersistentVolumeClaim"},
 	}
 }
 

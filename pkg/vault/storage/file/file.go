@@ -17,12 +17,19 @@ limitations under the License.
 package file
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 
 	core "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
+	core_util "kmodules.xyz/client-go/core/v1"
+)
+
+const (
+	VaultFileSystemVolumeName = "vault-filesystem-backend"
 )
 
 var fileStorageFmt = `
@@ -33,15 +40,52 @@ storage "file" {
 
 type Options struct {
 	api.FileSpec
+	claimName string
 }
 
-func NewOptions(s api.FileSpec) (*Options, error) {
+func NewOptions(kubeClient kubernetes.Interface, namespace string, s api.FileSpec) (*Options, error) {
+	var claimName string
+	if s.VolumeClaimTemplate != nil && s.VolumeClaimTemplate.Name != "" {
+		// Generate PVC object out of VolumeClainTemplate
+		pvc := s.VolumeClaimTemplate.ToCorePVC()
+
+		// Set pvc's namespace to vaultServer's namespace, if not provided
+		if pvc.Namespace == "" {
+			pvc.Namespace = namespace
+		}
+
+		// Create or Patch the requested PVC
+		_, _, err := core_util.CreateOrPatchPVC(kubeClient, pvc.ObjectMeta, func(claim *core.PersistentVolumeClaim) *core.PersistentVolumeClaim {
+			claim = pvc
+			return claim
+		})
+		if err != nil {
+			return nil, errors.New(fmt.Sprintf("failed to create pvc %s/%s", pvc.Namespace, pvc.Name))
+		}
+		claimName = pvc.Name
+	}
 	return &Options{
 		s,
+		claimName,
 	}, nil
 }
 
 func (o *Options) Apply(pt *core.PodTemplateSpec) error {
+	if o.claimName != "" {
+		pt.Spec.Volumes = append(pt.Spec.Volumes, core.Volume{
+			Name: VaultFileSystemVolumeName,
+			VolumeSource: core.VolumeSource{
+				PersistentVolumeClaim: &core.PersistentVolumeClaimVolumeSource{
+					ClaimName: o.claimName,
+				},
+			},
+		})
+
+		pt.Spec.Containers[0].VolumeMounts = append(pt.Spec.Containers[0].VolumeMounts, core.VolumeMount{
+			Name:      VaultFileSystemVolumeName,
+			MountPath: o.Path,
+		})
+	}
 	return nil
 }
 
