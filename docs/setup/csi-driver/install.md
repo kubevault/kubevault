@@ -76,7 +76,7 @@ To see the detailed configuration options, visit [here](https://github.com/kubev
 
 ## Using YAML
 
-If you prefer to not use Helm, you can generate YAMLs from Stash chart and deploy using `kubectl`. Here we are going to show the prodecure using Helm 3.
+If you prefer to not use Helm, you can generate YAMLs from Vault CSI driver chart and deploy using `kubectl`. Here we are going to show the prodecure using Helm 3.
 
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
