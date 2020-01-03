@@ -60,11 +60,10 @@ func NewOptions(kubeClient kubernetes.Interface, namespace string, s *api.FileSp
 
 		// Create or Patch the requested PVC
 		_, _, err := core_util.CreateOrPatchPVC(kubeClient, pvc.ObjectMeta, func(claim *core.PersistentVolumeClaim) *core.PersistentVolumeClaim {
-			claim = pvc
-			return claim
+			return pvc
 		})
 		if err != nil {
-			return nil, errors.New(fmt.Sprintf("failed to create pvc %s/%s", pvc.Namespace, pvc.Name))
+			return nil, fmt.Errorf("failed to create pvc %s/%s", pvc.Namespace, pvc.Name)
 		}
 		claimName = pvc.Name
 	}
