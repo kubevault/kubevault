@@ -37,7 +37,7 @@ Vault operator can be installed via [Helm](https://helm.sh/) using the [chart](h
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
 $ helm repo update
-$ helm search repo appscode/vault
+$ helm search repo appscode/vault-operator --version {{< param "info.version" >}}
 NAME                    CHART VERSION APP VERSION   DESCRIPTION
 appscode/vault-operator {{< param "info.version" >}}         {{< param "info.version" >}}         Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
 appscode/vault-catalog  {{< param "info.version" >}}         {{< param "info.version" >}}         Vault Catalog by AppsCode - Catalog for vault versions
@@ -72,7 +72,7 @@ Vault operator can be installed via [Helm](https://helm.sh/) using the [chart](h
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
 $ helm repo update
-$ helm search appscode/vault
+$ helm search appscode/vault-operator --version {{< param "info.version" >}}
 NAME                    CHART VERSION APP VERSION   DESCRIPTION
 appscode/vault-operator {{< param "info.version" >}}         {{< param "info.version" >}}         Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
 appscode/vault-catalog  {{< param "info.version" >}}         {{< param "info.version" >}}         Vault Catalog by AppsCode - Catalog for vault versions
@@ -107,7 +107,7 @@ If you prefer to not use Helm, you can generate YAMLs from Vault operator chart 
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
 $ helm repo update
-$ helm search repo appscode/vault
+$ helm search repo appscode/vault-operator --version {{< param "info.version" >}}
 NAME                    CHART VERSION APP VERSION   DESCRIPTION
 appscode/vault-operator {{< param "info.version" >}}         {{< param "info.version" >}}         Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
 appscode/vault-catalog  {{< param "info.version" >}}         {{< param "info.version" >}}         Vault Catalog by AppsCode - Catalog for vault versions

@@ -37,7 +37,7 @@ Vault CSI driver can be installed via [Helm](https://helm.sh) using the [chart](
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
 $ helm repo update
-$ helm search repo appscode/csi-vault
+$ helm search repo appscode/csi-vault --version {{< param "info.version" >}}
 NAME                CHART VERSION   APP VERSION DESCRIPTION
 appscode/csi-vault  {{< param "info.version" >}}            {{< param "info.version" >}}        HashiCorp Vault CSI Driver for Kubernetes
 
@@ -59,7 +59,7 @@ Vault CSI driver can be installed via [Helm](https://helm.sh) using the [chart](
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
 $ helm repo update
-$ helm search appscode/csi-vault
+$ helm search appscode/csi-vault --version {{< param "info.version" >}}
 NAME              	CHART VERSION	APP VERSION	DESCRIPTION
 appscode/csi-vault	{{< param "info.version" >}}        	{{< param "info.version" >}}      	HashiCorp Vault CSI Driver for Kubernetes
 
@@ -81,7 +81,7 @@ If you prefer to not use Helm, you can generate YAMLs from Vault CSI driver char
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
 $ helm repo update
-$ helm search repo appscode/csi-vault
+$ helm search repo appscode/csi-vault --version {{< param "info.version" >}}
 NAME                CHART VERSION   APP VERSION DESCRIPTION
 appscode/csi-vault  {{< param "info.version" >}}            {{< param "info.version" >}}        HashiCorp Vault CSI Driver for Kubernetes
 
