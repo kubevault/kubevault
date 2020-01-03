@@ -43,7 +43,11 @@ type Options struct {
 	claimName string
 }
 
-func NewOptions(kubeClient kubernetes.Interface, namespace string, s api.FileSpec) (*Options, error) {
+func NewOptions(kubeClient kubernetes.Interface, namespace string, s *api.FileSpec) (*Options, error) {
+	if s == nil {
+		return nil, errors.New("fileSpec is empty")
+	}
+
 	var claimName string
 	if s.VolumeClaimTemplate != nil && s.VolumeClaimTemplate.Name != "" {
 		// Generate PVC object out of VolumeClainTemplate
@@ -65,7 +69,7 @@ func NewOptions(kubeClient kubernetes.Interface, namespace string, s api.FileSpe
 		claimName = pvc.Name
 	}
 	return &Options{
-		s,
+		*s,
 		claimName,
 	}, nil
 }
