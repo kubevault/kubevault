@@ -28,7 +28,7 @@ Vault CSI driver can be installed via a script or as a Helm chart.
   </li>
 </ul>
 <div class="tab-content" id="installerTabContent">
-  <div class="tab-pane fade" id="helm3" role="tabpanel" aria-labelledby="helm3-tab">
+  <div class="tab-pane fade show active" id="helm3" role="tabpanel" aria-labelledby="helm3-tab">
 
 ## Using Helm 3
 
@@ -72,7 +72,7 @@ $ helm install appscode/csi-vault --name csi-vault \
 To see the detailed configuration options, visit [here](https://github.com/kubevault/csi-driver/tree/{{< param "info.version" >}}/charts/csi-vault).
 
 </div>
-<div class="tab-pane fade show active" id="script" role="tabpanel" aria-labelledby="script-tab">
+<div class="tab-pane fade" id="script" role="tabpanel" aria-labelledby="script-tab">
 
 ## Using YAML
 

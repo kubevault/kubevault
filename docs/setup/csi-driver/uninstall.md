@@ -26,7 +26,7 @@ To uninstall Vault CSI driver, run the following command:
   </li>
 </ul>
 <div class="tab-content" id="installerTabContent">
-  <div class="tab-pane fade" id="helm3" role="tabpanel" aria-labelledby="helm3-tab">
+  <div class="tab-pane fade show active" id="helm3" role="tabpanel" aria-labelledby="helm3-tab">
 
 ## Using Helm 3
 
@@ -46,7 +46,7 @@ $ helm delete csi-vault
 ```
 
 </div>
-<div class="tab-pane fade show active" id="script" role="tabpanel" aria-labelledby="script-tab">
+<div class="tab-pane fade" id="script" role="tabpanel" aria-labelledby="script-tab">
 
 ## Using YAML (with Helm 3)
 
