@@ -162,7 +162,7 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 		engineapi.PostgresRole{}.CustomResourceDefinition(),
 		engineapi.SecretEngine{}.CustomResourceDefinition(),
 	}
-	return crdutils.RegisterCRDs(c.crdClient, crds)
+	return crdutils.RegisterCRDs(c.kubeClient.Discovery(), c.crdClient, crds)
 }
 
 func (c *VaultController) Run(stopCh <-chan struct{}) {
