@@ -24,6 +24,7 @@ import (
 
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	core_util "kmodules.xyz/client-go/core/v1"
 )
@@ -43,42 +44,61 @@ type Options struct {
 	claimName string
 }
 
-func NewOptions(kubeClient kubernetes.Interface, namespace string, s *api.FileSpec) (*Options, error) {
+func NewOptions(kubeClient kubernetes.Interface, vaultServer *api.VaultServer, s *api.FileSpec) (*Options, error) {
 	if s == nil {
 		return nil, errors.New("fileSpec is empty")
 	}
+	if vaultServer == nil {
+		return nil, errors.New("vaultServer object is empty")
+	}
 
-	var claimName string
-	if s.VolumeClaimTemplate != nil && s.VolumeClaimTemplate.Name != "" {
-		// Generate PVC object out of VolumeClainTemplate
-		pvc := s.VolumeClaimTemplate.ToCorePVC()
+	var objMeta v1.ObjectMeta
+	if s.VolumeClaimTemplate != nil {
 
-		// Set pvc's namespace to vaultServer's namespace, if not provided
-		if pvc.Namespace == "" {
-			pvc.Namespace = namespace
+		// Set the pvc name, namespace and labels if given.
+		// Otherwise default to VaultServer's name, namespace and labels.
+		if s.VolumeClaimTemplate.Name != "" {
+			objMeta.Name = s.VolumeClaimTemplate.Name
+		} else {
+			objMeta.Name = vaultServer.Name
+		}
+
+		if s.VolumeClaimTemplate.Namespace != "" {
+			objMeta.Namespace = s.VolumeClaimTemplate.Namespace
+		} else {
+			objMeta.Namespace = vaultServer.Namespace
+		}
+
+		if s.VolumeClaimTemplate.Labels != nil {
+			objMeta.Labels = s.VolumeClaimTemplate.Labels
+		} else {
+			objMeta.Labels = vaultServer.OffshootLabels()
 		}
 
 		// Create or Patch the requested PVC
-		_, _, err := core_util.CreateOrPatchPVC(kubeClient, pvc.ObjectMeta, func(claim *core.PersistentVolumeClaim) *core.PersistentVolumeClaim {
+		_, _, err := core_util.CreateOrPatchPVC(kubeClient, objMeta, func(claim *core.PersistentVolumeClaim) *core.PersistentVolumeClaim {
 			// pvc.spec is immutable except spec.resources.request field.
 			// But values need to be set while creating the pvc for the first time.
 			// Here, "Spec.AccessModes" will be "nil" in two cases; invalid pvc template
 			// & creating pvc for the first time.
 			if claim.Spec.AccessModes == nil {
-				claim.Spec = pvc.Spec
+				claim.Spec = s.VolumeClaimTemplate.Spec
 			}
+
+			// Update labels
+			claim.Labels = objMeta.Labels
+
 			// Update the only mutable field.
-			claim.Spec.Resources.Requests = pvc.Spec.Resources.Requests
+			claim.Spec.Resources.Requests = s.VolumeClaimTemplate.Spec.Resources.Requests
 			return claim
 		})
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to create pvc %s/%s", pvc.Namespace, pvc.Name)
+			return nil, errors.Wrapf(err, "failed to create pvc %s/%s", objMeta.Namespace, objMeta.Name)
 		}
-		claimName = pvc.Name
 	}
 	return &Options{
 		*s,
-		claimName,
+		objMeta.Name,
 	}, nil
 }
 
