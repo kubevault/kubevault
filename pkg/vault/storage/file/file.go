@@ -17,12 +17,12 @@ limitations under the License.
 package file
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 
+	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	core_util "kmodules.xyz/client-go/core/v1"
@@ -60,10 +60,19 @@ func NewOptions(kubeClient kubernetes.Interface, namespace string, s *api.FileSp
 
 		// Create or Patch the requested PVC
 		_, _, err := core_util.CreateOrPatchPVC(kubeClient, pvc.ObjectMeta, func(claim *core.PersistentVolumeClaim) *core.PersistentVolumeClaim {
-			return pvc
+			// pvc.spec is immutable except spec.resources.request field.
+			// But values need to be set while creating the pvc for the first time.
+			// Here, "Spec.AccessModes" will be "nil" in two cases; invalid pvc template
+			// & creating pvc for the first time.
+			if claim.Spec.AccessModes == nil {
+				claim.Spec = pvc.Spec
+			}
+			// Update the only mutable field.
+			claim.Spec.Resources.Requests = pvc.Spec.Resources.Requests
+			return claim
 		})
 		if err != nil {
-			return nil, fmt.Errorf("failed to create pvc %s/%s", pvc.Namespace, pvc.Name)
+			return nil, errors.Wrapf(err, "failed to create pvc %s/%s", pvc.Namespace, pvc.Name)
 		}
 		claimName = pvc.Name
 	}
