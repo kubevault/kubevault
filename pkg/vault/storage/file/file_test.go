@@ -23,10 +23,13 @@ import (
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 
 	"github.com/stretchr/testify/assert"
+	"k8s.io/client-go/kubernetes/fake"
 )
 
 func TestOptions_GetStorageConfig(t *testing.T) {
-	opts, err := NewOptions(api.FileSpec{
+	kfake := fake.NewSimpleClientset()
+	vaultServer := &api.VaultServer{}
+	opts, err := NewOptions(kfake, vaultServer, &api.FileSpec{
 		Path: "/test",
 	})
 	assert.Nil(t, err)

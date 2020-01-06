@@ -60,8 +60,8 @@ func (v VaultServer) AppBindingName() string {
 
 func (v VaultServer) OffshootSelectors() map[string]string {
 	return map[string]string{
-		"app":           "vault",
-		"vault_cluster": v.Name,
+		"app":     "vault",
+		"cluster": v.Name,
 	}
 }
 

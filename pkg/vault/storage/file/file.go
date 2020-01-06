@@ -22,7 +22,15 @@ import (
 
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 
+	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	core_util "kmodules.xyz/client-go/core/v1"
+)
+
+const (
+	VaultFileSystemVolumeName = "vault-filesystem-backend"
 )
 
 var fileStorageFmt = `
@@ -33,15 +41,76 @@ storage "file" {
 
 type Options struct {
 	api.FileSpec
+	claimName string
 }
 
-func NewOptions(s api.FileSpec) (*Options, error) {
+func NewOptions(kubeClient kubernetes.Interface, vaultServer *api.VaultServer, s *api.FileSpec) (*Options, error) {
+	if s == nil {
+		return nil, errors.New("fileSpec is empty")
+	}
+	if vaultServer == nil {
+		return nil, errors.New("vaultServer object is empty")
+	}
+
+	// Set the pvc name and labels if given.
+	// Otherwise default to VaultServer's name, namespace and labels.
+	objMeta := v1.ObjectMeta{
+		Name:      vaultServer.Name,
+		Namespace: vaultServer.Namespace,
+		Labels:    vaultServer.OffshootLabels(),
+	}
+	if s.VolumeClaimTemplate != nil {
+		if s.VolumeClaimTemplate.Name != "" {
+			objMeta.Name = s.VolumeClaimTemplate.Name
+		}
+
+		if s.VolumeClaimTemplate.Labels != nil {
+			objMeta.Labels = s.VolumeClaimTemplate.Labels
+		}
+
+		// Create or Patch the requested PVC
+		_, _, err := core_util.CreateOrPatchPVC(kubeClient, objMeta, func(claim *core.PersistentVolumeClaim) *core.PersistentVolumeClaim {
+			// pvc.spec is immutable except spec.resources.request field.
+			// But values need to be set while creating the pvc for the first time.
+			// Here, "Spec.AccessModes" will be "nil" in two cases; invalid pvc template
+			// & creating pvc for the first time.
+			if claim.Spec.AccessModes == nil {
+				claim.Spec = s.VolumeClaimTemplate.Spec
+			}
+
+			// Update labels
+			claim.Labels = objMeta.Labels
+
+			// Update the only mutable field.
+			claim.Spec.Resources.Requests = s.VolumeClaimTemplate.Spec.Resources.Requests
+			return claim
+		})
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to create pvc %s/%s", objMeta.Namespace, objMeta.Name)
+		}
+	}
 	return &Options{
-		s,
+		*s,
+		objMeta.Name,
 	}, nil
 }
 
 func (o *Options) Apply(pt *core.PodTemplateSpec) error {
+	if o.claimName != "" {
+		pt.Spec.Volumes = append(pt.Spec.Volumes, core.Volume{
+			Name: VaultFileSystemVolumeName,
+			VolumeSource: core.VolumeSource{
+				PersistentVolumeClaim: &core.PersistentVolumeClaimVolumeSource{
+					ClaimName: o.claimName,
+				},
+			},
+		})
+
+		pt.Spec.Containers[0].VolumeMounts = append(pt.Spec.Containers[0].VolumeMounts, core.VolumeMount{
+			Name:      VaultFileSystemVolumeName,
+			MountPath: o.Path,
+		})
+	}
 	return nil
 }
 
