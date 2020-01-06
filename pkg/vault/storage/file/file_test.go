@@ -28,8 +28,8 @@ import (
 
 func TestOptions_GetStorageConfig(t *testing.T) {
 	kfake := fake.NewSimpleClientset()
-	ns := "demo"
-	opts, err := NewOptions(kfake, ns, &api.FileSpec{
+	vaultServer := &api.VaultServer{}
+	opts, err := NewOptions(kfake, vaultServer, &api.FileSpec{
 		Path: "/test",
 	})
 	assert.Nil(t, err)
