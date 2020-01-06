@@ -52,27 +52,20 @@ func NewOptions(kubeClient kubernetes.Interface, vaultServer *api.VaultServer, s
 		return nil, errors.New("vaultServer object is empty")
 	}
 
-	var objMeta v1.ObjectMeta
+	// Set the pvc name and labels if given.
+	// Otherwise default to VaultServer's name, namespace and labels.
+	objMeta := v1.ObjectMeta{
+		Name:      vaultServer.Name,
+		Namespace: vaultServer.Namespace,
+		Labels:    vaultServer.OffshootLabels(),
+	}
 	if s.VolumeClaimTemplate != nil {
-
-		// Set the pvc name, namespace and labels if given.
-		// Otherwise default to VaultServer's name, namespace and labels.
 		if s.VolumeClaimTemplate.Name != "" {
 			objMeta.Name = s.VolumeClaimTemplate.Name
-		} else {
-			objMeta.Name = vaultServer.Name
-		}
-
-		if s.VolumeClaimTemplate.Namespace != "" {
-			objMeta.Namespace = s.VolumeClaimTemplate.Namespace
-		} else {
-			objMeta.Namespace = vaultServer.Namespace
 		}
 
 		if s.VolumeClaimTemplate.Labels != nil {
 			objMeta.Labels = s.VolumeClaimTemplate.Labels
-		} else {
-			objMeta.Labels = vaultServer.OffshootLabels()
 		}
 
 		// Create or Patch the requested PVC
