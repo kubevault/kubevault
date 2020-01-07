@@ -137,7 +137,7 @@ spec:
     caBundle: LS0tLS1CRU... ## base64 encoded vault server ca.crt
   parameters:
     serviceAccountName: vault  ## service account name
-    policyControllerRole: vault-role ## auth-role name against which login will be done
+    vaultRole: vault-role ## auth-role name against which login will be done
     authPath: kubernetes ## Kubernetes auth is enabled in this path
     usePodServiceAccountForCsiDriver: true ##  required while using CSI driver
 ```

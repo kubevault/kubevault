@@ -75,7 +75,7 @@ spec:
     authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
     kind: VaultServerConfiguration
     path: kubernetes
-    policyControllerRole: vault-policy-controller
+    vaultRole: vault-policy-controller
     serviceAccountName: vault
     tokenReviewerServiceAccountName: vault-k8s-token-reviewer
     usePodServiceAccountForCsiDriver: true
@@ -133,7 +133,7 @@ vault                      1         7h23m
 
 > Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
-You can find the name of the auth method role in the AppBinding's `spec.parameters.policyControllerRole`. Let's list the token policies assigned for `vault` service account:
+You can find the name of the auth method role in the AppBinding's `spec.parameters.vaultRole`. Let's list the token policies assigned for `vault` service account:
 
 ```console
 $ vault read auth/kubernetes/role/vault-policy-controller

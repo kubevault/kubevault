@@ -75,7 +75,7 @@ spec:
     authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
     kind: VaultServerConfiguration
     path: kubernetes
-    policyControllerRole: vault-policy-controller
+    vaultRole: vault-policy-controller
     serviceAccountName: vault
     tokenReviewerServiceAccountName: vault-k8s-token-reviewer
     usePodServiceAccountForCsiDriver: true
