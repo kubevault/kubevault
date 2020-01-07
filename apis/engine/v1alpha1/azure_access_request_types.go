@@ -52,11 +52,9 @@ type AzureAccessKeyRequest struct {
 
 type AzureAccessKeyRequestSpec struct {
 	// Contains vault azure role info
-	// +required
 	RoleRef RoleRef `json:"roleRef" protobuf:"bytes,1,opt,name=roleRef"`
 
 	// Contains a reference to the object or user identities the role binding is applied to
-	// +required
 	Subjects []rbac.Subject `json:"subjects" protobuf:"bytes,2,rep,name=subjects"`
 }
 

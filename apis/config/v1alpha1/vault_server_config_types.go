@@ -56,7 +56,6 @@ type VaultServerConfiguration struct {
 // performing Kubernetes authentication to the Vault server.
 type KubernetesAuthConfig struct {
 	// Specifies the service account name
-	// +required
 	ServiceAccountName string `json:"serviceAccountName" protobuf:"bytes,1,opt,name=serviceAccountName"`
 
 	// Specifies the service account name for token reviewer

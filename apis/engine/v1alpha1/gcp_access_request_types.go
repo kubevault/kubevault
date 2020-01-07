@@ -49,11 +49,9 @@ type GCPAccessKeyRequest struct {
 // GCPAccessKeyRequestSpec contains information to request for vault gcp credentials
 type GCPAccessKeyRequestSpec struct {
 	// Contains vault gcp role info
-	// +required
 	RoleRef RoleRef `json:"roleRef" protobuf:"bytes,1,opt,name=roleRef"`
 
 	// Contains a reference to the object or user identities the role binding is applied to
-	// +required
 	Subjects []rbac.Subject `json:"subjects" protobuf:"bytes,2,rep,name=subjects"`
 
 	// Specifies the algorithm used to generate key.

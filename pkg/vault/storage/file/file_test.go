@@ -23,7 +23,9 @@ import (
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 
 	"github.com/stretchr/testify/assert"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/fake"
+	ofst "kmodules.xyz/offshoot-api/api/v1"
 )
 
 func TestOptions_GetStorageConfig(t *testing.T) {
@@ -31,6 +33,12 @@ func TestOptions_GetStorageConfig(t *testing.T) {
 	vaultServer := &api.VaultServer{}
 	opts, err := NewOptions(kfake, vaultServer, &api.FileSpec{
 		Path: "/test",
+		VolumeClaimTemplate: ofst.PersistentVolumeClaim{
+			PartialObjectMeta: ofst.PartialObjectMeta{
+				Name: "test-pvc",
+			},
+			Spec: v1.PersistentVolumeClaimSpec{},
+		},
 	})
 	assert.Nil(t, err)
 
