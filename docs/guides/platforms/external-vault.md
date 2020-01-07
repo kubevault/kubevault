@@ -162,7 +162,7 @@ spec:
   parameters:
     serviceAccountName: policy-admin
     vaultRole: policy-admin-role
-    authPath: kubernetes
+    path: kubernetes
 
 $ kubectl apply -f docs/examples/guides/provider/external-vault/vault-app.yaml
 appbinding.appcatalog.appscode.com/vault-app created

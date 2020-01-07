@@ -10,5 +10,5 @@ spec:
     apiVersion: "kubevault.com/v1alpha1"
     kind: "VaultServerConfiguration"
     usePodServiceAccountForCSIDriver: true
-    authPath: "kubernetes"
-    policyControllerRole: pki-cred-role
+    path: "kubernetes"
+    vaultRole: pki-cred-role

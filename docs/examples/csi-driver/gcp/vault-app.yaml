@@ -12,5 +12,5 @@ spec:
       scheme: HTTPS
   parameters:
     serviceAccountName: demo-sa
-    policyControllerRole: gcp-role
-    authPath: kubernetes
+    vaultRole: gcp-role
+    path: kubernetes

@@ -1,0 +1,16 @@
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicyBinding
+metadata:
+  name: mysql-engine-role
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  policies:
+  - ref: mysql-engine-policy
+  subjectRef:
+    kubernetes:
+      serviceAccountNames:
+        - "app-sa"
+      serviceAccountNamespaces:
+        - "trial"

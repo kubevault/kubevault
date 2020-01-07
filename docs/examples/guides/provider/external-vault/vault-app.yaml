@@ -8,5 +8,5 @@ spec:
     url: http://vault.default.svc:8200
   parameters:
     serviceAccountName: policy-admin
-    policyControllerRole: policy-admin-role
-    authPath: kubernetes
+    vaultRole: policy-admin-role
+    path: kubernetes

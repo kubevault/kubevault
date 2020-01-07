@@ -9,6 +9,6 @@ spec:
     insecureSkipTLSVerify: true
   parameters:
     serviceAccountName: vault
-    policyControllerRole: vault-role # role name against which login will be done
-    authPath: kubernetes # Kubernetes auth is enabled in this path
+    vaultRole: vault-role # role name against which login will be done
+    path: kubernetes # Kubernetes auth is enabled in this path
     usePodServiceAccountForCsiDriver: true
