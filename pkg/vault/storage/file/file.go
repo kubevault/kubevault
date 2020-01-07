@@ -88,6 +88,8 @@ func NewOptions(kubeClient kubernetes.Interface, vaultServer *api.VaultServer, s
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to create pvc %s/%s", objMeta.Namespace, objMeta.Name)
 		}
+	} else {
+		objMeta.Name = ""
 	}
 	return &Options{
 		*s,
