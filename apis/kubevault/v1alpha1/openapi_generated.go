@@ -17677,7 +17677,7 @@ func schema_operator_apis_kubevault_v1alpha1_FileSpec(ref common.ReferenceCallba
 						},
 					},
 				},
-				Required: []string{"path"},
+				Required: []string{"path", "volumeClaimTemplate"},
 			},
 		},
 		Dependencies: []string{

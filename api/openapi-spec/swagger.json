@@ -17252,7 +17252,8 @@
       "description": "vault doc: https://www.vaultproject.io/docs/configuration/storage/filesystem.html\n\nFileSpec defines configuration to set up File system Storage as backend storage in vault",
       "type": "object",
       "required": [
-        "path"
+        "path",
+        "volumeClaimTemplate"
       ],
       "properties": {
         "path": {

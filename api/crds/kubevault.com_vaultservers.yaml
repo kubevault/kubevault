@@ -636,6 +636,7 @@ spec:
                       type: object
                   required:
                   - path
+                  - volumeClaimTemplate
                   type: object
                 gcs:
                   description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/google-cloud-storage.html

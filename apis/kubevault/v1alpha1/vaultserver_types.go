@@ -556,13 +556,14 @@ type MySQLSpec struct {
 type FileSpec struct {
 	// The absolute path on disk to the directory where the data will be stored.
 	// If the directory does not exist, Vault will create it.
+	// +required
 	Path string `json:"path" protobuf:"bytes,1,opt,name=path"`
 
 	// volumeClaimTemplate is a claim that pods are allowed to reference.
 	// The VaultServer controller is responsible for deploying the claim
 	// and update the volumeMounts in the Vault server container in the template.
-	// +optional
-	VolumeClaimTemplate *ofst.PersistentVolumeClaim `json:"volumeClaimTemplate,omitempty" protobuf:"bytes,2,opt,name=volumeClaimTemplate"`
+	// +required
+	VolumeClaimTemplate ofst.PersistentVolumeClaim `json:"volumeClaimTemplate" protobuf:"bytes,2,opt,name=volumeClaimTemplate"`
 }
 
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/dynamodb.html
