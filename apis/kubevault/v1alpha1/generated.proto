@@ -411,13 +411,11 @@ message EtcdSpec {
 message FileSpec {
   // The absolute path on disk to the directory where the data will be stored.
   // If the directory does not exist, Vault will create it.
-  // +required
   optional string path = 1;
 
   // volumeClaimTemplate is a claim that pods are allowed to reference.
   // The VaultServer controller is responsible for deploying the claim
   // and update the volumeMounts in the Vault server container in the template.
-  // +required
   optional kmodules.xyz.offshoot_api.api.v1.PersistentVolumeClaim volumeClaimTemplate = 2;
 }
 

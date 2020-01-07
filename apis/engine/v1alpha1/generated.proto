@@ -259,11 +259,9 @@ message AzureAccessKeyRequestList {
 
 message AzureAccessKeyRequestSpec {
   // Contains vault azure role info
-  // +required
   optional RoleRef roleRef = 1;
 
   // Contains a reference to the object or user identities the role binding is applied to
-  // +required
   repeated k8s.io.api.rbac.v1.Subject subjects = 2;
 }
 
@@ -287,7 +285,6 @@ message AzureConfiguration {
   // 	- tenant-id: <value>, The tenant id for the Azure Active Directory.
   // 	- client-id: <value>, The OAuth2 client id to connect to Azure.
   // 	- client-secret: <value>, The OAuth2 client secret to connect to Azure.
-  // +required
   optional string credentialSecret = 1;
 
   // The Azure environment.
@@ -472,11 +469,9 @@ message GCPAccessKeyRequestList {
 // GCPAccessKeyRequestSpec contains information to request for vault gcp credentials
 message GCPAccessKeyRequestSpec {
   // Contains vault gcp role info
-  // +required
   optional RoleRef roleRef = 1;
 
   // Contains a reference to the object or user identities the role binding is applied to
-  // +required
   repeated k8s.io.api.rbac.v1.Subject subjects = 2;
 
   // Specifies the algorithm used to generate key.
