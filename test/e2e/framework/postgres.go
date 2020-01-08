@@ -17,6 +17,7 @@ limitations under the License.
 package framework
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/appscode/go/crypto/rand"
@@ -173,6 +174,8 @@ func (f *Framework) DeployPostgres() (*appcat.AppReference, error) {
 	Eventually(func() bool {
 		if obj, err := f.KubeClient.AppsV1().Deployments(f.namespace).Get(postgresqlDeploy.GetName(), metav1.GetOptions{}); err == nil {
 			return *obj.Spec.Replicas == obj.Status.ReadyReplicas
+		} else {
+			fmt.Println(err)
 		}
 		return false
 	}, timeOut, pollingInterval).Should(BeTrue())
