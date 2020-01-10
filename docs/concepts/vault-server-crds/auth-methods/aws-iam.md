@@ -18,6 +18,8 @@ The KubeVault operator uses an [AppBinding](/docs/concepts/vault-server-crds/aut
 
 - You have to specify `spec.secret` in the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md).
 
+- The specified secret must be in AppBinding's namespace.
+
 - The type of the specified secret must be `"kubevault.com/aws"`.
 
 - The specified secret data can have the following key:
@@ -25,19 +27,20 @@ The KubeVault operator uses an [AppBinding](/docs/concepts/vault-server-crds/aut
   - `Secret.Data["secret_access_key"]` : `Required`. Specifies AWS access secret.
   - `Secret.Data["security_token"]` : `Optional`. Specifies AWS security token.
 
-- The specified secret annotation can have the following key:
-  - `Secret.Annotations["kubevault.com/aws.header-value"]` : `Optional`. Specifies the header value that required if X-Vault-AWS-IAM-Server-ID Header is set in Vault.
-  - `Secret.Annotations["kubevault.com/auth-path"]` : `Optional`. Specifies the path where AWS auth is enabled in Vault. If AWS auth is enabled in a different path (not `aws`), then you have to specify it.
-
-- The specified secret must be in AppBinding's namespace.
-
-- You have to specify IAM auth type [role](https://www.vaultproject.io/api/auth/aws/index.html#create-role) name in `spec.parameters` of the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md).
+- The additional information required for AWS IAM authentication can be provided as AppBinding's `spec.parameters`.
 
   ```yaml
   spec:
     parameters:
-      policyControllerRole: demo # role name against which login will be done
+      path: my-aws
+      vaultRole: demo
+      aws:
+        headerValue: vault.example.com
   ```
+  
+  - `parameters.path` : `optional`. Specifies the path where AWS auth is enabled in Vault. Default to `aws`.
+  - `parameters.vaultRole` : `required`. Specifies the name of the Vault auth [role](https://www.vaultproject.io/api/auth/aws/index.html#create-role) against which login will be performed.
+  - `parameters.aws.headerValue` : `optional`. Specifies the header value that required if X-Vault-AWS-IAM-Server-ID Header is set in Vault.
 
 Sample AppBinding and Secret is given below:
 
@@ -51,7 +54,10 @@ spec:
   secret:
     name: aws-cred
   parameters:
-    policyControllerRole: demo # role name against which login will be done
+    path: my-aws
+    vaultRole: demo
+    aws:
+      headerValue: vault.example.com
   clientConfig:
     service:
       name: vault
@@ -66,9 +72,6 @@ kind: Secret
 metadata:
   name: aws-cred
   namespace: demo
-  annotations:
-    kubevault.com/aws.header-value: hello
-    kubevault.com/auth-path: my-aws
 type: kubevault.com/aws
 data:
   access_key_id: cm9vdA==

@@ -149,6 +149,7 @@ List of supported backends:
 - [PosgreSQL](/docs/concepts/vault-server-crds/storage/postgresql.md)
 - [AWS S3](/docs/concepts/vault-server-crds/storage/s3.md)
 - [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
+- [Filesystem](/docs/concepts/vault-server-crds/storage/filesystem.md)
 
 #### spec.unsealer
 

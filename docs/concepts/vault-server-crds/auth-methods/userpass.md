@@ -24,10 +24,17 @@ The KubeVault operator uses an [AppBinding](/docs/concepts/vault-server-crds/aut
   - `Secret.Data["username"]` : `Required`. Specifies the username used for authentication.
   - `Secret.Data["password"]` : `Required`. Specifies the password used for authentication.
 
-- The specified secret annotation can have the following key:
-  - `Secret.Annotations["kubevault.com/auth-path"]` : `Optional`. Specifies the path where userpass auth is enabled in Vault. If userpass auth is enabled in different path (not `userpass`), then you have to specify it.
-
 - The specified secret must be in AppBinding's namespace.
+
+- The additional information required for the Userpass authentication method can be provided as AppBinding's `spec.parameters`.
+  
+  ```yaml
+  spec:
+    parameters:
+      path: my-userpass
+  ```
+
+  - `path` : `optional`. Specifies the path where the Userpass auth is enabled in Vault. If this path is not provided, the path will be set by default path `userpass`.
 
 Sample AppBinding and Secret is given below:
 
@@ -40,6 +47,8 @@ metadata:
 spec:
   secret:
     name: userpass-cred
+  parameters:
+      path: my-userpass
   clientConfig:
     service:
       name: vault
@@ -54,8 +63,6 @@ kind: Secret
 metadata:
   name: userpass-cred
   namespace: demo
-  annotations:
-    kubevault.com/auth-path: my-userpass
 type: kubernetes.io/basic-auth
 data:
   username: cm9vdA==

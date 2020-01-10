@@ -18,23 +18,24 @@ The KubeVault operator uses an [AppBinding](/docs/concepts/vault-server-crds/aut
 
 - You have to specify `spec.secret` in the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md).
 
+- The specified secret must be in AppBinding's namespace.
+
 - The type of the specified secret must be `"kubevault.com/gcp"`.
 
 - The specified secret data can have the following key:
-  - `Secret.Data["sa.json"]` : `Required`. Specifies the google application credentials
+  - `Secret.Data["sa.json"]` : `Required`. Specifies the google application credentials.
 
-- The specified secret annotation can have the following key:
-  - `Secret.Annotations["kubevault.com/auth-path"]` : `Optional`. Specifies the path where GCP auth is enabled in Vault. If this path is not provided, the path will be set by default path "gcp". If your GCP auth is enabled some other path but "gcp", you have to specify it here.
-
-- The specified secret must be in AppBinding's namespace.
-
-- You have to specify IAM auth type [role](https://www.vaultproject.io/api/auth/gcp/index.html#create-role) name in `spec.parameters` of the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md).
-
+- The additional information required for the GCP IAM authentication method can be provided as AppBinding's `spec.parameters`.
+  
   ```yaml
   spec:
     parameters:
-      policyControllerRole: my-iam-role # role name against which login will be done
+      path: my-gcp
+      vaultRole: demo-role
   ```
+
+  - `path` : `optional`. Specifies the path where GCP auth is enabled in Vault. If this path is not provided, the path will be set by default path `gcp`.
+  - `vaultRole` : `required`. Specifies the name of the Vault auth [role](https://www.vaultproject.io/api/auth/gcp/index.html#create-role) against which login will be performed.
 
 Sample AppBinding and Secret is given below:
 
@@ -48,7 +49,8 @@ spec:
   secret:
     name: gcp-cred
   parameters:
-    policyControllerRole: my-iam-role
+    path: my-gcp
+    vaultRole: demo-role
   clientConfig:
     service:
       name: vault
@@ -63,8 +65,6 @@ kind: Secret
 metadata:
   name: gcp-cred
   namespace: demo
-  annotations:
-      kubevault.com/auth-path: my-gcp
 type: kubevault.com/gcp
 data:
   sa.json: ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb..........

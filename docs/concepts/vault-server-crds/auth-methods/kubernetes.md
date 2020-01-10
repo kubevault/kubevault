@@ -28,9 +28,10 @@ To perform Kubernetes Authentication using ServiceAccount Name,
   ```yaml
   spec:
     parameters:
-      serviceAccountName: vault-sa
-      policyControllerRole: demo # role name against which login will be done
-      authPath: k8s # Kubernetes auth is enabled in this path
+      path: k8s # Kubernetes auth is enabled in this path
+      vaultRole: demo  # role name against which login will be done
+      kubernetes:
+        serviceAccountName: vault-sa # service account name
   ```
 
 - The specified ServiceAccount must be in AppBinding's namespace.
@@ -45,9 +46,10 @@ metadata:
   namespace: demo
 spec:
   parameters:
-    serviceAccountName: vault-sa
-    policyControllerRole: demo # role name against which login will be done
-    authPath: k8s # Kubernetes auth is enabled in this path
+    path: k8s
+    vaultRole: demo
+    kubernetes:
+      serviceAccountName: vault-sa
   clientConfig:
     service:
       name: vault
@@ -91,23 +93,24 @@ To perform Kubernetes Authentication using ServiceAccount Token Secret,
     type: kubernetes.io/service-account-token
     ```
 
+- The specified secret must be in AppBinding's namespace.
+
 - The specified token secret must have the following key:
   - `Secret.Data["token"]` : `Required`. Specifies the serviceaccount token.
 
-- The specified secret annotation can have the following key:
-  - `Secret.Annotations["kubevault.com/auth-path"]` : `Optional`. Specifies the path where Kubernetes auth is enabled in Vault. If Kubernetes auth is enabled in a different path (not `kubernetes`), then you have to specify it.
-
 - The type of the specified token secret must be `kubernetes.io/service-account-token`.
 
-- The specified secret must be in AppBinding's namespace.
-
-- You have to specify [role](https://www.vaultproject.io/api/auth/kubernetes/index.html#create-role) name in `spec.parameters` of the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md).
-
+- The additional information required for the Kubernetes authentication method can be provided as AppBinding's `spec.parameters`.
+  
   ```yaml
   spec:
     parameters:
-      policyControllerRole: demo # role name against which login will be done
+      path: k8s
+      vaultRole: demo-role
   ```
+
+  - `path` : `optional`. Specifies the path where Kubernetes auth is enabled in Vault. If this path is not provided, the path will be set by default path `kubernetes`.
+  - `vaultRole` : `required`. Specifies the name of the Vault auth [role](https://www.vaultproject.io/api/auth/kubernetes/index.html#create-role) against which login will be performed.
 
 Sample AppBinding is given below:
 
@@ -121,7 +124,8 @@ spec:
   secret:
     name: sa-token
   parameters:
-    policyControllerRole: demo # role name against which login will be done
+    path: k8s
+    vaultRole: demo-role
   clientConfig:
     service:
       name: vault

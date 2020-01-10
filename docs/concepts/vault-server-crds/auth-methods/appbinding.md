@@ -108,9 +108,14 @@ spec:
 ```yaml
 spec:
   parameters:
-    authPath: "kubernetes"
-    policyControllerRole: "demo"
-    foo: "bar"
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    kubernetes:
+      serviceAccountName: vault
+      tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+      usePodServiceAccountForCSIDriver: true
+    path: kubernetes
+    vaultRole: vault-policy-controller
 ```
 
 ### spec.secretTransforms
