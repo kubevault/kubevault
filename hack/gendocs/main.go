@@ -32,10 +32,6 @@ import (
 	"github.com/spf13/cobra/doc"
 )
 
-const (
-	version = "0.2.0"
-)
-
 var (
 	tplFrontMatter = template.Must(template.New("index").Parse(`---
 title: Reference | Vault Operator
@@ -91,12 +87,10 @@ func main() {
 		data := struct {
 			ID      string
 			Name    string
-			Version string
 			RootCmd bool
 		}{
 			strings.Replace(base, "_", "-", -1),
 			strings.Title(strings.Replace(base, "_", " ", -1)),
-			version,
 			!strings.ContainsRune(base, '_'),
 		}
 		var buf bytes.Buffer
@@ -119,7 +113,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = tplFrontMatter.ExecuteTemplate(f, "index", struct{ Version string }{version})
+	err = tplFrontMatter.ExecuteTemplate(f, "index", struct{}{})
 	if err != nil {
 		log.Fatalln(err)
 	}
