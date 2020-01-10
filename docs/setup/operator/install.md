@@ -322,7 +322,7 @@ $ kubectl describe mongodbrole -n <namespace> <name>
 ```
 
 ## Detect Vault operator version
-To detect Vault operator version, exec into the operator pod and run `vault version` command.
+To detect Vault operator version, exec into the operator pod and run `vault-operator version` command.
 
 ```console
 $ POD_NAMESPACE=kube-system
@@ -337,5 +337,4 @@ CommitHash = 85b0f16ab1b915633e968aac0ee23f877808ef49
 GitBranch = release-0.5
 GitTag = {{< param "info.version" >}}
 CommitTimestamp = 2017-10-10T05:24:23
-
 ```
