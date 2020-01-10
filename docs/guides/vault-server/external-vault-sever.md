@@ -136,10 +136,13 @@ spec:
     url: https://demo-vault-server.com ## remote vault server url
     caBundle: LS0tLS1CRU... ## base64 encoded vault server ca.crt
   parameters:
-    serviceAccountName: vault  ## service account name
-    vaultRole: vault-role ## auth-role name against which login will be done
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
     path: kubernetes ## Kubernetes auth is enabled in this path
-    usePodServiceAccountForCsiDriver: true ##  required while using CSI driver
+    vaultRole: vault-role ## auth-role name against which login will be done
+    kubernetes:
+      serviceAccountName: vault  ## service account name
+      usePodServiceAccountForCsiDriver: true ##  required while using CSI driver
 ```
 
 Access vault server using Kubernetes service by replacing `spec.clientConfig`:

@@ -11,6 +11,9 @@ spec:
       port: 8200
       scheme: HTTPS
   parameters:
-    serviceAccountName: demo-sa
-    vaultRole: azure-role
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
     path: kubernetes
+    vaultRole: azure-role
+    kubernetes:
+      serviceAccountName: demo-sa

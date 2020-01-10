@@ -31,6 +31,8 @@ The KubeVault operator uses an [AppBinding](/docs/concepts/vault-server-crds/aut
   ```yaml
   spec:
     parameters:
+      apiVersion: config.kubevault.com/v1alpha1
+      kind: VaultServerConfiguration
       path: my-userpass
   ```
 
@@ -48,7 +50,9 @@ spec:
   secret:
     name: userpass-cred
   parameters:
-      path: my-userpass
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    path: my-userpass
   clientConfig:
     service:
       name: vault

@@ -7,8 +7,9 @@ spec:
   clientConfig:
     url: http://159.203.114.170:30001
   parameters:
-    apiVersion: "kubevault.com/v1alpha1"
-    kind: "VaultServerConfiguration"
-    usePodServiceAccountForCSIDriver: true
-    path: "kubernetes"
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    path: kubernetes
     vaultRole: pki-cred-role
+    kubernetes:
+      usePodServiceAccountForCSIDriver: true

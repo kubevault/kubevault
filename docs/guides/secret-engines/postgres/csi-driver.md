@@ -72,13 +72,13 @@ spec:
       scheme: HTTPS
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
-    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
     kind: VaultServerConfiguration
     path: kubernetes
     vaultRole: vault-policy-controller
-    serviceAccountName: vault
-    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
-    usePodServiceAccountForCsiDriver: true
+    kubernetes:
+      serviceAccountName: vault
+      tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+      usePodServiceAccountForCsiDriver: true
 ```
 
 ## Enable and Configure PostgreSQL Database Secrets Engine
