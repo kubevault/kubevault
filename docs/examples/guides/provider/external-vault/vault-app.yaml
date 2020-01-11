@@ -7,6 +7,9 @@ spec:
   clientConfig:
     url: http://vault.default.svc:8200
   parameters:
-    serviceAccountName: policy-admin
-    policyControllerRole: policy-admin-role
-    authPath: kubernetes
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    path: kubernetes
+    vaultRole: policy-admin-role
+    kubernetes:
+      serviceAccountName: policy-admin

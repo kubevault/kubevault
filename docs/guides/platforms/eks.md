@@ -135,7 +135,7 @@ $ cat examples/guides/provider/eks/my-vault.yaml
           kmsKeyID: "218daa5f-7173-429e-a030-288b30761f79"
           ssmKeyPrefix: "/cluster/demo"
 
-$ kubectl apply -f examples/guides/provider/eks/my-vault.yaml
+$ kubectl apply -f docs/examples/guides/provider/eks/my-vault.yaml
 vaultserver.kubevault.com/my-vault created
 ```
 

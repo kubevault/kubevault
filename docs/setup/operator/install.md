@@ -145,9 +145,10 @@ $ kubectl create clusterrolebinding "cluster-admin-$(whoami)" \
   --user="$(gcloud config get-value core/account)"
 ```
 
-
 ## Verify installation
+
 To check if Vault operator pods have started, run the following command:
+
 ```console
 $ kubectl get pods --all-namespaces -l app=vault-operator --watch
 
@@ -158,9 +159,9 @@ kube-system   vault-operator-746d568685-m2w65   1/1     Running   0          5m4
 Once the operator pods are running, you can cancel the above command by typing `Ctrl+C`.
 
 Now, to confirm CRD groups have been registered by the operator, run the following command:
+
 ```console
 $ kubectl get crd -l app=vault
-
 NAME                                        CREATED AT
 awsaccesskeyrequests.engine.kubevault.com   2019-01-08T05:57:21Z
 awsroles.engine.kubevault.com               2019-01-08T05:57:21Z
@@ -168,13 +169,12 @@ vaultpolicies.policy.kubevault.com          2019-01-08T05:57:21Z
 vaultpolicybindings.policy.kubevault.com    2019-01-08T05:57:21Z
 vaultservers.kubevault.com                  2019-01-08T05:57:17Z
 vaultserverversions.catalog.kubevault.com   2019-01-08T05:57:21Z
-
 ```
 
 Now, you are ready to [deploy and manage Vault](/docs/guides/README.md) using Vault operator.
 
-
 ## Configuring RBAC
+
 Vault operator creates multiple CRDs. Vault operator installer will create 2 user facing cluster roles:
 
 | ClusterRole          | Aggregates To | Desription                            |
@@ -185,8 +185,8 @@ Vault operator creates multiple CRDs. Vault operator installer will create 2 use
 
 These user facing roles supports [ClusterRole Aggregation](https://kubernetes.io/docs/admin/authorization/rbac/#aggregated-clusterroles) feature in Kubernetes 1.9 or later clusters.
 
-
 ## Using kubectl for VaultServer
+
 ```console
 # List all VaultServer objects
 $ kubectl get vaultserver --all-namespaces
@@ -202,6 +202,7 @@ $ kubectl describe vaultserver -n <namespace> <name>
 ```
 
 ## Using kubectl for VaultPolicy
+
 ```console
 # List all VaultPolicy objects
 $ kubectl get vaultpolicy --all-namespaces
@@ -217,6 +218,7 @@ $ kubectl describe vaultpolicy -n <namespace> <name>
 ```
 
 ## Using kubectl for VaultPolicyBinding
+
 ```console
 # List all VaultPolicyBinding objects
 $ kubectl get vaultpolicybinding --all-namespaces
@@ -231,7 +233,88 @@ $ kubectl get vaultpolicybinding -n <namespace> <name> -o yaml
 $ kubectl describe vaultpolicybinding -n <namespace> <name>
 ```
 
+## Using kubectl for SecretEngine
+
+```console
+# List all SecretEngine objects
+$ kubectl get secretengine --all-namespaces
+
+# List SecretEngine objects for a namespace
+$ kubectl get secretengine -n <namespace>
+
+# Get SecretEngine YAML
+$ kubectl get secretengine -n <namespace> <name> -o yaml
+
+# Describe SecretEngine. Very useful to debug problems.
+$ kubectl describe secretengine -n <namespace> <name>
+```
+
+## Using kubectl for GCPRole
+
+```console
+# List all GCPRole objects
+$ kubectl get gcprole --all-namespaces
+
+# List GCPRole objects for a namespace
+$ kubectl get gcprole -n <namespace>
+
+# Get GCPRole YAML
+$ kubectl get gcprole -n <namespace> <name> -o yaml
+
+# Describe GCPRole. Very useful to debug problems.
+$ kubectl describe gcprole -n <namespace> <name>
+```
+
+## Using kubectl for GCPAccessKeyRequest
+
+```console
+# List all GCPAccessKeyRequest objects
+$ kubectl get gcpaccesskeyrequest --all-namespaces
+
+# List GCPAccessKeyRequest objects for a namespace
+$ kubectl get gcpaccesskeyrequest -n <namespace>
+
+# Get GCPAccessKeyRequest YAML
+$ kubectl get gcpaccesskeyrequest -n <namespace> <name> -o yaml
+
+# Describe GCPAccessKeyRequest. Very useful to debug problems.
+$ kubectl describe gcpaccesskeyrequest -n <namespace> <name>
+```
+
+## Using kubectl for AzureRole
+
+```console
+# List all AzureRole objects
+$ kubectl get azurerole --all-namespaces
+
+# List AzureRole objects for a namespace
+$ kubectl get azurerole -n <namespace>
+
+# Get AzureRole YAML
+$ kubectl get azurerole -n <namespace> <name> -o yaml
+
+# Describe AzureRole. Very useful to debug problems.
+$ kubectl describe azurerole -n <namespace> <name>
+```
+
+## Using kubectl for AzureAccessKeyRequest
+
+```console
+# List all AzureAccessKeyRequest objects
+$ kubectl get azureaccesskeyrequest --all-namespaces
+
+# List AzureAccessKeyRequest objects for a namespace
+$ kubectl get azureaccesskeyrequest -n <namespace>
+
+# Get AzureAccessKeyRequest YAML
+$ kubectl get azureaccesskeyrequest -n <namespace> <name> -o yaml
+
+# Describe AzureAccessKeyRequest. Very useful to debug problems.
+$ kubectl describe azureaccesskeyrequest -n <namespace> <name>
+```
+
 ## Using kubectl for AWSRole
+
 ```console
 # List all AWSRole objects
 $ kubectl get awsrole --all-namespaces
@@ -247,6 +330,7 @@ $ kubectl describe awsrole -n <namespace> <name>
 ```
 
 ## Using kubectl for AWSAccessKeyRequest
+
 ```console
 # List all AWSAccessKeyRequest objects
 $ kubectl get awsaccesskeyrequest --all-namespaces
@@ -262,6 +346,7 @@ $ kubectl describe awsaccesskeyrequest -n <namespace> <name>
 ```
 
 ## Using kubectl for DatabaseAccessRequest
+
 ```console
 # List all DatabaseAccessRequest objects
 $ kubectl get databaseaccessrequest --all-namespaces
@@ -277,6 +362,7 @@ $ kubectl describe databaseaccessrequest -n <namespace> <name>
 ```
 
 ## Using kubectl for PostgresRole
+
 ```console
 # List all PostgresRole objects
 $ kubectl get postgresrole --all-namespaces
@@ -292,6 +378,7 @@ $ kubectl describe postgresrole -n <namespace> <name>
 ```
 
 ## Using kubectl for MySQLRole
+
 ```console
 # List all MySQLRole objects
 $ kubectl get mysqlrole --all-namespaces
@@ -307,6 +394,7 @@ $ kubectl describe mysqlrole -n <namespace> <name>
 ```
 
 ## Using kubectl for MongoDBRole
+
 ```console
 # List all MongoDBRole objects
 $ kubectl get mongodbrole --all-namespaces
@@ -322,7 +410,7 @@ $ kubectl describe mongodbrole -n <namespace> <name>
 ```
 
 ## Detect Vault operator version
-To detect Vault operator version, exec into the operator pod and run `vault version` command.
+To detect Vault operator version, exec into the operator pod and run `vault-operator version` command.
 
 ```console
 $ POD_NAMESPACE=kube-system
@@ -337,5 +425,4 @@ CommitHash = 85b0f16ab1b915633e968aac0ee23f877808ef49
 GitBranch = release-0.5
 GitTag = {{< param "info.version" >}}
 CommitTimestamp = 2017-10-10T05:24:23
-
 ```

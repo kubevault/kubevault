@@ -57,13 +57,13 @@ spec:
       scheme: HTTPS
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
-    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
     kind: VaultServerConfiguration
     path: kubernetes
-    policyControllerRole: vault-policy-controller
-    serviceAccountName: vault
-    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
-    usePodServiceAccountForCsiDriver: true
+    vaultRole: vault-policy-controller
+    kubernetes:
+      serviceAccountName: vault
+      tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+      usePodServiceAccountForCSIDriver: true
 ```
 
 ## VaultPolicy
@@ -94,7 +94,7 @@ spec:
 Now, we are going to create VaultPolicy.
 
 ```console
-$ kubectl apply -f examples/guides/policy-management/demo-policy.yaml
+$ kubectl apply -f docs/examples/guides/policy-management/read-only-policy.yaml
 vaultpolicy.policy.kubevault.com/read-only-policy created
 ```
 
@@ -202,7 +202,7 @@ Here, a Kubernetes auth method role will be created that binds the `read-only-po
 Let's create `read-only-policy` by using VaultPolicy:
 
 ```console
-$ kubectl apply -f examples/guides/policy-management/demo-policy.yaml
+$ kubectl apply -f docs/examples/guides/policy-management/demo-policy.yaml
 vaultpolicy.policy.kubevault.com/read-only-policy created
 ```
 
@@ -217,7 +217,7 @@ read-only-policy               Success   15s
 Now, we are going to create VaultPolicyBinding `policy-reader-role`.
 
 ```cosole
-$ kubectl apply -f examples/guides/policy-management/demo-role.yaml
+$ kubectl apply -f docs/examples/guides/policy-management/policy-reader-role.yaml
 vaultpolicybinding.policy.kubevault.com/policy-reader-role created
 ```
 

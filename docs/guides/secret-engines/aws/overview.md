@@ -71,12 +71,12 @@ spec:
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
     kind: VaultServerConfiguration
-    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
     path: kubernetes
-    policyControllerRole: vault-policy-controller
-    serviceAccountName: vault
-    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
-    usePodServiceAccountForCsiDriver: true
+    vaultRole: vault-policy-controller
+    kubernetes:
+      serviceAccountName: vault
+      tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+      usePodServiceAccountForCSIDriver: true
 ```
 
 ## Enable and Configure AWS Secret Engine
@@ -133,7 +133,7 @@ NAME                STATUS
 aws-secret-engine   Success
 ```
 
-Since the status is `Success`, the AWS secret engine is enabled and successfully configured. You can use `kubectl describe secretengine -n <namepsace> <name>` to check the error-events if any.
+Since the status is `Success`, the AWS secret engine is enabled and successfully configured. You can use `kubectl describe secretengine -n <namepsace> <name>` to check for error events if any.
 
 ## Create AWS Role
 

@@ -68,12 +68,12 @@ spec:
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
     kind: VaultServerConfiguration
-    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
     path: kubernetes
-    policyControllerRole: vault-policy-controller
-    serviceAccountName: vault
-    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
-    usePodServiceAccountForCsiDriver: true
+    vaultRole: vault-policy-controller
+    kubernetes:
+      serviceAccountName: vault
+      tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+      usePodServiceAccountForCSIDriver: true
 ```
 
 ## Use KV Secret Engine as Root User

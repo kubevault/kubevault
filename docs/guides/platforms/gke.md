@@ -196,7 +196,7 @@ spec:
         kmsCryptoKey: "vault-key"
         credentialSecret: "google-cred"
 
-$ kubectl apply -f examples/guides/provider/gke/my-vault.yaml
+$ kubectl apply -f docs/examples/guides/provider/gke/my-vault.yaml
 vaultserver.kubevault.com/my-vault created
 ```
 

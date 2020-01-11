@@ -1,5 +1,5 @@
 ---
-title: Mount GCP Secrets into Kubernetes pod using CSI Driver
+title: Mount GCP Secrets using CSI Driver
 menu:
   docs_{{ .version }}:
     identifier: csi-driver-gcp
@@ -12,36 +12,80 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Mount GCP Secrets into a Kubernetes Pod using CSI Driver
-
-## Before you Begin
+# Mount GCP Secrets using CSI Driver
 
 At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
 ```console
 $ kubectl version --short
-Client Version: v1.15.0
-Server Version: v1.15.0
+Client Version: v1.16.2
+Server Version: v1.14.0
 ```
 
-To keep things isolated, this tutorial uses a separate namespace called `demo` throughout this tutorial.
+Before you begin:
+
+- Install KubeVault operator in your cluster from [here](/docs/setup/operator/install.md).
+- Install KubeVault CSI driver in your cluster from [here](/docs/setup/csi-driver/install.md).
+
+To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
 ```console
 $ kubectl create ns demo
-namespace "demo" created
+namespace/demo created
 ```
 
-> Note: YAML files used in this tutorial stored in [examples](/docs/examples/csi-driver/gcp) folder in github repository [KubeVault/docs](https://github.com/kubevault/docs)
+> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engines/gcp) folder in GitHub repository [KubeVault/docs](https://github.com/kubevault/docs)
 
-## Configure Vault
+## Vault Server
 
-The following steps are required to retrieve secrets from GCP secrets engine using `Vault server` into a Kubernetes pod.
+If you don't have a Vault Server, you can deploy it by using the KubeVault operator.
 
-- **Vault server:** used to provision and manager GCP secrets
-- **Appbinding:** required to connect `CSI driver` with Vault server
-- **Role:** using this role `CSI driver` can access credentials from Vault server
+- [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
 
-There are two ways to configure Vault server. You can use either use `KubeVault operator` or use `vault` cli to manually configure a Vault server.
+The KubeVault operator can manage policies and secret engines of Vault servers which are not provisioned by the KubeVault operator. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
+
+- [Configure cluster and Vault server](/docs/guides/vault-server/external-vault-sever.md#configuration)
+
+Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server. And we also have the service account that the Vault server can authenticate.
+
+```console
+$ kubectl get serviceaccounts -n demo
+NAME                       SECRETS   AGE
+vault                      1         20h
+
+$ kubectl get appbinding -n demo
+NAME    AGE
+vault   50m
+
+$ kubectl get appbinding -n demo vault -o yaml
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
+metadata:
+  name: vault
+  namespace: demo
+spec:
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: vault
+      port: 8200
+      scheme: HTTPS
+  parameters:
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    path: kubernetes
+    vaultRole: vault-policy-controller
+    kubernetes:
+      serviceAccountName: vault
+      tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+      usePodServiceAccountForCSIDriver: true
+```
+
+## Enable and Configure GCP Secret Engine
+
+The following steps are required to enable and configure the GCP secrets engine in the Vault server.
+
+There are two ways to configure the Vault server. You can either use the `KubeVault operator` or the  `Vault CLI` to manually configure a Vault server.
 
 <ul class="nav nav-tabs" id="conceptsTab" role="tablist">
   <li class="nav-item">
@@ -52,328 +96,170 @@ There are two ways to configure Vault server. You can use either use `KubeVault 
   </li>
 </ul>
 <div class="tab-content" id="conceptsTabContent">
-  <details open class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
+  <div open class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
 
-<summary>Using KubeVault operator</summary>
+### Using KubeVault operator
 
-Let's assume that you have KubeVault operator installed in your cluster. If you don't have KubeVault operator yet, you can follow the [installation guide](/docs/setup/operator/install.md).
+You need to be familiar with the following CRDs:
 
-You should be familiar with the following CRDs:
-
-- [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md)
-- [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md)
-- [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md)
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
+- [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
 - [GCPRole](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md)
 
-We are going to start our tutorial by deploying Vault using KubeVault operator.
+Let's enable and configure GCP secret engine by deploying the following `SecretEngine` yaml:
 
-```console
-$ cat examples/csi-driver/gcp/vault.yaml
-apiVersion: kubevault.com/v1alpha1
-kind: VaultServer
+```yaml
+apiVersion: engine.kubevault.com/v1alpha1
+kind: SecretEngine
 metadata:
-  name: vault
+  name: gcp-engine
   namespace: demo
 spec:
-  replicas: 1
-  version: "1.0.1"
-  backend:
-    inmem: {}
-  unsealer:
-    secretShares: 4
-    secretThreshold: 2
-    mode:
-      kubernetesSecret:
-        secretName: vault-keys
-
-$ kubectl apply -f examples/csi-driver/gcp/vault.yaml
-vaultserver.kubevault.com/vault created
-
-$ kubectl get vaultserver -n demo
-NAME    NODES   VERSION   STATUS    AGE
-vault   1       1.0.1     Running   40h
-```
-
-Before creating [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md), we need to create a service account that has the permission to read GCP secret in vault.
-
-```console
-$ kubectl create serviceaccount -n demo demo-sa
-serviceaccount/demo-sa created
-```
-
-Give permissions to `demo-sa` by [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) along with [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md)
-
-```console
-$ cat examples/csi-driver/gcp/policy.yaml
-apiVersion: policy.kubevault.com/v1alpha1
-kind: VaultPolicy
-metadata:
-  name: gcp-policy
-  namespace: demo
-spec:
-  ref:
+  vaultRef:
     name: vault
-    namespace: demo
-  policyDocument: |
-    path "sys/mounts" {
-      capabilities = ["read", "list"]
-    }
-
-    path "sys/mounts/*" {
-      capabilities = ["create", "read", "update", "delete"]
-    }
-
-    path "gcp/*" {
-        capabilities = ["create", "read", "update", "delete"]
-    }
-
-    path "sys/leases/revoke/*" {
-        capabilities = ["update"]
-    }
----
-apiVersion: policy.kubevault.com/v1alpha1
-kind: VaultPolicyBinding
-metadata:
-  name: gcp-role
-  namespace: demo
-spec:
-  roleName: "gcp-role"
-  policies : ["gcp-policy"]
-  serviceAccountNames: ["demo-sa"]
-  serviceAccountNamespaces: ["demo"]
-  ttl: "1000"
-  maxTTL: "2000"
-  period: "1000"
-
-$ kubectl apply -f examples/csi-driver/gcp/policy.yaml
-vaultpolicy.policy.kubevault.com/gcp-policy created
-vaultpolicybinding.policy.kubevault.com/gcp-role created
-```
-We've create `demo-sa` service account along with vault policies. Now we are ready to deploy `appbinding`: 
-
-```console
-$ kubectl apply -f examples/csi-driver/gcp/vault-app.yaml
-appbinding.appcatalog.appscode.com/vault-app created
+  gcp:
+    credentialSecret: gcp-cred
 ```
 
-From your local machine check the Vault server is running with following command:
+To configure the GCP secret engine, you need to provide google service account credentials through a Kubernetes secret.
 
-```console
-$ kubectl get pods -l app=vault -n demo
-NAME                     READY   STATUS    RESTARTS   AGE
-vault-848797ffdf-xdnn8   3/3     Running   0          8m44s
-```
-
-To generate gcp secret under a roleset, we need to `enable` gcp secret engine and `configure` it using google service account credentials. We can do it using [GCPRole](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md) CRD.
-
-Deploy secret containing google service account credentials.
-
-```console
-$ cat examples/csi-driver/gcp/gcp_cred.yaml 
+```yaml
 apiVersion: v1
 kind: Secret
 metadata:
   name: gcp-cred
   namespace: demo
-  annotations:
-    kubevault.com/auth-path: gcp
 data:
-  sa.json: ewogICJ0eXBlIjogInNlcnZp...........
-type: kubernetes.io/gcp
-
-$ kubectl apply -f examples/csi-driver/gcp/gcp_cred.yaml
-secret/gcp-cred created 
+  sa.json: ewogICJ0e...== ## base64 encoded google service account credential
 ```
-Deploy `GCPRole`:
+
+Let's deploy SecretEngine:
 
 ```console
-$ cat examples/csi-driver/gcp/gcpRole.yaml 
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/gcpCred.yaml
+secret/gcp-cred created
+
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/gcpSecretEngine.yaml
+secretengine.engine.kubevault.com/gcp-engine created
+```
+
+Wait till the status become `Success`:
+
+```console
+$ kubectl get secretengines -n demo
+NAME         STATUS
+gcp-engine   Success
+```
+
+Create GCP roleset using the following `GCPRole` yaml:
+
+```yaml
 apiVersion: engine.kubevault.com/v1alpha1
 kind: GCPRole
-metadata: 
+metadata:
   name: gcp-role
   namespace: demo
 spec:
-  ref:
-    name: vault-app
-    namespace: demo
-  config:
-    credentialSecret: gcp-cred
+  vaultRef:
+    name: vault
   secretType: access_token
   project: ackube
-  bindings: 'resource "//cloudresourcemanager.googleapis.com/projects/ackube" {
-        roles = ["roles/viewer"]
-      }'
-  tokenScopes: ["https://www.googleapis.com/auth/cloud-platform"]
-
-$ kubectl apply -f examples/csi-driver/gcp/gcpRole.yaml 
-gcprole.engine.kubevault.com/gcp-role created
+  bindings: |
+    resource "//cloudresourcemanager.googleapis.com/projects/ackube" {
+      roles = ["roles/viewer"]
+    }
+  tokenScopes:
+  - https://www.googleapis.com/auth/cloud-platform
 ```
-Check whether `GCPRole` succeeded or not:
+
+Let's deploy GCPRole:
 
 ```console
-$ kubectl get gcprole -n demo 
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/gcpRole.yaml
+gcprole.engine.kubevault.com/gcp-role created
+
+$ kubectl get gcprole -n demo
 NAME       STATUS
 gcp-role   Success
 ```
-</details>
 
-<details class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
+You can also check from Vault that the roleset is created.
+To resolve the naming conflict, name of the roleset in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`.
 
-<summary>Using Vault CLI</summary>
-
-If you don't want to use KubeVault operator and want to use Vault cli to manually configure an existing Vault server. The Vault server may be running inside a Kubernetes cluster or running outside a Kubernetes cluster. If you don't have a Vault server, you can deploy one by running the following command:
+> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/csi-driver/vault-install.yaml
-  service/vault created
-  statefulset.apps/vault created
+$ vault list gcp/roleset
+Keys
+----
+k8s.-.demo.gcp-role
+
+$ vault read gcp/roleset/k8s.-.demo.gcp-role
+Key                      Value
+---                      -----
+bindings                 map[//cloudresourcemanager.googleapis.com/projects/ackube:[roles/viewer]]
+project                  ackube
+secret_type              access_token
+service_account_email    vaultk8s---demo-gcp-424523423@ackube.iam.gserviceaccount.com
+token_scopes             [https://www.googleapis.com/auth/cloud-platform]
 ```
 
-To generate secret from GCP secret engine, you have to do following things.
+</div>
+<div class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
 
-1.  **Enable GCP Secret Engine:** To enable GCP secret engine run the following command.
+### Using Vault CLI
 
-    ```console
-    $ vault secrets enable gcp
-    Success! Enabled the gcp secrets engine at: gcp/
-    ```
+You can also use [Vault CLI](https://www.vaultproject.io/docs/commands/) to [enable and configure](https://www.vaultproject.io/docs/secrets/gcp/index.html#setup) the GCP secret engine.
 
-2.  **Configure the secrets engine:** Configure the secrets engine with google service account credentials
-    ```console
-    $ vault write gcp/config credentials=@/home/user/Downloads/ackube-38827e3def0a.json
-    Success! Data written to: gcp/config
-    ```
-3.  **Configure a roleset:**
+> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
-    ```console
-    $ vault write gcp/roleset/my-token-roleset \
-                                    project="ackube" \
-                                    secret_type="access_token"  \
-                                    token_scopes="https://www.googleapis.com/auth/cloud-platform" \
-                                 bindings='resource "//cloudresourcemanager.googleapis.com/projects/ackube" {
-                                        roles = ["roles/viewer"]
-                                      }'
-    Success! Data written to: gcp/roleset/my-token-roleset
-    ```
+To generate secret from the GCP secret engine, you have to perform the following steps.
 
-4.  **Create Engine Policy:** To read secret from engine, we need to create a policy with `read` capability. Create a `policy.hcl` file and write the following content:
+- **Enable GCP Secret Engine:** To enable the GCP secret engine, run the following command.
 
-        ```yaml
-        # capability of get secret
-        path "gcp/*" {
-            capabilities = ["read"]
-        }
-        ```
+```console
+$ vault secrets enable gcp
+Success! Enabled the gcp secrets engine at: gcp/
+```
 
-        Write this policy into vault naming `test-policy` with following command:
+- **Configure the secrets engine:** Configure the secrets engine with google service account credentials
 
-        ```console
-        $ vault policy write test-policy policy.hcl
-        Success! Uploaded policy: test-policy
-        ```
+```console
+$ vault write gcp/config credentials=@/home/user/Downloads/ackube-sa.json
+Success! Data written to: gcp/config
+```
 
-    For more detailed explanation visit [Vault official website](https://www.vaultproject.io/docs/secrets/gcp/index.html#setup)
+- **Configure a roleset:** Configure a roleset that generates OAuth2 access tokens
 
-## Configure Cluster
+```console
+$ vault write gcp/roleset/k8s.-.demo.gcp-role \
+                                project="ackube" \
+                                secret_type="access_token"  \
+                                token_scopes="https://www.googleapis.com/auth/cloud-platform" \
+                              bindings='resource "//cloudresourcemanager.googleapis.com/projects/ackube" {
+                                    roles = ["roles/viewer"]
+                                  }'
+Success! Data written to: gcp/roleset/k8s.-.demo.gcp-role
+```
 
-1. **Create Service Account:** Create `service.yaml` file with following content:
+- **Read the roleset:**
 
-   ```yaml
-     apiVersion: rbac.authorization.k8s.io/v1beta1
-     kind: ClusterRoleBinding
-     metadata:
-       name: role-tokenreview-binding
-       namespace: demo
-     roleRef:
-       apiGroup: rbac.authorization.k8s.io
-       kind: ClusterRole
-       name: system:auth-delegator
-     subjects:
-     - kind: ServiceAccount
-       name: gcp-vault
-       namespace: demo
-     ---
-     apiVersion: v1
-     kind: ServiceAccount
-     metadata:
-       name: gcp-vault
-       namespace: demo
-   ```
+```console
+$ vault read gcp/roleset/k8s.-.demo.gcp-role
+Key                      Value
+---                      -----
+bindings                 map[//cloudresourcemanager.googleapis.com/projects/ackube:[roles/viewer]]
+project                  ackube
+secret_type              access_token
+service_account_email    vaultk8s---demo-gcp-424523423@ackube.iam.gserviceaccount.com
+token_scopes             [https://www.googleapis.com/auth/cloud-platform]
+```
 
-   After that, run `kubectl apply -f service.yaml` to create a service account.
+If you use Vault CLI to enable and configure the GCP secret engine then you need to **update the vault policy** for the service account 'vault' created during vault server configuration and add the permission to read at "gcp/roleset/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
 
-2. **Enable Kubernetes Auth:** To enable Kubernetes auth backend, we need to extract the token reviewer JWT, Kubernetes CA certificate and Kubernetes host information.
+Find how to update the policy for service account in [here](/docs/guides/secret-engines/kv/csi-driver.md#update-vault-policy).
 
-   ```console
-   export VAULT_SA_NAME=$(kubectl get sa gcp-vault -n demo -o jsonpath="{.secrets[*]['name']}")
-
-   export SA_JWT_TOKEN=$(kubectl get secret $VAULT_SA_NAME -n demo -o jsonpath="{.data.token}" | base64 --decode; echo)
-
-   export SA_CA_CRT=$(kubectl get secret $VAULT_SA_NAME -n demo -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
-
-   export K8S_HOST=<host-ip>
-   export K8s_PORT=6443
-   ```
-
-   Now, we can enable the Kubernetes authentication backend and create a Vault named role that is attached to this service account. Run:
-
-   ```console
-   $ vault auth enable kubernetes
-   Success! Enabled Kubernetes auth method at: kubernetes/
-
-   $ vault write auth/kubernetes/config \
-       token_reviewer_jwt="$SA_JWT_TOKEN" \
-       kubernetes_host="https://$K8S_HOST:$K8s_PORT" \
-       kubernetes_ca_cert="$SA_CA_CRT"
-   Success! Data written to: auth/kubernetes/config
-
-   $ vault write auth/kubernetes/role/gcprole \
-       bound_service_account_names=gcp-vault \
-       bound_service_account_namespaces=demo \
-       policies=test-policy \
-       ttl=24h
-   Success! Data written to: auth/kubernetes/role/gcprole
-   ```
-
-   Here, `gcprole` is the name of the role.
-
-3. **Create AppBinding:** To connect CSI driver with Vault, we need to create an `AppBinding`. First we need to make sure, if `AppBinding` CRD is installed in your cluster by running:
-
-   ```console
-   $ kubectl get crd -l app=catalog
-   NAME                                          CREATED AT
-   appbindings.appcatalog.appscode.com           2018-12-12T06:09:34Z
-   ```
-
-   If you don't see that CRD, you can register it via the following command:
-
-   ```console
-   kubectl apply -f https://github.com/kmodules/custom-resources/raw/master/api/crds/appbinding.yaml
-
-   ```
-
-   If AppBinding CRD is installed, Create AppBinding with the following data:
-
-   ```yaml
-   apiVersion: appcatalog.appscode.com/v1alpha1
-   kind: AppBinding
-   metadata:
-     name: vault-app
-     namespace: demo
-   spec:
-   clientConfig:
-     url: http://165.227.190.238:30001 # Replace this with Vault URL
-   parameters:
-     apiVersion: "kubevault.com/v1alpha1"
-     kind: "VaultServerConfiguration"
-     usePodServiceAccountForCSIDriver: true
-     authPath: "kubernetes"
-     policyControllerRole: gcprole # we created this in previous step
-   ```
-
-  </details>
+  </div>
 </div>
 
 ## Mount secrets into a Kubernetes pod
@@ -383,117 +269,219 @@ Since Kubernetes 1.14, `storage.k8s.io/v1beta1` `CSINode` and `CSIDriver` object
 ```console
 $ kubectl get csidrivers
 NAME                        CREATED AT
-secrets.csi.kubevault.com   2019-07-22T11:57:02Z
+secrets.csi.kubevault.com   2019-12-09T04:32:50Z
 
-$ kubectl get csinode
+$ kubectl get csinodes
 NAME             CREATED AT
-2gb-pool-6tvtw   2019-07-22T10:54:52Z
+2gb-pool-57jj7   2019-12-09T04:32:52Z
+2gb-pool-jrvtj   2019-12-09T04:32:58Z
 ```
-
-After configuring `Vault server`, now we have `vault-app` AppBinding in `demo` namespace.
 
 So, we can create `StorageClass` now.
 
-**Create StorageClass:** Create `storage-class.yaml` file with following content, then run `kubectl apply -f storage-class.yaml`
+### Create StorageClass
+
+Create `StorageClass` object with the following content:
 
 ```yaml
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
   name: vault-gcp-storage
-  namespace: demo
   annotations:
     storageclass.kubernetes.io/is-default-class: "false"
 provisioner: secrets.csi.kubevault.com
 parameters:
-  ref: demo/vault-app # namespace/AppBinding, we created this in previous step
+  ref: demo/vault # namespace/AppBinding, we created this in previous step
   engine: GCP # vault engine name
   role: k8s.-.demo.gcp-role # roleset name created during vault configuration
   path: gcp # specifies the secret engine path, default is gcp
   secret_type: access_token # Specifies the type of secret generated for this role set, i.e. access_token or service_account_key
 ```
-If roleset is created using KubeVault operator, the roleset name will follow the naming format `k8s.<cluster-name>.<namespace-name>.<GCPRole-name>`. If cluster name is not available then it will be replaced by `-`. For GCPRole name `gcp-role`, the roleset name will be `k8s.-.demo.gcp-role`
 
-> Note: you can also provide `key_algorithm` and `key_type` fields as parameters when secret_type is service_account_key
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/storageClass.yaml
+storageclass.storage.k8s.io/vault-gcp-storage created
+```
+
+> Note: you can also provide `key_algorithm` and `key_type` fields as parameters when `secret_type` is `service_account_key`.
 
 ## Test & Verify
 
-1. **Create PVC:** Create a `PersistentVolumeClaim` with following data. This makes sure a volume will be created and provisioned on your behalf.
+Let's create a separate namespace called `trial` for testing purpose.
 
-   ```yaml
-   apiVersion: v1
-   kind: PersistentVolumeClaim
-   metadata:
-     name: csi-pvc-gcp
-     namespace: demo
-   spec:
-     accessModes:
-       - ReadWriteOnce
-     resources:
-       requests:
-         storage: 1Gi
-     storageClassName: vault-gcp-storage
-   ```
+```console
+$ kubectl create ns trail
+namespace/trail created
+```
 
-2. **Create Service Account**: Create service account for the pod
+### Create PVC
 
-   ```yaml
-   apiVersion: v1
-   kind: ServiceAccount
-   metadata:
-     name: gcp-vault
-     namespace: demo
-   ```
+Create a `PersistentVolumeClaim` with the following data. This makes sure a volume will be created and provisioned on your behalf.
 
-3. **Create Pod:** Now we can create a Pod which refers to this volume. When the Pod is created, the volume will be attached, formatted and mounted to the specific container.
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: csi-pvc-gcp
+  namespace: trial
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+  storageClassName: vault-gcp-storage
+```
 
-   ```yaml
-   apiVersion: v1
-   kind: Pod
-   metadata:
-     name: mypod
-     namespace: demo
-   spec:
-     containers:
-       - name: mypod
-         image: busybox
-         command:
-           - sleep
-           - "3600"
-         volumeMounts:
-           - name: my-vault-volume
-             mountPath: "/etc/gcp"
-             readOnly: true
-     serviceAccountName: gcp-vault
-     volumes:
-       - name: my-vault-volume
-         persistentVolumeClaim:
-           claimName: csi-pvc-gcp
-   ```
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/pvc.yaml
+persistentvolumeclaim/csi-pvc-gcp created
+```
 
-   Check if the Pod is running successfully, by running:
+### Create VaultPolicy and VaultPolicyBinding for Pod's Service Account
 
-   ```console
-   kubectl describe pods -n demo mypod
-   ```
+Let's say pod's service account name is `pod-sa` located in `trial` namespace. We need to create a [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) and a [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md) so that the pod has access to read secrets from the Vault server.
 
-4. **Verify Secret:** If the Pod is running successfully, then check inside the app container by running
+```yaml
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicy
+metadata:
+  name: gcp-se-policy
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  # Here, gcp secret engine is enabled at "gcp".
+  # If the path was "demo-se", policy should be like
+  # path "demo-se/*" {}.
+  policyDocument: |
+    path "gcp/*" {
+      capabilities = ["create", "read"]
+    }
+---
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicyBinding
+metadata:
+  name: gcp-se-role
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  policies:
+  - ref: gcp-se-policy
+  subjectRef:
+    kubernetes:
+      serviceAccountNames:
+      - "pod-sa"
+      serviceAccountNamespaces:
+      - "trial"
+```
 
-   ```console
-   $ kubectl exec -it -n demo mypod sh
-   / # ls /etc/gcp/
-   expires_at_seconds  token               token_ttl
-   / # cat /etc/gcp/token
-   ya29.c.ElkqB1eesBVOX7Xg_Ip3RKEJtfgOLaP0......
-   ```
+Let's create VaultPolicy and VaultPolicyBinding:
 
-   So, we can see that the secret `token` is mounted into the pod, where the secret key is mounted as file and value is the content of that file.
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/vaultPolicy.yaml
+vaultpolicy.policy.kubevault.com/gcp-se-policy created
+
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/vaultPolicyBinding.yaml
+vaultpolicybinding.policy.kubevault.com/gcp-se-role created
+```
+
+Check if the VaultPolicy and the VaultPolicyBinding are successfully registered to the Vault server:
+
+```console
+$ kubectl get vaultpolicy -n demo
+NAME                           STATUS    AGE
+gcp-se-policy                  Success   8s
+
+$ kubectl get vaultpolicybinding -n demo
+NAME                           STATUS    AGE
+gcp-se-role                    Success   10s
+```
+
+### Create Service Account for Pod
+
+Let's create the service account `pod-sa` which was used in VaultPolicyBinding. When a VaultPolicyBinding object is created, the KubeVault operator create an auth role in the Vault server. The role name is generated by the following naming format: `k8s.(clusterName or -).namespace.name`. Here, it is `k8s.-.demo.gcp-se-role`. We need to provide the auth role name as service account `annotations` while creating the service account. If the annotation `secrets.csi.kubevault.com/vault-role` is not provided, the CSI driver will not be able to perform authentication to the Vault.
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pod-sa
+  namespace: trial
+  annotations:
+    secrets.csi.kubevault.com/vault-role: k8s.-.demo.gcp-se-role
+```
+
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/podServiceAccount.yaml
+serviceaccount/pod-sa created
+```
+
+### Create Pod
+
+Now we can create a Pod which refers to this volume. When the Pod is created, the volume will be attached, formatted and mounted to the specific container.
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+  namespace: trial
+spec:
+  containers:
+    - name: mypod
+      image: busybox
+      command:
+      - sleep
+      - "3600"
+      volumeMounts:
+      - name: my-vault-volume
+        mountPath: "/etc/gcp"
+        readOnly: true
+  serviceAccountName: pod-sa # service account that was created
+  - name: my-vault-volume
+    persistentVolumeClaim:
+      claimName: csi-pvc-gcp
+```
+
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/pod.yaml
+pod/mypod created
+```
+
+Check if the Pod is running successfully, by running:
+
+```console
+$ kubectl get pods -n trial
+NAME                    READY   STATUS    RESTARTS   AGE
+mypod                   1/1     Running   0          11s
+```
+
+### Verify Secret
+
+If the Pod is running successfully, then check inside the app container by running
+
+```console
+$ kubectl exec -it -n trial  mypod sh
+/ # ls /etc/gcp
+expires_at_seconds  token               token_ttl
+
+/ # cat /etc/gcp/token
+ya29.c.Kl20BwwWtb6DoTjY4-eSVgQQq.......
+```
+
+So, we can see that the secret `token` is mounted into the pod, where the secret key is mounted as file and the value is the content of that file.
 
 ## Cleaning up
 
-To cleanup the Kubernetes resources created by this tutorial, run:
+To clean up the Kubernetes resources created by this tutorial, run:
 
 ```console
 $ kubectl delete ns demo
 namespace "demo" deleted
+
+$ kubectl delete ns trial
+namespace "trial" deleted
 ```

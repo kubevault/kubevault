@@ -1,0 +1,16 @@
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicyBinding
+metadata:
+  name: mdb-se-role
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  policies:
+  - ref: mdb-se-policy
+  subjectRef:
+    kubernetes:
+      serviceAccountNames:
+        - "pod-sa"
+      serviceAccountNamespaces:
+        - "trial"

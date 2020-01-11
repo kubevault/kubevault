@@ -71,12 +71,12 @@ spec:
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
     kind: VaultServerConfiguration
-    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
     path: kubernetes
-    policyControllerRole: vault-policy-controller
-    serviceAccountName: vault
-    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
-    usePodServiceAccountForCsiDriver: true
+    vaultRole: vault-policy-controller
+    kubernetes:
+      serviceAccountName: vault
+      tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+      usePodServiceAccountForCSIDriver: true
 ```
 
 ## Enable and Configure GCP Secret Engine
@@ -157,7 +157,7 @@ spec:
 Let's deploy GCPRole:
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/gcp/gcpRole.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/gcpRole.yaml
 gcprole.engine.kubevault.com/gcp-role created
 
 $ kubectl get gcprole -n demo
@@ -189,7 +189,7 @@ token_scopes             [https://www.googleapis.com/auth/cloud-platform]
 If we delete the GCPRole, then the respective role will be deleted from the Vault.
 
 ```console
-$ kubectl delete -f examples/guides/secret-engins/gcp/gcpRole.yaml
+$ kubectl delete -f docs/examples/guides/secret-engines/gcp/gcpRole.yaml
   gcprole.engine.kubevault.com "gcp-role" deleted
 ```
 

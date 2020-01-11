@@ -50,11 +50,9 @@ you can use any from the below list:
 The whole configuration process can be divided into two parts:
 
 - `Cluster configuration`: Create  an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) which holds
-  connection and authentication information of Vault. Also create necessary Kubernetes resources (i.e. `secret`, `service account`,
-  `ClusterRole`, `ClusterRoleBinding`, etc.) based on the requirements of the AppBinding.
+  connection and authentication information of Vault. Also create necessary Kubernetes resources (i.e. `secret`, `service account`, `ClusterRole`, `ClusterRoleBinding`, etc.) based on the requirements of the AppBinding.
 
-- `Vault configuration`: Enable and Configure the auth method in Vault. Create [Vault policy](https://www.vaultproject.io/docs/concepts/policies.html)
-  with necessary path-permissions which will be required by the KubeVault operator. Create a `user` or a `role` under the auth method mentioning the vault policies. This role name will be referenced by the AppBinding while performing authentication to Vault and the Vault will issue `token` in the response of successful authentication with assigned policies.
+- `Vault configuration`: Enable and Configure the auth method in Vault. Create [Vault policy](https://www.vaultproject.io/docs/concepts/policies.html) with necessary path-permissions which will be required by the KubeVault operator. Create a `user` or a `role` under the auth method mentioning the vault policies. This role name will be referenced by the AppBinding while performing authentication to Vault and the Vault will issue `token` in the response of successful authentication with assigned policies.
 
 ### Cluster Configuration
 
@@ -64,9 +62,7 @@ to perform authentication to Vault.
 
 #### Create Token Reviewer Service Account
 
-The [Kubernetes auth method](https://www.vaultproject.io/docs/auth/kubernetes.html) can be used to authenticate with Vault using a Kubernetes Service Account Token. This auth method accesses the Kubernetes
-`TokenReview API` to validate the provided JWT is still valid. The service account used in this auth method will need to have access to the `TokenReview API`. If Kubernetes is configured to use RBAC roles,
-the Service Account should be granted permission to access this API.
+The [Kubernetes auth method](https://www.vaultproject.io/docs/auth/kubernetes.html) can be used to authenticate with Vault using a Kubernetes Service Account Token. This auth method accesses the Kubernetes `TokenReview API` to validate the provided JWT is still valid. The service account used in this auth method will need to have access to the `TokenReview API`. If Kubernetes is configured to use RBAC roles, the Service Account should be granted permission to access this API.
 
 Let's name token reviewer service account as `token-reviewer` and create it:
 
@@ -95,7 +91,7 @@ subjects:
 Create `ClusterRoleBinding`:
 
 ```console
-$ kubectl apply -f examples/guides/vault-server/clusterRoleBinding.yaml
+$ kubectl apply -f docs/examples/guides/vault-server/clusterRoleBinding.yaml
 clusterrolebinding.rbac.authorization.k8s.io/role-tokenreview-binding created
 ```
 
@@ -136,10 +132,13 @@ spec:
     url: https://demo-vault-server.com ## remote vault server url
     caBundle: LS0tLS1CRU... ## base64 encoded vault server ca.crt
   parameters:
-    serviceAccountName: vault  ## service account name
-    policyControllerRole: vault-role ## auth-role name against which login will be done
-    authPath: kubernetes ## Kubernetes auth is enabled in this path
-    usePodServiceAccountForCsiDriver: true ##  required while using CSI driver
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    path: kubernetes ## Kubernetes auth is enabled in this path
+    vaultRole: vault-role ## auth-role name against which login will be done
+    kubernetes:
+      serviceAccountName: vault  ## service account name
+      usePodServiceAccountForCSIDriver: true ##  required while using CSI driver
 ```
 
 Access vault server using Kubernetes service by replacing `spec.clientConfig`:
@@ -157,7 +156,7 @@ spec:
 Create AppBinding:
 
 ```console
-$ kubectl apply -f examples/guides/vault-server/appBinding.yaml
+$ kubectl apply -f docs/examples/guides/vault-server/appBinding.yaml
 appbinding.appcatalog.appscode.com/vault created
 ```
 
@@ -283,7 +282,7 @@ spec:
 ```
 
 ```console
-$ kubectl apply -f examples/guides/vault-server/secret-policy.yaml
+$ kubectl apply -f docs/examples/guides/vault-server/secret-policy.yaml
 vaultpolicy.policy.kubevault.com/secret-admin created
 ```
 

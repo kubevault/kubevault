@@ -28,6 +28,8 @@ To perform Kubernetes Authentication using ServiceAccount Name,
   ```yaml
   spec:
     parameters:
+      apiVersion: config.kubevault.com/v1alpha1
+      kind: VaultServerConfiguration
       path: k8s # Kubernetes auth is enabled in this path
       vaultRole: demo  # role name against which login will be done
       kubernetes:
@@ -46,6 +48,8 @@ metadata:
   namespace: demo
 spec:
   parameters:
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
     path: k8s
     vaultRole: demo
     kubernetes:
@@ -105,6 +109,8 @@ To perform Kubernetes Authentication using ServiceAccount Token Secret,
   ```yaml
   spec:
     parameters:
+      apiVersion: config.kubevault.com/v1alpha1
+      kind: VaultServerConfiguration
       path: k8s
       vaultRole: demo-role
   ```
@@ -124,6 +130,8 @@ spec:
   secret:
     name: sa-token
   parameters:
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
     path: k8s
     vaultRole: demo-role
   clientConfig:

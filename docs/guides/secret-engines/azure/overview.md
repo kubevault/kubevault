@@ -71,12 +71,12 @@ spec:
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
     kind: VaultServerConfiguration
-    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
     path: kubernetes
-    policyControllerRole: vault-policy-controller
-    serviceAccountName: vault
-    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
-    usePodServiceAccountForCsiDriver: true
+    vaultRole: vault-policy-controller
+    kubernetes:
+      serviceAccountName: vault
+      tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+      usePodServiceAccountForCSIDriver: true
 ```
 
 ## Enable and Configure Azure Secret Engine
@@ -116,19 +116,19 @@ data:
 Let's deploy SecretEngine:
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/azure/azureCred.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/azureCred.yaml
 secret/azure-cred created
 
-$ kubectl apply -f examples/guides/secret-engins/azure/azureSecretEngine.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/azureSecretEngine.yaml
 secretengine.engine.kubevault.com/azure-engine created
 ```
 
 Wait till the status become `Success`:
 
 ```console
-$ kubectl get azureroles -n demo
-NAME         STATUS
-azure-role   Success
+$ kubectl get secretengines -n demo
+NAME           STATUS
+azure-engine   Success
 ```
 
 Since the status is `Success`, the Azure secret engine is enabled and successfully configured. You can use `kubectl describe secretengine -n <namepsace> <name>` to check for error events, if any.
@@ -155,7 +155,7 @@ spec:
 Let's deploy AzureRole:
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/azure/azureRole.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/azureRole.yaml
 azurerole.engine.kubevault.com/azure-role created
 
 $ kubectl get azureroles -n demo
@@ -186,7 +186,7 @@ ttl                      1h
 If we delete the AzureRole, then the respective role will be deleted from the Vault.
 
 ```console
-$ kubectl delete -f examples/guides/secret-engins/azure/azureRole.yaml
+$ kubectl delete -f docs/examples/guides/secret-engines/azure/azureRole.yaml
   azurerole.engine.kubevault.com "azure-role" deleted
 ```
 
@@ -227,7 +227,7 @@ Here, `spec.roleRef` is the reference of AzureRole against which credentials wil
 Now, we are going to create AzureAccessKeyRequest.
 
 ```console
-$ kubectl apply -f examples/guides/secret-engins/azure/azureAccessKeyRequest.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/azureAccessKeyRequest.yaml
 azureaccesskeyrequest.engine.kubevault.com/azure-cred-rqst created
 
 $ kubectl get azureaccesskeyrequests -n demo

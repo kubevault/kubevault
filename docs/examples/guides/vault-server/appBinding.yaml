@@ -8,7 +8,10 @@ spec:
     url: https://e2a3839b.ngrok.io 
     insecureSkipTLSVerify: true
   parameters:
-    serviceAccountName: vault
-    policyControllerRole: vault-role # role name against which login will be done
-    authPath: kubernetes # Kubernetes auth is enabled in this path
-    usePodServiceAccountForCsiDriver: true
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    path: kubernetes ## Kubernetes auth is enabled in this path
+    vaultRole: vault-role ## auth-role name against which login will be done
+    kubernetes:
+      serviceAccountName: vault  ## service account name
+      usePodServiceAccountForCSIDriver: true ##  required while using CSI driver

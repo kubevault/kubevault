@@ -71,12 +71,12 @@ spec:
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
     kind: VaultServerConfiguration
-    authMethodControllerRole: k8s.-.demo.vault-auth-method-controller
     path: kubernetes
-    policyControllerRole: vault-policy-controller
-    serviceAccountName: vault
-    tokenReviewerServiceAccountName: vault-k8s-token-reviewer
-    usePodServiceAccountForCsiDriver: true
+    vaultRole: vault-policy-controller
+    kubernetes:
+      serviceAccountName: vault
+      tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+      usePodServiceAccountForCSIDriver: true
 ```
 
 ## Enable and Configure MySQL Secret Engine
@@ -206,13 +206,16 @@ Keys
 ----
 k8s.-.demo.mysql-role
 
-$ vault read mysql-se/config/k8s.-.demo.mysql-app
-Key                                   Value
----                                   -----
-allowed_roles                         [*]
-connection_details                    map[connection_url:{{username}}:{{password}}@tcp(mysql.demo.svc:3306)/ username:root]
-plugin_name                           mysql-rds-database-plugin
-root_credentials_rotate_statements    []
+$ vault read mysql-se/roles/k8s.-.demo.mysql-role
+Key                      Value
+---                      -----
+creation_statements      [CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT SELECT ON *.* TO '{{name}}'@'%';]
+db_name                  k8s.-.demo.mysql-app
+default_ttl              1h
+max_ttl                  24h
+renew_statements         []
+revocation_statements    []
+rollback_statements      []
 ```
 
 If we delete the MySQLRole, then the respective role will be deleted from the Vault.

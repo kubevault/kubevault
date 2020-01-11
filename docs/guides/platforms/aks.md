@@ -192,7 +192,7 @@ spec:
         tenantID: aaaaaaa-bbbb-ccc-dddd-eeeeeeeee
         aadClientSecret: azure-ad-client-secret
 
-$ kubectl apply -f examples/guides/provider/aks/my-vault.yaml
+$ kubectl apply -f docs/examples/guides/provider/aks/my-vault.yaml
 vaultserver.kubevault.com/my-vault created
 ```
 
