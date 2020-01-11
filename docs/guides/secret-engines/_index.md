@@ -5,6 +5,6 @@ menu:
     identifier: secret-engines-guides
     name: Secret Engines
     parent: guides
-    weight: 10
+    weight: 30
 menu_name: docs_{{ .version }}
 ---

@@ -5,6 +5,6 @@ menu:
     identifier: platform-guides
     name: Platforms
     parent: guides
-    weight: 30
+    weight: 50
 menu_name: docs_{{ .version }}
 ---

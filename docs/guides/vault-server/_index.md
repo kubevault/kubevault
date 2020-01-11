@@ -5,6 +5,6 @@ menu:
     identifier: vault-server-guides
     name: Vault Server
     parent: guides
-    weight: 20
+    weight: 10
 menu_name: docs_{{ .version }}
 ---
