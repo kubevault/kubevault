@@ -127,6 +127,19 @@ spec:
       name: <name of volume>
 ```
 
+### spec.dataSources
+
+`spec.dataSources` is an `optional` field that allows the user to provide a list of [VolumeSources](https://kubernetes.io/docs/concepts/storage/volumes/#types-of-volumes) (i.e. secrets, configmaps, etc.) which will be mounted into the VaultServer pods. These volumes will be mounted into `/etc/vault/data/<name>` directory. The first data will be named as `data-0`, the second one will be named as `data-1` and so on.
+
+```yaml
+spec:
+  dataSources:
+  - secret:  # mounted on /etc/vault/data/data-0
+      secretName: custom-cert
+  - configMap: # mounted on /etc/vault/data/data-1
+      name: special-config
+```
+
 ### spec.backend
 
 `spec.backend` is a required field that specifies the Vault backend storage configuration. KubeVault operator generates storage configuration according to this `spec.backend`.
