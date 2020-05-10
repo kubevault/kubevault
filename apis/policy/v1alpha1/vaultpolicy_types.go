@@ -78,6 +78,7 @@ type VaultPolicyList struct {
 	Items           []VaultPolicy `json:"items,omitempty" protobuf:"bytes,2,rep,name=items"`
 }
 
+// +kubebuilder:validation:Enum=Success;Failed
 type PolicyPhase string
 
 const (
@@ -100,6 +101,7 @@ type VaultPolicyStatus struct {
 	Conditions []PolicyCondition `json:"conditions,omitempty" protobuf:"bytes,3,rep,name=conditions"`
 }
 
+// +kubebuilder:validation:Enum=Failure
 type PolicyConditionType string
 
 // These are valid conditions of a VaultPolicy.

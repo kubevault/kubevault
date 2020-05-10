@@ -46,6 +46,7 @@ type AWSRole struct {
 	Status            AWSRoleStatus `json:"status,omitempty" protobuf:"bytes,3,opt,name=status"`
 }
 
+// +kubebuilder:validation:Enum=iam_user;assumed_role;federation_token
 type AWSCredentialType string
 
 const (

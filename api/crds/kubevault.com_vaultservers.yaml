@@ -6601,6 +6601,11 @@ spec:
                     type: string
                   status:
                     description: Specifies whether auth method is enabled or not
+                    enum:
+                    - EnableSucceeded
+                    - EnableFailed
+                    - DisableSucceeded
+                    - DisableFailed
                     type: string
                   type:
                     description: ' Specifies the name of the authentication method
@@ -6636,6 +6641,8 @@ spec:
                     type: string
                   type:
                     description: Type of VaultServerCondition condition.
+                    enum:
+                    - Failure
                     type: string
                 type: object
               type: array
@@ -6650,6 +6657,11 @@ spec:
               type: integer
             phase:
               description: Phase indicates the state this Vault cluster jumps in.
+              enum:
+              - Processing
+              - Uninitialized
+              - Running
+              - Sealed
               type: string
             serviceName:
               description: ServiceName is the LB service for accessing vault nodes.

@@ -153,6 +153,9 @@ spec:
             phase:
               description: Phase indicates whether successfully bind the policy to
                 service account in vault or not or in progress
+              enum:
+              - Success
+              - Failed
               type: string
           type: object
       type: object

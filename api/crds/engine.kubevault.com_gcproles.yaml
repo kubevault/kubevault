@@ -60,6 +60,9 @@ spec:
               type: string
             secretType:
               description: Specifies the type of secret generated for this role set
+              enum:
+              - access_token
+              - service_account_key
               type: string
             tokenScopes:
               description: List of OAuth scopes to assign to access_token secrets

@@ -123,6 +123,7 @@ type ServiceAccountReference struct {
 	Namespace string `json:"namespace" protobuf:"bytes,2,opt,name=namespace"`
 }
 
+// +kubebuilder:validation:Enum=Success;Failed
 type PolicyBindingPhase string
 
 const (

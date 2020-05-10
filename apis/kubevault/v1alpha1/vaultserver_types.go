@@ -111,6 +111,7 @@ type VaultServerList struct {
 	Items           []VaultServer `json:"items,omitempty" protobuf:"bytes,2,rep,name=items"`
 }
 
+// +kubebuilder:validation:Enum=Processing;Uninitialized;Running;Sealed
 type ClusterPhase string
 
 const (
@@ -161,6 +162,7 @@ type VaultServerStatus struct {
 	AuthMethodStatus []AuthMethodStatus `json:"authMethodStatus,omitempty" protobuf:"bytes,9,rep,name=authMethodStatus"`
 }
 
+// +kubebuilder:validation:Enum=Failure
 type VaultServerConditionType string
 
 // These are valid conditions of a VaultServer.
@@ -794,6 +796,7 @@ type AzureKeyVault struct {
 	UseManagedIdentity bool `json:"useManagedIdentity,omitempty" protobuf:"varint,6,opt,name=useManagedIdentity"`
 }
 
+// +kubebuilder:validation:Enum=kubernetes;aws;gcp;userpass;cert;azure
 type AuthMethodType string
 
 const (
@@ -833,6 +836,7 @@ type AuthMethod struct {
 	Local bool `json:"local,omitempty" protobuf:"varint,6,opt,name=local"`
 }
 
+// +kubebuilder:validation:Enum=EnableSucceeded;EnableFailed;DisableSucceeded;DisableFailed
 type AuthMethodEnableDisableStatus string
 
 const (

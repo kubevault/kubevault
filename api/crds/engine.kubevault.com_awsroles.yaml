@@ -49,6 +49,10 @@ spec:
             credentialType:
               description: Specifies the type of credential to be used when retrieving
                 credentials from the role
+              enum:
+              - iam_user
+              - assumed_role
+              - federation_token
               type: string
             defaultSTSTTL:
               description: The default TTL for STS credentials. When a TTL is not
