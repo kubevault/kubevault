@@ -32,6 +32,7 @@ type RoleRef struct {
 	Namespace string `json:"namespace" protobuf:"bytes,4,opt,name=namespace"`
 }
 
+// +kubebuilder:validation:Enum=Approved;Denied
 type RequestConditionType string
 
 // These are the possible conditions for a certificate request.

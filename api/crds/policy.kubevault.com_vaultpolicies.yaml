@@ -94,6 +94,8 @@ spec:
                     type: string
                   type:
                     description: Type of PolicyCondition condition.
+                    enum:
+                    - Failure
                     type: string
                 type: object
               type: array
@@ -106,6 +108,9 @@ spec:
             phase:
               description: Phase indicates whether the policy successfully applied
                 in vault or not or in progress
+              enum:
+              - Success
+              - Failed
               type: string
           type: object
       type: object

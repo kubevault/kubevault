@@ -43,6 +43,7 @@ type GCPRole struct {
 	Status            GCPRoleStatus `json:"status,omitempty" protobuf:"bytes,3,opt,name=status"`
 }
 
+// +kubebuilder:validation:Enum=access_token;service_account_key
 type GCPSecretType string
 
 const (
