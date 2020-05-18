@@ -240,7 +240,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.Credent
 }
 
 func (c *VaultController) updateDatabaseAccessRequestStatus(status *api.DatabaseAccessRequestStatus, dbAReq *api.DatabaseAccessRequest) error {
-	_, err := patchutil.UpdateDatabaseAccessRequestStatus(c.extClient.EngineV1alpha1(), dbAReq, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
+	_, err := patchutil.UpdateDatabaseAccessRequestStatus(c.extClient.EngineV1alpha1(), dbAReq.ObjectMeta, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
 		return status
 	})
 	return err

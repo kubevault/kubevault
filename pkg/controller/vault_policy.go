@@ -144,7 +144,7 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 
 // updatePolicyStatus updates policy status
 func (c *VaultController) updatePolicyStatus(status *policyapi.VaultPolicyStatus, vPolicy *policyapi.VaultPolicy) error {
-	_, err := patchutil.UpdateVaultPolicyStatus(c.extClient.PolicyV1alpha1(), vPolicy, func(s *policyapi.VaultPolicyStatus) *policyapi.VaultPolicyStatus {
+	_, err := patchutil.UpdateVaultPolicyStatus(c.extClient.PolicyV1alpha1(), vPolicy.ObjectMeta, func(s *policyapi.VaultPolicyStatus) *policyapi.VaultPolicyStatus {
 		return status
 	})
 	return err

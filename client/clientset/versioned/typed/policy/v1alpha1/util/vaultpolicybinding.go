@@ -126,31 +126,29 @@ func TryUpdateVaultPolicyBinding(c cs.PolicyV1alpha1Interface, meta metav1.Objec
 
 func UpdateVaultPolicyBindingStatus(
 	c cs.PolicyV1alpha1Interface,
-	in *api.VaultPolicyBinding,
+	meta metav1.ObjectMeta,
 	transform func(*api.VaultPolicyBindingStatus) *api.VaultPolicyBindingStatus,
 ) (result *api.VaultPolicyBinding, err error) {
-	apply := func(x *api.VaultPolicyBinding, copy bool) *api.VaultPolicyBinding {
-		out := &api.VaultPolicyBinding{
+	apply := func(x *api.VaultPolicyBinding) *api.VaultPolicyBinding {
+		return &api.VaultPolicyBinding{
 			TypeMeta:   x.TypeMeta,
 			ObjectMeta: x.ObjectMeta,
 			Spec:       x.Spec,
+			Status:     *transform(x.Status.DeepCopy()),
 		}
-		if copy {
-			out.Status = *transform(in.Status.DeepCopy())
-		} else {
-			out.Status = *transform(&in.Status)
-		}
-		return out
 	}
 
 	attempt := 0
-	cur := in.DeepCopy()
+	cur, err := c.VaultPolicyBindings(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
 		var e2 error
-		result, e2 = c.VaultPolicyBindings(in.Namespace).UpdateStatus(apply(cur, false))
+		result, e2 = c.VaultPolicyBindings(meta.Namespace).UpdateStatus(apply(cur))
 		if kerr.IsConflict(e2) {
-			latest, e3 := c.VaultPolicyBindings(in.Namespace).Get(in.Name, metav1.GetOptions{})
+			latest, e3 := c.VaultPolicyBindings(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
 			switch {
 			case e3 == nil:
 				cur = latest
@@ -167,7 +165,7 @@ func UpdateVaultPolicyBindingStatus(
 	})
 
 	if err != nil {
-		err = fmt.Errorf("failed to update status of VaultPolicyBinding %s/%s after %d attempts due to %v", in.Namespace, in.Name, attempt, err)
+		err = fmt.Errorf("failed to update status of VaultPolicyBinding %s/%s after %d attempts due to %v", meta.Namespace, meta.Name, attempt, err)
 	}
 	return
 }

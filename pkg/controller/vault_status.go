@@ -178,7 +178,7 @@ func (c *VaultController) updateVaultCRStatus(name, namespace string, status *ap
 	}
 
 	// TODO : flag for useSubresource?
-	vault, err = cs_util.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vault, func(s *api.VaultServerStatus) *api.VaultServerStatus {
+	vault, err = cs_util.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vault.ObjectMeta, func(s *api.VaultServerStatus) *api.VaultServerStatus {
 		s.VaultStatus.Active = status.VaultStatus.Active
 		s.VaultStatus.Standby = status.VaultStatus.Standby
 		s.VaultStatus.Sealed = status.VaultStatus.Sealed

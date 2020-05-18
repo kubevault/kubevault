@@ -129,7 +129,7 @@ func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, awsR
 }
 
 func (c *VaultController) updatedAWSRoleStatus(status *api.AWSRoleStatus, awsRole *api.AWSRole) error {
-	_, err := patchutil.UpdateAWSRoleStatus(c.extClient.EngineV1alpha1(), awsRole, func(s *api.AWSRoleStatus) *api.AWSRoleStatus {
+	_, err := patchutil.UpdateAWSRoleStatus(c.extClient.EngineV1alpha1(), awsRole.ObjectMeta, func(s *api.AWSRoleStatus) *api.AWSRoleStatus {
 		return status
 	})
 	return err

@@ -242,7 +242,7 @@ func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.Credenti
 }
 
 func (c *VaultController) updateAWSAccessKeyRequestStatus(status *api.AWSAccessKeyRequestStatus, awsAKReq *api.AWSAccessKeyRequest) error {
-	_, err := patchutil.UpdateAWSAccessKeyRequestStatus(c.extClient.EngineV1alpha1(), awsAKReq, func(s *api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus {
+	_, err := patchutil.UpdateAWSAccessKeyRequestStatus(c.extClient.EngineV1alpha1(), awsAKReq.ObjectMeta, func(s *api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus {
 		return status
 	})
 	return err

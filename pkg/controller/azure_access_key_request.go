@@ -244,7 +244,7 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(azureCM credential.Cred
 }
 
 func (c *VaultController) updateAzureAccessKeyRequestStatus(status *api.AzureAccessKeyRequestStatus, azureAKReq *api.AzureAccessKeyRequest) error {
-	_, err := patchutil.UpdateAzureAccessKeyRequestStatus(c.extClient.EngineV1alpha1(), azureAKReq, func(s *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
+	_, err := patchutil.UpdateAzureAccessKeyRequestStatus(c.extClient.EngineV1alpha1(), azureAKReq.ObjectMeta, func(s *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
 		return status
 	})
 	return err
