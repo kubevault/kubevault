@@ -27,9 +27,9 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
 )
@@ -115,10 +115,10 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 	err := pClient.EnsurePolicy(vPolicy.PolicyName(), doc)
 	if err != nil {
 		status.Phase = policyapi.PolicyFailed
-		status.Conditions = []policyapi.PolicyCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    policyapi.PolicyConditionFailure,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToPutPolicy",
 				Message: err.Error(),
 			},
@@ -133,7 +133,7 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 
 	// update status
 	status.ObservedGeneration = vPolicy.Generation
-	status.Conditions = []policyapi.PolicyCondition{}
+	status.Conditions = []kmapi.Condition{}
 	status.Phase = policyapi.PolicySuccess
 	err2 := c.updatePolicyStatus(&status, vPolicy)
 	if err2 != nil {

@@ -26,17 +26,16 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
 )
 
 const (
-	SecretEnginePhaseSuccess    api.SecretEnginePhase = "Success"
-	SecretEngineConditionFailed string                = "Failed"
-	SecretEngineFinalizer       string                = "secretengine.engine.kubevault.com"
+	SecretEnginePhaseSuccess api.SecretEnginePhase = "Success"
+	SecretEngineFinalizer    string                = "secretengine.engine.kubevault.com"
 )
 
 func (c *VaultController) initSecretEngineWatcher() {
@@ -101,10 +100,10 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 	// Create required policies for secret engine
 	err := secretEngineClient.CreatePolicy()
 	if err != nil {
-		status.Conditions = []api.SecretEngineCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    SecretEngineConditionFailed,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToCreateSecretEnginePolicy",
 				Message: err.Error(),
 			},
@@ -119,10 +118,10 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 	// Update the policy field of the auth method
 	err = secretEngineClient.UpdateAuthRole()
 	if err != nil {
-		status.Conditions = []api.SecretEngineCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    SecretEngineConditionFailed,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToUpdateAuthRole",
 				Message: err.Error(),
 			},
@@ -137,10 +136,10 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 	// enable the secret engine if it is not already enabled
 	err = secretEngineClient.EnableSecretEngine()
 	if err != nil {
-		status.Conditions = []api.SecretEngineCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    SecretEngineConditionFailed,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToEnableSecretEngine",
 				Message: err.Error(),
 			},
@@ -155,10 +154,10 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 	// Create secret engine config
 	err = secretEngineClient.CreateConfig()
 	if err != nil {
-		status.Conditions = []api.SecretEngineCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    SecretEngineConditionFailed,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToCreateSecretEngineConfig",
 				Message: err.Error(),
 			},
@@ -172,7 +171,7 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 
 	// update status
 	status.ObservedGeneration = secretEngine.Generation
-	status.Conditions = []api.SecretEngineCondition{}
+	status.Conditions = []kmapi.Condition{}
 	status.Phase = SecretEnginePhaseSuccess
 	err = c.updatedSecretEngineStatus(&status, secretEngine)
 	if err != nil {

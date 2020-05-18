@@ -26,17 +26,16 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
 )
 
 const (
-	AzureRolePhaseSuccess    api.AzureRolePhase = "Success"
-	AzureRoleConditionFailed string             = "Failed"
-	AzureRoleFinalizer       string             = "azurerole.engine.kubevault.com"
+	AzureRolePhaseSuccess api.AzureRolePhase = "Success"
+	AzureRoleFinalizer    string             = "azurerole.engine.kubevault.com"
 )
 
 func (c *VaultController) initAzureRoleWatcher() {
@@ -101,10 +100,10 @@ func (c *VaultController) reconcileAzureRole(azureRClient azure.AzureRoleInterfa
 	// create role
 	err := azureRClient.CreateRole()
 	if err != nil {
-		status.Conditions = []api.AzureRoleCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    AzureRoleConditionFailed,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToCreateRole",
 				Message: err.Error(),
 			},
@@ -117,7 +116,7 @@ func (c *VaultController) reconcileAzureRole(azureRClient azure.AzureRoleInterfa
 		return errors.Wrap(err, "failed to create role")
 	}
 
-	status.Conditions = []api.AzureRoleCondition{}
+	status.Conditions = []kmapi.Condition{}
 
 	status.Phase = AzureRolePhaseSuccess
 	status.ObservedGeneration = azureRole.Generation

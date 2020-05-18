@@ -20,6 +20,7 @@ import (
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
 const (
@@ -68,28 +69,11 @@ type DatabaseAccessRequestList struct {
 type DatabaseAccessRequestStatus struct {
 	// Conditions applied to the request, such as approval or denial.
 	// +optional
-	Conditions []DatabaseAccessRequestCondition `json:"conditions,omitempty" protobuf:"bytes,1,rep,name=conditions"`
+	Conditions []kmapi.Condition `json:"conditions,omitempty" protobuf:"bytes,1,rep,name=conditions"`
 
 	// Name of the secret containing database credentials
 	Secret *core.LocalObjectReference `json:"secret,omitempty" protobuf:"bytes,2,opt,name=secret"`
 
 	// Contains lease info
 	Lease *Lease `json:"lease,omitempty" protobuf:"bytes,3,opt,name=lease"`
-}
-
-type DatabaseAccessRequestCondition struct {
-	// request approval state, currently Approved or Denied.
-	Type RequestConditionType `json:"type" protobuf:"bytes,1,opt,name=type,casttype=RequestConditionType"`
-
-	// brief reason for the request state
-	// +optional
-	Reason string `json:"reason,omitempty" protobuf:"bytes,2,opt,name=reason"`
-
-	// human readable message with details about the request state
-	// +optional
-	Message string `json:"message,omitempty" protobuf:"bytes,3,opt,name=message"`
-
-	// timestamp for the last update to this condition
-	// +optional
-	LastUpdateTime metav1.Time `json:"lastUpdateTime,omitempty" protobuf:"bytes,4,opt,name=lastUpdateTime"`
 }

@@ -27,9 +27,9 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
 )
@@ -102,10 +102,10 @@ func (c *VaultController) reconcileMySQLRole(dbRClient database.DatabaseRoleInte
 	// create role
 	err := dbRClient.CreateRole()
 	if err != nil {
-		status.Conditions = []api.MySQLRoleCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    "Available",
-				Status:  core.ConditionFalse,
+				Type:    kmapi.ConditionAvailable,
+				Status:  kmapi.ConditionFalse,
 				Reason:  "FailedToCreateRole",
 				Message: err.Error(),
 			},
@@ -118,7 +118,7 @@ func (c *VaultController) reconcileMySQLRole(dbRClient database.DatabaseRoleInte
 		return errors.Wrap(err, "failed to create role")
 	}
 
-	status.Conditions = []api.MySQLRoleCondition{}
+	status.Conditions = []kmapi.Condition{}
 	status.Phase = MySQLRolePhaseSuccess
 	status.ObservedGeneration = myRole.Generation
 

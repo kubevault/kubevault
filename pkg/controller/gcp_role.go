@@ -26,17 +26,16 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
 )
 
 const (
-	GCPRolePhaseSuccess    api.GCPRolePhase = "Success"
-	GCPRoleConditionFailed string           = "Failed"
-	GCPRoleFinalizer       string           = "gcprole.engine.kubevault.com"
+	GCPRolePhaseSuccess api.GCPRolePhase = "Success"
+	GCPRoleFinalizer    string           = "gcprole.engine.kubevault.com"
 )
 
 func (c *VaultController) initGCPRoleWatcher() {
@@ -101,10 +100,10 @@ func (c *VaultController) reconcileGCPRole(gcpRClient gcp.GCPRoleInterface, gcpR
 	// create role
 	err := gcpRClient.CreateRole()
 	if err != nil {
-		status.Conditions = []api.GCPRoleCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    GCPRoleConditionFailed,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToCreateRole",
 				Message: err.Error(),
 			},
@@ -117,7 +116,7 @@ func (c *VaultController) reconcileGCPRole(gcpRClient gcp.GCPRoleInterface, gcpR
 		return errors.Wrap(err, "failed to create role")
 	}
 
-	status.Conditions = []api.GCPRoleCondition{}
+	status.Conditions = []kmapi.Condition{}
 	status.Phase = GCPRolePhaseSuccess
 	status.ObservedGeneration = gcpRole.Generation
 

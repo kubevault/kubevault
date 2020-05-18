@@ -30,6 +30,7 @@ import (
 	v1 "k8s.io/api/rbac/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
@@ -119,7 +120,7 @@ var _ = Describe("MongoDB Secret Engine", func() {
 				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
-						if value.Type == api.AccessApproved {
+						if value.Type == kmapi.ConditionRequestApproved {
 							return true
 						}
 					}
@@ -133,7 +134,7 @@ var _ = Describe("MongoDB Secret Engine", func() {
 				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
-						if value.Type == api.AccessDenied {
+						if value.Type == kmapi.ConditionRequestDenied {
 							return true
 						}
 					}
@@ -418,10 +419,10 @@ var _ = Describe("MongoDB Secret Engine", func() {
 
 				By("Updating MongoDB AccessKeyRequest status...")
 				err = f.UpdateDatabaseAccessRequestStatus(&api.DatabaseAccessRequestStatus{
-					Conditions: []api.DatabaseAccessRequestCondition{
+					Conditions: []kmapi.Condition{
 						{
-							Type:           api.AccessApproved,
-							LastUpdateTime: metav1.Now(),
+							Type:               kmapi.ConditionRequestApproved,
+							LastTransitionTime: metav1.Now(),
 						},
 					},
 				}, r)
@@ -438,10 +439,10 @@ var _ = Describe("MongoDB Secret Engine", func() {
 
 				By("Updating MongoDB AccessKeyRequest status...")
 				err = f.UpdateDatabaseAccessRequestStatus(&api.DatabaseAccessRequestStatus{
-					Conditions: []api.DatabaseAccessRequestCondition{
+					Conditions: []kmapi.Condition{
 						{
-							Type:           api.AccessDenied,
-							LastUpdateTime: metav1.Now(),
+							Type:               kmapi.ConditionRequestDenied,
+							LastTransitionTime: metav1.Now(),
 						},
 					},
 				}, r)
@@ -490,10 +491,10 @@ var _ = Describe("MongoDB Secret Engine", func() {
 
 				By("Updating MongoDB AccessKeyRequest status...")
 				err = f.UpdateDatabaseAccessRequestStatus(&api.DatabaseAccessRequestStatus{
-					Conditions: []api.DatabaseAccessRequestCondition{
+					Conditions: []kmapi.Condition{
 						{
-							Type:           api.AccessApproved,
-							LastUpdateTime: metav1.Now(),
+							Type:               kmapi.ConditionRequestApproved,
+							LastTransitionTime: metav1.Now(),
 						},
 					},
 				}, r)

@@ -31,11 +31,10 @@ import (
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
 )
-
-const RequestFailed api.RequestConditionType = "Failed"
 
 func (c *VaultController) initDatabaseAccessWatcher() {
 	c.dbAccessInformer = c.extInformerFactory.Engine().V1alpha1().DatabaseAccessRequests().Informer()
@@ -47,12 +46,12 @@ func (c *VaultController) initDatabaseAccessWatcher() {
 		oldCondType := ""
 		nuCondType := ""
 		for _, c := range old.Status.Conditions {
-			if c.Type == api.AccessApproved || c.Type == api.AccessDenied {
+			if c.Type == kmapi.ConditionRequestApproved || c.Type == kmapi.ConditionRequestDenied {
 				oldCondType = string(c.Type)
 			}
 		}
 		for _, c := range nu.Status.Conditions {
-			if c.Type == api.AccessApproved || c.Type == api.AccessDenied {
+			if c.Type == kmapi.ConditionRequestApproved || c.Type == kmapi.ConditionRequestDenied {
 				nuCondType = string(c.Type)
 			}
 		}
@@ -95,14 +94,14 @@ func (c *VaultController) runDatabaseAccessRequestInjector(key string) error {
 				}
 			}
 
-			var condType api.RequestConditionType
+			var condType string
 			for _, c := range dbAccessReq.Status.Conditions {
-				if c.Type == api.AccessApproved || c.Type == api.AccessDenied {
+				if c.Type == kmapi.ConditionRequestApproved || c.Type == kmapi.ConditionRequestDenied {
 					condType = c.Type
 				}
 			}
 
-			if condType == api.AccessApproved {
+			if condType == kmapi.ConditionRequestApproved {
 				dbCredManager, err := credential.NewCredentialManagerForDatabase(c.kubeClient, c.appCatalogClient, c.extClient, dbAccessReq)
 				if err != nil {
 					return err
@@ -112,7 +111,7 @@ func (c *VaultController) runDatabaseAccessRequestInjector(key string) error {
 				if err != nil {
 					return errors.Wrapf(err, "For DatabaseAccessRequest %s/%s", dbAccessReq.Namespace, dbAccessReq.Name)
 				}
-			} else if condType == api.AccessDenied {
+			} else if condType == kmapi.ConditionRequestDenied {
 				glog.Infof("For DatabaseAccessRequest %s/%s: request is denied", dbAccessReq.Namespace, dbAccessReq.Name)
 			} else {
 				glog.Infof("For DatabaseAccessRequest %s/%s: request is not approved yet", dbAccessReq.Namespace, dbAccessReq.Name)
@@ -146,11 +145,11 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.Credent
 		// get database credential secret
 		credSecret, err := dbCM.GetCredential()
 		if err != nil {
-			status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
-				Type:           RequestFailed,
-				Reason:         "FailedToGetCredential",
-				Message:        err.Error(),
-				LastUpdateTime: metav1.Now(),
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+				Type:               kmapi.ConditionFailure,
+				Reason:             "FailedToGetCredential",
+				Message:            err.Error(),
+				LastTransitionTime: metav1.Now(),
 			})
 
 			err2 := c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
@@ -168,11 +167,11 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.Credent
 				return errors.Wrapf(err2, "failed to revoke lease")
 			}
 
-			status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
-				Type:           RequestFailed,
-				Reason:         "FailedToCreateSecret",
-				Message:        err.Error(),
-				LastUpdateTime: metav1.Now(),
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+				Type:               kmapi.ConditionFailure,
+				Reason:             "FailedToCreateSecret",
+				Message:            err.Error(),
+				LastTransitionTime: metav1.Now(),
 			})
 
 			err2 = c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
@@ -201,11 +200,11 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.Credent
 
 	err := dbCM.CreateRole(roleName, ns, secretName)
 	if err != nil {
-		status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
-			Type:           RequestFailed,
-			Reason:         "FailedToCreateRole",
-			Message:        err.Error(),
-			LastUpdateTime: metav1.Now(),
+		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+			Type:               kmapi.ConditionFailure,
+			Reason:             "FailedToCreateRole",
+			Message:            err.Error(),
+			LastTransitionTime: metav1.Now(),
 		})
 
 		err2 := c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
@@ -217,11 +216,11 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.Credent
 
 	err = dbCM.CreateRoleBinding(roleName, ns, roleName, dbAccessReq.Spec.Subjects)
 	if err != nil {
-		status.Conditions = UpsertDatabaseAccessCondition(status.Conditions, api.DatabaseAccessRequestCondition{
-			Type:           RequestFailed,
-			Reason:         "FailedToCreateRoleBinding",
-			Message:        err.Error(),
-			LastUpdateTime: metav1.Now(),
+		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+			Type:               kmapi.ConditionFailure,
+			Reason:             "FailedToCreateRoleBinding",
+			Message:            err.Error(),
+			LastTransitionTime: metav1.Now(),
 		})
 
 		err2 := c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
@@ -231,7 +230,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.Credent
 		return errors.WithStack(err)
 	}
 
-	status.Conditions = DeleteDatabaseAccessCondition(status.Conditions, api.RequestConditionType(RequestFailed))
+	status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
 	err = c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
 	if err != nil {
 		return errors.Wrap(err, "failed to update status")
@@ -353,31 +352,4 @@ func getDatabaseAccessRequestId(dbAReq *api.DatabaseAccessRequest) string {
 
 func getSecretAccessRoleName(kind, namespace, name string) string {
 	return fmt.Sprintf("%s-%s-%s-credential-reader", kind, namespace, name)
-}
-
-func UpsertDatabaseAccessCondition(condList []api.DatabaseAccessRequestCondition, cond api.DatabaseAccessRequestCondition) []api.DatabaseAccessRequestCondition {
-	res := []api.DatabaseAccessRequestCondition{}
-	inserted := false
-	for _, c := range condList {
-		if c.Type == cond.Type {
-			res = append(res, cond)
-			inserted = true
-		} else {
-			res = append(res, c)
-		}
-	}
-	if !inserted {
-		res = append(res, cond)
-	}
-	return res
-}
-
-func DeleteDatabaseAccessCondition(condList []api.DatabaseAccessRequestCondition, condType api.RequestConditionType) []api.DatabaseAccessRequestCondition {
-	res := []api.DatabaseAccessRequestCondition{}
-	for _, c := range condList {
-		if c.Type != condType {
-			res = append(res, c)
-		}
-	}
-	return res
 }

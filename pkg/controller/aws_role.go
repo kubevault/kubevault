@@ -26,17 +26,16 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
 )
 
 const (
-	AWSRolePhaseSuccess    api.AWSRolePhase = "Success"
-	AWSRoleConditionFailed string           = "Failed"
-	AWSRoleFinalizer       string           = "awsrole.engine.kubevault.com"
+	AWSRolePhaseSuccess api.AWSRolePhase = "Success"
+	AWSRoleFinalizer    string           = "awsrole.engine.kubevault.com"
 )
 
 func (c *VaultController) initAWSRoleWatcher() {
@@ -101,10 +100,10 @@ func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, awsR
 	// create role
 	err := awsRClient.CreateRole()
 	if err != nil {
-		status.Conditions = []api.AWSRoleCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    AWSRoleConditionFailed,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToCreateRole",
 				Message: err.Error(),
 			},
@@ -117,7 +116,7 @@ func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, awsR
 		return errors.Wrap(err, "failed to create role")
 	}
 
-	status.Conditions = []api.AWSRoleCondition{}
+	status.Conditions = []kmapi.Condition{}
 	status.Phase = AWSRolePhaseSuccess
 	status.ObservedGeneration = awsRole.Generation
 

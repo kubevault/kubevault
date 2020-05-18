@@ -22,6 +22,7 @@ import (
 	"github.com/appscode/go/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	mona "kmodules.xyz/monitoring-agent-api/api/v1"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
 )
@@ -155,38 +156,11 @@ type VaultServerStatus struct {
 
 	// Represents the latest available observations of a VaultServer current state.
 	// +optional
-	Conditions []VaultServerCondition `json:"conditions,omitempty" protobuf:"bytes,8,rep,name=conditions"`
+	Conditions []kmapi.Condition `json:"conditions,omitempty" protobuf:"bytes,8,rep,name=conditions"`
 
 	// Status of the vault auth methods
 	// +optional
 	AuthMethodStatus []AuthMethodStatus `json:"authMethodStatus,omitempty" protobuf:"bytes,9,rep,name=authMethodStatus"`
-}
-
-// +kubebuilder:validation:Enum=Failure
-type VaultServerConditionType string
-
-// These are valid conditions of a VaultServer.
-const (
-	VaultServerConditionFailure VaultServerConditionType = "Failure"
-)
-
-// VaultServerCondition describes the state of a VaultServer at a certain point.
-type VaultServerCondition struct {
-	// Type of VaultServerCondition condition.
-	// +optional
-	Type VaultServerConditionType `json:"type,omitempty" protobuf:"bytes,1,opt,name=type,casttype=VaultServerConditionType"`
-
-	// Status of the condition, one of True, False, Unknown.
-	// +optional
-	Status core.ConditionStatus `json:"status,omitempty" protobuf:"bytes,2,opt,name=status,casttype=k8s.io/api/core/v1.ConditionStatus"`
-
-	// The reason for the condition's.
-	// +optional
-	Reason string `json:"reason,omitempty" protobuf:"bytes,3,opt,name=reason"`
-
-	// A human readable message indicating details about the transition.
-	// +optional
-	Message string `json:"message,omitempty" protobuf:"bytes,4,opt,name=message"`
 }
 
 type VaultStatus struct {

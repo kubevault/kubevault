@@ -332,6 +332,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"k8s.io/apimachinery/pkg/runtime.Unknown":                                     schema_k8sio_apimachinery_pkg_runtime_Unknown(ref),
 		"k8s.io/apimachinery/pkg/util/intstr.IntOrString":                             schema_apimachinery_pkg_util_intstr_IntOrString(ref),
 		"k8s.io/apimachinery/pkg/version.Info":                                        schema_k8sio_apimachinery_pkg_version_Info(ref),
+		"kmodules.xyz/client-go/api/v1.Condition":                                     schema_kmodulesxyz_client_go_api_v1_Condition(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AddKeyTransform":      schema_custom_resources_apis_appcatalog_v1alpha1_AddKeyTransform(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AddKeysFromTransform": schema_custom_resources_apis_appcatalog_v1alpha1_AddKeysFromTransform(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppBinding":           schema_custom_resources_apis_appcatalog_v1alpha1_AppBinding(ref),
@@ -361,40 +362,33 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/offshoot-api/api/v1.ServiceSpec":                                schema_kmodulesxyz_offshoot_api_api_v1_ServiceSpec(ref),
 		"kmodules.xyz/offshoot-api/api/v1.ServiceTemplateSpec":                        schema_kmodulesxyz_offshoot_api_api_v1_ServiceTemplateSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSAccessKeyRequest":             schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequest(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.AWSAccessKeyRequestCondition":    schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSAccessKeyRequestList":         schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSAccessKeyRequestSpec":         schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSAccessKeyRequestStatus":       schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestStatus(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSConfiguration":                schema_operator_apis_engine_v1alpha1_AWSConfiguration(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSRole":                         schema_operator_apis_engine_v1alpha1_AWSRole(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.AWSRoleCondition":                schema_operator_apis_engine_v1alpha1_AWSRoleCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSRoleList":                     schema_operator_apis_engine_v1alpha1_AWSRoleList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSRoleSpec":                     schema_operator_apis_engine_v1alpha1_AWSRoleSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AWSRoleStatus":                   schema_operator_apis_engine_v1alpha1_AWSRoleStatus(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureAccessKeyRequest":           schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequest(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.AzureAccessKeyRequestCondition":  schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureAccessKeyRequestList":       schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureAccessKeyRequestSpec":       schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureAccessKeyRequestStatus":     schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestStatus(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureConfiguration":              schema_operator_apis_engine_v1alpha1_AzureConfiguration(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureRole":                       schema_operator_apis_engine_v1alpha1_AzureRole(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleCondition":              schema_operator_apis_engine_v1alpha1_AzureRoleCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleList":                   schema_operator_apis_engine_v1alpha1_AzureRoleList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleSpec":                   schema_operator_apis_engine_v1alpha1_AzureRoleSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleStatus":                 schema_operator_apis_engine_v1alpha1_AzureRoleStatus(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequest":           schema_operator_apis_engine_v1alpha1_DatabaseAccessRequest(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestCondition":  schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestList":       schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestSpec":       schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestStatus":     schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestStatus(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequest":             schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequest(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequestCondition":    schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequestList":         schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequestSpec":         schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequestStatus":       schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestStatus(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPConfiguration":                schema_operator_apis_engine_v1alpha1_GCPConfiguration(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPRole":                         schema_operator_apis_engine_v1alpha1_GCPRole(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleCondition":                schema_operator_apis_engine_v1alpha1_GCPRoleCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleList":                     schema_operator_apis_engine_v1alpha1_GCPRoleList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleSpec":                     schema_operator_apis_engine_v1alpha1_GCPRoleSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleStatus":                   schema_operator_apis_engine_v1alpha1_GCPRoleStatus(ref),
@@ -402,25 +396,21 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevault.dev/operator/apis/engine/v1alpha1.LeaseConfig":                     schema_operator_apis_engine_v1alpha1_LeaseConfig(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBConfiguration":            schema_operator_apis_engine_v1alpha1_MongoDBConfiguration(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRole":                     schema_operator_apis_engine_v1alpha1_MongoDBRole(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleCondition":            schema_operator_apis_engine_v1alpha1_MongoDBRoleCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleList":                 schema_operator_apis_engine_v1alpha1_MongoDBRoleList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleSpec":                 schema_operator_apis_engine_v1alpha1_MongoDBRoleSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleStatus":               schema_operator_apis_engine_v1alpha1_MongoDBRoleStatus(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.MySQLConfiguration":              schema_operator_apis_engine_v1alpha1_MySQLConfiguration(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.MySQLRole":                       schema_operator_apis_engine_v1alpha1_MySQLRole(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleCondition":              schema_operator_apis_engine_v1alpha1_MySQLRoleCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleList":                   schema_operator_apis_engine_v1alpha1_MySQLRoleList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleSpec":                   schema_operator_apis_engine_v1alpha1_MySQLRoleSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleStatus":                 schema_operator_apis_engine_v1alpha1_MySQLRoleStatus(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.PostgresConfiguration":           schema_operator_apis_engine_v1alpha1_PostgresConfiguration(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.PostgresRole":                    schema_operator_apis_engine_v1alpha1_PostgresRole(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleCondition":           schema_operator_apis_engine_v1alpha1_PostgresRoleCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleList":                schema_operator_apis_engine_v1alpha1_PostgresRoleList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleSpec":                schema_operator_apis_engine_v1alpha1_PostgresRoleSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleStatus":              schema_operator_apis_engine_v1alpha1_PostgresRoleStatus(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.RoleRef":                         schema_operator_apis_engine_v1alpha1_RoleRef(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngine":                    schema_operator_apis_engine_v1alpha1_SecretEngine(ref),
-		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineCondition":           schema_operator_apis_engine_v1alpha1_SecretEngineCondition(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineConfiguration":       schema_operator_apis_engine_v1alpha1_SecretEngineConfiguration(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineList":                schema_operator_apis_engine_v1alpha1_SecretEngineList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineSpec":                schema_operator_apis_engine_v1alpha1_SecretEngineSpec(ref),
@@ -15567,6 +15557,62 @@ func schema_k8sio_apimachinery_pkg_version_Info(ref common.ReferenceCallback) co
 	}
 }
 
+func schema_kmodulesxyz_client_go_api_v1_Condition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Type of condition in CamelCase or in foo.example.com/CamelCase. Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be useful (see .node.status.conditions), the ability to deconflict is important.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Status of the condition, one of True, False, Unknown.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "If set, this represents the .metadata.generation that the condition was set based upon. For instance, if .metadata.generation is currently 12, but the .status.condition[x].observedGeneration is 9, the condition is out of date with respect to the current state of the instance.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"lastTransitionTime": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Last time the condition transitioned from one status to another. This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
+						},
+					},
+					"reason": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The reason for the condition's last transition in CamelCase. The specific API may choose whether or not this field is considered a guaranteed API. This field may not be empty.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"message": {
+						SchemaProps: spec.SchemaProps{
+							Description: "A human readable message indicating details about the transition. This field may be empty.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"type", "status", "lastTransitionTime", "reason", "message"},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+	}
+}
+
 func schema_custom_resources_apis_appcatalog_v1alpha1_AddKeyTransform(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -17066,48 +17112,6 @@ func schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequest(ref common.Referen
 	}
 }
 
-func schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
-				Properties: map[string]spec.Schema{
-					"type": {
-						SchemaProps: spec.SchemaProps{
-							Description: "request approval state, currently Approved or Denied.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"reason": {
-						SchemaProps: spec.SchemaProps{
-							Description: "brief reason for the request state",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"message": {
-						SchemaProps: spec.SchemaProps{
-							Description: "human readable message with details about the request state",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"lastUpdateTime": {
-						SchemaProps: spec.SchemaProps{
-							Description: "timestamp for the last update to this condition",
-							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
-						},
-					},
-				},
-				Required: []string{"type"},
-			},
-		},
-		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
-	}
-}
-
 func schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -17222,7 +17226,7 @@ func schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestStatus(ref common.R
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AWSAccessKeyRequestCondition"),
+										Ref: ref("kmodules.xyz/client-go/api/v1.Condition"),
 									},
 								},
 							},
@@ -17244,7 +17248,7 @@ func schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestStatus(ref common.R
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.LocalObjectReference", "kubevault.dev/operator/apis/engine/v1alpha1.AWSAccessKeyRequestCondition", "kubevault.dev/operator/apis/engine/v1alpha1.Lease"},
+			"k8s.io/api/core/v1.LocalObjectReference", "kmodules.xyz/client-go/api/v1.Condition", "kubevault.dev/operator/apis/engine/v1alpha1.Lease"},
 	}
 }
 
@@ -17344,47 +17348,6 @@ func schema_operator_apis_engine_v1alpha1_AWSRole(ref common.ReferenceCallback) 
 		},
 		Dependencies: []string{
 			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.AWSRoleSpec", "kubevault.dev/operator/apis/engine/v1alpha1.AWSRoleStatus"},
-	}
-}
-
-func schema_operator_apis_engine_v1alpha1_AWSRoleCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "AWSRoleCondition describes the state of a AWSRole at a certain point.",
-				Type:        []string{"object"},
-				Properties: map[string]spec.Schema{
-					"type": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Type of AWSRole condition.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"status": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Status of the condition, one of True, False, Unknown.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"reason": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The reason for the condition's.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"message": {
-						SchemaProps: spec.SchemaProps{
-							Description: "A human readable message indicating details about the transition.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-				},
-			},
-		},
 	}
 }
 
@@ -17551,7 +17514,7 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleStatus(ref common.ReferenceCall
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AWSRoleCondition"),
+										Ref: ref("kmodules.xyz/client-go/api/v1.Condition"),
 									},
 								},
 							},
@@ -17561,7 +17524,7 @@ func schema_operator_apis_engine_v1alpha1_AWSRoleStatus(ref common.ReferenceCall
 			},
 		},
 		Dependencies: []string{
-			"kubevault.dev/operator/apis/engine/v1alpha1.AWSRoleCondition"},
+			"kmodules.xyz/client-go/api/v1.Condition"},
 	}
 }
 
@@ -17605,48 +17568,6 @@ func schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequest(ref common.Refer
 		},
 		Dependencies: []string{
 			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.AzureAccessKeyRequestSpec", "kubevault.dev/operator/apis/engine/v1alpha1.AzureAccessKeyRequestStatus"},
-	}
-}
-
-func schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
-				Properties: map[string]spec.Schema{
-					"type": {
-						SchemaProps: spec.SchemaProps{
-							Description: "request approval state, currently Approved or Denied.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"reason": {
-						SchemaProps: spec.SchemaProps{
-							Description: "brief reason for the request state",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"message": {
-						SchemaProps: spec.SchemaProps{
-							Description: "human readable message with details about the request state",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"lastUpdateTime": {
-						SchemaProps: spec.SchemaProps{
-							Description: "timestamp for the last update to this condition",
-							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
-						},
-					},
-				},
-				Required: []string{"type"},
-			},
-		},
-		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -17743,7 +17664,7 @@ func schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestStatus(ref common
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AzureAccessKeyRequestCondition"),
+										Ref: ref("kmodules.xyz/client-go/api/v1.Condition"),
 									},
 								},
 							},
@@ -17765,7 +17686,7 @@ func schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestStatus(ref common
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.LocalObjectReference", "kubevault.dev/operator/apis/engine/v1alpha1.AzureAccessKeyRequestCondition", "kubevault.dev/operator/apis/engine/v1alpha1.Lease"},
+			"k8s.io/api/core/v1.LocalObjectReference", "kmodules.xyz/client-go/api/v1.Condition", "kubevault.dev/operator/apis/engine/v1alpha1.Lease"},
 	}
 }
 
@@ -17837,47 +17758,6 @@ func schema_operator_apis_engine_v1alpha1_AzureRole(ref common.ReferenceCallback
 		},
 		Dependencies: []string{
 			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleSpec", "kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleStatus"},
-	}
-}
-
-func schema_operator_apis_engine_v1alpha1_AzureRoleCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "AzureRoleCondition describes the state of a AzureRole at a certain point.",
-				Type:        []string{"object"},
-				Properties: map[string]spec.Schema{
-					"type": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Type of AzureRole condition.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"status": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Status of the condition, one of True, False, Unknown.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"reason": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The reason for the condition's.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"message": {
-						SchemaProps: spec.SchemaProps{
-							Description: "A human readable message indicating details about the transition.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-				},
-			},
-		},
 	}
 }
 
@@ -18010,7 +17890,7 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleStatus(ref common.ReferenceCa
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleCondition"),
+										Ref: ref("kmodules.xyz/client-go/api/v1.Condition"),
 									},
 								},
 							},
@@ -18020,7 +17900,7 @@ func schema_operator_apis_engine_v1alpha1_AzureRoleStatus(ref common.ReferenceCa
 			},
 		},
 		Dependencies: []string{
-			"kubevault.dev/operator/apis/engine/v1alpha1.AzureRoleCondition"},
+			"kmodules.xyz/client-go/api/v1.Condition"},
 	}
 }
 
@@ -18064,48 +17944,6 @@ func schema_operator_apis_engine_v1alpha1_DatabaseAccessRequest(ref common.Refer
 		},
 		Dependencies: []string{
 			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestSpec", "kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestStatus"},
-	}
-}
-
-func schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
-				Properties: map[string]spec.Schema{
-					"type": {
-						SchemaProps: spec.SchemaProps{
-							Description: "request approval state, currently Approved or Denied.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"reason": {
-						SchemaProps: spec.SchemaProps{
-							Description: "brief reason for the request state",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"message": {
-						SchemaProps: spec.SchemaProps{
-							Description: "human readable message with details about the request state",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"lastUpdateTime": {
-						SchemaProps: spec.SchemaProps{
-							Description: "timestamp for the last update to this condition",
-							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
-						},
-					},
-				},
-				Required: []string{"type"},
-			},
-		},
-		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -18209,7 +18047,7 @@ func schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestStatus(ref common
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestCondition"),
+										Ref: ref("kmodules.xyz/client-go/api/v1.Condition"),
 									},
 								},
 							},
@@ -18231,7 +18069,7 @@ func schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestStatus(ref common
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.LocalObjectReference", "kubevault.dev/operator/apis/engine/v1alpha1.DatabaseAccessRequestCondition", "kubevault.dev/operator/apis/engine/v1alpha1.Lease"},
+			"k8s.io/api/core/v1.LocalObjectReference", "kmodules.xyz/client-go/api/v1.Condition", "kubevault.dev/operator/apis/engine/v1alpha1.Lease"},
 	}
 }
 
@@ -18275,48 +18113,6 @@ func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequest(ref common.Referen
 		},
 		Dependencies: []string{
 			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequestSpec", "kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequestStatus"},
-	}
-}
-
-func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
-				Properties: map[string]spec.Schema{
-					"type": {
-						SchemaProps: spec.SchemaProps{
-							Description: "request approval state, currently Approved or Denied.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"reason": {
-						SchemaProps: spec.SchemaProps{
-							Description: "brief reason for the request state",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"message": {
-						SchemaProps: spec.SchemaProps{
-							Description: "human readable message with details about the request state",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"lastUpdateTime": {
-						SchemaProps: spec.SchemaProps{
-							Description: "timestamp for the last update to this condition",
-							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Time"),
-						},
-					},
-				},
-				Required: []string{"type"},
-			},
-		},
-		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -18428,7 +18224,7 @@ func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestStatus(ref common.R
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequestCondition"),
+										Ref: ref("kmodules.xyz/client-go/api/v1.Condition"),
 									},
 								},
 							},
@@ -18450,7 +18246,7 @@ func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestStatus(ref common.R
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.LocalObjectReference", "kubevault.dev/operator/apis/engine/v1alpha1.GCPAccessKeyRequestCondition", "kubevault.dev/operator/apis/engine/v1alpha1.Lease"},
+			"k8s.io/api/core/v1.LocalObjectReference", "kmodules.xyz/client-go/api/v1.Condition", "kubevault.dev/operator/apis/engine/v1alpha1.Lease"},
 	}
 }
 
@@ -18529,47 +18325,6 @@ func schema_operator_apis_engine_v1alpha1_GCPRole(ref common.ReferenceCallback) 
 		},
 		Dependencies: []string{
 			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleSpec", "kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleStatus"},
-	}
-}
-
-func schema_operator_apis_engine_v1alpha1_GCPRoleCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "GCPRoleCondition describes the state of a GCPRole at a certain point.",
-				Type:        []string{"object"},
-				Properties: map[string]spec.Schema{
-					"type": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Type of GCPRole condition.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"status": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Status of the condition, one of True, False, Unknown.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"reason": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The reason for the condition's.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"message": {
-						SchemaProps: spec.SchemaProps{
-							Description: "A human readable message indicating details about the transition.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-				},
-			},
-		},
 	}
 }
 
@@ -18709,7 +18464,7 @@ func schema_operator_apis_engine_v1alpha1_GCPRoleStatus(ref common.ReferenceCall
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleCondition"),
+										Ref: ref("kmodules.xyz/client-go/api/v1.Condition"),
 									},
 								},
 							},
@@ -18719,7 +18474,7 @@ func schema_operator_apis_engine_v1alpha1_GCPRoleStatus(ref common.ReferenceCall
 			},
 		},
 		Dependencies: []string{
-			"kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleCondition"},
+			"kmodules.xyz/client-go/api/v1.Condition"},
 	}
 }
 
@@ -18879,47 +18634,6 @@ func schema_operator_apis_engine_v1alpha1_MongoDBRole(ref common.ReferenceCallba
 	}
 }
 
-func schema_operator_apis_engine_v1alpha1_MongoDBRoleCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "MongoDBRoleCondition describes the state of a MongoDBRole at a certain point.",
-				Type:        []string{"object"},
-				Properties: map[string]spec.Schema{
-					"type": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Type of MongoDBRole condition.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"status": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Status of the condition, one of True, False, Unknown.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"reason": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The reason for the condition's.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"message": {
-						SchemaProps: spec.SchemaProps{
-							Description: "A human readable message indicating details about the transition.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-				},
-			},
-		},
-	}
-}
-
 func schema_operator_apis_engine_v1alpha1_MongoDBRoleList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -19076,7 +18790,7 @@ func schema_operator_apis_engine_v1alpha1_MongoDBRoleStatus(ref common.Reference
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleCondition"),
+										Ref: ref("kmodules.xyz/client-go/api/v1.Condition"),
 									},
 								},
 							},
@@ -19086,7 +18800,7 @@ func schema_operator_apis_engine_v1alpha1_MongoDBRoleStatus(ref common.Reference
 			},
 		},
 		Dependencies: []string{
-			"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBRoleCondition"},
+			"kmodules.xyz/client-go/api/v1.Condition"},
 	}
 }
 
@@ -19194,47 +18908,6 @@ func schema_operator_apis_engine_v1alpha1_MySQLRole(ref common.ReferenceCallback
 		},
 		Dependencies: []string{
 			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleSpec", "kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleStatus"},
-	}
-}
-
-func schema_operator_apis_engine_v1alpha1_MySQLRoleCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "MySQLRoleCondition describes the state of a MySQLRole at a certain point.",
-				Type:        []string{"object"},
-				Properties: map[string]spec.Schema{
-					"type": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Type of MySQLRole condition.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"status": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Status of the condition, one of True, False, Unknown.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"reason": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The reason for the condition's.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"message": {
-						SchemaProps: spec.SchemaProps{
-							Description: "A human readable message indicating details about the transition.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-				},
-			},
-		},
 	}
 }
 
@@ -19394,7 +19067,7 @@ func schema_operator_apis_engine_v1alpha1_MySQLRoleStatus(ref common.ReferenceCa
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleCondition"),
+										Ref: ref("kmodules.xyz/client-go/api/v1.Condition"),
 									},
 								},
 							},
@@ -19404,7 +19077,7 @@ func schema_operator_apis_engine_v1alpha1_MySQLRoleStatus(ref common.ReferenceCa
 			},
 		},
 		Dependencies: []string{
-			"kubevault.dev/operator/apis/engine/v1alpha1.MySQLRoleCondition"},
+			"kmodules.xyz/client-go/api/v1.Condition"},
 	}
 }
 
@@ -19512,47 +19185,6 @@ func schema_operator_apis_engine_v1alpha1_PostgresRole(ref common.ReferenceCallb
 		},
 		Dependencies: []string{
 			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleSpec", "kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleStatus"},
-	}
-}
-
-func schema_operator_apis_engine_v1alpha1_PostgresRoleCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "PostgresRoleCondition describes the state of a PostgresRole at a certain point.",
-				Type:        []string{"object"},
-				Properties: map[string]spec.Schema{
-					"type": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Type of PostgresRole condition.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"status": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Status of the condition, one of True, False, Unknown.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"reason": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The reason for the condition's.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"message": {
-						SchemaProps: spec.SchemaProps{
-							Description: "A human readable message indicating details about the transition.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-				},
-			},
-		},
 	}
 }
 
@@ -19741,7 +19373,7 @@ func schema_operator_apis_engine_v1alpha1_PostgresRoleStatus(ref common.Referenc
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleCondition"),
+										Ref: ref("kmodules.xyz/client-go/api/v1.Condition"),
 									},
 								},
 							},
@@ -19751,7 +19383,7 @@ func schema_operator_apis_engine_v1alpha1_PostgresRoleStatus(ref common.Referenc
 			},
 		},
 		Dependencies: []string{
-			"kubevault.dev/operator/apis/engine/v1alpha1.PostgresRoleCondition"},
+			"kmodules.xyz/client-go/api/v1.Condition"},
 	}
 }
 
@@ -19837,44 +19469,6 @@ func schema_operator_apis_engine_v1alpha1_SecretEngine(ref common.ReferenceCallb
 		},
 		Dependencies: []string{
 			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineSpec", "kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineStatus"},
-	}
-}
-
-func schema_operator_apis_engine_v1alpha1_SecretEngineCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Type: []string{"object"},
-				Properties: map[string]spec.Schema{
-					"type": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"status": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"reason": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The reason for the condition's.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"message": {
-						SchemaProps: spec.SchemaProps{
-							Description: "A human readable message indicating details about the transition.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-				},
-			},
-		},
 	}
 }
 
@@ -20048,7 +19642,7 @@ func schema_operator_apis_engine_v1alpha1_SecretEngineStatus(ref common.Referenc
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineCondition"),
+										Ref: ref("kmodules.xyz/client-go/api/v1.Condition"),
 									},
 								},
 							},
@@ -20058,6 +19652,6 @@ func schema_operator_apis_engine_v1alpha1_SecretEngineStatus(ref common.Referenc
 			},
 		},
 		Dependencies: []string{
-			"kubevault.dev/operator/apis/engine/v1alpha1.SecretEngineCondition"},
+			"kmodules.xyz/client-go/api/v1.Condition"},
 	}
 }

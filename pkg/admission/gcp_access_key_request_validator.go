@@ -25,6 +25,7 @@ import (
 	admission "k8s.io/api/admission/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/rest"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 	hookapi "kmodules.xyz/webhook-runtime/admission/v1beta1"
 )
@@ -87,7 +88,7 @@ func (v *GCPAccessKeyRequestValidator) Admit(req *admission.AdmissionRequest) *a
 		isApprovedOrDenied := false
 
 		for _, c := range gcpAKReq.Status.Conditions {
-			if c.Type == api.AccessApproved || c.Type == api.AccessDenied {
+			if c.Type == kmapi.ConditionRequestApproved || c.Type == kmapi.ConditionRequestDenied {
 				isApprovedOrDenied = true
 			}
 		}

@@ -30,13 +30,13 @@ import (
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
 )
 
 const (
-	AzureAccessKeyRequestFailed    api.RequestConditionType = "Failed"
-	AzureAccessKeyRequestFinalizer string                   = "azureaccesskeyrequest.engine.kubevault.com"
+	AzureAccessKeyRequestFinalizer = "azureaccesskeyrequest.engine.kubevault.com"
 )
 
 func (c *VaultController) initAzureAccessKeyWatcher() {
@@ -49,12 +49,12 @@ func (c *VaultController) initAzureAccessKeyWatcher() {
 		oldCondType := ""
 		nuCondType := ""
 		for _, c := range old.Status.Conditions {
-			if c.Type == api.AccessApproved || c.Type == api.AccessDenied {
+			if c.Type == kmapi.ConditionRequestApproved || c.Type == kmapi.ConditionRequestDenied {
 				oldCondType = string(c.Type)
 			}
 		}
 		for _, c := range nu.Status.Conditions {
-			if c.Type == api.AccessApproved || c.Type == api.AccessDenied {
+			if c.Type == kmapi.ConditionRequestApproved || c.Type == kmapi.ConditionRequestDenied {
 				nuCondType = string(c.Type)
 			}
 		}
@@ -97,14 +97,14 @@ func (c *VaultController) runAzureAccessKeyRequestInjector(key string) error {
 				}
 			}
 
-			var condType api.RequestConditionType
+			var condType string
 			for _, c := range azureAccessReq.Status.Conditions {
-				if c.Type == api.AccessApproved || c.Type == api.AccessDenied {
+				if c.Type == kmapi.ConditionRequestApproved || c.Type == kmapi.ConditionRequestDenied {
 					condType = c.Type
 				}
 			}
 
-			if condType == api.AccessApproved {
+			if condType == kmapi.ConditionRequestApproved {
 				azureCredManager, err := credential.NewCredentialManagerForAzure(c.kubeClient, c.appCatalogClient, c.extClient, azureAccessReq)
 				if err != nil {
 					return err
@@ -114,7 +114,7 @@ func (c *VaultController) runAzureAccessKeyRequestInjector(key string) error {
 				if err != nil {
 					return errors.Wrapf(err, "For AzureAccessKeyRequest %s/%s", azureAccessReq.Namespace, azureAccessReq.Name)
 				}
-			} else if condType == api.AccessDenied {
+			} else if condType == kmapi.ConditionRequestDenied {
 				glog.Infof("For AzureAccessKeyRequest %s/%s: request is denied", azureAccessReq.Namespace, azureAccessReq.Name)
 			} else {
 				glog.Infof("For AzureAccessKeyRequest %s/%s: request is not approved yet", azureAccessReq.Namespace, azureAccessReq.Name)
@@ -148,11 +148,11 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(azureCM credential.Cred
 		// get azure credential secret
 		credSecret, err := azureCM.GetCredential()
 		if err != nil {
-			status.Conditions = UpsertAzureAccessKeyCondition(status.Conditions, api.AzureAccessKeyRequestCondition{
-				Type:           AzureAccessKeyRequestFailed,
-				Reason:         "FailedToGetCredential",
-				Message:        err.Error(),
-				LastUpdateTime: metav1.Now(),
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+				Type:               kmapi.ConditionFailure,
+				Reason:             "FailedToGetCredential",
+				Message:            err.Error(),
+				LastTransitionTime: metav1.Now(),
 			})
 
 			err2 := c.updateAzureAccessKeyRequestStatus(&status, azureAccessKeyReq)
@@ -171,11 +171,11 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(azureCM credential.Cred
 					return errors.Wrapf(err, "failed to revoke lease with %v", err2)
 				}
 			}
-			status.Conditions = UpsertAzureAccessKeyCondition(status.Conditions, api.AzureAccessKeyRequestCondition{
-				Type:           AzureAccessKeyRequestFailed,
-				Reason:         "FailedToCreateSecret",
-				Message:        err.Error(),
-				LastUpdateTime: metav1.Now(),
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+				Type:               kmapi.ConditionFailure,
+				Reason:             "FailedToCreateSecret",
+				Message:            err.Error(),
+				LastTransitionTime: metav1.Now(),
 			})
 
 			err2 := c.updateAzureAccessKeyRequestStatus(&status, azureAccessKeyReq)
@@ -205,11 +205,11 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(azureCM credential.Cred
 
 	err := azureCM.CreateRole(roleName, ns, secretName)
 	if err != nil {
-		status.Conditions = UpsertAzureAccessKeyCondition(status.Conditions, api.AzureAccessKeyRequestCondition{
-			Type:           AzureAccessKeyRequestFailed,
-			Reason:         "FailedToCreateRole",
-			Message:        err.Error(),
-			LastUpdateTime: metav1.Now(),
+		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+			Type:               kmapi.ConditionFailure,
+			Reason:             "FailedToCreateRole",
+			Message:            err.Error(),
+			LastTransitionTime: metav1.Now(),
 		})
 
 		err2 := c.updateAzureAccessKeyRequestStatus(&status, azureAccessKeyReq)
@@ -221,11 +221,11 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(azureCM credential.Cred
 
 	err = azureCM.CreateRoleBinding(roleName, ns, roleName, azureAccessKeyReq.Spec.Subjects)
 	if err != nil {
-		status.Conditions = UpsertAzureAccessKeyCondition(status.Conditions, api.AzureAccessKeyRequestCondition{
-			Type:           AzureAccessKeyRequestFailed,
-			Reason:         "FailedToCreateRoleBinding",
-			Message:        err.Error(),
-			LastUpdateTime: metav1.Now(),
+		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+			Type:               kmapi.ConditionFailure,
+			Reason:             "FailedToCreateRoleBinding",
+			Message:            err.Error(),
+			LastTransitionTime: metav1.Now(),
 		})
 
 		err2 := c.updateAzureAccessKeyRequestStatus(&status, azureAccessKeyReq)
@@ -235,7 +235,7 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(azureCM credential.Cred
 		return errors.WithStack(err)
 	}
 
-	status.Conditions = DeleteAzureAccessKeyCondition(status.Conditions, api.RequestConditionType(AzureAccessKeyRequestFailed))
+	status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
 	err = c.updateAzureAccessKeyRequestStatus(&status, azureAccessKeyReq)
 	if err != nil {
 		return errors.Wrap(err, "failed to update status")
@@ -353,31 +353,4 @@ func (c *VaultController) removeAzureAccessKeyRequestFinalizer(azureAKReq *api.A
 
 func getAzureAccessKeyRequestId(azureAKReq *api.AzureAccessKeyRequest) string {
 	return fmt.Sprintf("%s/%s/%s", api.ResourceAzureAccessKeyRequest, azureAKReq.Namespace, azureAKReq.Name)
-}
-
-func UpsertAzureAccessKeyCondition(condList []api.AzureAccessKeyRequestCondition, cond api.AzureAccessKeyRequestCondition) []api.AzureAccessKeyRequestCondition {
-	var res []api.AzureAccessKeyRequestCondition
-	inserted := false
-	for _, c := range condList {
-		if c.Type == cond.Type {
-			res = append(res, cond)
-			inserted = true
-		} else {
-			res = append(res, c)
-		}
-	}
-	if !inserted {
-		res = append(res, cond)
-	}
-	return res
-}
-
-func DeleteAzureAccessKeyCondition(condList []api.AzureAccessKeyRequestCondition, condType api.RequestConditionType) []api.AzureAccessKeyRequestCondition {
-	var res []api.AzureAccessKeyRequestCondition
-	for _, c := range condList {
-		if c.Type != condType {
-			res = append(res, c)
-		}
-	}
-	return res
 }

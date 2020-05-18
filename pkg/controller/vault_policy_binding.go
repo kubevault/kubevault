@@ -25,9 +25,9 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
 )
@@ -100,10 +100,10 @@ func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBi
 	err := pBClient.Ensure(vPBind.PolicyBindingName())
 	if err != nil {
 		status.Phase = policyapi.PolicyBindingFailed
-		status.Conditions = []policyapi.PolicyBindingCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    policyapi.PolicyBindingConditionFailure,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToEnsurePolicyBinding",
 				Message: err.Error(),
 			},
@@ -118,7 +118,7 @@ func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBi
 
 	// update status
 	status.ObservedGeneration = vPBind.Generation
-	status.Conditions = []policyapi.PolicyBindingCondition{}
+	status.Conditions = []kmapi.Condition{}
 	status.Phase = policyapi.PolicyBindingSuccess
 	err2 := c.updatePolicyBindingStatus(&status, vPBind)
 	if err2 != nil {
