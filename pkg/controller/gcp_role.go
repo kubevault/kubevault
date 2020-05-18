@@ -129,7 +129,7 @@ func (c *VaultController) reconcileGCPRole(gcpRClient gcp.GCPRoleInterface, gcpR
 }
 
 func (c *VaultController) updatedGCPRoleStatus(status *api.GCPRoleStatus, gcpRole *api.GCPRole) error {
-	_, err := patchutil.UpdateGCPRoleStatus(c.extClient.EngineV1alpha1(), gcpRole, func(s *api.GCPRoleStatus) *api.GCPRoleStatus {
+	_, err := patchutil.UpdateGCPRoleStatus(c.extClient.EngineV1alpha1(), gcpRole.ObjectMeta, func(s *api.GCPRoleStatus) *api.GCPRoleStatus {
 		return status
 	})
 	return err

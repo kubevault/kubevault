@@ -22,7 +22,7 @@ import (
 )
 
 func (f *Framework) UpdateAzureAccessKeyRequestStatus(status *api.AzureAccessKeyRequestStatus, azureAReq *api.AzureAccessKeyRequest) error {
-	_, err := patchutil.UpdateAzureAccessKeyRequestStatus(f.CSClient.EngineV1alpha1(), azureAReq, func(s *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
+	_, err := patchutil.UpdateAzureAccessKeyRequestStatus(f.CSClient.EngineV1alpha1(), azureAReq.ObjectMeta, func(s *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
 		return status
 	})
 	return err

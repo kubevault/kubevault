@@ -130,7 +130,7 @@ func (c *VaultController) reconcileAzureRole(azureRClient azure.AzureRoleInterfa
 }
 
 func (c *VaultController) updatedAzureRoleStatus(status *api.AzureRoleStatus, azureRole *api.AzureRole) error {
-	_, err := patchutil.UpdateAzureRoleStatus(c.extClient.EngineV1alpha1(), azureRole, func(s *api.AzureRoleStatus) *api.AzureRoleStatus {
+	_, err := patchutil.UpdateAzureRoleStatus(c.extClient.EngineV1alpha1(), azureRole.ObjectMeta, func(s *api.AzureRoleStatus) *api.AzureRoleStatus {
 		return status
 	})
 	return err

@@ -132,7 +132,7 @@ func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleIn
 }
 
 func (c *VaultController) updatedMongoDBRoleStatus(status *api.MongoDBRoleStatus, mRole *api.MongoDBRole) error {
-	_, err := patchutil.UpdateMongoDBRoleStatus(c.extClient.EngineV1alpha1(), mRole, func(s *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
+	_, err := patchutil.UpdateMongoDBRoleStatus(c.extClient.EngineV1alpha1(), mRole.ObjectMeta, func(s *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
 		return status
 	})
 	return err

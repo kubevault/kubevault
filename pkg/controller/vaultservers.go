@@ -311,13 +311,10 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 }
 
 func (c *VaultController) updatedVaultServerStatus(status *api.VaultServerStatus, vs *api.VaultServer) error {
-	_, err := patchutil.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vs, func(s *api.VaultServerStatus) *api.VaultServerStatus {
+	_, err := patchutil.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vs.ObjectMeta, func(s *api.VaultServerStatus) *api.VaultServerStatus {
 		return status
 	})
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // ensureServiceAccount creates/patches service account

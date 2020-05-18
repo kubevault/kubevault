@@ -101,31 +101,30 @@ func TryUpdateVaultServer(c cs.KubevaultV1alpha1Interface, meta metav1.ObjectMet
 
 func UpdateVaultServerStatus(
 	c cs.KubevaultV1alpha1Interface,
-	in *api.VaultServer,
+	meta metav1.ObjectMeta,
 	transform func(*api.VaultServerStatus) *api.VaultServerStatus,
 ) (result *api.VaultServer, err error) {
-	apply := func(x *api.VaultServer, copy bool) *api.VaultServer {
+	apply := func(x *api.VaultServer) *api.VaultServer {
 		out := &api.VaultServer{
 			TypeMeta:   x.TypeMeta,
 			ObjectMeta: x.ObjectMeta,
 			Spec:       x.Spec,
-		}
-		if copy {
-			out.Status = *transform(in.Status.DeepCopy())
-		} else {
-			out.Status = *transform(&in.Status)
+			Status:     *transform(x.Status.DeepCopy()),
 		}
 		return out
 	}
 
 	attempt := 0
-	cur := in.DeepCopy()
+	cur, err := c.VaultServers(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
 		var e2 error
-		result, e2 = c.VaultServers(in.Namespace).UpdateStatus(apply(cur, false))
+		result, e2 = c.VaultServers(meta.Namespace).UpdateStatus(apply(cur))
 		if kerr.IsConflict(e2) {
-			latest, e3 := c.VaultServers(in.Namespace).Get(in.Name, metav1.GetOptions{})
+			latest, e3 := c.VaultServers(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
 			switch {
 			case e3 == nil:
 				cur = latest
@@ -142,7 +141,7 @@ func UpdateVaultServerStatus(
 	})
 
 	if err != nil {
-		err = fmt.Errorf("failed to update status of VaultServer %s/%s after %d attempts due to %v", in.Namespace, in.Name, attempt, err)
+		err = fmt.Errorf("failed to update status of VaultServer %s/%s after %d attempts due to %v", meta.Namespace, meta.Name, attempt, err)
 	}
 	return
 }

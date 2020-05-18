@@ -244,7 +244,7 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(gcpCM credential.Credenti
 }
 
 func (c *VaultController) updateGCPAccessKeyRequestStatus(status *api.GCPAccessKeyRequestStatus, gcpAKReq *api.GCPAccessKeyRequest) error {
-	_, err := patchutil.UpdateGCPAccessKeyRequestStatus(c.extClient.EngineV1alpha1(), gcpAKReq, func(s *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
+	_, err := patchutil.UpdateGCPAccessKeyRequestStatus(c.extClient.EngineV1alpha1(), gcpAKReq.ObjectMeta, func(s *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
 		return status
 	})
 	return err

@@ -183,7 +183,7 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 }
 
 func (c *VaultController) updatedSecretEngineStatus(status *api.SecretEngineStatus, secretEngine *api.SecretEngine) error {
-	_, err := patchutil.UpdateSecretEngineStatus(c.extClient.EngineV1alpha1(), secretEngine, func(s *api.SecretEngineStatus) *api.SecretEngineStatus {
+	_, err := patchutil.UpdateSecretEngineStatus(c.extClient.EngineV1alpha1(), secretEngine.ObjectMeta, func(s *api.SecretEngineStatus) *api.SecretEngineStatus {
 		return status
 	})
 	return err

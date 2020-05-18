@@ -22,7 +22,7 @@ import (
 )
 
 func (f *Framework) UpdateDatabaseAccessRequestStatus(status *api.DatabaseAccessRequestStatus, dbAReq *api.DatabaseAccessRequest) error {
-	_, err := patchutil.UpdateDatabaseAccessRequestStatus(f.CSClient.EngineV1alpha1(), dbAReq, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
+	_, err := patchutil.UpdateDatabaseAccessRequestStatus(f.CSClient.EngineV1alpha1(), dbAReq.ObjectMeta, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
 		return status
 	})
 	return err

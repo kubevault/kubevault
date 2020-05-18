@@ -101,7 +101,7 @@ func TryUpdateMongoDBRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, 
 
 func UpdateMongoDBRoleStatus(
 	c cs.EngineV1alpha1Interface,
-	in *api.MongoDBRole,
+	meta metav1.ObjectMeta,
 	transform func(*api.MongoDBRoleStatus) *api.MongoDBRoleStatus,
 ) (result *api.MongoDBRole, err error) {
 	apply := func(x *api.MongoDBRole) *api.MongoDBRole {
@@ -109,18 +109,21 @@ func UpdateMongoDBRoleStatus(
 			TypeMeta:   x.TypeMeta,
 			ObjectMeta: x.ObjectMeta,
 			Spec:       x.Spec,
-			Status:     *transform(in.Status.DeepCopy()),
+			Status:     *transform(x.Status.DeepCopy()),
 		}
 	}
 
 	attempt := 0
-	cur := in.DeepCopy()
+	cur, err := c.MongoDBRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
 		var e2 error
-		result, e2 = c.MongoDBRoles(in.Namespace).UpdateStatus(apply(cur))
+		result, e2 = c.MongoDBRoles(meta.Namespace).UpdateStatus(apply(cur))
 		if kerr.IsConflict(e2) {
-			latest, e3 := c.MongoDBRoles(in.Namespace).Get(in.Name, metav1.GetOptions{})
+			latest, e3 := c.MongoDBRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
 			switch {
 			case e3 == nil:
 				cur = latest
@@ -137,7 +140,7 @@ func UpdateMongoDBRoleStatus(
 	})
 
 	if err != nil {
-		err = fmt.Errorf("failed to update status of MongoDBRole %s/%s after %d attempts due to %v", in.Namespace, in.Name, attempt, err)
+		err = fmt.Errorf("failed to update status of MongoDBRole %s/%s after %d attempts due to %v", meta.Namespace, meta.Name, attempt, err)
 	}
 	return
 }

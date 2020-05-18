@@ -129,7 +129,7 @@ func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBi
 
 // updatePolicyBindingStatus updates policy binding status
 func (c *VaultController) updatePolicyBindingStatus(status *policyapi.VaultPolicyBindingStatus, vPBind *policyapi.VaultPolicyBinding) error {
-	_, err := patchutil.UpdateVaultPolicyBindingStatus(c.extClient.PolicyV1alpha1(), vPBind, func(s *policyapi.VaultPolicyBindingStatus) *policyapi.VaultPolicyBindingStatus {
+	_, err := patchutil.UpdateVaultPolicyBindingStatus(c.extClient.PolicyV1alpha1(), vPBind.ObjectMeta, func(s *policyapi.VaultPolicyBindingStatus) *policyapi.VaultPolicyBindingStatus {
 		return status
 	})
 	return err
