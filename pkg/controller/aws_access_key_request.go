@@ -30,13 +30,13 @@ import (
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
 )
 
 const (
-	AWSAccessKeyRequestFailed    api.RequestConditionType = "Failed"
-	AWSAccessKeyRequestFinalizer string                   = "awsaccesskeyrequest.engine.kubevault.com"
+	AWSAccessKeyRequestFinalizer = "awsaccesskeyrequest.engine.kubevault.com"
 )
 
 func (c *VaultController) initAWSAccessKeyWatcher() {
@@ -49,12 +49,12 @@ func (c *VaultController) initAWSAccessKeyWatcher() {
 		oldCondType := ""
 		nuCondType := ""
 		for _, c := range old.Status.Conditions {
-			if c.Type == api.AccessApproved || c.Type == api.AccessDenied {
+			if c.Type == kmapi.ConditionRequestApproved || c.Type == kmapi.ConditionRequestDenied {
 				oldCondType = string(c.Type)
 			}
 		}
 		for _, c := range nu.Status.Conditions {
-			if c.Type == api.AccessApproved || c.Type == api.AccessDenied {
+			if c.Type == kmapi.ConditionRequestApproved || c.Type == kmapi.ConditionRequestDenied {
 				nuCondType = string(c.Type)
 			}
 		}
@@ -97,14 +97,14 @@ func (c *VaultController) runAWSAccessKeyRequestInjector(key string) error {
 				}
 			}
 
-			var condType api.RequestConditionType
+			var condType string
 			for _, c := range awsAccessReq.Status.Conditions {
-				if c.Type == api.AccessApproved || c.Type == api.AccessDenied {
+				if c.Type == kmapi.ConditionRequestApproved || c.Type == kmapi.ConditionRequestDenied {
 					condType = c.Type
 				}
 			}
 
-			if condType == api.AccessApproved {
+			if condType == kmapi.ConditionRequestApproved {
 				awsCredManager, err := credential.NewCredentialManagerForAWS(c.kubeClient, c.appCatalogClient, c.extClient, awsAccessReq)
 				if err != nil {
 					return err
@@ -114,7 +114,7 @@ func (c *VaultController) runAWSAccessKeyRequestInjector(key string) error {
 				if err != nil {
 					return errors.Wrapf(err, "For AWSAccessKeyRequest %s/%s", awsAccessReq.Namespace, awsAccessReq.Name)
 				}
-			} else if condType == api.AccessDenied {
+			} else if condType == kmapi.ConditionRequestDenied {
 				glog.Infof("For AWSAccessKeyRequest %s/%s: request is denied", awsAccessReq.Namespace, awsAccessReq.Name)
 			} else {
 				glog.Infof("For AWSAccessKeyRequest %s/%s: request is not approved yet", awsAccessReq.Namespace, awsAccessReq.Name)
@@ -148,11 +148,11 @@ func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.Credenti
 		// get aws credential secret
 		credSecret, err := awsCM.GetCredential()
 		if err != nil {
-			status.Conditions = UpsertAWSAccessKeyCondition(status.Conditions, api.AWSAccessKeyRequestCondition{
-				Type:           AWSAccessKeyRequestFailed,
-				Reason:         "FailedToGetCredential",
-				Message:        err.Error(),
-				LastUpdateTime: metav1.Now(),
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+				Type:               kmapi.ConditionFailure,
+				Reason:             "FailedToGetCredential",
+				Message:            err.Error(),
+				LastTransitionTime: metav1.Now(),
 			})
 
 			err2 := c.updateAWSAccessKeyRequestStatus(&status, awsAccessReq)
@@ -170,11 +170,11 @@ func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.Credenti
 				return errors.Wrapf(err2, "failed to revoke lease")
 			}
 
-			status.Conditions = UpsertAWSAccessKeyCondition(status.Conditions, api.AWSAccessKeyRequestCondition{
-				Type:           AWSAccessKeyRequestFailed,
-				Reason:         "FailedToCreateSecret",
-				Message:        err.Error(),
-				LastUpdateTime: metav1.Now(),
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+				Type:               kmapi.ConditionFailure,
+				Reason:             "FailedToCreateSecret",
+				Message:            err.Error(),
+				LastTransitionTime: metav1.Now(),
 			})
 
 			err2 = c.updateAWSAccessKeyRequestStatus(&status, awsAccessReq)
@@ -203,11 +203,11 @@ func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.Credenti
 
 	err := awsCM.CreateRole(roleName, ns, secretName)
 	if err != nil {
-		status.Conditions = UpsertAWSAccessKeyCondition(status.Conditions, api.AWSAccessKeyRequestCondition{
-			Type:           AWSAccessKeyRequestFailed,
-			Reason:         "FailedToCreateRole",
-			Message:        err.Error(),
-			LastUpdateTime: metav1.Now(),
+		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+			Type:               kmapi.ConditionFailure,
+			Reason:             "FailedToCreateRole",
+			Message:            err.Error(),
+			LastTransitionTime: metav1.Now(),
 		})
 
 		err2 := c.updateAWSAccessKeyRequestStatus(&status, awsAccessReq)
@@ -219,11 +219,11 @@ func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.Credenti
 
 	err = awsCM.CreateRoleBinding(roleName, ns, roleName, awsAccessReq.Spec.Subjects)
 	if err != nil {
-		status.Conditions = UpsertAWSAccessKeyCondition(status.Conditions, api.AWSAccessKeyRequestCondition{
-			Type:           AWSAccessKeyRequestFailed,
-			Reason:         "FailedToCreateRoleBinding",
-			Message:        err.Error(),
-			LastUpdateTime: metav1.Now(),
+		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+			Type:               kmapi.ConditionFailure,
+			Reason:             "FailedToCreateRoleBinding",
+			Message:            err.Error(),
+			LastTransitionTime: metav1.Now(),
 		})
 
 		err2 := c.updateAWSAccessKeyRequestStatus(&status, awsAccessReq)
@@ -233,7 +233,7 @@ func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.Credenti
 		return errors.WithStack(err)
 	}
 
-	status.Conditions = DeleteAWSAccessKeyCondition(status.Conditions, api.RequestConditionType(AWSAccessKeyRequestFailed))
+	status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
 	err = c.updateAWSAccessKeyRequestStatus(&status, awsAccessReq)
 	if err != nil {
 		return errors.Wrap(err, "failed to update status")
@@ -351,31 +351,4 @@ func (c *VaultController) removeAWSAccessKeyRequestFinalizer(awsAKReq *api.AWSAc
 
 func getAWSAccessKeyRequestId(awsAKReq *api.AWSAccessKeyRequest) string {
 	return fmt.Sprintf("%s/%s/%s", api.ResourceAWSAccessKeyRequest, awsAKReq.Namespace, awsAKReq.Name)
-}
-
-func UpsertAWSAccessKeyCondition(condList []api.AWSAccessKeyRequestCondition, cond api.AWSAccessKeyRequestCondition) []api.AWSAccessKeyRequestCondition {
-	res := []api.AWSAccessKeyRequestCondition{}
-	inserted := false
-	for _, c := range condList {
-		if c.Type == cond.Type {
-			res = append(res, cond)
-			inserted = true
-		} else {
-			res = append(res, c)
-		}
-	}
-	if !inserted {
-		res = append(res, cond)
-	}
-	return res
-}
-
-func DeleteAWSAccessKeyCondition(condList []api.AWSAccessKeyRequestCondition, condType api.RequestConditionType) []api.AWSAccessKeyRequestCondition {
-	res := []api.AWSAccessKeyRequestCondition{}
-	for _, c := range condList {
-		if c.Type != condType {
-			res = append(res, c)
-		}
-	}
-	return res
 }

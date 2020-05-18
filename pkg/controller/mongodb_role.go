@@ -27,18 +27,17 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
 )
 
 const (
-	MongoDBRolePhaseSuccess    api.MongoDBRolePhase = "Success"
-	MongoDBRoleConditionFailed string               = "Failed"
-	finalizerInterval                               = 5 * time.Second
-	finalizerTimeout                                = 30 * time.Second
+	MongoDBRolePhaseSuccess api.MongoDBRolePhase = "Success"
+	finalizerInterval                            = 5 * time.Second
+	finalizerTimeout                             = 30 * time.Second
 )
 
 func (c *VaultController) initMongoDBRoleWatcher() {
@@ -104,10 +103,10 @@ func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleIn
 	// create role
 	err := dbRClient.CreateRole()
 	if err != nil {
-		status.Conditions = []api.MongoDBRoleCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    MongoDBRoleConditionFailed,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToCreateRole",
 				Message: err.Error(),
 			},
@@ -120,7 +119,7 @@ func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleIn
 		return errors.Wrap(err, "failed to create role")
 	}
 
-	status.Conditions = []api.MongoDBRoleCondition{}
+	status.Conditions = []kmapi.Condition{}
 	status.Phase = MongoDBRolePhaseSuccess
 	status.ObservedGeneration = mgRole.Generation
 

@@ -26,6 +26,7 @@ import "k8s.io/api/rbac/v1/generated.proto";
 import "k8s.io/apimachinery/pkg/apis/meta/v1/generated.proto";
 import "k8s.io/apimachinery/pkg/runtime/generated.proto";
 import "k8s.io/apimachinery/pkg/runtime/schema/generated.proto";
+import "kmodules.xyz/client-go/api/v1/generated.proto";
 import "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1/generated.proto";
 
 // Package-wide variables from generator "generated".
@@ -40,23 +41,6 @@ message AWSAccessKeyRequest {
   optional AWSAccessKeyRequestSpec spec = 2;
 
   optional AWSAccessKeyRequestStatus status = 3;
-}
-
-message AWSAccessKeyRequestCondition {
-  // request approval state, currently Approved or Denied.
-  optional string type = 1;
-
-  // brief reason for the request state
-  // +optional
-  optional string reason = 2;
-
-  // human readable message with details about the request state
-  // +optional
-  optional string message = 3;
-
-  // timestamp for the last update to this condition
-  // +optional
-  optional k8s.io.apimachinery.pkg.apis.meta.v1.Time lastUpdateTime = 4;
 }
 
 message AWSAccessKeyRequestList {
@@ -95,7 +79,7 @@ message AWSAccessKeyRequestSpec {
 message AWSAccessKeyRequestStatus {
   // Conditions applied to the request, such as approval or denial.
   // +optional
-  repeated AWSAccessKeyRequestCondition conditions = 1;
+  repeated kmodules.xyz.client_go.api.v1.Condition conditions = 1;
 
   // Name of the secret containing AWSCredential AWSCredentials
   optional k8s.io.api.core.v1.LocalObjectReference secret = 2;
@@ -140,21 +124,6 @@ message AWSRole {
   optional AWSRoleSpec spec = 2;
 
   optional AWSRoleStatus status = 3;
-}
-
-// AWSRoleCondition describes the state of a AWSRole at a certain point.
-message AWSRoleCondition {
-  // Type of AWSRole condition.
-  optional string type = 1;
-
-  // Status of the condition, one of True, False, Unknown.
-  optional string status = 2;
-
-  // The reason for the condition's.
-  optional string reason = 3;
-
-  // A human readable message indicating details about the transition.
-  optional string message = 4;
 }
 
 message AWSRoleList {
@@ -219,7 +188,7 @@ message AWSRoleStatus {
   optional int64 observedGeneration = 2;
 
   // Represents the latest available observations of a AWSRole current state.
-  repeated AWSRoleCondition conditions = 3;
+  repeated kmodules.xyz.client_go.api.v1.Condition conditions = 3;
 }
 
 // +kubebuilder:object:root=true
@@ -231,23 +200,6 @@ message AzureAccessKeyRequest {
   optional AzureAccessKeyRequestSpec spec = 2;
 
   optional AzureAccessKeyRequestStatus status = 3;
-}
-
-message AzureAccessKeyRequestCondition {
-  // request approval state, currently Approved or Denied.
-  optional string type = 1;
-
-  // brief reason for the request state
-  // +optional
-  optional string reason = 2;
-
-  // human readable message with details about the request state
-  // +optional
-  optional string message = 3;
-
-  // timestamp for the last update to this condition
-  // +optional
-  optional k8s.io.apimachinery.pkg.apis.meta.v1.Time lastUpdateTime = 4;
 }
 
 message AzureAccessKeyRequestList {
@@ -268,7 +220,7 @@ message AzureAccessKeyRequestSpec {
 message AzureAccessKeyRequestStatus {
   // Conditions applied to the request, such as approval or denial.
   // +optional
-  repeated AzureAccessKeyRequestCondition conditions = 1;
+  repeated kmodules.xyz.client_go.api.v1.Condition conditions = 1;
 
   // Name of the secret containing AzureCredential
   optional k8s.io.api.core.v1.LocalObjectReference secret = 2;
@@ -304,21 +256,6 @@ message AzureRole {
   optional AzureRoleSpec spec = 2;
 
   optional AzureRoleStatus status = 3;
-}
-
-// AzureRoleCondition describes the state of a AzureRole at a certain point.
-message AzureRoleCondition {
-  // Type of AzureRole condition.
-  optional string type = 1;
-
-  // Status of the condition, one of True, False, Unknown.
-  optional string status = 2;
-
-  // The reason for the condition's.
-  optional string reason = 3;
-
-  // A human readable message indicating details about the transition.
-  optional string message = 4;
 }
 
 message AzureRoleList {
@@ -368,7 +305,7 @@ message AzureRoleStatus {
   optional int64 observedGeneration = 2;
 
   // Represents the latest available observations of a AzureRole current state.
-  repeated AzureRoleCondition conditions = 3;
+  repeated kmodules.xyz.client_go.api.v1.Condition conditions = 3;
 }
 
 // +kubebuilder:object:root=true
@@ -380,23 +317,6 @@ message DatabaseAccessRequest {
   optional DatabaseAccessRequestSpec spec = 2;
 
   optional DatabaseAccessRequestStatus status = 3;
-}
-
-message DatabaseAccessRequestCondition {
-  // request approval state, currently Approved or Denied.
-  optional string type = 1;
-
-  // brief reason for the request state
-  // +optional
-  optional string reason = 2;
-
-  // human readable message with details about the request state
-  // +optional
-  optional string message = 3;
-
-  // timestamp for the last update to this condition
-  // +optional
-  optional k8s.io.apimachinery.pkg.apis.meta.v1.Time lastUpdateTime = 4;
 }
 
 message DatabaseAccessRequestList {
@@ -422,7 +342,7 @@ message DatabaseAccessRequestSpec {
 message DatabaseAccessRequestStatus {
   // Conditions applied to the request, such as approval or denial.
   // +optional
-  repeated DatabaseAccessRequestCondition conditions = 1;
+  repeated kmodules.xyz.client_go.api.v1.Condition conditions = 1;
 
   // Name of the secret containing database credentials
   optional k8s.io.api.core.v1.LocalObjectReference secret = 2;
@@ -440,23 +360,6 @@ message GCPAccessKeyRequest {
   optional GCPAccessKeyRequestSpec spec = 2;
 
   optional GCPAccessKeyRequestStatus status = 3;
-}
-
-message GCPAccessKeyRequestCondition {
-  // request approval state, currently Approved or Denied.
-  optional string type = 1;
-
-  // brief reason for the request state
-  // +optional
-  optional string reason = 2;
-
-  // human readable message with details about the request state
-  // +optional
-  optional string message = 3;
-
-  // timestamp for the last update to this condition
-  // +optional
-  optional k8s.io.apimachinery.pkg.apis.meta.v1.Time lastUpdateTime = 4;
 }
 
 message GCPAccessKeyRequestList {
@@ -490,7 +393,7 @@ message GCPAccessKeyRequestSpec {
 message GCPAccessKeyRequestStatus {
   // Conditions applied to the request, such as approval or denial.
   // +optional
-  repeated GCPAccessKeyRequestCondition conditions = 1;
+  repeated kmodules.xyz.client_go.api.v1.Condition conditions = 1;
 
   // Name of the secret containing GCPCredential
   optional k8s.io.api.core.v1.LocalObjectReference secret = 2;
@@ -529,21 +432,6 @@ message GCPRole {
   optional GCPRoleSpec spec = 2;
 
   optional GCPRoleStatus status = 3;
-}
-
-// GCPRoleCondition describes the state of a GCPRole at a certain point.
-message GCPRoleCondition {
-  // Type of GCPRole condition.
-  optional string type = 1;
-
-  // Status of the condition, one of True, False, Unknown.
-  optional string status = 2;
-
-  // The reason for the condition's.
-  optional string reason = 3;
-
-  // A human readable message indicating details about the transition.
-  optional string message = 4;
 }
 
 message GCPRoleList {
@@ -590,7 +478,7 @@ message GCPRoleStatus {
   optional int64 observedGeneration = 2;
 
   // Represents the latest available observations of a GCPRole current state.
-  repeated GCPRoleCondition conditions = 3;
+  repeated kmodules.xyz.client_go.api.v1.Condition conditions = 3;
 }
 
 // Lease contains lease info
@@ -651,21 +539,6 @@ message MongoDBRole {
   optional MongoDBRoleStatus status = 3;
 }
 
-// MongoDBRoleCondition describes the state of a MongoDBRole at a certain point.
-message MongoDBRoleCondition {
-  // Type of MongoDBRole condition.
-  optional string type = 1;
-
-  // Status of the condition, one of True, False, Unknown.
-  optional string status = 2;
-
-  // The reason for the condition's.
-  optional string reason = 3;
-
-  // A human readable message indicating details about the transition.
-  optional string message = 4;
-}
-
 message MongoDBRoleList {
   optional k8s.io.apimachinery.pkg.apis.meta.v1.ListMeta metadata = 1;
 
@@ -714,7 +587,7 @@ message MongoDBRoleStatus {
   optional int64 observedGeneration = 2;
 
   // Represents the latest available observations of a MongoDBRole current state.
-  repeated MongoDBRoleCondition conditions = 3;
+  repeated kmodules.xyz.client_go.api.v1.Condition conditions = 3;
 }
 
 // MySQLConfiguration defines a MySQL app configuration.
@@ -757,21 +630,6 @@ message MySQLRole {
   optional MySQLRoleSpec spec = 2;
 
   optional MySQLRoleStatus status = 3;
-}
-
-// MySQLRoleCondition describes the state of a MySQLRole at a certain point.
-message MySQLRoleCondition {
-  // Type of MySQLRole condition.
-  optional string type = 1;
-
-  // Status of the condition, one of True, False, Unknown.
-  optional string status = 2;
-
-  // The reason for the condition's.
-  optional string reason = 3;
-
-  // A human readable message indicating details about the transition.
-  optional string message = 4;
 }
 
 message MySQLRoleList {
@@ -822,7 +680,7 @@ message MySQLRoleStatus {
   optional int64 observedGeneration = 2;
 
   // Represents the latest available observations of a MySQLRole current state.
-  repeated MySQLRoleCondition conditions = 3;
+  repeated kmodules.xyz.client_go.api.v1.Condition conditions = 3;
 }
 
 // PostgresConfiguration defines a PostgreSQL app configuration.
@@ -865,21 +723,6 @@ message PostgresRole {
   optional PostgresRoleSpec spec = 2;
 
   optional PostgresRoleStatus status = 3;
-}
-
-// PostgresRoleCondition describes the state of a PostgresRole at a certain point.
-message PostgresRoleCondition {
-  // Type of PostgresRole condition.
-  optional string type = 1;
-
-  // Status of the condition, one of True, False, Unknown.
-  optional string status = 2;
-
-  // The reason for the condition's.
-  optional string reason = 3;
-
-  // A human readable message indicating details about the transition.
-  optional string message = 4;
 }
 
 message PostgresRoleList {
@@ -939,7 +782,7 @@ message PostgresRoleStatus {
   optional string phase = 2;
 
   // Represents the latest available observations of a PostgresRoleBinding current state.
-  repeated PostgresRoleCondition conditions = 3;
+  repeated kmodules.xyz.client_go.api.v1.Condition conditions = 3;
 }
 
 // RoleRef contains information that points to the role being used
@@ -968,18 +811,6 @@ message SecretEngine {
   optional SecretEngineSpec spec = 2;
 
   optional SecretEngineStatus status = 3;
-}
-
-message SecretEngineCondition {
-  optional string type = 1;
-
-  optional string status = 2;
-
-  // The reason for the condition's.
-  optional string reason = 3;
-
-  // A human readable message indicating details about the transition.
-  optional string message = 4;
 }
 
 message SecretEngineConfiguration {
@@ -1017,6 +848,6 @@ message SecretEngineStatus {
 
   optional int64 observedGeneration = 2;
 
-  repeated SecretEngineCondition conditions = 3;
+  repeated kmodules.xyz.client_go.api.v1.Condition conditions = 3;
 }
 

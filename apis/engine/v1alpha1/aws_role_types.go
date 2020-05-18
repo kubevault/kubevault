@@ -20,6 +20,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
 const (
@@ -128,20 +129,5 @@ type AWSRoleStatus struct {
 	ObservedGeneration int64 `json:"observedGeneration,omitempty" protobuf:"varint,2,opt,name=observedGeneration"`
 
 	// Represents the latest available observations of a AWSRole current state.
-	Conditions []AWSRoleCondition `json:"conditions,omitempty" protobuf:"bytes,3,rep,name=conditions"`
-}
-
-// AWSRoleCondition describes the state of a AWSRole at a certain point.
-type AWSRoleCondition struct {
-	// Type of AWSRole condition.
-	Type string `json:"type,omitempty" protobuf:"bytes,1,opt,name=type"`
-
-	// Status of the condition, one of True, False, Unknown.
-	Status core.ConditionStatus `json:"status,omitempty" protobuf:"bytes,2,opt,name=status,casttype=k8s.io/api/core/v1.ConditionStatus"`
-
-	// The reason for the condition's.
-	Reason string `json:"reason,omitempty" protobuf:"bytes,3,opt,name=reason"`
-
-	// A human readable message indicating details about the transition.
-	Message string `json:"message,omitempty" protobuf:"bytes,4,opt,name=message"`
+	Conditions []kmapi.Condition `json:"conditions,omitempty" protobuf:"bytes,3,rep,name=conditions"`
 }

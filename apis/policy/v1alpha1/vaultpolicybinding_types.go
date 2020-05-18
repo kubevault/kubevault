@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
 const (
@@ -143,31 +144,5 @@ type VaultPolicyBindingStatus struct {
 
 	// Represents the latest available observations of a VaultPolicyBinding.
 	// +optional
-	Conditions []PolicyBindingCondition `json:"conditions,omitempty" protobuf:"bytes,3,rep,name=conditions"`
-}
-
-type PolicyBindingConditionType string
-
-// These are valid conditions of a VaultPolicyBinding.
-const (
-	PolicyBindingConditionFailure PolicyBindingConditionType = "Failure"
-)
-
-// PolicyBindingCondition describes the state of a VaultPolicyBinding at a certain point.
-type PolicyBindingCondition struct {
-	// Type of PolicyBindingCondition condition.
-	// +optional
-	Type PolicyBindingConditionType `json:"type,omitempty" protobuf:"bytes,1,opt,name=type,casttype=PolicyBindingConditionType"`
-
-	// Status of the condition, one of True, False, Unknown.
-	// +optional
-	Status core.ConditionStatus `json:"status,omitempty" protobuf:"bytes,2,opt,name=status,casttype=k8s.io/api/core/v1.ConditionStatus"`
-
-	// The reason for the condition's.
-	// +optional
-	Reason string `json:"reason,omitempty" protobuf:"bytes,3,opt,name=reason"`
-
-	// A human readable message indicating details about the transition.
-	// +optional
-	Message string `json:"message,omitempty" protobuf:"bytes,4,opt,name=message"`
+	Conditions []kmapi.Condition `json:"conditions,omitempty" protobuf:"bytes,3,rep,name=conditions"`
 }

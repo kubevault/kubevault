@@ -30,6 +30,7 @@ import (
 	v1 "k8s.io/api/rbac/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	awsconsts "kmodules.xyz/constants/aws"
 )
 
@@ -119,7 +120,7 @@ var _ = Describe("AWS Secret Engine", func() {
 				crd, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
-						if value.Type == api.AccessApproved {
+						if value.Type == kmapi.ConditionRequestApproved {
 							return true
 						}
 					}
@@ -133,7 +134,7 @@ var _ = Describe("AWS Secret Engine", func() {
 				crd, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
-						if value.Type == api.AccessDenied {
+						if value.Type == kmapi.ConditionRequestDenied {
 							return true
 						}
 					}
@@ -475,10 +476,10 @@ var _ = Describe("AWS Secret Engine", func() {
 
 				By("Updating AWS AccessKeyRequest status...")
 				err = f.UpdateAWSAccessKeyRequestStatus(&api.AWSAccessKeyRequestStatus{
-					Conditions: []api.AWSAccessKeyRequestCondition{
+					Conditions: []kmapi.Condition{
 						{
-							Type:           api.AccessApproved,
-							LastUpdateTime: metav1.Now(),
+							Type:               kmapi.ConditionRequestApproved,
+							LastTransitionTime: metav1.Now(),
 						},
 					},
 				}, r)
@@ -495,10 +496,10 @@ var _ = Describe("AWS Secret Engine", func() {
 
 				By("Updating AWS AccessKeyRequest status...")
 				err = f.UpdateAWSAccessKeyRequestStatus(&api.AWSAccessKeyRequestStatus{
-					Conditions: []api.AWSAccessKeyRequestCondition{
+					Conditions: []kmapi.Condition{
 						{
-							Type:           api.AccessDenied,
-							LastUpdateTime: metav1.Now(),
+							Type:               kmapi.ConditionRequestDenied,
+							LastTransitionTime: metav1.Now(),
 						},
 					},
 				}, r)
@@ -547,10 +548,10 @@ var _ = Describe("AWS Secret Engine", func() {
 
 				By("Updating AWS AccessKeyRequest status...")
 				err = f.UpdateAWSAccessKeyRequestStatus(&api.AWSAccessKeyRequestStatus{
-					Conditions: []api.AWSAccessKeyRequestCondition{
+					Conditions: []kmapi.Condition{
 						{
-							Type:           api.AccessApproved,
-							LastUpdateTime: metav1.Now(),
+							Type:               kmapi.ConditionRequestApproved,
+							LastTransitionTime: metav1.Now(),
 						},
 					},
 				}, r)

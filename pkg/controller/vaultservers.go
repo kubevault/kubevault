@@ -32,6 +32,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	kutil "kmodules.xyz/client-go"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	apps_util "kmodules.xyz/client-go/apps/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	rbac_util "kmodules.xyz/client-go/rbac/v1"
@@ -101,10 +102,10 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 
 	err := c.CreateVaultTLSSecret(vs, v)
 	if err != nil {
-		status.Conditions = []api.VaultServerCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    api.VaultServerConditionFailure,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToCreateVaultTLSSecret",
 				Message: err.Error(),
 			},
@@ -119,10 +120,10 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 
 	err = c.CreateVaultConfig(vs, v)
 	if err != nil {
-		status.Conditions = []api.VaultServerCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    api.VaultServerConditionFailure,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToCreateVaultConfig",
 				Message: err.Error(),
 			},
@@ -137,10 +138,10 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 
 	err = c.DeployVault(vs, v)
 	if err != nil {
-		status.Conditions = []api.VaultServerCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    api.VaultServerConditionFailure,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToDeployVault",
 				Message: err.Error(),
 			},
@@ -155,10 +156,10 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 
 	err = c.ensureAppBindings(vs, v)
 	if err != nil {
-		status.Conditions = []api.VaultServerCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    api.VaultServerConditionFailure,
-				Status:  core.ConditionTrue,
+				Type:    kmapi.ConditionFailure,
+				Status:  kmapi.ConditionTrue,
 				Reason:  "FailedToCreateAppBinding",
 				Message: err.Error(),
 			},
@@ -171,7 +172,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 		return errors.Wrap(err, "failed to deploy vault")
 	}
 
-	status.Conditions = []api.VaultServerCondition{}
+	status.Conditions = []kmapi.Condition{}
 	status.ObservedGeneration = vs.Generation
 	err = c.updatedVaultServerStatus(&status, vs)
 	if err != nil {

@@ -27,9 +27,9 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
 )
@@ -102,10 +102,10 @@ func (c *VaultController) reconcilePostgresRole(dbRClient database.DatabaseRoleI
 	// create role
 	err := dbRClient.CreateRole()
 	if err != nil {
-		status.Conditions = []api.PostgresRoleCondition{
+		status.Conditions = []kmapi.Condition{
 			{
-				Type:    "Available",
-				Status:  core.ConditionFalse,
+				Type:    kmapi.ConditionAvailable,
+				Status:  kmapi.ConditionFalse,
 				Reason:  "FailedToCreateDatabaseRole",
 				Message: err.Error(),
 			},
@@ -119,7 +119,7 @@ func (c *VaultController) reconcilePostgresRole(dbRClient database.DatabaseRoleI
 	}
 
 	status.ObservedGeneration = pgRole.Generation
-	status.Conditions = []api.PostgresRoleCondition{}
+	status.Conditions = []kmapi.Condition{}
 	status.Phase = PostgresRolePhaseSuccess
 
 	err = c.updatePostgresRoleStatus(&status, pgRole)
