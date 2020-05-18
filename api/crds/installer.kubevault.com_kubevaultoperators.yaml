@@ -4,6 +4,7 @@ metadata:
   creationTimestamp: null
   labels:
     app: kubevault
+    app.kubernetes.io/name: kubevault
   name: kubevaultoperators.installer.kubevault.com
 spec:
   group: installer.kubevault.com
