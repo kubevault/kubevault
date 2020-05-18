@@ -3,7 +3,7 @@ kind: CustomResourceDefinition
 metadata:
   creationTimestamp: null
   labels:
-    app: kubevault
+    app.kubernetes.io/name: kubevault
   name: vaultserverversions.catalog.kubevault.com
 spec:
   additionalPrinterColumns:
