@@ -241,6 +241,33 @@ type BackendStorageSpec struct {
 
 	// +optional
 	Consul *ConsulSpec `json:"consul,omitempty" protobuf:"bytes,11,opt,name=consul"`
+
+	// +optional
+	Raft *RaftSpec `json:"raft,omitempty" protobuf:"bytes,12,opt,name=raft"`
+}
+
+// ref: https://www.vaultproject.io/docs/configuration/storage/raft.html
+//
+// RaftSpec defines the configuration to set up Raft as backend storage in vault
+type RaftSpec struct {
+	// Specifies the path
+	Path string `json:"address,omitempty" protobuf:"bytes,1,opt,name=path"`
+
+	// Specifies the node_id
+	NodeID string `json:"nodeID,omitempty" protobuf:"bytes,2,opt,name=nodeID"`
+
+	// Specifies the performance_multiplier
+	PerformanceMultiplier int64 `json:"performanceMultiplier,omitempty" protobuf:"bytes,3,opt,name=performanceMultiplier"`
+
+	// Specifies the trailing_logs
+	TrailingLogs int64 `json:"trailingLogs,omitempty" protobuf:"bytes,1,opt,name=trailingLogs"`
+
+	// Specifies the snapshot_threshold
+	SnapshotThreshold int64 `json:"snapshotThreshold,omitempty" protobuf:"bytes,1,opt,name=snapshotThreshold"`
+
+	// Specifies the retry_join stanza
+	// When the raft cluster is getting bootstrapped, if the connection details of all the nodes are known beforehand, then specifying this config stanzas enables the nodes to automatically join a raft cluster.
+	RetryJoinConfig string `json:"retryJoinConfig,omitempty" protobuf:"bytes,1,opt,name=retryJoinConfig"`
 }
 
 // ref: https://www.vaultproject.io/docs/configuration/storage/consul.html
