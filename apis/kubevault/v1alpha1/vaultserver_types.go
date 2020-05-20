@@ -260,14 +260,14 @@ type RaftSpec struct {
 	PerformanceMultiplier int64 `json:"performanceMultiplier,omitempty" protobuf:"bytes,3,opt,name=performanceMultiplier"`
 
 	// Specifies the trailing_logs
-	TrailingLogs int64 `json:"trailingLogs,omitempty" protobuf:"bytes,1,opt,name=trailingLogs"`
+	TrailingLogs int64 `json:"trailingLogs,omitempty" protobuf:"bytes,4,opt,name=trailingLogs"`
 
 	// Specifies the snapshot_threshold
-	SnapshotThreshold int64 `json:"snapshotThreshold,omitempty" protobuf:"bytes,1,opt,name=snapshotThreshold"`
+	SnapshotThreshold int64 `json:"snapshotThreshold,omitempty" protobuf:"bytes,5,opt,name=snapshotThreshold"`
 
 	// Specifies the retry_join stanza
 	// When the raft cluster is getting bootstrapped, if the connection details of all the nodes are known beforehand, then specifying this config stanzas enables the nodes to automatically join a raft cluster.
-	RetryJoinConfig string `json:"retryJoinConfig,omitempty" protobuf:"bytes,1,opt,name=retryJoinConfig"`
+	RetryJoinConfig string `json:"retryJoinConfig,omitempty" protobuf:"bytes,6,opt,name=retryJoinConfig"`
 }
 
 // ref: https://www.vaultproject.io/docs/configuration/storage/consul.html
