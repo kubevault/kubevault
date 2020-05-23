@@ -120,14 +120,12 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 			vPolicy.ObjectMeta,
 			func(status *policyapi.VaultPolicyStatus) *policyapi.VaultPolicyStatus {
 				status.Phase = policyapi.PolicyFailed
-				status.Conditions = []kmapi.Condition{
-					{
-						Type:    kmapi.ConditionFailure,
-						Status:  kmapi.ConditionTrue,
-						Reason:  "FailedToPutPolicy",
-						Message: err.Error(),
-					},
-				}
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
+					Reason:  "FailedToPutPolicy",
+					Message: err.Error(),
+				})
 				return status
 			},
 			metav1.UpdateOptions{},
@@ -142,8 +140,13 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 		vPolicy.ObjectMeta,
 		func(status *policyapi.VaultPolicyStatus) *policyapi.VaultPolicyStatus {
 			status.ObservedGeneration = vPolicy.Generation
-			status.Conditions = []kmapi.Condition{}
 			status.Phase = policyapi.PolicySuccess
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+				Type:    kmapi.ConditionAvailable,
+				Status:  kmapi.ConditionTrue,
+				Reason:  "Provisioned",
+				Message: "policy is ready to use",
+			})
 			return status
 		},
 		metav1.UpdateOptions{},

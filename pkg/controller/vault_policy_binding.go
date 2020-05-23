@@ -105,14 +105,12 @@ func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBi
 			vPBind.ObjectMeta,
 			func(status *policyapi.VaultPolicyBindingStatus) *policyapi.VaultPolicyBindingStatus {
 				status.Phase = policyapi.PolicyBindingFailed
-				status.Conditions = []kmapi.Condition{
-					{
-						Type:    kmapi.ConditionFailure,
-						Status:  kmapi.ConditionTrue,
-						Reason:  "FailedToEnsurePolicyBinding",
-						Message: err.Error(),
-					},
-				}
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
+					Reason:  "FailedToEnsurePolicyBinding",
+					Message: err.Error(),
+				})
 				return status
 			},
 			metav1.UpdateOptions{},
@@ -127,8 +125,13 @@ func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBi
 		vPBind.ObjectMeta,
 		func(status *policyapi.VaultPolicyBindingStatus) *policyapi.VaultPolicyBindingStatus {
 			status.ObservedGeneration = vPBind.Generation
-			status.Conditions = []kmapi.Condition{}
 			status.Phase = policyapi.PolicyBindingSuccess
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+				Type:    kmapi.ConditionAvailable,
+				Status:  kmapi.ConditionTrue,
+				Reason:  "Provisioned",
+				Message: "policy binding is ready to use",
+			})
 			return status
 		},
 		metav1.UpdateOptions{},

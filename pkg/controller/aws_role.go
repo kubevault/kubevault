@@ -104,14 +104,12 @@ func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, role
 			context.TODO(),
 			c.extClient.EngineV1alpha1(),
 			role.ObjectMeta, func(status *api.AWSRoleStatus) *api.AWSRoleStatus {
-				status.Conditions = []kmapi.Condition{
-					{
-						Type:    kmapi.ConditionFailure,
-						Status:  kmapi.ConditionTrue,
-						Reason:  "FailedToCreateRole",
-						Message: err.Error(),
-					},
-				}
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
+					Reason:  "FailedToCreateRole",
+					Message: err.Error(),
+				})
 				return status
 			},
 			metav1.UpdateOptions{},
@@ -123,9 +121,14 @@ func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, role
 		context.TODO(),
 		c.extClient.EngineV1alpha1(),
 		role.ObjectMeta, func(status *api.AWSRoleStatus) *api.AWSRoleStatus {
-			status.Conditions = []kmapi.Condition{}
 			status.Phase = AWSRolePhaseSuccess
 			status.ObservedGeneration = role.Generation
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+				Type:    kmapi.ConditionAvailable,
+				Status:  kmapi.ConditionTrue,
+				Reason:  "Provisioned",
+				Message: "role is ready to use",
+			})
 			return status
 		},
 		metav1.UpdateOptions{},

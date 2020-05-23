@@ -107,14 +107,12 @@ func (c *VaultController) reconcilePostgresRole(dbRClient database.DatabaseRoleI
 			c.extClient.EngineV1alpha1(),
 			role.ObjectMeta,
 			func(status *api.PostgresRoleStatus) *api.PostgresRoleStatus {
-				status.Conditions = []kmapi.Condition{
-					{
-						Type:    kmapi.ConditionAvailable,
-						Status:  kmapi.ConditionFalse,
-						Reason:  "FailedToCreateDatabaseRole",
-						Message: err.Error(),
-					},
-				}
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:    kmapi.ConditionAvailable,
+					Status:  kmapi.ConditionFalse,
+					Reason:  "FailedToCreateDatabaseRole",
+					Message: err.Error(),
+				})
 				return status
 			},
 			metav1.UpdateOptions{},
@@ -128,9 +126,13 @@ func (c *VaultController) reconcilePostgresRole(dbRClient database.DatabaseRoleI
 		role.ObjectMeta,
 		func(status *api.PostgresRoleStatus) *api.PostgresRoleStatus {
 			status.ObservedGeneration = role.Generation
-			status.Conditions = []kmapi.Condition{}
 			status.Phase = PostgresRolePhaseSuccess
-
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+				Type:    kmapi.ConditionAvailable,
+				Status:  kmapi.ConditionTrue,
+				Reason:  "Provisioned",
+				Message: "role is ready to use",
+			})
 			return status
 		},
 		metav1.UpdateOptions{},

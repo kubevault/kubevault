@@ -108,14 +108,12 @@ func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleIn
 			c.extClient.EngineV1alpha1(),
 			role.ObjectMeta,
 			func(status *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
-				status.Conditions = []kmapi.Condition{
-					{
-						Type:    kmapi.ConditionFailure,
-						Status:  kmapi.ConditionTrue,
-						Reason:  "FailedToCreateRole",
-						Message: err.Error(),
-					},
-				}
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
+					Reason:  "FailedToCreateRole",
+					Message: err.Error(),
+				})
 				return status
 			},
 			metav1.UpdateOptions{},
@@ -128,9 +126,14 @@ func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleIn
 		c.extClient.EngineV1alpha1(),
 		role.ObjectMeta,
 		func(status *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
-			status.Conditions = []kmapi.Condition{}
 			status.Phase = MongoDBRolePhaseSuccess
 			status.ObservedGeneration = role.Generation
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+				Type:    kmapi.ConditionAvailable,
+				Status:  kmapi.ConditionTrue,
+				Reason:  "Provisioned",
+				Message: "role is ready to use",
+			})
 			return status
 		},
 		metav1.UpdateOptions{},

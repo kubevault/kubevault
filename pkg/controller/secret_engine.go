@@ -105,14 +105,12 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 			c.extClient.EngineV1alpha1(),
 			secretEngine.ObjectMeta,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
-				status.Conditions = []kmapi.Condition{
-					{
-						Type:    kmapi.ConditionFailure,
-						Status:  kmapi.ConditionTrue,
-						Reason:  "FailedToCreateSecretEnginePolicy",
-						Message: err.Error(),
-					},
-				}
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
+					Reason:  "FailedToCreateSecretEnginePolicy",
+					Message: err.Error(),
+				})
 				return status
 			},
 			metav1.UpdateOptions{},
@@ -128,14 +126,12 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 			c.extClient.EngineV1alpha1(),
 			secretEngine.ObjectMeta,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
-				status.Conditions = []kmapi.Condition{
-					{
-						Type:    kmapi.ConditionFailure,
-						Status:  kmapi.ConditionTrue,
-						Reason:  "FailedToUpdateAuthRole",
-						Message: err.Error(),
-					},
-				}
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
+					Reason:  "FailedToUpdateAuthRole",
+					Message: err.Error(),
+				})
 				return status
 			},
 			metav1.UpdateOptions{},
@@ -151,14 +147,12 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 			c.extClient.EngineV1alpha1(),
 			secretEngine.ObjectMeta,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
-				status.Conditions = []kmapi.Condition{
-					{
-						Type:    kmapi.ConditionFailure,
-						Status:  kmapi.ConditionTrue,
-						Reason:  "FailedToEnableSecretEngine",
-						Message: err.Error(),
-					},
-				}
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
+					Reason:  "FailedToEnableSecretEngine",
+					Message: err.Error(),
+				})
 				return status
 			},
 			metav1.UpdateOptions{},
@@ -174,14 +168,12 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 			c.extClient.EngineV1alpha1(),
 			secretEngine.ObjectMeta,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
-				status.Conditions = []kmapi.Condition{
-					{
-						Type:    kmapi.ConditionFailure,
-						Status:  kmapi.ConditionTrue,
-						Reason:  "FailedToCreateSecretEngineConfig",
-						Message: err.Error(),
-					},
-				}
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
+					Reason:  "FailedToCreateSecretEngineConfig",
+					Message: err.Error(),
+				})
 				return status
 			},
 			metav1.UpdateOptions{},
@@ -196,8 +188,13 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 		secretEngine.ObjectMeta,
 		func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 			status.ObservedGeneration = secretEngine.Generation
-			status.Conditions = []kmapi.Condition{}
 			status.Phase = SecretEnginePhaseSuccess
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+				Type:    kmapi.ConditionAvailable,
+				Status:  kmapi.ConditionTrue,
+				Reason:  "Provisioned",
+				Message: "secret engine is ready to use",
+			})
 			return status
 		},
 		metav1.UpdateOptions{},

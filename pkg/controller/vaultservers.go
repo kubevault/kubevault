@@ -106,14 +106,12 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			c.extClient.KubevaultV1alpha1(),
 			vs.ObjectMeta,
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
-				status.Conditions = []kmapi.Condition{
-					{
-						Type:    kmapi.ConditionFailure,
-						Status:  kmapi.ConditionTrue,
-						Reason:  "FailedToCreateVaultTLSSecret",
-						Message: err.Error(),
-					},
-				}
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
+					Reason:  "FailedToCreateVaultTLSSecret",
+					Message: err.Error(),
+				})
 				return status
 			},
 			metav1.UpdateOptions{},
@@ -128,14 +126,12 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			c.extClient.KubevaultV1alpha1(),
 			vs.ObjectMeta,
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
-				status.Conditions = []kmapi.Condition{
-					{
-						Type:    kmapi.ConditionFailure,
-						Status:  kmapi.ConditionTrue,
-						Reason:  "FailedToCreateVaultConfig",
-						Message: err.Error(),
-					},
-				}
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
+					Reason:  "FailedToCreateVaultConfig",
+					Message: err.Error(),
+				})
 				return status
 			},
 			metav1.UpdateOptions{},
@@ -150,14 +146,12 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			c.extClient.KubevaultV1alpha1(),
 			vs.ObjectMeta,
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
-				status.Conditions = []kmapi.Condition{
-					{
-						Type:    kmapi.ConditionFailure,
-						Status:  kmapi.ConditionTrue,
-						Reason:  "FailedToDeployVault",
-						Message: err.Error(),
-					},
-				}
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
+					Reason:  "FailedToDeployVault",
+					Message: err.Error(),
+				})
 				return status
 			},
 			metav1.UpdateOptions{},
@@ -172,14 +166,12 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			c.extClient.KubevaultV1alpha1(),
 			vs.ObjectMeta,
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
-				status.Conditions = []kmapi.Condition{
-					{
-						Type:    kmapi.ConditionFailure,
-						Status:  kmapi.ConditionTrue,
-						Reason:  "FailedToCreateAppBinding",
-						Message: err.Error(),
-					},
-				}
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
+					Reason:  "FailedToCreateAppBinding",
+					Message: err.Error(),
+				})
 				return status
 			},
 			metav1.UpdateOptions{},
@@ -192,8 +184,13 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 		c.extClient.KubevaultV1alpha1(),
 		vs.ObjectMeta,
 		func(status *api.VaultServerStatus) *api.VaultServerStatus {
-			status.Conditions = []kmapi.Condition{}
 			status.ObservedGeneration = vs.Generation
+			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+				Type:    kmapi.ConditionReady,
+				Status:  kmapi.ConditionTrue,
+				Reason:  "Provisioned",
+				Message: "vault server is ready to use",
+			})
 			return status
 		},
 		metav1.UpdateOptions{},
