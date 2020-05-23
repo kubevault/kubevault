@@ -151,7 +151,7 @@ func (o *Options) GetStorageConfig() (string, error) {
 		params = append(params, fmt.Sprintf(`tls_min_version = "%s"`, o.TLSMinVersion))
 	}
 	if o.TLSSkipVerify {
-		params = append(params, fmt.Sprintf(`tls_skip_verify = true`))
+		params = append(params, `tls_skip_verify = true`)
 	}
 
 	storageCfg := fmt.Sprintf(consulStorageFmt, strings.Join(params, "\n"))

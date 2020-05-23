@@ -222,7 +222,7 @@ var _ = Describe("VaultServer", func() {
 					}
 				}
 				return false
-			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("number of unseal pods should be equal to v.spec.nodes"))
+			}, timeOut, pollingInterval).Should(BeTrue(), "number of unseal pods should be equal to v.spec.nodes")
 		}
 
 		checkForVaultServerCleanup = func(vs *api.VaultServer) {

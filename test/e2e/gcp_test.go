@@ -116,7 +116,7 @@ var _ = Describe("GCP Secret Engine", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), "GCPAccessKeyRequest is deleted")
 		}
 		IsGCPAKRConditionApproved = func(name, namespace string) {
-			By(fmt.Sprintf("Checking whether GCPAccessKeyRequestConditions-> Type: Approved"))
+			By("Checking whether GCPAccessKeyRequestConditions-> Type: Approved")
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
@@ -130,7 +130,7 @@ var _ = Describe("GCP Secret Engine", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type : Approved")
 		}
 		IsGCPAKRConditionDenied = func(name, namespace string) {
-			By(fmt.Sprintf("Checking whether GCPAccessKeyRequestConditions-> Type: Denied"))
+			By("Checking whether GCPAccessKeyRequestConditions-> Type: Denied")
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {

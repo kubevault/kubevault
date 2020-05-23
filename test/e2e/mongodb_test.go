@@ -116,7 +116,7 @@ var _ = Describe("MongoDB Secret Engine", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), "DatabaseAccessRequest is deleted")
 		}
 		IsMongoDBAKRConditionApproved = func(name, namespace string) {
-			By(fmt.Sprintf("Checking whether DatabaseAccessRequestConditions-> Type: Approved"))
+			By("Checking whether DatabaseAccessRequestConditions-> Type: Approved")
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
@@ -130,7 +130,7 @@ var _ = Describe("MongoDB Secret Engine", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type : Approved")
 		}
 		IsMongoDBAKRConditionDenied = func(name, namespace string) {
-			By(fmt.Sprintf("Checking whether DatabaseAccessRequestConditions-> Type: Denied"))
+			By("Checking whether DatabaseAccessRequestConditions-> Type: Denied")
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {

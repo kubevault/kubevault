@@ -116,7 +116,7 @@ var _ = Describe("AWS Secret Engine", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), "AWSAccessKeyRequest is deleted")
 		}
 		IsAWSAKRConditionApproved = func(name, namespace string) {
-			By(fmt.Sprintf("Checking whether AWSAccessKeyRequestConditions-> Type: Approved"))
+			By("Checking whether AWSAccessKeyRequestConditions-> Type: Approved")
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
@@ -130,7 +130,7 @@ var _ = Describe("AWS Secret Engine", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type : Approved")
 		}
 		IsAWSAKRConditionDenied = func(name, namespace string) {
-			By(fmt.Sprintf("Checking whether AWSAccessKeyRequestConditions-> Type: Denied"))
+			By("Checking whether AWSAccessKeyRequestConditions-> Type: Denied")
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {

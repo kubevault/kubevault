@@ -110,7 +110,7 @@ var _ = Describe("Azure Secret Engine", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), "AzureAccessKeyRequest is deleted")
 		}
 		IsAzureAKRConditionApproved = func(name, namespace string) {
-			By(fmt.Sprintf("Checking whether AzureAccessKeyRequestConditions-> Type: Approved"))
+			By("Checking whether AzureAccessKeyRequestConditions-> Type: Approved")
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
@@ -124,7 +124,7 @@ var _ = Describe("Azure Secret Engine", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type : Approved")
 		}
 		IsAzureAKRConditionDenied = func(name, namespace string) {
-			By(fmt.Sprintf("Checking whether AzureAccessKeyRequestConditions-> Type: Denied"))
+			By("Checking whether AzureAccessKeyRequestConditions-> Type: Denied")
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
