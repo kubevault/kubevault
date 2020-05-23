@@ -43,21 +43,21 @@ var _ = Describe("GCP Secret Engine", func() {
 		IsSecretEngineCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine is created")
 		}
 		IsSecretEngineDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine is deleted")
 		}
 		IsSecretEngineSucceeded = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is succeeded", namespace, name))
 			Eventually(func() bool {
-				r, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				r, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return r.Status.Phase == controller.SecretEnginePhaseSuccess
 				}
@@ -68,21 +68,21 @@ var _ = Describe("GCP Secret Engine", func() {
 		IsGCPRoleCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether GCPRole:(%s/%s) role is created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().GCPRoles(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().GCPRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "GCPRole is created")
 		}
 		IsGCPRoleDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether GCPRole:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().GCPRoles(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().GCPRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "GCPRole is deleted")
 		}
 		IsGCPRoleSucceeded = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether GCPRole:(%s/%s) is succeeded", namespace, name))
 			Eventually(func() bool {
-				r, err := f.CSClient.EngineV1alpha1().GCPRoles(namespace).Get(name, metav1.GetOptions{})
+				r, err := f.CSClient.EngineV1alpha1().GCPRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return r.Status.Phase == controller.GCPRolePhaseSuccess
 				}
@@ -94,7 +94,7 @@ var _ = Describe("GCP Secret Engine", func() {
 		IsGCPRoleFailed = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether GCPRole:(%s/%s) is failed", namespace, name))
 			Eventually(func() bool {
-				r, err := f.CSClient.EngineV1alpha1().GCPRoles(namespace).Get(name, metav1.GetOptions{})
+				r, err := f.CSClient.EngineV1alpha1().GCPRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return r.Status.Phase != controller.GCPRolePhaseSuccess && len(r.Status.Conditions) != 0
 				}
@@ -104,21 +104,21 @@ var _ = Describe("GCP Secret Engine", func() {
 		IsGCPAccessKeyRequestCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether GCPAccessKeyRequest:(%s/%s) is created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "GCPAccessKeyRequest is created")
 		}
 		IsGCPAccessKeyRequestDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether GCPAccessKeyRequest:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "GCPAccessKeyRequest is deleted")
 		}
 		IsGCPAKRConditionApproved = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether GCPAccessKeyRequestConditions-> Type: Approved"))
 			Eventually(func() bool {
-				crd, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				crd, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
 						if value.Type == kmapi.ConditionRequestApproved {
@@ -132,7 +132,7 @@ var _ = Describe("GCP Secret Engine", func() {
 		IsGCPAKRConditionDenied = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether GCPAccessKeyRequestConditions-> Type: Denied"))
 			Eventually(func() bool {
-				crd, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				crd, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
 						if value.Type == kmapi.ConditionRequestDenied {
@@ -146,7 +146,7 @@ var _ = Describe("GCP Secret Engine", func() {
 		IsGCPAccessKeySecretCreated = func(name, namespace string) {
 			By("Checking whether GCPAccessKeySecret is created")
 			Eventually(func() bool {
-				crd, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				crd, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil && crd.Status.Secret != nil {
 					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), crd.Status.Secret.Name, metav1.GetOptions{})
 					return err2 == nil
@@ -258,13 +258,13 @@ var _ = Describe("GCP Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting GCPRole...")
-				err := f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(p.Name, metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(context.TODO(), p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete GCPRole")
 
 				IsGCPRoleDeleted(p.Name, p.Namespace)
 
 				By("Deleting SecretEngine...")
-				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(se.Name, metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(context.TODO(), se.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete Secret engine")
 
 				IsSecretEngineDeleted(se.Name, se.Namespace)
@@ -272,14 +272,14 @@ var _ = Describe("GCP Secret Engine", func() {
 
 			It("Should be successful", func() {
 				By("Creating SecretEngine...")
-				_, err := f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Create(&se)
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Create(context.TODO(), &se, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create SecretEngine")
 
 				IsSecretEngineCreated(se.Name, se.Namespace)
 				IsSecretEngineSucceeded(se.Name, se.Namespace)
 
 				By("Creating GCPRole...")
-				_, err = f.CSClient.EngineV1alpha1().GCPRoles(p.Namespace).Create(&p)
+				_, err = f.CSClient.EngineV1alpha1().GCPRoles(p.Namespace).Create(context.TODO(), &p, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create GCPRole")
 
 				IsGCPRoleCreated(p.Name, p.Namespace)
@@ -297,7 +297,7 @@ var _ = Describe("GCP Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting GCPRole...")
-				err := f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(p.Name, metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(context.TODO(), p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete GCPRole")
 
 				IsGCPRoleDeleted(p.Name, p.Namespace)
@@ -307,7 +307,7 @@ var _ = Describe("GCP Secret Engine", func() {
 			It("Should be failed making GCPRole", func() {
 
 				By("Creating GCPRole...")
-				_, err := f.CSClient.EngineV1alpha1().GCPRoles(p.Namespace).Create(&p)
+				_, err := f.CSClient.EngineV1alpha1().GCPRoles(p.Namespace).Create(context.TODO(), &p, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create GCPRole")
 
 				IsGCPRoleCreated(p.Name, p.Namespace)
@@ -367,7 +367,7 @@ var _ = Describe("GCP Secret Engine", func() {
 					},
 				},
 			}
-			_, err = f.CSClient.EngineV1alpha1().SecretEngines(gcpSE.Namespace).Create(&gcpSE)
+			_, err = f.CSClient.EngineV1alpha1().SecretEngines(gcpSE.Namespace).Create(context.TODO(), &gcpSE, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Create gcp SecretEngine")
 			IsSecretEngineCreated(gcpSE.Name, gcpSE.Namespace)
 
@@ -414,14 +414,14 @@ var _ = Describe("GCP Secret Engine", func() {
 			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(context.TODO(), gcpCredSecret, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete gcp credentials secret")
 
-			err = f.CSClient.EngineV1alpha1().SecretEngines(gcpSE.Namespace).Delete(gcpSE.Name, metav1.DeleteOptions{})
+			err = f.CSClient.EngineV1alpha1().SecretEngines(gcpSE.Namespace).Delete(context.TODO(), gcpSE.Name, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete gcp SecretEngine")
 			IsSecretEngineDeleted(gcpSE.Name, gcpSE.Namespace)
 		})
 
 		Context("Create, Approve, Deny GCPAccessKeyRequests", func() {
 			BeforeEach(func() {
-				_, err := f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Create(&gcpRole)
+				_, err := f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Create(context.TODO(), &gcpRole, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create gcpRole")
 
 				IsGCPRoleCreated(gcpRole.Name, gcpRole.Namespace)
@@ -430,17 +430,17 @@ var _ = Describe("GCP Secret Engine", func() {
 			})
 
 			AfterEach(func() {
-				err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Delete(gcpAKR.Name, metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Delete(context.TODO(), gcpAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete GCPAccessKeyRequest")
 				IsGCPAccessKeyRequestDeleted(gcpAKR.Name, gcpAKR.Namespace)
 
-				err = f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(gcpRole.Name, metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(context.TODO(), gcpRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete gcpRole")
 				IsGCPRoleDeleted(gcpRole.Name, gcpRole.Namespace)
 			})
 
 			It("Should be successful, Create GCPAccessKeyRequest", func() {
-				_, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Create(&gcpAKR)
+				_, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Create(context.TODO(), &gcpAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create GCPAccessKeyRequest")
 
 				IsGCPAccessKeyRequestCreated(gcpAKR.Name, gcpAKR.Namespace)
@@ -448,7 +448,7 @@ var _ = Describe("GCP Secret Engine", func() {
 
 			It("Should be successful, Condition approved", func() {
 				By("Creating gcpAccessKeyRequest...")
-				r, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Create(&gcpAKR)
+				r, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Create(context.TODO(), &gcpAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create GCPAccessKeyRequest")
 
 				IsGCPAccessKeyRequestCreated(gcpAKR.Name, gcpAKR.Namespace)
@@ -468,7 +468,7 @@ var _ = Describe("GCP Secret Engine", func() {
 
 			It("Should be successful, Condition denied", func() {
 				By("Creating gcpAccessKeyRequest...")
-				r, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Create(&gcpAKR)
+				r, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Create(context.TODO(), &gcpAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create GCPAccessKeyRequest")
 
 				IsGCPAccessKeyRequestCreated(gcpAKR.Name, gcpAKR.Namespace)
@@ -496,7 +496,7 @@ var _ = Describe("GCP Secret Engine", func() {
 			BeforeEach(func() {
 
 				By("Creating gcpRole...")
-				r, err := f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Create(&gcpRole)
+				r, err := f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Create(context.TODO(), &gcpRole, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create GCPRole")
 
 				IsGCPRoleSucceeded(r.Name, r.Namespace)
@@ -505,14 +505,14 @@ var _ = Describe("GCP Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting gcp accesskeyrequest...")
-				err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Delete(gcpAKR.Name, metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Delete(context.TODO(), gcpAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete GCPAccessKeyRequest")
 
 				IsGCPAccessKeyRequestDeleted(gcpAKR.Name, gcpAKR.Namespace)
 				IsGCPAccessKeySecretDeleted(secretName, gcpAKR.Namespace)
 
 				By("Deleting gcpRole...")
-				err = f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(gcpRole.Name, metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(context.TODO(), gcpRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete GCPRole")
 
 				IsGCPRoleDeleted(gcpRole.Name, gcpRole.Namespace)
@@ -520,7 +520,7 @@ var _ = Describe("GCP Secret Engine", func() {
 
 			It("Should be successful, Create Access Key Secret", func() {
 				By("Creating gcp accessKeyRequest...")
-				r, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Create(&gcpAKR)
+				r, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Create(context.TODO(), &gcpAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create GCPAccessKeyRequest")
 
 				IsGCPAccessKeyRequestCreated(gcpAKR.Name, gcpAKR.Namespace)
@@ -540,7 +540,7 @@ var _ = Describe("GCP Secret Engine", func() {
 
 				IsGCPAccessKeySecretCreated(gcpAKR.Name, gcpAKR.Namespace)
 
-				d, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Get(gcpAKR.Name, metav1.GetOptions{})
+				d, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Get(context.TODO(), gcpAKR.Name, metav1.GetOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Get GCPAccessKeyRequest")
 				if d.Status.Secret != nil {
 					secretName = d.Status.Secret.Name

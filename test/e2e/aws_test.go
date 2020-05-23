@@ -382,7 +382,7 @@ var _ = Describe("AWS Secret Engine", func() {
 					},
 				},
 			}
-			_, err = f.CSClient.EngineV1alpha1().SecretEngines(awsSE.Namespace).Create(context.TODO(), &awsSE)
+			_, err = f.CSClient.EngineV1alpha1().SecretEngines(awsSE.Namespace).Create(context.TODO(), &awsSE, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Create aws SecretEngine")
 			IsSecretEngineCreated(awsSE.Name, awsSE.Namespace)
 
@@ -490,7 +490,7 @@ var _ = Describe("AWS Secret Engine", func() {
 
 			It("Should be successful, Condition denied", func() {
 				By("Creating AWSAccessKeyRequest...")
-				r, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Create(context.TODO(), &awsAKR)
+				r, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Create(context.TODO(), &awsAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create AWSAccessKeyRequest")
 
 				IsAWSAccessKeyRequestCreated(awsAKR.Name, awsAKR.Namespace)
@@ -542,7 +542,7 @@ var _ = Describe("AWS Secret Engine", func() {
 
 			It("Should be successful, Create Access Key Secret", func() {
 				By("Creating AWS accessKeyRequest...")
-				r, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Create(context.TODO(), &awsAKR)
+				r, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Create(context.TODO(), &awsAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create AWSAccessKeyRequest")
 
 				IsAWSAccessKeyRequestCreated(awsAKR.Name, awsAKR.Namespace)

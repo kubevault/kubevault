@@ -17,6 +17,7 @@ limitations under the License.
 package e2e_test
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -40,7 +41,7 @@ var _ = Describe("VaultPolicy", func() {
 		IsVaultPolicyDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for VaultPolicy (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.PolicyV1alpha1().VaultPolicies(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.PolicyV1alpha1().VaultPolicies(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerr.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("VaultPolicy (%s/%s) should not exists", namespace, name))
 		}
@@ -69,14 +70,14 @@ var _ = Describe("VaultPolicy", func() {
 		IsVaultPolicyBindingDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for VaultPolicyBinding (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.PolicyV1alpha1().VaultPolicyBindings(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.PolicyV1alpha1().VaultPolicyBindings(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerr.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("VaultPolicyBinding (%s/%s) should not exists", namespace, name))
 		}
 		IsVaultPolicyBindingSucceeded = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for VaultPolicyBinding (%s/%s) to success", namespace, name))
 			Eventually(func() bool {
-				pb, err := f.CSClient.PolicyV1alpha1().VaultPolicyBindings(namespace).Get(name, metav1.GetOptions{})
+				pb, err := f.CSClient.PolicyV1alpha1().VaultPolicyBindings(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err != nil {
 					return false
 				}
@@ -87,7 +88,7 @@ var _ = Describe("VaultPolicy", func() {
 		IsVaultPolicyBindingFailed = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for VaultPolicyBinding (%s/%s) to fail", namespace, name))
 			Eventually(func() bool {
-				pb, err := f.CSClient.PolicyV1alpha1().VaultPolicyBindings(namespace).Get(name, metav1.GetOptions{})
+				pb, err := f.CSClient.PolicyV1alpha1().VaultPolicyBindings(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err != nil {
 					return false
 				}

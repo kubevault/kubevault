@@ -43,21 +43,21 @@ var _ = Describe("Postgres Secret Engine", func() {
 		IsSecretEngineCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine is created")
 		}
 		IsSecretEngineDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine is deleted")
 		}
 		IsSecretEngineSucceeded = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is succeeded", namespace, name))
 			Eventually(func() bool {
-				r, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				r, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return r.Status.Phase == controller.SecretEnginePhaseSuccess
 				}
@@ -68,21 +68,21 @@ var _ = Describe("Postgres Secret Engine", func() {
 		IsPostgresRoleCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether PostgresRole:(%s/%s) role is created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().PostgresRoles(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().PostgresRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "PostgresRole is created")
 		}
 		IsPostgresRoleDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether PostgresRole:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().PostgresRoles(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().PostgresRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "PostgresRole is deleted")
 		}
 		IsPostgresRoleSucceeded = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether PostgresRole:(%s/%s) is succeeded", namespace, name))
 			Eventually(func() bool {
-				r, err := f.CSClient.EngineV1alpha1().PostgresRoles(namespace).Get(name, metav1.GetOptions{})
+				r, err := f.CSClient.EngineV1alpha1().PostgresRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return r.Status.Phase == controller.PostgresRolePhaseSuccess
 				}
@@ -94,7 +94,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 		IsPostgresRoleFailed = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether PostgresRole:(%s/%s) is failed", namespace, name))
 			Eventually(func() bool {
-				r, err := f.CSClient.EngineV1alpha1().PostgresRoles(namespace).Get(name, metav1.GetOptions{})
+				r, err := f.CSClient.EngineV1alpha1().PostgresRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return r.Status.Phase != controller.PostgresRolePhaseSuccess && len(r.Status.Conditions) != 0
 				}
@@ -104,21 +104,21 @@ var _ = Describe("Postgres Secret Engine", func() {
 		IsDatabaseAccessRequestCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether DatabaseAccessRequest:(%s/%s) is created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "DatabaseAccessRequest is created")
 		}
 		IsDatabaseAccessRequestDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether DatabaseAccessRequest:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "DatabaseAccessRequest is deleted")
 		}
 		IsPostgresAKRConditionApproved = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether DatabaseAccessRequestConditions-> Type: Approved"))
 			Eventually(func() bool {
-				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
+				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
 						if value.Type == kmapi.ConditionRequestApproved {
@@ -132,7 +132,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 		IsPostgresAKRConditionDenied = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether DatabaseAccessRequestConditions-> Type: Denied"))
 			Eventually(func() bool {
-				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
+				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
 						if value.Type == kmapi.ConditionRequestDenied {
@@ -146,7 +146,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 		IsPostgresAccessKeySecretCreated = func(name, namespace string) {
 			By("Checking whether PostgresAccessKeySecret is created")
 			Eventually(func() bool {
-				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
+				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil && crd.Status.Secret != nil {
 					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), crd.Status.Secret.Name, metav1.GetOptions{})
 					return err2 == nil
@@ -241,13 +241,13 @@ var _ = Describe("Postgres Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting PostgresRole...")
-				err := f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(p.Name, metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(context.TODO(), p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete PostgresRole")
 
 				IsPostgresRoleDeleted(p.Name, p.Namespace)
 
 				By("Deleting SecretEngine...")
-				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(se.Name, metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(context.TODO(), se.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete Secret engine")
 
 				IsSecretEngineDeleted(se.Name, se.Namespace)
@@ -255,14 +255,14 @@ var _ = Describe("Postgres Secret Engine", func() {
 
 			It("Should be successful", func() {
 				By("Creating SecretEngine...")
-				_, err := f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Create(&se)
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Create(context.TODO(), &se, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create SecretEngine")
 
 				IsSecretEngineCreated(se.Name, se.Namespace)
 				IsSecretEngineSucceeded(se.Name, se.Namespace)
 
 				By("Creating PostgresRole...")
-				_, err = f.CSClient.EngineV1alpha1().PostgresRoles(p.Namespace).Create(&p)
+				_, err = f.CSClient.EngineV1alpha1().PostgresRoles(p.Namespace).Create(context.TODO(), &p, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create PostgresRole")
 
 				IsPostgresRoleCreated(p.Name, p.Namespace)
@@ -280,7 +280,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting PostgresRole...")
-				err := f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(p.Name, metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(context.TODO(), p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete PostgresRole")
 
 				IsPostgresRoleDeleted(p.Name, p.Namespace)
@@ -290,7 +290,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 			It("Should be failed making PostgresRole", func() {
 
 				By("Creating PostgresRole...")
-				_, err := f.CSClient.EngineV1alpha1().PostgresRoles(p.Namespace).Create(&p)
+				_, err := f.CSClient.EngineV1alpha1().PostgresRoles(p.Namespace).Create(context.TODO(), &p, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create PostgresRole")
 
 				IsPostgresRoleCreated(p.Name, p.Namespace)
@@ -336,7 +336,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 					},
 				},
 			}
-			_, err := f.CSClient.EngineV1alpha1().SecretEngines(postgresSE.Namespace).Create(&postgresSE)
+			_, err := f.CSClient.EngineV1alpha1().SecretEngines(postgresSE.Namespace).Create(context.TODO(), &postgresSE, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Create Postgres SecretEngine")
 			IsSecretEngineCreated(postgresSE.Name, postgresSE.Namespace)
 
@@ -383,14 +383,14 @@ var _ = Describe("Postgres Secret Engine", func() {
 		})
 
 		AfterEach(func() {
-			err := f.CSClient.EngineV1alpha1().SecretEngines(postgresSE.Namespace).Delete(postgresSE.Name, metav1.DeleteOptions{})
+			err := f.CSClient.EngineV1alpha1().SecretEngines(postgresSE.Namespace).Delete(context.TODO(), postgresSE.Name, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete Postgres SecretEngine")
 			IsSecretEngineDeleted(postgresSE.Name, postgresSE.Namespace)
 		})
 
 		Context("Create, Approve, Deny DatabaseAccessRequests", func() {
 			BeforeEach(func() {
-				_, err := f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Create(&postgresRole)
+				_, err := f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Create(context.TODO(), &postgresRole, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create PostgresRole")
 
 				IsPostgresRoleCreated(postgresRole.Name, postgresRole.Namespace)
@@ -399,17 +399,17 @@ var _ = Describe("Postgres Secret Engine", func() {
 			})
 
 			AfterEach(func() {
-				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Delete(postgresAKR.Name, metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Delete(context.TODO(), postgresAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete DatabaseAccessRequest")
 				IsDatabaseAccessRequestDeleted(postgresAKR.Name, postgresAKR.Namespace)
 
-				err = f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(postgresRole.Name, metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(context.TODO(), postgresRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete PostgresRole")
 				IsPostgresRoleDeleted(postgresRole.Name, postgresRole.Namespace)
 			})
 
 			It("Should be successful, Create DatabaseAccessRequest", func() {
-				_, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Create(&postgresAKR)
+				_, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Create(context.TODO(), &postgresAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create DatabaseAccessRequest")
 
 				IsDatabaseAccessRequestCreated(postgresAKR.Name, postgresAKR.Namespace)
@@ -417,7 +417,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 
 			It("Should be successful, Condition approved", func() {
 				By("Creating DatabaseAccessRequest...")
-				r, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Create(&postgresAKR)
+				r, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Create(context.TODO(), &postgresAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create DatabaseAccessRequest")
 
 				IsDatabaseAccessRequestCreated(postgresAKR.Name, postgresAKR.Namespace)
@@ -437,7 +437,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 
 			It("Should be successful, Condition denied", func() {
 				By("Creating DatabaseAccessRequest...")
-				r, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Create(&postgresAKR)
+				r, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Create(context.TODO(), &postgresAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create DatabaseAccessRequest")
 
 				IsDatabaseAccessRequestCreated(postgresAKR.Name, postgresAKR.Namespace)
@@ -465,7 +465,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 			BeforeEach(func() {
 
 				By("Creating PostgresRole...")
-				r, err := f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Create(&postgresRole)
+				r, err := f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Create(context.TODO(), &postgresRole, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create PostgresRole")
 
 				IsPostgresRoleSucceeded(r.Name, r.Namespace)
@@ -474,14 +474,14 @@ var _ = Describe("Postgres Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting Postgres accesskeyrequest...")
-				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Delete(postgresAKR.Name, metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Delete(context.TODO(), postgresAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete DatabaseAccessRequest")
 
 				IsDatabaseAccessRequestDeleted(postgresAKR.Name, postgresAKR.Namespace)
 				IsPostgresAccessKeySecretDeleted(secretName, postgresAKR.Namespace)
 
 				By("Deleting PostgresRole...")
-				err = f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(postgresRole.Name, metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(context.TODO(), postgresRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete PostgresRole")
 
 				IsPostgresRoleDeleted(postgresRole.Name, postgresRole.Namespace)
@@ -489,7 +489,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 
 			It("Should be successful, Create Access Key Secret", func() {
 				By("Creating Postgres accessKeyRequest...")
-				r, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Create(&postgresAKR)
+				r, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Create(context.TODO(), &postgresAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create DatabaseAccessRequest")
 
 				IsDatabaseAccessRequestCreated(postgresAKR.Name, postgresAKR.Namespace)
@@ -509,7 +509,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 
 				IsPostgresAccessKeySecretCreated(postgresAKR.Name, postgresAKR.Namespace)
 
-				d, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Get(postgresAKR.Name, metav1.GetOptions{})
+				d, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Get(context.TODO(), postgresAKR.Name, metav1.GetOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Get DatabaseAccessRequest")
 				if d.Status.Secret != nil {
 					secretName = d.Status.Secret.Name
