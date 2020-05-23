@@ -17,6 +17,7 @@ limitations under the License.
 package engine
 
 import (
+	"context"
 	"fmt"
 
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
@@ -95,7 +96,7 @@ func (seClient *SecretEngine) CreateMySQLConfig() error {
 	}
 
 	if dbApp.Spec.Secret != nil {
-		secret, err := seClient.kubeClient.CoreV1().Secrets(dbAppRef.Namespace).Get(dbApp.Spec.Secret.Name, metav1.GetOptions{})
+		secret, err := seClient.kubeClient.CoreV1().Secrets(dbAppRef.Namespace).Get(context.TODO(), dbApp.Spec.Secret.Name, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to get secret for MySQL database config")
 		}
@@ -169,7 +170,7 @@ func (seClient *SecretEngine) CreateMongoDBConfig() error {
 	}
 
 	if dbApp.Spec.Secret != nil {
-		secret, err := seClient.kubeClient.CoreV1().Secrets(dbAppRef.Namespace).Get(dbApp.Spec.Secret.Name, metav1.GetOptions{})
+		secret, err := seClient.kubeClient.CoreV1().Secrets(dbAppRef.Namespace).Get(context.TODO(), dbApp.Spec.Secret.Name, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "Failed to get secret for MongoDB database config")
 		}
@@ -240,7 +241,7 @@ func (seClient *SecretEngine) CreatePostgresConfig() error {
 	}
 
 	if dbApp.Spec.Secret != nil {
-		secret, err := seClient.kubeClient.CoreV1().Secrets(dbAppRef.Namespace).Get(dbApp.Spec.Secret.Name, metav1.GetOptions{})
+		secret, err := seClient.kubeClient.CoreV1().Secrets(dbAppRef.Namespace).Get(context.TODO(), dbApp.Spec.Secret.Name, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "Failed to get secret for Postgres database config")
 		}
@@ -315,7 +316,7 @@ func (seClient *SecretEngine) CreateAWSConfig() error {
 	}
 
 	if config.CredentialSecret != "" {
-		sr, err := seClient.kubeClient.CoreV1().Secrets(seClient.secretEngine.Namespace).Get(config.CredentialSecret, metav1.GetOptions{})
+		sr, err := seClient.kubeClient.CoreV1().Secrets(seClient.secretEngine.Namespace).Get(context.TODO(), config.CredentialSecret, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to get aws credential secret")
 		}
@@ -384,7 +385,7 @@ func (seClient *SecretEngine) CreateAzureConfig() error {
 
 	payload := map[string]interface{}{}
 	if config.CredentialSecret != "" {
-		sr, err := seClient.kubeClient.CoreV1().Secrets(seClient.secretEngine.Namespace).Get(config.CredentialSecret, metav1.GetOptions{})
+		sr, err := seClient.kubeClient.CoreV1().Secrets(seClient.secretEngine.Namespace).Get(context.TODO(), config.CredentialSecret, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to get azure credential secret")
 		}
@@ -451,7 +452,7 @@ func (seClient *SecretEngine) CreateGCPConfig() error {
 	}
 
 	if config.CredentialSecret != "" {
-		sr, err := seClient.kubeClient.CoreV1().Secrets(seClient.secretEngine.Namespace).Get(config.CredentialSecret, metav1.GetOptions{})
+		sr, err := seClient.kubeClient.CoreV1().Secrets(seClient.secretEngine.Namespace).Get(context.TODO(), config.CredentialSecret, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to get gcp credential secret")
 		}

@@ -17,6 +17,7 @@ limitations under the License.
 package util
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -33,29 +34,50 @@ import (
 	kutil "kmodules.xyz/client-go"
 )
 
-func CreateOrPatchDatabaseAccessRequest(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.DatabaseAccessRequest) *api.DatabaseAccessRequest) (*api.DatabaseAccessRequest, kutil.VerbType, error) {
-	cur, err := c.DatabaseAccessRequests(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+func CreateOrPatchDatabaseAccessRequest(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(alert *api.DatabaseAccessRequest) *api.DatabaseAccessRequest,
+	opts metav1.PatchOptions,
+) (*api.DatabaseAccessRequest, kutil.VerbType, error) {
+	cur, err := c.DatabaseAccessRequests(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		glog.V(3).Infof("Creating DatabaseAccessRequest %s/%s.", meta.Namespace, meta.Name)
-		out, err := c.DatabaseAccessRequests(meta.Namespace).Create(transform(&api.DatabaseAccessRequest{
+		out, err := c.DatabaseAccessRequests(meta.Namespace).Create(ctx, transform(&api.DatabaseAccessRequest{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       api.ResourceKindDatabaseAccessRequest,
 				APIVersion: api.SchemeGroupVersion.String(),
 			},
 			ObjectMeta: meta,
-		}))
+		}),
+			metav1.CreateOptions{
+				DryRun:       opts.DryRun,
+				FieldManager: opts.FieldManager,
+			})
 		return out, kutil.VerbCreated, err
 	} else if err != nil {
 		return nil, kutil.VerbUnchanged, err
 	}
-	return PatchDatabaseAccessRequest(c, cur, transform)
+	return PatchDatabaseAccessRequest(ctx, c, cur, transform, opts)
 }
 
-func PatchDatabaseAccessRequest(c cs.EngineV1alpha1Interface, cur *api.DatabaseAccessRequest, transform func(*api.DatabaseAccessRequest) *api.DatabaseAccessRequest) (*api.DatabaseAccessRequest, kutil.VerbType, error) {
-	return PatchDatabaseAccessRequestObject(c, cur, transform(cur.DeepCopy()))
+func PatchDatabaseAccessRequest(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur *api.DatabaseAccessRequest,
+	transform func(*api.DatabaseAccessRequest) *api.DatabaseAccessRequest,
+	opts metav1.PatchOptions,
+) (*api.DatabaseAccessRequest, kutil.VerbType, error) {
+	return PatchDatabaseAccessRequestObject(ctx, c, cur, transform(cur.DeepCopy()), opts)
 }
 
-func PatchDatabaseAccessRequestObject(c cs.EngineV1alpha1Interface, cur, mod *api.DatabaseAccessRequest) (*api.DatabaseAccessRequest, kutil.VerbType, error) {
+func PatchDatabaseAccessRequestObject(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur, mod *api.DatabaseAccessRequest,
+	opts metav1.PatchOptions,
+) (*api.DatabaseAccessRequest, kutil.VerbType, error) {
 	curJson, err := json.Marshal(cur)
 	if err != nil {
 		return nil, kutil.VerbUnchanged, err
@@ -74,19 +96,25 @@ func PatchDatabaseAccessRequestObject(c cs.EngineV1alpha1Interface, cur, mod *ap
 		return cur, kutil.VerbUnchanged, nil
 	}
 	glog.V(3).Infof("Patching DatabaseAccessRequest %s/%s with %s.", cur.Namespace, cur.Name, string(patch))
-	out, err := c.DatabaseAccessRequests(cur.Namespace).Patch(cur.Name, types.MergePatchType, patch)
+	out, err := c.DatabaseAccessRequests(cur.Namespace).Patch(ctx, cur.Name, types.MergePatchType, patch, opts)
 	return out, kutil.VerbPatched, err
 }
 
-func TryUpdateDatabaseAccessRequest(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.DatabaseAccessRequest) *api.DatabaseAccessRequest) (result *api.DatabaseAccessRequest, err error) {
+func TryUpdateDatabaseAccessRequest(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(*api.DatabaseAccessRequest) *api.DatabaseAccessRequest,
+	opts metav1.UpdateOptions,
+) (result *api.DatabaseAccessRequest, err error) {
 	attempt := 0
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
-		cur, e2 := c.DatabaseAccessRequests(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+		cur, e2 := c.DatabaseAccessRequests(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 		if kerr.IsNotFound(e2) {
 			return false, e2
 		} else if e2 == nil {
-			result, e2 = c.DatabaseAccessRequests(cur.Namespace).Update(transform(cur.DeepCopy()))
+			result, e2 = c.DatabaseAccessRequests(cur.Namespace).Update(ctx, transform(cur.DeepCopy()), opts)
 			return e2 == nil, nil
 		}
 		glog.Errorf("Attempt %d failed to update DatabaseAccessRequest %s/%s due to %v.", attempt, cur.Namespace, cur.Name, e2)
@@ -100,9 +128,11 @@ func TryUpdateDatabaseAccessRequest(c cs.EngineV1alpha1Interface, meta metav1.Ob
 }
 
 func UpdateDatabaseAccessRequestStatus(
+	ctx context.Context,
 	c cs.EngineV1alpha1Interface,
 	meta metav1.ObjectMeta,
 	transform func(*api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus,
+	opts metav1.UpdateOptions,
 ) (result *api.DatabaseAccessRequest, err error) {
 	apply := func(x *api.DatabaseAccessRequest) *api.DatabaseAccessRequest {
 		return &api.DatabaseAccessRequest{
@@ -114,16 +144,16 @@ func UpdateDatabaseAccessRequestStatus(
 	}
 
 	attempt := 0
-	cur, err := c.DatabaseAccessRequests(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+	cur, err := c.DatabaseAccessRequests(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
 		var e2 error
-		result, e2 = c.DatabaseAccessRequests(meta.Namespace).UpdateStatus(apply(cur))
+		result, e2 = c.DatabaseAccessRequests(meta.Namespace).UpdateStatus(ctx, apply(cur), opts)
 		if kerr.IsConflict(e2) {
-			latest, e3 := c.DatabaseAccessRequests(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+			latest, e3 := c.DatabaseAccessRequests(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 			switch {
 			case e3 == nil:
 				cur = latest

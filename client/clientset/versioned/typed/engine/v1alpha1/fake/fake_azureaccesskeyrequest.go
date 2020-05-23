@@ -19,6 +19,8 @@ limitations under the License.
 package fake
 
 import (
+	"context"
+
 	v1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -40,7 +42,7 @@ var azureaccesskeyrequestsResource = schema.GroupVersionResource{Group: "engine.
 var azureaccesskeyrequestsKind = schema.GroupVersionKind{Group: "engine.kubevault.com", Version: "v1alpha1", Kind: "AzureAccessKeyRequest"}
 
 // Get takes name of the azureAccessKeyRequest, and returns the corresponding azureAccessKeyRequest object, and an error if there is any.
-func (c *FakeAzureAccessKeyRequests) Get(name string, options v1.GetOptions) (result *v1alpha1.AzureAccessKeyRequest, err error) {
+func (c *FakeAzureAccessKeyRequests) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.AzureAccessKeyRequest, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(azureaccesskeyrequestsResource, c.ns, name), &v1alpha1.AzureAccessKeyRequest{})
 
@@ -51,7 +53,7 @@ func (c *FakeAzureAccessKeyRequests) Get(name string, options v1.GetOptions) (re
 }
 
 // List takes label and field selectors, and returns the list of AzureAccessKeyRequests that match those selectors.
-func (c *FakeAzureAccessKeyRequests) List(opts v1.ListOptions) (result *v1alpha1.AzureAccessKeyRequestList, err error) {
+func (c *FakeAzureAccessKeyRequests) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.AzureAccessKeyRequestList, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewListAction(azureaccesskeyrequestsResource, azureaccesskeyrequestsKind, c.ns, opts), &v1alpha1.AzureAccessKeyRequestList{})
 
@@ -73,14 +75,14 @@ func (c *FakeAzureAccessKeyRequests) List(opts v1.ListOptions) (result *v1alpha1
 }
 
 // Watch returns a watch.Interface that watches the requested azureAccessKeyRequests.
-func (c *FakeAzureAccessKeyRequests) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeAzureAccessKeyRequests) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(azureaccesskeyrequestsResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a azureAccessKeyRequest and creates it.  Returns the server's representation of the azureAccessKeyRequest, and an error, if there is any.
-func (c *FakeAzureAccessKeyRequests) Create(azureAccessKeyRequest *v1alpha1.AzureAccessKeyRequest) (result *v1alpha1.AzureAccessKeyRequest, err error) {
+func (c *FakeAzureAccessKeyRequests) Create(ctx context.Context, azureAccessKeyRequest *v1alpha1.AzureAccessKeyRequest, opts v1.CreateOptions) (result *v1alpha1.AzureAccessKeyRequest, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(azureaccesskeyrequestsResource, c.ns, azureAccessKeyRequest), &v1alpha1.AzureAccessKeyRequest{})
 
@@ -91,7 +93,7 @@ func (c *FakeAzureAccessKeyRequests) Create(azureAccessKeyRequest *v1alpha1.Azur
 }
 
 // Update takes the representation of a azureAccessKeyRequest and updates it. Returns the server's representation of the azureAccessKeyRequest, and an error, if there is any.
-func (c *FakeAzureAccessKeyRequests) Update(azureAccessKeyRequest *v1alpha1.AzureAccessKeyRequest) (result *v1alpha1.AzureAccessKeyRequest, err error) {
+func (c *FakeAzureAccessKeyRequests) Update(ctx context.Context, azureAccessKeyRequest *v1alpha1.AzureAccessKeyRequest, opts v1.UpdateOptions) (result *v1alpha1.AzureAccessKeyRequest, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateAction(azureaccesskeyrequestsResource, c.ns, azureAccessKeyRequest), &v1alpha1.AzureAccessKeyRequest{})
 
@@ -103,7 +105,7 @@ func (c *FakeAzureAccessKeyRequests) Update(azureAccessKeyRequest *v1alpha1.Azur
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeAzureAccessKeyRequests) UpdateStatus(azureAccessKeyRequest *v1alpha1.AzureAccessKeyRequest) (*v1alpha1.AzureAccessKeyRequest, error) {
+func (c *FakeAzureAccessKeyRequests) UpdateStatus(ctx context.Context, azureAccessKeyRequest *v1alpha1.AzureAccessKeyRequest, opts v1.UpdateOptions) (*v1alpha1.AzureAccessKeyRequest, error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateSubresourceAction(azureaccesskeyrequestsResource, "status", c.ns, azureAccessKeyRequest), &v1alpha1.AzureAccessKeyRequest{})
 
@@ -114,7 +116,7 @@ func (c *FakeAzureAccessKeyRequests) UpdateStatus(azureAccessKeyRequest *v1alpha
 }
 
 // Delete takes name of the azureAccessKeyRequest and deletes it. Returns an error if one occurs.
-func (c *FakeAzureAccessKeyRequests) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeAzureAccessKeyRequests) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
 		Invokes(testing.NewDeleteAction(azureaccesskeyrequestsResource, c.ns, name), &v1alpha1.AzureAccessKeyRequest{})
 
@@ -122,15 +124,15 @@ func (c *FakeAzureAccessKeyRequests) Delete(name string, options *v1.DeleteOptio
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeAzureAccessKeyRequests) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(azureaccesskeyrequestsResource, c.ns, listOptions)
+func (c *FakeAzureAccessKeyRequests) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(azureaccesskeyrequestsResource, c.ns, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1alpha1.AzureAccessKeyRequestList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched azureAccessKeyRequest.
-func (c *FakeAzureAccessKeyRequests) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.AzureAccessKeyRequest, err error) {
+func (c *FakeAzureAccessKeyRequests) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.AzureAccessKeyRequest, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(azureaccesskeyrequestsResource, c.ns, name, pt, data, subresources...), &v1alpha1.AzureAccessKeyRequest{})
 

@@ -19,6 +19,8 @@ limitations under the License.
 package fake
 
 import (
+	"context"
+
 	v1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -40,7 +42,7 @@ var mysqlrolesResource = schema.GroupVersionResource{Group: "engine.kubevault.co
 var mysqlrolesKind = schema.GroupVersionKind{Group: "engine.kubevault.com", Version: "v1alpha1", Kind: "MySQLRole"}
 
 // Get takes name of the mySQLRole, and returns the corresponding mySQLRole object, and an error if there is any.
-func (c *FakeMySQLRoles) Get(name string, options v1.GetOptions) (result *v1alpha1.MySQLRole, err error) {
+func (c *FakeMySQLRoles) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.MySQLRole, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(mysqlrolesResource, c.ns, name), &v1alpha1.MySQLRole{})
 
@@ -51,7 +53,7 @@ func (c *FakeMySQLRoles) Get(name string, options v1.GetOptions) (result *v1alph
 }
 
 // List takes label and field selectors, and returns the list of MySQLRoles that match those selectors.
-func (c *FakeMySQLRoles) List(opts v1.ListOptions) (result *v1alpha1.MySQLRoleList, err error) {
+func (c *FakeMySQLRoles) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.MySQLRoleList, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewListAction(mysqlrolesResource, mysqlrolesKind, c.ns, opts), &v1alpha1.MySQLRoleList{})
 
@@ -73,14 +75,14 @@ func (c *FakeMySQLRoles) List(opts v1.ListOptions) (result *v1alpha1.MySQLRoleLi
 }
 
 // Watch returns a watch.Interface that watches the requested mySQLRoles.
-func (c *FakeMySQLRoles) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeMySQLRoles) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(mysqlrolesResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a mySQLRole and creates it.  Returns the server's representation of the mySQLRole, and an error, if there is any.
-func (c *FakeMySQLRoles) Create(mySQLRole *v1alpha1.MySQLRole) (result *v1alpha1.MySQLRole, err error) {
+func (c *FakeMySQLRoles) Create(ctx context.Context, mySQLRole *v1alpha1.MySQLRole, opts v1.CreateOptions) (result *v1alpha1.MySQLRole, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(mysqlrolesResource, c.ns, mySQLRole), &v1alpha1.MySQLRole{})
 
@@ -91,7 +93,7 @@ func (c *FakeMySQLRoles) Create(mySQLRole *v1alpha1.MySQLRole) (result *v1alpha1
 }
 
 // Update takes the representation of a mySQLRole and updates it. Returns the server's representation of the mySQLRole, and an error, if there is any.
-func (c *FakeMySQLRoles) Update(mySQLRole *v1alpha1.MySQLRole) (result *v1alpha1.MySQLRole, err error) {
+func (c *FakeMySQLRoles) Update(ctx context.Context, mySQLRole *v1alpha1.MySQLRole, opts v1.UpdateOptions) (result *v1alpha1.MySQLRole, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateAction(mysqlrolesResource, c.ns, mySQLRole), &v1alpha1.MySQLRole{})
 
@@ -103,7 +105,7 @@ func (c *FakeMySQLRoles) Update(mySQLRole *v1alpha1.MySQLRole) (result *v1alpha1
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeMySQLRoles) UpdateStatus(mySQLRole *v1alpha1.MySQLRole) (*v1alpha1.MySQLRole, error) {
+func (c *FakeMySQLRoles) UpdateStatus(ctx context.Context, mySQLRole *v1alpha1.MySQLRole, opts v1.UpdateOptions) (*v1alpha1.MySQLRole, error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateSubresourceAction(mysqlrolesResource, "status", c.ns, mySQLRole), &v1alpha1.MySQLRole{})
 
@@ -114,7 +116,7 @@ func (c *FakeMySQLRoles) UpdateStatus(mySQLRole *v1alpha1.MySQLRole) (*v1alpha1.
 }
 
 // Delete takes name of the mySQLRole and deletes it. Returns an error if one occurs.
-func (c *FakeMySQLRoles) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeMySQLRoles) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
 		Invokes(testing.NewDeleteAction(mysqlrolesResource, c.ns, name), &v1alpha1.MySQLRole{})
 
@@ -122,15 +124,15 @@ func (c *FakeMySQLRoles) Delete(name string, options *v1.DeleteOptions) error {
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeMySQLRoles) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(mysqlrolesResource, c.ns, listOptions)
+func (c *FakeMySQLRoles) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(mysqlrolesResource, c.ns, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1alpha1.MySQLRoleList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched mySQLRole.
-func (c *FakeMySQLRoles) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.MySQLRole, err error) {
+func (c *FakeMySQLRoles) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.MySQLRole, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(mysqlrolesResource, c.ns, name, pt, data, subresources...), &v1alpha1.MySQLRole{})
 

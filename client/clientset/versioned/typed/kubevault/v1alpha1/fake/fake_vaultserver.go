@@ -19,6 +19,8 @@ limitations under the License.
 package fake
 
 import (
+	"context"
+
 	v1alpha1 "kubevault.dev/operator/apis/kubevault/v1alpha1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -40,7 +42,7 @@ var vaultserversResource = schema.GroupVersionResource{Group: "kubevault.com", V
 var vaultserversKind = schema.GroupVersionKind{Group: "kubevault.com", Version: "v1alpha1", Kind: "VaultServer"}
 
 // Get takes name of the vaultServer, and returns the corresponding vaultServer object, and an error if there is any.
-func (c *FakeVaultServers) Get(name string, options v1.GetOptions) (result *v1alpha1.VaultServer, err error) {
+func (c *FakeVaultServers) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.VaultServer, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(vaultserversResource, c.ns, name), &v1alpha1.VaultServer{})
 
@@ -51,7 +53,7 @@ func (c *FakeVaultServers) Get(name string, options v1.GetOptions) (result *v1al
 }
 
 // List takes label and field selectors, and returns the list of VaultServers that match those selectors.
-func (c *FakeVaultServers) List(opts v1.ListOptions) (result *v1alpha1.VaultServerList, err error) {
+func (c *FakeVaultServers) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.VaultServerList, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewListAction(vaultserversResource, vaultserversKind, c.ns, opts), &v1alpha1.VaultServerList{})
 
@@ -73,14 +75,14 @@ func (c *FakeVaultServers) List(opts v1.ListOptions) (result *v1alpha1.VaultServ
 }
 
 // Watch returns a watch.Interface that watches the requested vaultServers.
-func (c *FakeVaultServers) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeVaultServers) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(vaultserversResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a vaultServer and creates it.  Returns the server's representation of the vaultServer, and an error, if there is any.
-func (c *FakeVaultServers) Create(vaultServer *v1alpha1.VaultServer) (result *v1alpha1.VaultServer, err error) {
+func (c *FakeVaultServers) Create(ctx context.Context, vaultServer *v1alpha1.VaultServer, opts v1.CreateOptions) (result *v1alpha1.VaultServer, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(vaultserversResource, c.ns, vaultServer), &v1alpha1.VaultServer{})
 
@@ -91,7 +93,7 @@ func (c *FakeVaultServers) Create(vaultServer *v1alpha1.VaultServer) (result *v1
 }
 
 // Update takes the representation of a vaultServer and updates it. Returns the server's representation of the vaultServer, and an error, if there is any.
-func (c *FakeVaultServers) Update(vaultServer *v1alpha1.VaultServer) (result *v1alpha1.VaultServer, err error) {
+func (c *FakeVaultServers) Update(ctx context.Context, vaultServer *v1alpha1.VaultServer, opts v1.UpdateOptions) (result *v1alpha1.VaultServer, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateAction(vaultserversResource, c.ns, vaultServer), &v1alpha1.VaultServer{})
 
@@ -103,7 +105,7 @@ func (c *FakeVaultServers) Update(vaultServer *v1alpha1.VaultServer) (result *v1
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeVaultServers) UpdateStatus(vaultServer *v1alpha1.VaultServer) (*v1alpha1.VaultServer, error) {
+func (c *FakeVaultServers) UpdateStatus(ctx context.Context, vaultServer *v1alpha1.VaultServer, opts v1.UpdateOptions) (*v1alpha1.VaultServer, error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateSubresourceAction(vaultserversResource, "status", c.ns, vaultServer), &v1alpha1.VaultServer{})
 
@@ -114,7 +116,7 @@ func (c *FakeVaultServers) UpdateStatus(vaultServer *v1alpha1.VaultServer) (*v1a
 }
 
 // Delete takes name of the vaultServer and deletes it. Returns an error if one occurs.
-func (c *FakeVaultServers) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeVaultServers) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
 		Invokes(testing.NewDeleteAction(vaultserversResource, c.ns, name), &v1alpha1.VaultServer{})
 
@@ -122,15 +124,15 @@ func (c *FakeVaultServers) Delete(name string, options *v1.DeleteOptions) error 
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeVaultServers) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(vaultserversResource, c.ns, listOptions)
+func (c *FakeVaultServers) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(vaultserversResource, c.ns, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1alpha1.VaultServerList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched vaultServer.
-func (c *FakeVaultServers) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VaultServer, err error) {
+func (c *FakeVaultServers) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.VaultServer, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(vaultserversResource, c.ns, name, pt, data, subresources...), &v1alpha1.VaultServer{})
 

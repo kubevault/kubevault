@@ -19,6 +19,8 @@ limitations under the License.
 package fake
 
 import (
+	"context"
+
 	v1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -40,7 +42,7 @@ var mongodbrolesResource = schema.GroupVersionResource{Group: "engine.kubevault.
 var mongodbrolesKind = schema.GroupVersionKind{Group: "engine.kubevault.com", Version: "v1alpha1", Kind: "MongoDBRole"}
 
 // Get takes name of the mongoDBRole, and returns the corresponding mongoDBRole object, and an error if there is any.
-func (c *FakeMongoDBRoles) Get(name string, options v1.GetOptions) (result *v1alpha1.MongoDBRole, err error) {
+func (c *FakeMongoDBRoles) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.MongoDBRole, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(mongodbrolesResource, c.ns, name), &v1alpha1.MongoDBRole{})
 
@@ -51,7 +53,7 @@ func (c *FakeMongoDBRoles) Get(name string, options v1.GetOptions) (result *v1al
 }
 
 // List takes label and field selectors, and returns the list of MongoDBRoles that match those selectors.
-func (c *FakeMongoDBRoles) List(opts v1.ListOptions) (result *v1alpha1.MongoDBRoleList, err error) {
+func (c *FakeMongoDBRoles) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.MongoDBRoleList, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewListAction(mongodbrolesResource, mongodbrolesKind, c.ns, opts), &v1alpha1.MongoDBRoleList{})
 
@@ -73,14 +75,14 @@ func (c *FakeMongoDBRoles) List(opts v1.ListOptions) (result *v1alpha1.MongoDBRo
 }
 
 // Watch returns a watch.Interface that watches the requested mongoDBRoles.
-func (c *FakeMongoDBRoles) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeMongoDBRoles) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(mongodbrolesResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a mongoDBRole and creates it.  Returns the server's representation of the mongoDBRole, and an error, if there is any.
-func (c *FakeMongoDBRoles) Create(mongoDBRole *v1alpha1.MongoDBRole) (result *v1alpha1.MongoDBRole, err error) {
+func (c *FakeMongoDBRoles) Create(ctx context.Context, mongoDBRole *v1alpha1.MongoDBRole, opts v1.CreateOptions) (result *v1alpha1.MongoDBRole, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(mongodbrolesResource, c.ns, mongoDBRole), &v1alpha1.MongoDBRole{})
 
@@ -91,7 +93,7 @@ func (c *FakeMongoDBRoles) Create(mongoDBRole *v1alpha1.MongoDBRole) (result *v1
 }
 
 // Update takes the representation of a mongoDBRole and updates it. Returns the server's representation of the mongoDBRole, and an error, if there is any.
-func (c *FakeMongoDBRoles) Update(mongoDBRole *v1alpha1.MongoDBRole) (result *v1alpha1.MongoDBRole, err error) {
+func (c *FakeMongoDBRoles) Update(ctx context.Context, mongoDBRole *v1alpha1.MongoDBRole, opts v1.UpdateOptions) (result *v1alpha1.MongoDBRole, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateAction(mongodbrolesResource, c.ns, mongoDBRole), &v1alpha1.MongoDBRole{})
 
@@ -103,7 +105,7 @@ func (c *FakeMongoDBRoles) Update(mongoDBRole *v1alpha1.MongoDBRole) (result *v1
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeMongoDBRoles) UpdateStatus(mongoDBRole *v1alpha1.MongoDBRole) (*v1alpha1.MongoDBRole, error) {
+func (c *FakeMongoDBRoles) UpdateStatus(ctx context.Context, mongoDBRole *v1alpha1.MongoDBRole, opts v1.UpdateOptions) (*v1alpha1.MongoDBRole, error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateSubresourceAction(mongodbrolesResource, "status", c.ns, mongoDBRole), &v1alpha1.MongoDBRole{})
 
@@ -114,7 +116,7 @@ func (c *FakeMongoDBRoles) UpdateStatus(mongoDBRole *v1alpha1.MongoDBRole) (*v1a
 }
 
 // Delete takes name of the mongoDBRole and deletes it. Returns an error if one occurs.
-func (c *FakeMongoDBRoles) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeMongoDBRoles) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
 		Invokes(testing.NewDeleteAction(mongodbrolesResource, c.ns, name), &v1alpha1.MongoDBRole{})
 
@@ -122,15 +124,15 @@ func (c *FakeMongoDBRoles) Delete(name string, options *v1.DeleteOptions) error 
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeMongoDBRoles) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(mongodbrolesResource, c.ns, listOptions)
+func (c *FakeMongoDBRoles) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(mongodbrolesResource, c.ns, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1alpha1.MongoDBRoleList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched mongoDBRole.
-func (c *FakeMongoDBRoles) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.MongoDBRole, err error) {
+func (c *FakeMongoDBRoles) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.MongoDBRole, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(mongodbrolesResource, c.ns, name, pt, data, subresources...), &v1alpha1.MongoDBRole{})
 

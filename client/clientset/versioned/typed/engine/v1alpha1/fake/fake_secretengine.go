@@ -19,6 +19,8 @@ limitations under the License.
 package fake
 
 import (
+	"context"
+
 	v1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -40,7 +42,7 @@ var secretenginesResource = schema.GroupVersionResource{Group: "engine.kubevault
 var secretenginesKind = schema.GroupVersionKind{Group: "engine.kubevault.com", Version: "v1alpha1", Kind: "SecretEngine"}
 
 // Get takes name of the secretEngine, and returns the corresponding secretEngine object, and an error if there is any.
-func (c *FakeSecretEngines) Get(name string, options v1.GetOptions) (result *v1alpha1.SecretEngine, err error) {
+func (c *FakeSecretEngines) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.SecretEngine, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(secretenginesResource, c.ns, name), &v1alpha1.SecretEngine{})
 
@@ -51,7 +53,7 @@ func (c *FakeSecretEngines) Get(name string, options v1.GetOptions) (result *v1a
 }
 
 // List takes label and field selectors, and returns the list of SecretEngines that match those selectors.
-func (c *FakeSecretEngines) List(opts v1.ListOptions) (result *v1alpha1.SecretEngineList, err error) {
+func (c *FakeSecretEngines) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.SecretEngineList, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewListAction(secretenginesResource, secretenginesKind, c.ns, opts), &v1alpha1.SecretEngineList{})
 
@@ -73,14 +75,14 @@ func (c *FakeSecretEngines) List(opts v1.ListOptions) (result *v1alpha1.SecretEn
 }
 
 // Watch returns a watch.Interface that watches the requested secretEngines.
-func (c *FakeSecretEngines) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeSecretEngines) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(secretenginesResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a secretEngine and creates it.  Returns the server's representation of the secretEngine, and an error, if there is any.
-func (c *FakeSecretEngines) Create(secretEngine *v1alpha1.SecretEngine) (result *v1alpha1.SecretEngine, err error) {
+func (c *FakeSecretEngines) Create(ctx context.Context, secretEngine *v1alpha1.SecretEngine, opts v1.CreateOptions) (result *v1alpha1.SecretEngine, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(secretenginesResource, c.ns, secretEngine), &v1alpha1.SecretEngine{})
 
@@ -91,7 +93,7 @@ func (c *FakeSecretEngines) Create(secretEngine *v1alpha1.SecretEngine) (result 
 }
 
 // Update takes the representation of a secretEngine and updates it. Returns the server's representation of the secretEngine, and an error, if there is any.
-func (c *FakeSecretEngines) Update(secretEngine *v1alpha1.SecretEngine) (result *v1alpha1.SecretEngine, err error) {
+func (c *FakeSecretEngines) Update(ctx context.Context, secretEngine *v1alpha1.SecretEngine, opts v1.UpdateOptions) (result *v1alpha1.SecretEngine, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateAction(secretenginesResource, c.ns, secretEngine), &v1alpha1.SecretEngine{})
 
@@ -103,7 +105,7 @@ func (c *FakeSecretEngines) Update(secretEngine *v1alpha1.SecretEngine) (result 
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeSecretEngines) UpdateStatus(secretEngine *v1alpha1.SecretEngine) (*v1alpha1.SecretEngine, error) {
+func (c *FakeSecretEngines) UpdateStatus(ctx context.Context, secretEngine *v1alpha1.SecretEngine, opts v1.UpdateOptions) (*v1alpha1.SecretEngine, error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateSubresourceAction(secretenginesResource, "status", c.ns, secretEngine), &v1alpha1.SecretEngine{})
 
@@ -114,7 +116,7 @@ func (c *FakeSecretEngines) UpdateStatus(secretEngine *v1alpha1.SecretEngine) (*
 }
 
 // Delete takes name of the secretEngine and deletes it. Returns an error if one occurs.
-func (c *FakeSecretEngines) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeSecretEngines) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
 		Invokes(testing.NewDeleteAction(secretenginesResource, c.ns, name), &v1alpha1.SecretEngine{})
 
@@ -122,15 +124,15 @@ func (c *FakeSecretEngines) Delete(name string, options *v1.DeleteOptions) error
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeSecretEngines) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(secretenginesResource, c.ns, listOptions)
+func (c *FakeSecretEngines) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(secretenginesResource, c.ns, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1alpha1.SecretEngineList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched secretEngine.
-func (c *FakeSecretEngines) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.SecretEngine, err error) {
+func (c *FakeSecretEngines) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.SecretEngine, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(secretenginesResource, c.ns, name, pt, data, subresources...), &v1alpha1.SecretEngine{})
 

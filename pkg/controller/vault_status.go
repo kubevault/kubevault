@@ -89,7 +89,7 @@ func (c *VaultController) updateLocalVaultCRStatus(vs *api.VaultServer, s *api.V
 		return
 	}
 
-	pods, err := c.kubeClient.CoreV1().Pods(namespace).List(opt)
+	pods, err := c.kubeClient.CoreV1().Pods(namespace).List(context.TODO(), opt)
 	if err != nil {
 		glog.Errorf("vault status monitor: failed to update vault replica status: failed listing pods for the vault server (%s.%s): %v", namespace, name, err)
 		return

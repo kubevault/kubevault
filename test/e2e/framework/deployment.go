@@ -17,22 +17,24 @@ limitations under the License.
 package framework
 
 import (
+	"context"
+
 	. "github.com/onsi/gomega"
 	apps "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (f *Framework) CreateDeployment(obj apps.Deployment) (*apps.Deployment, error) {
-	return f.KubeClient.AppsV1().Deployments(obj.Namespace).Create(&obj)
+	return f.KubeClient.AppsV1().Deployments(obj.Namespace).Create(context.TODO(), &obj, metav1.CreateOptions{})
 }
 
 func (f *Framework) DeleteDeployment(name, namespace string) error {
-	return f.KubeClient.AppsV1().Deployments(namespace).Delete(name, deleteInBackground())
+	return f.KubeClient.AppsV1().Deployments(namespace).Delete(context.TODO(), name, *deleteInBackground())
 }
 
 func (f *Framework) EventuallyDeployment(meta metav1.ObjectMeta) GomegaAsyncAssertion {
 	return Eventually(func() *apps.Deployment {
-		obj, err := f.KubeClient.AppsV1().Deployments(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+		obj, err := f.KubeClient.AppsV1().Deployments(meta.Namespace).Get(context.TODO(), meta.Name, metav1.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 		return obj
 	})

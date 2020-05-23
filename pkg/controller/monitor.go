@@ -17,6 +17,8 @@ limitations under the License.
 package controller
 
 import (
+	"context"
+
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/exporter"
 
@@ -64,9 +66,9 @@ func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service
 func (c *VaultController) ensureStatsServiceDeleted(vs *api.VaultServer) error {
 	log.Infof("deleting stats service %s/%s", vs.Namespace, vs.StatsServiceName())
 	err := c.kubeClient.CoreV1().Services(vs.Namespace).Delete(
+		context.TODO(),
 		vs.StatsServiceName(),
-		&metav1.DeleteOptions{},
-	)
+		metav1.DeleteOptions{})
 	return errors.WithStack(err)
 }
 
@@ -96,7 +98,7 @@ func (c *VaultController) addOrUpdateMonitor(vs *api.VaultServer) (kutil.VerbTyp
 }
 
 func (c *VaultController) getOldAgent(vs *api.VaultServer) mona.Agent {
-	service, err := c.kubeClient.CoreV1().Services(vs.Namespace).Get(vs.StatsService().ServiceName(), metav1.GetOptions{})
+	service, err := c.kubeClient.CoreV1().Services(vs.Namespace).Get(context.TODO(), vs.StatsService().ServiceName(), metav1.GetOptions{})
 	if err != nil {
 		return nil
 	}
@@ -105,7 +107,7 @@ func (c *VaultController) getOldAgent(vs *api.VaultServer) mona.Agent {
 }
 
 func (c *VaultController) setNewAgent(vs *api.VaultServer) error {
-	service, err := c.kubeClient.CoreV1().Services(vs.Namespace).Get(vs.StatsService().ServiceName(), metav1.GetOptions{})
+	service, err := c.kubeClient.CoreV1().Services(vs.Namespace).Get(context.TODO(), vs.StatsService().ServiceName(), metav1.GetOptions{})
 	if err != nil {
 		return err
 	}

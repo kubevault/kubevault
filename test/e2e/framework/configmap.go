@@ -17,23 +17,25 @@ limitations under the License.
 package framework
 
 import (
+	"context"
+
 	. "github.com/onsi/gomega"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (f *Framework) CreateConfigMap(obj core.ConfigMap) error {
-	_, err := f.KubeClient.CoreV1().ConfigMaps(obj.Namespace).Create(&obj)
+	_, err := f.KubeClient.CoreV1().ConfigMaps(obj.Namespace).Create(context.TODO(), &obj, metav1.CreateOptions{})
 	return err
 }
 
 func (f *Framework) DeleteConfigMap(meta metav1.ObjectMeta) error {
-	return f.KubeClient.CoreV1().ConfigMaps(meta.Namespace).Delete(meta.Name, deleteInForeground())
+	return f.KubeClient.CoreV1().ConfigMaps(meta.Namespace).Delete(context.TODO(), meta.Name, *deleteInForeground())
 }
 
 func (f *Framework) EventuallyConfigMap(name, namespace string) GomegaAsyncAssertion {
 	return Eventually(func() *core.ConfigMap {
-		obj, err := f.KubeClient.CoreV1().ConfigMaps(namespace).Get(name, metav1.GetOptions{})
+		obj, err := f.KubeClient.CoreV1().ConfigMaps(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 		return obj
 	})

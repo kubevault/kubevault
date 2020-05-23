@@ -19,6 +19,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"context"
 	"time"
 
 	v1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
@@ -38,15 +39,15 @@ type PostgresRolesGetter interface {
 
 // PostgresRoleInterface has methods to work with PostgresRole resources.
 type PostgresRoleInterface interface {
-	Create(*v1alpha1.PostgresRole) (*v1alpha1.PostgresRole, error)
-	Update(*v1alpha1.PostgresRole) (*v1alpha1.PostgresRole, error)
-	UpdateStatus(*v1alpha1.PostgresRole) (*v1alpha1.PostgresRole, error)
-	Delete(name string, options *v1.DeleteOptions) error
-	DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error
-	Get(name string, options v1.GetOptions) (*v1alpha1.PostgresRole, error)
-	List(opts v1.ListOptions) (*v1alpha1.PostgresRoleList, error)
-	Watch(opts v1.ListOptions) (watch.Interface, error)
-	Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.PostgresRole, err error)
+	Create(ctx context.Context, postgresRole *v1alpha1.PostgresRole, opts v1.CreateOptions) (*v1alpha1.PostgresRole, error)
+	Update(ctx context.Context, postgresRole *v1alpha1.PostgresRole, opts v1.UpdateOptions) (*v1alpha1.PostgresRole, error)
+	UpdateStatus(ctx context.Context, postgresRole *v1alpha1.PostgresRole, opts v1.UpdateOptions) (*v1alpha1.PostgresRole, error)
+	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
+	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.PostgresRole, error)
+	List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.PostgresRoleList, error)
+	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.PostgresRole, err error)
 	PostgresRoleExpansion
 }
 
@@ -65,20 +66,20 @@ func newPostgresRoles(c *EngineV1alpha1Client, namespace string) *postgresRoles 
 }
 
 // Get takes name of the postgresRole, and returns the corresponding postgresRole object, and an error if there is any.
-func (c *postgresRoles) Get(name string, options v1.GetOptions) (result *v1alpha1.PostgresRole, err error) {
+func (c *postgresRoles) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.PostgresRole, err error) {
 	result = &v1alpha1.PostgresRole{}
 	err = c.client.Get().
 		Namespace(c.ns).
 		Resource("postgresroles").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // List takes label and field selectors, and returns the list of PostgresRoles that match those selectors.
-func (c *postgresRoles) List(opts v1.ListOptions) (result *v1alpha1.PostgresRoleList, err error) {
+func (c *postgresRoles) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.PostgresRoleList, err error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
@@ -89,13 +90,13 @@ func (c *postgresRoles) List(opts v1.ListOptions) (result *v1alpha1.PostgresRole
 		Resource("postgresroles").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // Watch returns a watch.Interface that watches the requested postgresRoles.
-func (c *postgresRoles) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *postgresRoles) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
@@ -106,87 +107,90 @@ func (c *postgresRoles) Watch(opts v1.ListOptions) (watch.Interface, error) {
 		Resource("postgresroles").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Watch()
+		Watch(ctx)
 }
 
 // Create takes the representation of a postgresRole and creates it.  Returns the server's representation of the postgresRole, and an error, if there is any.
-func (c *postgresRoles) Create(postgresRole *v1alpha1.PostgresRole) (result *v1alpha1.PostgresRole, err error) {
+func (c *postgresRoles) Create(ctx context.Context, postgresRole *v1alpha1.PostgresRole, opts v1.CreateOptions) (result *v1alpha1.PostgresRole, err error) {
 	result = &v1alpha1.PostgresRole{}
 	err = c.client.Post().
 		Namespace(c.ns).
 		Resource("postgresroles").
+		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(postgresRole).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // Update takes the representation of a postgresRole and updates it. Returns the server's representation of the postgresRole, and an error, if there is any.
-func (c *postgresRoles) Update(postgresRole *v1alpha1.PostgresRole) (result *v1alpha1.PostgresRole, err error) {
+func (c *postgresRoles) Update(ctx context.Context, postgresRole *v1alpha1.PostgresRole, opts v1.UpdateOptions) (result *v1alpha1.PostgresRole, err error) {
 	result = &v1alpha1.PostgresRole{}
 	err = c.client.Put().
 		Namespace(c.ns).
 		Resource("postgresroles").
 		Name(postgresRole.Name).
+		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(postgresRole).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-
-func (c *postgresRoles) UpdateStatus(postgresRole *v1alpha1.PostgresRole) (result *v1alpha1.PostgresRole, err error) {
+func (c *postgresRoles) UpdateStatus(ctx context.Context, postgresRole *v1alpha1.PostgresRole, opts v1.UpdateOptions) (result *v1alpha1.PostgresRole, err error) {
 	result = &v1alpha1.PostgresRole{}
 	err = c.client.Put().
 		Namespace(c.ns).
 		Resource("postgresroles").
 		Name(postgresRole.Name).
 		SubResource("status").
+		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(postgresRole).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // Delete takes name of the postgresRole and deletes it. Returns an error if one occurs.
-func (c *postgresRoles) Delete(name string, options *v1.DeleteOptions) error {
+func (c *postgresRoles) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	return c.client.Delete().
 		Namespace(c.ns).
 		Resource("postgresroles").
 		Name(name).
-		Body(options).
-		Do().
+		Body(&opts).
+		Do(ctx).
 		Error()
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *postgresRoles) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
+func (c *postgresRoles) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
 	var timeout time.Duration
-	if listOptions.TimeoutSeconds != nil {
-		timeout = time.Duration(*listOptions.TimeoutSeconds) * time.Second
+	if listOpts.TimeoutSeconds != nil {
+		timeout = time.Duration(*listOpts.TimeoutSeconds) * time.Second
 	}
 	return c.client.Delete().
 		Namespace(c.ns).
 		Resource("postgresroles").
-		VersionedParams(&listOptions, scheme.ParameterCodec).
+		VersionedParams(&listOpts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Body(options).
-		Do().
+		Body(&opts).
+		Do(ctx).
 		Error()
 }
 
 // Patch applies the patch and returns the patched postgresRole.
-func (c *postgresRoles) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.PostgresRole, err error) {
+func (c *postgresRoles) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.PostgresRole, err error) {
 	result = &v1alpha1.PostgresRole{}
 	err = c.client.Patch(pt).
 		Namespace(c.ns).
 		Resource("postgresroles").
-		SubResource(subresources...).
 		Name(name).
+		SubResource(subresources...).
+		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(data).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }

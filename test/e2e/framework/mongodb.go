@@ -17,6 +17,7 @@ limitations under the License.
 package framework
 
 import (
+	"context"
 	"time"
 
 	"github.com/appscode/go/crypto/rand"
@@ -137,7 +138,7 @@ func (f *Framework) DeployMongodb() (*appcat.AppReference, error) {
 	}
 
 	Eventually(func() bool {
-		if obj, err := f.KubeClient.AppsV1().Deployments(f.namespace).Get(mongodbDeploy.GetName(), metav1.GetOptions{}); err == nil {
+		if obj, err := f.KubeClient.AppsV1().Deployments(f.namespace).Get(context.TODO(), mongodbDeploy.GetName(), metav1.GetOptions{}); err == nil {
 			return *obj.Spec.Replicas == obj.Status.ReadyReplicas
 		}
 		return false
@@ -156,7 +157,7 @@ func (f *Framework) DeployMongodb() (*appcat.AppReference, error) {
 		},
 	}
 
-	_, err = f.KubeClient.CoreV1().Secrets(f.namespace).Create(sr)
+	_, err = f.KubeClient.CoreV1().Secrets(f.namespace).Create(context.TODO(), sr, metav1.CreateOptions{})
 	if err != nil {
 		return nil, err
 	}

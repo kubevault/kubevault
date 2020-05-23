@@ -19,6 +19,8 @@ limitations under the License.
 package fake
 
 import (
+	"context"
+
 	v1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -40,7 +42,7 @@ var databaseaccessrequestsResource = schema.GroupVersionResource{Group: "engine.
 var databaseaccessrequestsKind = schema.GroupVersionKind{Group: "engine.kubevault.com", Version: "v1alpha1", Kind: "DatabaseAccessRequest"}
 
 // Get takes name of the databaseAccessRequest, and returns the corresponding databaseAccessRequest object, and an error if there is any.
-func (c *FakeDatabaseAccessRequests) Get(name string, options v1.GetOptions) (result *v1alpha1.DatabaseAccessRequest, err error) {
+func (c *FakeDatabaseAccessRequests) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.DatabaseAccessRequest, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(databaseaccessrequestsResource, c.ns, name), &v1alpha1.DatabaseAccessRequest{})
 
@@ -51,7 +53,7 @@ func (c *FakeDatabaseAccessRequests) Get(name string, options v1.GetOptions) (re
 }
 
 // List takes label and field selectors, and returns the list of DatabaseAccessRequests that match those selectors.
-func (c *FakeDatabaseAccessRequests) List(opts v1.ListOptions) (result *v1alpha1.DatabaseAccessRequestList, err error) {
+func (c *FakeDatabaseAccessRequests) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.DatabaseAccessRequestList, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewListAction(databaseaccessrequestsResource, databaseaccessrequestsKind, c.ns, opts), &v1alpha1.DatabaseAccessRequestList{})
 
@@ -73,14 +75,14 @@ func (c *FakeDatabaseAccessRequests) List(opts v1.ListOptions) (result *v1alpha1
 }
 
 // Watch returns a watch.Interface that watches the requested databaseAccessRequests.
-func (c *FakeDatabaseAccessRequests) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeDatabaseAccessRequests) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(databaseaccessrequestsResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a databaseAccessRequest and creates it.  Returns the server's representation of the databaseAccessRequest, and an error, if there is any.
-func (c *FakeDatabaseAccessRequests) Create(databaseAccessRequest *v1alpha1.DatabaseAccessRequest) (result *v1alpha1.DatabaseAccessRequest, err error) {
+func (c *FakeDatabaseAccessRequests) Create(ctx context.Context, databaseAccessRequest *v1alpha1.DatabaseAccessRequest, opts v1.CreateOptions) (result *v1alpha1.DatabaseAccessRequest, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(databaseaccessrequestsResource, c.ns, databaseAccessRequest), &v1alpha1.DatabaseAccessRequest{})
 
@@ -91,7 +93,7 @@ func (c *FakeDatabaseAccessRequests) Create(databaseAccessRequest *v1alpha1.Data
 }
 
 // Update takes the representation of a databaseAccessRequest and updates it. Returns the server's representation of the databaseAccessRequest, and an error, if there is any.
-func (c *FakeDatabaseAccessRequests) Update(databaseAccessRequest *v1alpha1.DatabaseAccessRequest) (result *v1alpha1.DatabaseAccessRequest, err error) {
+func (c *FakeDatabaseAccessRequests) Update(ctx context.Context, databaseAccessRequest *v1alpha1.DatabaseAccessRequest, opts v1.UpdateOptions) (result *v1alpha1.DatabaseAccessRequest, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateAction(databaseaccessrequestsResource, c.ns, databaseAccessRequest), &v1alpha1.DatabaseAccessRequest{})
 
@@ -103,7 +105,7 @@ func (c *FakeDatabaseAccessRequests) Update(databaseAccessRequest *v1alpha1.Data
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeDatabaseAccessRequests) UpdateStatus(databaseAccessRequest *v1alpha1.DatabaseAccessRequest) (*v1alpha1.DatabaseAccessRequest, error) {
+func (c *FakeDatabaseAccessRequests) UpdateStatus(ctx context.Context, databaseAccessRequest *v1alpha1.DatabaseAccessRequest, opts v1.UpdateOptions) (*v1alpha1.DatabaseAccessRequest, error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateSubresourceAction(databaseaccessrequestsResource, "status", c.ns, databaseAccessRequest), &v1alpha1.DatabaseAccessRequest{})
 
@@ -114,7 +116,7 @@ func (c *FakeDatabaseAccessRequests) UpdateStatus(databaseAccessRequest *v1alpha
 }
 
 // Delete takes name of the databaseAccessRequest and deletes it. Returns an error if one occurs.
-func (c *FakeDatabaseAccessRequests) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeDatabaseAccessRequests) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
 		Invokes(testing.NewDeleteAction(databaseaccessrequestsResource, c.ns, name), &v1alpha1.DatabaseAccessRequest{})
 
@@ -122,15 +124,15 @@ func (c *FakeDatabaseAccessRequests) Delete(name string, options *v1.DeleteOptio
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeDatabaseAccessRequests) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(databaseaccessrequestsResource, c.ns, listOptions)
+func (c *FakeDatabaseAccessRequests) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(databaseaccessrequestsResource, c.ns, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1alpha1.DatabaseAccessRequestList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched databaseAccessRequest.
-func (c *FakeDatabaseAccessRequests) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.DatabaseAccessRequest, err error) {
+func (c *FakeDatabaseAccessRequests) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.DatabaseAccessRequest, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(databaseaccessrequestsResource, c.ns, name, pt, data, subresources...), &v1alpha1.DatabaseAccessRequest{})
 

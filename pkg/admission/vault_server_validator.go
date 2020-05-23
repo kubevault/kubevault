@@ -17,6 +17,7 @@ limitations under the License.
 package admission
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"sync"
@@ -440,7 +441,7 @@ func preconditionFailedError() error {
 //	- whether secret exists
 //	- whether value for requiredKeys exists
 func validateSecret(kc kubernetes.Interface, name string, ns string, requiredKeys []string) error {
-	sr, err := kc.CoreV1().Secrets(ns).Get(name, metav1.GetOptions{})
+	sr, err := kc.CoreV1().Secrets(ns).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
