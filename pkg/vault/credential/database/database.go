@@ -17,6 +17,8 @@ limitations under the License.
 package database
 
 import (
+	"context"
+
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	crd "kubevault.dev/operator/client/clientset/versioned"
 	"kubevault.dev/operator/pkg/vault"
@@ -63,7 +65,7 @@ func NewDatabaseCredentialManager(kClient kubernetes.Interface, appClient appcat
 func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*appcat.AppReference, string, string, error) {
 	switch ref.Kind {
 	case api.ResourceKindMongoDBRole:
-		r, err := cr.EngineV1alpha1().MongoDBRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
+		r, err := cr.EngineV1alpha1().MongoDBRoles(ref.Namespace).Get(context.TODO(), ref.Name, metav1.GetOptions{})
 		if err != nil {
 			return nil, "", "", errors.Wrapf(err, "MongoDBRole %s/%s", ref.Namespace, ref.Name)
 		}
@@ -78,7 +80,7 @@ func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*appcat.AppReference
 		return vAppRef, r.RoleName(), dbPath, nil
 
 	case api.ResourceKindMySQLRole:
-		r, err := cr.EngineV1alpha1().MySQLRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
+		r, err := cr.EngineV1alpha1().MySQLRoles(ref.Namespace).Get(context.TODO(), ref.Name, metav1.GetOptions{})
 		if err != nil {
 			return nil, "", "", errors.Wrapf(err, "MySQLRole %s/%s", ref.Namespace, ref.Name)
 		}
@@ -93,7 +95,7 @@ func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*appcat.AppReference
 		return vAppRef, r.RoleName(), dbPath, nil
 
 	case api.ResourceKindPostgresRole:
-		r, err := cr.EngineV1alpha1().PostgresRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
+		r, err := cr.EngineV1alpha1().PostgresRoles(ref.Namespace).Get(context.TODO(), ref.Name, metav1.GetOptions{})
 		if err != nil {
 			return nil, "", "", errors.Wrapf(err, "PostgresRole %s/%s", ref.Namespace, ref.Name)
 		}

@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -85,21 +86,21 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 
 	testData := []struct {
 		testName           string
-		pRole              api.PostgresRole
+		pgRole             api.PostgresRole
 		dbRClient          database.DatabaseRoleInterface
 		hasStatusCondition bool
 		expectedErr        bool
 	}{
 		{
 			testName:           "initial stage, no error",
-			pRole:              pRole,
+			pgRole:             pRole,
 			dbRClient:          &fakeDRole{},
 			expectedErr:        false,
 			hasStatusCondition: false,
 		},
 		{
 			testName: "initial stage, failed to create database role",
-			pRole:    pRole,
+			pgRole:   pRole,
 			dbRClient: &fakeDRole{
 				errorOccurredInCreateRole: true,
 			},
@@ -108,7 +109,7 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 		},
 		{
 			testName: "update role, successfully updated database role",
-			pRole: func(p api.PostgresRole) api.PostgresRole {
+			pgRole: func(p api.PostgresRole) api.PostgresRole {
 				p.Generation = 2
 				p.Status.ObservedGeneration = 1
 				return p
@@ -119,7 +120,7 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 		},
 		{
 			testName: "update role, failed to update database role",
-			pRole: func(p api.PostgresRole) api.PostgresRole {
+			pgRole: func(p api.PostgresRole) api.PostgresRole {
 				p.Generation = 2
 				p.Status.ObservedGeneration = 1
 				return p
@@ -140,16 +141,16 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 			}
 			c.extInformerFactory = dbinformers.NewSharedInformerFactory(c.extClient, time.Minute*10)
 
-			_, err := c.extClient.EngineV1alpha1().PostgresRoles(test.pRole.Namespace).Create(&test.pRole)
+			_, err := c.extClient.EngineV1alpha1().PostgresRoles(test.pgRole.Namespace).Create(context.TODO(), &test.pgRole, metav1.CreateOptions{})
 			if !assert.Nil(t, err) {
 				return
 			}
 
-			err = c.reconcilePostgresRole(test.dbRClient, &test.pRole)
+			err = c.reconcilePostgresRole(test.dbRClient, &test.pgRole)
 			if test.expectedErr {
 				if assert.NotNil(t, err) {
 					if test.hasStatusCondition {
-						p, err2 := c.extClient.EngineV1alpha1().PostgresRoles(test.pRole.Namespace).Get(test.pRole.Name, metav1.GetOptions{})
+						p, err2 := c.extClient.EngineV1alpha1().PostgresRoles(test.pgRole.Namespace).Get(context.TODO(), test.pgRole.Name, metav1.GetOptions{})
 						if assert.Nil(t, err2) {
 							assert.Condition(t, func() (success bool) {
 								return len(p.Status.Conditions) != 0
@@ -159,7 +160,7 @@ func TestUserManagerController_reconcilePostgresRole(t *testing.T) {
 				}
 			} else {
 				if assert.Nil(t, err) {
-					p, err2 := c.extClient.EngineV1alpha1().PostgresRoles(test.pRole.Namespace).Get(test.pRole.Name, metav1.GetOptions{})
+					p, err2 := c.extClient.EngineV1alpha1().PostgresRoles(test.pgRole.Namespace).Get(context.TODO(), test.pgRole.Name, metav1.GetOptions{})
 					if assert.Nil(t, err2) {
 						assert.Condition(t, func() (success bool) {
 							return len(p.Status.Conditions) == 0

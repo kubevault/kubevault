@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -29,6 +30,7 @@ import (
 	"github.com/pkg/errors"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
@@ -58,34 +60,34 @@ func (c *VaultController) runMongoDBRoleInjector(key string) error {
 		glog.Warningf("MongoDBRole %s does not exist anymore", key)
 
 	} else {
-		mRole := obj.(*api.MongoDBRole).DeepCopy()
+		role := obj.(*api.MongoDBRole).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for MongoDBRole %s/%s", mRole.Namespace, mRole.Name)
+		glog.Infof("Sync/Add/Update for MongoDBRole %s/%s", role.Namespace, role.Name)
 
-		if mRole.DeletionTimestamp != nil {
-			if core_util.HasFinalizer(mRole.ObjectMeta, apis.Finalizer) {
-				go c.runMongoDBRoleFinalizer(mRole, finalizerTimeout, finalizerInterval)
+		if role.DeletionTimestamp != nil {
+			if core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
+				go c.runMongoDBRoleFinalizer(role, finalizerTimeout, finalizerInterval)
 			}
 		} else {
-			if !core_util.HasFinalizer(mRole.ObjectMeta, apis.Finalizer) {
+			if !core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchMongoDBRole(c.extClient.EngineV1alpha1(), mRole, func(role *api.MongoDBRole) *api.MongoDBRole {
+				_, _, err := patchutil.PatchMongoDBRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(role *api.MongoDBRole) *api.MongoDBRole {
 					role.ObjectMeta = core_util.AddFinalizer(role.ObjectMeta, apis.Finalizer)
 					return role
-				})
+				}, metav1.PatchOptions{})
 				if err != nil {
-					return errors.Wrapf(err, "failed to set MongoDBRole finalizer for %s/%s", mRole.Namespace, mRole.Name)
+					return errors.Wrapf(err, "failed to set MongoDBRole finalizer for %s/%s", role.Namespace, role.Name)
 				}
 			}
 
-			dbRClient, err := database.NewDatabaseRoleForMongodb(c.kubeClient, c.appCatalogClient, mRole)
+			dbRClient, err := database.NewDatabaseRoleForMongodb(c.kubeClient, c.appCatalogClient, role)
 			if err != nil {
 				return err
 			}
 
-			err = c.reconcileMongoDBRole(dbRClient, mRole)
+			err = c.reconcileMongoDBRole(dbRClient, role)
 			if err != nil {
-				return errors.Wrapf(err, "for MongoDBRole %s/%s:", mRole.Namespace, mRole.Name)
+				return errors.Wrapf(err, "for MongoDBRole %s/%s:", role.Namespace, role.Name)
 			}
 		}
 	}
@@ -97,59 +99,58 @@ func (c *VaultController) runMongoDBRoleInjector(key string) error {
 // 	  - configure a role that maps a name in Vault to an SQL statement to execute to create the database credential.
 //    - sync role
 //	  - revoke previous lease of all the respective mongodbRoleBinding and reissue a new lease
-func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleInterface, mgRole *api.MongoDBRole) error {
-	status := mgRole.Status
-
+func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleInterface, role *api.MongoDBRole) error {
 	// create role
 	err := dbRClient.CreateRole()
 	if err != nil {
-		status.Conditions = []kmapi.Condition{
-			{
-				Type:    kmapi.ConditionFailure,
-				Status:  kmapi.ConditionTrue,
-				Reason:  "FailedToCreateRole",
-				Message: err.Error(),
+		_, err2 := patchutil.UpdateMongoDBRoleStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			role.ObjectMeta,
+			func(status *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
+				status.Conditions = []kmapi.Condition{
+					{
+						Type:    kmapi.ConditionFailure,
+						Status:  kmapi.ConditionTrue,
+						Reason:  "FailedToCreateRole",
+						Message: err.Error(),
+					},
+				}
+				return status
 			},
-		}
-
-		err2 := c.updatedMongoDBRoleStatus(&status, mgRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to create role")
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to create role")})
 	}
 
-	status.Conditions = []kmapi.Condition{}
-	status.Phase = MongoDBRolePhaseSuccess
-	status.ObservedGeneration = mgRole.Generation
-
-	err = c.updatedMongoDBRoleStatus(&status, mgRole)
-	if err != nil {
-		return errors.Wrapf(err, "failed to update MongoDBRole status")
-	}
-	return nil
-}
-
-func (c *VaultController) updatedMongoDBRoleStatus(status *api.MongoDBRoleStatus, mRole *api.MongoDBRole) error {
-	_, err := patchutil.UpdateMongoDBRoleStatus(c.extClient.EngineV1alpha1(), mRole.ObjectMeta, func(s *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
-		return status
-	})
+	_, err = patchutil.UpdateMongoDBRoleStatus(
+		context.TODO(),
+		c.extClient.EngineV1alpha1(),
+		role.ObjectMeta,
+		func(status *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
+			status.Conditions = []kmapi.Condition{}
+			status.Phase = MongoDBRolePhaseSuccess
+			status.ObservedGeneration = role.Generation
+			return status
+		},
+		metav1.UpdateOptions{},
+	)
 	return err
 }
 
-func (c *VaultController) runMongoDBRoleFinalizer(mRole *api.MongoDBRole, timeout time.Duration, interval time.Duration) {
-	if mRole == nil {
+func (c *VaultController) runMongoDBRoleFinalizer(role *api.MongoDBRole, timeout time.Duration, interval time.Duration) {
+	if role == nil {
 		glog.Infoln("MongoDBRole is nil")
 		return
 	}
 
-	id := getMongoDBRoleId(mRole)
+	id := getMongoDBRoleId(role)
 	if c.finalizerInfo.IsAlreadyProcessing(id) {
 		// already processing
 		return
 	}
 
-	glog.Infof("Processing finalizer for MongoDBRole %s/%s", mRole.Namespace, mRole.Name)
+	glog.Infof("Processing finalizer for MongoDBRole %s/%s", role.Namespace, role.Name)
 	// Add key to finalizerInfo, it will prevent other go routine to processing for this MongoDBRole
 	c.finalizerInfo.Add(id)
 
@@ -159,7 +160,7 @@ func (c *VaultController) runMongoDBRoleFinalizer(mRole *api.MongoDBRole, timeou
 	attempt := 0
 
 	for {
-		glog.Infof("MongoDBRole %s/%s finalizer: attempt %d\n", mRole.Namespace, mRole.Name, attempt)
+		glog.Infof("MongoDBRole %s/%s finalizer: attempt %d\n", role.Namespace, role.Name, attempt)
 
 		select {
 		case <-stopCh:
@@ -172,13 +173,13 @@ func (c *VaultController) runMongoDBRoleFinalizer(mRole *api.MongoDBRole, timeou
 		}
 
 		if !finalizationDone {
-			d, err := database.NewDatabaseRoleForMongodb(c.kubeClient, c.appCatalogClient, mRole)
+			d, err := database.NewDatabaseRoleForMongodb(c.kubeClient, c.appCatalogClient, role)
 			if err != nil {
-				glog.Errorf("MongoDBRole %s/%s finalizer: %v", mRole.Namespace, mRole.Name, err)
+				glog.Errorf("MongoDBRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
 			} else {
-				err = c.finalizeMongoDBRole(d, mRole)
+				err = c.finalizeMongoDBRole(d, role)
 				if err != nil {
-					glog.Errorf("MongoDBRole %s/%s finalizer: %v", mRole.Namespace, mRole.Name, err)
+					glog.Errorf("MongoDBRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
 				} else {
 					finalizationDone = true
 				}
@@ -186,9 +187,9 @@ func (c *VaultController) runMongoDBRoleFinalizer(mRole *api.MongoDBRole, timeou
 		}
 
 		if finalizationDone {
-			err := c.removeMongoDBRoleFinalizer(mRole)
+			err := c.removeMongoDBRoleFinalizer(role)
 			if err != nil {
-				glog.Errorf("MongoDBRole %s/%s finalizer: removing finalizer %v", mRole.Namespace, mRole.Name, err)
+				glog.Errorf("MongoDBRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
 			} else {
 				break
 			}
@@ -202,11 +203,11 @@ func (c *VaultController) runMongoDBRoleFinalizer(mRole *api.MongoDBRole, timeou
 		attempt++
 	}
 
-	err := c.removeMongoDBRoleFinalizer(mRole)
+	err := c.removeMongoDBRoleFinalizer(role)
 	if err != nil {
-		glog.Errorf("MongoDBRole %s/%s finalizer: removing finalizer %v", mRole.Namespace, mRole.Name, err)
+		glog.Errorf("MongoDBRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
 	} else {
-		glog.Infof("Removed finalizer for MongoDBRole %s/%s", mRole.Namespace, mRole.Name)
+		glog.Infof("Removed finalizer for MongoDBRole %s/%s", role.Namespace, role.Name)
 	}
 
 	// Delete key from finalizer info as processing is done
@@ -216,8 +217,8 @@ func (c *VaultController) runMongoDBRoleFinalizer(mRole *api.MongoDBRole, timeou
 // Do:
 //	- delete role in vault
 //	- revoke lease of all the corresponding mongodbRoleBinding
-func (c *VaultController) finalizeMongoDBRole(dbRClient database.DatabaseRoleInterface, mRole *api.MongoDBRole) error {
-	err := dbRClient.DeleteRole(mRole.RoleName())
+func (c *VaultController) finalizeMongoDBRole(dbRClient database.DatabaseRoleInterface, role *api.MongoDBRole) error {
+	err := dbRClient.DeleteRole(role.RoleName())
 	if err != nil {
 		return errors.Wrap(err, "failed to database role")
 	}
@@ -225,7 +226,7 @@ func (c *VaultController) finalizeMongoDBRole(dbRClient database.DatabaseRoleInt
 }
 
 func (c *VaultController) removeMongoDBRoleFinalizer(mRole *api.MongoDBRole) error {
-	m, err := c.extClient.EngineV1alpha1().MongoDBRoles(mRole.Namespace).Get(mRole.Name, metav1.GetOptions{})
+	m, err := c.extClient.EngineV1alpha1().MongoDBRoles(mRole.Namespace).Get(context.TODO(), mRole.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
@@ -233,10 +234,10 @@ func (c *VaultController) removeMongoDBRoleFinalizer(mRole *api.MongoDBRole) err
 	}
 
 	// remove finalizer
-	_, _, err = patchutil.PatchMongoDBRole(c.extClient.EngineV1alpha1(), m, func(role *api.MongoDBRole) *api.MongoDBRole {
+	_, _, err = patchutil.PatchMongoDBRole(context.TODO(), c.extClient.EngineV1alpha1(), m, func(role *api.MongoDBRole) *api.MongoDBRole {
 		role.ObjectMeta = core_util.RemoveFinalizer(role.ObjectMeta, apis.Finalizer)
 		return role
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 

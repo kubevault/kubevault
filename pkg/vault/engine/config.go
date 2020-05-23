@@ -77,7 +77,7 @@ func (seClient *SecretEngine) CreateMySQLConfig() error {
 	config.SetDefaults()
 
 	dbAppRef := config.DatabaseRef
-	dbApp, err := seClient.appClient.AppBindings(dbAppRef.Namespace).Get(dbAppRef.Name, metav1.GetOptions{})
+	dbApp, err := seClient.appClient.AppBindings(dbAppRef.Namespace).Get(context.TODO(), dbAppRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return errors.Wrap(err, "failed to get DatabaseAppBinding for MySQL database config")
 	}
@@ -150,7 +150,7 @@ func (seClient *SecretEngine) CreateMongoDBConfig() error {
 	config.SetDefaults()
 
 	dbAppRef := config.DatabaseRef
-	dbApp, err := seClient.appClient.AppBindings(dbAppRef.Namespace).Get(dbAppRef.Name, metav1.GetOptions{})
+	dbApp, err := seClient.appClient.AppBindings(dbAppRef.Namespace).Get(context.TODO(), dbAppRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return errors.Wrap(err, "failed to get DatabaseAppBinding for MongoDB database config")
 	}
@@ -221,7 +221,7 @@ func (seClient *SecretEngine) CreatePostgresConfig() error {
 	config.SetDefaults()
 
 	dbAppRef := config.DatabaseRef
-	dbApp, err := seClient.appClient.AppBindings(dbAppRef.Namespace).Get(dbAppRef.Name, metav1.GetOptions{})
+	dbApp, err := seClient.appClient.AppBindings(dbAppRef.Namespace).Get(context.TODO(), dbAppRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return errors.Wrap(err, "failed to get DatabaseAppBinding for Postgres database config")
 	}

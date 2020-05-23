@@ -17,6 +17,7 @@ limitations under the License.
 package e2e_test
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -141,7 +142,7 @@ var _ = Describe("Azure Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
 				if err == nil && crd.Status.Secret != nil {
-					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(crd.Status.Secret.Name, metav1.GetOptions{})
+					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), crd.Status.Secret.Name, metav1.GetOptions{})
 					return err2 == nil
 				}
 				return false
@@ -150,7 +151,7 @@ var _ = Describe("Azure Secret Engine", func() {
 		IsAzureAccessKeySecretDeleted = func(secretName, namespace string) {
 			By("Checking whether AzureAccessKeySecret is deleted")
 			Eventually(func() bool {
-				_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(secretName, metav1.GetOptions{})
+				_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 				return kerrors.IsNotFound(err2)
 			}, timeOut, pollingInterval).Should(BeTrue(), "AzureAccessKeySecret is deleted")
 		}
@@ -196,7 +197,7 @@ var _ = Describe("Azure Secret Engine", func() {
 				},
 				Data: credentials,
 			}
-			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&azureCredentials)
+			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(context.TODO(), &azureCredentials, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Create azure credentials secret")
 
 			azureRole = api.AzureRole{
@@ -232,7 +233,7 @@ var _ = Describe("Azure Secret Engine", func() {
 		})
 
 		AfterEach(func() {
-			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(azureCredSecret, &metav1.DeleteOptions{})
+			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(context.TODO(), azureCredSecret, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete Azure credentials secret")
 		})
 
@@ -247,13 +248,13 @@ var _ = Describe("Azure Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting AzureRole...")
-				err := f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Delete(p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AzureRole")
 
 				IsAzureRoleDeleted(p.Name, p.Namespace)
 
 				By("Deleting SecretEngine...")
-				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(se.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(se.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete Secret engine")
 
 				IsSecretEngineDeleted(se.Name, se.Namespace)
@@ -286,7 +287,7 @@ var _ = Describe("Azure Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting AzureRole...")
-				err := f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Delete(p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AzureRole")
 
 				IsAzureRoleDeleted(p.Name, p.Namespace)
@@ -335,7 +336,7 @@ var _ = Describe("Azure Secret Engine", func() {
 				},
 				Data: credentials,
 			}
-			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&azureCredentials)
+			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(context.TODO(), &azureCredentials, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Create azure credentials secret")
 
 			azureSE = api.SecretEngine{
@@ -394,10 +395,10 @@ var _ = Describe("Azure Secret Engine", func() {
 		})
 
 		AfterEach(func() {
-			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(azureCredSecret, &metav1.DeleteOptions{})
+			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(context.TODO(), azureCredSecret, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete azure credentials secret")
 
-			err = f.CSClient.EngineV1alpha1().SecretEngines(azureSE.Namespace).Delete(azureSE.Name, &metav1.DeleteOptions{})
+			err = f.CSClient.EngineV1alpha1().SecretEngines(azureSE.Namespace).Delete(azureSE.Name, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete azure SecretEngine")
 			IsSecretEngineDeleted(azureSE.Name, azureSE.Namespace)
 		})
@@ -413,11 +414,11 @@ var _ = Describe("Azure Secret Engine", func() {
 			})
 
 			AfterEach(func() {
-				err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKR.Namespace).Delete(azureAKR.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKR.Namespace).Delete(azureAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete azureAccessKeyRequest")
 				IsAzureAccessKeyRequestDeleted(azureAKR.Name, azureAKR.Namespace)
 
-				err = f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Delete(azureRole.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Delete(azureRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete azureRole")
 				IsAzureRoleDeleted(azureRole.Name, azureRole.Namespace)
 			})
@@ -488,14 +489,14 @@ var _ = Describe("Azure Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting azure accesskeyrequest...")
-				err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKR.Namespace).Delete(azureAKR.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKR.Namespace).Delete(azureAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AzureAccessKeyRequest")
 
 				IsAzureAccessKeyRequestDeleted(azureAKR.Name, azureAKR.Namespace)
 				IsAzureAccessKeySecretDeleted(secretName, azureAKR.Namespace)
 
 				By("Deleting azureRole...")
-				err = f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Delete(azureRole.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().AzureRoles(azureRole.Namespace).Delete(azureRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AzureRole")
 
 				IsAzureRoleDeleted(azureRole.Name, azureRole.Namespace)

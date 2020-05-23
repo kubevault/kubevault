@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -28,6 +29,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
+	meta_util "kmodules.xyz/client-go/meta"
 )
 
 type fakeSecretEngine struct {
@@ -135,13 +137,13 @@ func TestVaultController_reconcileSecretEngine(t *testing.T) {
 				kubeClient: kfake.NewSimpleClientset(),
 				extClient:  vfake.NewSimpleClientset(),
 			}
-			_, err := c.extClient.EngineV1alpha1().SecretEngines(tt.secretEngine.Namespace).Create(tt.secretEngine)
+			_, err := c.extClient.EngineV1alpha1().SecretEngines(tt.secretEngine.Namespace).Create(context.TODO(), tt.secretEngine, metav1.CreateOptions{})
 			assert.Nil(t, err)
 
 			if err := c.reconcileSecretEngine(tt.secretEngineClient, tt.secretEngine); (err != nil) != tt.wantErr {
 				t.Errorf("reconcileSecretEngine() error = %v, wantErr %v", err, tt.wantErr)
 			} else {
-				se, err2 := c.extClient.EngineV1alpha1().SecretEngines(tt.secretEngine.Namespace).Get(tt.secretEngine.Name, metav1.GetOptions{})
+				se, err2 := c.extClient.EngineV1alpha1().SecretEngines(tt.secretEngine.Namespace).Get(context.TODO(), tt.secretEngine.Name, metav1.GetOptions{})
 				assert.Nil(t, err2)
 				if tt.wantErr {
 					assert.Condition(t, func() (success bool) {
@@ -154,7 +156,7 @@ func TestVaultController_reconcileSecretEngine(t *testing.T) {
 				}
 			}
 
-			err = c.extClient.EngineV1alpha1().SecretEngines(tt.secretEngine.Namespace).Delete(tt.secretEngine.Name, &metav1.DeleteOptions{})
+			err = c.extClient.EngineV1alpha1().SecretEngines(tt.secretEngine.Namespace).Delete(context.TODO(), tt.secretEngine.Name, meta_util.DeleteInForeground())
 			assert.Nil(t, err)
 		})
 	}

@@ -17,6 +17,7 @@ limitations under the License.
 package framework
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"strconv"
@@ -167,7 +168,7 @@ func (f *Framework) DeployPostgresSQL() (string, error) {
 	}
 
 	Eventually(func() bool {
-		if obj, err := f.KubeClient.AppsV1().Deployments(f.namespace).Get(postgresqlDeploy.GetName(), metav1.GetOptions{}); err == nil {
+		if obj, err := f.KubeClient.AppsV1().Deployments(f.namespace).Get(context.TODO(), postgresqlDeploy.GetName(), metav1.GetOptions{}); err == nil {
 			return *obj.Spec.Replicas == obj.Status.ReadyReplicas
 		}
 		return false
@@ -176,7 +177,7 @@ func (f *Framework) DeployPostgresSQL() (string, error) {
 	time.Sleep(10 * time.Second)
 
 	// create table
-	pods, err := f.KubeClient.CoreV1().Pods(f.namespace).List(metav1.ListOptions{
+	pods, err := f.KubeClient.CoreV1().Pods(f.namespace).List(context.TODO(), metav1.ListOptions{
 		LabelSelector: labels.SelectorFromSet(label).String(),
 	})
 	if err != nil {

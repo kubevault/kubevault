@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -28,6 +29,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
+	meta_util "kmodules.xyz/client-go/meta"
 )
 
 type fakeAzureRole struct {
@@ -117,7 +119,7 @@ func TestAzureRole_reconcileAzureRole(t *testing.T) {
 				extClient:  opfake.NewSimpleClientset(),
 			}
 
-			_, err := c.extClient.EngineV1alpha1().AzureRoles(test.azureRole.Namespace).Create(test.azureRole)
+			_, err := c.extClient.EngineV1alpha1().AzureRoles(test.azureRole.Namespace).Create(context.TODO(), test.azureRole, metav1.CreateOptions{})
 			assert.Nil(t, err)
 			err = c.reconcileAzureRole(test.azureRClient, test.azureRole)
 
@@ -125,7 +127,7 @@ func TestAzureRole_reconcileAzureRole(t *testing.T) {
 
 				if assert.NotNil(t, err) {
 					if test.hasStatusCondition {
-						p, err2 := c.extClient.EngineV1alpha1().AzureRoles(test.azureRole.Namespace).Get(test.azureRole.Name, metav1.GetOptions{})
+						p, err2 := c.extClient.EngineV1alpha1().AzureRoles(test.azureRole.Namespace).Get(context.TODO(), test.azureRole.Name, metav1.GetOptions{})
 
 						if assert.Nil(t, err2) {
 							assert.Condition(t, func() (success bool) {
@@ -141,7 +143,7 @@ func TestAzureRole_reconcileAzureRole(t *testing.T) {
 			} else {
 				if assert.Nil(t, err) {
 
-					p, err2 := c.extClient.EngineV1alpha1().AzureRoles(test.azureRole.Namespace).Get(test.azureRole.Name, metav1.GetOptions{})
+					p, err2 := c.extClient.EngineV1alpha1().AzureRoles(test.azureRole.Namespace).Get(context.TODO(), test.azureRole.Name, metav1.GetOptions{})
 
 					if assert.Nil(t, err2) {
 						assert.Condition(t, func() (success bool) {
@@ -157,7 +159,7 @@ func TestAzureRole_reconcileAzureRole(t *testing.T) {
 
 			}
 
-			err = c.extClient.EngineV1alpha1().AzureRoles(test.azureRole.Namespace).Delete(test.azureRole.Name, &metav1.DeleteOptions{})
+			err = c.extClient.EngineV1alpha1().AzureRoles(test.azureRole.Namespace).Delete(context.TODO(), test.azureRole.Name, meta_util.DeleteInForeground())
 			assert.Nil(t, err)
 		})
 

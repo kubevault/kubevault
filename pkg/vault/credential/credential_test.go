@@ -17,6 +17,7 @@ limitations under the License.
 package credential
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -149,22 +150,25 @@ func TestCreateSecret(t *testing.T) {
 			d.kubeClient = kfake.NewSimpleClientset()
 
 			if test.createSecret {
-				_, err := d.kubeClient.CoreV1().Secrets(test.namespace).Create(&core.Secret{
-					ObjectMeta: metav1.ObjectMeta{
-						Namespace: test.namespace,
-						Name:      test.secretName,
+				_, err := d.kubeClient.CoreV1().Secrets(test.namespace).Create(
+					context.TODO(),
+					&core.Secret{
+						ObjectMeta: metav1.ObjectMeta{
+							Namespace: test.namespace,
+							Name:      test.secretName,
+						},
+						Data: map[string][]byte{
+							"test": []byte("hi"),
+						},
 					},
-					Data: map[string][]byte{
-						"test": []byte("hi"),
-					},
-				})
+					metav1.CreateOptions{})
 
 				assert.Nil(t, err)
 			}
 
 			err := d.CreateSecret(test.secretName, test.namespace, test.cred)
 			if assert.Nil(t, err) {
-				_, err := d.kubeClient.CoreV1().Secrets(test.namespace).Get(test.secretName, metav1.GetOptions{})
+				_, err := d.kubeClient.CoreV1().Secrets(test.namespace).Get(context.TODO(), test.secretName, metav1.GetOptions{})
 				assert.Nil(t, err)
 			}
 		})
@@ -208,19 +212,23 @@ func TestCreateRole(t *testing.T) {
 			d.kubeClient = kfake.NewSimpleClientset()
 
 			if test.createRole {
-				_, err := d.kubeClient.RbacV1().Roles(test.namespace).Create(&rbacv1.Role{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      test.roleName,
-						Namespace: test.namespace,
+				_, err := d.kubeClient.RbacV1().Roles(test.namespace).Create(
+					context.TODO(),
+					&rbacv1.Role{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      test.roleName,
+							Namespace: test.namespace,
+						},
 					},
-				})
+					metav1.CreateOptions{},
+				)
 
 				assert.Nil(t, err)
 			}
 
 			err := d.CreateRole(test.roleName, test.namespace, test.secretName)
 			if assert.Nil(t, err) {
-				r, err := d.kubeClient.RbacV1().Roles(test.namespace).Get(test.roleName, metav1.GetOptions{})
+				r, err := d.kubeClient.RbacV1().Roles(test.namespace).Get(context.TODO(), test.roleName, metav1.GetOptions{})
 				if assert.Nil(t, err) {
 					assert.Equal(t, "", r.Rules[0].APIGroups[0], "api group")
 					assert.Equal(t, "secrets", r.Rules[0].Resources[0], "resources")
@@ -279,19 +287,23 @@ func TestCreateRoleBinding(t *testing.T) {
 			d.kubeClient = kfake.NewSimpleClientset()
 
 			if test.createRB {
-				_, err := d.kubeClient.RbacV1().RoleBindings(test.namespace).Create(&rbacv1.RoleBinding{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      test.roleBindingName,
-						Namespace: test.namespace,
+				_, err := d.kubeClient.RbacV1().RoleBindings(test.namespace).Create(
+					context.TODO(),
+					&rbacv1.RoleBinding{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      test.roleBindingName,
+							Namespace: test.namespace,
+						},
 					},
-				})
+					metav1.CreateOptions{},
+				)
 
 				assert.Nil(t, err)
 			}
 
 			err := d.CreateRoleBinding(test.roleBindingName, test.namespace, test.roleName, test.subjects)
 			if assert.Nil(t, err) {
-				r, err := d.kubeClient.RbacV1().RoleBindings(test.namespace).Get(test.roleBindingName, metav1.GetOptions{})
+				r, err := d.kubeClient.RbacV1().RoleBindings(test.namespace).Get(context.TODO(), test.roleBindingName, metav1.GetOptions{})
 				if assert.Nil(t, err) {
 					assert.Equal(t, test.roleName, r.RoleRef.Name, "role ref role name")
 					assert.Equal(t, "Role", r.RoleRef.Kind, "role ref role kind")

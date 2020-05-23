@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -29,6 +30,7 @@ import (
 	"github.com/pkg/errors"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
@@ -56,35 +58,35 @@ func (c *VaultController) runMySQLRoleInjector(key string) error {
 		glog.Warningf("MySQLRole %s does not exist anymore", key)
 
 	} else {
-		mRole := obj.(*api.MySQLRole).DeepCopy()
+		role := obj.(*api.MySQLRole).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for MySQLRole %s/%s", mRole.Namespace, mRole.Name)
+		glog.Infof("Sync/Add/Update for MySQLRole %s/%s", role.Namespace, role.Name)
 
-		if mRole.DeletionTimestamp != nil {
-			if core_util.HasFinalizer(mRole.ObjectMeta, apis.Finalizer) {
-				go c.runMySQLRoleFinalizer(mRole, finalizerTimeout, finalizerInterval)
+		if role.DeletionTimestamp != nil {
+			if core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
+				go c.runMySQLRoleFinalizer(role, finalizerTimeout, finalizerInterval)
 			}
 
 		} else {
-			if !core_util.HasFinalizer(mRole.ObjectMeta, apis.Finalizer) {
+			if !core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchMySQLRole(c.extClient.EngineV1alpha1(), mRole, func(role *api.MySQLRole) *api.MySQLRole {
+				_, _, err := patchutil.PatchMySQLRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(role *api.MySQLRole) *api.MySQLRole {
 					role.ObjectMeta = core_util.AddFinalizer(role.ObjectMeta, apis.Finalizer)
 					return role
-				})
+				}, metav1.PatchOptions{})
 				if err != nil {
-					return errors.Wrapf(err, "failed to set MySQLRole finalizer for %s/%s", mRole.Namespace, mRole.Name)
+					return errors.Wrapf(err, "failed to set MySQLRole finalizer for %s/%s", role.Namespace, role.Name)
 				}
 			}
 
-			dbRClient, err := database.NewDatabaseRoleForMysql(c.kubeClient, c.appCatalogClient, mRole)
+			dbRClient, err := database.NewDatabaseRoleForMysql(c.kubeClient, c.appCatalogClient, role)
 			if err != nil {
 				return err
 			}
 
-			err = c.reconcileMySQLRole(dbRClient, mRole)
+			err = c.reconcileMySQLRole(dbRClient, role)
 			if err != nil {
-				return errors.Wrapf(err, "for MySQLRole %s/%s:", mRole.Namespace, mRole.Name)
+				return errors.Wrapf(err, "for MySQLRole %s/%s:", role.Namespace, role.Name)
 			}
 		}
 	}
@@ -96,59 +98,56 @@ func (c *VaultController) runMySQLRoleInjector(key string) error {
 // 	  - configure a role that maps a name in Vault to an SQL statement to execute to create the database credential.
 //    - sync role
 //	  - revoke previous lease of all the respective mysqlRoleBinding and reissue a new lease
-func (c *VaultController) reconcileMySQLRole(dbRClient database.DatabaseRoleInterface, myRole *api.MySQLRole) error {
-	status := myRole.Status
-
+func (c *VaultController) reconcileMySQLRole(dbRClient database.DatabaseRoleInterface, role *api.MySQLRole) error {
 	// create role
 	err := dbRClient.CreateRole()
 	if err != nil {
-		status.Conditions = []kmapi.Condition{
-			{
-				Type:    kmapi.ConditionAvailable,
-				Status:  kmapi.ConditionFalse,
-				Reason:  "FailedToCreateRole",
-				Message: err.Error(),
-			},
-		}
-
-		err2 := c.updatedMySQLRoleStatus(&status, myRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to create role")
+		_, err2 := patchutil.UpdateMySQLRoleStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			role.ObjectMeta,
+			func(status *api.MySQLRoleStatus) *api.MySQLRoleStatus {
+				status.Conditions = []kmapi.Condition{
+					{
+						Type:    kmapi.ConditionAvailable,
+						Status:  kmapi.ConditionFalse,
+						Reason:  "FailedToCreateRole",
+						Message: err.Error(),
+					},
+				}
+				return status
+			}, metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to create role")})
 	}
 
-	status.Conditions = []kmapi.Condition{}
-	status.Phase = MySQLRolePhaseSuccess
-	status.ObservedGeneration = myRole.Generation
-
-	err = c.updatedMySQLRoleStatus(&status, myRole)
-	if err != nil {
-		return errors.Wrap(err, "failed to update MySQLRole status")
-	}
-	return nil
-}
-
-func (c *VaultController) updatedMySQLRoleStatus(status *api.MySQLRoleStatus, mRole *api.MySQLRole) error {
-	_, err := patchutil.UpdateMySQLRoleStatus(c.extClient.EngineV1alpha1(), mRole.ObjectMeta, func(s *api.MySQLRoleStatus) *api.MySQLRoleStatus {
-		return status
-	})
+	_, err = patchutil.UpdateMySQLRoleStatus(
+		context.TODO(),
+		c.extClient.EngineV1alpha1(),
+		role.ObjectMeta,
+		func(status *api.MySQLRoleStatus) *api.MySQLRoleStatus {
+			status.Conditions = []kmapi.Condition{}
+			status.Phase = MySQLRolePhaseSuccess
+			status.ObservedGeneration = role.Generation
+			return status
+		}, metav1.UpdateOptions{},
+	)
 	return err
 }
 
-func (c *VaultController) runMySQLRoleFinalizer(mRole *api.MySQLRole, timeout time.Duration, interval time.Duration) {
-	if mRole == nil {
+func (c *VaultController) runMySQLRoleFinalizer(role *api.MySQLRole, timeout time.Duration, interval time.Duration) {
+	if role == nil {
 		glog.Infoln("MySQLRole is nil")
 		return
 	}
 
-	id := getMySQLRoleId(mRole)
+	id := getMySQLRoleId(role)
 	if c.finalizerInfo.IsAlreadyProcessing(id) {
 		// already processing
 		return
 	}
 
-	glog.Infof("Processing finalizer for MySQLRole %s/%s", mRole.Namespace, mRole.Name)
+	glog.Infof("Processing finalizer for MySQLRole %s/%s", role.Namespace, role.Name)
 	// Add key to finalizerInfo, it will prevent other go routine to processing for this MySQLRole
 	c.finalizerInfo.Add(id)
 
@@ -158,7 +157,7 @@ func (c *VaultController) runMySQLRoleFinalizer(mRole *api.MySQLRole, timeout ti
 	attempt := 0
 
 	for {
-		glog.Infof("MySQLRole %s/%s finalizer: attempt %d\n", mRole.Namespace, mRole.Name, attempt)
+		glog.Infof("MySQLRole %s/%s finalizer: attempt %d\n", role.Namespace, role.Name, attempt)
 
 		select {
 		case <-stopCh:
@@ -171,13 +170,13 @@ func (c *VaultController) runMySQLRoleFinalizer(mRole *api.MySQLRole, timeout ti
 		}
 
 		if !finalizationDone {
-			d, err := database.NewDatabaseRoleForMysql(c.kubeClient, c.appCatalogClient, mRole)
+			d, err := database.NewDatabaseRoleForMysql(c.kubeClient, c.appCatalogClient, role)
 			if err != nil {
-				glog.Errorf("MySQLRole %s/%s finalizer: %v", mRole.Namespace, mRole.Name, err)
+				glog.Errorf("MySQLRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
 			} else {
-				err = c.finalizeMySQLRole(d, mRole)
+				err = c.finalizeMySQLRole(d, role)
 				if err != nil {
-					glog.Errorf("MySQLRole %s/%s finalizer: %v", mRole.Namespace, mRole.Name, err)
+					glog.Errorf("MySQLRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
 				} else {
 					finalizationDone = true
 				}
@@ -185,9 +184,9 @@ func (c *VaultController) runMySQLRoleFinalizer(mRole *api.MySQLRole, timeout ti
 		}
 
 		if finalizationDone {
-			err := c.removeMySQLRoleFinalizer(mRole)
+			err := c.removeMySQLRoleFinalizer(role)
 			if err != nil {
-				glog.Errorf("MySQLRole %s/%s finalizer: removing finalizer %v", mRole.Namespace, mRole.Name, err)
+				glog.Errorf("MySQLRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
 			} else {
 				break
 			}
@@ -201,11 +200,11 @@ func (c *VaultController) runMySQLRoleFinalizer(mRole *api.MySQLRole, timeout ti
 		attempt++
 	}
 
-	err := c.removeMySQLRoleFinalizer(mRole)
+	err := c.removeMySQLRoleFinalizer(role)
 	if err != nil {
-		glog.Errorf("MySQLRole %s/%s finalizer: removing finalizer %v", mRole.Namespace, mRole.Name, err)
+		glog.Errorf("MySQLRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
 	} else {
-		glog.Infof("Removed finalizer for MySQLRole %s/%s", mRole.Namespace, mRole.Name)
+		glog.Infof("Removed finalizer for MySQLRole %s/%s", role.Namespace, role.Name)
 	}
 
 	// Delete key from finalizer info as processing is done
@@ -215,29 +214,29 @@ func (c *VaultController) runMySQLRoleFinalizer(mRole *api.MySQLRole, timeout ti
 // Do:
 //	- delete role in vault
 //	- revoke lease of all the corresponding mysqlRoleBinding
-func (c *VaultController) finalizeMySQLRole(dbRClient database.DatabaseRoleInterface, mRole *api.MySQLRole) error {
-	err := dbRClient.DeleteRole(mRole.RoleName())
+func (c *VaultController) finalizeMySQLRole(dbRClient database.DatabaseRoleInterface, role *api.MySQLRole) error {
+	err := dbRClient.DeleteRole(role.RoleName())
 	if err != nil {
 		return errors.Wrap(err, "failed to database role")
 	}
 	return nil
 }
 
-func (c *VaultController) removeMySQLRoleFinalizer(mRole *api.MySQLRole) error {
-	m, err := c.extClient.EngineV1alpha1().MySQLRoles(mRole.Namespace).Get(mRole.Name, metav1.GetOptions{})
+func (c *VaultController) removeMySQLRoleFinalizer(role *api.MySQLRole) error {
+	m, err := c.extClient.EngineV1alpha1().MySQLRoles(role.Namespace).Get(context.TODO(), role.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
 		return err
 	}
 	// remove finalizer
-	_, _, err = patchutil.PatchMySQLRole(c.extClient.EngineV1alpha1(), m, func(role *api.MySQLRole) *api.MySQLRole {
+	_, _, err = patchutil.PatchMySQLRole(context.TODO(), c.extClient.EngineV1alpha1(), m, func(role *api.MySQLRole) *api.MySQLRole {
 		role.ObjectMeta = core_util.RemoveFinalizer(role.ObjectMeta, apis.Finalizer)
 		return role
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 
-func getMySQLRoleId(mRole *api.MySQLRole) string {
-	return fmt.Sprintf("%s/%s/%s", api.ResourceMySQLRole, mRole.Namespace, mRole.Name)
+func getMySQLRoleId(role *api.MySQLRole) string {
+	return fmt.Sprintf("%s/%s/%s", api.ResourceMySQLRole, role.Namespace, role.Name)
 }

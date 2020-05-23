@@ -127,7 +127,7 @@ func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs
 	if vs.Spec.Version == "" {
 		return errors.New(`'spec.version' is missing`)
 	}
-	if _, err := extClient.CatalogV1alpha1().VaultServerVersions().Get(string(vs.Spec.Version), metav1.GetOptions{}); err != nil {
+	if _, err := extClient.CatalogV1alpha1().VaultServerVersions().Get(context.TODO(), string(vs.Spec.Version), metav1.GetOptions{}); err != nil {
 		return err
 	}
 

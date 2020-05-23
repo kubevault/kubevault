@@ -30,6 +30,7 @@ import (
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/kubernetes"
 	kutil "kmodules.xyz/client-go"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -98,83 +99,105 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 // and finally updating the vault deployment if needed.
 // It also creates AppBinding containing vault connection configuration
 func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
-	status := vs.Status
-
 	err := c.CreateVaultTLSSecret(vs, v)
 	if err != nil {
-		status.Conditions = []kmapi.Condition{
-			{
-				Type:    kmapi.ConditionFailure,
-				Status:  kmapi.ConditionTrue,
-				Reason:  "FailedToCreateVaultTLSSecret",
-				Message: err.Error(),
+		_, err2 := patchutil.UpdateVaultServerStatus(
+			context.TODO(),
+			c.extClient.KubevaultV1alpha1(),
+			vs.ObjectMeta,
+			func(status *api.VaultServerStatus) *api.VaultServerStatus {
+				status.Conditions = []kmapi.Condition{
+					{
+						Type:    kmapi.ConditionFailure,
+						Status:  kmapi.ConditionTrue,
+						Reason:  "FailedToCreateVaultTLSSecret",
+						Message: err.Error(),
+					},
+				}
+				return status
 			},
-		}
-
-		err2 := c.updatedVaultServerStatus(&status, vs)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to create vault server tls secret")
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to create vault server tls secret")})
 	}
 
 	err = c.CreateVaultConfig(vs, v)
 	if err != nil {
-		status.Conditions = []kmapi.Condition{
-			{
-				Type:    kmapi.ConditionFailure,
-				Status:  kmapi.ConditionTrue,
-				Reason:  "FailedToCreateVaultConfig",
-				Message: err.Error(),
+		_, err2 := patchutil.UpdateVaultServerStatus(
+			context.TODO(),
+			c.extClient.KubevaultV1alpha1(),
+			vs.ObjectMeta,
+			func(status *api.VaultServerStatus) *api.VaultServerStatus {
+				status.Conditions = []kmapi.Condition{
+					{
+						Type:    kmapi.ConditionFailure,
+						Status:  kmapi.ConditionTrue,
+						Reason:  "FailedToCreateVaultConfig",
+						Message: err.Error(),
+					},
+				}
+				return status
 			},
-		}
-
-		err2 := c.updatedVaultServerStatus(&status, vs)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to create vault config")
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to create vault config")})
 	}
 
 	err = c.DeployVault(vs, v)
 	if err != nil {
-		status.Conditions = []kmapi.Condition{
-			{
-				Type:    kmapi.ConditionFailure,
-				Status:  kmapi.ConditionTrue,
-				Reason:  "FailedToDeployVault",
-				Message: err.Error(),
+		_, err2 := patchutil.UpdateVaultServerStatus(
+			context.TODO(),
+			c.extClient.KubevaultV1alpha1(),
+			vs.ObjectMeta,
+			func(status *api.VaultServerStatus) *api.VaultServerStatus {
+				status.Conditions = []kmapi.Condition{
+					{
+						Type:    kmapi.ConditionFailure,
+						Status:  kmapi.ConditionTrue,
+						Reason:  "FailedToDeployVault",
+						Message: err.Error(),
+					},
+				}
+				return status
 			},
-		}
-
-		err2 := c.updatedVaultServerStatus(&status, vs)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to deploy vault")
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to deploy vault")})
 	}
 
 	err = c.ensureAppBindings(vs, v)
 	if err != nil {
-		status.Conditions = []kmapi.Condition{
-			{
-				Type:    kmapi.ConditionFailure,
-				Status:  kmapi.ConditionTrue,
-				Reason:  "FailedToCreateAppBinding",
-				Message: err.Error(),
+		_, err2 := patchutil.UpdateVaultServerStatus(
+			context.TODO(),
+			c.extClient.KubevaultV1alpha1(),
+			vs.ObjectMeta,
+			func(status *api.VaultServerStatus) *api.VaultServerStatus {
+				status.Conditions = []kmapi.Condition{
+					{
+						Type:    kmapi.ConditionFailure,
+						Status:  kmapi.ConditionTrue,
+						Reason:  "FailedToCreateAppBinding",
+						Message: err.Error(),
+					},
+				}
+				return status
 			},
-		}
-
-		err2 := c.updatedVaultServerStatus(&status, vs)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to deploy vault")
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to deploy vault")})
 	}
 
-	status.Conditions = []kmapi.Condition{}
-	status.ObservedGeneration = vs.Generation
-	err = c.updatedVaultServerStatus(&status, vs)
+	_, err = patchutil.UpdateVaultServerStatus(
+		context.TODO(),
+		c.extClient.KubevaultV1alpha1(),
+		vs.ObjectMeta,
+		func(status *api.VaultServerStatus) *api.VaultServerStatus {
+			status.Conditions = []kmapi.Condition{}
+			status.ObservedGeneration = vs.Generation
+			return status
+		},
+		metav1.UpdateOptions{},
+	)
 	if err != nil {
 		return errors.Wrap(err, "failed to update status")
 	}
@@ -207,13 +230,13 @@ func (c *VaultController) CreateVaultTLSSecret(vs *api.VaultServer, v Vault) err
 		return err
 	}
 
-	_, _, err = patchutil.CreateOrPatchVaultServer(c.extClient.KubevaultV1alpha1(), vs.ObjectMeta, func(in *api.VaultServer) *api.VaultServer {
+	_, _, err = patchutil.CreateOrPatchVaultServer(context.TODO(), c.extClient.KubevaultV1alpha1(), vs.ObjectMeta, func(in *api.VaultServer) *api.VaultServer {
 		in.Spec.TLS = &api.TLSPolicy{
 			TLSSecret: sr.Name,
 			CABundle:  ca,
 		}
 		return in
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 
@@ -311,26 +334,19 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 	return nil
 }
 
-func (c *VaultController) updatedVaultServerStatus(status *api.VaultServerStatus, vs *api.VaultServer) error {
-	_, err := patchutil.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vs.ObjectMeta, func(s *api.VaultServerStatus) *api.VaultServerStatus {
-		return status
-	})
-	return err
-}
-
 // ensureServiceAccount creates/patches service account
 func ensureServiceAccount(kc kubernetes.Interface, vs *api.VaultServer, sa *core.ServiceAccount) error {
-	_, _, err := core_util.CreateOrPatchServiceAccount(kc, sa.ObjectMeta, func(in *core.ServiceAccount) *core.ServiceAccount {
+	_, _, err := core_util.CreateOrPatchServiceAccount(context.TODO(), kc, sa.ObjectMeta, func(in *core.ServiceAccount) *core.ServiceAccount {
 		in.Labels = core_util.UpsertMap(in.Labels, sa.Labels)
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 
 // ensureDeployment creates/patches deployment
 func ensureDeployment(kc kubernetes.Interface, vs *api.VaultServer, d *appsv1.Deployment) error {
-	_, _, err := apps_util.CreateOrPatchDeployment(kc, d.ObjectMeta, func(in *appsv1.Deployment) *appsv1.Deployment {
+	_, _, err := apps_util.CreateOrPatchDeployment(context.TODO(), kc, d.ObjectMeta, func(in *appsv1.Deployment) *appsv1.Deployment {
 		in.Labels = core_util.UpsertMap(in.Labels, d.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, d.Annotations)
 		in.Spec.Replicas = d.Spec.Replicas
@@ -356,13 +372,13 @@ func ensureDeployment(kc kubernetes.Interface, vs *api.VaultServer, d *appsv1.De
 
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 
 // ensureService creates/patches service
 func ensureService(kc kubernetes.Interface, vs *api.VaultServer, svc *core.Service) error {
-	_, _, err := core_util.CreateOrPatchService(kc, svc.ObjectMeta, func(in *core.Service) *core.Service {
+	_, _, err := core_util.CreateOrPatchService(context.TODO(), kc, svc.ObjectMeta, func(in *core.Service) *core.Service {
 		in.Labels = core_util.UpsertMap(in.Labels, svc.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, svc.Annotations)
 
@@ -385,33 +401,33 @@ func ensureService(kc kubernetes.Interface, vs *api.VaultServer, svc *core.Servi
 		}
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 
 // ensureRoleAndRoleBinding creates or patches rbac role and rolebinding
 func ensureRoleAndRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, roles []rbac.Role, rBindings []rbac.RoleBinding) error {
 	for _, role := range roles {
-		_, _, err := rbac_util.CreateOrPatchRole(kc, role.ObjectMeta, func(in *rbac.Role) *rbac.Role {
+		_, _, err := rbac_util.CreateOrPatchRole(context.TODO(), kc, role.ObjectMeta, func(in *rbac.Role) *rbac.Role {
 			in.Labels = core_util.UpsertMap(in.Labels, role.Labels)
 			in.Annotations = core_util.UpsertMap(in.Annotations, role.Annotations)
 			in.Rules = role.Rules
 			core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 			return in
-		})
+		}, metav1.PatchOptions{})
 		if err != nil {
 			return errors.Wrapf(err, "failed to create rbac role %s/%s", role.Namespace, role.Name)
 		}
 	}
 
 	for _, rb := range rBindings {
-		_, _, err := rbac_util.CreateOrPatchRoleBinding(kc, rb.ObjectMeta, func(in *rbac.RoleBinding) *rbac.RoleBinding {
+		_, _, err := rbac_util.CreateOrPatchRoleBinding(context.TODO(), kc, rb.ObjectMeta, func(in *rbac.RoleBinding) *rbac.RoleBinding {
 			in.Labels = core_util.UpsertMap(in.Labels, rb.Labels)
 			in.RoleRef = rb.RoleRef
 			in.Subjects = rb.Subjects
 			core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 			return in
-		})
+		}, metav1.PatchOptions{})
 		if err != nil {
 			return errors.Wrapf(err, "failed to create rbac role binding %s/%s", rb.Namespace, rb.Name)
 		}
@@ -421,37 +437,43 @@ func ensureRoleAndRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, role
 
 // ensureSecret creates/patches secret
 func ensureSecret(kc kubernetes.Interface, vs *api.VaultServer, s *core.Secret) error {
-	_, _, err := core_util.CreateOrPatchSecret(kc, s.ObjectMeta, func(in *core.Secret) *core.Secret {
+	_, _, err := core_util.CreateOrPatchSecret(context.TODO(), kc, s.ObjectMeta, func(in *core.Secret) *core.Secret {
 		in.Labels = core_util.UpsertMap(in.Labels, s.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, s.Annotations)
 		in.Data = s.Data
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 
 // ensureConfigMap creates/patches configMap
 func ensureConfigMap(kc kubernetes.Interface, vs *api.VaultServer, cm *core.ConfigMap) error {
-	_, _, err := core_util.CreateOrPatchConfigMap(kc, cm.ObjectMeta, func(in *core.ConfigMap) *core.ConfigMap {
+	_, _, err := core_util.CreateOrPatchConfigMap(context.TODO(), kc, cm.ObjectMeta, func(in *core.ConfigMap) *core.ConfigMap {
 		in.Labels = core_util.UpsertMap(in.Labels, cm.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, cm.Annotations)
 		in.Data = cm.Data
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 
 // ensurClusterRoleBinding creates or patches rbac ClusterRoleBinding
 func ensurClusterRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, cRBinding rbac.ClusterRoleBinding) error {
-	_, _, err := rbac_util.CreateOrPatchClusterRoleBinding(kc, cRBinding.ObjectMeta, func(in *rbac.ClusterRoleBinding) *rbac.ClusterRoleBinding {
-		in.Labels = core_util.UpsertMap(in.Labels, cRBinding.Labels)
-		in.RoleRef = cRBinding.RoleRef
-		in.Subjects = cRBinding.Subjects
-		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
-		return in
-	})
+	_, _, err := rbac_util.CreateOrPatchClusterRoleBinding(
+		context.TODO(),
+		kc,
+		cRBinding.ObjectMeta,
+		func(in *rbac.ClusterRoleBinding) *rbac.ClusterRoleBinding {
+			in.Labels = core_util.UpsertMap(in.Labels, cRBinding.Labels)
+			in.RoleRef = cRBinding.RoleRef
+			in.Subjects = cRBinding.Subjects
+			core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
+			return in
+		},
+		metav1.PatchOptions{},
+	)
 	if err != nil {
 		return errors.Wrapf(err, "failed to create rbac role %s/%s", cRBinding.Namespace, cRBinding.Name)
 	}

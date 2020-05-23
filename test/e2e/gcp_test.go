@@ -17,6 +17,7 @@ limitations under the License.
 package e2e_test
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -147,7 +148,7 @@ var _ = Describe("GCP Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
 				if err == nil && crd.Status.Secret != nil {
-					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(crd.Status.Secret.Name, metav1.GetOptions{})
+					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), crd.Status.Secret.Name, metav1.GetOptions{})
 					return err2 == nil
 				}
 				return false
@@ -156,7 +157,7 @@ var _ = Describe("GCP Secret Engine", func() {
 		IsGCPAccessKeySecretDeleted = func(secretName, namespace string) {
 			By("Checking whether GCPAccessKeySecret is deleted")
 			Eventually(func() bool {
-				_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(secretName, metav1.GetOptions{})
+				_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 				return kerrors.IsNotFound(err2)
 			}, timeOut, pollingInterval).Should(BeTrue(), "GCPAccessKeySecret is deleted")
 		}
@@ -201,7 +202,7 @@ var _ = Describe("GCP Secret Engine", func() {
 				},
 				Data: credentials,
 			}
-			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
+			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(context.TODO(), &gcpCredentials, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Create gcp credentials secret")
 
 			gcpRole = api.GCPRole{
@@ -242,7 +243,7 @@ var _ = Describe("GCP Secret Engine", func() {
 		})
 
 		AfterEach(func() {
-			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(gcpCredSecret, &metav1.DeleteOptions{})
+			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(context.TODO(), gcpCredSecret, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete gcp credentials secret")
 		})
 
@@ -257,13 +258,13 @@ var _ = Describe("GCP Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting GCPRole...")
-				err := f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete GCPRole")
 
 				IsGCPRoleDeleted(p.Name, p.Namespace)
 
 				By("Deleting SecretEngine...")
-				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(se.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(se.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete Secret engine")
 
 				IsSecretEngineDeleted(se.Name, se.Namespace)
@@ -296,7 +297,7 @@ var _ = Describe("GCP Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting GCPRole...")
-				err := f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete GCPRole")
 
 				IsGCPRoleDeleted(p.Name, p.Namespace)
@@ -346,7 +347,7 @@ var _ = Describe("GCP Secret Engine", func() {
 				},
 				Data: credentials,
 			}
-			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&gcpCredentials)
+			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(context.TODO(), &gcpCredentials, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Create gcp credentials secret")
 
 			gcpSE = api.SecretEngine{
@@ -410,10 +411,10 @@ var _ = Describe("GCP Secret Engine", func() {
 		})
 
 		AfterEach(func() {
-			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(gcpCredSecret, &metav1.DeleteOptions{})
+			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(context.TODO(), gcpCredSecret, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete gcp credentials secret")
 
-			err = f.CSClient.EngineV1alpha1().SecretEngines(gcpSE.Namespace).Delete(gcpSE.Name, &metav1.DeleteOptions{})
+			err = f.CSClient.EngineV1alpha1().SecretEngines(gcpSE.Namespace).Delete(gcpSE.Name, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete gcp SecretEngine")
 			IsSecretEngineDeleted(gcpSE.Name, gcpSE.Namespace)
 		})
@@ -429,11 +430,11 @@ var _ = Describe("GCP Secret Engine", func() {
 			})
 
 			AfterEach(func() {
-				err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Delete(gcpAKR.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Delete(gcpAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete GCPAccessKeyRequest")
 				IsGCPAccessKeyRequestDeleted(gcpAKR.Name, gcpAKR.Namespace)
 
-				err = f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(gcpRole.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(gcpRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete gcpRole")
 				IsGCPRoleDeleted(gcpRole.Name, gcpRole.Namespace)
 			})
@@ -504,14 +505,14 @@ var _ = Describe("GCP Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting gcp accesskeyrequest...")
-				err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Delete(gcpAKR.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKR.Namespace).Delete(gcpAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete GCPAccessKeyRequest")
 
 				IsGCPAccessKeyRequestDeleted(gcpAKR.Name, gcpAKR.Namespace)
 				IsGCPAccessKeySecretDeleted(secretName, gcpAKR.Namespace)
 
 				By("Deleting gcpRole...")
-				err = f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(gcpRole.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Delete(gcpRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete GCPRole")
 
 				IsGCPRoleDeleted(gcpRole.Name, gcpRole.Namespace)

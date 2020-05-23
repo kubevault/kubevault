@@ -16,6 +16,12 @@ limitations under the License.
 
 package framework
 
+import (
+	"context"
+
+	meta_util "kmodules.xyz/client-go/meta"
+)
+
 func (f *Framework) DeletePod(name, namespace string) error {
-	return f.KubeClient.CoreV1().Pods(namespace).Delete(name, deleteInBackground())
+	return f.KubeClient.CoreV1().Pods(namespace).Delete(context.TODO(), name, meta_util.DeleteInBackground())
 }

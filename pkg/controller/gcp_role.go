@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -28,6 +29,7 @@ import (
 	"github.com/pkg/errors"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
@@ -56,34 +58,34 @@ func (c *VaultController) runGCPRoleInjector(key string) error {
 		glog.Warningf("GCPRole %s does not exist anymore", key)
 
 	} else {
-		gcpRole := obj.(*api.GCPRole).DeepCopy()
+		role := obj.(*api.GCPRole).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for GCPRole %s/%s", gcpRole.Namespace, gcpRole.Name)
+		glog.Infof("Sync/Add/Update for GCPRole %s/%s", role.Namespace, role.Name)
 
-		if gcpRole.DeletionTimestamp != nil {
-			if core_util.HasFinalizer(gcpRole.ObjectMeta, GCPRoleFinalizer) {
-				go c.runGCPRoleFinalizer(gcpRole, finalizerTimeout, finalizerInterval)
+		if role.DeletionTimestamp != nil {
+			if core_util.HasFinalizer(role.ObjectMeta, GCPRoleFinalizer) {
+				go c.runGCPRoleFinalizer(role, finalizerTimeout, finalizerInterval)
 			}
 		} else {
-			if !core_util.HasFinalizer(gcpRole.ObjectMeta, GCPRoleFinalizer) {
+			if !core_util.HasFinalizer(role.ObjectMeta, GCPRoleFinalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchGCPRole(c.extClient.EngineV1alpha1(), gcpRole, func(role *api.GCPRole) *api.GCPRole {
+				_, _, err := patchutil.PatchGCPRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(role *api.GCPRole) *api.GCPRole {
 					role.ObjectMeta = core_util.AddFinalizer(role.ObjectMeta, GCPRoleFinalizer)
 					return role
-				})
+				}, metav1.PatchOptions{})
 				if err != nil {
-					return errors.Wrapf(err, "failed to set GCPRole finalizer for %s/%s", gcpRole.Namespace, gcpRole.Name)
+					return errors.Wrapf(err, "failed to set GCPRole finalizer for %s/%s", role.Namespace, role.Name)
 				}
 			}
 
-			gcpRClient, err := gcp.NewGCPRole(c.kubeClient, c.appCatalogClient, gcpRole)
+			gcpRClient, err := gcp.NewGCPRole(c.kubeClient, c.appCatalogClient, role)
 			if err != nil {
 				return err
 			}
 
-			err = c.reconcileGCPRole(gcpRClient, gcpRole)
+			err = c.reconcileGCPRole(gcpRClient, role)
 			if err != nil {
-				return errors.Wrapf(err, "for GCPRole %s/%s:", gcpRole.Namespace, gcpRole.Name)
+				return errors.Wrapf(err, "for GCPRole %s/%s:", role.Namespace, role.Name)
 			}
 		}
 	}
@@ -94,59 +96,56 @@ func (c *VaultController) runGCPRoleInjector(key string) error {
 //	For vault:
 // 	  - configure a GCP role
 //    - sync role
-func (c *VaultController) reconcileGCPRole(gcpRClient gcp.GCPRoleInterface, gcpRole *api.GCPRole) error {
-	status := gcpRole.Status
-
+func (c *VaultController) reconcileGCPRole(gcpRClient gcp.GCPRoleInterface, role *api.GCPRole) error {
 	// create role
 	err := gcpRClient.CreateRole()
 	if err != nil {
-		status.Conditions = []kmapi.Condition{
-			{
-				Type:    kmapi.ConditionFailure,
-				Status:  kmapi.ConditionTrue,
-				Reason:  "FailedToCreateRole",
-				Message: err.Error(),
+		_, err2 := patchutil.UpdateGCPRoleStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			role.ObjectMeta, func(status *api.GCPRoleStatus) *api.GCPRoleStatus {
+				status.Conditions = []kmapi.Condition{
+					{
+						Type:    kmapi.ConditionFailure,
+						Status:  kmapi.ConditionTrue,
+						Reason:  "FailedToCreateRole",
+						Message: err.Error(),
+					},
+				}
+				return status
 			},
-		}
-
-		err2 := c.updatedGCPRoleStatus(&status, gcpRole)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to create role")
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to create role")})
 	}
 
-	status.Conditions = []kmapi.Condition{}
-	status.Phase = GCPRolePhaseSuccess
-	status.ObservedGeneration = gcpRole.Generation
-
-	err = c.updatedGCPRoleStatus(&status, gcpRole)
-	if err != nil {
-		return errors.Wrapf(err, "failed to update GCPRole status")
-	}
-	return nil
-}
-
-func (c *VaultController) updatedGCPRoleStatus(status *api.GCPRoleStatus, gcpRole *api.GCPRole) error {
-	_, err := patchutil.UpdateGCPRoleStatus(c.extClient.EngineV1alpha1(), gcpRole.ObjectMeta, func(s *api.GCPRoleStatus) *api.GCPRoleStatus {
-		return status
-	})
+	_, err = patchutil.UpdateGCPRoleStatus(
+		context.TODO(),
+		c.extClient.EngineV1alpha1(),
+		role.ObjectMeta, func(status *api.GCPRoleStatus) *api.GCPRoleStatus {
+			status.Conditions = []kmapi.Condition{}
+			status.Phase = GCPRolePhaseSuccess
+			status.ObservedGeneration = role.Generation
+			return status
+		},
+		metav1.UpdateOptions{},
+	)
 	return err
 }
 
-func (c *VaultController) runGCPRoleFinalizer(gcpRole *api.GCPRole, timeout time.Duration, interval time.Duration) {
-	if gcpRole == nil {
+func (c *VaultController) runGCPRoleFinalizer(role *api.GCPRole, timeout time.Duration, interval time.Duration) {
+	if role == nil {
 		glog.Infoln("GCPRole is nil")
 		return
 	}
 
-	id := getGCPRoleId(gcpRole)
+	id := getGCPRoleId(role)
 	if c.finalizerInfo.IsAlreadyProcessing(id) {
 		// already processing
 		return
 	}
 
-	glog.Infof("Processing finalizer for GCPRole %s/%s", gcpRole.Namespace, gcpRole.Name)
+	glog.Infof("Processing finalizer for GCPRole %s/%s", role.Namespace, role.Name)
 	// Add key to finalizerInfo, it will prevent other go routine to processing for this GCPRole
 	c.finalizerInfo.Add(id)
 
@@ -156,7 +155,7 @@ func (c *VaultController) runGCPRoleFinalizer(gcpRole *api.GCPRole, timeout time
 	attempt := 0
 
 	for {
-		glog.Infof("GCPRole %s/%s finalizer: attempt %d\n", gcpRole.Namespace, gcpRole.Name, attempt)
+		glog.Infof("GCPRole %s/%s finalizer: attempt %d\n", role.Namespace, role.Name, attempt)
 
 		select {
 		case <-stopCh:
@@ -169,13 +168,13 @@ func (c *VaultController) runGCPRoleFinalizer(gcpRole *api.GCPRole, timeout time
 		}
 
 		if !finalizationDone {
-			d, err := gcp.NewGCPRole(c.kubeClient, c.appCatalogClient, gcpRole)
+			d, err := gcp.NewGCPRole(c.kubeClient, c.appCatalogClient, role)
 			if err != nil {
-				glog.Errorf("GCPRole %s/%s finalizer: %v", gcpRole.Namespace, gcpRole.Name, err)
+				glog.Errorf("GCPRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
 			} else {
-				err = c.finalizeGCPRole(d, gcpRole)
+				err = c.finalizeGCPRole(d, role)
 				if err != nil {
-					glog.Errorf("GCPRole %s/%s finalizer: %v", gcpRole.Namespace, gcpRole.Name, err)
+					glog.Errorf("GCPRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
 				} else {
 					finalizationDone = true
 				}
@@ -183,9 +182,9 @@ func (c *VaultController) runGCPRoleFinalizer(gcpRole *api.GCPRole, timeout time
 		}
 
 		if finalizationDone {
-			err := c.removeGCPRoleFinalizer(gcpRole)
+			err := c.removeGCPRoleFinalizer(role)
 			if err != nil {
-				glog.Errorf("GCPRole %s/%s finalizer: removing finalizer %v", gcpRole.Namespace, gcpRole.Name, err)
+				glog.Errorf("GCPRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
 			} else {
 				break
 			}
@@ -199,11 +198,11 @@ func (c *VaultController) runGCPRoleFinalizer(gcpRole *api.GCPRole, timeout time
 		attempt++
 	}
 
-	err := c.removeGCPRoleFinalizer(gcpRole)
+	err := c.removeGCPRoleFinalizer(role)
 	if err != nil {
-		glog.Errorf("GCPRole %s/%s finalizer: removing finalizer %v", gcpRole.Namespace, gcpRole.Name, err)
+		glog.Errorf("GCPRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
 	} else {
-		glog.Infof("Removed finalizer for GCPRole %s/%s", gcpRole.Namespace, gcpRole.Name)
+		glog.Infof("Removed finalizer for GCPRole %s/%s", role.Namespace, role.Name)
 	}
 
 	// Delete key from finalizer info as processing is done
@@ -212,16 +211,16 @@ func (c *VaultController) runGCPRoleFinalizer(gcpRole *api.GCPRole, timeout time
 
 // Do:
 //	- delete role in vault
-func (c *VaultController) finalizeGCPRole(gcpRClient gcp.GCPRoleInterface, gcpRole *api.GCPRole) error {
-	err := gcpRClient.DeleteRole(gcpRole.RoleName())
+func (c *VaultController) finalizeGCPRole(gcpRClient gcp.GCPRoleInterface, role *api.GCPRole) error {
+	err := gcpRClient.DeleteRole(role.RoleName())
 	if err != nil {
 		return errors.Wrap(err, "failed to delete gcp role")
 	}
 	return nil
 }
 
-func (c *VaultController) removeGCPRoleFinalizer(gcpRole *api.GCPRole) error {
-	m, err := c.extClient.EngineV1alpha1().GCPRoles(gcpRole.Namespace).Get(gcpRole.Name, metav1.GetOptions{})
+func (c *VaultController) removeGCPRoleFinalizer(role *api.GCPRole) error {
+	m, err := c.extClient.EngineV1alpha1().GCPRoles(role.Namespace).Get(context.TODO(), role.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
@@ -229,13 +228,13 @@ func (c *VaultController) removeGCPRoleFinalizer(gcpRole *api.GCPRole) error {
 	}
 
 	// remove finalizer
-	_, _, err = patchutil.PatchGCPRole(c.extClient.EngineV1alpha1(), m, func(role *api.GCPRole) *api.GCPRole {
+	_, _, err = patchutil.PatchGCPRole(context.TODO(), c.extClient.EngineV1alpha1(), m, func(role *api.GCPRole) *api.GCPRole {
 		role.ObjectMeta = core_util.RemoveFinalizer(role.ObjectMeta, GCPRoleFinalizer)
 		return role
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 
-func getGCPRoleId(gcpRole *api.GCPRole) string {
-	return fmt.Sprintf("%s/%s/%s", api.ResourceGCPRole, gcpRole.Namespace, gcpRole.Name)
+func getGCPRoleId(role *api.GCPRole) string {
+	return fmt.Sprintf("%s/%s/%s", api.ResourceGCPRole, role.Namespace, role.Name)
 }

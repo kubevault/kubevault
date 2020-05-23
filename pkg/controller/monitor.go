@@ -40,7 +40,7 @@ func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service
 		Namespace: vs.Namespace,
 	}
 
-	return core_util.CreateOrPatchService(c.kubeClient, meta, func(in *core.Service) *core.Service {
+	return core_util.CreateOrPatchService(context.TODO(), c.kubeClient, meta, func(in *core.Service) *core.Service {
 		in.Labels = vs.StatsLabels()
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 
@@ -60,7 +60,7 @@ func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service
 		}
 		in.Spec.Ports = core_util.MergeServicePorts(in.Spec.Ports, desired)
 		return in
-	})
+	}, metav1.PatchOptions{})
 }
 
 func (c *VaultController) ensureStatsServiceDeleted(vs *api.VaultServer) error {
@@ -111,14 +111,12 @@ func (c *VaultController) setNewAgent(vs *api.VaultServer) error {
 	if err != nil {
 		return err
 	}
-	_, _, err = core_util.PatchService(c.kubeClient, service, func(in *core.Service) *core.Service {
+	_, _, err = core_util.PatchService(context.TODO(), c.kubeClient, service, func(in *core.Service) *core.Service {
 		in.Annotations = core_util.UpsertMap(in.Annotations, map[string]string{
 			mona.KeyAgent: string(vs.Spec.Monitor.Agent),
-		},
-		)
-
+		})
 		return in
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 

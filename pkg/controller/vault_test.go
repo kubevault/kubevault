@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"strconv"
@@ -103,14 +104,14 @@ func getConfigData(extraConfig string, storageCfg string, exptrCfg string) strin
 }
 
 func createSecret(t *testing.T, client kubernetes.Interface, s *core.Secret) {
-	_, err := client.CoreV1().Secrets(s.Namespace).Create(s)
+	_, err := client.CoreV1().Secrets(s.Namespace).Create(context.TODO(), s, metav1.CreateOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func deleteSecret(t *testing.T, client kubernetes.Interface, s *core.Secret) {
-	err := client.CoreV1().Secrets(s.Namespace).Delete(s.Name, &metav1.DeleteOptions{})
+	err := client.CoreV1().Secrets(s.Namespace).Delete(context.TODO(), s.Name, metav1.DeleteOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -17,6 +17,8 @@ limitations under the License.
 package aws
 
 import (
+	"context"
+
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	crd "kubevault.dev/operator/client/clientset/versioned"
 	"kubevault.dev/operator/pkg/vault"
@@ -68,7 +70,7 @@ func NewAWSCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.A
 }
 
 func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*api.AWSRole, error) {
-	r, err := cr.EngineV1alpha1().AWSRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
+	r, err := cr.EngineV1alpha1().AWSRoles(ref.Namespace).Get(context.TODO(), ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get AWSRole %s/%s", ref.Namespace, ref.Name)
 	}

@@ -17,6 +17,7 @@ limitations under the License.
 package e2e_test
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -147,7 +148,7 @@ var _ = Describe("MongoDB Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
 				if err == nil && crd.Status.Secret != nil {
-					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(crd.Status.Secret.Name, metav1.GetOptions{})
+					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), crd.Status.Secret.Name, metav1.GetOptions{})
 					return err2 == nil
 				}
 				return false
@@ -156,7 +157,7 @@ var _ = Describe("MongoDB Secret Engine", func() {
 		IsMongoDBAccessKeySecretDeleted = func(secretName, namespace string) {
 			By("Checking whether MongoDBAccessKeySecret is deleted")
 			Eventually(func() bool {
-				_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(secretName, metav1.GetOptions{})
+				_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 				return kerrors.IsNotFound(err2)
 			}, timeOut, pollingInterval).Should(BeTrue(), "MongoDBAccessKeySecret is deleted")
 		}
@@ -238,13 +239,13 @@ var _ = Describe("MongoDB Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting MongoDBRole...")
-				err := f.CSClient.EngineV1alpha1().MongoDBRoles(mongoDBRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().MongoDBRoles(mongoDBRole.Namespace).Delete(p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete MongoDBRole")
 
 				IsMongoDBRoleDeleted(p.Name, p.Namespace)
 
 				By("Deleting SecretEngine...")
-				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(se.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(se.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete Secret engine")
 
 				IsSecretEngineDeleted(se.Name, se.Namespace)
@@ -277,7 +278,7 @@ var _ = Describe("MongoDB Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting MongoDBRole...")
-				err := f.CSClient.EngineV1alpha1().MongoDBRoles(mongoDBRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().MongoDBRoles(mongoDBRole.Namespace).Delete(p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete MongoDBRole")
 
 				IsMongoDBRoleDeleted(p.Name, p.Namespace)
@@ -378,7 +379,7 @@ var _ = Describe("MongoDB Secret Engine", func() {
 		})
 
 		AfterEach(func() {
-			err := f.CSClient.EngineV1alpha1().SecretEngines(mongoDBSE.Namespace).Delete(mongoDBSE.Name, &metav1.DeleteOptions{})
+			err := f.CSClient.EngineV1alpha1().SecretEngines(mongoDBSE.Namespace).Delete(mongoDBSE.Name, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete mongoDB SecretEngine")
 			IsSecretEngineDeleted(mongoDBSE.Name, mongoDBSE.Namespace)
 		})
@@ -394,11 +395,11 @@ var _ = Describe("MongoDB Secret Engine", func() {
 			})
 
 			AfterEach(func() {
-				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(mongoDBAKR.Namespace).Delete(mongoDBAKR.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(mongoDBAKR.Namespace).Delete(mongoDBAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete DatabaseAccessRequest")
 				IsDatabaseAccessRequestDeleted(mongoDBAKR.Name, mongoDBAKR.Namespace)
 
-				err = f.CSClient.EngineV1alpha1().MongoDBRoles(mongoDBRole.Namespace).Delete(mongoDBRole.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().MongoDBRoles(mongoDBRole.Namespace).Delete(mongoDBRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete MongoDBRole")
 				IsMongoDBRoleDeleted(mongoDBRole.Name, mongoDBRole.Namespace)
 			})
@@ -469,14 +470,14 @@ var _ = Describe("MongoDB Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting MongoDB accesskeyrequest...")
-				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(mongoDBAKR.Namespace).Delete(mongoDBAKR.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(mongoDBAKR.Namespace).Delete(mongoDBAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete DatabaseAccessRequest")
 
 				IsDatabaseAccessRequestDeleted(mongoDBAKR.Name, mongoDBAKR.Namespace)
 				IsMongoDBAccessKeySecretDeleted(secretName, mongoDBAKR.Namespace)
 
 				By("Deleting MongoDBRole...")
-				err = f.CSClient.EngineV1alpha1().MongoDBRoles(mongoDBRole.Namespace).Delete(mongoDBRole.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().MongoDBRoles(mongoDBRole.Namespace).Delete(mongoDBRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete MongoDBRole")
 
 				IsMongoDBRoleDeleted(mongoDBRole.Name, mongoDBRole.Namespace)

@@ -22,6 +22,7 @@ import (
 	. "github.com/onsi/gomega"
 	apps "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	meta_util "kmodules.xyz/client-go/meta"
 )
 
 func (f *Framework) CreateDeployment(obj apps.Deployment) (*apps.Deployment, error) {
@@ -29,7 +30,7 @@ func (f *Framework) CreateDeployment(obj apps.Deployment) (*apps.Deployment, err
 }
 
 func (f *Framework) DeleteDeployment(name, namespace string) error {
-	return f.KubeClient.AppsV1().Deployments(namespace).Delete(context.TODO(), name, *deleteInBackground())
+	return f.KubeClient.AppsV1().Deployments(namespace).Delete(context.TODO(), name, meta_util.DeleteInBackground())
 }
 
 func (f *Framework) EventuallyDeployment(meta metav1.ObjectMeta) GomegaAsyncAssertion {

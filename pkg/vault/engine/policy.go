@@ -18,6 +18,7 @@ package engine
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -151,7 +152,7 @@ func (seClient *SecretEngine) CreatePolicy() error {
 
 func GetVaultRoleInfo(appClient appcat_cs.AppcatalogV1alpha1Interface, vClient *vaultapi.Client, secretEngine *api.SecretEngine) (*KubernetesAuthRole, string, error) {
 	// Get appbinding referred in SecretEngine spec
-	vApp, err := appClient.AppBindings(secretEngine.Namespace).Get(secretEngine.Spec.VaultRef.Name, metav1.GetOptions{})
+	vApp, err := appClient.AppBindings(secretEngine.Namespace).Get(context.TODO(), secretEngine.Spec.VaultRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, "", errors.Wrap(err, "failed to get appbinding for secret engine")
 	}

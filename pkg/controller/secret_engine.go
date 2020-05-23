@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -28,6 +29,7 @@ import (
 	"github.com/pkg/errors"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
@@ -67,10 +69,10 @@ func (c *VaultController) runSecretEngineInjector(key string) error {
 		} else {
 			if !core_util.HasFinalizer(secretEngine.ObjectMeta, SecretEngineFinalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchSecretEngine(c.extClient.EngineV1alpha1(), secretEngine, func(engine *api.SecretEngine) *api.SecretEngine {
+				_, _, err := patchutil.PatchSecretEngine(context.TODO(), c.extClient.EngineV1alpha1(), secretEngine, func(engine *api.SecretEngine) *api.SecretEngine {
 					engine.ObjectMeta = core_util.AddFinalizer(engine.ObjectMeta, SecretEngineFinalizer)
 					return engine
-				})
+				}, metav1.PatchOptions{})
 				if err != nil {
 					return errors.Wrapf(err, "failed to set SecretEngine finalizer for %s/%s", secretEngine.Namespace, secretEngine.Name)
 				}
@@ -95,98 +97,114 @@ func (c *VaultController) runSecretEngineInjector(key string) error {
 //	  - configure Vault secret engine
 //    - create policy and policybinding for s/a of VaultAppRef
 func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.EngineInterface, secretEngine *api.SecretEngine) error {
-	status := secretEngine.Status
-
 	// Create required policies for secret engine
 	err := secretEngineClient.CreatePolicy()
 	if err != nil {
-		status.Conditions = []kmapi.Condition{
-			{
-				Type:    kmapi.ConditionFailure,
-				Status:  kmapi.ConditionTrue,
-				Reason:  "FailedToCreateSecretEnginePolicy",
-				Message: err.Error(),
+		_, err2 := patchutil.UpdateSecretEngineStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			secretEngine.ObjectMeta,
+			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
+				status.Conditions = []kmapi.Condition{
+					{
+						Type:    kmapi.ConditionFailure,
+						Status:  kmapi.ConditionTrue,
+						Reason:  "FailedToCreateSecretEnginePolicy",
+						Message: err.Error(),
+					},
+				}
+				return status
 			},
-		}
-		err2 := c.updatedSecretEngineStatus(&status, secretEngine)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update secret engine status")
-		}
-		return errors.Wrap(err, "failed to create secret engine policy")
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to create secret engine policy")})
 	}
 
 	// Update the policy field of the auth method
 	err = secretEngineClient.UpdateAuthRole()
 	if err != nil {
-		status.Conditions = []kmapi.Condition{
-			{
-				Type:    kmapi.ConditionFailure,
-				Status:  kmapi.ConditionTrue,
-				Reason:  "FailedToUpdateAuthRole",
-				Message: err.Error(),
+		_, err2 := patchutil.UpdateSecretEngineStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			secretEngine.ObjectMeta,
+			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
+				status.Conditions = []kmapi.Condition{
+					{
+						Type:    kmapi.ConditionFailure,
+						Status:  kmapi.ConditionTrue,
+						Reason:  "FailedToUpdateAuthRole",
+						Message: err.Error(),
+					},
+				}
+				return status
 			},
-		}
-		err2 := c.updatedSecretEngineStatus(&status, secretEngine)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update secret engine status")
-		}
-		return errors.Wrap(err, "failed to update auth role")
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to update auth role")})
 	}
 
 	// enable the secret engine if it is not already enabled
 	err = secretEngineClient.EnableSecretEngine()
 	if err != nil {
-		status.Conditions = []kmapi.Condition{
-			{
-				Type:    kmapi.ConditionFailure,
-				Status:  kmapi.ConditionTrue,
-				Reason:  "FailedToEnableSecretEngine",
-				Message: err.Error(),
+		_, err2 := patchutil.UpdateSecretEngineStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			secretEngine.ObjectMeta,
+			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
+				status.Conditions = []kmapi.Condition{
+					{
+						Type:    kmapi.ConditionFailure,
+						Status:  kmapi.ConditionTrue,
+						Reason:  "FailedToEnableSecretEngine",
+						Message: err.Error(),
+					},
+				}
+				return status
 			},
-		}
-		err2 := c.updatedSecretEngineStatus(&status, secretEngine)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update secret engine status")
-		}
-		return errors.Wrap(err, "failed to enable secret engine")
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to enable secret engine")})
 	}
 
 	// Create secret engine config
 	err = secretEngineClient.CreateConfig()
 	if err != nil {
-		status.Conditions = []kmapi.Condition{
-			{
-				Type:    kmapi.ConditionFailure,
-				Status:  kmapi.ConditionTrue,
-				Reason:  "FailedToCreateSecretEngineConfig",
-				Message: err.Error(),
+		_, err2 := patchutil.UpdateSecretEngineStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			secretEngine.ObjectMeta,
+			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
+				status.Conditions = []kmapi.Condition{
+					{
+						Type:    kmapi.ConditionFailure,
+						Status:  kmapi.ConditionTrue,
+						Reason:  "FailedToCreateSecretEngineConfig",
+						Message: err.Error(),
+					},
+				}
+				return status
 			},
-		}
-		err2 := c.updatedSecretEngineStatus(&status, secretEngine)
-		if err2 != nil {
-			return errors.Wrap(err2, "failed to update status")
-		}
-		return errors.Wrap(err, "failed to create secret engine config")
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to create secret engine config")})
 	}
 
 	// update status
-	status.ObservedGeneration = secretEngine.Generation
-	status.Conditions = []kmapi.Condition{}
-	status.Phase = SecretEnginePhaseSuccess
-	err = c.updatedSecretEngineStatus(&status, secretEngine)
-	if err != nil {
-		return errors.Wrap(err, "failed to update secret engine status")
-	}
-
-	return nil
-}
-
-func (c *VaultController) updatedSecretEngineStatus(status *api.SecretEngineStatus, secretEngine *api.SecretEngine) error {
-	_, err := patchutil.UpdateSecretEngineStatus(c.extClient.EngineV1alpha1(), secretEngine.ObjectMeta, func(s *api.SecretEngineStatus) *api.SecretEngineStatus {
-		return status
-	})
+	_, err = patchutil.UpdateSecretEngineStatus(
+		context.TODO(),
+		c.extClient.EngineV1alpha1(),
+		secretEngine.ObjectMeta,
+		func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
+			status.ObservedGeneration = secretEngine.Generation
+			status.Conditions = []kmapi.Condition{}
+			status.Phase = SecretEnginePhaseSuccess
+			return status
+		},
+		metav1.UpdateOptions{},
+	)
 	return err
 }
+
 func (c *VaultController) runSecretEngineFinalizer(secretEngine *api.SecretEngine, timeout time.Duration, interval time.Duration) {
 	if secretEngine == nil {
 		glog.Infoln("SecretEngine is nil")
@@ -282,7 +300,7 @@ func (c *VaultController) finalizeSecretEngine(secretEngineClient *engine.Secret
 }
 
 func (c *VaultController) removeSecretEngineFinalizer(secretEngine *api.SecretEngine) error {
-	m, err := c.extClient.EngineV1alpha1().SecretEngines(secretEngine.Namespace).Get(secretEngine.Name, metav1.GetOptions{})
+	m, err := c.extClient.EngineV1alpha1().SecretEngines(secretEngine.Namespace).Get(context.TODO(), secretEngine.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
@@ -290,10 +308,10 @@ func (c *VaultController) removeSecretEngineFinalizer(secretEngine *api.SecretEn
 	}
 
 	// remove finalizer
-	_, _, err = patchutil.PatchSecretEngine(c.extClient.EngineV1alpha1(), m, func(secretEngine *api.SecretEngine) *api.SecretEngine {
+	_, _, err = patchutil.PatchSecretEngine(context.TODO(), c.extClient.EngineV1alpha1(), m, func(secretEngine *api.SecretEngine) *api.SecretEngine {
 		secretEngine.ObjectMeta = core_util.RemoveFinalizer(secretEngine.ObjectMeta, SecretEngineFinalizer)
 		return secretEngine
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 

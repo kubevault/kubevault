@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -47,21 +48,21 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 
 	testData := []struct {
 		testName           string
-		mRole              api.MongoDBRole
+		mgRole             api.MongoDBRole
 		dbRClient          database.DatabaseRoleInterface
 		hasStatusCondition bool
 		expectedErr        bool
 	}{
 		{
 			testName:           "initial stage, no error",
-			mRole:              mRole,
+			mgRole:             mRole,
 			dbRClient:          &fakeDRole{},
 			expectedErr:        false,
 			hasStatusCondition: false,
 		},
 		{
 			testName: "initial stage, failed to create database role",
-			mRole:    mRole,
+			mgRole:   mRole,
 			dbRClient: &fakeDRole{
 				errorOccurredInCreateRole: true,
 			},
@@ -70,7 +71,7 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 		},
 		{
 			testName: "update role, successfully updated database role",
-			mRole: func(p api.MongoDBRole) api.MongoDBRole {
+			mgRole: func(p api.MongoDBRole) api.MongoDBRole {
 				p.Generation = 2
 				p.Status.ObservedGeneration = 1
 				return p
@@ -81,7 +82,7 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 		},
 		{
 			testName: "update role, failed to update database role",
-			mRole: func(p api.MongoDBRole) api.MongoDBRole {
+			mgRole: func(p api.MongoDBRole) api.MongoDBRole {
 				p.Generation = 2
 				p.Status.ObservedGeneration = 1
 				return p
@@ -102,16 +103,16 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 			}
 			c.extInformerFactory = dbinformers.NewSharedInformerFactory(c.extClient, time.Minute*10)
 
-			_, err := c.extClient.EngineV1alpha1().MongoDBRoles(test.mRole.Namespace).Create(&test.mRole)
+			_, err := c.extClient.EngineV1alpha1().MongoDBRoles(test.mgRole.Namespace).Create(context.TODO(), &test.mgRole, metav1.CreateOptions{})
 			if !assert.Nil(t, err) {
 				return
 			}
 
-			err = c.reconcileMongoDBRole(test.dbRClient, &test.mRole)
+			err = c.reconcileMongoDBRole(test.dbRClient, &test.mgRole)
 			if test.expectedErr {
 				if assert.NotNil(t, err) {
 					if test.hasStatusCondition {
-						p, err2 := c.extClient.EngineV1alpha1().MongoDBRoles(test.mRole.Namespace).Get(test.mRole.Name, metav1.GetOptions{})
+						p, err2 := c.extClient.EngineV1alpha1().MongoDBRoles(test.mgRole.Namespace).Get(context.TODO(), test.mgRole.Name, metav1.GetOptions{})
 						if assert.Nil(t, err2) {
 							assert.Condition(t, func() (success bool) {
 								return len(p.Status.Conditions) != 0
@@ -121,7 +122,7 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 				}
 			} else {
 				if assert.Nil(t, err) {
-					p, err2 := c.extClient.EngineV1alpha1().MongoDBRoles(test.mRole.Namespace).Get(test.mRole.Name, metav1.GetOptions{})
+					p, err2 := c.extClient.EngineV1alpha1().MongoDBRoles(test.mgRole.Namespace).Get(context.TODO(), test.mgRole.Name, metav1.GetOptions{})
 					if assert.Nil(t, err2) {
 						assert.Condition(t, func() (success bool) {
 							return len(p.Status.Conditions) == 0

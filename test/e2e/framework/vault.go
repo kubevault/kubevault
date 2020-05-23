@@ -17,6 +17,7 @@ limitations under the License.
 package framework
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -163,7 +164,7 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 	}
 
 	Eventually(func() bool {
-		if obj, err := f.KubeClient.AppsV1().Deployments(f.namespace).Get(d.GetName(), metav1.GetOptions{}); err == nil {
+		if obj, err := f.KubeClient.AppsV1().Deployments(f.namespace).Get(context.TODO(), d.GetName(), metav1.GetOptions{}); err == nil {
 			return *obj.Spec.Replicas == obj.Status.ReadyReplicas
 		}
 		return false
@@ -182,7 +183,7 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 		},
 	}
 
-	_, err = f.KubeClient.CoreV1().Secrets(f.namespace).Create(sr)
+	_, err = f.KubeClient.CoreV1().Secrets(f.namespace).Create(context.TODO(), sr, metav1.CreateOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +222,7 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 }
 
 func (f *Framework) CleanUpVaultServer() error {
-	err := f.CSClient.KubevaultV1alpha1().VaultServers(f.namespace).Delete(VaultServerName, &metav1.DeleteOptions{})
+	err := f.CSClient.KubevaultV1alpha1().VaultServers(f.namespace).Delete(context.TODO(), VaultServerName, metav1.DeleteOptions{})
 	return err
 }
 
@@ -246,7 +247,7 @@ func (f *Framework) DeleteVault() error {
 }
 
 func (f *Framework) GetNodePortIP(label map[string]string) (string, error) {
-	pods, err := f.KubeClient.CoreV1().Pods(f.namespace).List(metav1.ListOptions{
+	pods, err := f.KubeClient.CoreV1().Pods(f.namespace).List(context.TODO(), metav1.ListOptions{
 		LabelSelector: labels.SelectorFromSet(label).String(),
 	})
 	if err != nil {
@@ -258,7 +259,7 @@ func (f *Framework) GetNodePortIP(label map[string]string) (string, error) {
 	}
 
 	for _, p := range pods.Items {
-		node, err := f.KubeClient.CoreV1().Nodes().Get(p.Spec.NodeName, metav1.GetOptions{})
+		node, err := f.KubeClient.CoreV1().Nodes().Get(context.TODO(), p.Spec.NodeName, metav1.GetOptions{})
 		if err != nil {
 			return "", err
 		}

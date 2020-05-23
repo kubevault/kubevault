@@ -17,6 +17,7 @@ limitations under the License.
 package e2e_test
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -147,7 +148,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
 				if err == nil && crd.Status.Secret != nil {
-					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(crd.Status.Secret.Name, metav1.GetOptions{})
+					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), crd.Status.Secret.Name, metav1.GetOptions{})
 					return err2 == nil
 				}
 				return false
@@ -156,7 +157,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 		IsPostgresAccessKeySecretDeleted = func(secretName, namespace string) {
 			By("Checking whether PostgresAccessKeySecret is deleted")
 			Eventually(func() bool {
-				_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(secretName, metav1.GetOptions{})
+				_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 				return kerrors.IsNotFound(err2)
 			}, timeOut, pollingInterval).Should(BeTrue(), "PostgresAccessKeySecret is deleted")
 		}
@@ -240,13 +241,13 @@ var _ = Describe("Postgres Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting PostgresRole...")
-				err := f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete PostgresRole")
 
 				IsPostgresRoleDeleted(p.Name, p.Namespace)
 
 				By("Deleting SecretEngine...")
-				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(se.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(se.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete Secret engine")
 
 				IsSecretEngineDeleted(se.Name, se.Namespace)
@@ -279,7 +280,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting PostgresRole...")
-				err := f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete PostgresRole")
 
 				IsPostgresRoleDeleted(p.Name, p.Namespace)
@@ -382,7 +383,7 @@ var _ = Describe("Postgres Secret Engine", func() {
 		})
 
 		AfterEach(func() {
-			err := f.CSClient.EngineV1alpha1().SecretEngines(postgresSE.Namespace).Delete(postgresSE.Name, &metav1.DeleteOptions{})
+			err := f.CSClient.EngineV1alpha1().SecretEngines(postgresSE.Namespace).Delete(postgresSE.Name, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete Postgres SecretEngine")
 			IsSecretEngineDeleted(postgresSE.Name, postgresSE.Namespace)
 		})
@@ -398,11 +399,11 @@ var _ = Describe("Postgres Secret Engine", func() {
 			})
 
 			AfterEach(func() {
-				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Delete(postgresAKR.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Delete(postgresAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete DatabaseAccessRequest")
 				IsDatabaseAccessRequestDeleted(postgresAKR.Name, postgresAKR.Namespace)
 
-				err = f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(postgresRole.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(postgresRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete PostgresRole")
 				IsPostgresRoleDeleted(postgresRole.Name, postgresRole.Namespace)
 			})
@@ -473,14 +474,14 @@ var _ = Describe("Postgres Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting Postgres accesskeyrequest...")
-				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Delete(postgresAKR.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(postgresAKR.Namespace).Delete(postgresAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete DatabaseAccessRequest")
 
 				IsDatabaseAccessRequestDeleted(postgresAKR.Name, postgresAKR.Namespace)
 				IsPostgresAccessKeySecretDeleted(secretName, postgresAKR.Namespace)
 
 				By("Deleting PostgresRole...")
-				err = f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(postgresRole.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().PostgresRoles(postgresRole.Namespace).Delete(postgresRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete PostgresRole")
 
 				IsPostgresRoleDeleted(postgresRole.Name, postgresRole.Namespace)

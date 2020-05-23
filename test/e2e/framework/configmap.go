@@ -22,6 +22,7 @@ import (
 	. "github.com/onsi/gomega"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	meta_util "kmodules.xyz/client-go/meta"
 )
 
 func (f *Framework) CreateConfigMap(obj core.ConfigMap) error {
@@ -30,7 +31,7 @@ func (f *Framework) CreateConfigMap(obj core.ConfigMap) error {
 }
 
 func (f *Framework) DeleteConfigMap(meta metav1.ObjectMeta) error {
-	return f.KubeClient.CoreV1().ConfigMaps(meta.Namespace).Delete(context.TODO(), meta.Name, *deleteInForeground())
+	return f.KubeClient.CoreV1().ConfigMaps(meta.Namespace).Delete(context.TODO(), meta.Name, meta_util.DeleteInForeground())
 }
 
 func (f *Framework) EventuallyConfigMap(name, namespace string) GomegaAsyncAssertion {

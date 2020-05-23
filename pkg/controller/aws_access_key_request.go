@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -30,6 +31,7 @@ import (
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
@@ -77,47 +79,47 @@ func (c *VaultController) runAWSAccessKeyRequestInjector(key string) error {
 		glog.Warningf("AWSAccessKeyRequest %s does not exist anymore", key)
 
 	} else {
-		awsAccessReq := obj.(*api.AWSAccessKeyRequest).DeepCopy()
+		req := obj.(*api.AWSAccessKeyRequest).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for AWSAccessKeyRequest %s/%s", awsAccessReq.Namespace, awsAccessReq.Name)
+		glog.Infof("Sync/Add/Update for AWSAccessKeyRequest %s/%s", req.Namespace, req.Name)
 
-		if awsAccessReq.DeletionTimestamp != nil {
-			if core_util.HasFinalizer(awsAccessReq.ObjectMeta, AWSAccessKeyRequestFinalizer) {
-				go c.runAWSAccessKeyRequestFinalizer(awsAccessReq, finalizerTimeout, finalizerInterval)
+		if req.DeletionTimestamp != nil {
+			if core_util.HasFinalizer(req.ObjectMeta, AWSAccessKeyRequestFinalizer) {
+				go c.runAWSAccessKeyRequestFinalizer(req, finalizerTimeout, finalizerInterval)
 			}
 		} else {
-			if !core_util.HasFinalizer(awsAccessReq.ObjectMeta, AWSAccessKeyRequestFinalizer) {
+			if !core_util.HasFinalizer(req.ObjectMeta, AWSAccessKeyRequestFinalizer) {
 				// Add finalizer
-				_, _, err = patchutil.PatchAWSAccessKeyRequest(c.extClient.EngineV1alpha1(), awsAccessReq, func(binding *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest {
+				_, _, err = patchutil.PatchAWSAccessKeyRequest(context.TODO(), c.extClient.EngineV1alpha1(), req, func(binding *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest {
 					binding.ObjectMeta = core_util.AddFinalizer(binding.ObjectMeta, AWSAccessKeyRequestFinalizer)
 					return binding
-				})
+				}, metav1.PatchOptions{})
 				if err != nil {
-					return errors.Wrapf(err, "failed to set AWSAccessKeyRequest finalizer for %s/%s", awsAccessReq.Namespace, awsAccessReq.Name)
+					return errors.Wrapf(err, "failed to set AWSAccessKeyRequest finalizer for %s/%s", req.Namespace, req.Name)
 				}
 			}
 
 			var condType string
-			for _, c := range awsAccessReq.Status.Conditions {
+			for _, c := range req.Status.Conditions {
 				if c.Type == kmapi.ConditionRequestApproved || c.Type == kmapi.ConditionRequestDenied {
 					condType = c.Type
 				}
 			}
 
 			if condType == kmapi.ConditionRequestApproved {
-				awsCredManager, err := credential.NewCredentialManagerForAWS(c.kubeClient, c.appCatalogClient, c.extClient, awsAccessReq)
+				awsCredManager, err := credential.NewCredentialManagerForAWS(c.kubeClient, c.appCatalogClient, c.extClient, req)
 				if err != nil {
 					return err
 				}
 
-				err = c.reconcileAWSAccessKeyRequest(awsCredManager, awsAccessReq)
+				err = c.reconcileAWSAccessKeyRequest(awsCredManager, req)
 				if err != nil {
-					return errors.Wrapf(err, "For AWSAccessKeyRequest %s/%s", awsAccessReq.Namespace, awsAccessReq.Name)
+					return errors.Wrapf(err, "For AWSAccessKeyRequest %s/%s", req.Namespace, req.Name)
 				}
 			} else if condType == kmapi.ConditionRequestDenied {
-				glog.Infof("For AWSAccessKeyRequest %s/%s: request is denied", awsAccessReq.Namespace, awsAccessReq.Name)
+				glog.Infof("For AWSAccessKeyRequest %s/%s: request is denied", req.Namespace, req.Name)
 			} else {
-				glog.Infof("For AWSAccessKeyRequest %s/%s: request is not approved yet", awsAccessReq.Namespace, awsAccessReq.Name)
+				glog.Infof("For AWSAccessKeyRequest %s/%s: request is not approved yet", req.Namespace, req.Name)
 			}
 		}
 	}
@@ -130,36 +132,39 @@ func (c *VaultController) runAWSAccessKeyRequestInjector(key string) error {
 //	  - create secret containing credential
 //	  - create rbac role and role binding
 //    - sync role binding
-func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.CredentialManager, awsAccessReq *api.AWSAccessKeyRequest) error {
+func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.CredentialManager, req *api.AWSAccessKeyRequest) error {
 	var (
-		name   = awsAccessReq.Name
-		ns     = awsAccessReq.Namespace
-		status = awsAccessReq.Status
+		name = req.Name
+		ns   = req.Namespace
+		//status = awsAccessReq.Status
 	)
 
 	var secretName string
-	if awsAccessReq.Status.Secret != nil {
-		secretName = awsAccessReq.Status.Secret.Name
+	if req.Status.Secret != nil {
+		secretName = req.Status.Secret.Name
 	}
 
 	// check whether lease id exists in .status.lease or not
 	// if does not exist in .status.lease, then get credential
-	if awsAccessReq.Status.Lease == nil {
+	if req.Status.Lease == nil {
 		// get aws credential secret
 		credSecret, err := awsCM.GetCredential()
 		if err != nil {
-			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-				Type:               kmapi.ConditionFailure,
-				Reason:             "FailedToGetCredential",
-				Message:            err.Error(),
-				LastTransitionTime: metav1.Now(),
-			})
-
-			err2 := c.updateAWSAccessKeyRequestStatus(&status, awsAccessReq)
-			if err2 != nil {
-				return errors.Wrapf(err2, "failed to update status")
-			}
-			return errors.WithStack(err)
+			_, err2 := patchutil.UpdateAWSAccessKeyRequestStatus(
+				context.TODO(),
+				c.extClient.EngineV1alpha1(),
+				req.ObjectMeta,
+				func(status *api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus {
+					status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+						Type:    kmapi.ConditionFailure,
+						Reason:  "FailedToGetCredential",
+						Message: err.Error(),
+					})
+					return status
+				},
+				metav1.UpdateOptions{},
+			)
+			return utilerrors.NewAggregate([]error{err2, err})
 		}
 
 		secretName = rand.WithUniqSuffix(name)
@@ -170,97 +175,119 @@ func (c *VaultController) reconcileAWSAccessKeyRequest(awsCM credential.Credenti
 				return errors.Wrapf(err2, "failed to revoke lease")
 			}
 
-			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-				Type:               kmapi.ConditionFailure,
-				Reason:             "FailedToCreateSecret",
-				Message:            err.Error(),
-				LastTransitionTime: metav1.Now(),
-			})
-
-			err2 = c.updateAWSAccessKeyRequestStatus(&status, awsAccessReq)
-			if err2 != nil {
-				return errors.Wrapf(err2, "failed to update status")
-			}
-			return errors.WithStack(err)
+			_, err2 = patchutil.UpdateAWSAccessKeyRequestStatus(
+				context.TODO(),
+				c.extClient.EngineV1alpha1(),
+				req.ObjectMeta,
+				func(status *api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus {
+					status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+						Type:               kmapi.ConditionFailure,
+						Reason:             "FailedToCreateSecret",
+						Message:            err.Error(),
+						LastTransitionTime: metav1.Now(),
+					})
+					return status
+				},
+				metav1.UpdateOptions{},
+			)
+			return utilerrors.NewAggregate([]error{err2, err})
 		}
 
-		// add lease info in status
-		status.Lease = &api.Lease{
-			ID: credSecret.LeaseID,
-			Duration: metav1.Duration{
-				Duration: time.Second * time.Duration(credSecret.LeaseDuration),
+		_, err = patchutil.UpdateAWSAccessKeyRequestStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			req.ObjectMeta,
+			func(status *api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus {
+				// add lease info in status
+				status.Lease = &api.Lease{
+					ID: credSecret.LeaseID,
+					Duration: metav1.Duration{
+						Duration: time.Second * time.Duration(credSecret.LeaseDuration),
+					},
+					Renewable: credSecret.Renewable,
+				}
+
+				// assign secret name
+				status.Secret = &core.LocalObjectReference{
+					Name: secretName,
+				}
+				return status
 			},
-			Renewable: credSecret.Renewable,
-		}
-
-		// assign secret name
-		status.Secret = &core.LocalObjectReference{
-			Name: secretName,
+			metav1.UpdateOptions{},
+		)
+		if err != nil {
+			return err
 		}
 	}
 
-	roleName := getSecretAccessRoleName(api.ResourceKindAWSAccessKeyRequest, ns, awsAccessReq.Name)
+	roleName := getSecretAccessRoleName(api.ResourceKindAWSAccessKeyRequest, ns, req.Name)
 
 	err := awsCM.CreateRole(roleName, ns, secretName)
 	if err != nil {
-		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-			Type:               kmapi.ConditionFailure,
-			Reason:             "FailedToCreateRole",
-			Message:            err.Error(),
-			LastTransitionTime: metav1.Now(),
-		})
-
-		err2 := c.updateAWSAccessKeyRequestStatus(&status, awsAccessReq)
-		if err2 != nil {
-			return errors.Wrapf(err2, "failed to update status")
-		}
-		return errors.WithStack(err)
+		_, err2 := patchutil.UpdateAWSAccessKeyRequestStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			req.ObjectMeta,
+			func(status *api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus {
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:               kmapi.ConditionFailure,
+					Reason:             "FailedToCreateRole",
+					Message:            err.Error(),
+					LastTransitionTime: metav1.Now(),
+				})
+				return status
+			},
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, err})
 	}
 
-	err = awsCM.CreateRoleBinding(roleName, ns, roleName, awsAccessReq.Spec.Subjects)
+	err = awsCM.CreateRoleBinding(roleName, ns, roleName, req.Spec.Subjects)
 	if err != nil {
-		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-			Type:               kmapi.ConditionFailure,
-			Reason:             "FailedToCreateRoleBinding",
-			Message:            err.Error(),
-			LastTransitionTime: metav1.Now(),
-		})
-
-		err2 := c.updateAWSAccessKeyRequestStatus(&status, awsAccessReq)
-		if err2 != nil {
-			return errors.Wrapf(err2, "failed to update status")
-		}
-		return errors.WithStack(err)
+		_, err2 := patchutil.UpdateAWSAccessKeyRequestStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			req.ObjectMeta,
+			func(status *api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus {
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:               kmapi.ConditionFailure,
+					Reason:             "FailedToCreateRoleBinding",
+					Message:            err.Error(),
+					LastTransitionTime: metav1.Now(),
+				})
+				return status
+			},
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, err})
 	}
 
-	status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
-	err = c.updateAWSAccessKeyRequestStatus(&status, awsAccessReq)
-	if err != nil {
-		return errors.Wrap(err, "failed to update status")
-	}
-	return nil
-}
-
-func (c *VaultController) updateAWSAccessKeyRequestStatus(status *api.AWSAccessKeyRequestStatus, awsAKReq *api.AWSAccessKeyRequest) error {
-	_, err := patchutil.UpdateAWSAccessKeyRequestStatus(c.extClient.EngineV1alpha1(), awsAKReq.ObjectMeta, func(s *api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus {
-		return status
-	})
+	_, err = patchutil.UpdateAWSAccessKeyRequestStatus(
+		context.TODO(),
+		c.extClient.EngineV1alpha1(),
+		req.ObjectMeta,
+		func(status *api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus {
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
+			return status
+		},
+		metav1.UpdateOptions{},
+	)
 	return err
 }
 
-func (c *VaultController) runAWSAccessKeyRequestFinalizer(awsAKReq *api.AWSAccessKeyRequest, timeout time.Duration, interval time.Duration) {
-	if awsAKReq == nil {
+func (c *VaultController) runAWSAccessKeyRequestFinalizer(req *api.AWSAccessKeyRequest, timeout time.Duration, interval time.Duration) {
+	if req == nil {
 		glog.Infoln("AWSAccessKeyRequest is nil")
 		return
 	}
 
-	id := getAWSAccessKeyRequestId(awsAKReq)
+	id := getAWSAccessKeyRequestId(req)
 	if c.finalizerInfo.IsAlreadyProcessing(id) {
 		// already processing
 		return
 	}
 
-	glog.Infof("Processing finalizer for AWSAccessKeyRequest %s/%s", awsAKReq.Namespace, awsAKReq.Name)
+	glog.Infof("Processing finalizer for AWSAccessKeyRequest %s/%s", req.Namespace, req.Name)
 	// Add key to finalizerInfo, it will prevent other go routine to processing for this AWSAccessKeyRequest
 	c.finalizerInfo.Add(id)
 
@@ -270,7 +297,7 @@ func (c *VaultController) runAWSAccessKeyRequestFinalizer(awsAKReq *api.AWSAcces
 	attempt := 0
 
 	for {
-		glog.Infof("AWSAccessKeyRequest %s/%s finalizer: attempt %d\n", awsAKReq.Namespace, awsAKReq.Name, attempt)
+		glog.Infof("AWSAccessKeyRequest %s/%s finalizer: attempt %d\n", req.Namespace, req.Name, attempt)
 
 		select {
 		case <-stopCh:
@@ -283,13 +310,13 @@ func (c *VaultController) runAWSAccessKeyRequestFinalizer(awsAKReq *api.AWSAcces
 		}
 
 		if !finalizationDone {
-			awsCM, err := credential.NewCredentialManagerForAWS(c.kubeClient, c.appCatalogClient, c.extClient, awsAKReq)
+			awsCM, err := credential.NewCredentialManagerForAWS(c.kubeClient, c.appCatalogClient, c.extClient, req)
 			if err != nil {
-				glog.Errorf("AWSAccessKeyRequest %s/%s finalizer: %v", awsAKReq.Namespace, awsAKReq.Name, err)
+				glog.Errorf("AWSAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 			} else {
-				err = c.finalizeAWSAccessKeyRequest(awsCM, awsAKReq.Status.Lease)
+				err = c.finalizeAWSAccessKeyRequest(awsCM, req.Status.Lease)
 				if err != nil {
-					glog.Errorf("AWSAccessKeyRequest %s/%s finalizer: %v", awsAKReq.Namespace, awsAKReq.Name, err)
+					glog.Errorf("AWSAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 				} else {
 					finalizationDone = true
 				}
@@ -297,9 +324,9 @@ func (c *VaultController) runAWSAccessKeyRequestFinalizer(awsAKReq *api.AWSAcces
 		}
 
 		if finalizationDone {
-			err := c.removeAWSAccessKeyRequestFinalizer(awsAKReq)
+			err := c.removeAWSAccessKeyRequestFinalizer(req)
 			if err != nil {
-				glog.Errorf("AWSAccessKeyRequest %s/%s finalizer: %v", awsAKReq.Namespace, awsAKReq.Name, err)
+				glog.Errorf("AWSAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 			} else {
 				break
 			}
@@ -313,11 +340,11 @@ func (c *VaultController) runAWSAccessKeyRequestFinalizer(awsAKReq *api.AWSAcces
 		attempt++
 	}
 
-	err := c.removeAWSAccessKeyRequestFinalizer(awsAKReq)
+	err := c.removeAWSAccessKeyRequestFinalizer(req)
 	if err != nil {
-		glog.Errorf("AWSAccessKeyRequest %s/%s finalizer: %v", awsAKReq.Namespace, awsAKReq.Name, err)
+		glog.Errorf("AWSAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 	} else {
-		glog.Infof("Removed finalizer for AWSAccessKeyRequest %s/%s", awsAKReq.Namespace, awsAKReq.Name)
+		glog.Infof("Removed finalizer for AWSAccessKeyRequest %s/%s", req.Namespace, req.Name)
 	}
 
 	// Delete key from finalizer info as processing is done
@@ -335,17 +362,17 @@ func (c *VaultController) finalizeAWSAccessKeyRequest(awsCM credential.Credentia
 }
 
 func (c *VaultController) removeAWSAccessKeyRequestFinalizer(awsAKReq *api.AWSAccessKeyRequest) error {
-	accessReq, err := c.extClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKReq.Namespace).Get(awsAKReq.Name, metav1.GetOptions{})
+	accessReq, err := c.extClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKReq.Namespace).Get(context.TODO(), awsAKReq.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
 		return err
 	}
 
-	_, _, err = patchutil.PatchAWSAccessKeyRequest(c.extClient.EngineV1alpha1(), accessReq, func(in *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest {
+	_, _, err = patchutil.PatchAWSAccessKeyRequest(context.TODO(), c.extClient.EngineV1alpha1(), accessReq, func(in *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest {
 		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, AWSAccessKeyRequestFinalizer)
 		return in
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 

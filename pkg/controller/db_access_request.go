@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -31,6 +32,7 @@ import (
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
@@ -85,10 +87,10 @@ func (c *VaultController) runDatabaseAccessRequestInjector(key string) error {
 		} else {
 			if !core_util.HasFinalizer(dbAccessReq.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
-				_, _, err = patchutil.PatchDatabaseAccessRequest(c.extClient.EngineV1alpha1(), dbAccessReq, func(binding *api.DatabaseAccessRequest) *api.DatabaseAccessRequest {
+				_, _, err = patchutil.PatchDatabaseAccessRequest(context.TODO(), c.extClient.EngineV1alpha1(), dbAccessReq, func(binding *api.DatabaseAccessRequest) *api.DatabaseAccessRequest {
 					binding.ObjectMeta = core_util.AddFinalizer(binding.ObjectMeta, apis.Finalizer)
 					return binding
-				})
+				}, metav1.PatchOptions{})
 				if err != nil {
 					return errors.Wrapf(err, "failed to set DatabaseAccessRequest finalizer for %s/%s", dbAccessReq.Namespace, dbAccessReq.Name)
 				}
@@ -127,36 +129,39 @@ func (c *VaultController) runDatabaseAccessRequestInjector(key string) error {
 //	  - create secret containing credential
 //	  - create rbac role and role binding
 //    - sync role binding
-func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.CredentialManager, dbAccessReq *api.DatabaseAccessRequest) error {
+func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.CredentialManager, req *api.DatabaseAccessRequest) error {
 	var (
-		name   = dbAccessReq.Name
-		ns     = dbAccessReq.Namespace
-		status = dbAccessReq.Status
+		name = req.Name
+		ns   = req.Namespace
 	)
 
 	var secretName string
-	if dbAccessReq.Status.Secret != nil {
-		secretName = dbAccessReq.Status.Secret.Name
+	if req.Status.Secret != nil {
+		secretName = req.Status.Secret.Name
 	}
 
 	// check whether lease id exists in .status.lease or not
 	// if does not exist in .status.lease, then get credential
-	if dbAccessReq.Status.Lease == nil {
+	if req.Status.Lease == nil {
 		// get database credential secret
 		credSecret, err := dbCM.GetCredential()
 		if err != nil {
-			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-				Type:               kmapi.ConditionFailure,
-				Reason:             "FailedToGetCredential",
-				Message:            err.Error(),
-				LastTransitionTime: metav1.Now(),
-			})
-
-			err2 := c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
-			if err2 != nil {
-				return errors.Wrapf(err2, "failed to update status")
-			}
-			return errors.WithStack(err)
+			_, err2 := patchutil.UpdateDatabaseAccessRequestStatus(
+				context.TODO(),
+				c.extClient.EngineV1alpha1(),
+				req.ObjectMeta,
+				func(status *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
+					status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+						Type:               kmapi.ConditionFailure,
+						Reason:             "FailedToGetCredential",
+						Message:            err.Error(),
+						LastTransitionTime: metav1.Now(),
+					})
+					return status
+				},
+				metav1.UpdateOptions{},
+			)
+			return utilerrors.NewAggregate([]error{err2, err})
 		}
 
 		secretName = rand.WithUniqSuffix(name)
@@ -167,97 +172,120 @@ func (c *VaultController) reconcileDatabaseAccessRequest(dbCM credential.Credent
 				return errors.Wrapf(err2, "failed to revoke lease")
 			}
 
-			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-				Type:               kmapi.ConditionFailure,
-				Reason:             "FailedToCreateSecret",
-				Message:            err.Error(),
-				LastTransitionTime: metav1.Now(),
-			})
-
-			err2 = c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
-			if err2 != nil {
-				return errors.Wrapf(err2, "failed to update status")
-			}
-			return errors.WithStack(err)
+			_, err2 = patchutil.UpdateDatabaseAccessRequestStatus(
+				context.TODO(),
+				c.extClient.EngineV1alpha1(),
+				req.ObjectMeta,
+				func(status *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
+					status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+						Type:               kmapi.ConditionFailure,
+						Reason:             "FailedToCreateSecret",
+						Message:            err.Error(),
+						LastTransitionTime: metav1.Now(),
+					})
+					return status
+				},
+				metav1.UpdateOptions{},
+			)
+			return utilerrors.NewAggregate([]error{err2, err})
 		}
 
-		// add lease info in status
-		status.Lease = &api.Lease{
-			ID: credSecret.LeaseID,
-			Duration: metav1.Duration{
-				Duration: time.Second * time.Duration(credSecret.LeaseDuration),
+		_, err = patchutil.UpdateDatabaseAccessRequestStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			req.ObjectMeta,
+			func(status *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
+				// add lease info in status
+				status.Lease = &api.Lease{
+					ID: credSecret.LeaseID,
+					Duration: metav1.Duration{
+						Duration: time.Second * time.Duration(credSecret.LeaseDuration),
+					},
+					Renewable: credSecret.Renewable,
+				}
+
+				// assign secret name
+				status.Secret = &core.LocalObjectReference{
+					Name: secretName,
+				}
+
+				return status
 			},
-			Renewable: credSecret.Renewable,
-		}
-
-		// assign secret name
-		status.Secret = &core.LocalObjectReference{
-			Name: secretName,
+			metav1.UpdateOptions{},
+		)
+		if err != nil {
+			return err
 		}
 	}
 
-	roleName := getSecretAccessRoleName(api.ResourceKindDatabaseAccessRequest, ns, dbAccessReq.Name)
+	roleName := getSecretAccessRoleName(api.ResourceKindDatabaseAccessRequest, ns, req.Name)
 
 	err := dbCM.CreateRole(roleName, ns, secretName)
 	if err != nil {
-		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-			Type:               kmapi.ConditionFailure,
-			Reason:             "FailedToCreateRole",
-			Message:            err.Error(),
-			LastTransitionTime: metav1.Now(),
-		})
-
-		err2 := c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
-		if err2 != nil {
-			return errors.Wrapf(err2, "failed to update status")
-		}
-		return errors.WithStack(err)
+		_, err2 := patchutil.UpdateDatabaseAccessRequestStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			req.ObjectMeta,
+			func(status *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:               kmapi.ConditionFailure,
+					Reason:             "FailedToCreateRole",
+					Message:            err.Error(),
+					LastTransitionTime: metav1.Now(),
+				})
+				return status
+			},
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, err})
 	}
 
-	err = dbCM.CreateRoleBinding(roleName, ns, roleName, dbAccessReq.Spec.Subjects)
+	err = dbCM.CreateRoleBinding(roleName, ns, roleName, req.Spec.Subjects)
 	if err != nil {
-		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-			Type:               kmapi.ConditionFailure,
-			Reason:             "FailedToCreateRoleBinding",
-			Message:            err.Error(),
-			LastTransitionTime: metav1.Now(),
-		})
-
-		err2 := c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
-		if err2 != nil {
-			return errors.Wrapf(err2, "failed to update status")
-		}
-		return errors.WithStack(err)
+		_, err2 := patchutil.UpdateDatabaseAccessRequestStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			req.ObjectMeta,
+			func(status *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:               kmapi.ConditionFailure,
+					Reason:             "FailedToCreateRoleBinding",
+					Message:            err.Error(),
+					LastTransitionTime: metav1.Now(),
+				})
+				return status
+			},
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, err})
 	}
 
-	status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
-	err = c.updateDatabaseAccessRequestStatus(&status, dbAccessReq)
-	if err != nil {
-		return errors.Wrap(err, "failed to update status")
-	}
-	return nil
-}
-
-func (c *VaultController) updateDatabaseAccessRequestStatus(status *api.DatabaseAccessRequestStatus, dbAReq *api.DatabaseAccessRequest) error {
-	_, err := patchutil.UpdateDatabaseAccessRequestStatus(c.extClient.EngineV1alpha1(), dbAReq.ObjectMeta, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
-		return status
-	})
+	_, err = patchutil.UpdateDatabaseAccessRequestStatus(
+		context.TODO(),
+		c.extClient.EngineV1alpha1(),
+		req.ObjectMeta,
+		func(status *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
+			return status
+		},
+		metav1.UpdateOptions{},
+	)
 	return err
 }
 
-func (c *VaultController) runDatabaseAccessRequestFinalizer(dbAReq *api.DatabaseAccessRequest, timeout time.Duration, interval time.Duration) {
-	if dbAReq == nil {
+func (c *VaultController) runDatabaseAccessRequestFinalizer(req *api.DatabaseAccessRequest, timeout time.Duration, interval time.Duration) {
+	if req == nil {
 		glog.Infoln("DatabaseAccessRequest is nil")
 		return
 	}
 
-	id := getDatabaseAccessRequestId(dbAReq)
+	id := getDatabaseAccessRequestId(req)
 	if c.finalizerInfo.IsAlreadyProcessing(id) {
 		// already processing
 		return
 	}
 
-	glog.Infof("Processing finalizer for DatabaseAccessRequest %s/%s", dbAReq.Namespace, dbAReq.Name)
+	glog.Infof("Processing finalizer for DatabaseAccessRequest %s/%s", req.Namespace, req.Name)
 	// Add key to finalizerInfo, it will prevent other go routine to processing for this DatabaseAccessRequest
 	c.finalizerInfo.Add(id)
 
@@ -267,7 +295,7 @@ func (c *VaultController) runDatabaseAccessRequestFinalizer(dbAReq *api.Database
 	attempt := 0
 
 	for {
-		glog.Infof("DatabaseAccessRequest %s/%s finalizer: attempt %d\n", dbAReq.Namespace, dbAReq.Name, attempt)
+		glog.Infof("DatabaseAccessRequest %s/%s finalizer: attempt %d\n", req.Namespace, req.Name, attempt)
 
 		select {
 		case <-stopCh:
@@ -280,13 +308,13 @@ func (c *VaultController) runDatabaseAccessRequestFinalizer(dbAReq *api.Database
 		}
 
 		if !finalizationDone {
-			d, err := credential.NewCredentialManagerForDatabase(c.kubeClient, c.appCatalogClient, c.extClient, dbAReq)
+			d, err := credential.NewCredentialManagerForDatabase(c.kubeClient, c.appCatalogClient, c.extClient, req)
 			if err != nil {
-				glog.Errorf("DatabaseAccessRequest %s/%s finalizer: %v", dbAReq.Namespace, dbAReq.Name, err)
+				glog.Errorf("DatabaseAccessRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 			} else {
-				err = c.finalizeDatabaseAccessRequest(d, dbAReq.Status.Lease)
+				err = c.finalizeDatabaseAccessRequest(d, req.Status.Lease)
 				if err != nil {
-					glog.Errorf("DatabaseAccessRequest %s/%s finalizer: %v", dbAReq.Namespace, dbAReq.Name, err)
+					glog.Errorf("DatabaseAccessRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 				} else {
 					finalizationDone = true
 				}
@@ -294,9 +322,9 @@ func (c *VaultController) runDatabaseAccessRequestFinalizer(dbAReq *api.Database
 		}
 
 		if finalizationDone {
-			err := c.removeDatabaseAccessRequestFinalizer(dbAReq)
+			err := c.removeDatabaseAccessRequestFinalizer(req)
 			if err != nil {
-				glog.Errorf("DatabaseAccessRequest %s/%s finalizer: %v", dbAReq.Namespace, dbAReq.Name, err)
+				glog.Errorf("DatabaseAccessRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 			} else {
 				break
 			}
@@ -310,11 +338,11 @@ func (c *VaultController) runDatabaseAccessRequestFinalizer(dbAReq *api.Database
 		attempt++
 	}
 
-	err := c.removeDatabaseAccessRequestFinalizer(dbAReq)
+	err := c.removeDatabaseAccessRequestFinalizer(req)
 	if err != nil {
-		glog.Errorf("DatabaseAccessRequest %s/%s finalizer: %v", dbAReq.Namespace, dbAReq.Name, err)
+		glog.Errorf("DatabaseAccessRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 	} else {
-		glog.Infof("Removed finalizer for DatabaseAccessRequest %s/%s", dbAReq.Namespace, dbAReq.Name)
+		glog.Infof("Removed finalizer for DatabaseAccessRequest %s/%s", req.Namespace, req.Name)
 	}
 
 	// Delete key from finalizer info as processing is done
@@ -332,17 +360,17 @@ func (c *VaultController) finalizeDatabaseAccessRequest(dbCM credential.Credenti
 }
 
 func (c *VaultController) removeDatabaseAccessRequestFinalizer(dbAReq *api.DatabaseAccessRequest) error {
-	d, err := c.extClient.EngineV1alpha1().DatabaseAccessRequests(dbAReq.Namespace).Get(dbAReq.Name, metav1.GetOptions{})
+	d, err := c.extClient.EngineV1alpha1().DatabaseAccessRequests(dbAReq.Namespace).Get(context.TODO(), dbAReq.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
 		return err
 	}
 
-	_, _, err = patchutil.PatchDatabaseAccessRequest(c.extClient.EngineV1alpha1(), d, func(in *api.DatabaseAccessRequest) *api.DatabaseAccessRequest {
+	_, _, err = patchutil.PatchDatabaseAccessRequest(context.TODO(), c.extClient.EngineV1alpha1(), d, func(in *api.DatabaseAccessRequest) *api.DatabaseAccessRequest {
 		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, apis.Finalizer)
 		return in
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 

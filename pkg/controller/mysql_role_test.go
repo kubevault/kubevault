@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -49,21 +50,21 @@ func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 
 	testData := []struct {
 		testName           string
-		mRole              api.MySQLRole
+		myRole             api.MySQLRole
 		dbRClient          database.DatabaseRoleInterface
 		hasStatusCondition bool
 		expectedErr        bool
 	}{
 		{
 			testName:           "initial stage, no error",
-			mRole:              mRole,
+			myRole:             mRole,
 			dbRClient:          &fakeDRole{},
 			expectedErr:        false,
 			hasStatusCondition: false,
 		},
 		{
 			testName: "initial stage, failed to create database role",
-			mRole:    mRole,
+			myRole:   mRole,
 			dbRClient: &fakeDRole{
 				errorOccurredInCreateRole: true,
 			},
@@ -72,7 +73,7 @@ func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 		},
 		{
 			testName: "update role, successfully updated database role",
-			mRole: func(p api.MySQLRole) api.MySQLRole {
+			myRole: func(p api.MySQLRole) api.MySQLRole {
 				p.Generation = 2
 				p.Status.ObservedGeneration = 1
 				return p
@@ -83,7 +84,7 @@ func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 		},
 		{
 			testName: "update role, failed to update database role",
-			mRole: func(p api.MySQLRole) api.MySQLRole {
+			myRole: func(p api.MySQLRole) api.MySQLRole {
 				p.Generation = 2
 				p.Status.ObservedGeneration = 1
 				return p
@@ -104,16 +105,16 @@ func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 			}
 			c.extInformerFactory = dbinformers.NewSharedInformerFactory(c.extClient, time.Minute*10)
 
-			_, err := c.extClient.EngineV1alpha1().MySQLRoles(test.mRole.Namespace).Create(&test.mRole)
+			_, err := c.extClient.EngineV1alpha1().MySQLRoles(test.myRole.Namespace).Create(context.TODO(), &test.myRole, metav1.CreateOptions{})
 			if !assert.Nil(t, err) {
 				return
 			}
 
-			err = c.reconcileMySQLRole(test.dbRClient, &test.mRole)
+			err = c.reconcileMySQLRole(test.dbRClient, &test.myRole)
 			if test.expectedErr {
 				if assert.NotNil(t, err) {
 					if test.hasStatusCondition {
-						p, err2 := c.extClient.EngineV1alpha1().MySQLRoles(test.mRole.Namespace).Get(test.mRole.Name, metav1.GetOptions{})
+						p, err2 := c.extClient.EngineV1alpha1().MySQLRoles(test.myRole.Namespace).Get(context.TODO(), test.myRole.Name, metav1.GetOptions{})
 						if assert.Nil(t, err2) {
 							assert.Condition(t, func() (success bool) {
 								return len(p.Status.Conditions) != 0
@@ -123,7 +124,7 @@ func TestUserManagerController_reconcileMySQLRole(t *testing.T) {
 				}
 			} else {
 				if assert.Nil(t, err) {
-					p, err2 := c.extClient.EngineV1alpha1().MySQLRoles(test.mRole.Namespace).Get(test.mRole.Name, metav1.GetOptions{})
+					p, err2 := c.extClient.EngineV1alpha1().MySQLRoles(test.myRole.Namespace).Get(context.TODO(), test.myRole.Name, metav1.GetOptions{})
 					if assert.Nil(t, err2) {
 						assert.Condition(t, func() (success bool) {
 							return len(p.Status.Conditions) == 0

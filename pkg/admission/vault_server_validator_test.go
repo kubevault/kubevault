@@ -17,6 +17,7 @@ limitations under the License.
 package admission
 
 import (
+	"context"
 	"testing"
 
 	catalog "kubevault.dev/operator/apis/catalog/v1alpha1"
@@ -433,7 +434,7 @@ func TestValidateVaultServer(t *testing.T) {
 		t.Run(c.testName, func(t *testing.T) {
 			kc := kfake.NewSimpleClientset()
 			for _, sr := range c.extraSecret {
-				_, err := kc.CoreV1().Secrets(sr.Namespace).Create(&sr)
+				_, err := kc.CoreV1().Secrets(sr.Namespace).Create(context.TODO(), &sr, metav1.CreateOptions{})
 				assert.Nil(t, err, "create secret error should be nil")
 			}
 
