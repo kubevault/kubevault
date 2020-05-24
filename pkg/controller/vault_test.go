@@ -163,7 +163,8 @@ storage "test"{
 		},
 	}
 
-	for _, test := range testData {
+	for idx := range testData {
+		test := testData[idx]
 		t.Run(test.name, func(t *testing.T) {
 			v := vaultSrv{
 				kubeClient: kfake.NewSimpleClientset(),
@@ -247,7 +248,8 @@ func TestGetServerTLS(t *testing.T) {
 		},
 	}
 
-	for _, test := range testData {
+	for idx := range testData {
+		test := testData[idx]
 		t.Run(test.name, func(t *testing.T) {
 			v := vaultSrv{
 				kubeClient: kfake.NewSimpleClientset(),
@@ -312,7 +314,8 @@ func TestApply(t *testing.T) {
 		},
 	}
 
-	for _, test := range testData {
+	for idx := range testData {
+		test := testData[idx]
 		t.Run(test.name, func(t *testing.T) {
 			v := vaultSrv{
 				kubeClient: kfake.NewSimpleClientset(),

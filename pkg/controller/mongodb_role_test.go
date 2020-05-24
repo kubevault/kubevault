@@ -30,6 +30,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
@@ -95,7 +96,8 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 		},
 	}
 
-	for _, test := range testData {
+	for idx := range testData {
+		test := testData[idx]
 		t.Run(test.testName, func(t *testing.T) {
 			c := &VaultController{
 				kubeClient: kfake.NewSimpleClientset(),
@@ -115,7 +117,9 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 						p, err2 := c.extClient.EngineV1alpha1().MongoDBRoles(test.mgRole.Namespace).Get(context.TODO(), test.mgRole.Name, metav1.GetOptions{})
 						if assert.Nil(t, err2) {
 							assert.Condition(t, func() (success bool) {
-								return len(p.Status.Conditions) != 0
+								return len(p.Status.Conditions) > 0 &&
+									kmapi.IsConditionTrue(p.Status.Conditions, kmapi.ConditionFailure) &&
+									!kmapi.HasCondition(p.Status.Conditions, kmapi.ConditionAvailable)
 							}, "should have status.conditions")
 						}
 					}
@@ -125,7 +129,10 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 					p, err2 := c.extClient.EngineV1alpha1().MongoDBRoles(test.mgRole.Namespace).Get(context.TODO(), test.mgRole.Name, metav1.GetOptions{})
 					if assert.Nil(t, err2) {
 						assert.Condition(t, func() (success bool) {
-							return len(p.Status.Conditions) == 0
+							return p.Status.Phase == MongoDBRolePhaseSuccess &&
+								len(p.Status.Conditions) > 0 &&
+								!kmapi.HasCondition(p.Status.Conditions, kmapi.ConditionFailure) &&
+								kmapi.IsConditionTrue(p.Status.Conditions, kmapi.ConditionAvailable)
 						}, "should not have status.conditions")
 					}
 				}

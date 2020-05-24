@@ -108,8 +108,8 @@ func (c *VaultController) reconcilePostgresRole(dbRClient database.DatabaseRoleI
 			role.ObjectMeta,
 			func(status *api.PostgresRoleStatus) *api.PostgresRoleStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionAvailable,
-					Status:  kmapi.ConditionFalse,
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
 					Reason:  "FailedToCreateDatabaseRole",
 					Message: err.Error(),
 				})

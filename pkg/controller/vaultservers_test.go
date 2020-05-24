@@ -168,7 +168,8 @@ func TestReconcileVault(t *testing.T) {
 		},
 	}
 
-	for _, test := range testData {
+	for idx := range testData {
+		test := testData[idx]
 		t.Run(test.name, func(t *testing.T) {
 			vaultCtrl := VaultController{
 				kubeClient:       kfake.NewSimpleClientset(),
@@ -250,7 +251,8 @@ func TestDeployVault(t *testing.T) {
 		},
 	}
 
-	for _, test := range testData {
+	for idx := range testData {
+		test := testData[idx]
 		t.Run(test.name, func(t *testing.T) {
 			vaultCtrl := VaultController{
 				kubeClient: kfake.NewSimpleClientset(),
@@ -352,7 +354,8 @@ func TestCreateRoleAndRoleBinding(t *testing.T) {
 		},
 	}
 
-	for _, test := range testData {
+	for idx := range testData {
+		test := testData[idx]
 		t.Run(test.testName, func(t *testing.T) {
 			for _, r := range test.preCreatedRole {
 				_, err := vaultCtrl.kubeClient.RbacV1().Roles(vs.Namespace).Create(context.TODO(), &r, metav1.CreateOptions{})

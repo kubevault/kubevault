@@ -108,8 +108,8 @@ func (c *VaultController) reconcileMySQLRole(dbRClient database.DatabaseRoleInte
 			role.ObjectMeta,
 			func(status *api.MySQLRoleStatus) *api.MySQLRoleStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionAvailable,
-					Status:  kmapi.ConditionFalse,
+					Type:    kmapi.ConditionFailure,
+					Status:  kmapi.ConditionTrue,
 					Reason:  "FailedToCreateRole",
 					Message: err.Error(),
 				})

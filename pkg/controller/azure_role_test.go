@@ -29,6 +29,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 )
 
@@ -111,7 +112,8 @@ func TestAzureRole_reconcileAzureRole(t *testing.T) {
 		},
 	}
 
-	for _, test := range testData {
+	for idx := range testData {
+		test := testData[idx]
 		t.Run(test.testName, func(t *testing.T) {
 
 			c := &VaultController{
@@ -131,11 +133,9 @@ func TestAzureRole_reconcileAzureRole(t *testing.T) {
 
 						if assert.Nil(t, err2) {
 							assert.Condition(t, func() (success bool) {
-								if len(p.Status.Conditions) != 0 {
-									return true
-								} else {
-									return false
-								}
+								return len(p.Status.Conditions) > 0 &&
+									kmapi.IsConditionTrue(p.Status.Conditions, kmapi.ConditionFailure) &&
+									!kmapi.HasCondition(p.Status.Conditions, kmapi.ConditionAvailable)
 							}, "Should have status.conditions")
 						}
 					}
@@ -147,11 +147,10 @@ func TestAzureRole_reconcileAzureRole(t *testing.T) {
 
 					if assert.Nil(t, err2) {
 						assert.Condition(t, func() (success bool) {
-							if len(p.Status.Conditions) == 0 {
-								return true
-							} else {
-								return false
-							}
+							return p.Status.Phase == AzureRolePhaseSuccess &&
+								len(p.Status.Conditions) > 0 &&
+								!kmapi.HasCondition(p.Status.Conditions, kmapi.ConditionFailure) &&
+								kmapi.IsConditionTrue(p.Status.Conditions, kmapi.ConditionAvailable)
 						}, "Should not have status.conditions")
 					}
 
