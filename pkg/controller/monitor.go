@@ -80,7 +80,7 @@ func (c *VaultController) newMonitorController(vs *api.VaultServer) (mona.Agent,
 	}
 
 	if monitorSpec.Prometheus != nil {
-		return agents.New(monitorSpec.Agent, c.kubeClient, c.crdClient, c.promClient), nil
+		return agents.New(monitorSpec.Agent, c.kubeClient, c.promClient), nil
 	}
 
 	return nil, errors.Errorf("monitoring controller not found for %v", monitorSpec)
@@ -103,7 +103,7 @@ func (c *VaultController) getOldAgent(vs *api.VaultServer) mona.Agent {
 		return nil
 	}
 	oldAgentType, _ := meta_util.GetStringValue(service.Annotations, mona.KeyAgent)
-	return agents.New(mona.AgentType(oldAgentType), c.kubeClient, c.crdClient, c.promClient)
+	return agents.New(mona.AgentType(oldAgentType), c.kubeClient, c.promClient)
 }
 
 func (c *VaultController) setNewAgent(vs *api.VaultServer) error {
