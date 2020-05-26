@@ -19,6 +19,8 @@ limitations under the License.
 package fake
 
 import (
+	"context"
+
 	v1alpha1 "kubevault.dev/operator/apis/policy/v1alpha1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -40,7 +42,7 @@ var vaultpoliciesResource = schema.GroupVersionResource{Group: "policy.kubevault
 var vaultpoliciesKind = schema.GroupVersionKind{Group: "policy.kubevault.com", Version: "v1alpha1", Kind: "VaultPolicy"}
 
 // Get takes name of the vaultPolicy, and returns the corresponding vaultPolicy object, and an error if there is any.
-func (c *FakeVaultPolicies) Get(name string, options v1.GetOptions) (result *v1alpha1.VaultPolicy, err error) {
+func (c *FakeVaultPolicies) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.VaultPolicy, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(vaultpoliciesResource, c.ns, name), &v1alpha1.VaultPolicy{})
 
@@ -51,7 +53,7 @@ func (c *FakeVaultPolicies) Get(name string, options v1.GetOptions) (result *v1a
 }
 
 // List takes label and field selectors, and returns the list of VaultPolicies that match those selectors.
-func (c *FakeVaultPolicies) List(opts v1.ListOptions) (result *v1alpha1.VaultPolicyList, err error) {
+func (c *FakeVaultPolicies) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.VaultPolicyList, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewListAction(vaultpoliciesResource, vaultpoliciesKind, c.ns, opts), &v1alpha1.VaultPolicyList{})
 
@@ -73,14 +75,14 @@ func (c *FakeVaultPolicies) List(opts v1.ListOptions) (result *v1alpha1.VaultPol
 }
 
 // Watch returns a watch.Interface that watches the requested vaultPolicies.
-func (c *FakeVaultPolicies) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeVaultPolicies) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(vaultpoliciesResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a vaultPolicy and creates it.  Returns the server's representation of the vaultPolicy, and an error, if there is any.
-func (c *FakeVaultPolicies) Create(vaultPolicy *v1alpha1.VaultPolicy) (result *v1alpha1.VaultPolicy, err error) {
+func (c *FakeVaultPolicies) Create(ctx context.Context, vaultPolicy *v1alpha1.VaultPolicy, opts v1.CreateOptions) (result *v1alpha1.VaultPolicy, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(vaultpoliciesResource, c.ns, vaultPolicy), &v1alpha1.VaultPolicy{})
 
@@ -91,7 +93,7 @@ func (c *FakeVaultPolicies) Create(vaultPolicy *v1alpha1.VaultPolicy) (result *v
 }
 
 // Update takes the representation of a vaultPolicy and updates it. Returns the server's representation of the vaultPolicy, and an error, if there is any.
-func (c *FakeVaultPolicies) Update(vaultPolicy *v1alpha1.VaultPolicy) (result *v1alpha1.VaultPolicy, err error) {
+func (c *FakeVaultPolicies) Update(ctx context.Context, vaultPolicy *v1alpha1.VaultPolicy, opts v1.UpdateOptions) (result *v1alpha1.VaultPolicy, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateAction(vaultpoliciesResource, c.ns, vaultPolicy), &v1alpha1.VaultPolicy{})
 
@@ -103,7 +105,7 @@ func (c *FakeVaultPolicies) Update(vaultPolicy *v1alpha1.VaultPolicy) (result *v
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeVaultPolicies) UpdateStatus(vaultPolicy *v1alpha1.VaultPolicy) (*v1alpha1.VaultPolicy, error) {
+func (c *FakeVaultPolicies) UpdateStatus(ctx context.Context, vaultPolicy *v1alpha1.VaultPolicy, opts v1.UpdateOptions) (*v1alpha1.VaultPolicy, error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateSubresourceAction(vaultpoliciesResource, "status", c.ns, vaultPolicy), &v1alpha1.VaultPolicy{})
 
@@ -114,7 +116,7 @@ func (c *FakeVaultPolicies) UpdateStatus(vaultPolicy *v1alpha1.VaultPolicy) (*v1
 }
 
 // Delete takes name of the vaultPolicy and deletes it. Returns an error if one occurs.
-func (c *FakeVaultPolicies) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeVaultPolicies) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
 		Invokes(testing.NewDeleteAction(vaultpoliciesResource, c.ns, name), &v1alpha1.VaultPolicy{})
 
@@ -122,15 +124,15 @@ func (c *FakeVaultPolicies) Delete(name string, options *v1.DeleteOptions) error
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeVaultPolicies) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(vaultpoliciesResource, c.ns, listOptions)
+func (c *FakeVaultPolicies) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(vaultpoliciesResource, c.ns, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1alpha1.VaultPolicyList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched vaultPolicy.
-func (c *FakeVaultPolicies) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VaultPolicy, err error) {
+func (c *FakeVaultPolicies) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.VaultPolicy, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(vaultpoliciesResource, c.ns, name, pt, data, subresources...), &v1alpha1.VaultPolicy{})
 

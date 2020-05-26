@@ -19,6 +19,8 @@ limitations under the License.
 package fake
 
 import (
+	"context"
+
 	v1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -40,7 +42,7 @@ var gcpaccesskeyrequestsResource = schema.GroupVersionResource{Group: "engine.ku
 var gcpaccesskeyrequestsKind = schema.GroupVersionKind{Group: "engine.kubevault.com", Version: "v1alpha1", Kind: "GCPAccessKeyRequest"}
 
 // Get takes name of the gCPAccessKeyRequest, and returns the corresponding gCPAccessKeyRequest object, and an error if there is any.
-func (c *FakeGCPAccessKeyRequests) Get(name string, options v1.GetOptions) (result *v1alpha1.GCPAccessKeyRequest, err error) {
+func (c *FakeGCPAccessKeyRequests) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.GCPAccessKeyRequest, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(gcpaccesskeyrequestsResource, c.ns, name), &v1alpha1.GCPAccessKeyRequest{})
 
@@ -51,7 +53,7 @@ func (c *FakeGCPAccessKeyRequests) Get(name string, options v1.GetOptions) (resu
 }
 
 // List takes label and field selectors, and returns the list of GCPAccessKeyRequests that match those selectors.
-func (c *FakeGCPAccessKeyRequests) List(opts v1.ListOptions) (result *v1alpha1.GCPAccessKeyRequestList, err error) {
+func (c *FakeGCPAccessKeyRequests) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.GCPAccessKeyRequestList, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewListAction(gcpaccesskeyrequestsResource, gcpaccesskeyrequestsKind, c.ns, opts), &v1alpha1.GCPAccessKeyRequestList{})
 
@@ -73,14 +75,14 @@ func (c *FakeGCPAccessKeyRequests) List(opts v1.ListOptions) (result *v1alpha1.G
 }
 
 // Watch returns a watch.Interface that watches the requested gCPAccessKeyRequests.
-func (c *FakeGCPAccessKeyRequests) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeGCPAccessKeyRequests) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(gcpaccesskeyrequestsResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a gCPAccessKeyRequest and creates it.  Returns the server's representation of the gCPAccessKeyRequest, and an error, if there is any.
-func (c *FakeGCPAccessKeyRequests) Create(gCPAccessKeyRequest *v1alpha1.GCPAccessKeyRequest) (result *v1alpha1.GCPAccessKeyRequest, err error) {
+func (c *FakeGCPAccessKeyRequests) Create(ctx context.Context, gCPAccessKeyRequest *v1alpha1.GCPAccessKeyRequest, opts v1.CreateOptions) (result *v1alpha1.GCPAccessKeyRequest, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(gcpaccesskeyrequestsResource, c.ns, gCPAccessKeyRequest), &v1alpha1.GCPAccessKeyRequest{})
 
@@ -91,7 +93,7 @@ func (c *FakeGCPAccessKeyRequests) Create(gCPAccessKeyRequest *v1alpha1.GCPAcces
 }
 
 // Update takes the representation of a gCPAccessKeyRequest and updates it. Returns the server's representation of the gCPAccessKeyRequest, and an error, if there is any.
-func (c *FakeGCPAccessKeyRequests) Update(gCPAccessKeyRequest *v1alpha1.GCPAccessKeyRequest) (result *v1alpha1.GCPAccessKeyRequest, err error) {
+func (c *FakeGCPAccessKeyRequests) Update(ctx context.Context, gCPAccessKeyRequest *v1alpha1.GCPAccessKeyRequest, opts v1.UpdateOptions) (result *v1alpha1.GCPAccessKeyRequest, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateAction(gcpaccesskeyrequestsResource, c.ns, gCPAccessKeyRequest), &v1alpha1.GCPAccessKeyRequest{})
 
@@ -103,7 +105,7 @@ func (c *FakeGCPAccessKeyRequests) Update(gCPAccessKeyRequest *v1alpha1.GCPAcces
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeGCPAccessKeyRequests) UpdateStatus(gCPAccessKeyRequest *v1alpha1.GCPAccessKeyRequest) (*v1alpha1.GCPAccessKeyRequest, error) {
+func (c *FakeGCPAccessKeyRequests) UpdateStatus(ctx context.Context, gCPAccessKeyRequest *v1alpha1.GCPAccessKeyRequest, opts v1.UpdateOptions) (*v1alpha1.GCPAccessKeyRequest, error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateSubresourceAction(gcpaccesskeyrequestsResource, "status", c.ns, gCPAccessKeyRequest), &v1alpha1.GCPAccessKeyRequest{})
 
@@ -114,7 +116,7 @@ func (c *FakeGCPAccessKeyRequests) UpdateStatus(gCPAccessKeyRequest *v1alpha1.GC
 }
 
 // Delete takes name of the gCPAccessKeyRequest and deletes it. Returns an error if one occurs.
-func (c *FakeGCPAccessKeyRequests) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeGCPAccessKeyRequests) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
 		Invokes(testing.NewDeleteAction(gcpaccesskeyrequestsResource, c.ns, name), &v1alpha1.GCPAccessKeyRequest{})
 
@@ -122,15 +124,15 @@ func (c *FakeGCPAccessKeyRequests) Delete(name string, options *v1.DeleteOptions
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeGCPAccessKeyRequests) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(gcpaccesskeyrequestsResource, c.ns, listOptions)
+func (c *FakeGCPAccessKeyRequests) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(gcpaccesskeyrequestsResource, c.ns, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1alpha1.GCPAccessKeyRequestList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched gCPAccessKeyRequest.
-func (c *FakeGCPAccessKeyRequests) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.GCPAccessKeyRequest, err error) {
+func (c *FakeGCPAccessKeyRequests) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.GCPAccessKeyRequest, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(gcpaccesskeyrequestsResource, c.ns, name, pt, data, subresources...), &v1alpha1.GCPAccessKeyRequest{})
 

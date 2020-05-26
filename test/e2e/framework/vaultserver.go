@@ -17,6 +17,7 @@ limitations under the License.
 package framework
 
 import (
+	"context"
 	"fmt"
 
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
@@ -27,6 +28,7 @@ import (
 	. "github.com/onsi/gomega"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	meta_util "kmodules.xyz/client-go/meta"
 )
 
 const (
@@ -57,11 +59,11 @@ func (f *Invocation) VaultServerWithUnsealer(replicas int32, bs api.BackendStora
 }
 
 func (f *Framework) CreateVaultServer(obj *api.VaultServer) (*api.VaultServer, error) {
-	return f.CSClient.KubevaultV1alpha1().VaultServers(obj.Namespace).Create(obj)
+	return f.CSClient.KubevaultV1alpha1().VaultServers(obj.Namespace).Create(context.TODO(), obj, metav1.CreateOptions{})
 }
 
 func (f *Framework) GetVaultServer(obj *api.VaultServer) (*api.VaultServer, error) {
-	return f.CSClient.KubevaultV1alpha1().VaultServers(obj.Namespace).Get(obj.Name, metav1.GetOptions{})
+	return f.CSClient.KubevaultV1alpha1().VaultServers(obj.Namespace).Get(context.TODO(), obj.Name, metav1.GetOptions{})
 }
 
 func (f *Framework) UpdateVaultServer(obj *api.VaultServer) (*api.VaultServer, error) {
@@ -70,16 +72,16 @@ func (f *Framework) UpdateVaultServer(obj *api.VaultServer) (*api.VaultServer, e
 		return nil, err
 	}
 
-	vs, _, err := patchutil.PatchVaultServer(f.CSClient.KubevaultV1alpha1(), in, func(vs *api.VaultServer) *api.VaultServer {
+	vs, _, err := patchutil.PatchVaultServer(context.TODO(), f.CSClient.KubevaultV1alpha1(), in, func(vs *api.VaultServer) *api.VaultServer {
 		vs.Spec = obj.Spec
 		By(fmt.Sprint(vs.Spec))
 		return vs
-	})
+	}, metav1.PatchOptions{})
 	return vs, err
 }
 
 func (f *Framework) DeleteVaultServerObj(obj *api.VaultServer) error {
-	err := f.CSClient.EngineV1alpha1().SecretEngines(obj.Namespace).Delete(obj.Name, &metav1.DeleteOptions{})
+	err := f.CSClient.EngineV1alpha1().SecretEngines(obj.Namespace).Delete(context.TODO(), obj.Name, metav1.DeleteOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	}
@@ -87,7 +89,7 @@ func (f *Framework) DeleteVaultServerObj(obj *api.VaultServer) error {
 }
 
 func (f *Framework) DeleteVaultServer(meta metav1.ObjectMeta) error {
-	err := f.CSClient.KubevaultV1alpha1().VaultServers(meta.Namespace).Delete(meta.Name, deleteInBackground())
+	err := f.CSClient.KubevaultV1alpha1().VaultServers(meta.Namespace).Delete(context.TODO(), meta.Name, meta_util.DeleteInBackground())
 	if kerr.IsNotFound(err) {
 		return nil
 	}
@@ -96,7 +98,7 @@ func (f *Framework) DeleteVaultServer(meta metav1.ObjectMeta) error {
 
 func (f *Framework) EventuallyVaultServer(meta metav1.ObjectMeta) GomegaAsyncAssertion {
 	return Eventually(func() *api.VaultServer {
-		obj, err := f.CSClient.KubevaultV1alpha1().VaultServers(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+		obj, err := f.CSClient.KubevaultV1alpha1().VaultServers(meta.Namespace).Get(context.TODO(), meta.Name, metav1.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 		return obj
 	})

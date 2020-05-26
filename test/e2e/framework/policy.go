@@ -17,12 +17,15 @@ limitations under the License.
 package framework
 
 import (
+	"context"
+
 	api "kubevault.dev/operator/apis/policy/v1alpha1"
 
 	"github.com/appscode/go/crypto/rand"
 	. "github.com/onsi/gomega"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	meta_util "kmodules.xyz/client-go/meta"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
@@ -45,24 +48,24 @@ func (f *Invocation) VaultPolicy(policy string, ref *appcat.AppReference) *api.V
 }
 
 func (f *Framework) CreateVaultPolicy(obj *api.VaultPolicy) (*api.VaultPolicy, error) {
-	return f.CSClient.PolicyV1alpha1().VaultPolicies(obj.Namespace).Create(obj)
+	return f.CSClient.PolicyV1alpha1().VaultPolicies(obj.Namespace).Create(context.TODO(), obj, metav1.CreateOptions{})
 }
 
 func (f *Framework) GetVaultPolicy(obj *api.VaultPolicy) (*api.VaultPolicy, error) {
-	return f.CSClient.PolicyV1alpha1().VaultPolicies(obj.Namespace).Get(obj.Name, metav1.GetOptions{})
+	return f.CSClient.PolicyV1alpha1().VaultPolicies(obj.Namespace).Get(context.TODO(), obj.Name, metav1.GetOptions{})
 }
 
 func (f *Framework) UpdateVaultPolicy(obj *api.VaultPolicy) (*api.VaultPolicy, error) {
-	return f.CSClient.PolicyV1alpha1().VaultPolicies(obj.Namespace).Update(obj)
+	return f.CSClient.PolicyV1alpha1().VaultPolicies(obj.Namespace).Update(context.TODO(), obj, metav1.UpdateOptions{})
 }
 
 func (f *Framework) DeleteVaultPolicy(meta metav1.ObjectMeta) error {
-	return f.CSClient.PolicyV1alpha1().VaultPolicies(meta.Namespace).Delete(meta.Name, deleteInBackground())
+	return f.CSClient.PolicyV1alpha1().VaultPolicies(meta.Namespace).Delete(context.TODO(), meta.Name, meta_util.DeleteInBackground())
 }
 
 func (f *Framework) EventuallyVaultPolicy(meta metav1.ObjectMeta) GomegaAsyncAssertion {
 	return Eventually(func() *api.VaultPolicy {
-		obj, err := f.CSClient.PolicyV1alpha1().VaultPolicies(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+		obj, err := f.CSClient.PolicyV1alpha1().VaultPolicies(meta.Namespace).Get(context.TODO(), meta.Name, metav1.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 		return obj
 	})

@@ -83,13 +83,13 @@ func (c *VaultController) updateLocalVaultCRStatus(vs *api.VaultServer, s *api.V
 	// TODO : handle upgrades when pods from two replicaset can co-exist :(
 	opt := metav1.ListOptions{LabelSelector: labels.SelectorFromSet(sel).String()}
 
-	version, err := c.extClient.CatalogV1alpha1().VaultServerVersions().Get(string(vs.Spec.Version), metav1.GetOptions{})
+	version, err := c.extClient.CatalogV1alpha1().VaultServerVersions().Get(context.TODO(), string(vs.Spec.Version), metav1.GetOptions{})
 	if err != nil {
 		glog.Errorf("vault status monitor: failed to get vault server version(%s): %v", vs.Spec.Version, err)
 		return
 	}
 
-	pods, err := c.kubeClient.CoreV1().Pods(namespace).List(opt)
+	pods, err := c.kubeClient.CoreV1().Pods(namespace).List(context.TODO(), opt)
 	if err != nil {
 		glog.Errorf("vault status monitor: failed to update vault replica status: failed listing pods for the vault server (%s.%s): %v", namespace, name, err)
 		return
@@ -165,7 +165,7 @@ func (c *VaultController) updateLocalVaultCRStatus(vs *api.VaultServer, s *api.V
 
 // updateVaultCRStatus updates the status field of the Vault CR.
 func (c *VaultController) updateVaultCRStatus(name, namespace string, status *api.VaultServerStatus) (*api.VaultServer, error) {
-	vault, err := c.extClient.KubevaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
+	vault, err := c.extClient.KubevaultV1alpha1().VaultServers(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		key := namespace + "/" + name
 		if ctxWithcancel, ok := c.ctxCancels[key]; ok {
@@ -178,18 +178,24 @@ func (c *VaultController) updateVaultCRStatus(name, namespace string, status *ap
 	}
 
 	// TODO : flag for useSubresource?
-	vault, err = cs_util.UpdateVaultServerStatus(c.extClient.KubevaultV1alpha1(), vault.ObjectMeta, func(s *api.VaultServerStatus) *api.VaultServerStatus {
-		s.VaultStatus.Active = status.VaultStatus.Active
-		s.VaultStatus.Standby = status.VaultStatus.Standby
-		s.VaultStatus.Sealed = status.VaultStatus.Sealed
-		s.VaultStatus.Unsealed = status.VaultStatus.Unsealed
-		s.Initialized = status.Initialized
-		s.UpdatedNodes = status.UpdatedNodes
-		s.Phase = status.Phase
-		s.ServiceName = status.ServiceName
-		s.ClientPort = status.ClientPort
-		return s
-	})
+	vault, err = cs_util.UpdateVaultServerStatus(
+		context.TODO(),
+		c.extClient.KubevaultV1alpha1(),
+		vault.ObjectMeta,
+		func(s *api.VaultServerStatus) *api.VaultServerStatus {
+			s.VaultStatus.Active = status.VaultStatus.Active
+			s.VaultStatus.Standby = status.VaultStatus.Standby
+			s.VaultStatus.Sealed = status.VaultStatus.Sealed
+			s.VaultStatus.Unsealed = status.VaultStatus.Unsealed
+			s.Initialized = status.Initialized
+			s.UpdatedNodes = status.UpdatedNodes
+			s.Phase = status.Phase
+			s.ServiceName = status.ServiceName
+			s.ClientPort = status.ClientPort
+			return s
+		},
+		metav1.UpdateOptions{},
+	)
 	return vault, err
 }
 

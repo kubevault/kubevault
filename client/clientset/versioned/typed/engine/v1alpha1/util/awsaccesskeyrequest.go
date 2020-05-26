@@ -17,6 +17,7 @@ limitations under the License.
 package util
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -33,29 +34,50 @@ import (
 	kutil "kmodules.xyz/client-go"
 )
 
-func CreateOrPatchAWSAccessKeyRequest(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest) (*api.AWSAccessKeyRequest, kutil.VerbType, error) {
-	cur, err := c.AWSAccessKeyRequests(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+func CreateOrPatchAWSAccessKeyRequest(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(alert *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest,
+	opts metav1.PatchOptions,
+) (*api.AWSAccessKeyRequest, kutil.VerbType, error) {
+	cur, err := c.AWSAccessKeyRequests(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		glog.V(3).Infof("Creating AWSAccessKeyRequest %s/%s.", meta.Namespace, meta.Name)
-		out, err := c.AWSAccessKeyRequests(meta.Namespace).Create(transform(&api.AWSAccessKeyRequest{
+		out, err := c.AWSAccessKeyRequests(meta.Namespace).Create(ctx, transform(&api.AWSAccessKeyRequest{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       api.ResourceKindAWSAccessKeyRequest,
 				APIVersion: api.SchemeGroupVersion.String(),
 			},
 			ObjectMeta: meta,
-		}))
+		}),
+			metav1.CreateOptions{
+				DryRun:       opts.DryRun,
+				FieldManager: opts.FieldManager,
+			})
 		return out, kutil.VerbCreated, err
 	} else if err != nil {
 		return nil, kutil.VerbUnchanged, err
 	}
-	return PatchAWSAccessKeyRequest(c, cur, transform)
+	return PatchAWSAccessKeyRequest(ctx, c, cur, transform, opts)
 }
 
-func PatchAWSAccessKeyRequest(c cs.EngineV1alpha1Interface, cur *api.AWSAccessKeyRequest, transform func(*api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest) (*api.AWSAccessKeyRequest, kutil.VerbType, error) {
-	return PatchAWSAccessKeyRequestObject(c, cur, transform(cur.DeepCopy()))
+func PatchAWSAccessKeyRequest(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur *api.AWSAccessKeyRequest,
+	transform func(*api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest,
+	opts metav1.PatchOptions,
+) (*api.AWSAccessKeyRequest, kutil.VerbType, error) {
+	return PatchAWSAccessKeyRequestObject(ctx, c, cur, transform(cur.DeepCopy()), opts)
 }
 
-func PatchAWSAccessKeyRequestObject(c cs.EngineV1alpha1Interface, cur, mod *api.AWSAccessKeyRequest) (*api.AWSAccessKeyRequest, kutil.VerbType, error) {
+func PatchAWSAccessKeyRequestObject(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur, mod *api.AWSAccessKeyRequest,
+	opts metav1.PatchOptions,
+) (*api.AWSAccessKeyRequest, kutil.VerbType, error) {
 	curJson, err := json.Marshal(cur)
 	if err != nil {
 		return nil, kutil.VerbUnchanged, err
@@ -74,19 +96,25 @@ func PatchAWSAccessKeyRequestObject(c cs.EngineV1alpha1Interface, cur, mod *api.
 		return cur, kutil.VerbUnchanged, nil
 	}
 	glog.V(3).Infof("Patching AWSAccessKeyRequest %s/%s with %s.", cur.Namespace, cur.Name, string(patch))
-	out, err := c.AWSAccessKeyRequests(cur.Namespace).Patch(cur.Name, types.MergePatchType, patch)
+	out, err := c.AWSAccessKeyRequests(cur.Namespace).Patch(ctx, cur.Name, types.MergePatchType, patch, opts)
 	return out, kutil.VerbPatched, err
 }
 
-func TryUpdateAWSAccessKeyRequest(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest) (result *api.AWSAccessKeyRequest, err error) {
+func TryUpdateAWSAccessKeyRequest(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(*api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest,
+	opts metav1.UpdateOptions,
+) (result *api.AWSAccessKeyRequest, err error) {
 	attempt := 0
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
-		cur, e2 := c.AWSAccessKeyRequests(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+		cur, e2 := c.AWSAccessKeyRequests(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 		if kerr.IsNotFound(e2) {
 			return false, e2
 		} else if e2 == nil {
-			result, e2 = c.AWSAccessKeyRequests(cur.Namespace).Update(transform(cur.DeepCopy()))
+			result, e2 = c.AWSAccessKeyRequests(cur.Namespace).Update(ctx, transform(cur.DeepCopy()), opts)
 			return e2 == nil, nil
 		}
 		glog.Errorf("Attempt %d failed to update AWSAccessKeyRequest %s/%s due to %v.", attempt, cur.Namespace, cur.Name, e2)
@@ -100,9 +128,11 @@ func TryUpdateAWSAccessKeyRequest(c cs.EngineV1alpha1Interface, meta metav1.Obje
 }
 
 func UpdateAWSAccessKeyRequestStatus(
+	ctx context.Context,
 	c cs.EngineV1alpha1Interface,
 	meta metav1.ObjectMeta,
 	transform func(*api.AWSAccessKeyRequestStatus) *api.AWSAccessKeyRequestStatus,
+	opts metav1.UpdateOptions,
 ) (result *api.AWSAccessKeyRequest, err error) {
 	apply := func(x *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest {
 		return &api.AWSAccessKeyRequest{
@@ -114,16 +144,16 @@ func UpdateAWSAccessKeyRequestStatus(
 	}
 
 	attempt := 0
-	cur, err := c.AWSAccessKeyRequests(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+	cur, err := c.AWSAccessKeyRequests(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
 		var e2 error
-		result, e2 = c.AWSAccessKeyRequests(meta.Namespace).UpdateStatus(apply(cur))
+		result, e2 = c.AWSAccessKeyRequests(meta.Namespace).UpdateStatus(ctx, apply(cur), opts)
 		if kerr.IsConflict(e2) {
-			latest, e3 := c.AWSAccessKeyRequests(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+			latest, e3 := c.AWSAccessKeyRequests(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 			switch {
 			case e3 == nil:
 				cur = latest

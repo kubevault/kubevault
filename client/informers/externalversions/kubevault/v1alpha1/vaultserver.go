@@ -19,6 +19,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"context"
 	time "time"
 
 	kubevaultv1alpha1 "kubevault.dev/operator/apis/kubevault/v1alpha1"
@@ -62,13 +63,13 @@ func NewFilteredVaultServerInformer(client versioned.Interface, namespace string
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.KubevaultV1alpha1().VaultServers(namespace).List(options)
+				return client.KubevaultV1alpha1().VaultServers(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.KubevaultV1alpha1().VaultServers(namespace).Watch(options)
+				return client.KubevaultV1alpha1().VaultServers(namespace).Watch(context.TODO(), options)
 			},
 		},
 		&kubevaultv1alpha1.VaultServer{},

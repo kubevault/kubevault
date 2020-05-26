@@ -17,22 +17,25 @@ limitations under the License.
 package framework
 
 import (
+	"context"
+
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	meta_util "kmodules.xyz/client-go/meta"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
 func (f *Framework) CreateAppBinding(a *appcat.AppBinding) error {
-	_, err := f.AppcatClient.AppBindings(a.Namespace).Create(a)
+	_, err := f.AppcatClient.AppBindings(a.Namespace).Create(context.TODO(), a, metav1.CreateOptions{})
 	return err
 }
 
 func (f *Framework) GetAppBinding(name, namespace string) (*appcat.AppBinding, error) {
-	return f.AppcatClient.AppBindings(namespace).Get(name, metav1.GetOptions{})
+	return f.AppcatClient.AppBindings(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 }
 
 func (f *Framework) DeleteAppBinding(name, namespace string) error {
-	return f.AppcatClient.AppBindings(namespace).Delete(name, deleteInForeground())
+	return f.AppcatClient.AppBindings(namespace).Delete(context.TODO(), name, meta_util.DeleteInForeground())
 }
 
 func (f *Framework) CreateLocalRef2AppRef(namespace string, reference *v1.LocalObjectReference) *appcat.AppReference {

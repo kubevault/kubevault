@@ -17,6 +17,7 @@ limitations under the License.
 package util
 
 import (
+	"context"
 	"time"
 
 	"github.com/golang/glog"
@@ -30,7 +31,7 @@ import (
 
 // https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#token-controller
 func GetJwtTokenSecretFromServiceAccount(kc kubernetes.Interface, name, namespace string) (*core.Secret, error) {
-	sa, err := kc.CoreV1().ServiceAccounts(namespace).Get(name, metav1.GetOptions{})
+	sa, err := kc.CoreV1().ServiceAccounts(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +41,7 @@ func GetJwtTokenSecretFromServiceAccount(kc kubernetes.Interface, name, namespac
 	} else {
 		// get secret
 		for _, s := range sa.Secrets {
-			sr, err := kc.CoreV1().Secrets(namespace).Get(s.Name, metav1.GetOptions{})
+			sr, err := kc.CoreV1().Secrets(namespace).Get(context.TODO(), s.Name, metav1.GetOptions{})
 			if err == nil {
 				return sr, nil
 			} else if !kerr.IsNotFound(err) {

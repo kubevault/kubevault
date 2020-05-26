@@ -17,6 +17,7 @@ limitations under the License.
 package mongodb
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -165,7 +166,7 @@ func TestNewMongoDBRoleBindingCreatRole(t *testing.T) {
 	}
 
 	k := kfake.NewSimpleClientset()
-	_, err := k.CoreV1().Secrets("default").Create(&core.Secret{
+	_, err := k.CoreV1().Secrets("default").Create(context.TODO(), &core.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "default",
 			Name:      "cred",
@@ -174,7 +175,7 @@ func TestNewMongoDBRoleBindingCreatRole(t *testing.T) {
 			"username": []byte("root"),
 			"password": []byte("root"),
 		},
-	})
+	}, metav1.CreateOptions{})
 	utilruntime.Must(err)
 
 	utilruntime.Must(v.SetAddress(addr))

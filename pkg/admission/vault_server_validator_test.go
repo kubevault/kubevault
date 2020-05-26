@@ -17,6 +17,7 @@ limitations under the License.
 package admission
 
 import (
+	"context"
 	"testing"
 
 	catalog "kubevault.dev/operator/apis/catalog/v1alpha1"
@@ -41,8 +42,20 @@ const namespace = "test-ns"
 var (
 	vsVersion = catalog.VaultServerVersion{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "1.11.1",
-			Namespace: namespace,
+			Name: "1.2.3",
+		},
+		Spec: catalog.VaultServerVersionSpec{
+			Version: "1.2.3",
+			Vault: catalog.VaultServerVersionVault{
+				Image: "vault:1.2.3",
+			},
+			Unsealer: catalog.VaultServerVersionUnsealer{
+				Image: "kubevault/vault-unsealer:v0.3.0",
+			},
+			Exporter: catalog.VaultServerVersionExporter{
+				Image: "kubevault/vault-exporter-linux-amd64:v0.3.0",
+			},
+			Deprecated: false,
 		},
 	}
 	vs = api.VaultServer{
@@ -55,7 +68,7 @@ var (
 			Namespace: namespace,
 		},
 		Spec: api.VaultServerSpec{
-			Version:  "1.11.1",
+			Version:  "1.2.3",
 			Replicas: types.Int32P(1),
 			TLS:      nil,
 			Backend:  api.BackendStorageSpec{},
@@ -118,19 +131,20 @@ func TestVaultServerValidator_Admit(t *testing.T) {
 		},
 	}
 
-	for _, c := range cases {
-		t.Run(c.testName, func(t *testing.T) {
+	for idx := range cases {
+		test := cases[idx]
+		t.Run(test.testName, func(t *testing.T) {
 			validator := &VaultServerValidator{
 				client:      kfake.NewSimpleClientset(),
 				extClient:   extfake.NewSimpleClientset(&vsVersion),
 				initialized: true,
 			}
 
-			rawObj, err := meta_util.MarshalToJson(&c.object, api.SchemeGroupVersion)
+			rawObj, err := meta_util.MarshalToJson(&test.object, api.SchemeGroupVersion)
 			if !assert.Nil(t, err, "VaultServer marshal to json failed") {
 				return
 			}
-			rawOldObj, err := meta_util.MarshalToJson(&c.oldObject, api.SchemeGroupVersion)
+			rawOldObj, err := meta_util.MarshalToJson(&test.oldObject, api.SchemeGroupVersion)
 			if !assert.Nil(t, err, "VaultServer marshal to json failed") {
 				return
 			}
@@ -141,7 +155,7 @@ func TestVaultServerValidator_Admit(t *testing.T) {
 					Kind:    api.ResourceKindVaultServer,
 					Version: api.SchemeGroupVersion.Version,
 				},
-				Operation: c.operation,
+				Operation: test.operation,
 
 				Object: runtime.RawExtension{
 					Raw: rawObj,
@@ -152,7 +166,7 @@ func TestVaultServerValidator_Admit(t *testing.T) {
 			}
 
 			resp := validator.Admit(req)
-			assert.Equal(t, c.allowed, resp.Allowed, "admission response")
+			assert.Equal(t, test.allowed, resp.Allowed, "admission response")
 		})
 	}
 }
@@ -429,18 +443,19 @@ func TestValidateVaultServer(t *testing.T) {
 		},
 	}
 
-	for _, c := range cases {
-		t.Run(c.testName, func(t *testing.T) {
+	for idx := range cases {
+		test := cases[idx]
+		t.Run(test.testName, func(t *testing.T) {
 			kc := kfake.NewSimpleClientset()
-			for _, sr := range c.extraSecret {
-				_, err := kc.CoreV1().Secrets(sr.Namespace).Create(&sr)
+			for _, sr := range test.extraSecret {
+				_, err := kc.CoreV1().Secrets(sr.Namespace).Create(context.TODO(), &sr, metav1.CreateOptions{})
 				assert.Nil(t, err, "create secret error should be nil")
 			}
 
 			extC := extfake.NewSimpleClientset(&vsVersion)
 
-			err := ValidateVaultServer(kc, extC, c.vs)
-			if c.expectErr {
+			err := ValidateVaultServer(kc, extC, test.vs)
+			if test.expectErr {
 				assert.NotNil(t, err, "expected error")
 			} else {
 				assert.Nil(t, err, "error should be nil")
@@ -538,11 +553,12 @@ func TestValidateSecret(t *testing.T) {
 		},
 	}
 
-	for _, c := range cases {
-		t.Run(c.testName, func(t *testing.T) {
-			kc := kfake.NewSimpleClientset(c.secret)
-			err := validateSecret(kc, c.secret.Name, c.secret.Namespace, c.requiredKeys)
-			if c.expectErr {
+	for idx := range cases {
+		test := cases[idx]
+		t.Run(test.testName, func(t *testing.T) {
+			kc := kfake.NewSimpleClientset(test.secret)
+			err := validateSecret(kc, test.secret.Name, test.secret.Namespace, test.requiredKeys)
+			if test.expectErr {
 				assert.NotNil(t, err, "expected error")
 			} else {
 				assert.Nil(t, err, "error should be nil")

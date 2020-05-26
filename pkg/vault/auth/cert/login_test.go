@@ -150,7 +150,7 @@ func TestLogin(t *testing.T) {
 				URL: &addr,
 			},
 			Parameters: &runtime.RawExtension{
-				Raw: []byte(fmt.Sprintf(`{ "name" : "demo" }`)),
+				Raw: []byte(`{ "name" : "demo" }`),
 			},
 		},
 	}

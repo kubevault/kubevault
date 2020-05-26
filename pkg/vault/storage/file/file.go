@@ -17,6 +17,7 @@ limitations under the License.
 package file
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -24,6 +25,7 @@ import (
 
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	core_util "kmodules.xyz/client-go/core/v1"
@@ -69,7 +71,7 @@ func NewOptions(kubeClient kubernetes.Interface, vaultServer *api.VaultServer, s
 	}
 
 	// Create or Patch the requested PVC
-	_, _, err := core_util.CreateOrPatchPVC(kubeClient, objMeta, func(claim *core.PersistentVolumeClaim) *core.PersistentVolumeClaim {
+	_, _, err := core_util.CreateOrPatchPVC(context.TODO(), kubeClient, objMeta, func(claim *core.PersistentVolumeClaim) *core.PersistentVolumeClaim {
 		// pvc.spec is immutable except spec.resources.request field.
 		// But values need to be set while creating the pvc for the first time.
 		// Here, "Spec.AccessModes" will be "nil" in two cases; invalid pvc template
@@ -84,7 +86,7 @@ func NewOptions(kubeClient kubernetes.Interface, vaultServer *api.VaultServer, s
 		// Update the only mutable field.
 		claim.Spec.Resources.Requests = s.VolumeClaimTemplate.Spec.Resources.Requests
 		return claim
-	})
+	}, metav1.PatchOptions{})
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to create pvc %s/%s", objMeta.Namespace, objMeta.Name)
 	}

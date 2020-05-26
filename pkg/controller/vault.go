@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"path/filepath"
@@ -80,7 +81,7 @@ type vaultSrv struct {
 }
 
 func NewVault(vs *api.VaultServer, config *rest.Config, kc kubernetes.Interface, vc cs.Interface) (Vault, error) {
-	version, err := vc.CatalogV1alpha1().VaultServerVersions().Get(string(vs.Spec.Version), metav1.GetOptions{})
+	version, err := vc.CatalogV1alpha1().VaultServerVersions().Get(context.TODO(), string(vs.Spec.Version), metav1.GetOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get vault server version")
 	}
@@ -122,7 +123,7 @@ func NewVault(vs *api.VaultServer, config *rest.Config, kc kubernetes.Interface,
 func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 	tls := v.vs.Spec.TLS
 	if tls != nil && tls.TLSSecret != "" {
-		sr, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(tls.TLSSecret, metav1.GetOptions{})
+		sr, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(context.TODO(), tls.TLSSecret, metav1.GetOptions{})
 		return sr, tls.CABundle, err
 	}
 
@@ -133,7 +134,7 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 	}
 
 	tlsSecretName := v.vs.Spec.TLS.TLSSecret
-	sr, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(tlsSecretName, metav1.GetOptions{})
+	sr, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(context.TODO(), tlsSecretName, metav1.GetOptions{})
 	if err == nil {
 		glog.Infof("secret %s/%s already exists", v.vs.Namespace, tlsSecretName)
 		return sr, v.vs.Spec.TLS.CABundle, nil

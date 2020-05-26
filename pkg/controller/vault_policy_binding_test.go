@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -110,7 +111,7 @@ func TestReconcilePolicyBinding(t *testing.T) {
 				assert.Nil(t, err)
 			}
 			if c.expectStatus != "" {
-				p, err := ctrl.extClient.PolicyV1alpha1().VaultPolicyBindings(c.vPBind.Namespace).Get(c.vPBind.Name, metav1.GetOptions{})
+				p, err := ctrl.extClient.PolicyV1alpha1().VaultPolicyBindings(c.vPBind.Namespace).Get(context.TODO(), c.vPBind.Name, metav1.GetOptions{})
 				if assert.Nil(t, err) {
 					assert.Condition(t, func() (success bool) {
 						return c.expectStatus == string(p.Status.Phase)
@@ -159,13 +160,13 @@ func TestFinalizePolicyBinding(t *testing.T) {
 			cs := csfake.NewSimpleClientset()
 			pc := cs.PolicyV1alpha1()
 			if c.vPolicy != nil {
-				_, err := pc.VaultPolicies(c.vPolicy.Namespace).Create(c.vPolicy)
+				_, err := pc.VaultPolicies(c.vPolicy.Namespace).Create(context.TODO(), c.vPolicy, metav1.CreateOptions{})
 				assert.Nil(t, err)
 			} else {
 				c.vPolicy = simpleVaultPolicy()
 			}
 			if c.vPBind != nil {
-				_, err := pc.VaultPolicyBindings(c.vPBind.Namespace).Create(c.vPBind)
+				_, err := pc.VaultPolicyBindings(c.vPBind.Namespace).Create(context.TODO(), c.vPBind, metav1.CreateOptions{})
 				assert.Nil(t, err)
 			} else {
 				c.vPBind = simpleVaultPolicyBinding()

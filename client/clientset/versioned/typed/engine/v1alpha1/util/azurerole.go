@@ -17,6 +17,7 @@ limitations under the License.
 package util
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -33,29 +34,50 @@ import (
 	kutil "kmodules.xyz/client-go"
 )
 
-func CreateOrPatchAzureRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.AzureRole) *api.AzureRole) (*api.AzureRole, kutil.VerbType, error) {
-	cur, err := c.AzureRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+func CreateOrPatchAzureRole(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(alert *api.AzureRole) *api.AzureRole,
+	opts metav1.PatchOptions,
+) (*api.AzureRole, kutil.VerbType, error) {
+	cur, err := c.AzureRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		glog.V(3).Infof("Creating AzureRole %s/%s.", meta.Namespace, meta.Name)
-		out, err := c.AzureRoles(meta.Namespace).Create(transform(&api.AzureRole{
+		out, err := c.AzureRoles(meta.Namespace).Create(ctx, transform(&api.AzureRole{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       api.ResourceKindAzureRole,
 				APIVersion: api.SchemeGroupVersion.String(),
 			},
 			ObjectMeta: meta,
-		}))
+		}),
+			metav1.CreateOptions{
+				DryRun:       opts.DryRun,
+				FieldManager: opts.FieldManager,
+			})
 		return out, kutil.VerbCreated, err
 	} else if err != nil {
 		return nil, kutil.VerbUnchanged, err
 	}
-	return PatchAzureRole(c, cur, transform)
+	return PatchAzureRole(ctx, c, cur, transform, opts)
 }
 
-func PatchAzureRole(c cs.EngineV1alpha1Interface, cur *api.AzureRole, transform func(*api.AzureRole) *api.AzureRole) (*api.AzureRole, kutil.VerbType, error) {
-	return PatchAzureRoleObject(c, cur, transform(cur.DeepCopy()))
+func PatchAzureRole(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur *api.AzureRole,
+	transform func(*api.AzureRole) *api.AzureRole,
+	opts metav1.PatchOptions,
+) (*api.AzureRole, kutil.VerbType, error) {
+	return PatchAzureRoleObject(ctx, c, cur, transform(cur.DeepCopy()), opts)
 }
 
-func PatchAzureRoleObject(c cs.EngineV1alpha1Interface, cur, mod *api.AzureRole) (*api.AzureRole, kutil.VerbType, error) {
+func PatchAzureRoleObject(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur, mod *api.AzureRole,
+	opts metav1.PatchOptions,
+) (*api.AzureRole, kutil.VerbType, error) {
 	curJson, err := json.Marshal(cur)
 	if err != nil {
 		return nil, kutil.VerbUnchanged, err
@@ -74,19 +96,25 @@ func PatchAzureRoleObject(c cs.EngineV1alpha1Interface, cur, mod *api.AzureRole)
 		return cur, kutil.VerbUnchanged, nil
 	}
 	glog.V(3).Infof("Patching AzureRole %s/%s with %s.", cur.Namespace, cur.Name, string(patch))
-	out, err := c.AzureRoles(cur.Namespace).Patch(cur.Name, types.MergePatchType, patch)
+	out, err := c.AzureRoles(cur.Namespace).Patch(ctx, cur.Name, types.MergePatchType, patch, opts)
 	return out, kutil.VerbPatched, err
 }
 
-func TryUpdateAzureRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.AzureRole) *api.AzureRole) (result *api.AzureRole, err error) {
+func TryUpdateAzureRole(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(*api.AzureRole) *api.AzureRole,
+	opts metav1.UpdateOptions,
+) (result *api.AzureRole, err error) {
 	attempt := 0
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
-		cur, e2 := c.AzureRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+		cur, e2 := c.AzureRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 		if kerr.IsNotFound(e2) {
 			return false, e2
 		} else if e2 == nil {
-			result, e2 = c.AzureRoles(cur.Namespace).Update(transform(cur.DeepCopy()))
+			result, e2 = c.AzureRoles(cur.Namespace).Update(ctx, transform(cur.DeepCopy()), opts)
 			return e2 == nil, nil
 		}
 		glog.Errorf("Attempt %d failed to update AzureRole %s/%s due to %v.", attempt, cur.Namespace, cur.Name, e2)
@@ -100,9 +128,11 @@ func TryUpdateAzureRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, tr
 }
 
 func UpdateAzureRoleStatus(
+	ctx context.Context,
 	c cs.EngineV1alpha1Interface,
 	meta metav1.ObjectMeta,
 	transform func(*api.AzureRoleStatus) *api.AzureRoleStatus,
+	opts metav1.UpdateOptions,
 ) (result *api.AzureRole, err error) {
 	apply := func(x *api.AzureRole) *api.AzureRole {
 		return &api.AzureRole{
@@ -114,16 +144,16 @@ func UpdateAzureRoleStatus(
 	}
 
 	attempt := 0
-	cur, err := c.AzureRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+	cur, err := c.AzureRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
 		var e2 error
-		result, e2 = c.AzureRoles(meta.Namespace).UpdateStatus(apply(cur))
+		result, e2 = c.AzureRoles(meta.Namespace).UpdateStatus(ctx, apply(cur), opts)
 		if kerr.IsConflict(e2) {
-			latest, e3 := c.AzureRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+			latest, e3 := c.AzureRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 			switch {
 			case e3 == nil:
 				cur = latest

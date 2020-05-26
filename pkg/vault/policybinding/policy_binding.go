@@ -17,6 +17,7 @@ limitations under the License.
 package policybinding
 
 import (
+	"context"
 	"fmt"
 
 	api "kubevault.dev/operator/apis/policy/v1alpha1"
@@ -61,7 +62,7 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 		var policyName string
 		if pIdentifier.Ref != "" {
 			// pIdentifier.Ref species the policy crd name
-			policy, err := c.PolicyV1alpha1().VaultPolicies(pBind.Namespace).Get(pIdentifier.Ref, metav1.GetOptions{})
+			policy, err := c.PolicyV1alpha1().VaultPolicies(pBind.Namespace).Get(context.TODO(), pIdentifier.Ref, metav1.GetOptions{})
 			if err != nil {
 				return nil, errors.Wrap(err, "for .spec.policies")
 			}

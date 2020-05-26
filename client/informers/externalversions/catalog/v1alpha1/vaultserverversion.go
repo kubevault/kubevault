@@ -19,6 +19,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"context"
 	time "time"
 
 	catalogv1alpha1 "kubevault.dev/operator/apis/catalog/v1alpha1"
@@ -61,13 +62,13 @@ func NewFilteredVaultServerVersionInformer(client versioned.Interface, resyncPer
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.CatalogV1alpha1().VaultServerVersions().List(options)
+				return client.CatalogV1alpha1().VaultServerVersions().List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.CatalogV1alpha1().VaultServerVersions().Watch(options)
+				return client.CatalogV1alpha1().VaultServerVersions().Watch(context.TODO(), options)
 			},
 		},
 		&catalogv1alpha1.VaultServerVersion{},

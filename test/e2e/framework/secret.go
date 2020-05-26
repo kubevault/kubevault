@@ -17,16 +17,18 @@ limitations under the License.
 package framework
 
 import (
+	"context"
 	"fmt"
 
 	. "github.com/onsi/gomega"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	meta_util "kmodules.xyz/client-go/meta"
 )
 
 func (f *Framework) CreateSecret(obj core.Secret) error {
-	_, err := f.KubeClient.CoreV1().Secrets(obj.Namespace).Create(&obj)
+	_, err := f.KubeClient.CoreV1().Secrets(obj.Namespace).Create(context.TODO(), &obj, metav1.CreateOptions{})
 	return err
 }
 
@@ -43,7 +45,7 @@ func (f *Framework) CreateSecretWithData(name, namespace string, data map[string
 }
 
 func (f *Framework) DeleteSecret(name, namespace string) error {
-	err := f.KubeClient.CoreV1().Secrets(namespace).Delete(name, deleteInForeground())
+	err := f.KubeClient.CoreV1().Secrets(namespace).Delete(context.TODO(), name, meta_util.DeleteInForeground())
 	if kerr.IsNotFound(err) {
 		return nil
 	}
@@ -52,7 +54,7 @@ func (f *Framework) DeleteSecret(name, namespace string) error {
 
 func (f *Framework) EventuallySecret(name, namespace string) GomegaAsyncAssertion {
 	return Eventually(func() *core.Secret {
-		obj, err := f.KubeClient.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
+		obj, err := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 		fmt.Println("---secret-----")
 		Expect(err).NotTo(HaveOccurred())
 		return obj

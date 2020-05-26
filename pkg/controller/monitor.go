@@ -17,6 +17,8 @@ limitations under the License.
 package controller
 
 import (
+	"context"
+
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/exporter"
 
@@ -38,7 +40,7 @@ func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service
 		Namespace: vs.Namespace,
 	}
 
-	return core_util.CreateOrPatchService(c.kubeClient, meta, func(in *core.Service) *core.Service {
+	return core_util.CreateOrPatchService(context.TODO(), c.kubeClient, meta, func(in *core.Service) *core.Service {
 		in.Labels = vs.StatsLabels()
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 
@@ -58,15 +60,15 @@ func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service
 		}
 		in.Spec.Ports = core_util.MergeServicePorts(in.Spec.Ports, desired)
 		return in
-	})
+	}, metav1.PatchOptions{})
 }
 
 func (c *VaultController) ensureStatsServiceDeleted(vs *api.VaultServer) error {
 	log.Infof("deleting stats service %s/%s", vs.Namespace, vs.StatsServiceName())
 	err := c.kubeClient.CoreV1().Services(vs.Namespace).Delete(
+		context.TODO(),
 		vs.StatsServiceName(),
-		&metav1.DeleteOptions{},
-	)
+		metav1.DeleteOptions{})
 	return errors.WithStack(err)
 }
 
@@ -78,7 +80,7 @@ func (c *VaultController) newMonitorController(vs *api.VaultServer) (mona.Agent,
 	}
 
 	if monitorSpec.Prometheus != nil {
-		return agents.New(monitorSpec.Agent, c.kubeClient, c.crdClient, c.promClient), nil
+		return agents.New(monitorSpec.Agent, c.kubeClient, c.promClient), nil
 	}
 
 	return nil, errors.Errorf("monitoring controller not found for %v", monitorSpec)
@@ -96,27 +98,25 @@ func (c *VaultController) addOrUpdateMonitor(vs *api.VaultServer) (kutil.VerbTyp
 }
 
 func (c *VaultController) getOldAgent(vs *api.VaultServer) mona.Agent {
-	service, err := c.kubeClient.CoreV1().Services(vs.Namespace).Get(vs.StatsService().ServiceName(), metav1.GetOptions{})
+	service, err := c.kubeClient.CoreV1().Services(vs.Namespace).Get(context.TODO(), vs.StatsService().ServiceName(), metav1.GetOptions{})
 	if err != nil {
 		return nil
 	}
 	oldAgentType, _ := meta_util.GetStringValue(service.Annotations, mona.KeyAgent)
-	return agents.New(mona.AgentType(oldAgentType), c.kubeClient, c.crdClient, c.promClient)
+	return agents.New(mona.AgentType(oldAgentType), c.kubeClient, c.promClient)
 }
 
 func (c *VaultController) setNewAgent(vs *api.VaultServer) error {
-	service, err := c.kubeClient.CoreV1().Services(vs.Namespace).Get(vs.StatsService().ServiceName(), metav1.GetOptions{})
+	service, err := c.kubeClient.CoreV1().Services(vs.Namespace).Get(context.TODO(), vs.StatsService().ServiceName(), metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
-	_, _, err = core_util.PatchService(c.kubeClient, service, func(in *core.Service) *core.Service {
+	_, _, err = core_util.PatchService(context.TODO(), c.kubeClient, service, func(in *core.Service) *core.Service {
 		in.Annotations = core_util.UpsertMap(in.Annotations, map[string]string{
 			mona.KeyAgent: string(vs.Spec.Monitor.Agent),
-		},
-		)
-
+		})
 		return in
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 

@@ -17,6 +17,7 @@ limitations under the License.
 package azure
 
 import (
+	"context"
 	"encoding/json"
 
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
@@ -71,7 +72,7 @@ func NewAzureCredentialManager(kClient kubernetes.Interface, appClient appcat_cs
 }
 
 func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*api.AzureRole, error) {
-	r, err := cr.EngineV1alpha1().AzureRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
+	r, err := cr.EngineV1alpha1().AzureRoles(ref.Namespace).Get(context.TODO(), ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get AzureRole %s/%s", ref.Namespace, ref.Name)
 	}

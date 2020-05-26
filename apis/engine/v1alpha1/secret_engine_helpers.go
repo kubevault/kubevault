@@ -21,7 +21,7 @@ import (
 
 	"kubevault.dev/operator/api/crds"
 
-	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	"kmodules.xyz/client-go/apiextensions"
 	"kmodules.xyz/client-go/tools/clusterid"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )

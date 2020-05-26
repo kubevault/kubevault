@@ -17,6 +17,7 @@ limitations under the License.
 package util
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -33,29 +34,49 @@ import (
 	kutil "kmodules.xyz/client-go"
 )
 
-func CreateOrPatchVaultPolicy(c cs.PolicyV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.VaultPolicy) *api.VaultPolicy) (*api.VaultPolicy, kutil.VerbType, error) {
-	cur, err := c.VaultPolicies(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+func CreateOrPatchVaultPolicy(
+	ctx context.Context,
+	c cs.PolicyV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(alert *api.VaultPolicy) *api.VaultPolicy,
+	opts metav1.PatchOptions,
+) (*api.VaultPolicy, kutil.VerbType, error) {
+	cur, err := c.VaultPolicies(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		glog.V(3).Infof("Creating VaultPolicy %s/%s.", meta.Namespace, meta.Name)
-		out, err := c.VaultPolicies(meta.Namespace).Create(transform(&api.VaultPolicy{
+		out, err := c.VaultPolicies(meta.Namespace).Create(ctx, transform(&api.VaultPolicy{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       api.ResourceKindVaultPolicy,
 				APIVersion: api.SchemeGroupVersion.String(),
 			},
 			ObjectMeta: meta,
-		}))
+		}), metav1.CreateOptions{
+			DryRun:       opts.DryRun,
+			FieldManager: opts.FieldManager,
+		})
 		return out, kutil.VerbCreated, err
 	} else if err != nil {
 		return nil, kutil.VerbUnchanged, err
 	}
-	return PatchVaultPolicy(c, cur, transform)
+	return PatchVaultPolicy(ctx, c, cur, transform, opts)
 }
 
-func PatchVaultPolicy(c cs.PolicyV1alpha1Interface, cur *api.VaultPolicy, transform func(*api.VaultPolicy) *api.VaultPolicy) (*api.VaultPolicy, kutil.VerbType, error) {
-	return PatchVaultPolicyObject(c, cur, transform(cur.DeepCopy()))
+func PatchVaultPolicy(
+	ctx context.Context,
+	c cs.PolicyV1alpha1Interface,
+	cur *api.VaultPolicy,
+	transform func(*api.VaultPolicy) *api.VaultPolicy,
+	opts metav1.PatchOptions,
+) (*api.VaultPolicy, kutil.VerbType, error) {
+	return PatchVaultPolicyObject(ctx, c, cur, transform(cur.DeepCopy()), opts)
 }
 
-func PatchVaultPolicyObject(c cs.PolicyV1alpha1Interface, cur, mod *api.VaultPolicy) (*api.VaultPolicy, kutil.VerbType, error) {
+func PatchVaultPolicyObject(
+	ctx context.Context,
+	c cs.PolicyV1alpha1Interface,
+	cur, mod *api.VaultPolicy,
+	opts metav1.PatchOptions,
+) (*api.VaultPolicy, kutil.VerbType, error) {
 	curJson, err := json.Marshal(cur)
 	if err != nil {
 		return nil, kutil.VerbUnchanged, err
@@ -74,11 +95,17 @@ func PatchVaultPolicyObject(c cs.PolicyV1alpha1Interface, cur, mod *api.VaultPol
 		return cur, kutil.VerbUnchanged, nil
 	}
 	glog.V(3).Infof("Patching VaultPolicy %s/%s with %s.", cur.Namespace, cur.Name, string(patch))
-	out, err := c.VaultPolicies(cur.Namespace).Patch(cur.Name, types.MergePatchType, patch)
+	out, err := c.VaultPolicies(cur.Namespace).Patch(ctx, cur.Name, types.MergePatchType, patch, opts)
 	return out, kutil.VerbPatched, err
 }
 
-func TryPatchVaultPolicy(c cs.PolicyV1alpha1Interface, cur *api.VaultPolicy, transform func(*api.VaultPolicy) *api.VaultPolicy) (*api.VaultPolicy, error) {
+func TryPatchVaultPolicy(
+	ctx context.Context,
+	c cs.PolicyV1alpha1Interface,
+	cur *api.VaultPolicy,
+	transform func(*api.VaultPolicy) *api.VaultPolicy,
+	opts metav1.PatchOptions,
+) (*api.VaultPolicy, error) {
 	var (
 		out *api.VaultPolicy
 		e2  error
@@ -86,11 +113,11 @@ func TryPatchVaultPolicy(c cs.PolicyV1alpha1Interface, cur *api.VaultPolicy, tra
 	attempt := 0
 	err := wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
-		cur, e2 = c.VaultPolicies(cur.Namespace).Get(cur.Name, metav1.GetOptions{})
+		cur, e2 = c.VaultPolicies(cur.Namespace).Get(ctx, cur.Name, metav1.GetOptions{})
 		if kerr.IsNotFound(e2) {
 			return false, e2
 		} else if e2 == nil {
-			out, _, e2 = PatchVaultPolicyObject(c, cur, transform(cur.DeepCopy()))
+			out, _, e2 = PatchVaultPolicyObject(ctx, c, cur, transform(cur.DeepCopy()), opts)
 			return e2 == nil, nil
 		}
 		glog.Errorf("Attempt %d failed to patch VaultPolicy %s/%s due to %v.", attempt, cur.Namespace, cur.Name, e2)
@@ -103,15 +130,21 @@ func TryPatchVaultPolicy(c cs.PolicyV1alpha1Interface, cur *api.VaultPolicy, tra
 	return out, nil
 }
 
-func TryUpdateVaultPolicy(c cs.PolicyV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.VaultPolicy) *api.VaultPolicy) (result *api.VaultPolicy, err error) {
+func TryUpdateVaultPolicy(
+	ctx context.Context,
+	c cs.PolicyV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(*api.VaultPolicy) *api.VaultPolicy,
+	opts metav1.UpdateOptions,
+) (result *api.VaultPolicy, err error) {
 	attempt := 0
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
-		cur, e2 := c.VaultPolicies(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+		cur, e2 := c.VaultPolicies(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 		if kerr.IsNotFound(e2) {
 			return false, e2
 		} else if e2 == nil {
-			result, e2 = c.VaultPolicies(cur.Namespace).Update(transform(cur.DeepCopy()))
+			result, e2 = c.VaultPolicies(cur.Namespace).Update(ctx, transform(cur.DeepCopy()), opts)
 			return e2 == nil, nil
 		}
 		glog.Errorf("Attempt %d failed to update VaultPolicy %s/%s due to %v.", attempt, cur.Namespace, cur.Name, e2)
@@ -125,9 +158,11 @@ func TryUpdateVaultPolicy(c cs.PolicyV1alpha1Interface, meta metav1.ObjectMeta, 
 }
 
 func UpdateVaultPolicyStatus(
+	ctx context.Context,
 	c cs.PolicyV1alpha1Interface,
 	meta metav1.ObjectMeta,
 	transform func(*api.VaultPolicyStatus) *api.VaultPolicyStatus,
+	opts metav1.UpdateOptions,
 ) (result *api.VaultPolicy, err error) {
 	apply := func(x *api.VaultPolicy) *api.VaultPolicy {
 		return &api.VaultPolicy{
@@ -139,16 +174,16 @@ func UpdateVaultPolicyStatus(
 	}
 
 	attempt := 0
-	cur, err := c.VaultPolicies(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+	cur, err := c.VaultPolicies(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
 		var e2 error
-		result, e2 = c.VaultPolicies(meta.Namespace).UpdateStatus(apply(cur))
+		result, e2 = c.VaultPolicies(meta.Namespace).UpdateStatus(ctx, apply(cur), opts)
 		if kerr.IsConflict(e2) {
-			latest, e3 := c.VaultPolicies(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+			latest, e3 := c.VaultPolicies(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 			switch {
 			case e3 == nil:
 				cur = latest

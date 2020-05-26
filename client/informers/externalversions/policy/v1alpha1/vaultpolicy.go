@@ -19,6 +19,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"context"
 	time "time"
 
 	policyv1alpha1 "kubevault.dev/operator/apis/policy/v1alpha1"
@@ -62,13 +63,13 @@ func NewFilteredVaultPolicyInformer(client versioned.Interface, namespace string
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.PolicyV1alpha1().VaultPolicies(namespace).List(options)
+				return client.PolicyV1alpha1().VaultPolicies(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.PolicyV1alpha1().VaultPolicies(namespace).Watch(options)
+				return client.PolicyV1alpha1().VaultPolicies(namespace).Watch(context.TODO(), options)
 			},
 		},
 		&policyv1alpha1.VaultPolicy{},

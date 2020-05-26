@@ -17,6 +17,7 @@ limitations under the License.
 package e2e_test
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"os"
@@ -75,7 +76,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultTLSSecretCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault tls secret (%s/%s) to create", namespace, name))
 			Eventually(func() bool {
-				sr, err := f.KubeClient.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
+				sr, err := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					if _, ok := sr.Data[core.TLSCertKey]; !ok {
 						return false
@@ -92,7 +93,7 @@ var _ = Describe("VaultServer", func() {
 		checkForSecretCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault secret (%s/%s) to create", namespace, name))
 			Eventually(func() bool {
-				_, err := f.KubeClient.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("secret (%s/%s) should exists", namespace, name))
 		}
@@ -100,7 +101,7 @@ var _ = Describe("VaultServer", func() {
 		checkForSecretDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for secret (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
-				_, err := f.KubeClient.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerr.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("secret (%s/%s) should be deleted", namespace, name))
 		}
@@ -108,7 +109,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultConfigMapCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault configMap (%s/%s) to create", namespace, name))
 			Eventually(func() bool {
-				cm, err := f.KubeClient.CoreV1().ConfigMaps(namespace).Get(name, metav1.GetOptions{})
+				cm, err := f.KubeClient.CoreV1().ConfigMaps(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					if _, ok := cm.Data[filepath.Base(util.VaultConfigFile)]; !ok {
 						return false
@@ -122,7 +123,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultConfigMapDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault configMap (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
-				_, err := f.KubeClient.CoreV1().ConfigMaps(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.KubeClient.CoreV1().ConfigMaps(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerr.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("configMap (%s/%s) should not exists", namespace, name))
 		}
@@ -130,7 +131,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultDeploymentCreatedOrUpdated = func(name, namespace string, vs *api.VaultServer) {
 			By(fmt.Sprintf("Waiting for vault deployment (%s/%s) to create/update", namespace, name))
 			Eventually(func() bool {
-				d, err := f.KubeClient.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
+				d, err := f.KubeClient.AppsV1().Deployments(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return *d.Spec.Replicas == *vs.Spec.Replicas
 				}
@@ -141,7 +142,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultDeploymentDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault deployment (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
-				_, err := f.KubeClient.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.KubeClient.AppsV1().Deployments(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerr.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("deployment (%s/%s) should not exists", namespace, name))
 		}
@@ -149,7 +150,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultServerCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault server (%s/%s) to create", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.KubevaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.KubevaultV1alpha1().VaultServers(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("vaultserver (%s/%s) should exists", namespace, name))
 		}
@@ -157,7 +158,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultServerDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for vault server (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.KubevaultV1alpha1().VaultServers(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.KubevaultV1alpha1().VaultServers(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerr.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("vaultserver (%s/%s) should not exists", namespace, name))
 		}
@@ -165,7 +166,7 @@ var _ = Describe("VaultServer", func() {
 		checkForAppBindingCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for AppBinding (%s/%s) to create", namespace, name))
 			Eventually(func() bool {
-				_, err := f.AppcatClient.AppBindings(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.AppcatClient.AppBindings(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("AppBinding (%s/%s) should exists", namespace, name))
 		}
@@ -173,7 +174,7 @@ var _ = Describe("VaultServer", func() {
 		checkForAppBindingDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Waiting for AppBinding (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
-				_, err := f.AppcatClient.AppBindings(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.AppcatClient.AppBindings(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerr.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("AppBinding (%s/%s) should not exists", namespace, name))
 		}
@@ -213,7 +214,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultIsUnsealed = func(vs *api.VaultServer) {
 			By("Checking whether vault is unsealed")
 			Eventually(func() bool {
-				v, err := f.CSClient.KubevaultV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
+				v, err := f.CSClient.KubevaultV1alpha1().VaultServers(vs.Namespace).Get(context.TODO(), vs.Name, metav1.GetOptions{})
 				if err == nil {
 					if len(v.Status.VaultStatus.Unsealed) == int(*vs.Spec.Replicas) {
 						By(fmt.Sprintf("Unseal-pods: %v", v.Status.VaultStatus.Unsealed))
@@ -221,7 +222,7 @@ var _ = Describe("VaultServer", func() {
 					}
 				}
 				return false
-			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("number of unseal pods should be equal to v.spec.nodes"))
+			}, timeOut, pollingInterval).Should(BeTrue(), "number of unseal pods should be equal to v.spec.nodes")
 		}
 
 		checkForVaultServerCleanup = func(vs *api.VaultServer) {
@@ -240,7 +241,7 @@ var _ = Describe("VaultServer", func() {
 					nodeIP, err := f.GetNodePortIP(v.OffshootSelectors())
 					if err == nil {
 						var url string
-						srv, err := f.KubeClient.CoreV1().Services(v.Namespace).Get(v.OffshootName(), metav1.GetOptions{})
+						srv, err := f.KubeClient.CoreV1().Services(v.Namespace).Get(context.TODO(), v.OffshootName(), metav1.GetOptions{})
 						if err == nil {
 							for _, p := range srv.Spec.Ports {
 								if p.Port == controller.VaultClientPort {
@@ -492,13 +493,13 @@ var _ = Describe("VaultServer", func() {
 
 			It("should keep the number of pods same as specification, after deleting some pods", func() {
 
-				pods, err := f.KubeClient.CoreV1().Pods(vs.Namespace).List(metav1.ListOptions{
+				pods, err := f.KubeClient.CoreV1().Pods(vs.Namespace).List(context.TODO(), metav1.ListOptions{
 					LabelSelector: labels.SelectorFromSet(vs.OffshootSelectors()).String(),
 				})
 				Expect(err).NotTo(HaveOccurred(), "list vault pods")
 
 				Eventually(func() bool {
-					pods, err := f.KubeClient.CoreV1().Pods(vs.Namespace).List(metav1.ListOptions{
+					pods, err := f.KubeClient.CoreV1().Pods(vs.Namespace).List(context.TODO(), metav1.ListOptions{
 						LabelSelector: labels.SelectorFromSet(vs.OffshootSelectors()).String(),
 					})
 					if kerr.IsNotFound(err) {
@@ -513,7 +514,7 @@ var _ = Describe("VaultServer", func() {
 				err = f.DeletePod(pods.Items[p].Name, vs.Namespace)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(func() bool {
-					pods, err := f.KubeClient.CoreV1().Pods(vs.Namespace).List(metav1.ListOptions{
+					pods, err := f.KubeClient.CoreV1().Pods(vs.Namespace).List(context.TODO(), metav1.ListOptions{
 						LabelSelector: labels.SelectorFromSet(vs.OffshootSelectors()).String(),
 					})
 					if kerr.IsNotFound(err) {
@@ -560,7 +561,7 @@ var _ = Describe("VaultServer", func() {
 
 			It("status should contain 1 updated pods and 1 unseal pods", func() {
 				Eventually(func() bool {
-					vs, err = f.CSClient.KubevaultV1alpha1().VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
+					vs, err = f.CSClient.KubevaultV1alpha1().VaultServers(vs.Namespace).Get(context.TODO(), vs.Name, metav1.GetOptions{})
 					if kerr.IsNotFound(err) {
 						return false
 					} else {
@@ -689,7 +690,7 @@ var _ = Describe("VaultServer", func() {
 						"password": []byte(password),
 					},
 				}
-				_, err = f.KubeClient.CoreV1().Secrets(sr.Namespace).Create(&sr)
+				_, err = f.KubeClient.CoreV1().Secrets(sr.Namespace).Create(context.TODO(), &sr, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred())
 
 				swift := api.BackendStorageSpec{

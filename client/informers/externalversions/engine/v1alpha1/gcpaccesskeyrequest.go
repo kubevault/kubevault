@@ -19,6 +19,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"context"
 	time "time"
 
 	enginev1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
@@ -62,13 +63,13 @@ func NewFilteredGCPAccessKeyRequestInformer(client versioned.Interface, namespac
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.EngineV1alpha1().GCPAccessKeyRequests(namespace).List(options)
+				return client.EngineV1alpha1().GCPAccessKeyRequests(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.EngineV1alpha1().GCPAccessKeyRequests(namespace).Watch(options)
+				return client.EngineV1alpha1().GCPAccessKeyRequests(namespace).Watch(context.TODO(), options)
 			},
 		},
 		&enginev1alpha1.GCPAccessKeyRequest{},

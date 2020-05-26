@@ -17,6 +17,7 @@ limitations under the License.
 package util
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -33,29 +34,50 @@ import (
 	kutil "kmodules.xyz/client-go"
 )
 
-func CreateOrPatchMySQLRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.MySQLRole) *api.MySQLRole) (*api.MySQLRole, kutil.VerbType, error) {
-	cur, err := c.MySQLRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+func CreateOrPatchMySQLRole(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(alert *api.MySQLRole) *api.MySQLRole,
+	opts metav1.PatchOptions,
+) (*api.MySQLRole, kutil.VerbType, error) {
+	cur, err := c.MySQLRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		glog.V(3).Infof("Creating MySQLRole %s/%s.", meta.Namespace, meta.Name)
-		out, err := c.MySQLRoles(meta.Namespace).Create(transform(&api.MySQLRole{
+		out, err := c.MySQLRoles(meta.Namespace).Create(ctx, transform(&api.MySQLRole{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       api.ResourceKindMySQLRole,
 				APIVersion: api.SchemeGroupVersion.String(),
 			},
 			ObjectMeta: meta,
-		}))
+		}),
+			metav1.CreateOptions{
+				DryRun:       opts.DryRun,
+				FieldManager: opts.FieldManager,
+			})
 		return out, kutil.VerbCreated, err
 	} else if err != nil {
 		return nil, kutil.VerbUnchanged, err
 	}
-	return PatchMySQLRole(c, cur, transform)
+	return PatchMySQLRole(ctx, c, cur, transform, opts)
 }
 
-func PatchMySQLRole(c cs.EngineV1alpha1Interface, cur *api.MySQLRole, transform func(*api.MySQLRole) *api.MySQLRole) (*api.MySQLRole, kutil.VerbType, error) {
-	return PatchMySQLRoleObject(c, cur, transform(cur.DeepCopy()))
+func PatchMySQLRole(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur *api.MySQLRole,
+	transform func(*api.MySQLRole) *api.MySQLRole,
+	opts metav1.PatchOptions,
+) (*api.MySQLRole, kutil.VerbType, error) {
+	return PatchMySQLRoleObject(ctx, c, cur, transform(cur.DeepCopy()), opts)
 }
 
-func PatchMySQLRoleObject(c cs.EngineV1alpha1Interface, cur, mod *api.MySQLRole) (*api.MySQLRole, kutil.VerbType, error) {
+func PatchMySQLRoleObject(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur, mod *api.MySQLRole,
+	opts metav1.PatchOptions,
+) (*api.MySQLRole, kutil.VerbType, error) {
 	curJson, err := json.Marshal(cur)
 	if err != nil {
 		return nil, kutil.VerbUnchanged, err
@@ -74,19 +96,25 @@ func PatchMySQLRoleObject(c cs.EngineV1alpha1Interface, cur, mod *api.MySQLRole)
 		return cur, kutil.VerbUnchanged, nil
 	}
 	glog.V(3).Infof("Patching MySQLRole %s/%s with %s.", cur.Namespace, cur.Name, string(patch))
-	out, err := c.MySQLRoles(cur.Namespace).Patch(cur.Name, types.MergePatchType, patch)
+	out, err := c.MySQLRoles(cur.Namespace).Patch(ctx, cur.Name, types.MergePatchType, patch, opts)
 	return out, kutil.VerbPatched, err
 }
 
-func TryUpdateMySQLRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.MySQLRole) *api.MySQLRole) (result *api.MySQLRole, err error) {
+func TryUpdateMySQLRole(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(*api.MySQLRole) *api.MySQLRole,
+	opts metav1.UpdateOptions,
+) (result *api.MySQLRole, err error) {
 	attempt := 0
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
-		cur, e2 := c.MySQLRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+		cur, e2 := c.MySQLRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 		if kerr.IsNotFound(e2) {
 			return false, e2
 		} else if e2 == nil {
-			result, e2 = c.MySQLRoles(cur.Namespace).Update(transform(cur.DeepCopy()))
+			result, e2 = c.MySQLRoles(cur.Namespace).Update(ctx, transform(cur.DeepCopy()), opts)
 			return e2 == nil, nil
 		}
 		glog.Errorf("Attempt %d failed to update MySQLRole %s/%s due to %v.", attempt, cur.Namespace, cur.Name, e2)
@@ -100,9 +128,11 @@ func TryUpdateMySQLRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, tr
 }
 
 func UpdateMySQLRoleStatus(
+	ctx context.Context,
 	c cs.EngineV1alpha1Interface,
 	meta metav1.ObjectMeta,
 	transform func(*api.MySQLRoleStatus) *api.MySQLRoleStatus,
+	opts metav1.UpdateOptions,
 ) (result *api.MySQLRole, err error) {
 	apply := func(x *api.MySQLRole) *api.MySQLRole {
 		return &api.MySQLRole{
@@ -114,16 +144,16 @@ func UpdateMySQLRoleStatus(
 	}
 
 	attempt := 0
-	cur, err := c.MySQLRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+	cur, err := c.MySQLRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
 		var e2 error
-		result, e2 = c.MySQLRoles(meta.Namespace).UpdateStatus(apply(cur))
+		result, e2 = c.MySQLRoles(meta.Namespace).UpdateStatus(ctx, apply(cur), opts)
 		if kerr.IsConflict(e2) {
-			latest, e3 := c.MySQLRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+			latest, e3 := c.MySQLRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 			switch {
 			case e3 == nil:
 				cur = latest

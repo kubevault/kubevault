@@ -17,6 +17,7 @@ limitations under the License.
 package consul
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -123,7 +124,7 @@ func (o *Options) GetStorageConfig() (string, error) {
 	}
 	// Get ALC token from secret
 	if o.ACLTokenSecretName != "" {
-		secret, err := o.kc.CoreV1().Secrets(o.namespace).Get(o.ACLTokenSecretName, metav1.GetOptions{})
+		secret, err := o.kc.CoreV1().Secrets(o.namespace).Get(context.TODO(), o.ACLTokenSecretName, metav1.GetOptions{})
 		if err != nil {
 			return "", errors.Wrapf(err, "failed to get secret %s/%s", o.namespace, o.ACLTokenSecretName)
 
@@ -150,7 +151,7 @@ func (o *Options) GetStorageConfig() (string, error) {
 		params = append(params, fmt.Sprintf(`tls_min_version = "%s"`, o.TLSMinVersion))
 	}
 	if o.TLSSkipVerify {
-		params = append(params, fmt.Sprintf(`tls_skip_verify = true`))
+		params = append(params, `tls_skip_verify = true`)
 	}
 
 	storageCfg := fmt.Sprintf(consulStorageFmt, strings.Join(params, "\n"))
