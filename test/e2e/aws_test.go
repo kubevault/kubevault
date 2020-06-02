@@ -17,6 +17,7 @@ limitations under the License.
 package e2e_test
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -42,21 +43,21 @@ var _ = Describe("AWS Secret Engine", func() {
 		IsSecretEngineCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine is created")
 		}
 		IsSecretEngineDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine is deleted")
 		}
 		IsSecretEngineSucceeded = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is succeeded", namespace, name))
 			Eventually(func() bool {
-				r, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				r, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return r.Status.Phase == controller.SecretEnginePhaseSuccess
 				}
@@ -67,21 +68,21 @@ var _ = Describe("AWS Secret Engine", func() {
 		IsAWSRoleCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AWSRole:(%s/%s) role is created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().AWSRoles(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().AWSRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "AWSRole is created")
 		}
 		IsAWSRoleDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AWSRole:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().AWSRoles(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().AWSRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "AWSRole is deleted")
 		}
 		IsAWSRoleSucceeded = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AWSRole:(%s/%s) is succeeded", namespace, name))
 			Eventually(func() bool {
-				r, err := f.CSClient.EngineV1alpha1().AWSRoles(namespace).Get(name, metav1.GetOptions{})
+				r, err := f.CSClient.EngineV1alpha1().AWSRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return r.Status.Phase == controller.AWSRolePhaseSuccess
 				}
@@ -93,7 +94,7 @@ var _ = Describe("AWS Secret Engine", func() {
 		IsAWSRoleFailed = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AWSRole:(%s/%s) is failed", namespace, name))
 			Eventually(func() bool {
-				r, err := f.CSClient.EngineV1alpha1().AWSRoles(namespace).Get(name, metav1.GetOptions{})
+				r, err := f.CSClient.EngineV1alpha1().AWSRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return r.Status.Phase != controller.AWSRolePhaseSuccess && len(r.Status.Conditions) != 0
 				}
@@ -103,21 +104,21 @@ var _ = Describe("AWS Secret Engine", func() {
 		IsAWSAccessKeyRequestCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AWSAccessKeyRequest:(%s/%s) is created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "AWSAccessKeyRequest is created")
 		}
 		IsAWSAccessKeyRequestDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AWSAccessKeyRequest:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "AWSAccessKeyRequest is deleted")
 		}
 		IsAWSAKRConditionApproved = func(name, namespace string) {
-			By(fmt.Sprintf("Checking whether AWSAccessKeyRequestConditions-> Type: Approved"))
+			By("Checking whether AWSAccessKeyRequestConditions-> Type: Approved")
 			Eventually(func() bool {
-				crd, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				crd, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
 						if value.Type == kmapi.ConditionRequestApproved {
@@ -129,9 +130,9 @@ var _ = Describe("AWS Secret Engine", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type : Approved")
 		}
 		IsAWSAKRConditionDenied = func(name, namespace string) {
-			By(fmt.Sprintf("Checking whether AWSAccessKeyRequestConditions-> Type: Denied"))
+			By("Checking whether AWSAccessKeyRequestConditions-> Type: Denied")
 			Eventually(func() bool {
-				crd, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				crd, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
 						if value.Type == kmapi.ConditionRequestDenied {
@@ -145,9 +146,9 @@ var _ = Describe("AWS Secret Engine", func() {
 		IsAWSAccessKeySecretCreated = func(name, namespace string) {
 			By("Checking whether AWSAccessKeySecret is created")
 			Eventually(func() bool {
-				crd, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(name, metav1.GetOptions{})
+				crd, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil && crd.Status.Secret != nil {
-					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(crd.Status.Secret.Name, metav1.GetOptions{})
+					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), crd.Status.Secret.Name, metav1.GetOptions{})
 					return err2 == nil
 				}
 				return false
@@ -156,7 +157,7 @@ var _ = Describe("AWS Secret Engine", func() {
 		IsAWSAccessKeySecretDeleted = func(secretName, namespace string) {
 			By("Checking whether AWSAccessKeySecret is deleted")
 			Eventually(func() bool {
-				_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(secretName, metav1.GetOptions{})
+				_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 				return kerrors.IsNotFound(err2)
 			}, timeOut, pollingInterval).Should(BeTrue(), "AWSAccessKeySecret is deleted")
 		}
@@ -200,7 +201,7 @@ var _ = Describe("AWS Secret Engine", func() {
 				},
 				Data: credentials,
 			}
-			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&awsCredentials)
+			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(context.TODO(), &awsCredentials, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Create aws credentials secret")
 
 			awsRole = api.AWSRole{
@@ -253,7 +254,7 @@ var _ = Describe("AWS Secret Engine", func() {
 		})
 
 		AfterEach(func() {
-			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(awsCredSecret, &metav1.DeleteOptions{})
+			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(context.TODO(), awsCredSecret, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete AWS credentials secret")
 		})
 
@@ -268,13 +269,13 @@ var _ = Describe("AWS Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting AWSRole...")
-				err := f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Delete(context.TODO(), p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AWSRole")
 
 				IsAWSRoleDeleted(p.Name, p.Namespace)
 
 				By("Deleting SecretEngine...")
-				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(se.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(context.TODO(), se.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete Secret engine")
 
 				IsSecretEngineDeleted(se.Name, se.Namespace)
@@ -282,14 +283,14 @@ var _ = Describe("AWS Secret Engine", func() {
 
 			It("Should be successful", func() {
 				By("Creating SecretEngine...")
-				_, err := f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Create(&se)
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Create(context.TODO(), &se, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create SecretEngine")
 
 				IsSecretEngineCreated(se.Name, se.Namespace)
 				IsSecretEngineSucceeded(se.Name, se.Namespace)
 
 				By("Creating AWSRole...")
-				_, err = f.CSClient.EngineV1alpha1().AWSRoles(p.Namespace).Create(&p)
+				_, err = f.CSClient.EngineV1alpha1().AWSRoles(p.Namespace).Create(context.TODO(), &p, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create AWSRole")
 
 				IsAWSRoleCreated(p.Name, p.Namespace)
@@ -307,7 +308,7 @@ var _ = Describe("AWS Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting AWSRole...")
-				err := f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Delete(context.TODO(), p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AWSRole")
 
 				IsAWSRoleDeleted(p.Name, p.Namespace)
@@ -317,7 +318,7 @@ var _ = Describe("AWS Secret Engine", func() {
 			It("Should be failed making AWSRole", func() {
 
 				By("Creating AWSRole...")
-				_, err := f.CSClient.EngineV1alpha1().AWSRoles(p.Namespace).Create(&p)
+				_, err := f.CSClient.EngineV1alpha1().AWSRoles(p.Namespace).Create(context.TODO(), &p, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create AWSRole")
 
 				IsAWSRoleCreated(p.Name, p.Namespace)
@@ -356,7 +357,7 @@ var _ = Describe("AWS Secret Engine", func() {
 				},
 				Data: credentials,
 			}
-			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(&awsCredentials)
+			_, err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Create(context.TODO(), &awsCredentials, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Create aws credentials secret")
 
 			awsSE = api.SecretEngine{
@@ -381,7 +382,7 @@ var _ = Describe("AWS Secret Engine", func() {
 					},
 				},
 			}
-			_, err = f.CSClient.EngineV1alpha1().SecretEngines(awsSE.Namespace).Create(&awsSE)
+			_, err = f.CSClient.EngineV1alpha1().SecretEngines(awsSE.Namespace).Create(context.TODO(), &awsSE, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Create aws SecretEngine")
 			IsSecretEngineCreated(awsSE.Name, awsSE.Namespace)
 
@@ -432,17 +433,17 @@ var _ = Describe("AWS Secret Engine", func() {
 		})
 
 		AfterEach(func() {
-			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(awsCredSecret, &metav1.DeleteOptions{})
+			err := f.KubeClient.CoreV1().Secrets(f.Namespace()).Delete(context.TODO(), awsCredSecret, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete AWS credentials secret")
 
-			err = f.CSClient.EngineV1alpha1().SecretEngines(awsSE.Namespace).Delete(awsSE.Name, &metav1.DeleteOptions{})
+			err = f.CSClient.EngineV1alpha1().SecretEngines(awsSE.Namespace).Delete(context.TODO(), awsSE.Name, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete AWS SecretEngine")
 			IsSecretEngineDeleted(awsSE.Name, awsSE.Namespace)
 		})
 
 		Context("Create, Approve, Deny AWSAccessKeyRequests", func() {
 			BeforeEach(func() {
-				_, err := f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Create(&awsRole)
+				_, err := f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Create(context.TODO(), &awsRole, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create AWSRole")
 
 				IsAWSRoleCreated(awsRole.Name, awsRole.Namespace)
@@ -451,17 +452,17 @@ var _ = Describe("AWS Secret Engine", func() {
 			})
 
 			AfterEach(func() {
-				err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Delete(awsAKR.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Delete(context.TODO(), awsAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AWSAccessKeyRequest")
 				IsAWSAccessKeyRequestDeleted(awsAKR.Name, awsAKR.Namespace)
 
-				err = f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Delete(awsRole.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Delete(context.TODO(), awsRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AWSRole")
 				IsAWSRoleDeleted(awsRole.Name, awsRole.Namespace)
 			})
 
 			It("Should be successful, Create AWSAccessKeyRequest", func() {
-				_, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Create(&awsAKR)
+				_, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Create(context.TODO(), &awsAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create AWSAccessKeyRequest")
 
 				IsAWSAccessKeyRequestCreated(awsAKR.Name, awsAKR.Namespace)
@@ -469,7 +470,7 @@ var _ = Describe("AWS Secret Engine", func() {
 
 			It("Should be successful, Condition approved", func() {
 				By("Creating AWSAccessKeyRequest...")
-				r, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Create(&awsAKR)
+				r, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Create(context.TODO(), &awsAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create AWSAccessKeyRequest")
 
 				IsAWSAccessKeyRequestCreated(awsAKR.Name, awsAKR.Namespace)
@@ -489,7 +490,7 @@ var _ = Describe("AWS Secret Engine", func() {
 
 			It("Should be successful, Condition denied", func() {
 				By("Creating AWSAccessKeyRequest...")
-				r, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Create(&awsAKR)
+				r, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Create(context.TODO(), &awsAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create AWSAccessKeyRequest")
 
 				IsAWSAccessKeyRequestCreated(awsAKR.Name, awsAKR.Namespace)
@@ -517,7 +518,7 @@ var _ = Describe("AWS Secret Engine", func() {
 			BeforeEach(func() {
 
 				By("Creating AWSRole...")
-				r, err := f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Create(&awsRole)
+				r, err := f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Create(context.TODO(), &awsRole, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create AWSRole")
 
 				IsAWSRoleSucceeded(r.Name, r.Namespace)
@@ -526,14 +527,14 @@ var _ = Describe("AWS Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting AWS accesskeyrequest...")
-				err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Delete(awsAKR.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Delete(context.TODO(), awsAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AWSAccessKeyRequest")
 
 				IsAWSAccessKeyRequestDeleted(awsAKR.Name, awsAKR.Namespace)
 				IsAWSAccessKeySecretDeleted(secretName, awsAKR.Namespace)
 
 				By("Deleting AWSRole...")
-				err = f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Delete(awsRole.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().AWSRoles(awsRole.Namespace).Delete(context.TODO(), awsRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete AWSRole")
 
 				IsAWSRoleDeleted(awsRole.Name, awsRole.Namespace)
@@ -541,7 +542,7 @@ var _ = Describe("AWS Secret Engine", func() {
 
 			It("Should be successful, Create Access Key Secret", func() {
 				By("Creating AWS accessKeyRequest...")
-				r, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Create(&awsAKR)
+				r, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Create(context.TODO(), &awsAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create AWSAccessKeyRequest")
 
 				IsAWSAccessKeyRequestCreated(awsAKR.Name, awsAKR.Namespace)
@@ -561,7 +562,7 @@ var _ = Describe("AWS Secret Engine", func() {
 
 				IsAWSAccessKeySecretCreated(awsAKR.Name, awsAKR.Namespace)
 
-				d, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Get(awsAKR.Name, metav1.GetOptions{})
+				d, err := f.CSClient.EngineV1alpha1().AWSAccessKeyRequests(awsAKR.Namespace).Get(context.TODO(), awsAKR.Name, metav1.GetOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Get AWSAccessKeyRequest")
 				if d.Status.Secret != nil {
 					secretName = d.Status.Secret.Name

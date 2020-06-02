@@ -17,6 +17,7 @@ limitations under the License.
 package postgresql
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -47,7 +48,7 @@ func NewOptions(kubeClient kubernetes.Interface, ns string, s api.PostgreSQLSpec
 	)
 
 	if s.ConnectionURLSecret != "" {
-		sr, err := kubeClient.CoreV1().Secrets(ns).Get(s.ConnectionURLSecret, metav1.GetOptions{})
+		sr, err := kubeClient.CoreV1().Secrets(ns).Get(context.TODO(), s.ConnectionURLSecret, metav1.GetOptions{})
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to get connection url secret(%s)", s.ConnectionURLSecret)
 		}

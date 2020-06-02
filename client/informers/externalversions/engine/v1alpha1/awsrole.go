@@ -19,6 +19,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"context"
 	time "time"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -61,13 +62,13 @@ func NewFilteredAWSRoleInformer(client versioned.Interface, namespace string, re
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.EngineV1alpha1().AWSRoles(namespace).List(options)
+				return client.EngineV1alpha1().AWSRoles(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.EngineV1alpha1().AWSRoles(namespace).Watch(options)
+				return client.EngineV1alpha1().AWSRoles(namespace).Watch(context.TODO(), options)
 			},
 		},
 		&enginev1alpha1.AWSRole{},

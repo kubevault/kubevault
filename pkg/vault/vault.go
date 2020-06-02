@@ -17,6 +17,8 @@ limitations under the License.
 package vault
 
 import (
+	"context"
+
 	vaultauth "kubevault.dev/operator/pkg/vault/auth"
 	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 	vaultutil "kubevault.dev/operator/pkg/vault/util"
@@ -31,7 +33,7 @@ import (
 
 func NewClient(kc kubernetes.Interface, appc appcat_cs.AppcatalogV1alpha1Interface, vAppRef *appcat.AppReference) (*vaultapi.Client, error) {
 
-	vApp, err := appc.AppBindings(vAppRef.Namespace).Get(vAppRef.Name, metav1.GetOptions{})
+	vApp, err := appc.AppBindings(vAppRef.Namespace).Get(context.TODO(), vAppRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}

@@ -17,6 +17,7 @@ limitations under the License.
 package gcp
 
 import (
+	"context"
 	"encoding/json"
 
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
@@ -71,7 +72,7 @@ func NewGCPCredentialManager(kClient kubernetes.Interface, appClient appcat_cs.A
 }
 
 func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*api.GCPRole, error) {
-	r, err := cr.EngineV1alpha1().GCPRoles(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
+	r, err := cr.EngineV1alpha1().GCPRoles(ref.Namespace).Get(context.TODO(), ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, errors.Wrapf(err, "GCPRole %s/%s", ref.Namespace, ref.Name)
 	}

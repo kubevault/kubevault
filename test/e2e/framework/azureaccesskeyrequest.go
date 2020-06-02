@@ -17,13 +17,17 @@ limitations under the License.
 package framework
 
 import (
+	"context"
+
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (f *Framework) UpdateAzureAccessKeyRequestStatus(status *api.AzureAccessKeyRequestStatus, azureAReq *api.AzureAccessKeyRequest) error {
-	_, err := patchutil.UpdateAzureAccessKeyRequestStatus(f.CSClient.EngineV1alpha1(), azureAReq.ObjectMeta, func(s *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
+	_, err := patchutil.UpdateAzureAccessKeyRequestStatus(context.TODO(), f.CSClient.EngineV1alpha1(), azureAReq.ObjectMeta, func(s *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
 		return status
-	})
+	}, metav1.UpdateOptions{})
 	return err
 }

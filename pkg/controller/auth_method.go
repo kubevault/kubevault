@@ -27,8 +27,9 @@ import (
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
 	vaultcs "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
+	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	policycs "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1"
-	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
+	policyutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault"
 	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 
@@ -140,9 +141,16 @@ func (c *VaultController) reconcileAuthMethods(vs *api.VaultServer, ctx context.
 	authDisableStatus := disableAuthMethods(vc, vs.Spec.AuthMethods, vs.Status.AuthMethodStatus)
 	authStatus = append(authStatus, authDisableStatus...)
 
-	status := vs.Status
-	status.AuthMethodStatus = authStatus
-	err = c.updatedVaultServerStatus(&status, vs)
+	_, err = patchutil.UpdateVaultServerStatus(
+		context.TODO(),
+		c.extClient.KubevaultV1alpha1(),
+		vs.ObjectMeta,
+		func(status *api.VaultServerStatus) *api.VaultServerStatus {
+			status.AuthMethodStatus = authStatus
+			return status
+		},
+		metav1.UpdateOptions{},
+	)
 	if err != nil {
 		glog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
 		return
@@ -198,14 +206,14 @@ func vaultPolicyBindingForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy
 }
 
 func ensureVaultPolicy(c policycs.PolicyV1alpha1Interface, vp *policyapi.VaultPolicy, vs *api.VaultServer) error {
-	_, _, err := patchutil.CreateOrPatchVaultPolicy(c, vp.ObjectMeta, func(in *policyapi.VaultPolicy) *policyapi.VaultPolicy {
+	_, _, err := policyutil.CreateOrPatchVaultPolicy(context.TODO(), c, vp.ObjectMeta, func(in *policyapi.VaultPolicy) *policyapi.VaultPolicy {
 		in.Labels = core_util.UpsertMap(in.Labels, vp.Labels)
 		in.Spec.PolicyDocument = vp.Spec.PolicyDocument
 		in.Spec.Policy = vp.Spec.Policy
 		in.Spec.VaultRef = vp.Spec.VaultRef
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
-	})
+	}, metav1.PatchOptions{})
 	if err != nil {
 		return errors.Wrapf(err, "failed to ensure VaultPolicy %s/%s", vp.Namespace, vp.Name)
 	}
@@ -213,12 +221,12 @@ func ensureVaultPolicy(c policycs.PolicyV1alpha1Interface, vp *policyapi.VaultPo
 }
 
 func ensureVaultPolicyBinding(c policycs.PolicyV1alpha1Interface, vpb *policyapi.VaultPolicyBinding, vs *api.VaultServer) error {
-	_, _, err := patchutil.CreateOrPatchVaultPolicyBinding(c, vpb.ObjectMeta, func(in *policyapi.VaultPolicyBinding) *policyapi.VaultPolicyBinding {
+	_, _, err := policyutil.CreateOrPatchVaultPolicyBinding(context.TODO(), c, vpb.ObjectMeta, func(in *policyapi.VaultPolicyBinding) *policyapi.VaultPolicyBinding {
 		in.Labels = core_util.UpsertMap(in.Labels, vpb.Labels)
 		in.Spec = vpb.Spec
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
-	})
+	}, metav1.PatchOptions{})
 	if err != nil {
 		return errors.Wrapf(err, "failed to ensure VaultPolicyBinding %s/%s", vpb.Namespace, vpb.Name)
 	}
@@ -331,7 +339,7 @@ func waitUntilVaultServerIsReady(c vaultcs.KubevaultV1alpha1Interface, vs *api.V
 	err = wait.PollUntil(5*time.Second, func() (done bool, err error) {
 		attempt++
 		var err2 error
-		vs, err2 = c.VaultServers(vs.Namespace).Get(vs.Name, metav1.GetOptions{})
+		vs, err2 = c.VaultServers(vs.Namespace).Get(context.TODO(), vs.Name, metav1.GetOptions{})
 		if err2 != nil {
 			return false, err2
 		}
@@ -353,7 +361,7 @@ func waitUntilVaultPolicyIsReady(c policycs.PolicyV1alpha1Interface, vp *policya
 	err = wait.PollUntil(2*time.Second, func() (done bool, err error) {
 		attempt++
 		var err2 error
-		vp, err2 = c.VaultPolicies(vp.Namespace).Get(vp.Name, metav1.GetOptions{})
+		vp, err2 = c.VaultPolicies(vp.Namespace).Get(context.TODO(), vp.Name, metav1.GetOptions{})
 		if err2 != nil {
 			return false, err2
 		}
@@ -375,7 +383,7 @@ func waitUntilVaultPolicyBindingIsReady(c policycs.PolicyV1alpha1Interface, vpb 
 	err = wait.PollUntil(2*time.Second, func() (done bool, err error) {
 		attempt++
 		var err2 error
-		vpb, err2 = c.VaultPolicyBindings(vpb.Namespace).Get(vpb.Name, metav1.GetOptions{})
+		vpb, err2 = c.VaultPolicyBindings(vpb.Namespace).Get(context.TODO(), vpb.Name, metav1.GetOptions{})
 		if err2 != nil {
 			return false, err2
 		}
@@ -401,7 +409,7 @@ func newVaultClientForAuthMethodController(kc kubernetes.Interface, appc appcat_
 		return nil, err
 	}
 
-	vApp, err := appc.AppBindings(vs.Namespace).Get(vs.AppBindingName(), metav1.GetOptions{})
+	vApp, err := appc.AppBindings(vs.Namespace).Get(context.TODO(), vs.AppBindingName(), metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}

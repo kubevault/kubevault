@@ -132,7 +132,7 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 		args = append(args, fmt.Sprintf("--retry-period=%s", p.String()))
 	}
 	if unslr.OverwriteExisting {
-		args = append(args, fmt.Sprintf("--overwrite-existing=true"))
+		args = append(args, "--overwrite-existing=true")
 	}
 
 	if u.vs.Spec.TLS != nil && u.vs.Spec.TLS.CABundle != nil {

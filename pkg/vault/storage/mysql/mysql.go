@@ -17,6 +17,7 @@ limitations under the License.
 package mysql
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -52,7 +53,7 @@ func NewOptions(kubeClient kubernetes.Interface, namespace string, s api.MySQLSp
 	)
 
 	if s.UserCredentialSecret != "" {
-		sr, err := kubeClient.CoreV1().Secrets(namespace).Get(s.UserCredentialSecret, metav1.GetOptions{})
+		sr, err := kubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), s.UserCredentialSecret, metav1.GetOptions{})
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to get user credential secret(%s)", s.UserCredentialSecret)
 		}

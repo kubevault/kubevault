@@ -17,13 +17,17 @@ limitations under the License.
 package framework
 
 import (
+	"context"
+
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (f *Framework) UpdateDatabaseAccessRequestStatus(status *api.DatabaseAccessRequestStatus, dbAReq *api.DatabaseAccessRequest) error {
-	_, err := patchutil.UpdateDatabaseAccessRequestStatus(f.CSClient.EngineV1alpha1(), dbAReq.ObjectMeta, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
+	_, err := patchutil.UpdateDatabaseAccessRequestStatus(context.TODO(), f.CSClient.EngineV1alpha1(), dbAReq.ObjectMeta, func(s *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
 		return status
-	})
+	}, metav1.UpdateOptions{})
 	return err
 }

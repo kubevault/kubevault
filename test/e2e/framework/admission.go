@@ -17,6 +17,7 @@ limitations under the License.
 package framework
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"os"
@@ -34,6 +35,7 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	restclient "k8s.io/client-go/rest"
 	kapi "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1beta1"
+	meta_util "kmodules.xyz/client-go/meta"
 )
 
 func (f *Framework) NewTestVaultServerOptions(kubeConfigPath string, controllerOptions *srvr.ExtraOptions) *srvr.VaultServerOptions {
@@ -71,7 +73,7 @@ func (f *Framework) StartAPIServerAndOperator(config *restclient.Config, kubeCon
 }
 
 func (f *Framework) isApiSvcReady(apiSvcName string) error {
-	apiSvc, err := f.KAClient.ApiregistrationV1beta1().APIServices().Get(apiSvcName, metav1.GetOptions{})
+	apiSvc, err := f.KAClient.ApiregistrationV1beta1().APIServices().Get(context.TODO(), apiSvcName, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -104,26 +106,26 @@ func (f *Framework) EventuallyAPIServerReady() GomegaAsyncAssertion {
 
 func (f *Framework) CleanAdmissionConfigs() {
 	// delete validating webhook
-	if err := f.KubeClient.AdmissionregistrationV1beta1().ValidatingWebhookConfigurations().DeleteCollection(deleteInForeground(), metav1.ListOptions{
+	if err := f.KubeClient.AdmissionregistrationV1beta1().ValidatingWebhookConfigurations().DeleteCollection(context.TODO(), meta_util.DeleteInForeground(), metav1.ListOptions{
 		LabelSelector: "app=vault-operator",
 	}); err != nil && !kerr.IsNotFound(err) {
 		fmt.Printf("error in deletion of Validating Webhook. Error: %v", err)
 	}
 
 	// Delete APIService
-	if err := f.KAClient.ApiregistrationV1beta1().APIServices().DeleteCollection(deleteInBackground(), metav1.ListOptions{
+	if err := f.KAClient.ApiregistrationV1beta1().APIServices().DeleteCollection(context.TODO(), meta_util.DeleteInBackground(), metav1.ListOptions{
 		LabelSelector: "app=vault-operator",
 	}); err != nil && !kerr.IsNotFound(err) {
 		fmt.Printf("error in deletion of APIService. Error: %v", err)
 	}
 
 	// Delete Service
-	if err := f.KubeClient.CoreV1().Services("default").Delete("vault-operator", &metav1.DeleteOptions{}); err != nil && !kerr.IsNotFound(err) {
+	if err := f.KubeClient.CoreV1().Services("default").Delete(context.TODO(), "vault-operator", metav1.DeleteOptions{}); err != nil && !kerr.IsNotFound(err) {
 		fmt.Printf("error in deletion of Service. Error: %v", err)
 	}
 
 	// Delete Endpoints
-	if err := f.KubeClient.CoreV1().Endpoints("default").DeleteCollection(deleteInBackground(), metav1.ListOptions{
+	if err := f.KubeClient.CoreV1().Endpoints("default").DeleteCollection(context.TODO(), meta_util.DeleteInBackground(), metav1.ListOptions{
 		LabelSelector: "app=vault-operator",
 	}); err != nil && !kerr.IsNotFound(err) {
 		fmt.Printf("error in deletion of Endpoints. Error: %v", err)

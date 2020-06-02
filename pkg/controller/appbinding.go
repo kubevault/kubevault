@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"encoding/json"
 
 	vaultconfig "kubevault.dev/operator/apis/config/v1alpha1"
@@ -66,7 +67,7 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 	if err != nil {
 		return err
 	}
-	_, _, err = appcat_util.CreateOrPatchAppBinding(c.appCatalogClient, meta, func(in *appcat.AppBinding) *appcat.AppBinding {
+	_, _, err = appcat_util.CreateOrPatchAppBinding(context.TODO(), c.appCatalogClient, meta, func(in *appcat.AppBinding) *appcat.AppBinding {
 		in.Labels = vs.OffshootLabels()
 		in.Spec.ClientConfig = vClientConf
 		in.Spec.Parameters = &runtime.RawExtension{
@@ -74,6 +75,6 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 		}
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
-	})
+	}, metav1.PatchOptions{})
 	return err
 }

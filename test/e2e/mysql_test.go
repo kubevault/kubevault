@@ -17,6 +17,7 @@ limitations under the License.
 package e2e_test
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -42,21 +43,21 @@ var _ = Describe("MySQL Secret Engine", func() {
 		IsSecretEngineCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine is created")
 		}
 		IsSecretEngineDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine is deleted")
 		}
 		IsSecretEngineSucceeded = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether SecretEngine:(%s/%s) is succeeded", namespace, name))
 			Eventually(func() bool {
-				r, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(name, metav1.GetOptions{})
+				r, err := f.CSClient.EngineV1alpha1().SecretEngines(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return r.Status.Phase == controller.SecretEnginePhaseSuccess
 				}
@@ -67,21 +68,21 @@ var _ = Describe("MySQL Secret Engine", func() {
 		IsMySQLRoleCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether MySQLRole:(%s/%s) role is created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().MySQLRoles(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().MySQLRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "MySQLRole is created")
 		}
 		IsMySQLRoleDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether MySQLRole:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().MySQLRoles(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().MySQLRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "MySQLRole is deleted")
 		}
 		IsMySQLRoleSucceeded = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether MySQLRole:(%s/%s) is succeeded", namespace, name))
 			Eventually(func() bool {
-				r, err := f.CSClient.EngineV1alpha1().MySQLRoles(namespace).Get(name, metav1.GetOptions{})
+				r, err := f.CSClient.EngineV1alpha1().MySQLRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return r.Status.Phase == controller.MySQLRolePhaseSuccess
 				}
@@ -93,7 +94,7 @@ var _ = Describe("MySQL Secret Engine", func() {
 		IsMySQLRoleFailed = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether MySQLRole:(%s/%s) is failed", namespace, name))
 			Eventually(func() bool {
-				r, err := f.CSClient.EngineV1alpha1().MySQLRoles(namespace).Get(name, metav1.GetOptions{})
+				r, err := f.CSClient.EngineV1alpha1().MySQLRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return r.Status.Phase != controller.MySQLRolePhaseSuccess && len(r.Status.Conditions) != 0
 				}
@@ -103,21 +104,21 @@ var _ = Describe("MySQL Secret Engine", func() {
 		IsDatabaseAccessRequestCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether DatabaseAccessRequest:(%s/%s) is created", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil
 			}, timeOut, pollingInterval).Should(BeTrue(), "DatabaseAccessRequest is created")
 		}
 		IsDatabaseAccessRequestDeleted = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether DatabaseAccessRequest:(%s/%s) is deleted", namespace, name))
 			Eventually(func() bool {
-				_, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
+				_, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerrors.IsNotFound(err)
 			}, timeOut, pollingInterval).Should(BeTrue(), "DatabaseAccessRequest is deleted")
 		}
 		IsMySQLAKRConditionApproved = func(name, namespace string) {
-			By(fmt.Sprintf("Checking whether DatabaseAccessRequestConditions-> Type: Approved"))
+			By("Checking whether DatabaseAccessRequestConditions-> Type: Approved")
 			Eventually(func() bool {
-				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
+				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
 						if value.Type == kmapi.ConditionRequestApproved {
@@ -129,9 +130,9 @@ var _ = Describe("MySQL Secret Engine", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type : Approved")
 		}
 		IsMySQLAKRConditionDenied = func(name, namespace string) {
-			By(fmt.Sprintf("Checking whether DatabaseAccessRequestConditions-> Type: Denied"))
+			By("Checking whether DatabaseAccessRequestConditions-> Type: Denied")
 			Eventually(func() bool {
-				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
+				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
 						if value.Type == kmapi.ConditionRequestDenied {
@@ -145,9 +146,9 @@ var _ = Describe("MySQL Secret Engine", func() {
 		IsMySQLAccessKeySecretCreated = func(name, namespace string) {
 			By("Checking whether MySQLAccessKeySecret is created")
 			Eventually(func() bool {
-				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(name, metav1.GetOptions{})
+				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil && crd.Status.Secret != nil {
-					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(crd.Status.Secret.Name, metav1.GetOptions{})
+					_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), crd.Status.Secret.Name, metav1.GetOptions{})
 					return err2 == nil
 				}
 				return false
@@ -156,7 +157,7 @@ var _ = Describe("MySQL Secret Engine", func() {
 		IsMySQLAccessKeySecretDeleted = func(secretName, namespace string) {
 			By("Checking whether MySQLAccessKeySecret is deleted")
 			Eventually(func() bool {
-				_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(secretName, metav1.GetOptions{})
+				_, err2 := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 				return kerrors.IsNotFound(err2)
 			}, timeOut, pollingInterval).Should(BeTrue(), "MySQLAccessKeySecret is deleted")
 		}
@@ -240,13 +241,13 @@ var _ = Describe("MySQL Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting MySQLRole...")
-				err := f.CSClient.EngineV1alpha1().MySQLRoles(MySQLRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().MySQLRoles(MySQLRole.Namespace).Delete(context.TODO(), p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete MySQLRole")
 
 				IsMySQLRoleDeleted(p.Name, p.Namespace)
 
 				By("Deleting SecretEngine...")
-				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(se.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Delete(context.TODO(), se.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete Secret engine")
 
 				IsSecretEngineDeleted(se.Name, se.Namespace)
@@ -254,14 +255,14 @@ var _ = Describe("MySQL Secret Engine", func() {
 
 			It("Should be successful", func() {
 				By("Creating SecretEngine...")
-				_, err := f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Create(&se)
+				_, err := f.CSClient.EngineV1alpha1().SecretEngines(se.Namespace).Create(context.TODO(), &se, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create SecretEngine")
 
 				IsSecretEngineCreated(se.Name, se.Namespace)
 				IsSecretEngineSucceeded(se.Name, se.Namespace)
 
 				By("Creating MySQLRole...")
-				_, err = f.CSClient.EngineV1alpha1().MySQLRoles(p.Namespace).Create(&p)
+				_, err = f.CSClient.EngineV1alpha1().MySQLRoles(p.Namespace).Create(context.TODO(), &p, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create MySQLRole")
 
 				IsMySQLRoleCreated(p.Name, p.Namespace)
@@ -279,7 +280,7 @@ var _ = Describe("MySQL Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting MySQLRole...")
-				err := f.CSClient.EngineV1alpha1().MySQLRoles(MySQLRole.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().MySQLRoles(MySQLRole.Namespace).Delete(context.TODO(), p.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete MySQLRole")
 
 				IsMySQLRoleDeleted(p.Name, p.Namespace)
@@ -289,7 +290,7 @@ var _ = Describe("MySQL Secret Engine", func() {
 			It("Should be failed making MySQLRole", func() {
 
 				By("Creating MySQLRole...")
-				_, err := f.CSClient.EngineV1alpha1().MySQLRoles(p.Namespace).Create(&p)
+				_, err := f.CSClient.EngineV1alpha1().MySQLRoles(p.Namespace).Create(context.TODO(), &p, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create MySQLRole")
 
 				IsMySQLRoleCreated(p.Name, p.Namespace)
@@ -336,7 +337,7 @@ var _ = Describe("MySQL Secret Engine", func() {
 					},
 				},
 			}
-			_, err := f.CSClient.EngineV1alpha1().SecretEngines(MySQLSE.Namespace).Create(&MySQLSE)
+			_, err := f.CSClient.EngineV1alpha1().SecretEngines(MySQLSE.Namespace).Create(context.TODO(), &MySQLSE, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Create MySQL SecretEngine")
 			IsSecretEngineCreated(MySQLSE.Name, MySQLSE.Namespace)
 
@@ -383,14 +384,14 @@ var _ = Describe("MySQL Secret Engine", func() {
 		})
 
 		AfterEach(func() {
-			err := f.CSClient.EngineV1alpha1().SecretEngines(MySQLSE.Namespace).Delete(MySQLSE.Name, &metav1.DeleteOptions{})
+			err := f.CSClient.EngineV1alpha1().SecretEngines(MySQLSE.Namespace).Delete(context.TODO(), MySQLSE.Name, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred(), "Delete MySQL SecretEngine")
 			IsSecretEngineDeleted(MySQLSE.Name, MySQLSE.Namespace)
 		})
 
 		Context("Create, Approve, Deny DatabaseAccessRequests", func() {
 			BeforeEach(func() {
-				_, err := f.CSClient.EngineV1alpha1().MySQLRoles(MySQLRole.Namespace).Create(&MySQLRole)
+				_, err := f.CSClient.EngineV1alpha1().MySQLRoles(MySQLRole.Namespace).Create(context.TODO(), &MySQLRole, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create MySQLRole")
 
 				IsMySQLRoleCreated(MySQLRole.Name, MySQLRole.Namespace)
@@ -399,17 +400,17 @@ var _ = Describe("MySQL Secret Engine", func() {
 			})
 
 			AfterEach(func() {
-				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Delete(MySQLAKR.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Delete(context.TODO(), MySQLAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete DatabaseAccessRequest")
 				IsDatabaseAccessRequestDeleted(MySQLAKR.Name, MySQLAKR.Namespace)
 
-				err = f.CSClient.EngineV1alpha1().MySQLRoles(MySQLRole.Namespace).Delete(MySQLRole.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().MySQLRoles(MySQLRole.Namespace).Delete(context.TODO(), MySQLRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete MySQLRole")
 				IsMySQLRoleDeleted(MySQLRole.Name, MySQLRole.Namespace)
 			})
 
 			It("Should be successful, Create DatabaseAccessRequest", func() {
-				_, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Create(&MySQLAKR)
+				_, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Create(context.TODO(), &MySQLAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create DatabaseAccessRequest")
 
 				IsDatabaseAccessRequestCreated(MySQLAKR.Name, MySQLAKR.Namespace)
@@ -417,7 +418,7 @@ var _ = Describe("MySQL Secret Engine", func() {
 
 			It("Should be successful, Condition approved", func() {
 				By("Creating DatabaseAccessRequest...")
-				r, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Create(&MySQLAKR)
+				r, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Create(context.TODO(), &MySQLAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create DatabaseAccessRequest")
 
 				IsDatabaseAccessRequestCreated(MySQLAKR.Name, MySQLAKR.Namespace)
@@ -437,7 +438,7 @@ var _ = Describe("MySQL Secret Engine", func() {
 
 			It("Should be successful, Condition denied", func() {
 				By("Creating DatabaseAccessRequest...")
-				r, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Create(&MySQLAKR)
+				r, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Create(context.TODO(), &MySQLAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create DatabaseAccessRequest")
 
 				IsDatabaseAccessRequestCreated(MySQLAKR.Name, MySQLAKR.Namespace)
@@ -465,7 +466,7 @@ var _ = Describe("MySQL Secret Engine", func() {
 			BeforeEach(func() {
 
 				By("Creating MySQLRole...")
-				r, err := f.CSClient.EngineV1alpha1().MySQLRoles(MySQLRole.Namespace).Create(&MySQLRole)
+				r, err := f.CSClient.EngineV1alpha1().MySQLRoles(MySQLRole.Namespace).Create(context.TODO(), &MySQLRole, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create MySQLRole")
 
 				IsMySQLRoleSucceeded(r.Name, r.Namespace)
@@ -474,14 +475,14 @@ var _ = Describe("MySQL Secret Engine", func() {
 
 			AfterEach(func() {
 				By("Deleting MySQL accesskeyrequest...")
-				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Delete(MySQLAKR.Name, &metav1.DeleteOptions{})
+				err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Delete(context.TODO(), MySQLAKR.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete DatabaseAccessRequest")
 
 				IsDatabaseAccessRequestDeleted(MySQLAKR.Name, MySQLAKR.Namespace)
 				IsMySQLAccessKeySecretDeleted(secretName, MySQLAKR.Namespace)
 
 				By("Deleting MySQLRole...")
-				err = f.CSClient.EngineV1alpha1().MySQLRoles(MySQLRole.Namespace).Delete(MySQLRole.Name, &metav1.DeleteOptions{})
+				err = f.CSClient.EngineV1alpha1().MySQLRoles(MySQLRole.Namespace).Delete(context.TODO(), MySQLRole.Name, metav1.DeleteOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Delete MySQLRole")
 
 				IsMySQLRoleDeleted(MySQLRole.Name, MySQLRole.Namespace)
@@ -489,7 +490,7 @@ var _ = Describe("MySQL Secret Engine", func() {
 
 			It("Should be successful, Create Access Key Secret", func() {
 				By("Creating MySQL accessKeyRequest...")
-				r, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Create(&MySQLAKR)
+				r, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Create(context.TODO(), &MySQLAKR, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Create DatabaseAccessRequest")
 
 				IsDatabaseAccessRequestCreated(MySQLAKR.Name, MySQLAKR.Namespace)
@@ -509,7 +510,7 @@ var _ = Describe("MySQL Secret Engine", func() {
 
 				IsMySQLAccessKeySecretCreated(MySQLAKR.Name, MySQLAKR.Namespace)
 
-				d, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Get(MySQLAKR.Name, metav1.GetOptions{})
+				d, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(MySQLAKR.Namespace).Get(context.TODO(), MySQLAKR.Name, metav1.GetOptions{})
 				Expect(err).NotTo(HaveOccurred(), "Get DatabaseAccessRequest")
 				if d.Status.Secret != nil {
 					secretName = d.Status.Secret.Name

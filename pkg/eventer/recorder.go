@@ -17,6 +17,7 @@ limitations under the License.
 package eventer
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -60,7 +61,7 @@ func NewEventRecorder(client kubernetes.Interface, component string) record.Even
 	broadcaster := record.NewBroadcaster()
 	broadcaster.StartEventWatcher(
 		func(event *core.Event) {
-			if _, err := client.CoreV1().Events(event.Namespace).Create(event); err != nil {
+			if _, err := client.CoreV1().Events(event.Namespace).Create(context.TODO(), event, metav1.CreateOptions{}); err != nil {
 				log.Errorln(err)
 			}
 		},
@@ -77,7 +78,7 @@ func CreateEvent(client kubernetes.Interface, component string, obj runtime.Obje
 
 	t := metav1.Time{Time: time.Now()}
 
-	return client.CoreV1().Events(ref.Namespace).Create(&core.Event{
+	return client.CoreV1().Events(ref.Namespace).Create(context.TODO(), &core.Event{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%v.%x", ref.Name, t.UnixNano()),
 			Namespace: ref.Namespace,
@@ -90,7 +91,7 @@ func CreateEvent(client kubernetes.Interface, component string, obj runtime.Obje
 		Count:          1,
 		Type:           eventType,
 		Source:         core.EventSource{Component: component},
-	})
+	}, metav1.CreateOptions{})
 }
 
 func CreateEventWithLog(client kubernetes.Interface, component string, obj runtime.Object, eventType, reason, message string) {

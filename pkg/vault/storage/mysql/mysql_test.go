@@ -17,6 +17,7 @@ limitations under the License.
 package mysql
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -41,7 +42,7 @@ func TestOptions_GetStorageConfig(t *testing.T) {
 			"password": []byte("root"),
 		},
 	}
-	_, err := kClient.CoreV1().Secrets(ns).Create(&sr)
+	_, err := kClient.CoreV1().Secrets(ns).Create(context.TODO(), &sr, metav1.CreateOptions{})
 	if !assert.Nil(t, err) {
 		return
 	}

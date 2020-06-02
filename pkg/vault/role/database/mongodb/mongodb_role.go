@@ -17,6 +17,7 @@ limitations under the License.
 package mongodb
 
 import (
+	"context"
 	"fmt"
 
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
@@ -39,7 +40,7 @@ type MongoDBRole struct {
 
 func NewMongoDBRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, v *vaultapi.Client, mdbRole *api.MongoDBRole, databasePath string) (*MongoDBRole, error) {
 	ref := mdbRole.Spec.DatabaseRef
-	dbBinding, err := appClient.AppBindings(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
+	dbBinding, err := appClient.AppBindings(ref.Namespace).Get(context.TODO(), ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}

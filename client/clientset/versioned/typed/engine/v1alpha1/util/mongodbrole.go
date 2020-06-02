@@ -17,6 +17,7 @@ limitations under the License.
 package util
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -33,29 +34,50 @@ import (
 	kutil "kmodules.xyz/client-go"
 )
 
-func CreateOrPatchMongoDBRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.MongoDBRole) *api.MongoDBRole) (*api.MongoDBRole, kutil.VerbType, error) {
-	cur, err := c.MongoDBRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+func CreateOrPatchMongoDBRole(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(alert *api.MongoDBRole) *api.MongoDBRole,
+	opts metav1.PatchOptions,
+) (*api.MongoDBRole, kutil.VerbType, error) {
+	cur, err := c.MongoDBRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		glog.V(3).Infof("Creating MongoDBRole %s/%s.", meta.Namespace, meta.Name)
-		out, err := c.MongoDBRoles(meta.Namespace).Create(transform(&api.MongoDBRole{
+		out, err := c.MongoDBRoles(meta.Namespace).Create(ctx, transform(&api.MongoDBRole{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       api.ResourceKindMongoDBRole,
 				APIVersion: api.SchemeGroupVersion.String(),
 			},
 			ObjectMeta: meta,
-		}))
+		}),
+			metav1.CreateOptions{
+				DryRun:       opts.DryRun,
+				FieldManager: opts.FieldManager,
+			})
 		return out, kutil.VerbCreated, err
 	} else if err != nil {
 		return nil, kutil.VerbUnchanged, err
 	}
-	return PatchMongoDBRole(c, cur, transform)
+	return PatchMongoDBRole(ctx, c, cur, transform, opts)
 }
 
-func PatchMongoDBRole(c cs.EngineV1alpha1Interface, cur *api.MongoDBRole, transform func(*api.MongoDBRole) *api.MongoDBRole) (*api.MongoDBRole, kutil.VerbType, error) {
-	return PatchMongoDBRoleObject(c, cur, transform(cur.DeepCopy()))
+func PatchMongoDBRole(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur *api.MongoDBRole,
+	transform func(*api.MongoDBRole) *api.MongoDBRole,
+	opts metav1.PatchOptions,
+) (*api.MongoDBRole, kutil.VerbType, error) {
+	return PatchMongoDBRoleObject(ctx, c, cur, transform(cur.DeepCopy()), opts)
 }
 
-func PatchMongoDBRoleObject(c cs.EngineV1alpha1Interface, cur, mod *api.MongoDBRole) (*api.MongoDBRole, kutil.VerbType, error) {
+func PatchMongoDBRoleObject(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur, mod *api.MongoDBRole,
+	opts metav1.PatchOptions,
+) (*api.MongoDBRole, kutil.VerbType, error) {
 	curJson, err := json.Marshal(cur)
 	if err != nil {
 		return nil, kutil.VerbUnchanged, err
@@ -74,19 +96,25 @@ func PatchMongoDBRoleObject(c cs.EngineV1alpha1Interface, cur, mod *api.MongoDBR
 		return cur, kutil.VerbUnchanged, nil
 	}
 	glog.V(3).Infof("Patching MongoDBRole %s/%s with %s.", cur.Namespace, cur.Name, string(patch))
-	out, err := c.MongoDBRoles(cur.Namespace).Patch(cur.Name, types.MergePatchType, patch)
+	out, err := c.MongoDBRoles(cur.Namespace).Patch(ctx, cur.Name, types.MergePatchType, patch, opts)
 	return out, kutil.VerbPatched, err
 }
 
-func TryUpdateMongoDBRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.MongoDBRole) *api.MongoDBRole) (result *api.MongoDBRole, err error) {
+func TryUpdateMongoDBRole(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(*api.MongoDBRole) *api.MongoDBRole,
+	opts metav1.UpdateOptions,
+) (result *api.MongoDBRole, err error) {
 	attempt := 0
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
-		cur, e2 := c.MongoDBRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+		cur, e2 := c.MongoDBRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 		if kerr.IsNotFound(e2) {
 			return false, e2
 		} else if e2 == nil {
-			result, e2 = c.MongoDBRoles(cur.Namespace).Update(transform(cur.DeepCopy()))
+			result, e2 = c.MongoDBRoles(cur.Namespace).Update(ctx, transform(cur.DeepCopy()), opts)
 			return e2 == nil, nil
 		}
 		glog.Errorf("Attempt %d failed to update MongoDBRole %s/%s due to %v.", attempt, cur.Namespace, cur.Name, e2)
@@ -100,9 +128,11 @@ func TryUpdateMongoDBRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, 
 }
 
 func UpdateMongoDBRoleStatus(
+	ctx context.Context,
 	c cs.EngineV1alpha1Interface,
 	meta metav1.ObjectMeta,
 	transform func(*api.MongoDBRoleStatus) *api.MongoDBRoleStatus,
+	opts metav1.UpdateOptions,
 ) (result *api.MongoDBRole, err error) {
 	apply := func(x *api.MongoDBRole) *api.MongoDBRole {
 		return &api.MongoDBRole{
@@ -114,16 +144,16 @@ func UpdateMongoDBRoleStatus(
 	}
 
 	attempt := 0
-	cur, err := c.MongoDBRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+	cur, err := c.MongoDBRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
 		var e2 error
-		result, e2 = c.MongoDBRoles(meta.Namespace).UpdateStatus(apply(cur))
+		result, e2 = c.MongoDBRoles(meta.Namespace).UpdateStatus(ctx, apply(cur), opts)
 		if kerr.IsConflict(e2) {
-			latest, e3 := c.MongoDBRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+			latest, e3 := c.MongoDBRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 			switch {
 			case e3 == nil:
 				cur = latest

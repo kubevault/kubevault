@@ -17,6 +17,7 @@ limitations under the License.
 package admission
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"sync"
@@ -126,7 +127,7 @@ func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs
 	if vs.Spec.Version == "" {
 		return errors.New(`'spec.version' is missing`)
 	}
-	if _, err := extClient.CatalogV1alpha1().VaultServerVersions().Get(string(vs.Spec.Version), metav1.GetOptions{}); err != nil {
+	if _, err := extClient.CatalogV1alpha1().VaultServerVersions().Get(context.TODO(), string(vs.Spec.Version), metav1.GetOptions{}); err != nil {
 		return err
 	}
 
@@ -440,7 +441,7 @@ func preconditionFailedError() error {
 //	- whether secret exists
 //	- whether value for requiredKeys exists
 func validateSecret(kc kubernetes.Interface, name string, ns string, requiredKeys []string) error {
-	sr, err := kc.CoreV1().Secrets(ns).Get(name, metav1.GetOptions{})
+	sr, err := kc.CoreV1().Secrets(ns).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}

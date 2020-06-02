@@ -17,11 +17,13 @@ limitations under the License.
 package framework
 
 import (
+	"context"
 	"fmt"
 
 	api "kubevault.dev/operator/apis/catalog/v1alpha1"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	meta_util "kmodules.xyz/client-go/meta"
 )
 
 func (f *Framework) CreateVaultserverVersion() error {
@@ -42,10 +44,10 @@ func (f *Framework) CreateVaultserverVersion() error {
 			},
 		},
 	}
-	_, err := f.CSClient.CatalogV1alpha1().VaultServerVersions().Create(v)
+	_, err := f.CSClient.CatalogV1alpha1().VaultServerVersions().Create(context.TODO(), v, metav1.CreateOptions{})
 	return err
 }
 
 func (f *Framework) DeleteVaultserverVersion() error {
-	return f.CSClient.CatalogV1alpha1().VaultServerVersions().Delete(vaultVersion, deleteInForeground())
+	return f.CSClient.CatalogV1alpha1().VaultServerVersions().Delete(context.TODO(), vaultVersion, meta_util.DeleteInForeground())
 }

@@ -17,6 +17,7 @@ limitations under the License.
 package util
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -33,29 +34,50 @@ import (
 	kutil "kmodules.xyz/client-go"
 )
 
-func CreateOrPatchAzureAccessKeyRequest(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest) (*api.AzureAccessKeyRequest, kutil.VerbType, error) {
-	cur, err := c.AzureAccessKeyRequests(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+func CreateOrPatchAzureAccessKeyRequest(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(alert *api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest,
+	opts metav1.PatchOptions,
+) (*api.AzureAccessKeyRequest, kutil.VerbType, error) {
+	cur, err := c.AzureAccessKeyRequests(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		glog.V(3).Infof("Creating AzureAccessKeyRequest %s/%s.", meta.Namespace, meta.Name)
-		out, err := c.AzureAccessKeyRequests(meta.Namespace).Create(transform(&api.AzureAccessKeyRequest{
+		out, err := c.AzureAccessKeyRequests(meta.Namespace).Create(ctx, transform(&api.AzureAccessKeyRequest{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       api.ResourceKindAzureAccessKeyRequest,
 				APIVersion: api.SchemeGroupVersion.String(),
 			},
 			ObjectMeta: meta,
-		}))
+		}),
+			metav1.CreateOptions{
+				DryRun:       opts.DryRun,
+				FieldManager: opts.FieldManager,
+			})
 		return out, kutil.VerbCreated, err
 	} else if err != nil {
 		return nil, kutil.VerbUnchanged, err
 	}
-	return PatchAzureAccessKeyRequest(c, cur, transform)
+	return PatchAzureAccessKeyRequest(ctx, c, cur, transform, opts)
 }
 
-func PatchAzureAccessKeyRequest(c cs.EngineV1alpha1Interface, cur *api.AzureAccessKeyRequest, transform func(*api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest) (*api.AzureAccessKeyRequest, kutil.VerbType, error) {
-	return PatchAzureAccessKeyRequestObject(c, cur, transform(cur.DeepCopy()))
+func PatchAzureAccessKeyRequest(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur *api.AzureAccessKeyRequest,
+	transform func(*api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest,
+	opts metav1.PatchOptions,
+) (*api.AzureAccessKeyRequest, kutil.VerbType, error) {
+	return PatchAzureAccessKeyRequestObject(ctx, c, cur, transform(cur.DeepCopy()), opts)
 }
 
-func PatchAzureAccessKeyRequestObject(c cs.EngineV1alpha1Interface, cur, mod *api.AzureAccessKeyRequest) (*api.AzureAccessKeyRequest, kutil.VerbType, error) {
+func PatchAzureAccessKeyRequestObject(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur, mod *api.AzureAccessKeyRequest,
+	opts metav1.PatchOptions,
+) (*api.AzureAccessKeyRequest, kutil.VerbType, error) {
 	curJson, err := json.Marshal(cur)
 	if err != nil {
 		return nil, kutil.VerbUnchanged, err
@@ -74,19 +96,25 @@ func PatchAzureAccessKeyRequestObject(c cs.EngineV1alpha1Interface, cur, mod *ap
 		return cur, kutil.VerbUnchanged, nil
 	}
 	glog.V(3).Infof("Patching AzureAccessKeyRequest %s/%s with %s.", cur.Namespace, cur.Name, string(patch))
-	out, err := c.AzureAccessKeyRequests(cur.Namespace).Patch(cur.Name, types.MergePatchType, patch)
+	out, err := c.AzureAccessKeyRequests(cur.Namespace).Patch(ctx, cur.Name, types.MergePatchType, patch, opts)
 	return out, kutil.VerbPatched, err
 }
 
-func TryUpdateAzureAccessKeyRequest(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest) (result *api.AzureAccessKeyRequest, err error) {
+func TryUpdateAzureAccessKeyRequest(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(*api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest,
+	opts metav1.UpdateOptions,
+) (result *api.AzureAccessKeyRequest, err error) {
 	attempt := 0
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
-		cur, e2 := c.AzureAccessKeyRequests(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+		cur, e2 := c.AzureAccessKeyRequests(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 		if kerr.IsNotFound(e2) {
 			return false, e2
 		} else if e2 == nil {
-			result, e2 = c.AzureAccessKeyRequests(cur.Namespace).Update(transform(cur.DeepCopy()))
+			result, e2 = c.AzureAccessKeyRequests(cur.Namespace).Update(ctx, transform(cur.DeepCopy()), opts)
 			return e2 == nil, nil
 		}
 		glog.Errorf("Attempt %d failed to update AzureAccessKeyRequest %s/%s due to %v.", attempt, cur.Namespace, cur.Name, e2)
@@ -100,9 +128,11 @@ func TryUpdateAzureAccessKeyRequest(c cs.EngineV1alpha1Interface, meta metav1.Ob
 }
 
 func UpdateAzureAccessKeyRequestStatus(
+	ctx context.Context,
 	c cs.EngineV1alpha1Interface,
 	meta metav1.ObjectMeta,
 	transform func(*api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus,
+	opts metav1.UpdateOptions,
 ) (result *api.AzureAccessKeyRequest, err error) {
 	apply := func(x *api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest {
 		return &api.AzureAccessKeyRequest{
@@ -114,16 +144,16 @@ func UpdateAzureAccessKeyRequestStatus(
 	}
 
 	attempt := 0
-	cur, err := c.AzureAccessKeyRequests(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+	cur, err := c.AzureAccessKeyRequests(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
 		var e2 error
-		result, e2 = c.AzureAccessKeyRequests(meta.Namespace).UpdateStatus(apply(cur))
+		result, e2 = c.AzureAccessKeyRequests(meta.Namespace).UpdateStatus(ctx, apply(cur), opts)
 		if kerr.IsConflict(e2) {
-			latest, e3 := c.AzureAccessKeyRequests(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+			latest, e3 := c.AzureAccessKeyRequests(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 			switch {
 			case e3 == nil:
 				cur = latest

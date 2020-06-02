@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -30,6 +31,7 @@ import (
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
@@ -88,10 +90,10 @@ func (c *VaultController) runGCPAccessKeyRequestInjector(key string) error {
 		} else {
 			if !core_util.HasFinalizer(gcpAccessReq.ObjectMeta, GCPAccessKeyRequestFinalizer) {
 				// Add finalizer
-				_, _, err = patchutil.PatchGCPAccessKeyRequest(c.extClient.EngineV1alpha1(), gcpAccessReq, func(binding *api.GCPAccessKeyRequest) *api.GCPAccessKeyRequest {
+				_, _, err = patchutil.PatchGCPAccessKeyRequest(context.TODO(), c.extClient.EngineV1alpha1(), gcpAccessReq, func(binding *api.GCPAccessKeyRequest) *api.GCPAccessKeyRequest {
 					binding.ObjectMeta = core_util.AddFinalizer(binding.ObjectMeta, GCPAccessKeyRequestFinalizer)
 					return binding
-				})
+				}, metav1.PatchOptions{})
 				if err != nil {
 					return errors.Wrapf(err, "failed to set GCPAccessKeyRequest finalizer for %s/%s", gcpAccessReq.Namespace, gcpAccessReq.Name)
 				}
@@ -130,36 +132,39 @@ func (c *VaultController) runGCPAccessKeyRequestInjector(key string) error {
 //	  - create secret containing credential
 //	  - create rbac role and role binding
 //    - sync role binding
-func (c *VaultController) reconcileGCPAccessKeyRequest(gcpCM credential.CredentialManager, gcpAccessKeyReq *api.GCPAccessKeyRequest) error {
+func (c *VaultController) reconcileGCPAccessKeyRequest(gcpCM credential.CredentialManager, req *api.GCPAccessKeyRequest) error {
 	var (
-		name   = gcpAccessKeyReq.Name
-		ns     = gcpAccessKeyReq.Namespace
-		status = gcpAccessKeyReq.Status
+		name = req.Name
+		ns   = req.Namespace
 	)
 
 	var secretName string
-	if gcpAccessKeyReq.Status.Secret != nil {
-		secretName = gcpAccessKeyReq.Status.Secret.Name
+	if req.Status.Secret != nil {
+		secretName = req.Status.Secret.Name
 	}
 
 	// check whether lease id exists in .status.lease or not
 	// if does not exist in .status.lease, then get credential
-	if gcpAccessKeyReq.Status.Lease == nil {
+	if req.Status.Lease == nil {
 		// get gcp credential secret
 		credSecret, err := gcpCM.GetCredential()
 		if err != nil {
-			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-				Type:               kmapi.ConditionFailure,
-				Reason:             "FailedToGetCredential",
-				Message:            err.Error(),
-				LastTransitionTime: metav1.Now(),
-			})
-
-			err2 := c.updateGCPAccessKeyRequestStatus(&status, gcpAccessKeyReq)
-			if err2 != nil {
-				return errors.Wrapf(err2, "failed to update status")
-			}
-			return errors.WithStack(err)
+			_, err2 := patchutil.UpdateGCPAccessKeyRequestStatus(
+				context.TODO(),
+				c.extClient.EngineV1alpha1(),
+				req.ObjectMeta,
+				func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
+					status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+						Type:               kmapi.ConditionFailure,
+						Reason:             "FailedToGetCredential",
+						Message:            err.Error(),
+						LastTransitionTime: metav1.Now(),
+					})
+					return status
+				},
+				metav1.UpdateOptions{},
+			)
+			return utilerrors.NewAggregate([]error{err2, err})
 		}
 
 		secretName = rand.WithUniqSuffix(name)
@@ -171,98 +176,121 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(gcpCM credential.Credenti
 					return errors.Wrapf(err, "failed to revoke lease with %v", err2)
 				}
 			}
-			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-				Type:               kmapi.ConditionFailure,
-				Reason:             "FailedToCreateSecret",
-				Message:            err.Error(),
-				LastTransitionTime: metav1.Now(),
-			})
 
-			err2 := c.updateGCPAccessKeyRequestStatus(&status, gcpAccessKeyReq)
-			if err2 != nil {
-				return errors.Wrapf(err, "failed to update status with %v", err2)
-			}
-
-			return errors.WithStack(err)
+			_, err2 := patchutil.UpdateGCPAccessKeyRequestStatus(
+				context.TODO(),
+				c.extClient.EngineV1alpha1(),
+				req.ObjectMeta,
+				func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
+					status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+						Type:               kmapi.ConditionFailure,
+						Reason:             "FailedToCreateSecret",
+						Message:            err.Error(),
+						LastTransitionTime: metav1.Now(),
+					})
+					return status
+				},
+				metav1.UpdateOptions{},
+			)
+			return utilerrors.NewAggregate([]error{err2, err})
 		}
 
-		// add lease info in status
-		status.Lease = &api.Lease{
-			ID: credSecret.LeaseID,
-			Duration: metav1.Duration{
-				Duration: time.Second * time.Duration(credSecret.LeaseDuration),
+		_, err = patchutil.UpdateGCPAccessKeyRequestStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			req.ObjectMeta,
+			func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
+				// add lease info in status
+				status.Lease = &api.Lease{
+					ID: credSecret.LeaseID,
+					Duration: metav1.Duration{
+						Duration: time.Second * time.Duration(credSecret.LeaseDuration),
+					},
+					Renewable: credSecret.Renewable,
+				}
+
+				// assign secret name
+				status.Secret = &core.LocalObjectReference{
+					Name: secretName,
+				}
+
+				return status
 			},
-			Renewable: credSecret.Renewable,
-		}
-
-		// assign secret name
-		status.Secret = &core.LocalObjectReference{
-			Name: secretName,
+			metav1.UpdateOptions{},
+		)
+		if err != nil {
+			return err
 		}
 	}
 
-	roleName := getSecretAccessRoleName(api.ResourceKindGCPAccessKeyRequest, ns, gcpAccessKeyReq.Name)
+	roleName := getSecretAccessRoleName(api.ResourceKindGCPAccessKeyRequest, ns, req.Name)
 
 	err := gcpCM.CreateRole(roleName, ns, secretName)
 	if err != nil {
-		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-			Type:               kmapi.ConditionFailure,
-			Reason:             "FailedToCreateRole",
-			Message:            err.Error(),
-			LastTransitionTime: metav1.Now(),
-		})
-
-		err2 := c.updateGCPAccessKeyRequestStatus(&status, gcpAccessKeyReq)
-		if err2 != nil {
-			return errors.Wrapf(err2, "failed to update status")
-		}
-		return errors.WithStack(err)
+		_, err2 := patchutil.UpdateGCPAccessKeyRequestStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			req.ObjectMeta,
+			func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:               kmapi.ConditionFailure,
+					Reason:             "FailedToCreateRole",
+					Message:            err.Error(),
+					LastTransitionTime: metav1.Now(),
+				})
+				return status
+			},
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, err})
 	}
 
-	err = gcpCM.CreateRoleBinding(roleName, ns, roleName, gcpAccessKeyReq.Spec.Subjects)
+	err = gcpCM.CreateRoleBinding(roleName, ns, roleName, req.Spec.Subjects)
 	if err != nil {
-		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-			Type:               kmapi.ConditionFailure,
-			Reason:             "FailedToCreateRoleBinding",
-			Message:            err.Error(),
-			LastTransitionTime: metav1.Now(),
-		})
-
-		err2 := c.updateGCPAccessKeyRequestStatus(&status, gcpAccessKeyReq)
-		if err2 != nil {
-			return errors.Wrapf(err2, "failed to update status")
-		}
-		return errors.WithStack(err)
+		_, err2 := patchutil.UpdateGCPAccessKeyRequestStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			req.ObjectMeta,
+			func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:               kmapi.ConditionFailure,
+					Reason:             "FailedToCreateRoleBinding",
+					Message:            err.Error(),
+					LastTransitionTime: metav1.Now(),
+				})
+				return status
+			},
+			metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, err})
 	}
 
-	status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
-	err = c.updateGCPAccessKeyRequestStatus(&status, gcpAccessKeyReq)
-	if err != nil {
-		return errors.Wrap(err, "failed to update status")
-	}
-	return nil
-}
-
-func (c *VaultController) updateGCPAccessKeyRequestStatus(status *api.GCPAccessKeyRequestStatus, gcpAKReq *api.GCPAccessKeyRequest) error {
-	_, err := patchutil.UpdateGCPAccessKeyRequestStatus(c.extClient.EngineV1alpha1(), gcpAKReq.ObjectMeta, func(s *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
-		return status
-	})
+	_, err = patchutil.UpdateGCPAccessKeyRequestStatus(
+		context.TODO(),
+		c.extClient.EngineV1alpha1(),
+		req.ObjectMeta,
+		func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
+			return status
+		},
+		metav1.UpdateOptions{},
+	)
 	return err
 }
 
-func (c *VaultController) runGCPAccessKeyRequestFinalizer(gcpAKReq *api.GCPAccessKeyRequest, timeout time.Duration, interval time.Duration) {
-	if gcpAKReq == nil {
+func (c *VaultController) runGCPAccessKeyRequestFinalizer(req *api.GCPAccessKeyRequest, timeout time.Duration, interval time.Duration) {
+	if req == nil {
 		glog.Infoln("GCPAccessKeyRequest is nil")
 		return
 	}
 
-	id := getGCPAccessKeyRequestId(gcpAKReq)
+	id := getGCPAccessKeyRequestId(req)
 	if c.finalizerInfo.IsAlreadyProcessing(id) {
 		// already processing
 		return
 	}
 
-	glog.Infof("Processing finalizer for GCPAccessKeyRequest %s/%s", gcpAKReq.Namespace, gcpAKReq.Name)
+	glog.Infof("Processing finalizer for GCPAccessKeyRequest %s/%s", req.Namespace, req.Name)
 	// Add key to finalizerInfo, it will prevent other go routine to processing for this GCPAccessKeyRequest
 	c.finalizerInfo.Add(id)
 
@@ -272,7 +300,7 @@ func (c *VaultController) runGCPAccessKeyRequestFinalizer(gcpAKReq *api.GCPAcces
 	attempt := 0
 
 	for {
-		glog.Infof("GCPAccessKeyRequest %s/%s finalizer: attempt %d\n", gcpAKReq.Namespace, gcpAKReq.Name, attempt)
+		glog.Infof("GCPAccessKeyRequest %s/%s finalizer: attempt %d\n", req.Namespace, req.Name, attempt)
 
 		select {
 		case <-stopCh:
@@ -285,13 +313,13 @@ func (c *VaultController) runGCPAccessKeyRequestFinalizer(gcpAKReq *api.GCPAcces
 		}
 
 		if !finalizationDone {
-			gcpCM, err := credential.NewCredentialManagerForGCP(c.kubeClient, c.appCatalogClient, c.extClient, gcpAKReq)
+			gcpCM, err := credential.NewCredentialManagerForGCP(c.kubeClient, c.appCatalogClient, c.extClient, req)
 			if err != nil {
-				glog.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", gcpAKReq.Namespace, gcpAKReq.Name, err)
+				glog.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 			} else {
-				err = c.finalizeGCPAccessKeyRequest(gcpCM, gcpAKReq.Status.Lease)
+				err = c.finalizeGCPAccessKeyRequest(gcpCM, req.Status.Lease)
 				if err != nil {
-					glog.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", gcpAKReq.Namespace, gcpAKReq.Name, err)
+					glog.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 				} else {
 					finalizationDone = true
 				}
@@ -299,9 +327,9 @@ func (c *VaultController) runGCPAccessKeyRequestFinalizer(gcpAKReq *api.GCPAcces
 		}
 
 		if finalizationDone {
-			err := c.removeGCPAccessKeyRequestFinalizer(gcpAKReq)
+			err := c.removeGCPAccessKeyRequestFinalizer(req)
 			if err != nil {
-				glog.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", gcpAKReq.Namespace, gcpAKReq.Name, err)
+				glog.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 			} else {
 				break
 			}
@@ -315,11 +343,11 @@ func (c *VaultController) runGCPAccessKeyRequestFinalizer(gcpAKReq *api.GCPAcces
 		attempt++
 	}
 
-	err := c.removeGCPAccessKeyRequestFinalizer(gcpAKReq)
+	err := c.removeGCPAccessKeyRequestFinalizer(req)
 	if err != nil {
-		glog.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", gcpAKReq.Namespace, gcpAKReq.Name, err)
+		glog.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 	} else {
-		glog.Infof("Removed finalizer for GCPAccessKeyRequest %s/%s", gcpAKReq.Namespace, gcpAKReq.Name)
+		glog.Infof("Removed finalizer for GCPAccessKeyRequest %s/%s", req.Namespace, req.Name)
 	}
 
 	// Delete key from finalizer info as processing is done
@@ -337,17 +365,17 @@ func (c *VaultController) finalizeGCPAccessKeyRequest(gcpCM credential.Credentia
 }
 
 func (c *VaultController) removeGCPAccessKeyRequestFinalizer(gcpAKReq *api.GCPAccessKeyRequest) error {
-	accessReq, err := c.extClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKReq.Namespace).Get(gcpAKReq.Name, metav1.GetOptions{})
+	accessReq, err := c.extClient.EngineV1alpha1().GCPAccessKeyRequests(gcpAKReq.Namespace).Get(context.TODO(), gcpAKReq.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
 		return err
 	}
 
-	_, _, err = patchutil.PatchGCPAccessKeyRequest(c.extClient.EngineV1alpha1(), accessReq, func(in *api.GCPAccessKeyRequest) *api.GCPAccessKeyRequest {
+	_, _, err = patchutil.PatchGCPAccessKeyRequest(context.TODO(), c.extClient.EngineV1alpha1(), accessReq, func(in *api.GCPAccessKeyRequest) *api.GCPAccessKeyRequest {
 		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, GCPAccessKeyRequestFinalizer)
 		return in
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 

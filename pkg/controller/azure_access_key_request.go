@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -30,6 +31,7 @@ import (
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
@@ -77,47 +79,47 @@ func (c *VaultController) runAzureAccessKeyRequestInjector(key string) error {
 		glog.Warningf("AzureAccessKeyRequest %s does not exist anymore", key)
 
 	} else {
-		azureAccessReq := obj.(*api.AzureAccessKeyRequest).DeepCopy()
+		req := obj.(*api.AzureAccessKeyRequest).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for AzureAccessKeyRequest %s/%s", azureAccessReq.Namespace, azureAccessReq.Name)
+		glog.Infof("Sync/Add/Update for AzureAccessKeyRequest %s/%s", req.Namespace, req.Name)
 
-		if azureAccessReq.DeletionTimestamp != nil {
-			if core_util.HasFinalizer(azureAccessReq.ObjectMeta, AzureAccessKeyRequestFinalizer) {
-				go c.runAzureAccessKeyRequestFinalizer(azureAccessReq, finalizerTimeout, finalizerInterval)
+		if req.DeletionTimestamp != nil {
+			if core_util.HasFinalizer(req.ObjectMeta, AzureAccessKeyRequestFinalizer) {
+				go c.runAzureAccessKeyRequestFinalizer(req, finalizerTimeout, finalizerInterval)
 			}
 		} else {
-			if !core_util.HasFinalizer(azureAccessReq.ObjectMeta, AzureAccessKeyRequestFinalizer) {
+			if !core_util.HasFinalizer(req.ObjectMeta, AzureAccessKeyRequestFinalizer) {
 				// Add finalizer
-				_, _, err = patchutil.PatchAzureAccessKeyRequest(c.extClient.EngineV1alpha1(), azureAccessReq, func(aAKR *api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest {
+				_, _, err = patchutil.PatchAzureAccessKeyRequest(context.TODO(), c.extClient.EngineV1alpha1(), req, func(aAKR *api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest {
 					aAKR.ObjectMeta = core_util.AddFinalizer(aAKR.ObjectMeta, AzureAccessKeyRequestFinalizer)
 					return aAKR
-				})
+				}, metav1.PatchOptions{})
 				if err != nil {
-					return errors.Wrapf(err, "failed to set AzureAccessKeyRequest finalizer for %s/%s", azureAccessReq.Namespace, azureAccessReq.Name)
+					return errors.Wrapf(err, "failed to set AzureAccessKeyRequest finalizer for %s/%s", req.Namespace, req.Name)
 				}
 			}
 
 			var condType string
-			for _, c := range azureAccessReq.Status.Conditions {
+			for _, c := range req.Status.Conditions {
 				if c.Type == kmapi.ConditionRequestApproved || c.Type == kmapi.ConditionRequestDenied {
 					condType = c.Type
 				}
 			}
 
 			if condType == kmapi.ConditionRequestApproved {
-				azureCredManager, err := credential.NewCredentialManagerForAzure(c.kubeClient, c.appCatalogClient, c.extClient, azureAccessReq)
+				azureCredManager, err := credential.NewCredentialManagerForAzure(c.kubeClient, c.appCatalogClient, c.extClient, req)
 				if err != nil {
 					return err
 				}
 
-				err = c.reconcileAzureAccessKeyRequest(azureCredManager, azureAccessReq)
+				err = c.reconcileAzureAccessKeyRequest(azureCredManager, req)
 				if err != nil {
-					return errors.Wrapf(err, "For AzureAccessKeyRequest %s/%s", azureAccessReq.Namespace, azureAccessReq.Name)
+					return errors.Wrapf(err, "For AzureAccessKeyRequest %s/%s", req.Namespace, req.Name)
 				}
 			} else if condType == kmapi.ConditionRequestDenied {
-				glog.Infof("For AzureAccessKeyRequest %s/%s: request is denied", azureAccessReq.Namespace, azureAccessReq.Name)
+				glog.Infof("For AzureAccessKeyRequest %s/%s: request is denied", req.Namespace, req.Name)
 			} else {
-				glog.Infof("For AzureAccessKeyRequest %s/%s: request is not approved yet", azureAccessReq.Namespace, azureAccessReq.Name)
+				glog.Infof("For AzureAccessKeyRequest %s/%s: request is not approved yet", req.Namespace, req.Name)
 			}
 		}
 	}
@@ -130,36 +132,38 @@ func (c *VaultController) runAzureAccessKeyRequestInjector(key string) error {
 //	  - create secret containing credential
 //	  - create rbac role and role binding
 //    - sync role binding
-func (c *VaultController) reconcileAzureAccessKeyRequest(azureCM credential.CredentialManager, azureAccessKeyReq *api.AzureAccessKeyRequest) error {
+func (c *VaultController) reconcileAzureAccessKeyRequest(azureCM credential.CredentialManager, req *api.AzureAccessKeyRequest) error {
 	var (
-		name   = azureAccessKeyReq.Name
-		ns     = azureAccessKeyReq.Namespace
-		status = azureAccessKeyReq.Status
+		name = req.Name
+		ns   = req.Namespace
 	)
 
 	var secretName string
-	if azureAccessKeyReq.Status.Secret != nil {
-		secretName = azureAccessKeyReq.Status.Secret.Name
+	if req.Status.Secret != nil {
+		secretName = req.Status.Secret.Name
 	}
 
 	// check whether lease id exists in .status.lease or not
 	// if does not exist in .status.lease, then get credential
-	if azureAccessKeyReq.Status.Lease == nil {
+	if req.Status.Lease == nil {
 		// get azure credential secret
 		credSecret, err := azureCM.GetCredential()
 		if err != nil {
-			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-				Type:               kmapi.ConditionFailure,
-				Reason:             "FailedToGetCredential",
-				Message:            err.Error(),
-				LastTransitionTime: metav1.Now(),
-			})
-
-			err2 := c.updateAzureAccessKeyRequestStatus(&status, azureAccessKeyReq)
-			if err2 != nil {
-				return errors.Wrapf(err2, "failed to update status")
-			}
-			return errors.WithStack(err)
+			_, err2 := patchutil.UpdateAzureAccessKeyRequestStatus(
+				context.TODO(),
+				c.extClient.EngineV1alpha1(),
+				req.ObjectMeta,
+				func(status *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
+					status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+						Type:               kmapi.ConditionFailure,
+						Reason:             "FailedToGetCredential",
+						Message:            err.Error(),
+						LastTransitionTime: metav1.Now(),
+					})
+					return status
+				}, metav1.UpdateOptions{},
+			)
+			return utilerrors.NewAggregate([]error{err2, err})
 		}
 
 		secretName = rand.WithUniqSuffix(name)
@@ -171,98 +175,115 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(azureCM credential.Cred
 					return errors.Wrapf(err, "failed to revoke lease with %v", err2)
 				}
 			}
-			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-				Type:               kmapi.ConditionFailure,
-				Reason:             "FailedToCreateSecret",
-				Message:            err.Error(),
-				LastTransitionTime: metav1.Now(),
-			})
 
-			err2 := c.updateAzureAccessKeyRequestStatus(&status, azureAccessKeyReq)
-			if err2 != nil {
-				return errors.Wrapf(err, "failed to update status with %v", err2)
-			}
-
-			return errors.WithStack(err)
+			_, err2 := patchutil.UpdateAzureAccessKeyRequestStatus(
+				context.TODO(),
+				c.extClient.EngineV1alpha1(),
+				req.ObjectMeta,
+				func(status *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
+					status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+						Type:               kmapi.ConditionFailure,
+						Reason:             "FailedToCreateSecret",
+						Message:            err.Error(),
+						LastTransitionTime: metav1.Now(),
+					})
+					return status
+				}, metav1.UpdateOptions{},
+			)
+			return utilerrors.NewAggregate([]error{err2})
 		}
 
-		// add lease info in status
-		status.Lease = &api.Lease{
-			ID: credSecret.LeaseID,
-			Duration: metav1.Duration{
-				Duration: time.Second * time.Duration(credSecret.LeaseDuration),
-			},
-			Renewable: credSecret.Renewable,
-		}
+		_, err = patchutil.UpdateAzureAccessKeyRequestStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			req.ObjectMeta,
+			func(status *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
+				// add lease info in status
+				status.Lease = &api.Lease{
+					ID: credSecret.LeaseID,
+					Duration: metav1.Duration{
+						Duration: time.Second * time.Duration(credSecret.LeaseDuration),
+					},
+					Renewable: credSecret.Renewable,
+				}
 
-		// assign secret name
-		status.Secret = &core.LocalObjectReference{
-			Name: secretName,
+				// assign secret name
+				status.Secret = &core.LocalObjectReference{
+					Name: secretName,
+				}
+				return status
+			}, metav1.UpdateOptions{},
+		)
+		if err != nil {
+			return err
 		}
 	}
 
-	roleName := getSecretAccessRoleName(api.ResourceKindAzureAccessKeyRequest, ns, azureAccessKeyReq.Name)
+	roleName := getSecretAccessRoleName(api.ResourceKindAzureAccessKeyRequest, ns, req.Name)
 
 	err := azureCM.CreateRole(roleName, ns, secretName)
 	if err != nil {
-		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-			Type:               kmapi.ConditionFailure,
-			Reason:             "FailedToCreateRole",
-			Message:            err.Error(),
-			LastTransitionTime: metav1.Now(),
-		})
-
-		err2 := c.updateAzureAccessKeyRequestStatus(&status, azureAccessKeyReq)
-		if err2 != nil {
-			return errors.Wrapf(err2, "failed to update status")
-		}
-		return errors.WithStack(err)
+		_, err2 := patchutil.UpdateAzureAccessKeyRequestStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			req.ObjectMeta,
+			func(status *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:               kmapi.ConditionFailure,
+					Reason:             "FailedToCreateRole",
+					Message:            err.Error(),
+					LastTransitionTime: metav1.Now(),
+				})
+				return status
+			}, metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, err})
 	}
 
-	err = azureCM.CreateRoleBinding(roleName, ns, roleName, azureAccessKeyReq.Spec.Subjects)
+	err = azureCM.CreateRoleBinding(roleName, ns, roleName, req.Spec.Subjects)
 	if err != nil {
-		status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-			Type:               kmapi.ConditionFailure,
-			Reason:             "FailedToCreateRoleBinding",
-			Message:            err.Error(),
-			LastTransitionTime: metav1.Now(),
-		})
-
-		err2 := c.updateAzureAccessKeyRequestStatus(&status, azureAccessKeyReq)
-		if err2 != nil {
-			return errors.Wrapf(err2, "failed to update status")
-		}
-		return errors.WithStack(err)
+		_, err2 := patchutil.UpdateAzureAccessKeyRequestStatus(
+			context.TODO(),
+			c.extClient.EngineV1alpha1(),
+			req.ObjectMeta,
+			func(status *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
+				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+					Type:               kmapi.ConditionFailure,
+					Reason:             "FailedToCreateRoleBinding",
+					Message:            err.Error(),
+					LastTransitionTime: metav1.Now(),
+				})
+				return status
+			}, metav1.UpdateOptions{},
+		)
+		return utilerrors.NewAggregate([]error{err2, err})
 	}
 
-	status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
-	err = c.updateAzureAccessKeyRequestStatus(&status, azureAccessKeyReq)
-	if err != nil {
-		return errors.Wrap(err, "failed to update status")
-	}
-	return nil
-}
-
-func (c *VaultController) updateAzureAccessKeyRequestStatus(status *api.AzureAccessKeyRequestStatus, azureAKReq *api.AzureAccessKeyRequest) error {
-	_, err := patchutil.UpdateAzureAccessKeyRequestStatus(c.extClient.EngineV1alpha1(), azureAKReq.ObjectMeta, func(s *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
-		return status
-	})
+	_, err = patchutil.UpdateAzureAccessKeyRequestStatus(
+		context.TODO(),
+		c.extClient.EngineV1alpha1(),
+		req.ObjectMeta,
+		func(status *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
+			return status
+		}, metav1.UpdateOptions{},
+	)
 	return err
 }
 
-func (c *VaultController) runAzureAccessKeyRequestFinalizer(azureAKReq *api.AzureAccessKeyRequest, timeout time.Duration, interval time.Duration) {
-	if azureAKReq == nil {
+func (c *VaultController) runAzureAccessKeyRequestFinalizer(req *api.AzureAccessKeyRequest, timeout time.Duration, interval time.Duration) {
+	if req == nil {
 		glog.Infoln("AzureAccessKeyRequest is nil")
 		return
 	}
 
-	id := getAzureAccessKeyRequestId(azureAKReq)
+	id := getAzureAccessKeyRequestId(req)
 	if c.finalizerInfo.IsAlreadyProcessing(id) {
 		// already processing
 		return
 	}
 
-	glog.Infof("Processing finalizer for AzureAccessKeyRequest %s/%s", azureAKReq.Namespace, azureAKReq.Name)
+	glog.Infof("Processing finalizer for AzureAccessKeyRequest %s/%s", req.Namespace, req.Name)
 	// Add key to finalizerInfo, it will prevent other go routine to processing for this AzureAccessKeyRequest
 	c.finalizerInfo.Add(id)
 
@@ -272,7 +293,7 @@ func (c *VaultController) runAzureAccessKeyRequestFinalizer(azureAKReq *api.Azur
 	attempt := 0
 
 	for {
-		glog.Infof("AzureAccessKeyRequest %s/%s finalizer: attempt %d\n", azureAKReq.Namespace, azureAKReq.Name, attempt)
+		glog.Infof("AzureAccessKeyRequest %s/%s finalizer: attempt %d\n", req.Namespace, req.Name, attempt)
 
 		select {
 		case <-stopCh:
@@ -285,13 +306,13 @@ func (c *VaultController) runAzureAccessKeyRequestFinalizer(azureAKReq *api.Azur
 		}
 
 		if !finalizationDone {
-			azureCM, err := credential.NewCredentialManagerForAzure(c.kubeClient, c.appCatalogClient, c.extClient, azureAKReq)
+			azureCM, err := credential.NewCredentialManagerForAzure(c.kubeClient, c.appCatalogClient, c.extClient, req)
 			if err != nil {
-				glog.Errorf("AzureAccessKeyRequest %s/%s finalizer: %v", azureAKReq.Namespace, azureAKReq.Name, err)
+				glog.Errorf("AzureAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 			} else {
-				err = c.finalizeAzureAccessKeyRequest(azureCM, azureAKReq.Status.Lease)
+				err = c.finalizeAzureAccessKeyRequest(azureCM, req.Status.Lease)
 				if err != nil {
-					glog.Errorf("AzureAccessKeyRequest %s/%s finalizer: %v", azureAKReq.Namespace, azureAKReq.Name, err)
+					glog.Errorf("AzureAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 				} else {
 					finalizationDone = true
 				}
@@ -299,9 +320,9 @@ func (c *VaultController) runAzureAccessKeyRequestFinalizer(azureAKReq *api.Azur
 		}
 
 		if finalizationDone {
-			err := c.removeAzureAccessKeyRequestFinalizer(azureAKReq)
+			err := c.removeAzureAccessKeyRequestFinalizer(req)
 			if err != nil {
-				glog.Errorf("AzureAccessKeyRequest %s/%s finalizer: %v", azureAKReq.Namespace, azureAKReq.Name, err)
+				glog.Errorf("AzureAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 			} else {
 				break
 			}
@@ -315,11 +336,11 @@ func (c *VaultController) runAzureAccessKeyRequestFinalizer(azureAKReq *api.Azur
 		attempt++
 	}
 
-	err := c.removeAzureAccessKeyRequestFinalizer(azureAKReq)
+	err := c.removeAzureAccessKeyRequestFinalizer(req)
 	if err != nil {
-		glog.Errorf("AzureAccessKeyRequest %s/%s finalizer: %v", azureAKReq.Namespace, azureAKReq.Name, err)
+		glog.Errorf("AzureAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 	} else {
-		glog.Infof("Removed finalizer for AzureAccessKeyRequest %s/%s", azureAKReq.Namespace, azureAKReq.Name)
+		glog.Infof("Removed finalizer for AzureAccessKeyRequest %s/%s", req.Namespace, req.Name)
 	}
 
 	// Delete key from finalizer info as processing is done
@@ -337,17 +358,17 @@ func (c *VaultController) finalizeAzureAccessKeyRequest(azureCM credential.Crede
 }
 
 func (c *VaultController) removeAzureAccessKeyRequestFinalizer(azureAKReq *api.AzureAccessKeyRequest) error {
-	accessReq, err := c.extClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKReq.Namespace).Get(azureAKReq.Name, metav1.GetOptions{})
+	accessReq, err := c.extClient.EngineV1alpha1().AzureAccessKeyRequests(azureAKReq.Namespace).Get(context.TODO(), azureAKReq.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
 		return err
 	}
 
-	_, _, err = patchutil.PatchAzureAccessKeyRequest(c.extClient.EngineV1alpha1(), accessReq, func(in *api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest {
+	_, _, err = patchutil.PatchAzureAccessKeyRequest(context.TODO(), c.extClient.EngineV1alpha1(), accessReq, func(in *api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest {
 		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, AzureAccessKeyRequestFinalizer)
 		return in
-	})
+	}, metav1.PatchOptions{})
 	return err
 }
 

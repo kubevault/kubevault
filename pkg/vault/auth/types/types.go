@@ -17,6 +17,7 @@ limitations under the License.
 package types
 
 import (
+	"context"
 	"encoding/json"
 
 	config "kubevault.dev/operator/apis/config/v1alpha1"
@@ -81,7 +82,7 @@ func GetAuthInfoFromAppBinding(kc kubernetes.Interface, vApp *appcat.AppBinding)
 
 	if vApp.Spec.Secret != nil {
 		var err error
-		secret, err = kc.CoreV1().Secrets(vApp.Namespace).Get(vApp.Spec.Secret.Name, metav1.GetOptions{})
+		secret, err = kc.CoreV1().Secrets(vApp.Namespace).Get(context.TODO(), vApp.Spec.Secret.Name, metav1.GetOptions{})
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to get secret %s/%s", vApp.Namespace, vApp.Spec.Secret.Name)
 

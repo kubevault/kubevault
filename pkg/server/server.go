@@ -17,6 +17,7 @@ limitations under the License.
 package server
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -196,7 +197,7 @@ func (c completedConfig) New() (*VaultServer, error) {
 
 	if c.ExtraConfig.EnableValidatingWebhook {
 		s.GenericAPIServer.AddPostStartHookOrDie("validating-webhook-xray",
-			func(context genericapiserver.PostStartHookContext) error {
+			func(ctx genericapiserver.PostStartHookContext) error {
 				go func() {
 					xray := reg_util.NewCreateValidatingWebhookXray(c.ExtraConfig.ClientConfig, apiserviceName, &api.VaultServer{
 						TypeMeta: metav1.TypeMeta{
@@ -211,9 +212,10 @@ func (c completedConfig) New() (*VaultServer, error) {
 							Replicas: types.Int32P(1),
 							Version:  "0.11.1",
 						},
-					}, context.StopCh)
-					if err := xray.IsActive(); err != nil {
+					}, ctx.StopCh)
+					if err := xray.IsActive(context.TODO()); err != nil {
 						w, _, e2 := dynamic_util.DetectWorkload(
+							context.TODO(),
 							c.ExtraConfig.ClientConfig,
 							core.SchemeGroupVersion.WithResource("pods"),
 							os.Getenv("MY_POD_NAMESPACE"),

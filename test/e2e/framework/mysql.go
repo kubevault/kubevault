@@ -17,6 +17,7 @@ limitations under the License.
 package framework
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -135,7 +136,7 @@ func (f *Framework) DeployMySQLForVault() (string, error) {
 	}
 
 	Eventually(func() bool {
-		if obj, err := f.KubeClient.AppsV1().Deployments(f.namespace).Get(mysqlDeploy.GetName(), metav1.GetOptions{}); err == nil {
+		if obj, err := f.KubeClient.AppsV1().Deployments(f.namespace).Get(context.TODO(), mysqlDeploy.GetName(), metav1.GetOptions{}); err == nil {
 			return *obj.Spec.Replicas == obj.Status.ReadyReplicas
 		}
 		return false

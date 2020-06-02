@@ -17,6 +17,7 @@ limitations under the License.
 package util
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -33,29 +34,50 @@ import (
 	kutil "kmodules.xyz/client-go"
 )
 
-func CreateOrPatchGCPRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(alert *api.GCPRole) *api.GCPRole) (*api.GCPRole, kutil.VerbType, error) {
-	cur, err := c.GCPRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+func CreateOrPatchGCPRole(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(alert *api.GCPRole) *api.GCPRole,
+	opts metav1.PatchOptions,
+) (*api.GCPRole, kutil.VerbType, error) {
+	cur, err := c.GCPRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		glog.V(3).Infof("Creating GCPRole %s/%s.", meta.Namespace, meta.Name)
-		out, err := c.GCPRoles(meta.Namespace).Create(transform(&api.GCPRole{
+		out, err := c.GCPRoles(meta.Namespace).Create(ctx, transform(&api.GCPRole{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       api.ResourceKindGCPRole,
 				APIVersion: api.SchemeGroupVersion.String(),
 			},
 			ObjectMeta: meta,
-		}))
+		}),
+			metav1.CreateOptions{
+				DryRun:       opts.DryRun,
+				FieldManager: opts.FieldManager,
+			})
 		return out, kutil.VerbCreated, err
 	} else if err != nil {
 		return nil, kutil.VerbUnchanged, err
 	}
-	return PatchGCPRole(c, cur, transform)
+	return PatchGCPRole(ctx, c, cur, transform, opts)
 }
 
-func PatchGCPRole(c cs.EngineV1alpha1Interface, cur *api.GCPRole, transform func(*api.GCPRole) *api.GCPRole) (*api.GCPRole, kutil.VerbType, error) {
-	return PatchGCPRoleObject(c, cur, transform(cur.DeepCopy()))
+func PatchGCPRole(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur *api.GCPRole,
+	transform func(*api.GCPRole) *api.GCPRole,
+	opts metav1.PatchOptions,
+) (*api.GCPRole, kutil.VerbType, error) {
+	return PatchGCPRoleObject(ctx, c, cur, transform(cur.DeepCopy()), opts)
 }
 
-func PatchGCPRoleObject(c cs.EngineV1alpha1Interface, cur, mod *api.GCPRole) (*api.GCPRole, kutil.VerbType, error) {
+func PatchGCPRoleObject(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	cur, mod *api.GCPRole,
+	opts metav1.PatchOptions,
+) (*api.GCPRole, kutil.VerbType, error) {
 	curJson, err := json.Marshal(cur)
 	if err != nil {
 		return nil, kutil.VerbUnchanged, err
@@ -74,19 +96,25 @@ func PatchGCPRoleObject(c cs.EngineV1alpha1Interface, cur, mod *api.GCPRole) (*a
 		return cur, kutil.VerbUnchanged, nil
 	}
 	glog.V(3).Infof("Patching GCPRole %s/%s with %s.", cur.Namespace, cur.Name, string(patch))
-	out, err := c.GCPRoles(cur.Namespace).Patch(cur.Name, types.MergePatchType, patch)
+	out, err := c.GCPRoles(cur.Namespace).Patch(ctx, cur.Name, types.MergePatchType, patch, opts)
 	return out, kutil.VerbPatched, err
 }
 
-func TryUpdateGCPRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, transform func(*api.GCPRole) *api.GCPRole) (result *api.GCPRole, err error) {
+func TryUpdateGCPRole(
+	ctx context.Context,
+	c cs.EngineV1alpha1Interface,
+	meta metav1.ObjectMeta,
+	transform func(*api.GCPRole) *api.GCPRole,
+	opts metav1.UpdateOptions,
+) (result *api.GCPRole, err error) {
 	attempt := 0
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
-		cur, e2 := c.GCPRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+		cur, e2 := c.GCPRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 		if kerr.IsNotFound(e2) {
 			return false, e2
 		} else if e2 == nil {
-			result, e2 = c.GCPRoles(cur.Namespace).Update(transform(cur.DeepCopy()))
+			result, e2 = c.GCPRoles(cur.Namespace).Update(ctx, transform(cur.DeepCopy()), opts)
 			return e2 == nil, nil
 		}
 		glog.Errorf("Attempt %d failed to update GCPRole %s/%s due to %v.", attempt, cur.Namespace, cur.Name, e2)
@@ -100,9 +128,11 @@ func TryUpdateGCPRole(c cs.EngineV1alpha1Interface, meta metav1.ObjectMeta, tran
 }
 
 func UpdateGCPRoleStatus(
+	ctx context.Context,
 	c cs.EngineV1alpha1Interface,
 	meta metav1.ObjectMeta,
 	transform func(*api.GCPRoleStatus) *api.GCPRoleStatus,
+	opts metav1.UpdateOptions,
 ) (result *api.GCPRole, err error) {
 	apply := func(x *api.GCPRole) *api.GCPRole {
 		return &api.GCPRole{
@@ -114,16 +144,16 @@ func UpdateGCPRoleStatus(
 	}
 
 	attempt := 0
-	cur, err := c.GCPRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+	cur, err := c.GCPRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	err = wait.PollImmediate(kutil.RetryInterval, kutil.RetryTimeout, func() (bool, error) {
 		attempt++
 		var e2 error
-		result, e2 = c.GCPRoles(meta.Namespace).UpdateStatus(apply(cur))
+		result, e2 = c.GCPRoles(meta.Namespace).UpdateStatus(ctx, apply(cur), opts)
 		if kerr.IsConflict(e2) {
-			latest, e3 := c.GCPRoles(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+			latest, e3 := c.GCPRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 			switch {
 			case e3 == nil:
 				cur = latest

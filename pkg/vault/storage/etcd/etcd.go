@@ -126,14 +126,14 @@ func (o *Options) GetStorageConfig() (string, error) {
 		params = append(params, fmt.Sprintf(`discovery_srv = "%s"`, o.DiscoverySrv))
 	}
 	if o.HAEnable {
-		params = append(params, fmt.Sprintf(`ha_enabled = "true"`))
+		params = append(params, `ha_enabled = "true"`)
 	} else {
-		params = append(params, fmt.Sprintf(`ha_enabled = "false"`))
+		params = append(params, `ha_enabled = "false"`)
 	}
 	if o.Sync {
-		params = append(params, fmt.Sprintf(`sync = "true"`))
+		params = append(params, `sync = "true"`)
 	} else {
-		params = append(params, fmt.Sprintf(`sync = "false"`))
+		params = append(params, `sync = "false"`)
 	}
 	if o.TLSSecretName != "" {
 		params = append(params, fmt.Sprintf(`tls_ca_file = "%s"`, filepath.Join(EtcdTLSAssetDir, EtcdClientCaName)),

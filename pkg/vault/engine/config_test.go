@@ -17,6 +17,7 @@ limitations under the License.
 package engine
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -368,14 +369,18 @@ func TestSecretEngine_CreateGCPConfig(t *testing.T) {
 				path:         tt.path,
 			}
 			// Create fake secret for gcp config
-			_, err = secretEngineClient.kubeClient.CoreV1().Secrets("demo").Create(&core.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "gcp-cred",
+			_, err = secretEngineClient.kubeClient.CoreV1().Secrets("demo").Create(
+				context.TODO(),
+				&core.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "gcp-cred",
+					},
+					Data: map[string][]byte{
+						"sa.json": []byte("fakeKey"),
+					},
 				},
-				Data: map[string][]byte{
-					"sa.json": []byte("fakeKey"),
-				},
-			})
+				metav1.CreateOptions{},
+			)
 			assert.Nil(t, err)
 
 			if err := secretEngineClient.CreateGCPConfig(); (err != nil) != tt.wantErr {
@@ -549,7 +554,7 @@ func TestSecretEngine_CreateAzureConfig(t *testing.T) {
 				path:         tt.path,
 			}
 			// Create fake secret for azure config
-			_, err = seClient.kubeClient.CoreV1().Secrets("demo").Create(tt.secret)
+			_, err = seClient.kubeClient.CoreV1().Secrets("demo").Create(context.TODO(), tt.secret, metav1.CreateOptions{})
 			assert.Nil(t, err)
 			if err := seClient.CreateAzureConfig(); (err != nil) != tt.wantErr {
 				t.Errorf("CreateAzureConfig() error = %v, wantErr %v", err, tt.wantErr)
@@ -698,7 +703,7 @@ func TestSecretEngine_CreateAWSConfig(t *testing.T) {
 				path:         tt.path,
 			}
 			// Create fake secret for aws config
-			_, err = seClient.kubeClient.CoreV1().Secrets("demo").Create(tt.secret)
+			_, err = seClient.kubeClient.CoreV1().Secrets("demo").Create(context.TODO(), tt.secret, metav1.CreateOptions{})
 			assert.Nil(t, err)
 
 			if err := seClient.CreateAWSConfig(); (err != nil) != tt.wantErr {

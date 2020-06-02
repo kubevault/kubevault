@@ -104,10 +104,10 @@ func (o *Options) GetStorageConfig() (string, error) {
 		params = append(params, fmt.Sprintf(`region = "%s"`, o.Region))
 	}
 	if o.ForcePathStyle {
-		params = append(params, fmt.Sprintf(`s3_force_path_style = "true"`))
+		params = append(params, `s3_force_path_style = "true"`)
 	}
 	if o.DisableSSL {
-		params = append(params, fmt.Sprintf(`disable_ssl = "true"`))
+		params = append(params, `disable_ssl = "true"`)
 	}
 	if o.MaxParallel != 0 {
 		params = append(params, fmt.Sprintf(`max_parallel = %d`, o.MaxParallel))

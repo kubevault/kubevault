@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -171,7 +172,7 @@ func TestReconcilePolicy(t *testing.T) {
 				assert.Nil(t, err)
 			}
 			if c.expectStatus != "" {
-				p, err := ctrl.extClient.PolicyV1alpha1().VaultPolicies(c.vPolicy.Namespace).Get(c.vPolicy.Name, metav1.GetOptions{})
+				p, err := ctrl.extClient.PolicyV1alpha1().VaultPolicies(c.vPolicy.Namespace).Get(context.TODO(), c.vPolicy.Name, metav1.GetOptions{})
 				if assert.Nil(t, err) {
 					assert.Condition(t, func() (success bool) {
 						return c.expectStatus == string(p.Status.Phase)
@@ -222,7 +223,7 @@ func TestFinalizePolicy(t *testing.T) {
 			cc := csfake.NewSimpleClientset()
 			pc := cc.PolicyV1alpha1()
 			if c.vPolicy != nil {
-				_, err := pc.VaultPolicies(c.vPolicy.Namespace).Create(c.vPolicy)
+				_, err := pc.VaultPolicies(c.vPolicy.Namespace).Create(context.TODO(), c.vPolicy, metav1.CreateOptions{})
 				assert.Nil(t, err)
 			} else {
 				c.vPolicy = simpleVaultPolicy()

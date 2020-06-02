@@ -17,6 +17,7 @@ limitations under the License.
 package mysql
 
 import (
+	"context"
 	"fmt"
 
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
@@ -39,7 +40,7 @@ type MySQLRole struct {
 
 func NewMySQLRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, v *vaultapi.Client, mRole *api.MySQLRole, databasePath string) (*MySQLRole, error) {
 	ref := mRole.Spec.DatabaseRef
-	dbBinding, err := appClient.AppBindings(ref.Namespace).Get(ref.Name, metav1.GetOptions{})
+	dbBinding, err := appClient.AppBindings(ref.Namespace).Get(context.TODO(), ref.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}

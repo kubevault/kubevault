@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -167,7 +168,8 @@ func TestReconcileVault(t *testing.T) {
 		},
 	}
 
-	for _, test := range testData {
+	for idx := range testData {
+		test := testData[idx]
 		t.Run(test.name, func(t *testing.T) {
 			vaultCtrl := VaultController{
 				kubeClient:       kfake.NewSimpleClientset(),
@@ -187,7 +189,7 @@ func TestReconcileVault(t *testing.T) {
 			} else {
 				assert.Nil(t, err, "error must be nil")
 
-				_, err := vaultCtrl.kubeClient.AppsV1().Deployments(test.vs.Namespace).Get(test.vs.Name, metav1.GetOptions{})
+				_, err := vaultCtrl.kubeClient.AppsV1().Deployments(test.vs.Namespace).Get(context.TODO(), test.vs.Name, metav1.GetOptions{})
 				assert.Nil(t, err, "deployment for vaultserver should exist")
 			}
 		})
@@ -249,7 +251,8 @@ func TestDeployVault(t *testing.T) {
 		},
 	}
 
-	for _, test := range testData {
+	for idx := range testData {
+		test := testData[idx]
 		t.Run(test.name, func(t *testing.T) {
 			vaultCtrl := VaultController{
 				kubeClient: kfake.NewSimpleClientset(),
@@ -351,10 +354,11 @@ func TestCreateRoleAndRoleBinding(t *testing.T) {
 		},
 	}
 
-	for _, test := range testData {
+	for idx := range testData {
+		test := testData[idx]
 		t.Run(test.testName, func(t *testing.T) {
 			for _, r := range test.preCreatedRole {
-				_, err := vaultCtrl.kubeClient.RbacV1().Roles(vs.Namespace).Create(&r)
+				_, err := vaultCtrl.kubeClient.RbacV1().Roles(vs.Namespace).Create(context.TODO(), &r, metav1.CreateOptions{})
 				assert.Nil(t, err)
 			}
 
@@ -366,12 +370,12 @@ func TestCreateRoleAndRoleBinding(t *testing.T) {
 			}
 
 			for _, r := range test.expectRoles {
-				_, err := vaultCtrl.kubeClient.RbacV1().Roles(vs.Namespace).Get(r, metav1.GetOptions{})
+				_, err := vaultCtrl.kubeClient.RbacV1().Roles(vs.Namespace).Get(context.TODO(), r, metav1.GetOptions{})
 				assert.Nil(t, err, fmt.Sprintf("role(%s) should exists", r))
 			}
 
 			for _, rb := range test.expectRoleBindings {
-				_, err := vaultCtrl.kubeClient.RbacV1().RoleBindings(vs.Namespace).Get(rb, metav1.GetOptions{})
+				_, err := vaultCtrl.kubeClient.RbacV1().RoleBindings(vs.Namespace).Get(context.TODO(), rb, metav1.GetOptions{})
 				assert.Nil(t, err, fmt.Sprintf("rolebinding (%s) should exists", rb))
 			}
 		})

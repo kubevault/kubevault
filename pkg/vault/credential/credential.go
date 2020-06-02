@@ -17,6 +17,7 @@ limitations under the License.
 package credential
 
 import (
+	"context"
 	"encoding/json"
 
 	vaultapi "github.com/hashicorp/vault/api"
@@ -50,11 +51,11 @@ func (c *CredManager) CreateSecret(name string, namespace string, credSecret *va
 		Name:      name,
 		Namespace: namespace,
 	}
-	_, _, err := core_util.CreateOrPatchSecret(c.kubeClient, obj, func(in *core.Secret) *core.Secret {
+	_, _, err := core_util.CreateOrPatchSecret(context.TODO(), c.kubeClient, obj, func(in *core.Secret) *core.Secret {
 		in.Data = data
 		core_util.EnsureOwnerReference(in, c.secretEngine.GetOwnerReference())
 		return in
-	})
+	}, metav1.PatchOptions{})
 	if err != nil {
 		return errors.Wrapf(err, "failed to create/update secret %s/%s", namespace, name)
 	}
@@ -68,7 +69,7 @@ func (c *CredManager) CreateRole(name string, namespace string, secretName strin
 		Namespace: namespace,
 	}
 
-	_, _, err := rbac_util.CreateOrPatchRole(c.kubeClient, obj, func(in *rbac.Role) *rbac.Role {
+	_, _, err := rbac_util.CreateOrPatchRole(context.TODO(), c.kubeClient, obj, func(in *rbac.Role) *rbac.Role {
 		in.Rules = []rbac.PolicyRule{
 			{
 				APIGroups: []string{
@@ -89,7 +90,7 @@ func (c *CredManager) CreateRole(name string, namespace string, secretName strin
 		core_util.EnsureOwnerReference(in, c.secretEngine.GetOwnerReference())
 
 		return in
-	})
+	}, metav1.PatchOptions{})
 	if err != nil {
 		return errors.Wrapf(err, "failed to create rbac role %s/%s", namespace, name)
 	}
@@ -103,7 +104,7 @@ func (c *CredManager) CreateRoleBinding(name string, namespace string, roleName 
 		Namespace: namespace,
 	}
 
-	_, _, err := rbac_util.CreateOrPatchRoleBinding(c.kubeClient, obj, func(in *rbac.RoleBinding) *rbac.RoleBinding {
+	_, _, err := rbac_util.CreateOrPatchRoleBinding(context.TODO(), c.kubeClient, obj, func(in *rbac.RoleBinding) *rbac.RoleBinding {
 		in.RoleRef = rbac.RoleRef{
 			APIGroup: rbac.GroupName,
 			Kind:     "Role",
@@ -113,7 +114,7 @@ func (c *CredManager) CreateRoleBinding(name string, namespace string, roleName 
 
 		core_util.EnsureOwnerReference(in, c.secretEngine.GetOwnerReference())
 		return in
-	})
+	}, metav1.PatchOptions{})
 	if err != nil {
 		return errors.Wrapf(err, "failed to create/update rbac role binding %s/%s", namespace, name)
 	}

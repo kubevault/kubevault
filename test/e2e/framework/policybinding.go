@@ -17,12 +17,15 @@ limitations under the License.
 package framework
 
 import (
+	"context"
+
 	api "kubevault.dev/operator/apis/policy/v1alpha1"
 
 	"github.com/appscode/go/crypto/rand"
 	. "github.com/onsi/gomega"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	meta_util "kmodules.xyz/client-go/meta"
 )
 
 func (f *Invocation) VaultPolicyBinding(policies, saNames, saNamespaces []string) *api.VaultPolicyBinding {
@@ -54,24 +57,24 @@ func (f *Invocation) VaultPolicyBinding(policies, saNames, saNamespaces []string
 }
 
 func (f *Framework) CreateVaultPolicyBinding(obj *api.VaultPolicyBinding) (*api.VaultPolicyBinding, error) {
-	return f.CSClient.PolicyV1alpha1().VaultPolicyBindings(obj.Namespace).Create(obj)
+	return f.CSClient.PolicyV1alpha1().VaultPolicyBindings(obj.Namespace).Create(context.TODO(), obj, metav1.CreateOptions{})
 }
 
 func (f *Framework) GetVaultPolicyBinding(obj *api.VaultPolicyBinding) (*api.VaultPolicyBinding, error) {
-	return f.CSClient.PolicyV1alpha1().VaultPolicyBindings(obj.Namespace).Get(obj.Name, metav1.GetOptions{})
+	return f.CSClient.PolicyV1alpha1().VaultPolicyBindings(obj.Namespace).Get(context.TODO(), obj.Name, metav1.GetOptions{})
 }
 
 func (f *Framework) UpdateVaultPolicyBinding(obj *api.VaultPolicyBinding) (*api.VaultPolicyBinding, error) {
-	return f.CSClient.PolicyV1alpha1().VaultPolicyBindings(obj.Namespace).Update(obj)
+	return f.CSClient.PolicyV1alpha1().VaultPolicyBindings(obj.Namespace).Update(context.TODO(), obj, metav1.UpdateOptions{})
 }
 
 func (f *Framework) DeleteVaultPolicyBinding(meta metav1.ObjectMeta) error {
-	return f.CSClient.PolicyV1alpha1().VaultPolicyBindings(meta.Namespace).Delete(meta.Name, deleteInBackground())
+	return f.CSClient.PolicyV1alpha1().VaultPolicyBindings(meta.Namespace).Delete(context.TODO(), meta.Name, meta_util.DeleteInBackground())
 }
 
 func (f *Framework) EventuallyVaultPolicyBinding(meta metav1.ObjectMeta) GomegaAsyncAssertion {
 	return Eventually(func() *api.VaultPolicyBinding {
-		obj, err := f.CSClient.PolicyV1alpha1().VaultPolicyBindings(meta.Namespace).Get(meta.Name, metav1.GetOptions{})
+		obj, err := f.CSClient.PolicyV1alpha1().VaultPolicyBindings(meta.Namespace).Get(context.TODO(), meta.Name, metav1.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 		return obj
 	})

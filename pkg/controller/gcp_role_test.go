@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -28,6 +29,8 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kfake "k8s.io/client-go/kubernetes/fake"
+	kmapi "kmodules.xyz/client-go/api/v1"
+	meta_util "kmodules.xyz/client-go/meta"
 )
 
 type fakeGCPRole struct {
@@ -111,7 +114,8 @@ func TestGCPRole_reconcileGCPRole(t *testing.T) {
 		},
 	}
 
-	for _, test := range testData {
+	for idx := range testData {
+		test := testData[idx]
 		t.Run(test.testName, func(t *testing.T) {
 
 			c := &VaultController{
@@ -119,7 +123,7 @@ func TestGCPRole_reconcileGCPRole(t *testing.T) {
 				extClient:  opfake.NewSimpleClientset(),
 			}
 
-			_, err := c.extClient.EngineV1alpha1().GCPRoles(test.gcpRole.Namespace).Create(test.gcpRole)
+			_, err := c.extClient.EngineV1alpha1().GCPRoles(test.gcpRole.Namespace).Create(context.TODO(), test.gcpRole, metav1.CreateOptions{})
 			assert.Nil(t, err)
 
 			err = c.reconcileGCPRole(test.gcpRClient, test.gcpRole)
@@ -128,14 +132,12 @@ func TestGCPRole_reconcileGCPRole(t *testing.T) {
 
 				if assert.NotNil(t, err) {
 					if test.hasStatusCondition {
-						p, err2 := c.extClient.EngineV1alpha1().GCPRoles(test.gcpRole.Namespace).Get(test.gcpRole.Name, metav1.GetOptions{})
+						p, err2 := c.extClient.EngineV1alpha1().GCPRoles(test.gcpRole.Namespace).Get(context.TODO(), test.gcpRole.Name, metav1.GetOptions{})
 						if assert.Nil(t, err2) {
 							assert.Condition(t, func() (success bool) {
-								if len(p.Status.Conditions) != 0 {
-									return true
-								} else {
-									return false
-								}
+								return len(p.Status.Conditions) > 0 &&
+									kmapi.IsConditionTrue(p.Status.Conditions, kmapi.ConditionFailure) &&
+									!kmapi.HasCondition(p.Status.Conditions, kmapi.ConditionAvailable)
 							}, "Should have status.conditions")
 						}
 					}
@@ -143,14 +145,13 @@ func TestGCPRole_reconcileGCPRole(t *testing.T) {
 			} else {
 				if assert.Nil(t, err) {
 
-					p, err2 := c.extClient.EngineV1alpha1().GCPRoles(test.gcpRole.Namespace).Get(test.gcpRole.Name, metav1.GetOptions{})
+					p, err2 := c.extClient.EngineV1alpha1().GCPRoles(test.gcpRole.Namespace).Get(context.TODO(), test.gcpRole.Name, metav1.GetOptions{})
 					if assert.Nil(t, err2) {
 						assert.Condition(t, func() (success bool) {
-							if len(p.Status.Conditions) == 0 {
-								return true
-							} else {
-								return false
-							}
+							return p.Status.Phase == GCPRolePhaseSuccess &&
+								len(p.Status.Conditions) > 0 &&
+								!kmapi.HasCondition(p.Status.Conditions, kmapi.ConditionFailure) &&
+								kmapi.IsConditionTrue(p.Status.Conditions, kmapi.ConditionAvailable)
 						}, "Should not have status.conditions")
 					}
 
@@ -158,7 +159,7 @@ func TestGCPRole_reconcileGCPRole(t *testing.T) {
 
 			}
 
-			err = c.extClient.EngineV1alpha1().GCPRoles(test.gcpRole.Namespace).Delete(test.gcpRole.Name, &metav1.DeleteOptions{})
+			err = c.extClient.EngineV1alpha1().GCPRoles(test.gcpRole.Namespace).Delete(context.TODO(), test.gcpRole.Name, meta_util.DeleteInForeground())
 			assert.Nil(t, err)
 		})
 

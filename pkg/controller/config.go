@@ -26,7 +26,7 @@ import (
 
 	pcm "github.com/coreos/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	core "k8s.io/api/core/v1"
-	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
+	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -56,7 +56,7 @@ type Config struct {
 	ClientConfig     *rest.Config
 	KubeClient       kubernetes.Interface
 	ExtClient        cs.Interface
-	CRDClient        crd_cs.ApiextensionsV1beta1Interface
+	CRDClient        crd_cs.Interface
 	AppCatalogClient appcat_cs.AppcatalogV1alpha1Interface
 	PromClient       pcm.MonitoringV1Interface
 	DbClient         db_cs.Interface
