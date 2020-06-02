@@ -19,14 +19,13 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
-
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	testing "k8s.io/client-go/testing"
+	v1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
 )
 
 // FakeAWSAccessKeyRequests implements AWSAccessKeyRequestInterface

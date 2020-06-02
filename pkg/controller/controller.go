@@ -19,12 +19,14 @@ package controller
 import (
 	"fmt"
 
+	approleapi "kubevault.dev/operator/apis/approle/v1alpha1"
 	catalogapi "kubevault.dev/operator/apis/catalog/v1alpha1"
 	engineapi "kubevault.dev/operator/apis/engine/v1alpha1"
 	vaultapi "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
 	cs "kubevault.dev/operator/client/clientset/versioned"
 	vaultinformers "kubevault.dev/operator/client/informers/externalversions"
+	approle_listers "kubevault.dev/operator/client/listers/approle/v1alpha1"
 	engine_listers "kubevault.dev/operator/client/listers/engine/v1alpha1"
 	vault_listers "kubevault.dev/operator/client/listers/kubevault/v1alpha1"
 	policy_listers "kubevault.dev/operator/client/listers/policy/v1alpha1"
@@ -79,6 +81,11 @@ type VaultController struct {
 	vplcyBindingQueue    *queue.Worker
 	vplcyBindingInformer cache.SharedIndexInformer
 	vplcyBindingLister   policy_listers.VaultPolicyBindingLister
+
+	// for VaultAppRole
+	vAppRoleQueue    *queue.Worker
+	vAppRoleInformer cache.SharedIndexInformer
+	vAppRoleLister   approle_listers.VaultAppRoleLister
 
 	// PostgresRole
 	pgRoleQueue    *queue.Worker
@@ -149,6 +156,7 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 		catalogapi.VaultServerVersion{}.CustomResourceDefinition(),
 		policyapi.VaultPolicy{}.CustomResourceDefinition(),
 		policyapi.VaultPolicyBinding{}.CustomResourceDefinition(),
+		approleapi.VaultAppRole{}.CustomResourceDefinition(),
 		appcat.AppBinding{}.CustomResourceDefinition(),
 		engineapi.AWSAccessKeyRequest{}.CustomResourceDefinition(),
 		engineapi.AWSRole{}.CustomResourceDefinition(),
@@ -201,6 +209,9 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 
 	//For VaultPolicyBinding
 	go c.vplcyBindingQueue.Run(stopCh)
+
+	//For VaultAppRole
+	go c.vAppRoleQueue.Run(stopCh)
 
 	// For DB role
 	go c.pgRoleQueue.Run(stopCh)

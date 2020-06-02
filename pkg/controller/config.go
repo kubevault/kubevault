@@ -112,6 +112,8 @@ func (c *Config) New() (*VaultController, error) {
 	ctrl.initVaultPolicyWatcher()
 	// For VaultPolicyBinding
 	ctrl.initVaultPolicyBindingWatcher()
+	// For VaultAppRole
+	ctrl.initVaultAppRoleWatcher()
 
 	// For DB manager
 	ctrl.initPostgresRoleWatcher()

@@ -19,23 +19,24 @@ limitations under the License.
 package fake
 
 import (
-	catalogv1alpha1 "kubevault.dev/operator/apis/catalog/v1alpha1"
-	configv1alpha1 "kubevault.dev/operator/apis/config/v1alpha1"
-	enginev1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
-	kubevaultv1alpha1 "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	policyv1alpha1 "kubevault.dev/operator/apis/policy/v1alpha1"
-
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	approlev1alpha1 "kubevault.dev/operator/apis/approle/v1alpha1"
+	catalogv1alpha1 "kubevault.dev/operator/apis/catalog/v1alpha1"
+	configv1alpha1 "kubevault.dev/operator/apis/config/v1alpha1"
+	enginev1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
+	kubevaultv1alpha1 "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	policyv1alpha1 "kubevault.dev/operator/apis/policy/v1alpha1"
 )
 
 var scheme = runtime.NewScheme()
 var codecs = serializer.NewCodecFactory(scheme)
 var parameterCodec = runtime.NewParameterCodec(scheme)
 var localSchemeBuilder = runtime.SchemeBuilder{
+	approlev1alpha1.AddToScheme,
 	catalogv1alpha1.AddToScheme,
 	configv1alpha1.AddToScheme,
 	enginev1alpha1.AddToScheme,

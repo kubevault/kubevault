@@ -21,13 +21,12 @@ package v1alpha1
 import (
 	"time"
 
-	v1alpha1 "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	scheme "kubevault.dev/operator/client/clientset/versioned/scheme"
-
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	rest "k8s.io/client-go/rest"
+	v1alpha1 "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	scheme "kubevault.dev/operator/client/clientset/versioned/scheme"
 )
 
 // VaultServersGetter has a method to return a VaultServerInterface.
