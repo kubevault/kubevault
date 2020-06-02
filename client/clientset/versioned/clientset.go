@@ -21,6 +21,7 @@ package versioned
 import (
 	"fmt"
 
+	approlev1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/approle/v1alpha1"
 	catalogv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/catalog/v1alpha1"
 	configv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/config/v1alpha1"
 	enginev1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1"
@@ -34,6 +35,7 @@ import (
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
+	ApproleV1alpha1() approlev1alpha1.ApproleV1alpha1Interface
 	CatalogV1alpha1() catalogv1alpha1.CatalogV1alpha1Interface
 	ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface
 	EngineV1alpha1() enginev1alpha1.EngineV1alpha1Interface
@@ -45,11 +47,17 @@ type Interface interface {
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
+	approleV1alpha1   *approlev1alpha1.ApproleV1alpha1Client
 	catalogV1alpha1   *catalogv1alpha1.CatalogV1alpha1Client
 	configV1alpha1    *configv1alpha1.ConfigV1alpha1Client
 	engineV1alpha1    *enginev1alpha1.EngineV1alpha1Client
 	kubevaultV1alpha1 *kubevaultv1alpha1.KubevaultV1alpha1Client
 	policyV1alpha1    *policyv1alpha1.PolicyV1alpha1Client
+}
+
+// ApproleV1alpha1 retrieves the ApproleV1alpha1Client
+func (c *Clientset) ApproleV1alpha1() approlev1alpha1.ApproleV1alpha1Interface {
+	return c.approleV1alpha1
 }
 
 // CatalogV1alpha1 retrieves the CatalogV1alpha1Client
@@ -98,6 +106,10 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	}
 	var cs Clientset
 	var err error
+	cs.approleV1alpha1, err = approlev1alpha1.NewForConfig(&configShallowCopy)
+	if err != nil {
+		return nil, err
+	}
 	cs.catalogV1alpha1, err = catalogv1alpha1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
@@ -130,6 +142,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
+	cs.approleV1alpha1 = approlev1alpha1.NewForConfigOrDie(c)
 	cs.catalogV1alpha1 = catalogv1alpha1.NewForConfigOrDie(c)
 	cs.configV1alpha1 = configv1alpha1.NewForConfigOrDie(c)
 	cs.engineV1alpha1 = enginev1alpha1.NewForConfigOrDie(c)
@@ -143,6 +156,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
+	cs.approleV1alpha1 = approlev1alpha1.New(c)
 	cs.catalogV1alpha1 = catalogv1alpha1.New(c)
 	cs.configV1alpha1 = configv1alpha1.New(c)
 	cs.engineV1alpha1 = enginev1alpha1.New(c)

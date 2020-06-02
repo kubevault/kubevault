@@ -23,7 +23,7 @@ COMPRESS ?= no
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS          ?= "crd:trivialVersions=true,preserveUnknownFields=false,crdVersions={v1beta1,v1}"
 CODE_GENERATOR_IMAGE ?= appscode/gengo:release-1.18
-API_GROUPS           ?= kubevault:v1alpha1 catalog:v1alpha1 config:v1alpha1 policy:v1alpha1 engine:v1alpha1
+API_GROUPS           ?= kubevault:v1alpha1 catalog:v1alpha1 config:v1alpha1 policy:v1alpha1 engine:v1alpha1 approle:v1alpha1
 
 # Where to push the docker image.
 REGISTRY ?= kubevault

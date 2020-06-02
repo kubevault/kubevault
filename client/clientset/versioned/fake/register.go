@@ -19,6 +19,7 @@ limitations under the License.
 package fake
 
 import (
+	approlev1alpha1 "kubevault.dev/operator/apis/approle/v1alpha1"
 	catalogv1alpha1 "kubevault.dev/operator/apis/catalog/v1alpha1"
 	configv1alpha1 "kubevault.dev/operator/apis/config/v1alpha1"
 	enginev1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
@@ -36,6 +37,7 @@ var scheme = runtime.NewScheme()
 var codecs = serializer.NewCodecFactory(scheme)
 var parameterCodec = runtime.NewParameterCodec(scheme)
 var localSchemeBuilder = runtime.SchemeBuilder{
+	approlev1alpha1.AddToScheme,
 	catalogv1alpha1.AddToScheme,
 	configv1alpha1.AddToScheme,
 	enginev1alpha1.AddToScheme,

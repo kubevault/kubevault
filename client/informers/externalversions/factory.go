@@ -24,6 +24,7 @@ import (
 	time "time"
 
 	versioned "kubevault.dev/operator/client/clientset/versioned"
+	approle "kubevault.dev/operator/client/informers/externalversions/approle"
 	catalog "kubevault.dev/operator/client/informers/externalversions/catalog"
 	engine "kubevault.dev/operator/client/informers/externalversions/engine"
 	internalinterfaces "kubevault.dev/operator/client/informers/externalversions/internalinterfaces"
@@ -176,10 +177,15 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
+	Approle() approle.Interface
 	Catalog() catalog.Interface
 	Engine() engine.Interface
 	Kubevault() kubevault.Interface
 	Policy() policy.Interface
+}
+
+func (f *sharedInformerFactory) Approle() approle.Interface {
+	return approle.New(f, f.namespace, f.tweakListOptions)
 }
 
 func (f *sharedInformerFactory) Catalog() catalog.Interface {

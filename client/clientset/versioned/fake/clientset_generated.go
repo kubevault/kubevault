@@ -20,6 +20,8 @@ package fake
 
 import (
 	clientset "kubevault.dev/operator/client/clientset/versioned"
+	approlev1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/approle/v1alpha1"
+	fakeapprolev1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/approle/v1alpha1/fake"
 	catalogv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/catalog/v1alpha1"
 	fakecatalogv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/catalog/v1alpha1/fake"
 	configv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/config/v1alpha1"
@@ -84,6 +86,11 @@ func (c *Clientset) Tracker() testing.ObjectTracker {
 }
 
 var _ clientset.Interface = &Clientset{}
+
+// ApproleV1alpha1 retrieves the ApproleV1alpha1Client
+func (c *Clientset) ApproleV1alpha1() approlev1alpha1.ApproleV1alpha1Interface {
+	return &fakeapprolev1alpha1.FakeApproleV1alpha1{Fake: &c.Fake}
+}
 
 // CatalogV1alpha1 retrieves the CatalogV1alpha1Client
 func (c *Clientset) CatalogV1alpha1() catalogv1alpha1.CatalogV1alpha1Interface {
