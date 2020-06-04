@@ -172,3 +172,21 @@ func (c *VaultController) runPolicyBindingFinalizer(pb *policyapi.VaultPolicyBin
 	glog.Infof("Removed finalizer for VaultPolicyBinding %s/%s", pb.Namespace, pb.Name)
 	return nil
 }
+
+// finalizePolicyBinding will delete the policy in vault
+func (c *VaultController) finalizePolicyBinding(vPBind *policyapi.VaultPolicyBinding) error {
+
+	out, err := c.extClient.PolicyV1alpha1().VaultPolicyBindings(vPBind.Namespace).Get(context.TODO(), vPBind.Name, metav1.GetOptions{})
+	if kerr.IsNotFound(err) {
+		return nil
+	} else if err != nil {
+		return err
+	}
+
+	pBClient, err := pbinding.NewPolicyBindingClient(c.extClient, c.appCatalogClient, c.kubeClient, out)
+	if err != nil {
+		return err
+	}
+
+	return pBClient.Delete(vPBind)
+}

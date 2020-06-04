@@ -21,16 +21,19 @@ package v1alpha1
 
 import (
 	fmt "fmt"
+
 	io "io"
-	math "math"
-	math_bits "math/bits"
-	reflect "reflect"
-	strings "strings"
 
 	proto "github.com/gogo/protobuf/proto"
 	v13 "k8s.io/api/core/v1"
 	v11 "k8s.io/api/rbac/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
+
+	math "math"
+	math_bits "math/bits"
+	reflect "reflect"
+	strings "strings"
+
 	v12 "kmodules.xyz/client-go/api/v1"
 	v1alpha1 "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )

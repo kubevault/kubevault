@@ -87,6 +87,47 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 		}
 	}
 
+	if pBind.Spec.LdapGroup != nil {
+		pb.authLdapGroup = &pBindingLdapGroup{
+			name: pBind.Spec.LdapGroup.Name,
+			path: pBind.Spec.LdapGroup.Path,
+		}
+	}
+
+	if pBind.Spec.LdapUser != nil {
+		pb.authLdapUser = &pBindingLdapUser{
+			Groups:   pBind.Spec.LdapUser.Groups,
+			username: pBind.Spec.LdapUser.Username,
+			path:     pBind.Spec.LdapUser.Path,
+		}
+	}
+
+	if pBind.Spec.JWT != nil {
+		pb.authJWT = &pBindingJWT{
+			RoleType:             pBind.Spec.JWT.RoleType,
+			BoundAudiences:       pBind.Spec.JWT.BoundAudiences,
+			UserClaim:            pBind.Spec.JWT.UserClaim,
+			BoundSubject:         pBind.Spec.JWT.BoundSubject,
+			BoundClaimsType:      pBind.Spec.JWT.BoundClaimsType,
+			GroupClaim:           pBind.Spec.JWT.GroupClaim,
+			ClaimMappings:        pBind.Spec.JWT.ClaimMappings,
+			OIDCScopes:           pBind.Spec.JWT.OIDCScopes,
+			AllowedRedirectUris:  pBind.Spec.JWT.AllowedRedirectUris,
+			VerboseOIDCLogging:   pBind.Spec.JWT.VerboseOIDCLogging,
+			TokenTTL:             pBind.Spec.JWT.TokenTTL,
+			TokenMaxTTL:          pBind.Spec.JWT.TokenMaxTTL,
+			TokenPolicies:        pBind.Spec.JWT.TokenPolicies,
+			TokenBoundCidrs:      pBind.Spec.JWT.TokenBoundCidrs,
+			TokenExplicitMaxTTL:  pBind.Spec.JWT.TokenExplicitMaxTTL,
+			TokenNoDefaultPolicy: pBind.Spec.JWT.TokenNoDefaultPolicy,
+			TokenNumUses:         pBind.Spec.JWT.TokenNumUses,
+			TokenPeriod:          pBind.Spec.JWT.TokenPeriod,
+			TokenType:            pBind.Spec.JWT.TokenType,
+			name:                 pBind.Spec.JWT.Name,
+			path:                 pBind.Spec.JWT.Path,
+		}
+	}
+
 	// check whether VaultPolicy exists
 	for _, pIdentifier := range pBind.Spec.Policies {
 		var policyName string
@@ -128,6 +169,9 @@ type pBinding struct {
 	policies       []string
 	authKubernetes *pBindingKubernetes
 	authAppRole    *pBindingAppRole
+	authLdapGroup  *pBindingLdapGroup
+	authLdapUser   *pBindingLdapUser
+	authJWT        *pBindingJWT
 }
 
 type pBindingKubernetes struct {
@@ -160,6 +204,44 @@ type pBindingAppRole struct {
 	TokenType            string   `json:"token_type,omitempty"`
 }
 
+type pBindingLdapGroup struct {
+	path     string
+	name     string
+	Policies []string `json:"policies,omitempty"`
+}
+
+type pBindingLdapUser struct {
+	path     string
+	username string
+	Policies []string `json:"policies,omitempty"`
+	Groups   []string `json:"groups,omitempty"`
+}
+
+type pBindingJWT struct {
+	path                 string
+	name                 string
+	RoleType             string            `json:"role_type,omitempty"`
+	BoundAudiences       []string          `json:"bound_audiences,omitempty"`
+	UserClaim            string            `json:"user_claim"`
+	BoundSubject         string            `json:"bound_subject,omitempty"`
+	BoundClaims          map[string]string `json:"bound_claims,omitempty"`
+	BoundClaimsType      string            `json:"bound_claims_type,omitempty"`
+	GroupClaim           string            `json:"group_claim,omitempty"`
+	ClaimMappings        map[string]string `json:"claim_mappings,omitempty"`
+	OIDCScopes           []string          `json:"oidc_scopes,omitempty"`
+	AllowedRedirectUris  []string          `json:"allowed_redirect_uris"`
+	VerboseOIDCLogging   bool              `json:"verbose_oidc_logging,omitempty"`
+	TokenTTL             int64             `json:"token_ttl,omitempty"`
+	TokenMaxTTL          int64             `json:"token_max_ttl,omitempty"`
+	TokenPolicies        []string          `json:"token_policies,omitempty"`
+	TokenBoundCidrs      []string          `json:"token_bound_cidrs,omitempty"`
+	TokenExplicitMaxTTL  int64             `json:"token_explicit_max_ttl,omitempty"`
+	TokenNoDefaultPolicy bool              `json:"token_no_default_policy,omitempty"`
+	TokenNumUses         int64             `json:"token_num_uses"`
+	TokenPeriod          int64             `json:"token_period,omitempty"`
+	TokenType            string            `json:"token_type,omitempty"`
+}
+
 // create or update policy binding
 // it's safe to call it multiple times
 func (p *pBinding) Ensure(pBind *api.VaultPolicyBinding) error {
@@ -189,6 +271,46 @@ func (p *pBinding) Ensure(pBind *api.VaultPolicyBinding) error {
 			return err
 		}
 	}
+	// ldap group auth
+	if p.authLdapGroup != nil {
+		path := pBind.GeneratePath(p.authLdapGroup.name, p.authLdapGroup.path)
+		p.authLdapGroup.Policies = p.policies
+		payload, err := pBind.GeneratePayload(p.authLdapGroup)
+		if err != nil {
+			return err
+		}
+		_, err = p.vClient.Logical().Write(path, payload)
+		if err != nil {
+			return err
+		}
+	}
+	// ldap user auth
+	if p.authLdapUser != nil {
+		path := pBind.GeneratePath(p.authLdapUser.username, p.authLdapUser.path)
+		p.authLdapUser.Policies = p.policies
+		payload, err := pBind.GeneratePayload(p.authLdapUser)
+		if err != nil {
+			return err
+		}
+		_, err = p.vClient.Logical().Write(path, payload)
+		if err != nil {
+			return err
+		}
+	}
+	// jwt auth
+	if p.authJWT != nil {
+		path := pBind.GeneratePath(p.authJWT.name, p.authJWT.path)
+		p.authJWT.TokenPolicies = p.policies
+		payload, err := pBind.GeneratePayload(p.authJWT)
+		if err != nil {
+			return err
+		}
+		_, err = p.vClient.Logical().Write(path, payload)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
