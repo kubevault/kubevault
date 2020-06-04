@@ -97,7 +97,7 @@ func (c *VaultController) runVaultPolicyBindingInjector(key string) error {
 func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBinding, pBClient pbinding.PolicyBinding) error {
 	// create or update policy
 	// it's safe to call multiple times
-	err := pBClient.Ensure(vPBind.PolicyBindingName())
+	err := pBClient.Ensure(vPBind)
 	if err != nil {
 		_, err2 := patchutil.UpdateVaultPolicyBindingStatus(
 			context.TODO(),
@@ -106,10 +106,11 @@ func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBi
 			func(status *policyapi.VaultPolicyBindingStatus) *policyapi.VaultPolicyBindingStatus {
 				status.Phase = policyapi.PolicyBindingFailed
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
-					Status:  kmapi.ConditionTrue,
-					Reason:  "FailedToEnsurePolicyBinding",
-					Message: err.Error(),
+					Type:               kmapi.ConditionFailure,
+					Status:             kmapi.ConditionTrue,
+					Reason:             "FailedToEnsurePolicyBinding",
+					Message:            err.Error(),
+					LastTransitionTime: metav1.NewTime(time.Now()),
 				})
 				return status
 			},
@@ -201,6 +202,7 @@ func (c *VaultController) runPolicyBindingFinalizer(vPBind *policyapi.VaultPolic
 
 // finalizePolicyBinding will delete the policy in vault
 func (c *VaultController) finalizePolicyBinding(vPBind *policyapi.VaultPolicyBinding) error {
+
 	out, err := c.extClient.PolicyV1alpha1().VaultPolicyBindings(vPBind.Namespace).Get(context.TODO(), vPBind.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
@@ -212,5 +214,6 @@ func (c *VaultController) finalizePolicyBinding(vPBind *policyapi.VaultPolicyBin
 	if err != nil {
 		return err
 	}
-	return pBClient.Delete(vPBind.PolicyBindingName())
+
+	return pBClient.Delete(vPBind)
 }

@@ -36,14 +36,14 @@ type fakePBind struct {
 	errInEnsure bool
 }
 
-func (f *fakePBind) Ensure(n string) error {
+func (f *fakePBind) Ensure(n *policyapi.VaultPolicyBinding) error {
 	if f.errInEnsure {
 		return errors.New("error")
 	}
 	return nil
 }
 
-func (f *fakePBind) Delete(n string) error {
+func (f *fakePBind) Delete(n *policyapi.VaultPolicyBinding) error {
 	return nil
 }
 
@@ -57,6 +57,7 @@ func simpleVaultPolicyBinding() *policyapi.VaultPolicyBinding {
 		Spec: policyapi.VaultPolicyBindingSpec{
 			SubjectRef: policyapi.SubjectRef{
 				Kubernetes: &policyapi.KubernetesSubjectRef{},
+				AppRole:    &policyapi.AppRoleSubjectRef{},
 			},
 		},
 	}
@@ -165,6 +166,7 @@ func TestFinalizePolicyBinding(t *testing.T) {
 			} else {
 				c.vPolicy = simpleVaultPolicy()
 			}
+
 			if c.vPBind != nil {
 				_, err := pc.VaultPolicyBindings(c.vPBind.Namespace).Create(context.TODO(), c.vPBind, metav1.CreateOptions{})
 				assert.Nil(t, err)

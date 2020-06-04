@@ -132,6 +132,10 @@ func NewFakeVaultServer() *httptest.Server {
 		w.WriteHeader(http.StatusOK)
 	}).Methods(http.MethodDelete)
 
+	router.HandleFunc("/v1/auth/approle/role/{role}", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods(http.MethodDelete)
+
 	return httptest.NewServer(router)
 }
 

@@ -362,6 +362,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/offshoot-api/api/v1.ServicePort":                                schema_kmodulesxyz_offshoot_api_api_v1_ServicePort(ref),
 		"kmodules.xyz/offshoot-api/api/v1.ServiceSpec":                                schema_kmodulesxyz_offshoot_api_api_v1_ServiceSpec(ref),
 		"kmodules.xyz/offshoot-api/api/v1.ServiceTemplateSpec":                        schema_kmodulesxyz_offshoot_api_api_v1_ServiceTemplateSpec(ref),
+		"kubevault.dev/operator/apis/policy/v1alpha1.AppRoleSubjectRef":               schema_operator_apis_policy_v1alpha1_AppRoleSubjectRef(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.KubernetesSubjectRef":            schema_operator_apis_policy_v1alpha1_KubernetesSubjectRef(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.PolicyIdentifier":                schema_operator_apis_policy_v1alpha1_PolicyIdentifier(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.ServiceAccountReference":         schema_operator_apis_policy_v1alpha1_ServiceAccountReference(ref),
@@ -17131,6 +17132,153 @@ func schema_kmodulesxyz_offshoot_api_api_v1_ServiceTemplateSpec(ref common.Refer
 	}
 }
 
+func schema_operator_apis_policy_v1alpha1_AppRoleSubjectRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "More info: https://www.vaultproject.io/api-docs/auth/approle#create-update-approle",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path where approle auth is enabled default : approle",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"roleName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "RoleName is the Name of the AppRole This defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"bindSecretID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Require secret_id to be presented when logging in using this AppRole.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"secretIdBoundCidrs": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of CIDR blocks; if set, specifies blocks of IP addresses which can perform the login operation.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"secretIdNumUses": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Number of times any particular SecretID can be used to fetch a token from this AppRole, after which the SecretID will expire. A value of zero will allow unlimited uses.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"secretIdTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Duration in either an integer number of seconds (3600) or an integer time unit (60m) after which any SecretID expires.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"enableLocalSecretIds": {
+						SchemaProps: spec.SchemaProps{
+							Description: "If set, the secret IDs generated using this role will be cluster local. This can only be set during role creation and once set, it can't be reset later.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tokenTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The incremental lifetime for generated tokens. This current value of this will be referenced at renewal time.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"tokenMaxTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The maximum lifetime for generated tokens. This current value of this will be referenced at renewal time.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"tokenPolicies": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of policies to encode onto generated tokens. Depending on the auth method, this list may be supplemented by user/group/other values.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"tokenBoundCidrs": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of CIDR blocks; if set, specifies blocks of IP addresses which can authenticate successfully, and ties the resulting token to these blocks as well.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"tokenExplicitMaxTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "If set, will encode an explicit max TTL onto the token. This is a hard cap even if token_ttl and token_max_ttl would otherwise allow a renewal.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"tokenNoDefaultPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "If set, the default policy will not be set on generated tokens; otherwise it will be added to the policies set in token_policies.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tokenNumUses": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The maximum number of times a generated token may be used (within its lifetime); 0 means unlimited.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"tokenPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The period, if any, to set on the token.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"tokenType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The type of token that should be generated. Can be service, batch, or default to use the mount's tuned default (which unless changed will be service tokens). For token store roles, there are two additional possibilities: default-service and default-batch which specify the type to return unless the client requests a different type at generation time.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"bindSecretID"},
+			},
+		},
+	}
+}
+
 func schema_operator_apis_policy_v1alpha1_KubernetesSubjectRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -17141,6 +17289,13 @@ func schema_operator_apis_policy_v1alpha1_KubernetesSubjectRef(ref common.Refere
 					"path": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the path where kubernetes auth is enabled default : kubernetes",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Name of the role",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -17265,11 +17420,17 @@ func schema_operator_apis_policy_v1alpha1_SubjectRef(ref common.ReferenceCallbac
 							Ref:         ref("kubevault.dev/operator/apis/policy/v1alpha1.KubernetesSubjectRef"),
 						},
 					},
+					"appRole": {
+						SchemaProps: spec.SchemaProps{
+							Description: "More info: https://www.vaultproject.io/docs/auth/approle#configuration",
+							Ref:         ref("kubevault.dev/operator/apis/policy/v1alpha1.AppRoleSubjectRef"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"kubevault.dev/operator/apis/policy/v1alpha1.KubernetesSubjectRef"},
+			"kubevault.dev/operator/apis/policy/v1alpha1.AppRoleSubjectRef", "kubevault.dev/operator/apis/policy/v1alpha1.KubernetesSubjectRef"},
 	}
 }
 
