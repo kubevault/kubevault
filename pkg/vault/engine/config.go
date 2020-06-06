@@ -26,7 +26,6 @@ import (
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
-	appcat_util "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/util"
 )
 
 func (seClient *SecretEngine) CreateConfig() error {
@@ -101,19 +100,14 @@ func (seClient *SecretEngine) CreateMySQLConfig() error {
 			return errors.Wrap(err, "failed to get secret for MySQL database config")
 		}
 
-		data := make(map[string]interface{}, len(secret.Data))
-		for k, v := range secret.Data {
-			data[k] = string(v)
-		}
-
-		err = appcat_util.TransformCredentials(seClient.kubeClient, dbApp.Spec.SecretTransforms, data)
+		err = dbApp.TransformSecret(seClient.kubeClient, secret.Data)
 		if err != nil {
 			return err
 		}
-		if v, ok := data[appcat.KeyUsername]; ok {
+		if v, ok := secret.Data[appcat.KeyUsername]; ok {
 			payload[appcat.KeyUsername] = v
 		}
-		if v, ok := data[appcat.KeyPassword]; ok {
+		if v, ok := secret.Data[appcat.KeyPassword]; ok {
 			payload[appcat.KeyPassword] = v
 		}
 	}
@@ -175,19 +169,14 @@ func (seClient *SecretEngine) CreateMongoDBConfig() error {
 			return errors.Wrap(err, "Failed to get secret for MongoDB database config")
 		}
 
-		data := make(map[string]interface{}, len(secret.Data))
-		for k, v := range secret.Data {
-			data[k] = string(v)
-		}
-
-		err = appcat_util.TransformCredentials(seClient.kubeClient, dbApp.Spec.SecretTransforms, data)
+		err = dbApp.TransformSecret(seClient.kubeClient, secret.Data)
 		if err != nil {
 			return err
 		}
-		if v, ok := data[appcat.KeyUsername]; ok {
+		if v, ok := secret.Data[appcat.KeyUsername]; ok {
 			payload[appcat.KeyUsername] = v
 		}
-		if v, ok := data[appcat.KeyPassword]; ok {
+		if v, ok := secret.Data[appcat.KeyPassword]; ok {
 			payload[appcat.KeyPassword] = v
 		}
 	}
@@ -246,19 +235,14 @@ func (seClient *SecretEngine) CreatePostgresConfig() error {
 			return errors.Wrap(err, "Failed to get secret for Postgres database config")
 		}
 
-		data := make(map[string]interface{}, len(secret.Data))
-		for k, v := range secret.Data {
-			data[k] = string(v)
-		}
-
-		err = appcat_util.TransformCredentials(seClient.kubeClient, dbApp.Spec.SecretTransforms, data)
+		err = dbApp.TransformSecret(seClient.kubeClient, secret.Data)
 		if err != nil {
 			return err
 		}
-		if v, ok := data[appcat.KeyUsername]; ok {
+		if v, ok := secret.Data[appcat.KeyUsername]; ok {
 			payload[appcat.KeyUsername] = v
 		}
-		if v, ok := data[appcat.KeyPassword]; ok {
+		if v, ok := secret.Data[appcat.KeyPassword]; ok {
 			payload[appcat.KeyPassword] = v
 		}
 	}
