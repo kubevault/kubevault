@@ -38,7 +38,10 @@ import (
 )
 
 const (
-	GCPAccessKeyRequestFinalizer = "gcpaccesskeyrequest.engine.kubevault.com"
+	GCPAccessKeyRequestApproved           api.GCPAccessKeyRequestStatusPhase = "Approved"
+	GCPAccessKeyRequestDenied             api.GCPAccessKeyRequestStatusPhase = "Denied"
+	GCPAccessKeyRequestWaitingForApproval api.GCPAccessKeyRequestStatusPhase = "WaitingForApproval"
+	GCPAccessKeyRequestFinalizer                                             = "gcpaccesskeyrequest.engine.kubevault.com"
 )
 
 func (c *VaultController) initGCPAccessKeyWatcher() {
@@ -104,6 +107,36 @@ func (c *VaultController) runGCPAccessKeyRequestInjector(key string) error {
 				if c.Type == kmapi.ConditionRequestApproved || c.Type == kmapi.ConditionRequestDenied {
 					condType = c.Type
 				}
+			}
+
+			// If condition type is not set yet, set the phase to "WaitingForApproval".
+			// If the request is approved, set the phase to "Approved".
+			// If the request is denied, set the phase to "Denied".
+			var phase api.GCPAccessKeyRequestStatusPhase
+			if condType == "" {
+				phase = GCPAccessKeyRequestWaitingForApproval
+			} else if condType == kmapi.ConditionRequestApproved {
+				phase = GCPAccessKeyRequestApproved
+			} else {
+				phase = GCPAccessKeyRequestDenied
+			}
+
+			// update phase if it isn't updated.
+			if gcpAccessReq.Status.Phase != phase {
+				newAKR, err := patchutil.UpdateGCPAccessKeyRequestStatus(
+					context.TODO(),
+					c.extClient.EngineV1alpha1(),
+					gcpAccessReq.ObjectMeta,
+					func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
+						status.Phase = phase
+						return status
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					return errors.Wrap(err, fmt.Sprintf("failed to update the status of gcpAccessKeyRequest: %s/%s", gcpAccessReq.Namespace, gcpAccessReq.Name))
+				}
+				gcpAccessReq = newAKR
 			}
 
 			if condType == kmapi.ConditionRequestApproved {

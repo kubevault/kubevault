@@ -79,14 +79,19 @@ type GCPAccessKeyRequestList struct {
 	Items []GCPAccessKeyRequest `json:"items,omitempty" protobuf:"bytes,2,rep,name=items"`
 }
 
+type GCPAccessKeyRequestStatusPhase string
+
 type GCPAccessKeyRequestStatus struct {
+	// Specifies the phase of GCPAccessKeyRequest object
+	Phase GCPAccessKeyRequestStatusPhase `json:"phase,omitempty" protobuf:"bytes,1,opt,name=phase,casttype=GCPAccessKeyRequestStatusPhase"`
+
 	// Conditions applied to the request, such as approval or denial.
 	// +optional
-	Conditions []kmapi.Condition `json:"conditions,omitempty" protobuf:"bytes,1,rep,name=conditions"`
+	Conditions []kmapi.Condition `json:"conditions,omitempty" protobuf:"bytes,2,rep,name=conditions"`
 
 	// Name of the secret containing GCPCredential
-	Secret *core.LocalObjectReference `json:"secret,omitempty" protobuf:"bytes,2,opt,name=secret"`
+	Secret *core.LocalObjectReference `json:"secret,omitempty" protobuf:"bytes,3,opt,name=secret"`
 
 	// Contains lease info
-	Lease *Lease `json:"lease,omitempty" protobuf:"bytes,3,opt,name=lease"`
+	Lease *Lease `json:"lease,omitempty" protobuf:"bytes,4,opt,name=lease"`
 }

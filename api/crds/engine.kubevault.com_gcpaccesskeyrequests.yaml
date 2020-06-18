@@ -166,6 +166,9 @@ spec:
                   description: Specifies whether this lease is renewable
                   type: boolean
               type: object
+            phase:
+              description: Specifies the phase of GCPAccessKeyRequest object
+              type: string
             secret:
               description: Name of the secret containing GCPCredential
               properties:

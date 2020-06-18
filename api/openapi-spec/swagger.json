@@ -15796,6 +15796,10 @@
           "description": "Contains lease info",
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.Lease"
         },
+        "phase": {
+          "description": "Specifies the phase of GCPAccessKeyRequest object",
+          "type": "string"
+        },
         "secret": {
           "description": "Name of the secret containing GCPCredential",
           "$ref": "#/definitions/io.k8s.api.core.v1.LocalObjectReference"
