@@ -27,7 +27,7 @@ function cleanup() {
 trap cleanup EXIT
 
 git add --all
-if git diff --exit-code HEAD; then
+if git diff -s --exit-code HEAD; then
 	echo "Docs are already up-to-date!"
 	exit 0
 fi
@@ -37,5 +37,6 @@ git checkout -b $pr_branch
 git commit -a -s -m "Update docs for $pr_branch"
 git push -u origin HEAD
 hub pull-request \
+    --labels automerge \
     --message "Update docs for $pr_branch" \
     --message "$(git show -s --format=%b)"
