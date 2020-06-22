@@ -36,7 +36,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-In this tutorial, we are going to create a [role](https://www.vaultproject.io/api/secret/mongodb/index.html#create-role) using MongoDBRole and issue credential using DatabaseAccessRequest.
+In this tutorial, we are going to create a [role](https://www.vaultproject.io/docs/secrets/databases/mongodb#setup) using MongoDBRole and issue credential using DatabaseAccessRequest.
 
 ## Vault Server
 
@@ -159,7 +159,7 @@ Since the status is `Success`, the MongoDB secret engine is enabled and successf
 
 ## Create MongoDB Role
 
-By using [MongoDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mongodb.md), you can create a [role](https://www.vaultproject.io/api/secret/mongodb/index.html#create-role) on the Vault server in Kubernetes native way.
+By using [MongoDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mongodb.md), you can create a [role](https://www.vaultproject.io/docs/secrets/databases/mongodb#setup) on the Vault server in Kubernetes native way.
 
 A sample MongoDBRole object is given below:
 

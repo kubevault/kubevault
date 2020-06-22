@@ -36,7 +36,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-In this tutorial, we are going to create a [role](https://www.vaultproject.io/api/secret/mysql/index.html#create-role) using MySQLRole and issue credential using DatabaseAccessRequest.
+In this tutorial, we are going to create a [role](https://www.vaultproject.io/docs/secrets/databases/mysql-maria#setup) using MySQLRole and issue credential using DatabaseAccessRequest.
 
 ## Vault Server
 
@@ -160,7 +160,7 @@ Since the status is `Success`, the MySQL secret engine is enabled and successful
 
 ## Create MySQL Role
 
-By using [MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md), you can create a [role](https://www.vaultproject.io/api/secret/mysql/index.html#create-role) on the Vault server in Kubernetes native way.
+By using [MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md), you can create a [role](https://www.vaultproject.io/docs/secrets/databases/mysql-maria#setup) on the Vault server in Kubernetes native way.
 
 A sample MySQLRole object is given below:
 
