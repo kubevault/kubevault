@@ -36,7 +36,7 @@ jobs:
           git config user.name "${GITHUB_USER}"
           git config user.email "${GITHUB_USER}@appscode.com"
 
-      - name: Package
+      - name: Update docs
         env:
           GITHUB_USER: 1gtm
           GITHUB_TOKEN: ${{ secrets.LGTM_GITHUB_TOKEN }}
