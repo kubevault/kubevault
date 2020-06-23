@@ -43,3 +43,12 @@ type Lease struct {
 	// Specifies whether this lease is renewable
 	Renewable bool `json:"renewable,omitempty" protobuf:"varint,3,opt,name=renewable"`
 }
+
+// Specifies the access key request phase
+type RequestStatusPhase string
+
+var (
+	RequestStatusPhaseWaitingForApproval RequestStatusPhase = "WaitingForApproval"
+	RequestStatusPhaseApproved           RequestStatusPhase = "Approved"
+	RequestStatusPhaseDenied             RequestStatusPhase = "Denied"
+)

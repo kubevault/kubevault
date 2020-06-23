@@ -36,8 +36,9 @@ import (
 )
 
 const (
-	mutatingWebhook   = "mutators.kubevault.com"
-	validatingWebhook = "validators.kubevault.com"
+	mutatingWebhook    = "mutators.kubevault.com"
+	validatingWebhook  = "validators.kubevault.com"
+	KubeVaultFinalizer = "kubevault.com"
 )
 
 type config struct {

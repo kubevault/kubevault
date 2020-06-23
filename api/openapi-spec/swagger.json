@@ -15192,6 +15192,10 @@
           "description": "Contains lease info",
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.Lease"
         },
+        "phase": {
+          "description": "Specifies the phase of AWSAccessKeyRequestStatus object",
+          "type": "string"
+        },
         "secret": {
           "description": "Name of the secret containing AWSCredential AWSCredentials",
           "$ref": "#/definitions/io.k8s.api.core.v1.LocalObjectReference"
@@ -15456,6 +15460,10 @@
           "description": "Contains lease info",
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.Lease"
         },
+        "phase": {
+          "description": "Specifies the phase of AzureAccessKeyRequestStatus object",
+          "type": "string"
+        },
         "secret": {
           "description": "Name of the secret containing AzureCredential",
           "$ref": "#/definitions/io.k8s.api.core.v1.LocalObjectReference"
@@ -15687,6 +15695,10 @@
         "lease": {
           "description": "Contains lease info",
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.Lease"
+        },
+        "phase": {
+          "description": "Specifies the phase of DatabaseAccessRequest object",
+          "type": "string"
         },
         "secret": {
           "description": "Name of the secret containing database credentials",
