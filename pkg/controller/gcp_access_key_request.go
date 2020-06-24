@@ -81,7 +81,7 @@ func (c *VaultController) runGCPAccessKeyRequestInjector(key string) error {
 
 		if gcpAccessReq.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(gcpAccessReq.ObjectMeta, KubeVaultFinalizer) {
-				go c.runGCPAccessKeyRequestFinalizer(gcpAccessReq, finalizerTimeout, finalizerInterval)
+				return c.runGCPAccessKeyRequestFinalizer(gcpAccessReq)
 			}
 		} else {
 			if !core_util.HasFinalizer(gcpAccessReq.ObjectMeta, KubeVaultFinalizer) {
@@ -128,19 +128,44 @@ func (c *VaultController) runGCPAccessKeyRequestInjector(key string) error {
 					return nil
 				}
 
+				// Create credential manager which handle communication to vault server
 				gcpCredManager, err := credential.NewCredentialManagerForGCP(c.kubeClient, c.appCatalogClient, c.extClient, gcpAccessReq)
 				if err != nil {
-					return err
+					_, err2 := patchutil.UpdateGCPAccessKeyRequestStatus(
+						context.TODO(),
+						c.extClient.EngineV1alpha1(),
+						gcpAccessReq.ObjectMeta,
+						func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
+							status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
+								Type:               kmapi.ConditionFailure,
+								Status:             kmapi.ConditionTrue,
+								Reason:             "FailedToCreateCredentialManager",
+								Message:            err.Error(),
+								LastTransitionTime: metav1.Now(),
+							})
+							return status
+						},
+						metav1.UpdateOptions{},
+					)
+
+					return utilerrors.NewAggregate([]error{err2, err})
 				}
 
 				err = c.reconcileGCPAccessKeyRequest(gcpCredManager, gcpAccessReq)
-				// If reconcileGCPAccessKeyRequest failed,
+				// If reconcileGCPAccessKeyRequest fails,
 				//	- Revoke lease if any
 				// 	- Delete k8s secret if any
 				//	- Update lease & secret references with nil value
 				if err != nil {
 					err1 := revokeLease(gcpCredManager, gcpAccessReq.Status.Lease)
 					err2 := c.deleteCredSecretForGCPAccessKeyRequest(gcpAccessReq)
+					// If it fails to revoke lease or delete secret,
+					// no need to update status.
+					if err1 != nil || err2 != nil {
+						return utilerrors.NewAggregate([]error{err2, err1})
+					}
+					// successfully revoked key and deleted the k8s secret,
+					// update the status.
 					_, err3 := patchutil.UpdateGCPAccessKeyRequestStatus(
 						context.TODO(),
 						c.extClient.EngineV1alpha1(),
@@ -152,7 +177,7 @@ func (c *VaultController) runGCPAccessKeyRequestInjector(key string) error {
 						},
 						metav1.UpdateOptions{},
 					)
-					return errors.Wrapf(utilerrors.NewAggregate([]error{err3, err2, err1, err}), "For GCPAccessKeyRequest %s/%s", gcpAccessReq.Namespace, gcpAccessReq.Name)
+					return errors.Wrapf(utilerrors.NewAggregate([]error{err3, err}), "For GCPAccessKeyRequest %s/%s", gcpAccessReq.Namespace, gcpAccessReq.Name)
 				}
 			} else if condType == kmapi.ConditionRequestDenied {
 				glog.Infof("For GCPAccessKeyRequest %s/%s: request is denied", gcpAccessReq.Namespace, gcpAccessReq.Name)
@@ -176,22 +201,10 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(gcpCM credential.Credenti
 		ns   = req.Namespace
 	)
 
-	// Revoke the lease,
-	// if it was set during the previous cycle which was failed.
-	if req.Status.Lease != nil {
-		err := revokeLease(gcpCM, req.Status.Lease)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Delete the k8s secret,
-	// if it was created during the previous cycle which was failed.
-	if req.Status.Secret != nil {
-		err := c.deleteCredSecretForGCPAccessKeyRequest(req)
-		if err != nil {
-			return err
-		}
+	// if lease or secret ref was set during the previous cycle which was failed.
+	// return error.
+	if req.Status.Lease != nil || req.Status.Secret != nil {
+		return errors.New("lease or secret ref is not empty")
 	}
 
 	// Get new credentials ( gcp service account key )
@@ -285,6 +298,7 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(gcpCM credential.Credenti
 			func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:               kmapi.ConditionFailure,
+					Status:             kmapi.ConditionTrue,
 					Reason:             "FailedToCreateRole",
 					Message:            err.Error(),
 					LastTransitionTime: metav1.Now(),
@@ -305,6 +319,7 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(gcpCM credential.Credenti
 			func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:               kmapi.ConditionFailure,
+					Status:             kmapi.ConditionTrue,
 					Reason:             "FailedToCreateRoleBinding",
 					Message:            err.Error(),
 					LastTransitionTime: metav1.Now(),
@@ -323,6 +338,8 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(gcpCM credential.Credenti
 		func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
 			status.Conditions = kmapi.SetCondition(kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure), kmapi.Condition{
 				Type:               kmapi.ConditionAvailable,
+				Status:             kmapi.ConditionTrue,
+				Message:            "The requested credentials successfully issued.",
 				Reason:             "SuccessfullyIssuedCredential",
 				LastTransitionTime: metav1.Now(),
 			})
@@ -333,80 +350,35 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(gcpCM credential.Credenti
 	return err
 }
 
-func (c *VaultController) runGCPAccessKeyRequestFinalizer(req *api.GCPAccessKeyRequest, timeout time.Duration, interval time.Duration) {
+func (c *VaultController) runGCPAccessKeyRequestFinalizer(req *api.GCPAccessKeyRequest) error {
 	if req == nil {
-		glog.Infoln("GCPAccessKeyRequest is nil")
-		return
-	}
-
-	id := getGCPAccessKeyRequestId(req)
-	if c.finalizerInfo.IsAlreadyProcessing(id) {
-		// already processing
-		return
+		return errors.New("GCPAccessKeyRequest is nil")
 	}
 
 	glog.Infof("Processing finalizer for GCPAccessKeyRequest %s/%s", req.Namespace, req.Name)
-	// Add key to finalizerInfo, it will prevent other go routine to processing for this GCPAccessKeyRequest
-	c.finalizerInfo.Add(id)
 
-	stopCh := time.After(timeout)
-	finalizationDone := false
-	timeOutOccured := false
-	attempt := 0
+	gcpCM, err := credential.NewCredentialManagerForGCP(c.kubeClient, c.appCatalogClient, c.extClient, req)
 
-	for {
-		glog.Infof("GCPAccessKeyRequest %s/%s finalizer: attempt %d\n", req.Namespace, req.Name, attempt)
-
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		default:
+	// The error could be generated for:
+	// 	- invalid roleRef
+	// 		- invalid vaultRef in role object
+	// In both cases, the operator should be able to delete the AccessKeyRequest(ie. remove finalizer).
+	// Revoke the lease if no error occurred.
+	if err == nil {
+		err = c.finalizeGCPAccessKeyRequest(gcpCM, req.Status.Lease)
+		if err != nil {
+			return errors.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 		}
-
-		if timeOutOccured {
-			break
-		}
-
-		if !finalizationDone {
-			gcpCM, err := credential.NewCredentialManagerForGCP(c.kubeClient, c.appCatalogClient, c.extClient, req)
-			if err != nil {
-				glog.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
-			} else {
-				err = c.finalizeGCPAccessKeyRequest(gcpCM, req.Status.Lease)
-				if err != nil {
-					glog.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
-				} else {
-					finalizationDone = true
-				}
-			}
-		}
-
-		if finalizationDone {
-			err := c.removeGCPAccessKeyRequestFinalizer(req)
-			if err != nil {
-				glog.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
-			} else {
-				break
-			}
-		}
-
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		case <-time.After(interval):
-		}
-		attempt++
 	}
 
-	err := c.removeGCPAccessKeyRequestFinalizer(req)
+	err = c.removeGCPAccessKeyRequestFinalizer(req)
 	if err != nil {
-		glog.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
+		return errors.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 	} else {
 		glog.Infof("Removed finalizer for GCPAccessKeyRequest %s/%s", req.Namespace, req.Name)
 	}
 
-	// Delete key from finalizer info as processing is done
-	c.finalizerInfo.Delete(id)
+	return nil
 }
 
 func (c *VaultController) finalizeGCPAccessKeyRequest(gcpCM credential.CredentialManager, lease *api.Lease) error {
@@ -440,10 +412,6 @@ func (c *VaultController) deleteCredSecretForGCPAccessKeyRequest(gcpAKReq *api.G
 
 	// Delete the secret if exists.
 	return c.kubeClient.CoreV1().Secrets(gcpAKReq.Namespace).Delete(context.TODO(), gcpAKReq.Status.Secret.Name, metav1.DeleteOptions{})
-}
-
-func getGCPAccessKeyRequestId(gcpAKReq *api.GCPAccessKeyRequest) string {
-	return fmt.Sprintf("%s/%s/%s", api.ResourceGCPAccessKeyRequest, gcpAKReq.Namespace, gcpAKReq.Name)
 }
 
 func gcpAccessKeyRequestSuccessfullyProcessed(gcpAKReq *api.GCPAccessKeyRequest) bool {
