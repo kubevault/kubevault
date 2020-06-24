@@ -17348,6 +17348,13 @@ func schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestStatus(ref common.R
 							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.Lease"),
 						},
 					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
 				},
 			},
 		},
@@ -17793,6 +17800,13 @@ func schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestStatus(ref common
 							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.Lease"),
 						},
 					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
 				},
 			},
 		},
@@ -18183,6 +18197,13 @@ func schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestStatus(ref common
 							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.Lease"),
 						},
 					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
 				},
 			},
 		},
@@ -18365,6 +18386,13 @@ func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestStatus(ref common.R
 						SchemaProps: spec.SchemaProps{
 							Description: "Contains lease info",
 							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.Lease"),
+						},
+					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 				},

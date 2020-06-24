@@ -97,4 +97,9 @@ type AWSAccessKeyRequestStatus struct {
 
 	// Contains lease info
 	Lease *Lease `json:"lease,omitempty" protobuf:"bytes,4,opt,name=lease"`
+
+	// observedGeneration is the most recent generation observed for this resource. It corresponds to the
+	// resource's generation, which is updated on mutation by the API Server.
+	// +optional
+	ObservedGeneration int64 `json:"observedGeneration,omitempty" protobuf:"varint,5,opt,name=observedGeneration"`
 }

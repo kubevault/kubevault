@@ -15192,6 +15192,11 @@
           "description": "Contains lease info",
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.Lease"
         },
+        "observedGeneration": {
+          "description": "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
+        },
         "phase": {
           "description": "Specifies the phase of AWSAccessKeyRequestStatus object",
           "type": "string"
@@ -15460,6 +15465,11 @@
           "description": "Contains lease info",
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.Lease"
         },
+        "observedGeneration": {
+          "description": "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
+        },
         "phase": {
           "description": "Specifies the phase of AzureAccessKeyRequestStatus object",
           "type": "string"
@@ -15696,6 +15706,11 @@
           "description": "Contains lease info",
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.Lease"
         },
+        "observedGeneration": {
+          "description": "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
+        },
         "phase": {
           "description": "Specifies the phase of DatabaseAccessRequest object",
           "type": "string"
@@ -15807,6 +15822,11 @@
         "lease": {
           "description": "Contains lease info",
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.Lease"
+        },
+        "observedGeneration": {
+          "description": "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
         },
         "phase": {
           "description": "Specifies the phase of GCPAccessKeyRequest object",

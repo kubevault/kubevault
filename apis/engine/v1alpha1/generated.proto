@@ -91,6 +91,11 @@ message AWSAccessKeyRequestStatus {
 
   // Contains lease info
   optional Lease lease = 4;
+
+  // observedGeneration is the most recent generation observed for this resource. It corresponds to the
+  // resource's generation, which is updated on mutation by the API Server.
+  // +optional
+  optional int64 observedGeneration = 5;
 }
 
 // https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials
@@ -237,6 +242,11 @@ message AzureAccessKeyRequestStatus {
 
   // Contains lease info
   optional Lease lease = 4;
+
+  // observedGeneration is the most recent generation observed for this resource. It corresponds to the
+  // resource's generation, which is updated on mutation by the API Server.
+  // +optional
+  optional int64 observedGeneration = 5;
 }
 
 // AzureConfiguration contains information to communicate with Azure
@@ -364,6 +374,11 @@ message DatabaseAccessRequestStatus {
 
   // Contains lease info
   optional Lease lease = 4;
+
+  // observedGeneration is the most recent generation observed for this resource. It corresponds to the
+  // resource's generation, which is updated on mutation by the API Server.
+  // +optional
+  optional int64 observedGeneration = 5;
 }
 
 // +kubebuilder:object:root=true
@@ -420,6 +435,11 @@ message GCPAccessKeyRequestStatus {
 
   // Contains lease info
   optional Lease lease = 4;
+
+  // observedGeneration is the most recent generation observed for this resource. It corresponds to the
+  // resource's generation, which is updated on mutation by the API Server.
+  // +optional
+  optional int64 observedGeneration = 5;
 }
 
 // https://www.vaultproject.io/api/secret/gcp/index.html#write-config
