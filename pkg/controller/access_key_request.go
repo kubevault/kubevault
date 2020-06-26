@@ -17,6 +17,8 @@ limitations under the License.
 package controller
 
 import (
+	"fmt"
+
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/credential"
 
@@ -36,4 +38,8 @@ func revokeLease(credM credential.CredentialManager, lease *api.Lease) error {
 		return nil
 	}
 	return credM.RevokeLease(lease.ID)
+}
+
+func getSecretAccessRoleName(kind, namespace, name string) string {
+	return fmt.Sprintf("%s-%s-%s-credential-reader", kind, namespace, name)
 }
