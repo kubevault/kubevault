@@ -360,10 +360,6 @@ func (c *VaultController) runAzureAccessKeyRequestFinalizer(req *api.AzureAccess
 	return nil
 }
 
-func getAzureAccessKeyRequestId(azureAKReq *api.AzureAccessKeyRequest) string {
-	return fmt.Sprintf("%s/%s/%s", api.ResourceAzureAccessKeyRequest, azureAKReq.Namespace, azureAKReq.Name)
-}
-
 func (c *VaultController) deleteCredSecretForAzureAccessKeyRequest(req *api.AzureAccessKeyRequest) error {
 	// if secret reference is nil, there is nothing to delete.
 	if req.Status.Secret == nil {

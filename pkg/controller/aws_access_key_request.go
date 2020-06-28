@@ -360,10 +360,6 @@ func (c *VaultController) runAWSAccessKeyRequestFinalizer(req *api.AWSAccessKeyR
 	return nil
 }
 
-func getAWSAccessKeyRequestId(awsAKReq *api.AWSAccessKeyRequest) string {
-	return fmt.Sprintf("%s/%s/%s", api.ResourceAWSAccessKeyRequest, awsAKReq.Namespace, awsAKReq.Name)
-}
-
 func (c *VaultController) deleteCredSecretForAWSAccessKeyRequest(req *api.AWSAccessKeyRequest) error {
 	// if secret reference is nil, there is nothing to delete.
 	if req.Status.Secret == nil {
