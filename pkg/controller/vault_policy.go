@@ -66,8 +66,7 @@ func (c *VaultController) runVaultPolicyInjector(key string) error {
 
 		if vPolicy.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(vPolicy.ObjectMeta, VaultPolicyFinalizer) {
-				// Finalize VaultPolicy
-				go c.runPolicyFinalizer(vPolicy, timeoutForFinalizer, timeIntervalForFinalizer)
+				return c.runPolicyFinalizer(vPolicy)
 			} else {
 				glog.Infof("Finalizer not found for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
 			}
@@ -156,66 +155,41 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 
 // runPolicyFinalizer wil periodically run the finalizePolicy until finalizePolicy func produces no error or timeout occurs.
 // After that it will remove the finalizer string from the objectMeta of VaultPolicy
-func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy, timeout time.Duration, interval time.Duration) {
+func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy) error {
 	if vPolicy == nil {
-		glog.Infoln("VaultPolicy in nil")
-		return
-	}
-
-	key := vPolicy.GetKey()
-	if c.finalizerInfo.IsAlreadyProcessing(key) {
-		// already processing it
-		return
+		return errors.New("vaultPolicy object is empty")
 	}
 
 	glog.Infof("Processing finalizer for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
-	// Add key to finalizerInfo, it will prevent other go routine to processing for this VaultPolicy
-	c.finalizerInfo.Add(key)
-	stopCh := time.After(timeout)
-	timeOutOccured := false
-	for {
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		default:
-		}
-
-		if timeOutOccured {
-			break
-		}
-
-		// finalize policy
-		if err := c.finalizePolicy(vPolicy); err == nil {
-			glog.Infof("For VaultPolicy %s/%s: successfully removed policy from vault", vPolicy.Namespace, vPolicy.Name)
-			break
-		} else {
-			glog.Infof("For VaultPolicy %s/%s: %v", vPolicy.Namespace, vPolicy.Name, err)
-		}
-
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		case <-time.After(interval):
-		}
+	err := c.finalizePolicy(vPolicy)
+	if err != nil {
+		return err
 	}
 
 	// Remove finalizer
-	_, err := patchutil.TryPatchVaultPolicy(context.TODO(), c.extClient.PolicyV1alpha1(), vPolicy, func(in *policyapi.VaultPolicy) *policyapi.VaultPolicy {
+	_, err = patchutil.TryPatchVaultPolicy(context.TODO(), c.extClient.PolicyV1alpha1(), vPolicy, func(in *policyapi.VaultPolicy) *policyapi.VaultPolicy {
 		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, VaultPolicyFinalizer)
 		return in
 	}, metav1.PatchOptions{})
 	if err != nil {
-		glog.Errorf("For VaultPolicy %s/%s: %v", vPolicy.Namespace, vPolicy.Name, err)
-	} else {
-		glog.Infof("For VaultPolicy %s/%s: removed finalizer '%s'", vPolicy.Namespace, vPolicy.Name, VaultPolicyFinalizer)
+		return errors.Wrap(err, fmt.Sprintf("Failed to remove finalizer for VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name))
 	}
-	// Delete key from finalizer info as processing is done
-	c.finalizerInfo.Delete(key)
+
 	glog.Infof("Removed finalizer for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
+	return nil
 }
 
 // finalizePolicy will delete the policy in vault
 func (c *VaultController) finalizePolicy(vPolicy *policyapi.VaultPolicy) error {
+	// If vault server appBinding is missing, the operator won't be able to reach the vault server.
+	// so, return nil.
+	_, err := c.appCatalogClient.AppBindings(vPolicy.Namespace).Get(context.TODO(), vPolicy.Spec.VaultRef.Name, metav1.GetOptions{})
+	if kerr.IsNotFound(err) {
+		return nil
+	} else if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("failed to get the appBinding:%s/%s", vPolicy.Namespace, vPolicy.Spec.VaultRef.Name))
+	}
+
 	out, err := c.extClient.PolicyV1alpha1().VaultPolicies(vPolicy.Namespace).Get(context.TODO(), vPolicy.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil

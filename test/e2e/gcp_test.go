@@ -88,9 +88,7 @@ var _ = Describe("GCP Secret Engine", func() {
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), "GCPRole status is succeeded")
-
 		}
-
 		IsGCPRoleFailed = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether GCPRole:(%s/%s) is failed", namespace, name))
 			Eventually(func() bool {
@@ -215,8 +213,8 @@ var _ = Describe("GCP Secret Engine", func() {
 						Name: f.VaultAppRef.Name,
 					},
 					SecretType: "access_token",
-					Project:    "appscode-testing",
-					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/appscode-testing" {
+					Project:    "appscode-ci",
+					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/appscode-ci" {
 					roles = ["roles/viewer"]
 				}`,
 					TokenScopes: []string{"https://www.googleapis.com/auth/cloud-platform"},
@@ -381,8 +379,8 @@ var _ = Describe("GCP Secret Engine", func() {
 						Name: f.VaultAppRef.Name,
 					},
 					SecretType: "access_token",
-					Project:    "appscode-testing",
-					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/appscode-testing" {
+					Project:    "appscode-ci",
+					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/appscode-ci" {
 					roles = ["roles/viewer"]
 				}`,
 					TokenScopes: []string{"https://www.googleapis.com/auth/cloud-platform"},

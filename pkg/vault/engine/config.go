@@ -105,10 +105,10 @@ func (seClient *SecretEngine) CreateMySQLConfig() error {
 			return err
 		}
 		if v, ok := secret.Data[appcat.KeyUsername]; ok {
-			payload[appcat.KeyUsername] = v
+			payload[appcat.KeyUsername] = string(v)
 		}
 		if v, ok := secret.Data[appcat.KeyPassword]; ok {
-			payload[appcat.KeyPassword] = v
+			payload[appcat.KeyPassword] = string(v)
 		}
 	}
 
@@ -174,10 +174,10 @@ func (seClient *SecretEngine) CreateMongoDBConfig() error {
 			return err
 		}
 		if v, ok := secret.Data[appcat.KeyUsername]; ok {
-			payload[appcat.KeyUsername] = v
+			payload[appcat.KeyUsername] = string(v)
 		}
 		if v, ok := secret.Data[appcat.KeyPassword]; ok {
-			payload[appcat.KeyPassword] = v
+			payload[appcat.KeyPassword] = string(v)
 		}
 	}
 
@@ -240,10 +240,10 @@ func (seClient *SecretEngine) CreatePostgresConfig() error {
 			return err
 		}
 		if v, ok := secret.Data[appcat.KeyUsername]; ok {
-			payload[appcat.KeyUsername] = v
+			payload[appcat.KeyUsername] = string(v)
 		}
 		if v, ok := secret.Data[appcat.KeyPassword]; ok {
-			payload[appcat.KeyPassword] = v
+			payload[appcat.KeyPassword] = string(v)
 		}
 	}
 

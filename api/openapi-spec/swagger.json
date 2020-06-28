@@ -15192,6 +15192,15 @@
           "description": "Contains lease info",
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.Lease"
         },
+        "observedGeneration": {
+          "description": "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "phase": {
+          "description": "Specifies the phase of AWSAccessKeyRequestStatus object",
+          "type": "string"
+        },
         "secret": {
           "description": "Name of the secret containing AWSCredential AWSCredentials",
           "$ref": "#/definitions/io.k8s.api.core.v1.LocalObjectReference"
@@ -15456,6 +15465,15 @@
           "description": "Contains lease info",
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.Lease"
         },
+        "observedGeneration": {
+          "description": "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "phase": {
+          "description": "Specifies the phase of AzureAccessKeyRequestStatus object",
+          "type": "string"
+        },
         "secret": {
           "description": "Name of the secret containing AzureCredential",
           "$ref": "#/definitions/io.k8s.api.core.v1.LocalObjectReference"
@@ -15688,6 +15706,15 @@
           "description": "Contains lease info",
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.Lease"
         },
+        "observedGeneration": {
+          "description": "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "phase": {
+          "description": "Specifies the phase of DatabaseAccessRequest object",
+          "type": "string"
+        },
         "secret": {
           "description": "Name of the secret containing database credentials",
           "$ref": "#/definitions/io.k8s.api.core.v1.LocalObjectReference"
@@ -15795,6 +15822,15 @@
         "lease": {
           "description": "Contains lease info",
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.Lease"
+        },
+        "observedGeneration": {
+          "description": "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "phase": {
+          "description": "Specifies the phase of GCPAccessKeyRequest object",
+          "type": "string"
         },
         "secret": {
           "description": "Name of the secret containing GCPCredential",

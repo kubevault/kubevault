@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	vaultVersion = "test-v1.2.0"
+	vaultVersion = "test-v1.2.3"
 )
 
 func (f *Invocation) VaultServer(replicas int32, bs api.BackendStorageSpec) *api.VaultServer {

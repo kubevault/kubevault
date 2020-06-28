@@ -61,7 +61,6 @@ var _ = Describe("Azure Secret Engine", func() {
 				return err == nil && r.Status.Phase == controller.SecretEnginePhaseSuccess
 
 			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine status is succeeded")
-
 		}
 		IsAzureRoleCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AzureRole:(%s/%s) role is created", namespace, name))
@@ -82,17 +81,13 @@ var _ = Describe("Azure Secret Engine", func() {
 			Eventually(func() bool {
 				r, err := f.CSClient.EngineV1alpha1().AzureRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil && r.Status.Phase == controller.AzureRolePhaseSuccess
-
 			}, timeOut, pollingInterval).Should(BeTrue(), "AzureRole status is succeeded")
-
 		}
-
 		IsAzureRoleFailed = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AzureRole:(%s/%s) is failed", namespace, name))
 			Eventually(func() bool {
 				r, err := f.CSClient.EngineV1alpha1().AzureRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil && r.Status.Phase != controller.AzureRolePhaseSuccess && len(r.Status.Conditions) != 0
-
 			}, timeOut, pollingInterval).Should(BeTrue(), "AzureRole status is failed")
 		}
 		IsAzureAccessKeyRequestCreated = func(name, namespace string) {

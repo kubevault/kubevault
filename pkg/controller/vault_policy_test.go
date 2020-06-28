@@ -21,7 +21,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"kubevault.dev/operator/apis"
 	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
@@ -207,14 +206,14 @@ func TestFinalizePolicy(t *testing.T) {
 			expectErr: false,
 		},
 		{
-			testName: "error, invalid VaultPolicy",
+			testName: "no error, invalid AppBinding",
 			vPolicy: validVaultPolicy(&appcat.AppBinding{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "invalid",
 					Namespace: "test",
 				},
 			}),
-			expectErr: true,
+			expectErr: false,
 		},
 	}
 
@@ -244,7 +243,7 @@ func TestFinalizePolicy(t *testing.T) {
 	}
 }
 
-func TestRunPolicyFinalizer(t *testing.T) {
+func TestVaultController_runPolicyFinalizer(t *testing.T) {
 	srv := NewFakeVaultServer()
 	defer srv.Close()
 	vApp := vaultAppBinding(srv.URL, vaultTokenSecret().Name)
@@ -255,47 +254,31 @@ func TestRunPolicyFinalizer(t *testing.T) {
 		finalizerInfo:    NewMapFinalizer(),
 		appCatalogClient: appc.AppcatalogV1alpha1(),
 	}
-	ctrl.finalizerInfo.Add(simpleVaultPolicy().GetKey())
-
-	cases := []struct {
-		testName  string
-		vPolicy   *policyapi.VaultPolicy
-		completed bool
+	tests := []struct {
+		name    string
+		vPolicy *policyapi.VaultPolicy
+		wantErr bool
 	}{
 		{
-			testName:  "remove finalizer successfully, valid VaultPolicy",
-			vPolicy:   validVaultPolicy(vApp),
-			completed: true,
+			name:    "remove finalizer successfully, valid VaultPolicy",
+			vPolicy: validVaultPolicy(vApp),
+			wantErr: false,
 		},
 		{
-			testName: "remove finalizer successfully, invalid VaultPolicy",
+			name: "remove finalizer successfully, missing vault server",
 			vPolicy: validVaultPolicy(&appcat.AppBinding{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "invalid",
 					Namespace: "test",
 				},
 			}),
-			completed: true,
-		},
-		{
-			testName:  "already processing finalizer",
-			vPolicy:   simpleVaultPolicy(),
-			completed: false,
+			wantErr: false,
 		},
 	}
-
-	for _, c := range cases {
-		t.Run(c.testName, func(t *testing.T) {
-			ctrl.runPolicyFinalizer(c.vPolicy, 3*time.Second, 1*time.Second)
-			if c.completed {
-				assert.Condition(t, func() (success bool) {
-					return !ctrl.finalizerInfo.IsAlreadyProcessing(c.vPolicy.GetKey())
-				}, "IsAlreadyProcessing(key) should be false")
-
-			} else {
-				assert.Condition(t, func() (success bool) {
-					return ctrl.finalizerInfo.IsAlreadyProcessing(c.vPolicy.GetKey())
-				}, "IsAlreadyProcessing(key) should be true")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := ctrl.runPolicyFinalizer(tt.vPolicy); (err != nil) != tt.wantErr {
+				t.Errorf("runPolicyFinalizer() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

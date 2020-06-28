@@ -69,7 +69,7 @@ func (f *Framework) DeployMongodb() (*appcat.AppReference, error) {
 
 	mongodbCont := core.Container{
 		Name:            "mongo",
-		Image:           "mongo",
+		Image:           "mongo:3.6.13",
 		ImagePullPolicy: "IfNotPresent",
 		Env: []core.EnvVar{
 			{
