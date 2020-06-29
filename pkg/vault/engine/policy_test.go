@@ -47,6 +47,10 @@ path "gcp/token/*" {
 path "gcp/key/*" {
 	capabilities = ["create", "update", "read"]
 }
+
+path "/sys/leases/*" {
+  capabilities = ["create","update"]
+}
 `
 const gcpPolicyTest2 = `
 path "my-gcp-path/config" {
@@ -63,6 +67,10 @@ path "my-gcp-path/token/*" {
 
 path "my-gcp-path/key/*" {
 	capabilities = ["create", "update", "read"]
+}
+
+path "/sys/leases/*" {
+  capabilities = ["create","update"]
 }
 `
 
