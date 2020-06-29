@@ -109,11 +109,7 @@ var _ = Describe("Azure Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
-					for _, value := range crd.Status.Conditions {
-						if value.Type == kmapi.ConditionRequestApproved && value.Status == kmapi.ConditionTrue {
-							return true
-						}
-					}
+					return kmapi.IsConditionTrue(crd.Status.Conditions, kmapi.ConditionRequestApproved)
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type : Approved")
@@ -123,11 +119,7 @@ var _ = Describe("Azure Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
-					for _, value := range crd.Status.Conditions {
-						if value.Type == kmapi.ConditionRequestDenied && value.Status == kmapi.ConditionTrue {
-							return true
-						}
-					}
+					return kmapi.IsConditionTrue(crd.Status.Conditions, kmapi.ConditionRequestDenied)
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type: Denied")
@@ -204,7 +196,7 @@ var _ = Describe("Azure Secret Engine", func() {
 					VaultRef: core.LocalObjectReference{
 						Name: f.VaultAppRef.Name,
 					},
-					ApplicationObjectID: "c1cb042d-96d7-423a-8dba-243c2e5010d3",
+					ApplicationObjectID: "fdcf7334-c208-40a2-a808-15b7c86ab9e7",
 				},
 			}
 
@@ -364,7 +356,7 @@ var _ = Describe("Azure Secret Engine", func() {
 					VaultRef: core.LocalObjectReference{
 						Name: f.VaultAppRef.Name,
 					},
-					ApplicationObjectID: "c1cb042d-96d7-423a-8dba-243c2e5010d3",
+					ApplicationObjectID: "fdcf7334-c208-40a2-a808-15b7c86ab9e7",
 				},
 			}
 

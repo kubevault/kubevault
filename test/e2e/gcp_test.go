@@ -118,11 +118,7 @@ var _ = Describe("GCP Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
-					for _, value := range crd.Status.Conditions {
-						if value.Type == kmapi.ConditionRequestApproved && value.Status == kmapi.ConditionTrue {
-							return true
-						}
-					}
+					return kmapi.IsConditionTrue(crd.Status.Conditions, kmapi.ConditionRequestApproved)
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type : Approved")
@@ -132,11 +128,7 @@ var _ = Describe("GCP Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
-					for _, value := range crd.Status.Conditions {
-						if value.Type == kmapi.ConditionRequestDenied && value.Status == kmapi.ConditionTrue {
-							return true
-						}
-					}
+					return kmapi.IsConditionTrue(crd.Status.Conditions, kmapi.ConditionRequestDenied)
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type: Denied")
