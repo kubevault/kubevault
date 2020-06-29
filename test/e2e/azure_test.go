@@ -110,7 +110,7 @@ var _ = Describe("Azure Secret Engine", func() {
 				crd, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
-						if value.Type == kmapi.ConditionRequestApproved {
+						if value.Type == kmapi.ConditionRequestApproved && value.Status == kmapi.ConditionTrue {
 							return true
 						}
 					}
@@ -124,7 +124,7 @@ var _ = Describe("Azure Secret Engine", func() {
 				crd, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					for _, value := range crd.Status.Conditions {
-						if value.Type == kmapi.ConditionRequestDenied {
+						if value.Type == kmapi.ConditionRequestDenied && value.Status == kmapi.ConditionTrue {
 							return true
 						}
 					}
@@ -437,9 +437,11 @@ var _ = Describe("Azure Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestApproved,
+							Status:             kmapi.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
+					Phase: api.RequestStatusPhaseApproved,
 				}, r)
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Approved")
 				IsAzureAKRConditionApproved(azureAKR.Name, azureAKR.Namespace)
@@ -457,9 +459,11 @@ var _ = Describe("Azure Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestDenied,
+							Status:             kmapi.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
+					Phase: api.RequestStatusPhaseDenied,
 				}, r)
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Denied")
 
@@ -509,9 +513,11 @@ var _ = Describe("Azure Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestApproved,
+							Status:             kmapi.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
+					Phase: api.RequestStatusPhaseApproved,
 				}, r)
 
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Approved")
