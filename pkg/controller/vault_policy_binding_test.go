@@ -19,8 +19,8 @@ package controller
 import (
 	"context"
 	"testing"
-	"time"
 
+	"kubevault.dev/operator/apis"
 	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
 	csfake "kubevault.dev/operator/client/clientset/versioned/fake"
 	pbinding "kubevault.dev/operator/pkg/vault/policybinding"
@@ -52,7 +52,7 @@ func simpleVaultPolicyBinding() *policyapi.VaultPolicyBinding {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:       "simple",
 			Namespace:  "test",
-			Finalizers: []string{VaultPolicyBindingFinalizer},
+			Finalizers: []string{apis.Finalizer},
 		},
 		Spec: policyapi.VaultPolicyBindingSpec{
 			SubjectRef: policyapi.SubjectRef{
@@ -227,7 +227,7 @@ func TestRunPolicyBindingFinalizer(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.testName, func(t *testing.T) {
-			ctrl.runPolicyBindingFinalizer(c.vPBind, 3*time.Second, 1*time.Second)
+			ctrl.runPolicyBindingFinalizer(c.vPBind)
 			if c.completed {
 				assert.Condition(t, func() (success bool) {
 					return !ctrl.finalizerInfo.IsAlreadyProcessing(c.vPBind.GetKey())

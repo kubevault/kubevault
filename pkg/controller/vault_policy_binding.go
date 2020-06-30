@@ -18,8 +18,9 @@ package controller
 
 import (
 	"context"
-	"time"
+	"fmt"
 
+	"kubevault.dev/operator/apis"
 	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
 	pbinding "kubevault.dev/operator/pkg/vault/policybinding"
@@ -32,10 +33,6 @@ import (
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
-)
-
-const (
-	VaultPolicyBindingFinalizer = "policybinding.kubevault.com"
 )
 
 func (c *VaultController) initVaultPolicyBindingWatcher() {
@@ -57,36 +54,36 @@ func (c *VaultController) runVaultPolicyBindingInjector(key string) error {
 	if !exists {
 		glog.Warningf("VaultPolicyBinding %s does not exist anymore\n", key)
 	} else {
-		vPBind := obj.(*policyapi.VaultPolicyBinding).DeepCopy()
-		glog.Infof("Sync/Add/Update for VaultPolicyBinding %s/%s\n", vPBind.Namespace, vPBind.Name)
+		pb := obj.(*policyapi.VaultPolicyBinding).DeepCopy()
+		glog.Infof("Sync/Add/Update for VaultPolicyBinding %s/%s\n", pb.Namespace, pb.Name)
 
-		if vPBind.DeletionTimestamp != nil {
-			if core_util.HasFinalizer(vPBind.ObjectMeta, VaultPolicyBindingFinalizer) {
+		if pb.DeletionTimestamp != nil {
+			if core_util.HasFinalizer(pb.ObjectMeta, apis.Finalizer) {
 				// Finalize VaultPolicyBinding
-				go c.runPolicyBindingFinalizer(vPBind, timeoutForFinalizer, timeIntervalForFinalizer)
+				return c.runPolicyBindingFinalizer(pb)
 			} else {
-				glog.Infof("Finalizer not found for VaultPolicyBinding %s/%s", vPBind.Namespace, vPBind.Name)
+				glog.Infof("Finalizer not found for VaultPolicyBinding %s/%s", pb.Namespace, pb.Name)
 			}
 		} else {
-			if !core_util.HasFinalizer(vPBind.ObjectMeta, VaultPolicyBindingFinalizer) {
+			if !core_util.HasFinalizer(pb.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchVaultPolicyBinding(context.TODO(), c.extClient.PolicyV1alpha1(), vPBind, func(vp *policyapi.VaultPolicyBinding) *policyapi.VaultPolicyBinding {
-					vp.ObjectMeta = core_util.AddFinalizer(vPBind.ObjectMeta, VaultPolicyBindingFinalizer)
-					return vp
+				_, _, err := patchutil.PatchVaultPolicyBinding(context.TODO(), c.extClient.PolicyV1alpha1(), pb, func(in *policyapi.VaultPolicyBinding) *policyapi.VaultPolicyBinding {
+					in.ObjectMeta = core_util.AddFinalizer(pb.ObjectMeta, apis.Finalizer)
+					return in
 				}, metav1.PatchOptions{})
 				if err != nil {
-					return errors.Wrapf(err, "failed to set VaultPolicyBinding finalizer for %s/%s", vPBind.Namespace, vPBind.Name)
+					return errors.Wrapf(err, "failed to add VaultPolicyBinding finalizer for %s/%s", pb.Namespace, pb.Name)
 				}
 			}
 
-			pBClient, err := pbinding.NewPolicyBindingClient(c.extClient, c.appCatalogClient, c.kubeClient, vPBind)
+			pbClient, err := pbinding.NewPolicyBindingClient(c.extClient, c.appCatalogClient, c.kubeClient, pb)
 			if err != nil {
-				return errors.Wrapf(err, "for VaultPolicyBinding %s/%s", vPBind.Namespace, vPBind.Name)
+				return errors.Wrapf(err, "for VaultPolicyBinding %s/%s", pb.Namespace, pb.Name)
 			}
 
-			err = c.reconcilePolicyBinding(vPBind, pBClient)
+			err = c.reconcilePolicyBinding(pb, pbClient)
 			if err != nil {
-				return errors.Wrapf(err, "for VaultPolicyBinding %s/%s", vPBind.Namespace, vPBind.Name)
+				return errors.Wrapf(err, "for VaultPolicyBinding %s/%s", pb.Namespace, pb.Name)
 			}
 		}
 	}
@@ -94,15 +91,14 @@ func (c *VaultController) runVaultPolicyBindingInjector(key string) error {
 }
 
 // reconcilePolicyBinding reconciles the vault's policy binding
-func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBinding, pBClient pbinding.PolicyBinding) error {
+func (c *VaultController) reconcilePolicyBinding(pb *policyapi.VaultPolicyBinding, pbClient pbinding.PolicyBinding) error {
 	// create or update policy
-	// it's safe to call multiple times
-	err := pBClient.Ensure(vPBind.PolicyBindingName())
+	err := pbClient.Ensure(pb.PolicyBindingName())
 	if err != nil {
 		_, err2 := patchutil.UpdateVaultPolicyBindingStatus(
 			context.TODO(),
 			c.extClient.PolicyV1alpha1(),
-			vPBind.ObjectMeta,
+			pb.ObjectMeta,
 			func(status *policyapi.VaultPolicyBindingStatus) *policyapi.VaultPolicyBindingStatus {
 				status.Phase = policyapi.PolicyBindingFailed
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
@@ -122,9 +118,9 @@ func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBi
 	_, err = patchutil.UpdateVaultPolicyBindingStatus(
 		context.TODO(),
 		c.extClient.PolicyV1alpha1(),
-		vPBind.ObjectMeta,
+		pb.ObjectMeta,
 		func(status *policyapi.VaultPolicyBindingStatus) *policyapi.VaultPolicyBindingStatus {
-			status.ObservedGeneration = vPBind.Generation
+			status.ObservedGeneration = pb.Generation
 			status.Phase = policyapi.PolicyBindingSuccess
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
@@ -136,81 +132,52 @@ func (c *VaultController) reconcilePolicyBinding(vPBind *policyapi.VaultPolicyBi
 		},
 		metav1.UpdateOptions{},
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	glog.Infof("successfully processed VaultPolicyBinding: %s/%s", pb.Namespace, pb.Name)
+	return nil
 }
 
-// runPolicyBindingFinalizer wil periodically run the finalizePolicyBinding until finalizePolicyBinding func produces no error or timeout occurs.
-// After that it will remove the finalizer string from the objectMeta of VaultPolicyBinding
-func (c *VaultController) runPolicyBindingFinalizer(vPBind *policyapi.VaultPolicyBinding, timeout time.Duration, interval time.Duration) {
-	if vPBind == nil {
-		glog.Infoln("VaultPolicyBinding is nil")
-		return
+func (c *VaultController) runPolicyBindingFinalizer(pb *policyapi.VaultPolicyBinding) error {
+	if pb == nil {
+		return errors.New("vaultPolicyBinding object is empty")
 	}
 
-	key := vPBind.GetKey()
-	if c.finalizerInfo.IsAlreadyProcessing(key) {
-		// already processing it
-		return
-	}
-
-	glog.Infof("Processing finalizer for VaultPolicyBinding %s/%s", vPBind.Namespace, vPBind.Name)
-	// Add key to finalizerInfo, it will prevent other go routine to processing for this VaultPolicyBinding
-	c.finalizerInfo.Add(key)
-	stopCh := time.After(timeout)
-	timeOutOccured := false
-	for {
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		default:
-		}
-
-		if timeOutOccured {
-			break
-		}
-
-		// finalize policy binding
-		if err := c.finalizePolicyBinding(vPBind); err == nil {
-			glog.Infof("For VaultPolicyBinding %s/%s: successfully removed policy from vault", vPBind.Namespace, vPBind.Name)
-			break
-		} else {
-			glog.Infof("For VaultPolicyBinding %s/%s: %v", vPBind.Namespace, vPBind.Name, err)
-		}
-
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		case <-time.After(interval):
-		}
+	glog.Infof("Processing finalizer for VaultPolicyBinding %s/%s", pb.Namespace, pb.Name)
+	// finalize policy binding
+	if err := c.finalizePolicyBinding(pb); err != nil {
+		return errors.Wrapf(err, "failed to finalize VaultPolicyBinding: %s/%s", pb.Namespace, pb.Name)
 	}
 
 	// Remove finalizer
-	_, err := patchutil.TryPatchVaultPolicyBinding(context.TODO(), c.extClient.PolicyV1alpha1(), vPBind, func(in *policyapi.VaultPolicyBinding) *policyapi.VaultPolicyBinding {
-		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, VaultPolicyBindingFinalizer)
+	_, err := patchutil.TryPatchVaultPolicyBinding(context.TODO(), c.extClient.PolicyV1alpha1(), pb, func(in *policyapi.VaultPolicyBinding) *policyapi.VaultPolicyBinding {
+		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, apis.Finalizer)
 		return in
 	}, metav1.PatchOptions{})
 	if err != nil {
-		glog.Errorf("For VaultPolicyBinding %s/%s: %v", vPBind.Namespace, vPBind.Name, err)
-	} else {
-		glog.Infof("For VaultPolicyBinding %s/%s: removed finalizer '%s'", vPBind.Namespace, vPBind.Name, VaultPolicyBindingFinalizer)
+		return errors.Wrapf(err, "failed to remove finalizer for VaultPolicyBinding: %s/%s", pb.Namespace, pb.Name)
 	}
-	// Delete key from finalizer info as processing is done
-	c.finalizerInfo.Delete(key)
-	glog.Infof("Removed finalizer for VaultPolicyBinding %s/%s", vPBind.Namespace, vPBind.Name)
+
+	glog.Infof("Removed finalizer for VaultPolicyBinding %s/%s", pb.Namespace, pb.Name)
+	return nil
 }
 
 // finalizePolicyBinding will delete the policy in vault
-func (c *VaultController) finalizePolicyBinding(vPBind *policyapi.VaultPolicyBinding) error {
-	out, err := c.extClient.PolicyV1alpha1().VaultPolicyBindings(vPBind.Namespace).Get(context.TODO(), vPBind.Name, metav1.GetOptions{})
+func (c *VaultController) finalizePolicyBinding(pb *policyapi.VaultPolicyBinding) error {
+	// If vault server appBinding is missing, the operator won't be able to reach the vault server.
+	// so, return nil.
+	_, err := c.appCatalogClient.AppBindings(pb.Namespace).Get(context.TODO(), pb.Spec.VaultRef.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
 		return nil
 	} else if err != nil {
-		return err
+		return errors.Wrap(err, fmt.Sprintf("failed to get the appBinding:%s/%s", pb.Namespace, pb.Spec.VaultRef.Name))
 	}
 
-	pBClient, err := pbinding.NewPolicyBindingClient(c.extClient, c.appCatalogClient, c.kubeClient, out)
+	pbClient, err := pbinding.NewPolicyBindingClient(c.extClient, c.appCatalogClient, c.kubeClient, pb)
 	if err != nil {
 		return err
 	}
-	return pBClient.Delete(vPBind.PolicyBindingName())
+	return pbClient.Delete(pb.PolicyBindingName())
 }

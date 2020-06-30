@@ -20,8 +20,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
+	"kubevault.dev/operator/apis"
 	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/policy"
@@ -34,12 +34,6 @@ import (
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
-)
-
-const (
-	VaultPolicyFinalizer     = "policy.kubevault.com"
-	timeoutForFinalizer      = 1 * time.Minute
-	timeIntervalForFinalizer = 5 * time.Second
 )
 
 func (c *VaultController) initVaultPolicyWatcher() {
@@ -65,20 +59,20 @@ func (c *VaultController) runVaultPolicyInjector(key string) error {
 		glog.Infof("Sync/Add/Update for VaultPolicy %s/%s\n", vPolicy.Namespace, vPolicy.Name)
 
 		if vPolicy.DeletionTimestamp != nil {
-			if core_util.HasFinalizer(vPolicy.ObjectMeta, VaultPolicyFinalizer) {
+			if core_util.HasFinalizer(vPolicy.ObjectMeta, apis.Finalizer) {
 				return c.runPolicyFinalizer(vPolicy)
 			} else {
 				glog.Infof("Finalizer not found for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
 			}
 		} else {
-			if !core_util.HasFinalizer(vPolicy.ObjectMeta, VaultPolicyFinalizer) {
+			if !core_util.HasFinalizer(vPolicy.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchVaultPolicy(context.TODO(), c.extClient.PolicyV1alpha1(), vPolicy, func(vp *policyapi.VaultPolicy) *policyapi.VaultPolicy {
-					vp.ObjectMeta = core_util.AddFinalizer(vPolicy.ObjectMeta, VaultPolicyFinalizer)
-					return vp
+				_, _, err := patchutil.PatchVaultPolicy(context.TODO(), c.extClient.PolicyV1alpha1(), vPolicy, func(in *policyapi.VaultPolicy) *policyapi.VaultPolicy {
+					in.ObjectMeta = core_util.AddFinalizer(vPolicy.ObjectMeta, apis.Finalizer)
+					return in
 				}, metav1.PatchOptions{})
 				if err != nil {
-					return errors.Wrapf(err, "failed to set VaultPolicy finalizer for %s/%s", vPolicy.Namespace, vPolicy.Name)
+					return errors.Wrapf(err, "failed to add VaultPolicy finalizer for %s/%s", vPolicy.Namespace, vPolicy.Name)
 				}
 			}
 
@@ -150,10 +144,15 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 		},
 		metav1.UpdateOptions{},
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	glog.Infof("successfully processed VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name)
+	return nil
 }
 
-// runPolicyFinalizer wil periodically run the finalizePolicy until finalizePolicy func produces no error or timeout occurs.
+// runPolicyFinalizer wil periodically run the finalizePolicy until finalizePolicy func produces no error
 // After that it will remove the finalizer string from the objectMeta of VaultPolicy
 func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy) error {
 	if vPolicy == nil {
@@ -168,7 +167,7 @@ func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy) err
 
 	// Remove finalizer
 	_, err = patchutil.TryPatchVaultPolicy(context.TODO(), c.extClient.PolicyV1alpha1(), vPolicy, func(in *policyapi.VaultPolicy) *policyapi.VaultPolicy {
-		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, VaultPolicyFinalizer)
+		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, apis.Finalizer)
 		return in
 	}, metav1.PatchOptions{})
 	if err != nil {
@@ -190,14 +189,7 @@ func (c *VaultController) finalizePolicy(vPolicy *policyapi.VaultPolicy) error {
 		return errors.Wrap(err, fmt.Sprintf("failed to get the appBinding:%s/%s", vPolicy.Namespace, vPolicy.Spec.VaultRef.Name))
 	}
 
-	out, err := c.extClient.PolicyV1alpha1().VaultPolicies(vPolicy.Namespace).Get(context.TODO(), vPolicy.Name, metav1.GetOptions{})
-	if kerr.IsNotFound(err) {
-		return nil
-	} else if err != nil {
-		return err
-	}
-
-	pClient, err := policy.NewPolicyClientForVault(c.kubeClient, c.appCatalogClient, out)
+	pClient, err := policy.NewPolicyClientForVault(c.kubeClient, c.appCatalogClient, vPolicy)
 	if err != nil {
 		return err
 	}
