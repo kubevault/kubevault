@@ -43,5 +43,5 @@ func revokeLease(credM credential.CredentialManager, lease *api.Lease) error {
 
 func getSecretAccessRoleName(kind, namespace, name string) string {
 	n := fmt.Sprintf("%s-%s-%s", kind, namespace, name)
-	return meta_util.ValidNameWithSuffix(n, "cred-reader")
+	return meta_util.NameWithSuffix(n, "cred-reader")
 }
