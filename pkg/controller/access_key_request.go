@@ -23,6 +23,7 @@ import (
 	"kubevault.dev/operator/pkg/vault/credential"
 
 	"github.com/pkg/errors"
+	meta_util "kmodules.xyz/client-go/meta"
 )
 
 func revokeLease(credM credential.CredentialManager, lease *api.Lease) error {
@@ -41,5 +42,6 @@ func revokeLease(credM credential.CredentialManager, lease *api.Lease) error {
 }
 
 func getSecretAccessRoleName(kind, namespace, name string) string {
-	return fmt.Sprintf("%s-%s-%s-credential-reader", kind, namespace, name)
+	n := fmt.Sprintf("%s-%s-%s", kind, namespace, name)
+	return meta_util.ValidNameWithSuffix(n, "cred-reader")
 }
