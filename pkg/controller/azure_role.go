@@ -156,7 +156,7 @@ func (c *VaultController) runAzureRoleFinalizer(role *api.AzureRole, timeout tim
 
 	stopCh := time.After(timeout)
 	finalizationDone := false
-	timeOutOccured := false
+	timeOutOccurred := false
 	attempt := 0
 
 	for {
@@ -164,11 +164,11 @@ func (c *VaultController) runAzureRoleFinalizer(role *api.AzureRole, timeout tim
 
 		select {
 		case <-stopCh:
-			timeOutOccured = true
+			timeOutOccurred = true
 		default:
 		}
 
-		if timeOutOccured {
+		if timeOutOccurred {
 			break
 		}
 
@@ -197,7 +197,7 @@ func (c *VaultController) runAzureRoleFinalizer(role *api.AzureRole, timeout tim
 
 		select {
 		case <-stopCh:
-			timeOutOccured = true
+			timeOutOccurred = true
 		case <-time.After(interval):
 		}
 		attempt++

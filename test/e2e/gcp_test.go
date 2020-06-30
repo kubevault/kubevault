@@ -88,9 +88,7 @@ var _ = Describe("GCP Secret Engine", func() {
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), "GCPRole status is succeeded")
-
 		}
-
 		IsGCPRoleFailed = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether GCPRole:(%s/%s) is failed", namespace, name))
 			Eventually(func() bool {
@@ -120,11 +118,7 @@ var _ = Describe("GCP Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
-					for _, value := range crd.Status.Conditions {
-						if value.Type == kmapi.ConditionRequestApproved {
-							return true
-						}
-					}
+					return kmapi.IsConditionTrue(crd.Status.Conditions, kmapi.ConditionRequestApproved)
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type : Approved")
@@ -134,11 +128,7 @@ var _ = Describe("GCP Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().GCPAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
-					for _, value := range crd.Status.Conditions {
-						if value.Type == kmapi.ConditionRequestDenied {
-							return true
-						}
-					}
+					return kmapi.IsConditionTrue(crd.Status.Conditions, kmapi.ConditionRequestDenied)
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type: Denied")
@@ -215,8 +205,8 @@ var _ = Describe("GCP Secret Engine", func() {
 						Name: f.VaultAppRef.Name,
 					},
 					SecretType: "access_token",
-					Project:    "appscode-testing",
-					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/appscode-testing" {
+					Project:    "appscode-ci",
+					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/appscode-ci" {
 					roles = ["roles/viewer"]
 				}`,
 					TokenScopes: []string{"https://www.googleapis.com/auth/cloud-platform"},
@@ -381,8 +371,8 @@ var _ = Describe("GCP Secret Engine", func() {
 						Name: f.VaultAppRef.Name,
 					},
 					SecretType: "access_token",
-					Project:    "appscode-testing",
-					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/appscode-testing" {
+					Project:    "appscode-ci",
+					Bindings: ` resource "//cloudresourcemanager.googleapis.com/projects/appscode-ci" {
 					roles = ["roles/viewer"]
 				}`,
 					TokenScopes: []string{"https://www.googleapis.com/auth/cloud-platform"},
@@ -458,9 +448,11 @@ var _ = Describe("GCP Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestApproved,
+							Status:             kmapi.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
+					Phase: api.RequestStatusPhaseApproved,
 				}, r)
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Approved")
 				IsGCPAKRConditionApproved(gcpAKR.Name, gcpAKR.Namespace)
@@ -478,9 +470,11 @@ var _ = Describe("GCP Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestDenied,
+							Status:             kmapi.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
+					Phase: api.RequestStatusPhaseDenied,
 				}, r)
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Denied")
 
@@ -530,9 +524,11 @@ var _ = Describe("GCP Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestApproved,
+							Status:             kmapi.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
+					Phase: api.RequestStatusPhaseApproved,
 				}, r)
 
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Approved")

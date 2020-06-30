@@ -22,6 +22,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
@@ -649,12 +650,19 @@ var _ = Describe("VaultServer", func() {
 		Context("using swift backend", func() {
 			const swiftCredSecret = "swift-user-cred"
 			var (
-				username  = os.Getenv("OS_USERNAME")
-				password  = os.Getenv("OS_PASSWORD")
-				authURL   = os.Getenv("OS_AUTH_URL")
-				region    = os.Getenv("OS_REGION_NAME")
-				tenant    = os.Getenv("OS_TENANT_NAME")
-				container = "vault-test"
+				authURL        = os.Getenv("OS_AUTH_URL")
+				authVersion, _ = strconv.Atoi(os.Getenv("OS_IDENTITY_API_VERSION"))
+
+				domain       = os.Getenv("OS_USER_DOMAIN_NAME")
+				tenantDomain = os.Getenv("OS_PROJECT_DOMAIN_NAME")
+				tenantID     = os.Getenv("OS_TENANT_ID")
+				tenant       = os.Getenv("OS_TENANT_NAME") // "OS_PROJECT_NAME"
+
+				username = os.Getenv("OS_USERNAME")
+				password = os.Getenv("OS_PASSWORD")
+				region   = os.Getenv("OS_REGION_NAME")
+
+				container = "kubevault-ci"
 			)
 
 			BeforeEach(func() {
@@ -663,10 +671,16 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				cleaner := swift.Connection{
+					AuthUrl:     authURL,
+					AuthVersion: authVersion,
+
+					Domain:       domain,
+					TenantDomain: tenantDomain,
+					Tenant:       tenant,
+					TenantId:     tenantID,
+
 					UserName:  username,
 					ApiKey:    password,
-					AuthUrl:   authURL,
-					Tenant:    tenant,
 					Region:    region,
 					Transport: cleanhttp.DefaultPooledTransport(),
 				}
@@ -746,7 +760,7 @@ var _ = Describe("VaultServer", func() {
 				Expect(f.CreateSecret(sr)).NotTo(HaveOccurred())
 				gcs := api.BackendStorageSpec{
 					Gcs: &api.GcsSpec{
-						Bucket:           "vault-test-bucket",
+						Bucket:           "kubevault-ci",
 						CredentialSecret: secretName,
 					},
 				}
@@ -756,12 +770,12 @@ var _ = Describe("VaultServer", func() {
 					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						GoogleKmsGcs: &api.GoogleKmsGcsSpec{
-							Bucket:           "vault-test-bucket",
+							Bucket:           "kubevault-ci",
 							CredentialSecret: secretName,
 							KmsCryptoKey:     "vault-key",
 							KmsKeyRing:       "vault",
 							KmsLocation:      "global",
-							KmsProject:       "ackube",
+							KmsProject:       "appscode-ci",
 						},
 					},
 				}
@@ -798,8 +812,8 @@ var _ = Describe("VaultServer", func() {
 			BeforeEach(func() {
 				s3 := api.BackendStorageSpec{
 					S3: &api.S3Spec{
-						Bucket:           "test-vault-s3",
-						Region:           "us-west-1",
+						Bucket:           "kubevault-ci",
+						Region:           "us-east-1",
 						CredentialSecret: awsCredSecret,
 					},
 				}
@@ -810,8 +824,8 @@ var _ = Describe("VaultServer", func() {
 					Mode: api.ModeSpec{
 						AwsKmsSsm: &api.AwsKmsSsmSpec{
 							KmsKeyID:         "65ed2c85-4915-4e82-be47-d56ccaa8019b",
-							SsmKeyPrefix:     "/cluster/demo",
-							Region:           "us-west-1",
+							SsmKeyPrefix:     "/kubevault/ci",
+							Region:           "us-east-1",
 							CredentialSecret: awsCredSecret,
 						},
 					},
@@ -899,7 +913,7 @@ var _ = Describe("VaultServer", func() {
 					Azure: &api.AzureSpec{
 						AccountName:      accountName,
 						AccountKeySecret: azureAcKeySecret,
-						Container:        "vault",
+						Container:        "kubevaultci",
 					},
 				}
 
@@ -908,7 +922,7 @@ var _ = Describe("VaultServer", func() {
 					SecretThreshold: 2,
 					Mode: api.ModeSpec{
 						AzureKeyVault: &api.AzureKeyVault{
-							VaultBaseURL:    "https://vault-test-1204.vault.azure.net/",
+							VaultBaseURL:    "https://kubevault-ci.vault.azure.net/",
 							TenantID:        tenantID,
 							AADClientSecret: azureCredSecret,
 						},

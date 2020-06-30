@@ -36,6 +36,8 @@ const (
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:path=databaseaccessrequests,singular=databaseaccessrequest,categories={vault,appscode,all}
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 type DatabaseAccessRequest struct {
 	metav1.TypeMeta   `json:",inline,omitempty"`
 	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
@@ -67,13 +69,21 @@ type DatabaseAccessRequestList struct {
 }
 
 type DatabaseAccessRequestStatus struct {
+	// Specifies the phase of DatabaseAccessRequest object
+	Phase RequestStatusPhase `json:"phase,omitempty" protobuf:"bytes,1,opt,name=phase,casttype=RequestStatusPhase"`
+
 	// Conditions applied to the request, such as approval or denial.
 	// +optional
-	Conditions []kmapi.Condition `json:"conditions,omitempty" protobuf:"bytes,1,rep,name=conditions"`
+	Conditions []kmapi.Condition `json:"conditions,omitempty" protobuf:"bytes,2,rep,name=conditions"`
 
 	// Name of the secret containing database credentials
-	Secret *core.LocalObjectReference `json:"secret,omitempty" protobuf:"bytes,2,opt,name=secret"`
+	Secret *core.LocalObjectReference `json:"secret,omitempty" protobuf:"bytes,3,opt,name=secret"`
 
 	// Contains lease info
-	Lease *Lease `json:"lease,omitempty" protobuf:"bytes,3,opt,name=lease"`
+	Lease *Lease `json:"lease,omitempty" protobuf:"bytes,4,opt,name=lease"`
+
+	// observedGeneration is the most recent generation observed for this resource. It corresponds to the
+	// resource's generation, which is updated on mutation by the API Server.
+	// +optional
+	ObservedGeneration int64 `json:"observedGeneration,omitempty" protobuf:"varint,5,opt,name=observedGeneration"`
 }

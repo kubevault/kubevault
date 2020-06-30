@@ -45,6 +45,7 @@ var (
 	SelfHostedOperator = true
 	DockerRegistry     = "kubevault"
 	UnsealerImage      = "vault-unsealer:v0.3.0"
+	ExporterImage      = "vault-exporter-linux-amd64:v0.3.0"
 )
 
 type Framework struct {
@@ -123,7 +124,7 @@ func (f *Framework) InitialSetup() error {
 }
 
 func (f *Framework) Cleanup() error {
-	errs := []error{}
+	var errs []error
 	if !SelfHostedOperator {
 		err := f.DeleteVault()
 		if err != nil {

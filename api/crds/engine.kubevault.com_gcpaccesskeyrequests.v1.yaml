@@ -18,7 +18,14 @@ spec:
     singular: gcpaccesskeyrequest
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .status.phase
+      name: Status
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         properties:
@@ -168,6 +175,15 @@ spec:
                     description: Specifies whether this lease is renewable
                     type: boolean
                 type: object
+              observedGeneration:
+                description: observedGeneration is the most recent generation observed
+                  for this resource. It corresponds to the resource's generation,
+                  which is updated on mutation by the API Server.
+                format: int64
+                type: integer
+              phase:
+                description: Specifies the phase of GCPAccessKeyRequest object
+                type: string
               secret:
                 description: Name of the secret containing GCPCredential
                 properties:

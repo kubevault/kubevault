@@ -40,7 +40,7 @@ func (f *Framework) CreateVaultserverVersion() error {
 				Image: fmt.Sprintf("%s/%s", DockerRegistry, UnsealerImage),
 			},
 			Exporter: api.VaultServerVersionExporter{
-				Image: "kubevault/vault-exporter:0.1.0",
+				Image: fmt.Sprintf("%s/%s", DockerRegistry, ExporterImage),
 			},
 		},
 	}

@@ -120,11 +120,7 @@ var _ = Describe("MongoDB Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
-					for _, value := range crd.Status.Conditions {
-						if value.Type == kmapi.ConditionRequestApproved {
-							return true
-						}
-					}
+					return kmapi.IsConditionTrue(crd.Status.Conditions, kmapi.ConditionRequestApproved)
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type : Approved")
@@ -134,11 +130,7 @@ var _ = Describe("MongoDB Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().DatabaseAccessRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
-					for _, value := range crd.Status.Conditions {
-						if value.Type == kmapi.ConditionRequestDenied {
-							return true
-						}
-					}
+					return kmapi.IsConditionTrue(crd.Status.Conditions, kmapi.ConditionRequestDenied)
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type: Denied")
@@ -423,9 +415,11 @@ var _ = Describe("MongoDB Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestApproved,
+							Status:             kmapi.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
+					Phase: api.RequestStatusPhaseApproved,
 				}, r)
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Approved")
 				IsMongoDBAKRConditionApproved(mongoDBAKR.Name, mongoDBAKR.Namespace)
@@ -443,9 +437,11 @@ var _ = Describe("MongoDB Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestDenied,
+							Status:             kmapi.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
+					Phase: api.RequestStatusPhaseDenied,
 				}, r)
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Denied")
 
@@ -495,9 +491,11 @@ var _ = Describe("MongoDB Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestApproved,
+							Status:             kmapi.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
+					Phase: api.RequestStatusPhaseApproved,
 				}, r)
 
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Approved")
