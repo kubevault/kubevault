@@ -18,16 +18,14 @@ package controller
 
 import (
 	"context"
-	"fmt"
-	"time"
 
+	"kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/azure"
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -36,8 +34,8 @@ import (
 )
 
 const (
-	AzureRolePhaseSuccess api.AzureRolePhase = "Success"
-	AzureRoleFinalizer    string             = "azurerole.engine.kubevault.com"
+	AzureRolePhaseSuccess    api.AzureRolePhase = "Success"
+	AzureRolePhaseProcessing api.AzureRolePhase = "Processing"
 )
 
 func (c *VaultController) initAzureRoleWatcher() {
@@ -63,29 +61,48 @@ func (c *VaultController) runAzureRoleInjector(key string) error {
 		glog.Infof("Sync/Add/Update for AzureRole %s/%s", role.Namespace, role.Name)
 
 		if role.DeletionTimestamp != nil {
-			if core_util.HasFinalizer(role.ObjectMeta, AzureRoleFinalizer) {
-				go c.runAzureRoleFinalizer(role, finalizerTimeout, finalizerInterval)
+			if core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
+				return c.runAzureRoleFinalizer(role)
 			}
 		} else {
-			if !core_util.HasFinalizer(role.ObjectMeta, AzureRoleFinalizer) {
+			if !core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
 				_, _, err := patchutil.PatchAzureRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(role *api.AzureRole) *api.AzureRole {
-					role.ObjectMeta = core_util.AddFinalizer(role.ObjectMeta, AzureRoleFinalizer)
+					role.ObjectMeta = core_util.AddFinalizer(role.ObjectMeta, apis.Finalizer)
 					return role
 				}, metav1.PatchOptions{})
 				if err != nil {
-					return errors.Wrapf(err, "failed to set AzureRole finalizer for %s/%s", role.Namespace, role.Name)
+					return errors.Wrapf(err, "failed to add finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
 				}
 			}
 
-			azureRClient, err := azure.NewAzureRole(c.kubeClient, c.appCatalogClient, role)
+			// Conditions are empty, when the AzureRole obj is enqueued for the first time.
+			// Set status.phase to "Processing".
+			if role.Status.Conditions == nil {
+				newRole, err := patchutil.UpdateAzureRoleStatus(
+					context.TODO(),
+					c.extClient.EngineV1alpha1(),
+					role.ObjectMeta,
+					func(status *api.AzureRoleStatus) *api.AzureRoleStatus {
+						status.Phase = AzureRolePhaseProcessing
+						return status
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					return errors.Wrapf(err, "failed to update status for AzureRole: %s/%s", role.Namespace, role.Name)
+				}
+				role = newRole
+			}
+
+			rClient, err := azure.NewAzureRole(c.kubeClient, c.appCatalogClient, role)
 			if err != nil {
 				return err
 			}
 
-			err = c.reconcileAzureRole(azureRClient, role)
+			err = c.reconcileAzureRole(rClient, role)
 			if err != nil {
-				return errors.Wrapf(err, "for AzureRole %s/%s:", role.Namespace, role.Name)
+				return errors.Wrapf(err, "failed to reconcile AzureRole: %s/%s", role.Namespace, role.Name)
 			}
 		}
 	}
@@ -96,9 +113,9 @@ func (c *VaultController) runAzureRoleInjector(key string) error {
 //	For vault:
 // 	  - configure a Azure role
 //    - sync role
-func (c *VaultController) reconcileAzureRole(azureRClient azure.AzureRoleInterface, role *api.AzureRole) error {
+func (c *VaultController) reconcileAzureRole(rClient azure.AzureRoleInterface, role *api.AzureRole) error {
 	// create role
-	err := azureRClient.CreateRole()
+	err := rClient.CreateRole()
 	if err != nil {
 		_, err2 := patchutil.UpdateAzureRoleStatus(
 			context.TODO(),
@@ -135,111 +152,39 @@ func (c *VaultController) reconcileAzureRole(azureRClient azure.AzureRoleInterfa
 		},
 		metav1.UpdateOptions{},
 	)
-	return err
-}
-
-func (c *VaultController) runAzureRoleFinalizer(role *api.AzureRole, timeout time.Duration, interval time.Duration) {
-	if role == nil {
-		glog.Infoln("AzureRole is nil")
-		return
-	}
-
-	id := getAzureRoleId(role)
-	if c.finalizerInfo.IsAlreadyProcessing(id) {
-		// already processing
-		return
-	}
-
-	glog.Infof("Processing finalizer for AzureRole %s/%s", role.Namespace, role.Name)
-	// Add key to finalizerInfo, it will prevent other go routine to processing for this AzureRole
-	c.finalizerInfo.Add(id)
-
-	stopCh := time.After(timeout)
-	finalizationDone := false
-	timeOutOccurred := false
-	attempt := 0
-
-	for {
-		glog.Infof("AzureRole %s/%s finalizer: attempt %d\n", role.Namespace, role.Name, attempt)
-
-		select {
-		case <-stopCh:
-			timeOutOccurred = true
-		default:
-		}
-
-		if timeOutOccurred {
-			break
-		}
-
-		if !finalizationDone {
-			d, err := azure.NewAzureRole(c.kubeClient, c.appCatalogClient, role)
-			if err != nil {
-				glog.Errorf("AzureRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
-			} else {
-				err = c.finalizeAzureRole(d, role)
-				if err != nil {
-					glog.Errorf("AzureRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
-				} else {
-					finalizationDone = true
-				}
-			}
-		}
-
-		if finalizationDone {
-			err := c.removeAzureRoleFinalizer(role)
-			if err != nil {
-				glog.Errorf("AzureRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
-			} else {
-				break
-			}
-		}
-
-		select {
-		case <-stopCh:
-			timeOutOccurred = true
-		case <-time.After(interval):
-		}
-		attempt++
-	}
-
-	err := c.removeAzureRoleFinalizer(role)
 	if err != nil {
-		glog.Errorf("AzureRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
-	} else {
-		glog.Infof("Removed finalizer for AzureRole %s/%s", role.Namespace, role.Name)
-	}
-
-	// Delete key from finalizer info as processing is done
-	c.finalizerInfo.Delete(id)
-}
-
-// Do:
-//	- delete role in vault
-func (c *VaultController) finalizeAzureRole(azureRClient azure.AzureRoleInterface, role *api.AzureRole) error {
-	err := azureRClient.DeleteRole(role.RoleName())
-	if err != nil {
-		return errors.Wrap(err, "failed to delete azure role")
-	}
-	return nil
-}
-
-func (c *VaultController) removeAzureRoleFinalizer(role *api.AzureRole) error {
-	m, err := c.extClient.EngineV1alpha1().AzureRoles(role.Namespace).Get(context.TODO(), role.Name, metav1.GetOptions{})
-	if kerr.IsNotFound(err) {
-		return nil
-	} else if err != nil {
 		return err
 	}
 
-	// remove finalizer
-	_, _, err = patchutil.PatchAzureRole(context.TODO(), c.extClient.EngineV1alpha1(), m, func(role *api.AzureRole) *api.AzureRole {
-		role.ObjectMeta = core_util.RemoveFinalizer(role.ObjectMeta, AzureRoleFinalizer)
-		return role
-	}, metav1.PatchOptions{})
-	return err
+	glog.Infof("successfully processed AzureRole: %s/%s", role.Namespace, role.Name)
+	return nil
 }
 
-func getAzureRoleId(role *api.AzureRole) string {
-	return fmt.Sprintf("%s/%s/%s", api.ResourceAzureRole, role.Namespace, role.Name)
+func (c *VaultController) runAzureRoleFinalizer(role *api.AzureRole) error {
+	glog.Infof("processing finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
+
+	rClient, err := azure.NewAzureRole(c.kubeClient, c.appCatalogClient, role)
+	// The error could be generated for:
+	//   - invalid vaultRef in the spec
+	// In this case, the operator should be able to delete the AzureRole (ie. remove finalizer).
+	// If no error occurred:
+	//	- Delete the azure role created in vault
+	if err == nil {
+		err = rClient.DeleteRole(role.RoleName())
+		if err != nil {
+			return errors.Wrap(err, "failed to delete azure role")
+		}
+	}
+
+	// remove finalizer
+	_, _, err = patchutil.PatchAzureRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(in *api.AzureRole) *api.AzureRole {
+		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, apis.Finalizer)
+		return in
+	}, metav1.PatchOptions{})
+	if err != nil {
+		return errors.Wrapf(err, "failed to remove finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
+	}
+
+	glog.Infof("removed finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
+	return nil
 }

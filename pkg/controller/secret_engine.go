@@ -217,7 +217,12 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 		},
 		metav1.UpdateOptions{},
 	)
-	return err
+	if err != nil {
+		return err
+	}
+
+	glog.Infof("successfully processed SecretEngine: %s/%s", se.Namespace, se.Name)
+	return nil
 }
 
 func (c *VaultController) runSecretEngineFinalizer(se *api.SecretEngine) error {
