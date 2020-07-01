@@ -57,7 +57,7 @@ func simpleVaultPolicy() *policyapi.VaultPolicy {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:       "simple",
 			Namespace:  "test",
-			Finalizers: []string{VaultPolicyFinalizer},
+			Finalizers: []string{apis.Finalizer},
 		},
 		Spec: policyapi.VaultPolicySpec{
 			PolicyDocument: "simple {}",
@@ -88,7 +88,7 @@ func validVaultPolicy(app *appcat.AppBinding) *policyapi.VaultPolicy {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:       "ok",
 			Namespace:  "test",
-			Finalizers: []string{VaultPolicyFinalizer},
+			Finalizers: []string{apis.Finalizer},
 		},
 		Spec: policyapi.VaultPolicySpec{
 			PolicyDocument: "simple {}",
@@ -182,67 +182,6 @@ func TestReconcilePolicy(t *testing.T) {
 	}
 }
 
-func TestFinalizePolicy(t *testing.T) {
-	srv := NewFakeVaultServer()
-	defer srv.Close()
-
-	vApp := vaultAppBinding(srv.URL, vaultTokenSecret().Name)
-	appc := appcatfake.NewSimpleClientset(vApp)
-	kc := kfake.NewSimpleClientset(vaultTokenSecret())
-
-	cases := []struct {
-		testName  string
-		vPolicy   *policyapi.VaultPolicy
-		expectErr bool
-	}{
-		{
-			testName:  "no error, valid VaultPolicy",
-			vPolicy:   validVaultPolicy(vApp),
-			expectErr: false,
-		},
-		{
-			testName:  "no error, VaultPolicy doesn't exist",
-			vPolicy:   nil,
-			expectErr: false,
-		},
-		{
-			testName: "no error, invalid AppBinding",
-			vPolicy: validVaultPolicy(&appcat.AppBinding{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "invalid",
-					Namespace: "test",
-				},
-			}),
-			expectErr: false,
-		},
-	}
-
-	for _, c := range cases {
-		t.Run(c.testName, func(t *testing.T) {
-			cc := csfake.NewSimpleClientset()
-			pc := cc.PolicyV1alpha1()
-			if c.vPolicy != nil {
-				_, err := pc.VaultPolicies(c.vPolicy.Namespace).Create(context.TODO(), c.vPolicy, metav1.CreateOptions{})
-				assert.Nil(t, err)
-			} else {
-				c.vPolicy = simpleVaultPolicy()
-			}
-			ctrl := &VaultController{
-				extClient:        cc,
-				kubeClient:       kc,
-				appCatalogClient: appc.AppcatalogV1alpha1(),
-			}
-
-			err := ctrl.finalizePolicy(c.vPolicy)
-			if c.expectErr {
-				assert.NotNil(t, err)
-			} else {
-				assert.Nil(t, err)
-			}
-		})
-	}
-}
-
 func TestVaultController_runPolicyFinalizer(t *testing.T) {
 	srv := NewFakeVaultServer()
 	defer srv.Close()
@@ -251,7 +190,6 @@ func TestVaultController_runPolicyFinalizer(t *testing.T) {
 	ctrl := &VaultController{
 		extClient:        csfake.NewSimpleClientset(simpleVaultPolicy(), validVaultPolicy(vApp)),
 		kubeClient:       kfake.NewSimpleClientset(vaultTokenSecret()),
-		finalizerInfo:    NewMapFinalizer(),
 		appCatalogClient: appc.AppcatalogV1alpha1(),
 	}
 	tests := []struct {

@@ -28,7 +28,6 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -155,14 +154,19 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 // runPolicyFinalizer wil periodically run the finalizePolicy until finalizePolicy func produces no error
 // After that it will remove the finalizer string from the objectMeta of VaultPolicy
 func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy) error {
-	if vPolicy == nil {
-		return errors.New("vaultPolicy object is empty")
-	}
+	glog.Infof("processing finalizer for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
 
-	glog.Infof("Processing finalizer for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
-	err := c.finalizePolicy(vPolicy)
-	if err != nil {
-		return err
+	pClient, err := policy.NewPolicyClientForVault(c.kubeClient, c.appCatalogClient, vPolicy)
+	// The error could be generated for:
+	//   - invalid vaultRef in the spec
+	// In this case, the operator should be able to delete the VaultPolicy(ie. remove finalizer).
+	// If no error occurred:
+	//	- Delete the policy
+	if err == nil {
+		err = pClient.DeletePolicy(vPolicy.PolicyName())
+		if err != nil {
+			return errors.Wrap(err, "failed to delete vault policy")
+		}
 	}
 
 	// Remove finalizer
@@ -171,27 +175,9 @@ func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy) err
 		return in
 	}, metav1.PatchOptions{})
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("Failed to remove finalizer for VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name))
+		return errors.Wrap(err, fmt.Sprintf("failed to remove finalizer for VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name))
 	}
 
-	glog.Infof("Removed finalizer for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
+	glog.Infof("removed finalizer for VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name)
 	return nil
-}
-
-// finalizePolicy will delete the policy in vault
-func (c *VaultController) finalizePolicy(vPolicy *policyapi.VaultPolicy) error {
-	// If vault server appBinding is missing, the operator won't be able to reach the vault server.
-	// so, return nil.
-	_, err := c.appCatalogClient.AppBindings(vPolicy.Namespace).Get(context.TODO(), vPolicy.Spec.VaultRef.Name, metav1.GetOptions{})
-	if kerr.IsNotFound(err) {
-		return nil
-	} else if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("failed to get the appBinding:%s/%s", vPolicy.Namespace, vPolicy.Spec.VaultRef.Name))
-	}
-
-	pClient, err := policy.NewPolicyClientForVault(c.kubeClient, c.appCatalogClient, vPolicy)
-	if err != nil {
-		return err
-	}
-	return pClient.DeletePolicy(vPolicy.PolicyName())
 }
