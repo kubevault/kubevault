@@ -207,6 +207,7 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 		func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 			status.ObservedGeneration = se.Generation
 			status.Phase = SecretEnginePhaseSuccess
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
 				Status:  kmapi.ConditionTrue,
@@ -246,6 +247,8 @@ func (c *VaultController) runSecretEngineFinalizer(se *api.SecretEngine) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to disable secret engine")
 		}
+	} else {
+		glog.Warningf("skipping cleanup for SecretEngine: %s/%s with error: %v", se.Namespace, se.Name, err)
 	}
 
 	// remove finalizer

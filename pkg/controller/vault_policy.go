@@ -133,6 +133,7 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 		func(status *policyapi.VaultPolicyStatus) *policyapi.VaultPolicyStatus {
 			status.ObservedGeneration = vPolicy.Generation
 			status.Phase = policyapi.PolicySuccess
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
 				Status:  kmapi.ConditionTrue,
@@ -167,6 +168,8 @@ func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy) err
 		if err != nil {
 			return errors.Wrap(err, "failed to delete vault policy")
 		}
+	} else {
+		glog.Warningf("skipping cleanup for VaultPolicy: %s/%s with error: %v", vPolicy.Namespace, vPolicy.Name, err)
 	}
 
 	// Remove finalizer

@@ -120,6 +120,7 @@ func (c *VaultController) reconcilePolicyBinding(pb *policyapi.VaultPolicyBindin
 		func(status *policyapi.VaultPolicyBindingStatus) *policyapi.VaultPolicyBindingStatus {
 			status.ObservedGeneration = pb.Generation
 			status.Phase = policyapi.PolicyBindingSuccess
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
 				Status:  kmapi.ConditionTrue,
@@ -152,6 +153,8 @@ func (c *VaultController) runPolicyBindingFinalizer(pb *policyapi.VaultPolicyBin
 		if err != nil {
 			return errors.Wrap(err, "failed to delete the auth role created for policy binding")
 		}
+	} else {
+		glog.Warningf("skipping cleanup for VaultPolicyBinding: %s/%s with error: %v", pb.Namespace, pb.Name, err)
 	}
 
 	// Remove finalizer

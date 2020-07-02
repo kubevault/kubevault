@@ -18,8 +18,6 @@ package controller
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
@@ -28,7 +26,6 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -37,7 +34,8 @@ import (
 )
 
 const (
-	PostgresRolePhaseSuccess api.PostgresRolePhase = "Success"
+	PostgresRolePhaseSuccess    api.PostgresRolePhase = "Success"
+	PostgresRolePhaseProcessing api.PostgresRolePhase = "Processing"
 )
 
 func (c *VaultController) initPostgresRoleWatcher() {
@@ -64,29 +62,48 @@ func (c *VaultController) runPostgresRoleInjector(key string) error {
 
 		if role.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
-				go c.runPostgresRoleFinalizer(role, finalizerTimeout, finalizerInterval)
+				return c.runPostgresRoleFinalizer(role)
 			}
 
 		} else {
 			if !core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchPostgresRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(role *api.PostgresRole) *api.PostgresRole {
-					role.ObjectMeta = core_util.AddFinalizer(role.ObjectMeta, apis.Finalizer)
-					return role
+				_, _, err := patchutil.PatchPostgresRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(in *api.PostgresRole) *api.PostgresRole {
+					in.ObjectMeta = core_util.AddFinalizer(in.ObjectMeta, apis.Finalizer)
+					return in
 				}, metav1.PatchOptions{})
 				if err != nil {
-					return errors.Wrapf(err, "failed to set postgresRole finalizer for %s/%s", role.Namespace, role.Name)
+					return errors.Wrapf(err, "failed to add finalizer for postgresRole: %s/%s", role.Namespace, role.Name)
 				}
 			}
 
-			dbRClient, err := database.NewDatabaseRoleForPostgres(c.kubeClient, c.appCatalogClient, role)
+			// Conditions are empty, when the PostgresRole obj is enqueued for the first time.
+			// Set status.phase to "Processing".
+			if role.Status.Conditions == nil {
+				newRole, err := patchutil.UpdatePostgresRoleStatus(
+					context.TODO(),
+					c.extClient.EngineV1alpha1(),
+					role.ObjectMeta,
+					func(status *api.PostgresRoleStatus) *api.PostgresRoleStatus {
+						status.Phase = PostgresRolePhaseProcessing
+						return status
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					return errors.Wrapf(err, "failed to update status for PostgresRole: %s/%s", role.Namespace, role.Name)
+				}
+				role = newRole
+			}
+
+			rClient, err := database.NewDatabaseRoleForPostgres(c.kubeClient, c.appCatalogClient, role)
 			if err != nil {
 				return err
 			}
 
-			err = c.reconcilePostgresRole(dbRClient, role)
+			err = c.reconcilePostgresRole(rClient, role)
 			if err != nil {
-				return errors.Wrapf(err, "for PostgresRole %s/%s:", role.Namespace, role.Name)
+				return errors.Wrapf(err, "failed to reconcile PostgresRole: %s/%s", role.Namespace, role.Name)
 			}
 		}
 	}
@@ -98,9 +115,9 @@ func (c *VaultController) runPostgresRoleInjector(key string) error {
 // 	  - configure a role that maps a name in Vault to an SQL statement to execute to create the database credential.
 //    - sync role
 //	  - revoke previous lease of all the respective postgresRoleBinding and reissue a new lease
-func (c *VaultController) reconcilePostgresRole(dbRClient database.DatabaseRoleInterface, role *api.PostgresRole) error {
+func (c *VaultController) reconcilePostgresRole(rClient database.DatabaseRoleInterface, role *api.PostgresRole) error {
 	// create role
-	err := dbRClient.CreateRole()
+	err := rClient.CreateRole()
 	if err != nil {
 		_, err2 := patchutil.UpdatePostgresRoleStatus(
 			context.TODO(),
@@ -127,6 +144,7 @@ func (c *VaultController) reconcilePostgresRole(dbRClient database.DatabaseRoleI
 		func(status *api.PostgresRoleStatus) *api.PostgresRoleStatus {
 			status.ObservedGeneration = role.Generation
 			status.Phase = PostgresRolePhaseSuccess
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
 				Status:  kmapi.ConditionTrue,
@@ -137,112 +155,41 @@ func (c *VaultController) reconcilePostgresRole(dbRClient database.DatabaseRoleI
 		},
 		metav1.UpdateOptions{},
 	)
-	return err
-}
-
-func (c *VaultController) runPostgresRoleFinalizer(role *api.PostgresRole, timeout time.Duration, interval time.Duration) {
-	if role == nil {
-		glog.Infoln("PostgresRole is nil")
-		return
-	}
-
-	id := getPostgresRoleId(role)
-	if c.finalizerInfo.IsAlreadyProcessing(id) {
-		// already processing
-		return
-	}
-
-	glog.Infof("Processing finalizer for PostgresRole %s/%s", role.Namespace, role.Name)
-	// Add key to finalizerInfo, it will prevent other go routine to processing for this PostgresRole
-	c.finalizerInfo.Add(id)
-
-	stopCh := time.After(timeout)
-	finalizationDone := false
-	timeOutOccured := false
-	attempt := 0
-
-	for {
-		glog.Infof("PostgresRole %s/%s finalizer: attempt %d\n", role.Namespace, role.Name, attempt)
-
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		default:
-		}
-
-		if timeOutOccured {
-			break
-		}
-
-		if !finalizationDone {
-			d, err := database.NewDatabaseRoleForPostgres(c.kubeClient, c.appCatalogClient, role)
-			if err != nil {
-				glog.Errorf("PostgresRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
-			} else {
-				err = c.finalizePostgresRole(d, role)
-				if err != nil {
-					glog.Errorf("PostgresRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
-				} else {
-					finalizationDone = true
-				}
-			}
-		}
-
-		if finalizationDone {
-			err := c.removePostgresRoleFinalizer(role)
-			if err != nil {
-				glog.Errorf("PostgresRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
-			} else {
-				break
-			}
-		}
-
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		case <-time.After(interval):
-		}
-		attempt++
-	}
-
-	err := c.removePostgresRoleFinalizer(role)
 	if err != nil {
-		glog.Errorf("PostgresRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
-	} else {
-		glog.Infof("Removed finalizer for PostgresRole %s/%s", role.Namespace, role.Name)
-	}
-
-	// Delete key from finalizer info as processing is done
-	c.finalizerInfo.Delete(id)
-}
-
-// Do:
-//	- delete role in vault
-//	- revoke lease of all the corresponding postgresRoleBinding
-func (c *VaultController) finalizePostgresRole(dbRClient database.DatabaseRoleInterface, role *api.PostgresRole) error {
-	err := dbRClient.DeleteRole(role.RoleName())
-	if err != nil {
-		return errors.Wrap(err, "failed to database role")
-	}
-	return nil
-}
-
-func (c *VaultController) removePostgresRoleFinalizer(role *api.PostgresRole) error {
-	p, err := c.extClient.EngineV1alpha1().PostgresRoles(role.Namespace).Get(context.TODO(), role.Name, metav1.GetOptions{})
-	if kerr.IsNotFound(err) {
-		return nil
-	} else if err != nil {
 		return err
 	}
 
-	// remove finalizer
-	_, _, err = patchutil.PatchPostgresRole(context.TODO(), c.extClient.EngineV1alpha1(), p, func(role *api.PostgresRole) *api.PostgresRole {
-		role.ObjectMeta = core_util.RemoveFinalizer(role.ObjectMeta, apis.Finalizer)
-		return role
-	}, metav1.PatchOptions{})
-	return err
+	glog.Infof("successfully processed PostgresRole: %s/%s", role.Namespace, role.Name)
+	return nil
 }
 
-func getPostgresRoleId(role *api.PostgresRole) string {
-	return fmt.Sprintf("%s/%s/%s", api.ResourcePostgresRole, role.Namespace, role.Name)
+func (c *VaultController) runPostgresRoleFinalizer(role *api.PostgresRole) error {
+	glog.Infof("processing finalizer for PostgresRole: %s/%s", role.Namespace, role.Name)
+
+	rClient, err := database.NewDatabaseRoleForPostgres(c.kubeClient, c.appCatalogClient, role)
+	// The error could be generated for:
+	//   - invalid vaultRef in the spec
+	// In this case, the operator should be able to delete the PostgresRole (ie. remove finalizer).
+	// If no error occurred:
+	//	- Delete the db role created in vault
+	if err == nil {
+		err := rClient.DeleteRole(role.RoleName())
+		if err != nil {
+			return errors.Wrap(err, "failed to delete database role")
+		}
+	} else {
+		glog.Warningf("skipping cleanup for PostgresRole: %s/%s with error: %v", role.Namespace, role.Name, err)
+	}
+
+	// remove finalizer
+	_, _, err = patchutil.PatchPostgresRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(in *api.PostgresRole) *api.PostgresRole {
+		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, apis.Finalizer)
+		return in
+	}, metav1.PatchOptions{})
+	if err != nil {
+		return errors.Wrapf(err, "failed to remove finalizer for PostgresRole: %s/%s", role.Namespace, role.Name)
+	}
+
+	glog.Infof("removed finalizer for PostgresRole: %s/%s", role.Namespace, role.Name)
+	return nil
 }

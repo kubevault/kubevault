@@ -142,6 +142,7 @@ func (c *VaultController) reconcileAzureRole(rClient azure.AzureRoleInterface, r
 		func(status *api.AzureRoleStatus) *api.AzureRoleStatus {
 			status.Phase = AzureRolePhaseSuccess
 			status.ObservedGeneration = role.Generation
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
 				Status:  kmapi.ConditionTrue,
@@ -174,6 +175,8 @@ func (c *VaultController) runAzureRoleFinalizer(role *api.AzureRole) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to delete azure role")
 		}
+	} else {
+		glog.Warningf("skipping cleanup for AzureRole: %s/%s with error: %v", role.Namespace, role.Name, err)
 	}
 
 	// remove finalizer

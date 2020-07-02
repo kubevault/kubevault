@@ -140,6 +140,7 @@ func (c *VaultController) reconcileAWSRole(rClient aws.AWSRoleInterface, role *a
 		role.ObjectMeta, func(status *api.AWSRoleStatus) *api.AWSRoleStatus {
 			status.Phase = AWSRolePhaseSuccess
 			status.ObservedGeneration = role.Generation
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
 				Status:  kmapi.ConditionTrue,
@@ -172,6 +173,8 @@ func (c *VaultController) runAWSRoleFinalizer(role *api.AWSRole) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to delete aws role")
 		}
+	} else {
+		glog.Warningf("skipping cleanup for AWSRole: %s/%s with error: %v", role.Namespace, role.Name, err)
 	}
 
 	// remove finalizer

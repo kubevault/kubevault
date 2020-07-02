@@ -140,6 +140,7 @@ func (c *VaultController) reconcileGCPRole(rClient gcp.GCPRoleInterface, role *a
 		role.ObjectMeta, func(status *api.GCPRoleStatus) *api.GCPRoleStatus {
 			status.Phase = GCPRolePhaseSuccess
 			status.ObservedGeneration = role.Generation
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
 				Status:  kmapi.ConditionTrue,
@@ -172,6 +173,8 @@ func (c *VaultController) runGCPRoleFinalizer(role *api.GCPRole) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to delete gcp role")
 		}
+	} else {
+		glog.Warningf("skipping cleanup for GCPRole: %s/%s with error: %v", role.Namespace, role.Name, err)
 	}
 
 	// remove finalizer

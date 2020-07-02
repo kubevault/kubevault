@@ -345,6 +345,8 @@ func (c *VaultController) runAWSAccessKeyRequestFinalizer(req *api.AWSAccessKeyR
 		if err != nil {
 			return errors.Errorf("AWSAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 		}
+	} else {
+		glog.Warningf("skipping cleanup for AWSAccessKeyRequest: %s/%s with error: %v", req.Namespace, req.Name, err)
 	}
 
 	_, _, err = patchutil.PatchAWSAccessKeyRequest(context.TODO(), c.extClient.EngineV1alpha1(), req, func(in *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest {

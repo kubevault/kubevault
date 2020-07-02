@@ -173,8 +173,10 @@ func (c *VaultController) runMongoDBRoleFinalizer(role *api.MongoDBRole) error {
 	if err == nil {
 		err := rClient.DeleteRole(role.RoleName())
 		if err != nil {
-			return errors.Wrap(err, "failed to database role")
+			return errors.Wrap(err, "failed to delete database role")
 		}
+	} else {
+		glog.Warningf("skipping cleanup for MongoDBRole: %s/%s with error: %v", role.Namespace, role.Name, err)
 	}
 
 	// remove finalizer
