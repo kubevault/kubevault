@@ -293,7 +293,7 @@ func TestAzureRole_DeleteRole(t *testing.T) {
 				kubeClient:  tt.fields.kubeClient,
 				azurePath:   tt.fields.azurePath,
 			}
-			if err := a.DeleteRole(tt.args.name); (err != nil) != tt.wantErr {
+			if _, err := a.DeleteRole(tt.args.name); (err != nil) != tt.wantErr {
 				t.Errorf("AzureRole.DeleteRole() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

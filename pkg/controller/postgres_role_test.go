@@ -52,8 +52,8 @@ func (f *fakeDRole) IsDatabaseEnabled() (bool, error) {
 	return true, nil
 }
 
-func (f *fakeDRole) DeleteRole(name string) error {
-	return nil
+func (f *fakeDRole) DeleteRole(name string) (int, error) {
+	return 0, nil
 }
 
 func (f *fakeDRole) CreateConfig() error {
