@@ -33,7 +33,7 @@ type AzureRoleInterface interface {
 	role.RoleInterface
 
 	// DeleteRole deletes role
-	DeleteRole(name string) error
+	DeleteRole(name string) (int, error)
 }
 
 func NewAzureRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.AzureRole) (AzureRoleInterface, error) {

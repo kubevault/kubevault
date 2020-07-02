@@ -169,8 +169,14 @@ func (c *VaultController) runAWSRoleFinalizer(role *api.AWSRole) error {
 	// If no error occurred:
 	//	- Delete the aws role created in vault
 	if err == nil {
-		err = rClient.DeleteRole(role.RoleName())
-		if err != nil {
+		statusCode, err := rClient.DeleteRole(role.RoleName())
+		// For the following errors, the operator should be
+		// able to delete the role obj.
+		// 	- 400 - Invalid request, missing or invalid data.
+		// 	- 403 - Forbidden, your authentication details are either incorrect, you don't have access to this feature, or - if CORS is enabled - you made a cross-origin request from an origin that is not allowed to make such requests.
+		//  - 404 - Invalid path. This can both mean that the path truly doesn't exist or that you don't have permission to view a specific path. We use 404 in some cases to avoid state leakage.
+		// return error if it is network error.
+		if err != nil && (statusCode/100) != 4 {
 			return errors.Wrap(err, "failed to delete aws role")
 		}
 	} else {

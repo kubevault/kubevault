@@ -80,15 +80,15 @@ func (a *GCPRole) CreateRole() error {
 }
 
 // DeleteRole deletes role
-// It's safe to call multiple time. It doesn't give
-// error even if respective role doesn't exist
-func (a *GCPRole) DeleteRole(name string) error {
+// It doesn't give error even if respective role doesn't exist.
+// But does give error (404) if the secret engine itself is missing in the given path.
+func (a *GCPRole) DeleteRole(name string) (int, error) {
 	path := fmt.Sprintf("/v1/%s/roleset/%s", a.gcpPath, name)
 	req := a.vaultClient.NewRequest("DELETE", path)
 
-	_, err := a.vaultClient.RawRequest(req)
+	resp, err := a.vaultClient.RawRequest(req)
 	if err != nil {
-		return errors.Wrapf(err, "failed to delete gcp role %s", name)
+		return resp.StatusCode, errors.Wrapf(err, "failed to delete gcp role %s", name)
 	}
-	return nil
+	return resp.StatusCode, nil
 }

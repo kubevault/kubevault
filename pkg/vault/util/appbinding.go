@@ -34,6 +34,9 @@ func VaultConfigFromAppBinding(app *appcat.AppBinding) (*vaultapi.Config, error)
 		return nil, err
 	}
 
+	// set max retry to 4 ( 5 times )
+	cfg.MaxRetries = 4
+
 	clientTLSConfig := cfg.HttpClient.Transport.(*http.Transport).TLSClientConfig
 	if clientCfg.InsecureSkipTLSVerify {
 		clientTLSConfig.InsecureSkipVerify = true
