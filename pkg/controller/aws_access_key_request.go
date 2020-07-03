@@ -71,7 +71,7 @@ func (c *VaultController) runAWSAccessKeyRequestInjector(key string) error {
 					return in
 				}, metav1.PatchOptions{})
 				if err != nil {
-					return errors.Wrapf(err, "failed to set AWSAccessKeyRequest finalizer for %s/%s", req.Namespace, req.Name)
+					return errors.Wrapf(err, "failed to add finalizer for AWSAccessKeyRequest: %s/%s", req.Namespace, req.Name)
 				}
 			}
 
@@ -345,6 +345,8 @@ func (c *VaultController) runAWSAccessKeyRequestFinalizer(req *api.AWSAccessKeyR
 		if err != nil {
 			return errors.Errorf("AWSAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 		}
+	} else {
+		glog.Warningf("Skipping cleanup for AWSAccessKeyRequest: %s/%s with error: %v", req.Namespace, req.Name, err)
 	}
 
 	_, _, err = patchutil.PatchAWSAccessKeyRequest(context.TODO(), c.extClient.EngineV1alpha1(), req, func(in *api.AWSAccessKeyRequest) *api.AWSAccessKeyRequest {

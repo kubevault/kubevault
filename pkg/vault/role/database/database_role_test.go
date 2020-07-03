@@ -85,7 +85,7 @@ func TestDeleteRole(t *testing.T) {
 		t.Run(test.testName, func(t *testing.T) {
 			p := test.dbRole
 
-			err := p.DeleteRole(test.roleName)
+			_, err := p.DeleteRole(test.roleName)
 			if test.expectedErr {
 				assert.NotNil(t, err)
 			} else {

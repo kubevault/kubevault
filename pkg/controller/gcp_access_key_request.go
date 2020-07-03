@@ -336,7 +336,6 @@ func (c *VaultController) runGCPAccessKeyRequestFinalizer(req *api.GCPAccessKeyR
 	glog.Infof("Processing finalizer for GCPAccessKeyRequest %s/%s", req.Namespace, req.Name)
 
 	cm, err := credential.NewCredentialManagerForGCP(c.kubeClient, c.appCatalogClient, c.extClient, req)
-
 	// The error could be generated for:
 	// 	- invalid roleRef
 	// 		- invalid vaultRef in role object
@@ -347,6 +346,8 @@ func (c *VaultController) runGCPAccessKeyRequestFinalizer(req *api.GCPAccessKeyR
 		if err != nil {
 			return errors.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 		}
+	} else {
+		glog.Warningf("Skipping cleanup for GCPAccessKeyRequest: %s/%s with error: %v", req.Namespace, req.Name, err)
 	}
 
 	_, _, err = patchutil.PatchGCPAccessKeyRequest(context.TODO(), c.extClient.EngineV1alpha1(), req, func(in *api.GCPAccessKeyRequest) *api.GCPAccessKeyRequest {

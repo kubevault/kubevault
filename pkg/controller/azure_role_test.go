@@ -65,8 +65,8 @@ func (f *fakeAzureRole) IsAzureEnabled() (bool, error) {
 	return true, nil
 }
 
-func (f *fakeAzureRole) DeleteRole(name string) error {
-	return nil
+func (f *fakeAzureRole) DeleteRole(name string) (int, error) {
+	return 0, nil
 }
 
 func TestAzureRole_reconcileAzureRole(t *testing.T) {

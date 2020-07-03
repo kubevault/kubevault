@@ -266,7 +266,7 @@ func TestGCPRole_DeleteRole(t *testing.T) {
 	for _, test := range testData {
 		t.Run(test.testName, func(t *testing.T) {
 			m := test.gcpRole
-			err := m.DeleteRole("k8s.-.demo.my-role")
+			_, err := m.DeleteRole("k8s.-.demo.my-role")
 			if test.expectedErr {
 				assert.NotNil(t, err)
 			} else {

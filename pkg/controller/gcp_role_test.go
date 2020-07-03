@@ -65,8 +65,8 @@ func (f *fakeGCPRole) IsGCPEnabled() (bool, error) {
 	return true, nil
 }
 
-func (f *fakeGCPRole) DeleteRole(name string) error {
-	return nil
+func (f *fakeGCPRole) DeleteRole(name string) (int, error) {
+	return 0, nil
 }
 
 func TestGCPRole_reconcileGCPRole(t *testing.T) {
