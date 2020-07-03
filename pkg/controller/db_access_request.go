@@ -346,7 +346,7 @@ func (c *VaultController) runDatabaseAccessRequestFinalizer(req *api.DatabaseAcc
 			return errors.Errorf("DatabaseAccessRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 		}
 	} else {
-		glog.Warningf("skipping cleanup for DatabaseAccessRequest: %s/%s with error: %v", req.Namespace, req.Name, err)
+		glog.Warningf("Skipping cleanup for DatabaseAccessRequest: %s/%s with error: %v", req.Namespace, req.Name, err)
 	}
 
 	_, _, err = patchutil.PatchDatabaseAccessRequest(context.TODO(), c.extClient.EngineV1alpha1(), req, func(in *api.DatabaseAccessRequest) *api.DatabaseAccessRequest {

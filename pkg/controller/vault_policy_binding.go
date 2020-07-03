@@ -135,12 +135,12 @@ func (c *VaultController) reconcilePolicyBinding(pb *policyapi.VaultPolicyBindin
 		return err
 	}
 
-	glog.Infof("successfully processed VaultPolicyBinding: %s/%s", pb.Namespace, pb.Name)
+	glog.Infof("Successfully processed VaultPolicyBinding: %s/%s", pb.Namespace, pb.Name)
 	return nil
 }
 
 func (c *VaultController) runPolicyBindingFinalizer(pb *policyapi.VaultPolicyBinding) error {
-	glog.Infof("processing finalizer for VaultPolicyBinding: %s/%s", pb.Namespace, pb.Name)
+	glog.Infof("Processing finalizer for VaultPolicyBinding: %s/%s", pb.Namespace, pb.Name)
 
 	pbClient, err := pbinding.NewPolicyBindingClient(c.extClient, c.appCatalogClient, c.kubeClient, pb)
 	// The error could be generated for:
@@ -154,7 +154,7 @@ func (c *VaultController) runPolicyBindingFinalizer(pb *policyapi.VaultPolicyBin
 			return errors.Wrap(err, "failed to delete the auth role created for policy binding")
 		}
 	} else {
-		glog.Warningf("skipping cleanup for VaultPolicyBinding: %s/%s with error: %v", pb.Namespace, pb.Name, err)
+		glog.Warningf("Skipping cleanup for VaultPolicyBinding: %s/%s with error: %v", pb.Namespace, pb.Name, err)
 	}
 
 	// Remove finalizer

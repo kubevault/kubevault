@@ -155,7 +155,7 @@ func (c *VaultController) reconcileGCPRole(rClient gcp.GCPRoleInterface, role *a
 		return err
 	}
 
-	glog.Infof("successfully processed GCPRole: %s/%s", role.Namespace, role.Name)
+	glog.Infof("Successfully processed GCPRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }
 
@@ -180,7 +180,7 @@ func (c *VaultController) runGCPRoleFinalizer(role *api.GCPRole) error {
 			return errors.Wrap(err, "failed to delete gcp role")
 		}
 	} else {
-		glog.Warningf("skipping cleanup for GCPRole: %s/%s with error: %v", role.Namespace, role.Name, err)
+		glog.Warningf("Skipping cleanup for GCPRole: %s/%s with error: %v", role.Namespace, role.Name, err)
 	}
 
 	// remove finalizer
@@ -192,6 +192,6 @@ func (c *VaultController) runGCPRoleFinalizer(role *api.GCPRole) error {
 		return errors.Wrapf(err, "failed to remove finalizer for GCPRole: %s/%s", role.Namespace, role.Name)
 	}
 
-	glog.Infof("removed finalizer for GCPRole: %s/%s", role.Namespace, role.Name)
+	glog.Infof("Removed finalizer for GCPRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }

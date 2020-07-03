@@ -148,14 +148,14 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 		return err
 	}
 
-	glog.Infof("successfully processed VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name)
+	glog.Infof("Successfully processed VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name)
 	return nil
 }
 
 // runPolicyFinalizer wil periodically run the finalizePolicy until finalizePolicy func produces no error
 // After that it will remove the finalizer string from the objectMeta of VaultPolicy
 func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy) error {
-	glog.Infof("processing finalizer for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
+	glog.Infof("Processing finalizer for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
 
 	pClient, err := policy.NewPolicyClientForVault(c.kubeClient, c.appCatalogClient, vPolicy)
 	// The error could be generated for:
@@ -169,7 +169,7 @@ func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy) err
 			return errors.Wrap(err, "failed to delete vault policy")
 		}
 	} else {
-		glog.Warningf("skipping cleanup for VaultPolicy: %s/%s with error: %v", vPolicy.Namespace, vPolicy.Name, err)
+		glog.Warningf("Skipping cleanup for VaultPolicy: %s/%s with error: %v", vPolicy.Namespace, vPolicy.Name, err)
 	}
 
 	// Remove finalizer
@@ -181,6 +181,6 @@ func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy) err
 		return errors.Wrap(err, fmt.Sprintf("failed to remove finalizer for VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name))
 	}
 
-	glog.Infof("removed finalizer for VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name)
+	glog.Infof("Removed finalizer for VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name)
 	return nil
 }

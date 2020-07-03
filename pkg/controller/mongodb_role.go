@@ -157,12 +157,12 @@ func (c *VaultController) reconcileMongoDBRole(rClient database.DatabaseRoleInte
 		return err
 	}
 
-	glog.Infof("successfully processed MongoDBRole: %s/%s", role.Namespace, role.Name)
+	glog.Infof("Successfully processed MongoDBRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }
 
 func (c *VaultController) runMongoDBRoleFinalizer(role *api.MongoDBRole) error {
-	glog.Infof("processing finalizer for MongoDBRole: %s/%s", role.Namespace, role.Name)
+	glog.Infof("Processing finalizer for MongoDBRole: %s/%s", role.Namespace, role.Name)
 
 	rClient, err := database.NewDatabaseRoleForMongodb(c.kubeClient, c.appCatalogClient, role)
 	// The error could be generated for:
@@ -182,7 +182,7 @@ func (c *VaultController) runMongoDBRoleFinalizer(role *api.MongoDBRole) error {
 			return errors.Wrap(err, "failed to delete database role")
 		}
 	} else {
-		glog.Warningf("skipping cleanup for MongoDBRole: %s/%s with error: %v", role.Namespace, role.Name, err)
+		glog.Warningf("Skipping cleanup for MongoDBRole: %s/%s with error: %v", role.Namespace, role.Name, err)
 	}
 
 	// remove finalizer
@@ -194,6 +194,6 @@ func (c *VaultController) runMongoDBRoleFinalizer(role *api.MongoDBRole) error {
 		return errors.Wrapf(err, "failed to remove finalizer for MongoDBRole: %s/%s", role.Namespace, role.Name)
 	}
 
-	glog.Infof("removed finalizer for MongoDBRole: %s/%s", role.Namespace, role.Name)
+	glog.Infof("Removed finalizer for MongoDBRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }

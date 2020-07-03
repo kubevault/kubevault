@@ -157,12 +157,12 @@ func (c *VaultController) reconcileMySQLRole(rClient database.DatabaseRoleInterf
 		return err
 	}
 
-	glog.Infof("successfully processed MySQLRole: %s/%s", role.Namespace, role.Name)
+	glog.Infof("Successfully processed MySQLRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }
 
 func (c *VaultController) runMySQLRoleFinalizer(role *api.MySQLRole) error {
-	glog.Infof("processing finalizer for MySQLRole %s/%s", role.Namespace, role.Name)
+	glog.Infof("Processing finalizer for MySQLRole %s/%s", role.Namespace, role.Name)
 
 	rClient, err := database.NewDatabaseRoleForMysql(c.kubeClient, c.appCatalogClient, role)
 	// The error could be generated for:
@@ -182,7 +182,7 @@ func (c *VaultController) runMySQLRoleFinalizer(role *api.MySQLRole) error {
 			return errors.Wrap(err, "failed to delete database role")
 		}
 	} else {
-		glog.Warningf("skipping cleanup for MySQLRole: %s/%s with error: %v", role.Namespace, role.Name, err)
+		glog.Warningf("Skipping cleanup for MySQLRole: %s/%s with error: %v", role.Namespace, role.Name, err)
 	}
 
 	// remove finalizer
@@ -194,6 +194,6 @@ func (c *VaultController) runMySQLRoleFinalizer(role *api.MySQLRole) error {
 		return errors.Wrapf(err, "failed to remove finalizer for MySQLRole: %s/%s", role.Namespace, role.Name)
 	}
 
-	glog.Infof("removed finalizer for MySQLRole: %s/%s", role.Namespace, role.Name)
+	glog.Infof("Removed finalizer for MySQLRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }

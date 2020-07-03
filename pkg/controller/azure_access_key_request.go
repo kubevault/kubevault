@@ -346,7 +346,7 @@ func (c *VaultController) runAzureAccessKeyRequestFinalizer(req *api.AzureAccess
 			return errors.Errorf("AzureAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 		}
 	} else {
-		glog.Warningf("skipping cleanup for AzureAccessKeyRequest: %s/%s with error: %v", req.Namespace, req.Name, err)
+		glog.Warningf("Skipping cleanup for AzureAccessKeyRequest: %s/%s with error: %v", req.Namespace, req.Name, err)
 	}
 
 	_, _, err = patchutil.PatchAzureAccessKeyRequest(context.TODO(), c.extClient.EngineV1alpha1(), req, func(in *api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest {

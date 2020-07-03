@@ -155,12 +155,12 @@ func (c *VaultController) reconcileAWSRole(rClient aws.AWSRoleInterface, role *a
 		return err
 	}
 
-	glog.Infof("successfully processed AWSRole: %s/%s", role.Namespace, role.Name)
+	glog.Infof("Successfully processed AWSRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }
 
 func (c *VaultController) runAWSRoleFinalizer(role *api.AWSRole) error {
-	glog.Infof("processing finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
+	glog.Infof("Processing finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
 
 	rClient, err := aws.NewAWSRole(c.kubeClient, c.appCatalogClient, role)
 	// The error could be generated for:
@@ -180,7 +180,7 @@ func (c *VaultController) runAWSRoleFinalizer(role *api.AWSRole) error {
 			return errors.Wrap(err, "failed to delete aws role")
 		}
 	} else {
-		glog.Warningf("skipping cleanup for AWSRole: %s/%s with error: %v", role.Namespace, role.Name, err)
+		glog.Warningf("Skipping cleanup for AWSRole: %s/%s with error: %v", role.Namespace, role.Name, err)
 	}
 
 	// remove finalizer
@@ -192,6 +192,6 @@ func (c *VaultController) runAWSRoleFinalizer(role *api.AWSRole) error {
 		return errors.Wrapf(err, "failed to remove finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
 	}
 
-	glog.Infof("removed finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
+	glog.Infof("Removed finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }

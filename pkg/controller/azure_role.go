@@ -157,12 +157,12 @@ func (c *VaultController) reconcileAzureRole(rClient azure.AzureRoleInterface, r
 		return err
 	}
 
-	glog.Infof("successfully processed AzureRole: %s/%s", role.Namespace, role.Name)
+	glog.Infof("Successfully processed AzureRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }
 
 func (c *VaultController) runAzureRoleFinalizer(role *api.AzureRole) error {
-	glog.Infof("processing finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
+	glog.Infof("Processing finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
 
 	rClient, err := azure.NewAzureRole(c.kubeClient, c.appCatalogClient, role)
 	// The error could be generated for:
@@ -182,7 +182,7 @@ func (c *VaultController) runAzureRoleFinalizer(role *api.AzureRole) error {
 			return errors.Wrap(err, "failed to delete azure role")
 		}
 	} else {
-		glog.Warningf("skipping cleanup for AzureRole: %s/%s with error: %v", role.Namespace, role.Name, err)
+		glog.Warningf("Skipping cleanup for AzureRole: %s/%s with error: %v", role.Namespace, role.Name, err)
 	}
 
 	// remove finalizer
@@ -194,6 +194,6 @@ func (c *VaultController) runAzureRoleFinalizer(role *api.AzureRole) error {
 		return errors.Wrapf(err, "failed to remove finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
 	}
 
-	glog.Infof("removed finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
+	glog.Infof("Removed finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }

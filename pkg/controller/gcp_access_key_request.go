@@ -347,7 +347,7 @@ func (c *VaultController) runGCPAccessKeyRequestFinalizer(req *api.GCPAccessKeyR
 			return errors.Errorf("GCPAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 		}
 	} else {
-		glog.Warningf("skipping cleanup for GCPAccessKeyRequest: %s/%s with error: %v", req.Namespace, req.Name, err)
+		glog.Warningf("Skipping cleanup for GCPAccessKeyRequest: %s/%s with error: %v", req.Namespace, req.Name, err)
 	}
 
 	_, _, err = patchutil.PatchGCPAccessKeyRequest(context.TODO(), c.extClient.EngineV1alpha1(), req, func(in *api.GCPAccessKeyRequest) *api.GCPAccessKeyRequest {

@@ -222,12 +222,12 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 		return err
 	}
 
-	glog.Infof("successfully processed SecretEngine: %s/%s", se.Namespace, se.Name)
+	glog.Infof("Successfully processed SecretEngine: %s/%s", se.Namespace, se.Name)
 	return nil
 }
 
 func (c *VaultController) runSecretEngineFinalizer(se *api.SecretEngine) error {
-	glog.Infof("processing finalizer for SecretEngine %s/%s", se.Namespace, se.Name)
+	glog.Infof("Processing finalizer for SecretEngine %s/%s", se.Namespace, se.Name)
 
 	seClient, err := engine.NewSecretEngine(c.kubeClient, c.appCatalogClient, se)
 	// The error could be generated for:
@@ -248,7 +248,7 @@ func (c *VaultController) runSecretEngineFinalizer(se *api.SecretEngine) error {
 			return errors.Wrap(err, "failed to disable secret engine")
 		}
 	} else {
-		glog.Warningf("skipping cleanup for SecretEngine: %s/%s with error: %v", se.Namespace, se.Name, err)
+		glog.Warningf("Skipping cleanup for SecretEngine: %s/%s with error: %v", se.Namespace, se.Name, err)
 	}
 
 	// remove finalizer
@@ -260,6 +260,6 @@ func (c *VaultController) runSecretEngineFinalizer(se *api.SecretEngine) error {
 		return errors.Wrapf(err, "failed to remove finalizer for SecretEngine: %s/%s", se.Namespace, se.Name)
 	}
 
-	glog.Infof("removed finalizer for SecretEngine: %s/%s", se.Namespace, se.Name)
+	glog.Infof("Removed finalizer for SecretEngine: %s/%s", se.Namespace, se.Name)
 	return nil
 }
