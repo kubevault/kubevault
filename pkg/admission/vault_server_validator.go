@@ -157,8 +157,8 @@ func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs
 		if etcd.TLSSecretName != "" {
 			err := validateSecret(client, etcd.TLSSecretName, vs.Namespace, []string{
 				"ca.crt",
-				"client.crt",
-				"client.key",
+				"tls.crt",
+				"tls.key",
 			})
 			if err != nil {
 				return errors.Wrap(err, "for spec.backend.etcd.tlsSecretName")
@@ -300,8 +300,8 @@ func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs
 		if consul.TLSSecretName != "" {
 			err := validateSecret(client, consul.TLSSecretName, vs.Namespace, []string{
 				"ca.crt",
-				"client.crt",
-				"client.key",
+				"tls.crt",
+				"tls.key",
 			})
 			if err != nil {
 				return errors.Wrap(err, "for spec.backend.consul.tlsSecretName")

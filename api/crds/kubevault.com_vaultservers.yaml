@@ -227,7 +227,7 @@ spec:
                     tlsSecretName:
                       description: "Specifies the secret name that contains tls_ca_file,
                         tls_cert_file and tls_key_file for consul communication Secret
-                        data: \t- ca.crt \t- client.crt  - client.key"
+                        data: \t- ca.crt \t- tls.crt  - tls.key"
                       type: string
                     tlsSkipVerify:
                       description: Specifies if the TLS host verification should be
@@ -315,7 +315,7 @@ spec:
                     tlsSecretName:
                       description: "Specifies the secret name that contains tls_ca_file,
                         tls_cert_file and tls_key_file for etcd communication secret
-                        data: \t- ca.crt  - client.crt  - client.key"
+                        data: \t- ca.crt  - tls.crt  - tls.key"
                       type: string
                   required:
                   - address

@@ -16942,7 +16942,7 @@
           "type": "string"
         },
         "tlsSecretName": {
-          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for consul communication Secret data:\n\t- ca.crt\n\t- client.crt\n - client.key",
+          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for consul communication Secret data:\n\t- ca.crt\n\t- tls.crt\n - tls.key",
           "type": "string"
         },
         "tlsSkipVerify": {
@@ -17032,7 +17032,7 @@
           "type": "boolean"
         },
         "tlsSecretName": {
-          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication secret data:\n\t- ca.crt\n - client.crt\n - client.key",
+          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication secret data:\n\t- ca.crt\n - tls.crt\n - tls.key",
           "type": "string"
         }
       }

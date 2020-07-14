@@ -593,8 +593,8 @@ func vaultServerWithEtcd() (api.VaultServer, []core.Secret) {
 		}),
 		getSecret(etcd.TLSSecretName, []string{
 			"ca.crt",
-			"client.crt",
-			"client.key",
+			"tls.crt",
+			"tls.key",
 		}),
 	}
 	return v, extraSr
