@@ -79,8 +79,8 @@ token = "data"
 session_ttl = "20s"
 lock_wait_time = "25s"
 tls_ca_file = "/etc/vault/storage/consul/tls/ca.crt"
-tls_cert_file = "/etc/vault/storage/consul/tls/client.crt"
-tls_key_file = "/etc/vault/storage/consul/tls/client.key"
+tls_cert_file = "/etc/vault/storage/consul/tls/tls.crt"
+tls_key_file = "/etc/vault/storage/consul/tls/tls.key"
 tls_min_version = "tls12"
 }
 `
