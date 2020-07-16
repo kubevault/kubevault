@@ -33,7 +33,7 @@ type AWSRoleInterface interface {
 	role.RoleInterface
 
 	// DeleteRole deletes role
-	DeleteRole(name string) error
+	DeleteRole(name string) (int, error)
 }
 
 func NewAWSRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.AWSRole) (AWSRoleInterface, error) {

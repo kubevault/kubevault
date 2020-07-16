@@ -6,6 +6,13 @@ metadata:
     app.kubernetes.io/name: kubevault
   name: azureaccesskeyrequests.engine.kubevault.com
 spec:
+  additionalPrinterColumns:
+  - JSONPath: .status.phase
+    name: Status
+    type: string
+  - JSONPath: .metadata.creationTimestamp
+    name: Age
+    type: date
   group: engine.kubevault.com
   names:
     categories:
@@ -154,6 +161,15 @@ spec:
                   description: Specifies whether this lease is renewable
                   type: boolean
               type: object
+            observedGeneration:
+              description: observedGeneration is the most recent generation observed
+                for this resource. It corresponds to the resource's generation, which
+                is updated on mutation by the API Server.
+              format: int64
+              type: integer
+            phase:
+              description: Specifies the phase of AzureAccessKeyRequestStatus object
+              type: string
             secret:
               description: Name of the secret containing AzureCredential
               properties:

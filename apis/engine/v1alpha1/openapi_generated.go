@@ -15699,15 +15699,8 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_AddKeyTransform(ref common
 							Format:      "",
 						},
 					},
-					"jsonPathExpression": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The JSONPath expression, the result of which will be added to the Secret under the specified key. For example, given the following credentials: { \"foo\": { \"bar\": \"foobar\" } } and the jsonPathExpression \"{.foo.bar}\", the value \"foobar\" will be stored in the credentials Secret under the specified key.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 				},
-				Required: []string{"key", "value", "stringValue", "jsonPathExpression"},
+				Required: []string{"key", "value", "stringValue"},
 			},
 		},
 	}
@@ -17323,6 +17316,13 @@ func schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestStatus(ref common.R
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
+					"phase": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the phase of AWSAccessKeyRequestStatus object",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"conditions": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Conditions applied to the request, such as approval or denial.",
@@ -17346,6 +17346,13 @@ func schema_operator_apis_engine_v1alpha1_AWSAccessKeyRequestStatus(ref common.R
 						SchemaProps: spec.SchemaProps{
 							Description: "Contains lease info",
 							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.Lease"),
+						},
+					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 				},
@@ -17761,6 +17768,13 @@ func schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestStatus(ref common
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
+					"phase": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the phase of AzureAccessKeyRequestStatus object",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"conditions": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Conditions applied to the request, such as approval or denial.",
@@ -17784,6 +17798,13 @@ func schema_operator_apis_engine_v1alpha1_AzureAccessKeyRequestStatus(ref common
 						SchemaProps: spec.SchemaProps{
 							Description: "Contains lease info",
 							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.Lease"),
+						},
+					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 				},
@@ -18144,6 +18165,13 @@ func schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestStatus(ref common
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
+					"phase": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the phase of DatabaseAccessRequest object",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"conditions": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Conditions applied to the request, such as approval or denial.",
@@ -18167,6 +18195,13 @@ func schema_operator_apis_engine_v1alpha1_DatabaseAccessRequestStatus(ref common
 						SchemaProps: spec.SchemaProps{
 							Description: "Contains lease info",
 							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.Lease"),
+						},
+					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 				},
@@ -18321,6 +18356,13 @@ func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestStatus(ref common.R
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
+					"phase": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the phase of GCPAccessKeyRequest object",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"conditions": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Conditions applied to the request, such as approval or denial.",
@@ -18344,6 +18386,13 @@ func schema_operator_apis_engine_v1alpha1_GCPAccessKeyRequestStatus(ref common.R
 						SchemaProps: spec.SchemaProps{
 							Description: "Contains lease info",
 							Ref:         ref("kubevault.dev/operator/apis/engine/v1alpha1.Lease"),
+						},
+					},
+					"observedGeneration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "observedGeneration is the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.",
+							Type:        []string{"integer"},
+							Format:      "int64",
 						},
 					},
 				},

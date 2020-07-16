@@ -33,7 +33,7 @@ type GCPRoleInterface interface {
 	role.RoleInterface
 
 	// DeleteRole deletes role
-	DeleteRole(name string) error
+	DeleteRole(name string) (int, error)
 }
 
 func NewGCPRole(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.GCPRole) (GCPRoleInterface, error) {

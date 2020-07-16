@@ -18,16 +18,14 @@ package controller
 
 import (
 	"context"
-	"fmt"
-	"time"
 
+	"kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/engine"
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -36,8 +34,8 @@ import (
 )
 
 const (
-	SecretEnginePhaseSuccess api.SecretEnginePhase = "Success"
-	SecretEngineFinalizer    string                = "secretengine.engine.kubevault.com"
+	SecretEnginePhaseSuccess    api.SecretEnginePhase = "Success"
+	SecretEnginePhaseProcessing api.SecretEnginePhase = "Processing"
 )
 
 func (c *VaultController) initSecretEngineWatcher() {
@@ -58,33 +56,53 @@ func (c *VaultController) runSecretEngineInjector(key string) error {
 		glog.Warningf("SecretEngine %s does not exist anymore", key)
 
 	} else {
-		secretEngine := obj.(*api.SecretEngine).DeepCopy()
+		se := obj.(*api.SecretEngine).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for SecretEngine %s/%s", secretEngine.Namespace, secretEngine.Name)
+		glog.Infof("Sync/Add/Update for SecretEngine %s/%s", se.Namespace, se.Name)
 
-		if secretEngine.DeletionTimestamp != nil {
-			if core_util.HasFinalizer(secretEngine.ObjectMeta, SecretEngineFinalizer) {
-				go c.runSecretEngineFinalizer(secretEngine, finalizerTimeout, finalizerInterval)
+		if se.DeletionTimestamp != nil {
+			if core_util.HasFinalizer(se.ObjectMeta, apis.Finalizer) {
+				return c.runSecretEngineFinalizer(se)
+
 			}
 		} else {
-			if !core_util.HasFinalizer(secretEngine.ObjectMeta, SecretEngineFinalizer) {
+			if !core_util.HasFinalizer(se.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchSecretEngine(context.TODO(), c.extClient.EngineV1alpha1(), secretEngine, func(engine *api.SecretEngine) *api.SecretEngine {
-					engine.ObjectMeta = core_util.AddFinalizer(engine.ObjectMeta, SecretEngineFinalizer)
-					return engine
+				_, _, err := patchutil.PatchSecretEngine(context.TODO(), c.extClient.EngineV1alpha1(), se, func(in *api.SecretEngine) *api.SecretEngine {
+					in.ObjectMeta = core_util.AddFinalizer(in.ObjectMeta, apis.Finalizer)
+					return in
 				}, metav1.PatchOptions{})
 				if err != nil {
-					return errors.Wrapf(err, "failed to set SecretEngine finalizer for %s/%s", secretEngine.Namespace, secretEngine.Name)
+					return errors.Wrapf(err, "failed to add finalizer for secretEngine: %s/%s", se.Namespace, se.Name)
 				}
 			}
 
-			seClient, err := engine.NewSecretEngine(c.kubeClient, c.appCatalogClient, secretEngine)
+			// Conditions are empty, when the secretEngine obj is enqueued for first time.
+			// Set status.phase to "Processing".
+			if se.Status.Conditions == nil {
+				newSE, err := patchutil.UpdateSecretEngineStatus(
+					context.TODO(),
+					c.extClient.EngineV1alpha1(),
+					se.ObjectMeta,
+					func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
+						status.Phase = SecretEnginePhaseProcessing
+						return status
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					return errors.Wrapf(err, "failed to update status for SecretEngine: %s/%s", se.Namespace, se.Name)
+				}
+				se = newSE
+			}
+
+			seClient, err := engine.NewSecretEngine(c.kubeClient, c.appCatalogClient, se)
 			if err != nil {
 				return err
 			}
-			err = c.reconcileSecretEngine(seClient, secretEngine)
+			err = c.reconcileSecretEngine(seClient, se)
 			if err != nil {
-				return errors.Wrapf(err, "for SecretEngine %s/%s:", secretEngine.Namespace, secretEngine.Name)
+				return errors.Wrapf(err, "for SecretEngine %s/%s:", se.Namespace, se.Name)
 			}
 		}
 	}
@@ -96,14 +114,14 @@ func (c *VaultController) runSecretEngineInjector(key string) error {
 //	  - enable the secrets engine if it is not already enabled
 //	  - configure Vault secret engine
 //    - create policy and policybinding for s/a of VaultAppRef
-func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.EngineInterface, secretEngine *api.SecretEngine) error {
+func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface, se *api.SecretEngine) error {
 	// Create required policies for secret engine
-	err := secretEngineClient.CreatePolicy()
+	err := seClient.CreatePolicy()
 	if err != nil {
 		_, err2 := patchutil.UpdateSecretEngineStatus(
 			context.TODO(),
 			c.extClient.EngineV1alpha1(),
-			secretEngine.ObjectMeta,
+			se.ObjectMeta,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:    kmapi.ConditionFailure,
@@ -119,12 +137,12 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 	}
 
 	// Update the policy field of the auth method
-	err = secretEngineClient.UpdateAuthRole()
+	err = seClient.UpdateAuthRole()
 	if err != nil {
 		_, err2 := patchutil.UpdateSecretEngineStatus(
 			context.TODO(),
 			c.extClient.EngineV1alpha1(),
-			secretEngine.ObjectMeta,
+			se.ObjectMeta,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:    kmapi.ConditionFailure,
@@ -140,12 +158,12 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 	}
 
 	// enable the secret engine if it is not already enabled
-	err = secretEngineClient.EnableSecretEngine()
+	err = seClient.EnableSecretEngine()
 	if err != nil {
 		_, err2 := patchutil.UpdateSecretEngineStatus(
 			context.TODO(),
 			c.extClient.EngineV1alpha1(),
-			secretEngine.ObjectMeta,
+			se.ObjectMeta,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:    kmapi.ConditionFailure,
@@ -161,12 +179,12 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 	}
 
 	// Create secret engine config
-	err = secretEngineClient.CreateConfig()
+	err = seClient.CreateConfig()
 	if err != nil {
 		_, err2 := patchutil.UpdateSecretEngineStatus(
 			context.TODO(),
 			c.extClient.EngineV1alpha1(),
-			secretEngine.ObjectMeta,
+			se.ObjectMeta,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:    kmapi.ConditionFailure,
@@ -185,10 +203,11 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 	_, err = patchutil.UpdateSecretEngineStatus(
 		context.TODO(),
 		c.extClient.EngineV1alpha1(),
-		secretEngine.ObjectMeta,
+		se.ObjectMeta,
 		func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
-			status.ObservedGeneration = secretEngine.Generation
+			status.ObservedGeneration = se.Generation
 			status.Phase = SecretEnginePhaseSuccess
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
 				Status:  kmapi.ConditionTrue,
@@ -199,119 +218,48 @@ func (c *VaultController) reconcileSecretEngine(secretEngineClient engine.Engine
 		},
 		metav1.UpdateOptions{},
 	)
-	return err
-}
-
-func (c *VaultController) runSecretEngineFinalizer(secretEngine *api.SecretEngine, timeout time.Duration, interval time.Duration) {
-	if secretEngine == nil {
-		glog.Infoln("SecretEngine is nil")
-		return
-	}
-
-	id := getSecretEngineId(secretEngine)
-	if c.finalizerInfo.IsAlreadyProcessing(id) {
-		// already processing
-		return
-	}
-
-	glog.Infof("Processing finalizer for SecretEngine %s/%s", secretEngine.Namespace, secretEngine.Name)
-
-	// Add key to finalizerInfo, it will prevent other go routine to processing for this SecretEngine
-	c.finalizerInfo.Add(id)
-
-	stopCh := time.After(timeout)
-	finalizationDone := false
-	timeOutOccured := false
-	attempt := 0
-
-	for {
-		glog.Infof("SecretEngine %s/%s finalizer: attempt %d\n", secretEngine.Namespace, secretEngine.Name, attempt)
-
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		default:
-		}
-
-		if timeOutOccured {
-			break
-		}
-
-		if !finalizationDone {
-			secretEngineClient, err := engine.NewSecretEngine(c.kubeClient, c.appCatalogClient, secretEngine)
-			if err != nil {
-				glog.Errorf("SecretEngine %s/%s finalizer: %v", secretEngine.Namespace, secretEngine.Name, err)
-			} else {
-				err = c.finalizeSecretEngine(secretEngineClient)
-				if err != nil {
-					glog.Errorf("SecretEngine %s/%s finalizer: %v", secretEngine.Namespace, secretEngine.Name, err)
-				} else {
-					finalizationDone = true
-				}
-			}
-		}
-
-		if finalizationDone {
-			err := c.removeSecretEngineFinalizer(secretEngine)
-			if err != nil {
-				glog.Errorf("SecretEngine %s/%s finalizer: removing finalizer %v", secretEngine.Namespace, secretEngine.Name, err)
-			} else {
-				break
-			}
-		}
-
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		case <-time.After(interval):
-		}
-		attempt++
-	}
-
-	err := c.removeSecretEngineFinalizer(secretEngine)
 	if err != nil {
-		glog.Errorf("SecretEngine %s/%s finalizer: removing finalizer %v", secretEngine.Namespace, secretEngine.Name, err)
-	} else {
-		glog.Infof("Removed finalizer for SecretEngine %s/%s", secretEngine.Namespace, secretEngine.Name)
-	}
-
-	// Delete key from finalizer info as processing is done
-	c.finalizerInfo.Delete(id)
-}
-
-// will do:
-//	- Delete the policy created for this secret engine
-//	- remove the policy from policy controller role
-//	- disable secret engine
-func (c *VaultController) finalizeSecretEngine(secretEngineClient *engine.SecretEngine) error {
-	err := secretEngineClient.DeletePolicyAndUpdateRole()
-	if err != nil {
-		return errors.Wrap(err, "failed to delete policy or update policy controller role")
-	}
-
-	err = secretEngineClient.DisableSecretEngine()
-	if err != nil {
-		return errors.Wrap(err, "failed to disable secret engine")
-	}
-	return nil
-}
-
-func (c *VaultController) removeSecretEngineFinalizer(secretEngine *api.SecretEngine) error {
-	m, err := c.extClient.EngineV1alpha1().SecretEngines(secretEngine.Namespace).Get(context.TODO(), secretEngine.Name, metav1.GetOptions{})
-	if kerr.IsNotFound(err) {
-		return nil
-	} else if err != nil {
 		return err
 	}
 
-	// remove finalizer
-	_, _, err = patchutil.PatchSecretEngine(context.TODO(), c.extClient.EngineV1alpha1(), m, func(secretEngine *api.SecretEngine) *api.SecretEngine {
-		secretEngine.ObjectMeta = core_util.RemoveFinalizer(secretEngine.ObjectMeta, SecretEngineFinalizer)
-		return secretEngine
-	}, metav1.PatchOptions{})
-	return err
+	glog.Infof("Successfully processed SecretEngine: %s/%s", se.Namespace, se.Name)
+	return nil
 }
 
-func getSecretEngineId(secretEngine *api.SecretEngine) string {
-	return fmt.Sprintf("%s/%s/%s", api.ResourceSecretEngine, secretEngine.Namespace, secretEngine.Name)
+func (c *VaultController) runSecretEngineFinalizer(se *api.SecretEngine) error {
+	glog.Infof("Processing finalizer for SecretEngine %s/%s", se.Namespace, se.Name)
+
+	seClient, err := engine.NewSecretEngine(c.kubeClient, c.appCatalogClient, se)
+	// The error could be generated for:
+	//   - invalid vaultRef in the spec
+	// In this case, the operator should be able to delete the SecretEngine(ie. remove finalizer).
+	// If no error occurred:
+	//	- Delete the policy created for this secret engine
+	//	- remove the policy from policy controller role
+	//	- disable secret engine
+	if err == nil {
+		err = seClient.DeletePolicyAndUpdateRole()
+		if err != nil {
+			return errors.Wrap(err, "failed to delete policy or update policy controller role")
+		}
+
+		err = seClient.DisableSecretEngine()
+		if err != nil {
+			return errors.Wrap(err, "failed to disable secret engine")
+		}
+	} else {
+		glog.Warningf("Skipping cleanup for SecretEngine: %s/%s with error: %v", se.Namespace, se.Name, err)
+	}
+
+	// remove finalizer
+	_, _, err = patchutil.PatchSecretEngine(context.TODO(), c.extClient.EngineV1alpha1(), se, func(in *api.SecretEngine) *api.SecretEngine {
+		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, apis.Finalizer)
+		return in
+	}, metav1.PatchOptions{})
+	if err != nil {
+		return errors.Wrapf(err, "failed to remove finalizer for SecretEngine: %s/%s", se.Namespace, se.Name)
+	}
+
+	glog.Infof("Removed finalizer for SecretEngine: %s/%s", se.Namespace, se.Name)
+	return nil
 }

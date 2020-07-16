@@ -33,6 +33,9 @@ import (
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
 
+// TODO:
+// 	- Add separate policy file for leases "/sys/leases/*"
+
 // GCP secret engine policies
 const SecretEnginePolicyGCP = `
 path "{{ . }}/config" {
@@ -49,6 +52,10 @@ path "{{ . }}/token/*" {
 
 path "{{ . }}/key/*" {
 	capabilities = ["create", "update", "read"]
+}
+
+path "/sys/leases/*" {
+  capabilities = ["create","update"]
 }
 `
 
@@ -69,6 +76,10 @@ path "{{ . }}/creds/*" {
 path "{{ . }}/sts/*" {
 	capabilities = ["create", "update", "read"]
 }
+
+path "/sys/leases/*" {
+  capabilities = ["create","update"]
+}
 `
 
 // Azure secret engine policies
@@ -84,6 +95,10 @@ path "{{ . }}/roles/*" {
 path "{{ . }}/creds/*" {
 	capabilities = ["create", "update", "read"]
 }
+
+path "/sys/leases/*" {
+  capabilities = ["create","update"]
+}
 `
 
 // Database secret engine policies
@@ -98,6 +113,10 @@ path "{{ . }}/roles/*" {
 
 path "{{ . }}/creds/*" {
 	capabilities = ["create", "update", "read"]
+}
+
+path "/sys/leases/*" {
+  capabilities = ["create","update"]
 }
 `
 

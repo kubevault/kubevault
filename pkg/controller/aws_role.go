@@ -18,16 +18,14 @@ package controller
 
 import (
 	"context"
-	"fmt"
-	"time"
 
+	"kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/aws"
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -36,8 +34,8 @@ import (
 )
 
 const (
-	AWSRolePhaseSuccess api.AWSRolePhase = "Success"
-	AWSRoleFinalizer    string           = "awsrole.engine.kubevault.com"
+	AWSRolePhaseSuccess    api.AWSRolePhase = "Success"
+	AWSRolePhaseProcessing api.AWSRolePhase = "Processing"
 )
 
 func (c *VaultController) initAWSRoleWatcher() {
@@ -63,29 +61,48 @@ func (c *VaultController) runAWSRoleInjector(key string) error {
 		glog.Infof("Sync/Add/Update for AWSRole %s/%s", role.Namespace, role.Name)
 
 		if role.DeletionTimestamp != nil {
-			if core_util.HasFinalizer(role.ObjectMeta, AWSRoleFinalizer) {
-				go c.runAWSRoleFinalizer(role, finalizerTimeout, finalizerInterval)
+			if core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
+				return c.runAWSRoleFinalizer(role)
 			}
 		} else {
-			if !core_util.HasFinalizer(role.ObjectMeta, AWSRoleFinalizer) {
+			if !core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
 				_, _, err := patchutil.PatchAWSRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(role *api.AWSRole) *api.AWSRole {
-					role.ObjectMeta = core_util.AddFinalizer(role.ObjectMeta, AWSRoleFinalizer)
+					role.ObjectMeta = core_util.AddFinalizer(role.ObjectMeta, apis.Finalizer)
 					return role
 				}, metav1.PatchOptions{})
 				if err != nil {
-					return errors.Wrapf(err, "failed to set AWSRole finalizer for %s/%s", role.Namespace, role.Name)
+					return errors.Wrapf(err, "failed to add finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
 				}
 			}
 
-			awsRClient, err := aws.NewAWSRole(c.kubeClient, c.appCatalogClient, role)
+			// Conditions are empty, when the AWSRole obj is enqueued for the first time.
+			// Set status.phase to "Processing".
+			if role.Status.Conditions == nil {
+				newRole, err := patchutil.UpdateAWSRoleStatus(
+					context.TODO(),
+					c.extClient.EngineV1alpha1(),
+					role.ObjectMeta,
+					func(status *api.AWSRoleStatus) *api.AWSRoleStatus {
+						status.Phase = AWSRolePhaseProcessing
+						return status
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					return errors.Wrapf(err, "failed to update status for AWSRole: %s/%s", role.Namespace, role.Name)
+				}
+				role = newRole
+			}
+
+			rClient, err := aws.NewAWSRole(c.kubeClient, c.appCatalogClient, role)
 			if err != nil {
 				return err
 			}
 
-			err = c.reconcileAWSRole(awsRClient, role)
+			err = c.reconcileAWSRole(rClient, role)
 			if err != nil {
-				return errors.Wrapf(err, "for AWSRole %s/%s:", role.Namespace, role.Name)
+				return errors.Wrapf(err, "failed to reconcile AWSRole: %s/%s", role.Namespace, role.Name)
 			}
 		}
 	}
@@ -96,9 +113,9 @@ func (c *VaultController) runAWSRoleInjector(key string) error {
 //	For vault:
 // 	  - configure a AWS role
 //    - sync role
-func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, role *api.AWSRole) error {
+func (c *VaultController) reconcileAWSRole(rClient aws.AWSRoleInterface, role *api.AWSRole) error {
 	// create role
-	err := awsRClient.CreateRole()
+	err := rClient.CreateRole()
 	if err != nil {
 		_, err2 := patchutil.UpdateAWSRoleStatus(
 			context.TODO(),
@@ -123,6 +140,7 @@ func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, role
 		role.ObjectMeta, func(status *api.AWSRoleStatus) *api.AWSRoleStatus {
 			status.Phase = AWSRolePhaseSuccess
 			status.ObservedGeneration = role.Generation
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
 				Status:  kmapi.ConditionTrue,
@@ -133,111 +151,47 @@ func (c *VaultController) reconcileAWSRole(awsRClient aws.AWSRoleInterface, role
 		},
 		metav1.UpdateOptions{},
 	)
-	return err
-}
-
-func (c *VaultController) runAWSRoleFinalizer(role *api.AWSRole, timeout time.Duration, interval time.Duration) {
-	if role == nil {
-		glog.Infoln("AWSRole is nil")
-		return
-	}
-
-	id := getAWSRoleId(role)
-	if c.finalizerInfo.IsAlreadyProcessing(id) {
-		// already processing
-		return
-	}
-
-	glog.Infof("Processing finalizer for AWSRole %s/%s", role.Namespace, role.Name)
-	// Add key to finalizerInfo, it will prevent other go routine to processing for this AWSRole
-	c.finalizerInfo.Add(id)
-
-	stopCh := time.After(timeout)
-	finalizationDone := false
-	timeOutOccured := false
-	attempt := 0
-
-	for {
-		glog.Infof("AWSRole %s/%s finalizer: attempt %d\n", role.Namespace, role.Name, attempt)
-
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		default:
-		}
-
-		if timeOutOccured {
-			break
-		}
-
-		if !finalizationDone {
-			d, err := aws.NewAWSRole(c.kubeClient, c.appCatalogClient, role)
-			if err != nil {
-				glog.Errorf("AWSRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
-			} else {
-				err = c.finalizeAWSRole(d, role)
-				if err != nil {
-					glog.Errorf("AWSRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
-				} else {
-					finalizationDone = true
-				}
-			}
-		}
-
-		if finalizationDone {
-			err := c.removeAWSRoleFinalizer(role)
-			if err != nil {
-				glog.Errorf("AWSRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
-			} else {
-				break
-			}
-		}
-
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		case <-time.After(interval):
-		}
-		attempt++
-	}
-
-	err := c.removeAWSRoleFinalizer(role)
 	if err != nil {
-		glog.Errorf("AWSRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
-	} else {
-		glog.Infof("Removed finalizer for AWSRole %s/%s", role.Namespace, role.Name)
-	}
-
-	// Delete key from finalizer info as processing is done
-	c.finalizerInfo.Delete(id)
-}
-
-// Do:
-//	- delete role in vault
-func (c *VaultController) finalizeAWSRole(awsRClient aws.AWSRoleInterface, role *api.AWSRole) error {
-	err := awsRClient.DeleteRole(role.RoleName())
-	if err != nil {
-		return errors.Wrap(err, "failed to delete aws role")
-	}
-	return nil
-}
-
-func (c *VaultController) removeAWSRoleFinalizer(role *api.AWSRole) error {
-	m, err := c.extClient.EngineV1alpha1().AWSRoles(role.Namespace).Get(context.TODO(), role.Name, metav1.GetOptions{})
-	if kerr.IsNotFound(err) {
-		return nil
-	} else if err != nil {
 		return err
 	}
 
-	// remove finalizer
-	_, _, err = patchutil.PatchAWSRole(context.TODO(), c.extClient.EngineV1alpha1(), m, func(role *api.AWSRole) *api.AWSRole {
-		role.ObjectMeta = core_util.RemoveFinalizer(role.ObjectMeta, AWSRoleFinalizer)
-		return role
-	}, metav1.PatchOptions{})
-	return err
+	glog.Infof("Successfully processed AWSRole: %s/%s", role.Namespace, role.Name)
+	return nil
 }
 
-func getAWSRoleId(role *api.AWSRole) string {
-	return fmt.Sprintf("%s/%s/%s", api.ResourceAWSRole, role.Namespace, role.Name)
+func (c *VaultController) runAWSRoleFinalizer(role *api.AWSRole) error {
+	glog.Infof("Processing finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
+
+	rClient, err := aws.NewAWSRole(c.kubeClient, c.appCatalogClient, role)
+	// The error could be generated for:
+	//   - invalid vaultRef in the spec
+	// In this case, the operator should be able to delete the AWSRole (ie. remove finalizer).
+	// If no error occurred:
+	//	- Delete the aws role created in vault
+	if err == nil {
+		statusCode, err := rClient.DeleteRole(role.RoleName())
+		// For the following errors, the operator should be
+		// able to delete the role obj.
+		// 	- 400 - Invalid request, missing or invalid data.
+		// 	- 403 - Forbidden, your authentication details are either incorrect, you don't have access to this feature, or - if CORS is enabled - you made a cross-origin request from an origin that is not allowed to make such requests.
+		//  - 404 - Invalid path. This can both mean that the path truly doesn't exist or that you don't have permission to view a specific path. We use 404 in some cases to avoid state leakage.
+		// return error if it is network error.
+		if err != nil && (statusCode/100) != 4 {
+			return errors.Wrap(err, "failed to delete aws role")
+		}
+	} else {
+		glog.Warningf("Skipping cleanup for AWSRole: %s/%s with error: %v", role.Namespace, role.Name, err)
+	}
+
+	// remove finalizer
+	_, _, err = patchutil.PatchAWSRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(role *api.AWSRole) *api.AWSRole {
+		role.ObjectMeta = core_util.RemoveFinalizer(role.ObjectMeta, apis.Finalizer)
+		return role
+	}, metav1.PatchOptions{})
+	if err != nil {
+		return errors.Wrapf(err, "failed to remove finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
+	}
+
+	glog.Infof("Removed finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
+	return nil
 }

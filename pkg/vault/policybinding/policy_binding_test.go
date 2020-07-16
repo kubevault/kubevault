@@ -90,7 +90,6 @@ func isKeyValExist(store map[string]interface{}, key string, val interface{}) bo
 			default:
 				return false
 			}
-			return true
 		case string:
 			switch z := v.(type) {
 			case string:

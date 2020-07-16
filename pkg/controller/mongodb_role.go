@@ -18,8 +18,6 @@ package controller
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"kubevault.dev/operator/apis"
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
@@ -28,7 +26,6 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -37,9 +34,8 @@ import (
 )
 
 const (
-	MongoDBRolePhaseSuccess api.MongoDBRolePhase = "Success"
-	finalizerInterval                            = 5 * time.Second
-	finalizerTimeout                             = 30 * time.Second
+	MongoDBRolePhaseSuccess    api.MongoDBRolePhase = "Success"
+	MongoDBRolePhaseProcessing api.MongoDBRolePhase = "Processing"
 )
 
 func (c *VaultController) initMongoDBRoleWatcher() {
@@ -66,28 +62,47 @@ func (c *VaultController) runMongoDBRoleInjector(key string) error {
 
 		if role.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
-				go c.runMongoDBRoleFinalizer(role, finalizerTimeout, finalizerInterval)
+				return c.runMongoDBRoleFinalizer(role)
 			}
 		} else {
 			if !core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchMongoDBRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(role *api.MongoDBRole) *api.MongoDBRole {
-					role.ObjectMeta = core_util.AddFinalizer(role.ObjectMeta, apis.Finalizer)
-					return role
+				_, _, err := patchutil.PatchMongoDBRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(in *api.MongoDBRole) *api.MongoDBRole {
+					in.ObjectMeta = core_util.AddFinalizer(in.ObjectMeta, apis.Finalizer)
+					return in
 				}, metav1.PatchOptions{})
 				if err != nil {
 					return errors.Wrapf(err, "failed to set MongoDBRole finalizer for %s/%s", role.Namespace, role.Name)
 				}
 			}
 
-			dbRClient, err := database.NewDatabaseRoleForMongodb(c.kubeClient, c.appCatalogClient, role)
+			// Conditions are empty, when the MongoDBRole obj is enqueued for the first time.
+			// Set status.phase to "Processing".
+			if role.Status.Conditions == nil {
+				newRole, err := patchutil.UpdateMongoDBRoleStatus(
+					context.TODO(),
+					c.extClient.EngineV1alpha1(),
+					role.ObjectMeta,
+					func(status *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
+						status.Phase = MongoDBRolePhaseProcessing
+						return status
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					return errors.Wrapf(err, "failed to update status for MongoDBRole: %s/%s", role.Namespace, role.Name)
+				}
+				role = newRole
+			}
+
+			rClient, err := database.NewDatabaseRoleForMongodb(c.kubeClient, c.appCatalogClient, role)
 			if err != nil {
 				return err
 			}
 
-			err = c.reconcileMongoDBRole(dbRClient, role)
+			err = c.reconcileMongoDBRole(rClient, role)
 			if err != nil {
-				return errors.Wrapf(err, "for MongoDBRole %s/%s:", role.Namespace, role.Name)
+				return errors.Wrapf(err, "failed to reconcile MongoDBRole: %s/%s", role.Namespace, role.Name)
 			}
 		}
 	}
@@ -99,9 +114,9 @@ func (c *VaultController) runMongoDBRoleInjector(key string) error {
 // 	  - configure a role that maps a name in Vault to an SQL statement to execute to create the database credential.
 //    - sync role
 //	  - revoke previous lease of all the respective mongodbRoleBinding and reissue a new lease
-func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleInterface, role *api.MongoDBRole) error {
+func (c *VaultController) reconcileMongoDBRole(rClient database.DatabaseRoleInterface, role *api.MongoDBRole) error {
 	// create role
-	err := dbRClient.CreateRole()
+	err := rClient.CreateRole()
 	if err != nil {
 		_, err2 := patchutil.UpdateMongoDBRoleStatus(
 			context.TODO(),
@@ -138,112 +153,47 @@ func (c *VaultController) reconcileMongoDBRole(dbRClient database.DatabaseRoleIn
 		},
 		metav1.UpdateOptions{},
 	)
-	return err
-}
-
-func (c *VaultController) runMongoDBRoleFinalizer(role *api.MongoDBRole, timeout time.Duration, interval time.Duration) {
-	if role == nil {
-		glog.Infoln("MongoDBRole is nil")
-		return
-	}
-
-	id := getMongoDBRoleId(role)
-	if c.finalizerInfo.IsAlreadyProcessing(id) {
-		// already processing
-		return
-	}
-
-	glog.Infof("Processing finalizer for MongoDBRole %s/%s", role.Namespace, role.Name)
-	// Add key to finalizerInfo, it will prevent other go routine to processing for this MongoDBRole
-	c.finalizerInfo.Add(id)
-
-	stopCh := time.After(timeout)
-	finalizationDone := false
-	timeOutOccured := false
-	attempt := 0
-
-	for {
-		glog.Infof("MongoDBRole %s/%s finalizer: attempt %d\n", role.Namespace, role.Name, attempt)
-
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		default:
-		}
-
-		if timeOutOccured {
-			break
-		}
-
-		if !finalizationDone {
-			d, err := database.NewDatabaseRoleForMongodb(c.kubeClient, c.appCatalogClient, role)
-			if err != nil {
-				glog.Errorf("MongoDBRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
-			} else {
-				err = c.finalizeMongoDBRole(d, role)
-				if err != nil {
-					glog.Errorf("MongoDBRole %s/%s finalizer: %v", role.Namespace, role.Name, err)
-				} else {
-					finalizationDone = true
-				}
-			}
-		}
-
-		if finalizationDone {
-			err := c.removeMongoDBRoleFinalizer(role)
-			if err != nil {
-				glog.Errorf("MongoDBRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
-			} else {
-				break
-			}
-		}
-
-		select {
-		case <-stopCh:
-			timeOutOccured = true
-		case <-time.After(interval):
-		}
-		attempt++
-	}
-
-	err := c.removeMongoDBRoleFinalizer(role)
 	if err != nil {
-		glog.Errorf("MongoDBRole %s/%s finalizer: removing finalizer %v", role.Namespace, role.Name, err)
-	} else {
-		glog.Infof("Removed finalizer for MongoDBRole %s/%s", role.Namespace, role.Name)
-	}
-
-	// Delete key from finalizer info as processing is done
-	c.finalizerInfo.Delete(id)
-}
-
-// Do:
-//	- delete role in vault
-//	- revoke lease of all the corresponding mongodbRoleBinding
-func (c *VaultController) finalizeMongoDBRole(dbRClient database.DatabaseRoleInterface, role *api.MongoDBRole) error {
-	err := dbRClient.DeleteRole(role.RoleName())
-	if err != nil {
-		return errors.Wrap(err, "failed to database role")
-	}
-	return nil
-}
-
-func (c *VaultController) removeMongoDBRoleFinalizer(mRole *api.MongoDBRole) error {
-	m, err := c.extClient.EngineV1alpha1().MongoDBRoles(mRole.Namespace).Get(context.TODO(), mRole.Name, metav1.GetOptions{})
-	if kerr.IsNotFound(err) {
-		return nil
-	} else if err != nil {
 		return err
 	}
 
-	// remove finalizer
-	_, _, err = patchutil.PatchMongoDBRole(context.TODO(), c.extClient.EngineV1alpha1(), m, func(role *api.MongoDBRole) *api.MongoDBRole {
-		role.ObjectMeta = core_util.RemoveFinalizer(role.ObjectMeta, apis.Finalizer)
-		return role
-	}, metav1.PatchOptions{})
-	return err
+	glog.Infof("Successfully processed MongoDBRole: %s/%s", role.Namespace, role.Name)
+	return nil
 }
 
-func getMongoDBRoleId(mRole *api.MongoDBRole) string {
-	return fmt.Sprintf("%s/%s/%s", api.ResourceMongoDBRole, mRole.Namespace, mRole.Name)
+func (c *VaultController) runMongoDBRoleFinalizer(role *api.MongoDBRole) error {
+	glog.Infof("Processing finalizer for MongoDBRole: %s/%s", role.Namespace, role.Name)
+
+	rClient, err := database.NewDatabaseRoleForMongodb(c.kubeClient, c.appCatalogClient, role)
+	// The error could be generated for:
+	//   - invalid vaultRef in the spec
+	// In this case, the operator should be able to delete the MongoDBRole (ie. remove finalizer).
+	// If no error occurred:
+	//	- Delete the db role created in vault
+	if err == nil {
+		statusCode, err := rClient.DeleteRole(role.RoleName())
+		// For the following errors, the operator should be
+		// able to delete the role obj.
+		// 	- 400 - Invalid request, missing or invalid data.
+		// 	- 403 - Forbidden, your authentication details are either incorrect, you don't have access to this feature, or - if CORS is enabled - you made a cross-origin request from an origin that is not allowed to make such requests.
+		//  - 404 - Invalid path. This can both mean that the path truly doesn't exist or that you don't have permission to view a specific path. We use 404 in some cases to avoid state leakage.
+		// return error if it is network error.
+		if err != nil && (statusCode/100) != 4 {
+			return errors.Wrap(err, "failed to delete database role")
+		}
+	} else {
+		glog.Warningf("Skipping cleanup for MongoDBRole: %s/%s with error: %v", role.Namespace, role.Name, err)
+	}
+
+	// remove finalizer
+	_, _, err = patchutil.PatchMongoDBRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(in *api.MongoDBRole) *api.MongoDBRole {
+		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, apis.Finalizer)
+		return in
+	}, metav1.PatchOptions{})
+	if err != nil {
+		return errors.Wrapf(err, "failed to remove finalizer for MongoDBRole: %s/%s", role.Namespace, role.Name)
+	}
+
+	glog.Infof("Removed finalizer for MongoDBRole: %s/%s", role.Namespace, role.Name)
+	return nil
 }

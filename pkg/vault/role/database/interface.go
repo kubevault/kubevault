@@ -33,7 +33,7 @@ type DatabaseRoleInterface interface {
 	IsDatabaseEnabled() (bool, error)
 
 	// DeleteRole deletes role
-	DeleteRole(name string) error
+	DeleteRole(name string) (int, error)
 }
 
 type DatabaseCredentialManager interface {

@@ -61,7 +61,6 @@ var _ = Describe("Azure Secret Engine", func() {
 				return err == nil && r.Status.Phase == controller.SecretEnginePhaseSuccess
 
 			}, timeOut, pollingInterval).Should(BeTrue(), "SecretEngine status is succeeded")
-
 		}
 		IsAzureRoleCreated = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AzureRole:(%s/%s) role is created", namespace, name))
@@ -82,17 +81,13 @@ var _ = Describe("Azure Secret Engine", func() {
 			Eventually(func() bool {
 				r, err := f.CSClient.EngineV1alpha1().AzureRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil && r.Status.Phase == controller.AzureRolePhaseSuccess
-
 			}, timeOut, pollingInterval).Should(BeTrue(), "AzureRole status is succeeded")
-
 		}
-
 		IsAzureRoleFailed = func(name, namespace string) {
 			By(fmt.Sprintf("Checking whether AzureRole:(%s/%s) is failed", namespace, name))
 			Eventually(func() bool {
 				r, err := f.CSClient.EngineV1alpha1().AzureRoles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return err == nil && r.Status.Phase != controller.AzureRolePhaseSuccess && len(r.Status.Conditions) != 0
-
 			}, timeOut, pollingInterval).Should(BeTrue(), "AzureRole status is failed")
 		}
 		IsAzureAccessKeyRequestCreated = func(name, namespace string) {
@@ -114,11 +109,7 @@ var _ = Describe("Azure Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
-					for _, value := range crd.Status.Conditions {
-						if value.Type == kmapi.ConditionRequestApproved {
-							return true
-						}
-					}
+					return kmapi.IsConditionTrue(crd.Status.Conditions, kmapi.ConditionRequestApproved)
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type : Approved")
@@ -128,11 +119,7 @@ var _ = Describe("Azure Secret Engine", func() {
 			Eventually(func() bool {
 				crd, err := f.CSClient.EngineV1alpha1().AzureAccessKeyRequests(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
-					for _, value := range crd.Status.Conditions {
-						if value.Type == kmapi.ConditionRequestDenied {
-							return true
-						}
-					}
+					return kmapi.IsConditionTrue(crd.Status.Conditions, kmapi.ConditionRequestDenied)
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), "Conditions-> Type: Denied")
@@ -209,7 +196,7 @@ var _ = Describe("Azure Secret Engine", func() {
 					VaultRef: core.LocalObjectReference{
 						Name: f.VaultAppRef.Name,
 					},
-					ApplicationObjectID: "c1cb042d-96d7-423a-8dba-243c2e5010d3",
+					ApplicationObjectID: "fdcf7334-c208-40a2-a808-15b7c86ab9e7",
 				},
 			}
 
@@ -369,7 +356,7 @@ var _ = Describe("Azure Secret Engine", func() {
 					VaultRef: core.LocalObjectReference{
 						Name: f.VaultAppRef.Name,
 					},
-					ApplicationObjectID: "c1cb042d-96d7-423a-8dba-243c2e5010d3",
+					ApplicationObjectID: "fdcf7334-c208-40a2-a808-15b7c86ab9e7",
 				},
 			}
 
@@ -442,9 +429,11 @@ var _ = Describe("Azure Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestApproved,
+							Status:             kmapi.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
+					Phase: api.RequestStatusPhaseApproved,
 				}, r)
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Approved")
 				IsAzureAKRConditionApproved(azureAKR.Name, azureAKR.Namespace)
@@ -462,9 +451,11 @@ var _ = Describe("Azure Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestDenied,
+							Status:             kmapi.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
+					Phase: api.RequestStatusPhaseDenied,
 				}, r)
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Denied")
 
@@ -514,9 +505,11 @@ var _ = Describe("Azure Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestApproved,
+							Status:             kmapi.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
+					Phase: api.RequestStatusPhaseApproved,
 				}, r)
 
 				Expect(err).NotTo(HaveOccurred(), "Update conditions: Approved")

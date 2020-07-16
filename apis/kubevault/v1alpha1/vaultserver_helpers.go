@@ -43,15 +43,15 @@ func (v VaultServer) ServiceAccountName() string {
 }
 
 func (v VaultServer) ServiceAccountForTokenReviewer() string {
-	return v.Name + "-k8s-token-reviewer"
+	return meta_util.NameWithSuffix(v.Name, "k8s-token-reviewer")
 }
 
 func (v VaultServer) PolicyNameForPolicyController() string {
-	return v.Name + "-policy-controller"
+	return meta_util.NameWithSuffix(v.Name, "policy-controller")
 }
 
 func (v VaultServer) PolicyNameForAuthMethodController() string {
-	return v.Name + "-auth-method-controller"
+	return meta_util.NameWithSuffix(v.Name, "auth-method-controller")
 }
 
 func (v VaultServer) AppBindingName() string {
@@ -70,11 +70,11 @@ func (v VaultServer) OffshootLabels() map[string]string {
 }
 
 func (v VaultServer) ConfigMapName() string {
-	return v.OffshootName() + "-vault-config"
+	return meta_util.NameWithSuffix(v.Name, "vault-config")
 }
 
 func (v VaultServer) TLSSecretName() string {
-	return v.OffshootName() + "-vault-tls"
+	return meta_util.NameWithSuffix(v.Name, "vault-tls")
 }
 
 func (v VaultServer) IsValid() error {
@@ -82,7 +82,7 @@ func (v VaultServer) IsValid() error {
 }
 
 func (v VaultServer) StatsServiceName() string {
-	return v.Name + "-stats"
+	return meta_util.NameWithSuffix(v.Name, "stats")
 }
 
 func (v VaultServer) StatsLabels() map[string]string {
@@ -108,7 +108,8 @@ func (e vaultServerStatsService) ServiceName() string {
 }
 
 func (e vaultServerStatsService) ServiceMonitorName() string {
-	return fmt.Sprintf("vault-%s-%s", e.Namespace, e.Name)
+	sfix := fmt.Sprintf("%s-%s", e.Namespace, e.Name)
+	return meta_util.NameWithSuffix("vault", sfix)
 }
 
 func (e vaultServerStatsService) Path() string {
