@@ -21,20 +21,16 @@ package v1alpha1
 
 import (
 	fmt "fmt"
-
-	github_com_appscode_go_encoding_json_types "github.com/appscode/go/encoding/json/types"
-
 	io "io"
-
-	proto "github.com/gogo/protobuf/proto"
-	v12 "k8s.io/api/core/v1"
-
 	math "math"
 	math_bits "math/bits"
 	reflect "reflect"
 	strings "strings"
 	time "time"
 
+	github_com_appscode_go_encoding_json_types "github.com/appscode/go/encoding/json/types"
+	proto "github.com/gogo/protobuf/proto"
+	v12 "k8s.io/api/core/v1"
 	v14 "kmodules.xyz/client-go/api/v1"
 	v13 "kmodules.xyz/monitoring-agent-api/api/v1"
 )
