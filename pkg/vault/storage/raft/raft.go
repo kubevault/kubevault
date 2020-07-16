@@ -17,6 +17,7 @@ limitations under the License.
 package raft
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -73,7 +74,7 @@ func (o *Options) GetStorageConfig() (string, error) {
 	}
 	// Get RetryJoin stanza from configMap
 	if o.RetryJoinConfig != "" {
-		configMap, err := o.kc.CoreV1().ConfigMaps(o.namespace).Get(o.RetryJoinConfig, metav1.GetOptions{})
+		configMap, err := o.kc.CoreV1().ConfigMaps(o.namespace).Get(context.TODO(), o.RetryJoinConfig, metav1.GetOptions{})
 		if err != nil {
 			return "", errors.Wrapf(err, "failed to get configMap %s/%s", o.namespace, o.RetryJoinConfig)
 		}
