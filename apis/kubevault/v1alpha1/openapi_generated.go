@@ -380,6 +380,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.ModeSpec":                     schema_operator_apis_kubevault_v1alpha1_ModeSpec(ref),
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.MySQLSpec":                    schema_operator_apis_kubevault_v1alpha1_MySQLSpec(ref),
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.PostgreSQLSpec":               schema_operator_apis_kubevault_v1alpha1_PostgreSQLSpec(ref),
+		"kubevault.dev/operator/apis/kubevault/v1alpha1.RaftSpec":                     schema_operator_apis_kubevault_v1alpha1_RaftSpec(ref),
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.S3Spec":                       schema_operator_apis_kubevault_v1alpha1_S3Spec(ref),
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.SwiftSpec":                    schema_operator_apis_kubevault_v1alpha1_SwiftSpec(ref),
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.TLSPolicy":                    schema_operator_apis_kubevault_v1alpha1_TLSPolicy(ref),
@@ -17530,11 +17531,16 @@ func schema_operator_apis_kubevault_v1alpha1_BackendStorageSpec(ref common.Refer
 							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.ConsulSpec"),
 						},
 					},
+					"raft": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.RaftSpec"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"kubevault.dev/operator/apis/kubevault/v1alpha1.AzureSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.ConsulSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.DynamoDBSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.EtcdSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.FileSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.GcsSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.InmemSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.MySQLSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.PostgreSQLSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.S3Spec", "kubevault.dev/operator/apis/kubevault/v1alpha1.SwiftSpec"},
+			"kubevault.dev/operator/apis/kubevault/v1alpha1.AzureSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.ConsulSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.DynamoDBSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.EtcdSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.FileSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.GcsSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.InmemSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.MySQLSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.PostgreSQLSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.RaftSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.S3Spec", "kubevault.dev/operator/apis/kubevault/v1alpha1.SwiftSpec"},
 	}
 }
 
@@ -18097,6 +18103,70 @@ func schema_operator_apis_kubevault_v1alpha1_PostgreSQLSpec(ref common.Reference
 				Required: []string{"connectionURLSecret"},
 			},
 		},
+	}
+}
+
+func schema_operator_apis_kubevault_v1alpha1_RaftSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ref: https://www.vaultproject.io/docs/configuration/storage/raft.html\n\nRaftSpec defines the configuration to set up Raft as backend storage in vault",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"address": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"nodeID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the node_id",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"performanceMultiplier": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the performance_multiplier",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"trailingLogs": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the trailing_logs",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"snapshotThreshold": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the snapshot_threshold",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"retryJoinConfig": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the retry_join stanza When the raft cluster is getting bootstrapped, if the connection details of all the nodes are known beforehand, then specifying this config stanzas enables the nodes to automatically join a raft cluster.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"volumeClaimTemplate": {
+						SchemaProps: spec.SchemaProps{
+							Description: "volumeClaimTemplate is a claim that pods are allowed to reference. The VaultServer controller is responsible for deploying the claim and update the volumeMounts in the Vault server container in the template.",
+							Ref:         ref("kmodules.xyz/offshoot-api/api/v1.PersistentVolumeClaim"),
+						},
+					},
+				},
+				Required: []string{"volumeClaimTemplate"},
+			},
+		},
+		Dependencies: []string{
+			"kmodules.xyz/offshoot-api/api/v1.PersistentVolumeClaim"},
 	}
 }
 

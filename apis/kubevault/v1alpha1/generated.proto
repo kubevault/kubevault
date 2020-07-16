@@ -218,6 +218,9 @@ message BackendStorageSpec {
 
   // +optional
   optional ConsulSpec consul = 11;
+
+  // +optional
+  optional RaftSpec raft = 12;
 }
 
 // ref: https://www.vaultproject.io/docs/configuration/storage/consul.html
@@ -546,6 +549,35 @@ message PostgreSQLSpec {
   //  Specifies the maximum number of concurrent requests to take place.
   // +optional
   optional int64 maxParallel = 3;
+}
+
+// ref: https://www.vaultproject.io/docs/configuration/storage/raft.html
+//
+// RaftSpec defines the configuration to set up Raft as backend storage in vault
+message RaftSpec {
+  // Specifies the path
+  optional string path = 1;
+
+  // Specifies the node_id
+  optional string nodeID = 2;
+
+  // Specifies the performance_multiplier
+  optional int64 performanceMultiplier = 3;
+
+  // Specifies the trailing_logs
+  optional int64 trailingLogs = 4;
+
+  // Specifies the snapshot_threshold
+  optional int64 snapshotThreshold = 5;
+
+  // Specifies the retry_join stanza
+  // When the raft cluster is getting bootstrapped, if the connection details of all the nodes are known beforehand, then specifying this config stanzas enables the nodes to automatically join a raft cluster.
+  optional string retryJoinConfig = 6;
+
+  // volumeClaimTemplate is a claim that pods are allowed to reference.
+  // The VaultServer controller is responsible for deploying the claim
+  // and update the volumeMounts in the Vault server container in the template.
+  optional kmodules.xyz.offshoot_api.api.v1.PersistentVolumeClaim volumeClaimTemplate = 7;
 }
 
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/s3.html

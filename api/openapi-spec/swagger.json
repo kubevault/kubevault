@@ -16873,6 +16873,9 @@
         "postgresql": {
           "$ref": "#/definitions/dev.kubevault.operator.apis.kubevault.v1alpha1.PostgreSQLSpec"
         },
+        "raft": {
+          "$ref": "#/definitions/dev.kubevault.operator.apis.kubevault.v1alpha1.RaftSpec"
+        },
         "s3": {
           "$ref": "#/definitions/dev.kubevault.operator.apis.kubevault.v1alpha1.S3Spec"
         },
@@ -17209,6 +17212,46 @@
         "table": {
           "description": "Specifies the name of the table in which to write Vault data. This table must already exist (Vault will not attempt to create it).",
           "type": "string"
+        }
+      }
+    },
+    "dev.kubevault.operator.apis.kubevault.v1alpha1.RaftSpec": {
+      "description": "ref: https://www.vaultproject.io/docs/configuration/storage/raft.html\n\nRaftSpec defines the configuration to set up Raft as backend storage in vault",
+      "type": "object",
+      "required": [
+        "volumeClaimTemplate"
+      ],
+      "properties": {
+        "address": {
+          "description": "Specifies the path",
+          "type": "string"
+        },
+        "nodeID": {
+          "description": "Specifies the node_id",
+          "type": "string"
+        },
+        "performanceMultiplier": {
+          "description": "Specifies the performance_multiplier",
+          "type": "integer",
+          "format": "int64"
+        },
+        "retryJoinConfig": {
+          "description": "Specifies the retry_join stanza When the raft cluster is getting bootstrapped, if the connection details of all the nodes are known beforehand, then specifying this config stanzas enables the nodes to automatically join a raft cluster.",
+          "type": "string"
+        },
+        "snapshotThreshold": {
+          "description": "Specifies the snapshot_threshold",
+          "type": "integer",
+          "format": "int64"
+        },
+        "trailingLogs": {
+          "description": "Specifies the trailing_logs",
+          "type": "integer",
+          "format": "int64"
+        },
+        "volumeClaimTemplate": {
+          "description": "volumeClaimTemplate is a claim that pods are allowed to reference. The VaultServer controller is responsible for deploying the claim and update the volumeMounts in the Vault server container in the template.",
+          "$ref": "#/definitions/xyz.kmodules.offshoot-api.api.v1.PersistentVolumeClaim"
         }
       }
     },

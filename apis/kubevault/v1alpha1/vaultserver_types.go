@@ -268,6 +268,11 @@ type RaftSpec struct {
 	// Specifies the retry_join stanza
 	// When the raft cluster is getting bootstrapped, if the connection details of all the nodes are known beforehand, then specifying this config stanzas enables the nodes to automatically join a raft cluster.
 	RetryJoinConfig string `json:"retryJoinConfig,omitempty" protobuf:"bytes,6,opt,name=retryJoinConfig"`
+
+	// volumeClaimTemplate is a claim that pods are allowed to reference.
+	// The VaultServer controller is responsible for deploying the claim
+	// and update the volumeMounts in the Vault server container in the template.
+	VolumeClaimTemplate ofst.PersistentVolumeClaim `json:"volumeClaimTemplate" protobuf:"bytes,7,opt,name=volumeClaimTemplate"`
 }
 
 // ref: https://www.vaultproject.io/docs/configuration/storage/consul.html

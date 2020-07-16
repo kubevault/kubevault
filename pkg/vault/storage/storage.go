@@ -67,7 +67,7 @@ func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage, 
 	} else if s.Consul != nil {
 		return consul.NewOptions(kubeClient, vs.Namespace, *s.Consul)
 	} else if s.Raft != nil {
-		return raft.NewOptions(kubeClient, vs.Namespace, *s.Raft)
+		return raft.NewOptions(kubeClient, vs, *s.Raft)
 	} else {
 		return nil, errors.New("invalid storage backend")
 	}
