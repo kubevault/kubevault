@@ -27,6 +27,7 @@ import (
 	"kubevault.dev/operator/pkg/vault/storage/inmem"
 	"kubevault.dev/operator/pkg/vault/storage/mysql"
 	postgresql "kubevault.dev/operator/pkg/vault/storage/postgersql"
+	"kubevault.dev/operator/pkg/vault/storage/raft"
 	"kubevault.dev/operator/pkg/vault/storage/s3"
 	"kubevault.dev/operator/pkg/vault/storage/swift"
 
@@ -65,6 +66,8 @@ func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage, 
 		return swift.NewOptions(*s.Swift)
 	} else if s.Consul != nil {
 		return consul.NewOptions(kubeClient, vs.Namespace, *s.Consul)
+	} else if s.Raft != nil {
+		return raft.NewOptions(kubeClient, vs.Namespace, *s.Raft)
 	} else {
 		return nil, errors.New("invalid storage backend")
 	}
