@@ -26,7 +26,7 @@ import (
 	"kubevault.dev/operator/pkg/vault/storage/gcs"
 	"kubevault.dev/operator/pkg/vault/storage/inmem"
 	"kubevault.dev/operator/pkg/vault/storage/mysql"
-	postgresql "kubevault.dev/operator/pkg/vault/storage/postgersql"
+	"kubevault.dev/operator/pkg/vault/storage/postgresql"
 	"kubevault.dev/operator/pkg/vault/storage/s3"
 	"kubevault.dev/operator/pkg/vault/storage/swift"
 
