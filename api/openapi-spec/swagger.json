@@ -17219,15 +17219,15 @@
       "description": "ref: https://www.vaultproject.io/docs/configuration/storage/raft.html\n\nRaftSpec defines the configuration to set up Raft as backend storage in vault",
       "type": "object",
       "required": [
-        "volumeClaimTemplate"
+        "path"
       ],
       "properties": {
-        "address": {
-          "description": "Specifies the path",
-          "type": "string"
-        },
         "nodeID": {
           "description": "Specifies the node_id",
+          "type": "string"
+        },
+        "path": {
+          "description": "Specifies the path",
           "type": "string"
         },
         "performanceMultiplier": {
@@ -17248,10 +17248,6 @@
           "description": "Specifies the trailing_logs",
           "type": "integer",
           "format": "int64"
-        },
-        "volumeClaimTemplate": {
-          "description": "volumeClaimTemplate is a claim that pods are allowed to reference. The VaultServer controller is responsible for deploying the claim and update the volumeMounts in the Vault server container in the template.",
-          "$ref": "#/definitions/xyz.kmodules.offshoot-api.api.v1.PersistentVolumeClaim"
         }
       }
     },

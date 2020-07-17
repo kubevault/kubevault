@@ -18113,7 +18113,7 @@ func schema_operator_apis_kubevault_v1alpha1_RaftSpec(ref common.ReferenceCallba
 				Description: "ref: https://www.vaultproject.io/docs/configuration/storage/raft.html\n\nRaftSpec defines the configuration to set up Raft as backend storage in vault",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"address": {
+					"path": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the path",
 							Type:        []string{"string"},
@@ -18155,18 +18155,10 @@ func schema_operator_apis_kubevault_v1alpha1_RaftSpec(ref common.ReferenceCallba
 							Format:      "",
 						},
 					},
-					"volumeClaimTemplate": {
-						SchemaProps: spec.SchemaProps{
-							Description: "volumeClaimTemplate is a claim that pods are allowed to reference. The VaultServer controller is responsible for deploying the claim and update the volumeMounts in the Vault server container in the template.",
-							Ref:         ref("kmodules.xyz/offshoot-api/api/v1.PersistentVolumeClaim"),
-						},
-					},
 				},
-				Required: []string{"volumeClaimTemplate"},
+				Required: []string{"path"},
 			},
 		},
-		Dependencies: []string{
-			"kmodules.xyz/offshoot-api/api/v1.PersistentVolumeClaim"},
 	}
 }
 

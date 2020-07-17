@@ -573,11 +573,6 @@ message RaftSpec {
   // Specifies the retry_join stanza
   // When the raft cluster is getting bootstrapped, if the connection details of all the nodes are known beforehand, then specifying this config stanzas enables the nodes to automatically join a raft cluster.
   optional string retryJoinConfig = 6;
-
-  // volumeClaimTemplate is a claim that pods are allowed to reference.
-  // The VaultServer controller is responsible for deploying the claim
-  // and update the volumeMounts in the Vault server container in the template.
-  optional kmodules.xyz.offshoot_api.api.v1.PersistentVolumeClaim volumeClaimTemplate = 7;
 }
 
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/s3.html
