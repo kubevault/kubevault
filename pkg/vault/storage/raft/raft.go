@@ -61,9 +61,7 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	pt.Spec.Volumes = append(pt.Spec.Volumes, core.Volume{
 		Name: VaultRaftVolumeName,
 		VolumeSource: core.VolumeSource{
-			EmptyDir: &core.EmptyDirVolumeSource{
-				ClaimName: o.claimName,
-			},
+			EmptyDir: &core.EmptyDirVolumeSource{},
 		},
 	})
 
