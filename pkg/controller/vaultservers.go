@@ -286,9 +286,17 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 	}
 
 	d := v.GetDeployment(podT)
-	err = ensureDeployment(c.kubeClient, vs, d)
-	if err != nil {
-		return err
+	if d != nil {
+		err := ensureDeployment(c.kubeClient, vs, d)
+		if err != nil {
+			return err
+		}
+	} else {
+		sts := v.GetStatefulSet(podT)
+		err := ensureStatefulSet(c.kubeClient, vs, sts)
+		if err != nil {
+			return err
+		}
 	}
 
 	if vs.Spec.Monitor != nil && vs.Spec.Monitor.Prometheus != nil {
@@ -371,6 +379,11 @@ func ensureDeployment(kc kubernetes.Interface, vs *api.VaultServer, d *appsv1.De
 		return in
 	}, metav1.PatchOptions{})
 	return err
+}
+
+// ensureStatefulSet creates/patches sts
+func ensureStatefulSet(kc kubernetes.Interface, vs *api.VaultServer, d *appsv1.StatefulSet) error {
+	return errors.New("not implemented error")
 }
 
 // ensureService creates/patches service
