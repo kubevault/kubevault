@@ -218,6 +218,9 @@ message BackendStorageSpec {
 
   // +optional
   optional ConsulSpec consul = 11;
+
+  // +optional
+  optional RaftSpec raft = 12;
 }
 
 // ref: https://www.vaultproject.io/docs/configuration/storage/consul.html
@@ -546,6 +549,16 @@ message PostgreSQLSpec {
   //  Specifies the maximum number of concurrent requests to take place.
   // +optional
   optional int64 maxParallel = 3;
+}
+
+// RaftSpec defines the configuration for the Raft integrated storage.
+//
+// https://www.vaultproject.io/docs/configuration/storage/raft
+message RaftSpec {
+  // Path specifies the filesystem path where the vault data gets stored.
+  //
+  // This value can be overriden by setting the VAULT_RAFT_PATH environment variable.
+  optional string path = 1;
 }
 
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/s3.html

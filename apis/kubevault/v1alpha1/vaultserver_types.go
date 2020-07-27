@@ -241,6 +241,9 @@ type BackendStorageSpec struct {
 
 	// +optional
 	Consul *ConsulSpec `json:"consul,omitempty" protobuf:"bytes,11,opt,name=consul"`
+
+	// +optional
+	Raft *RaftSpec `json:"raft,omitempty" protobuf:"bytes,12,opt,name=raft"`
 }
 
 // ref: https://www.vaultproject.io/docs/configuration/storage/consul.html
@@ -736,6 +739,16 @@ type AwsKmsSsmSpec struct {
 	// for example, when connecting to KMS over a VPC Endpoint.
 	// If not set, Vault will use the default API endpoint for your region.
 	Endpoint string `json:"endpoint,omitempty" protobuf:"bytes,5,opt,name=endpoint"`
+}
+
+// RaftSpec defines the configuration for the Raft integrated storage.
+//
+// https://www.vaultproject.io/docs/configuration/storage/raft
+type RaftSpec struct {
+	// Path specifies the filesystem path where the vault data gets stored.
+	//
+	// This value can be overriden by setting the VAULT_RAFT_PATH environment variable.
+	Path string `json:"path" protobuf:"bytes,1,opt,name=path"`
 }
 
 // AzureKeyVault contain the fields that required to unseal vault using azure key vault
