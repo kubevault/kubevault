@@ -44,9 +44,9 @@ storage "raft" {
 
   {{- range $i, $_ := (iter .Replicas) }}
   retry_join {
-    leader_api_addr = "https://vault-{{ $i }}.vault-internal:8201"
+    leader_api_addr      = "https://vault-{{ $i }}.vault-internal:8200"
     tls_client_cert_file = "/etc/vault/tls/tls.crt"
-    tls_client_key_file = "/etc/vault/tls/tls.key"
+    tls_client_key_file  = "/etc/vault/tls/tls.key"
   }
   {{- end }}
 }
@@ -73,6 +73,9 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 		return errors.New("path is empty")
 	}
 
+	// Change the environments variables
+
+	// Configure the volume
 	pt.Spec.Volumes = append(pt.Spec.Volumes, core.Volume{
 		Name: VaultRaftVolumeName,
 		VolumeSource: core.VolumeSource{

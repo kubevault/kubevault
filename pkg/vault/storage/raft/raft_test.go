@@ -23,8 +23,48 @@ import (
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 
 	"github.com/stretchr/testify/assert"
+	core "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/fake"
 )
+
+func TestOptions_Apply(t *testing.T) {
+	kfake := fake.NewSimpleClientset()
+
+	three := int32(3)
+	vaultServer := &api.VaultServer{
+		Spec: api.VaultServerSpec{
+			Replicas: &three,
+		},
+	}
+
+	opts, err := NewOptions(kfake, vaultServer, api.RaftSpec{
+		Path: "/test",
+	})
+	assert.Nil(t, err)
+
+	pt := &core.PodTemplateSpec{
+		Spec: core.PodSpec{
+			Containers: []core.Container{
+				{
+					Name: "vault",
+					Env:  []core.EnvVar{},
+				},
+			},
+		},
+	}
+
+	t.Run("raft storage config", func(t *testing.T) {
+		err := opts.Apply(pt)
+		assert.Nil(t, err)
+
+		env := []core.EnvVar{}
+		got := pt.Spec.Containers[0].Env
+		if !assert.Equal(t, env, got) {
+			fmt.Println("expected:", env)
+			fmt.Println("got:", got)
+		}
+	})
+}
 
 func TestOptions_GetStorageConfig(t *testing.T) {
 	kfake := fake.NewSimpleClientset()
@@ -45,13 +85,19 @@ func TestOptions_GetStorageConfig(t *testing.T) {
 storage "raft" {
   path = "/test"
   retry_join {
-    leader_api_addr = "http://vault-0.vault-internal:8200"
+    leader_api_addr      = "https://vault-0.vault-internal:8200"
+    tls_client_cert_file = "/etc/vault/tls/tls.crt"
+    tls_client_key_file  = "/etc/vault/tls/tls.key"
   }
   retry_join {
-    leader_api_addr = "http://vault-1.vault-internal:8200"
+    leader_api_addr      = "https://vault-1.vault-internal:8200"
+    tls_client_cert_file = "/etc/vault/tls/tls.crt"
+    tls_client_key_file  = "/etc/vault/tls/tls.key"
   }
   retry_join {
-    leader_api_addr = "http://vault-2.vault-internal:8200"
+    leader_api_addr      = "https://vault-2.vault-internal:8200"
+    tls_client_cert_file = "/etc/vault/tls/tls.crt"
+    tls_client_key_file  = "/etc/vault/tls/tls.key"
   }
 }
 `
