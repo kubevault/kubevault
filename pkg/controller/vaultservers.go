@@ -393,7 +393,6 @@ func ensureDeployment(kc kubernetes.Interface, vs *api.VaultServer, d *appsv1.De
 
 // ensureStatefulSet creates/patches sts
 func ensureStatefulSet(kc kubernetes.Interface, vs *api.VaultServer, sts *appsv1.StatefulSet) error {
-	return errors.New("not implemented error")
 	_, _, err := apps_util.CreateOrPatchStatefulSet(context.TODO(), kc, sts.ObjectMeta, func(in *appsv1.StatefulSet) *appsv1.StatefulSet {
 		in.Labels = core_util.UpsertMap(in.Labels, sts.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, sts.Annotations)
