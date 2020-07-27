@@ -17,10 +17,12 @@ limitations under the License.
 package raft
 
 import (
-	"fmt"
+	"bytes"
+	"text/template"
 
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 
+	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -28,12 +30,25 @@ import (
 // Options represents the instance of the Raft storage.
 type Options struct {
 	api.RaftSpec
+	Replicas int32
 }
+
+// configTemplate is the template used to produce the Vault configuration
+const configTemplate = `
+storage "raft" {
+  path = "{{ .RaftSpec.Path }}"
+}
+`
 
 // NewOptions instanciate the Raft storage.
 func NewOptions(kubeClient kubernetes.Interface, vaultServer *api.VaultServer, rs api.RaftSpec) (*Options, error) {
 	o := &Options{
-		rs,
+		RaftSpec: rs,
+		Replicas: 1,
+	}
+
+	if vaultServer.Spec.Replicas != nil {
+		o.Replicas = *vaultServer.Spec.Replicas
 	}
 
 	return o, nil
@@ -46,5 +61,15 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 
 // GetStorageConfig ...
 func (o *Options) GetStorageConfig() (string, error) {
-	return "", fmt.Errorf("not implemented error")
+	t, err := template.New("config").Parse(configTemplate)
+	if err != nil {
+		return "", errors.Wrap(err, "compile storage template failed")
+	}
+
+	buf := bytes.NewBuffer(make([]byte, 1024))
+	if err := t.Execute(buf, o); err != nil {
+		return "", errors.Wrap(err, "execute storage template failed")
+	}
+
+	return buf.String(), nil
 }
