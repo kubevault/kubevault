@@ -47,7 +47,16 @@ func TestOptions_Apply(t *testing.T) {
 			Containers: []core.Container{
 				{
 					Name: "vault",
-					Env:  []core.EnvVar{},
+					Env: []core.EnvVar{
+						{
+							Name:  "VAULT_API_ADDR",
+							Value: "https://$(POD_IP):8200",
+						},
+						{
+							Name:  "VAULT_CLUSTER_ADDR",
+							Value: "https://:8200",
+						},
+					},
 				},
 			},
 		},
@@ -57,7 +66,71 @@ func TestOptions_Apply(t *testing.T) {
 		err := opts.Apply(pt)
 		assert.Nil(t, err)
 
-		env := []core.EnvVar{}
+		env := []core.EnvVar{
+			{
+				Name:  "VAULT_API_ADDR",
+				Value: "https://localhost:8200",
+			},
+			{
+				Name:  "VAULT_CLUSTER_ADDR",
+				Value: "https://localhost:8200",
+			},
+		}
+		got := pt.Spec.Containers[0].Env
+		if !assert.Equal(t, env, got) {
+			fmt.Println("expected:", env)
+			fmt.Println("got:", got)
+		}
+	})
+}
+
+func TestOptions_GetStorageConfig(t *testing.T) {
+	kfake := fake.NewSimpleClientset()
+
+	three := int32(3)
+	vaultServer := &api.VaultServer{
+		Spec: api.VaultServerSpec{
+			Replicas: &three,
+		},
+	}
+
+	opts, err := NewOptions(kfake, vaultServer, api.RaftSpec{
+		Path: "/test",
+	})
+	assert.Nil(t, err)
+
+	out := `
+storage "raft" {
+  path = "/test"
+  retry_join {
+    leader_api_addr      = "https://vault-0.vault-internal:8200"
+    tls_client_cert_file = "/etc/vault/tls/tls.crt"
+    tls_client_key_file  = "/etc/vault/tls/tls.key"
+  }
+  retry_join {
+    leader_api_addr      = "https://vault-1.vault-internal:8200"
+    tls_client_cert_file = "/etc/vault/tls/tls.crt"
+    tls_client_key_file  = "/etc/vault/tls/tls.key"
+  }
+  retry_join {
+    leader_api_addr      = "https://vault-2.vault-internal:8200"
+    tls_client_cert_file = "/etc/vault/tls/tls.crt"
+    tls_client_key_file  = "/etc/vault/tls/tls.key"
+  }
+}
+`
+
+	t.Run("raft storage config", func(t *testing.T) {
+		got, err := opts.GetStorageConfig()
+		assert.Nil(t, err)
+
+		if !assert.Equal(t, out, got) {
+			fmt.Println("expected:", out)
+			fmt.Println("got:", got)
+		}
+	})
+}
+		}
 		got := pt.Spec.Containers[0].Env
 		if !assert.Equal(t, env, got) {
 			fmt.Println("expected:", env)

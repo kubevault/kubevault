@@ -170,6 +170,7 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 			"localhost",
 			fmt.Sprintf("*.%s.pod", v.vs.Namespace),
 			fmt.Sprintf("%s.%s.svc", v.vs.Name, v.vs.Namespace),
+			fmt.Sprintf("*.%s-internal", v.vs.Name),
 		},
 		IPs: []net.IP{
 			net.ParseIP("127.0.0.1"),
@@ -429,12 +430,12 @@ func (v *vaultSrv) GetHeadlessService() *core.Service {
 			Selector: v.vs.OffshootSelectors(),
 			Ports: []core.ServicePort{
 				{
-					Name:     "http",
+					Name:     "client-internal",
 					Protocol: core.ProtocolTCP,
 					Port:     VaultClientPort,
 				},
 				{
-					Name:     "https-internal",
+					Name:     "cluster-internal",
 					Protocol: core.ProtocolTCP,
 					Port:     VaultClusterPort,
 				},
