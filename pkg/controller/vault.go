@@ -522,11 +522,38 @@ func (v *vaultSrv) GetContainer() core.Container {
 		Env: []core.EnvVar{
 			{
 				Name:  EnvVaultAddr,
-				Value: util.VaultServiceURL(v.vs.Name, v.vs.Namespace, VaultClientPort),
+				Value: util.VaultServiceURL(v.vs.OffshootName(), v.vs.Namespace, VaultClientPort),
 			},
 			{
 				Name:  EnvVaultClusterAddr,
-				Value: util.VaultServiceURL(v.vs.Name, v.vs.Namespace, VaultClusterPort),
+				Value: util.VaultServiceURL(v.vs.OffshootName(), v.vs.Namespace, VaultClusterPort),
+			},
+			{
+				Name: "HOSTNAME",
+				ValueFrom: &core.EnvVarSource{
+					FieldRef: &core.ObjectFieldSelector{
+						APIVersion: "v1",
+						FieldPath:  "metadata.name",
+					},
+				},
+			},
+			{
+				Name: "HOST_IP",
+				ValueFrom: &core.EnvVarSource{
+					FieldRef: &core.ObjectFieldSelector{
+						APIVersion: "v1",
+						FieldPath:  "status.hostIP",
+					},
+				},
+			},
+			{
+				Name: "POD_IP",
+				ValueFrom: &core.EnvVarSource{
+					FieldRef: &core.ObjectFieldSelector{
+						APIVersion: "v1",
+						FieldPath:  "status.podIP",
+					},
+				},
 			},
 		},
 		SecurityContext: &core.SecurityContext{
