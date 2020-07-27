@@ -38,9 +38,9 @@ const configTemplate = `
 storage "raft" {
   path = "{{ .RaftSpec.Path }}"
 
-  {{- for $n := range (iter .Replicas) }}
+  {{- range $i, $_ := (iter .Replicas) }}
   retry_join {
-    leader_api_addr = "http://vault-{{ $n }}.vault-internal:8200"
+    leader_api_addr = "http://vault-{{ $i }}.vault-internal:8200"
   }
   {{- end }}
 }
@@ -67,19 +67,19 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 
 // GetStorageConfig ...
 func (o *Options) GetStorageConfig() (string, error) {
-	t, err := template.New("config").Parse(configTemplate)
-	if err != nil {
-		return "", errors.Wrap(err, "compile storage template failed")
-	}
 
 	// https://github.com/bradfitz/iter
-	t = t.Funcs(map[string]interface{}{
-		"iter": func(n int) []struct{} {
+	t := template.New("config").Funcs(map[string]interface{}{
+		"iter": func(n int32) []struct{} {
 			return make([]struct{}, n)
 		},
 	})
 
-	buf := bytes.NewBuffer(make([]byte, 1024))
+	if _, err := t.Parse(configTemplate); err != nil {
+		return "", errors.Wrap(err, "compile storage template failed")
+	}
+
+	buf := bytes.NewBuffer([]byte{})
 	if err := t.Execute(buf, o); err != nil {
 		return "", errors.Wrap(err, "execute storage template failed")
 	}
