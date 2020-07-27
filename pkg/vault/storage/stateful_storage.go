@@ -18,6 +18,7 @@ package storage
 
 import (
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
+	"kubevault.dev/operator/pkg/vault/storage/raft"
 
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
@@ -26,13 +27,22 @@ import (
 
 // StatefulStorage represents a storage that requires the Vault server to be
 // deployed in a StatefulSet
+//
+// XXX the interface will change!
 type StatefulStorage interface {
 	Apply(pt *core.PodTemplateSpec) error
 	GetStorageConfig() (string, error)
 }
 
-// NewStorage is the factory creating the StatefulStorage based on the Backend given in
+// NewStatefulStorage is the factory creating the StatefulStorage based on the Backend given in
 // the VaultServer spec.
 func NewStatefulStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (StatefulStorage, error) {
-	return nil, errors.New("invalid stateful storage backend")
+	s := vs.Spec.Backend
+
+	switch {
+	case s.Raft != nil:
+		return raft.NewOptions(kubeClient, vs, *s.Raft)
+	default:
+		return nil, errors.New("invalid stateful storage backend")
+	}
 }
