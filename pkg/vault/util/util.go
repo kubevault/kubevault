@@ -23,14 +23,9 @@ import (
 	core "k8s.io/api/core/v1"
 )
 
-// VaultAddrURL returns the localhost address of the vault service.
-func VaultAddrURL(scheme string, port int) string {
-	return fmt.Sprintf("%s://127.0.0.1:%d", scheme, port)
-}
-
 // VaultServiceURL returns the DNS record of the vault service in the given namespace.
-func VaultServiceURL(scheme, name, namespace string, port int) string {
-	return fmt.Sprintf("%s://%s.%s.svc:%d", scheme, name, namespace, port)
+func VaultServiceURL(name, namespace string, port int) string {
+	return fmt.Sprintf("https://%s.%s.svc:%d", name, namespace, port)
 }
 
 // PodDNSName constructs the dns name on which a pod can be addressed
