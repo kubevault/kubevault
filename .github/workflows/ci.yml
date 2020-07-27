@@ -43,12 +43,3 @@ jobs:
       - name: Run checks
         run: |
           make ci
-
-      - name: Build
-        env:
-          REGISTRY: appscodeci
-          DOCKER_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          USERNAME: 1gtm
-        run: |
-          docker login --username ${USERNAME} --password ${DOCKER_TOKEN}
-          make push
