@@ -303,7 +303,7 @@ type ConsulSpec struct {
 	// Specifies the secret name that contains ACL token with permission
 	// to read and write from the path in Consul's key-value store.
 	// secret data:
-	//	- aclToken:<value>
+	//  - aclToken:<value>
 	// +optional
 	ACLTokenSecretName string `json:"aclTokenSecretName,omitempty" protobuf:"bytes,11,opt,name=aclTokenSecretName"`
 
@@ -320,9 +320,9 @@ type ConsulSpec struct {
 	// Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file
 	// for consul communication
 	// Secret data:
-	//	- ca.crt
-	//	- tls.crt
-	//  - tls.key
+	//  - ca.crt
+	//  - client.crt
+	//  - client.key
 	// +optional
 	TLSSecretName string `json:"tlsSecretName,omitempty" protobuf:"bytes,14,opt,name=tlsSecretName"`
 
@@ -371,16 +371,16 @@ type EtcdSpec struct {
 
 	// Specifies the secret name that contain username and password to use when authenticating with the etcd server
 	// secret data:
-	//	- username:<value>
-	//	- password:<value>
+	//  - username:<value>
+	//  - password:<value>
 	// +optional
 	CredentialSecretName string `json:"credentialSecretName,omitempty" protobuf:"bytes,7,opt,name=credentialSecretName"`
 
 	// Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication
 	// secret data:
-	//	- ca.crt
-	//  - tls.crt
-	//  - tls.key
+	//  - ca.crt
+	//  - client.crt
+	//  - client.key
 	// +optional
 	TLSSecretName string `json:"tlsSecretName,omitempty" protobuf:"bytes,8,opt,name=tlsSecretName"`
 }
@@ -407,7 +407,7 @@ type GcsSpec struct {
 
 	// Secret containing Google application credential
 	// secret data:
-	//	- sa.json:<value>
+	//  - sa.json:<value>
 	// +optional
 	CredentialSecret string `json:"credentialSecret,omitempty" protobuf:"bytes,5,opt,name=credentialSecret"`
 }
@@ -429,14 +429,14 @@ type S3Spec struct {
 
 	// Specifies the secret name containing AWS access key and AWS secret key
 	// secret data:
-	//	- access_key=<value>
+	//  - access_key=<value>
 	//  - secret_key=<value>
 	// +optional
 	CredentialSecret string `json:"credentialSecret,omitempty" protobuf:"bytes,4,opt,name=credentialSecret"`
 
 	// Specifies the secret name containing AWS session token
 	// secret data:
-	//	- session_token:<value>
+	//  - session_token:<value>
 	// +optional
 	SessionTokenSecret string `json:"sessionTokenSecret,omitempty" protobuf:"bytes,5,opt,name=sessionTokenSecret"`
 
@@ -462,7 +462,7 @@ type AzureSpec struct {
 
 	// Specifies the secret containing Azure Storage account key.
 	// secret data:
-	//	- account_key:<value>
+	//  - account_key:<value>
 	AccountKeySecret string `json:"accountKeySecret" protobuf:"bytes,2,opt,name=accountKeySecret"`
 
 	// Specifies the Azure Storage Blob container name.
@@ -480,7 +480,7 @@ type PostgreSQLSpec struct {
 	//Specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL.
 	// A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters).
 	// secret data:
-	//	- connection_url:<data>
+	//  - connection_url:<data>
 	ConnectionURLSecret string `json:"connectionURLSecret" protobuf:"bytes,1,opt,name=connectionURLSecret"`
 
 	// Specifies the name of the table in which to write Vault data.
@@ -511,13 +511,13 @@ type MySQLSpec struct {
 
 	// Specifies the MySQL username and password to connect to the database
 	// secret data:
-	//	- username=<value>
-	//	- password=<value>
+	//  - username=<value>
+	//  - password=<value>
 	UserCredentialSecret string `json:"userCredentialSecret" protobuf:"bytes,4,opt,name=userCredentialSecret"`
 
 	// Specifies the name of the secret containing the CA certificate to connect using TLS.
 	// secret data:
-	//	- tls_ca_file=<ca_cert>
+	//  - tls_ca_file=<ca_cert>
 	// +optional
 	TLSCASecret string `json:"tlsCASecret,omitempty" protobuf:"bytes,5,opt,name=tlsCASecret"`
 
@@ -572,14 +572,14 @@ type DynamoDBSpec struct {
 
 	// Specifies the secret name containing AWS access key and AWS secret key
 	// secret data:
-	//	- access_key=<value>
+	//  - access_key=<value>
 	//  - secret_key=<value>
 	// +optional
 	CredentialSecret string `json:"credentialSecret,omitempty" protobuf:"bytes,7,opt,name=credentialSecret"`
 
 	// Specifies the secret name containing AWS session token
 	// secret data:
-	//	- session_token:<value>
+	//  - session_token:<value>
 	// +optional
 	SessionTokenSecret string `json:"sessionTokenSecret,omitempty" protobuf:"bytes,8,opt,name=sessionTokenSecret"`
 
@@ -600,8 +600,8 @@ type SwiftSpec struct {
 
 	// Specifies the name of the secret containing the OpenStack account/username and password
 	// secret data:
-	//	- username=<value>
-	//	- password=<value>
+	//  - username=<value>
+	//  - password=<value>
 	CredentialSecret string `json:"credentialSecret" protobuf:"bytes,3,opt,name=credentialSecret"`
 
 	// Specifies the name of the tenant. If left blank, this will default to the default tenant of the username.
@@ -634,7 +634,7 @@ type SwiftSpec struct {
 
 	// Specifies secret containing auth token from alternate authentication.
 	// secret data:
-	//	- auth_token=<value>
+	//  - auth_token=<value>
 	// +optional
 	AuthTokenSecret string `json:"authTokenSecret,omitempty" protobuf:"bytes,11,opt,name=authTokenSecret"`
 
@@ -709,7 +709,7 @@ type GoogleKmsGcsSpec struct {
 
 	// Secret containing Google application credential
 	// secret data:
-	//	- sa.json:<value>
+	//  - sa.json:<value>
 	// +optional
 	CredentialSecret string `json:"credentialSecret,omitempty" protobuf:"bytes,6,opt,name=credentialSecret"`
 }
@@ -727,7 +727,7 @@ type AwsKmsSsmSpec struct {
 
 	// Specifies the secret name containing AWS access key and AWS secret key
 	// secret data:
-	//	- access_key:<value>
+	//  - access_key:<value>
 	//  - secret_key:<value>
 	// +optional
 	CredentialSecret string `json:"credentialSecret,omitempty" protobuf:"bytes,4,opt,name=credentialSecret"`
@@ -753,15 +753,15 @@ type AzureKeyVault struct {
 
 	// Specifies the name of secret containing client cert and client cert password
 	// secret data:
-	//	- client-cert:<value>
+	//  - client-cert:<value>
 	// 	- client-cert-password: <value>
 	// +optional
 	ClientCertSecret string `json:"clientCertSecret,omitempty" protobuf:"bytes,4,opt,name=clientCertSecret"`
 
 	// Specifies the name of secret containing client id and client secret of AAD application
 	// secret data:
-	//	- client-id:<value>
-	//	- client-secret:<value>
+	//  - client-id:<value>
+	//  - client-secret:<value>
 	// +optional
 	AADClientSecret string `json:"aadClientSecret,omitempty" protobuf:"bytes,5,opt,name=aadClientSecret"`
 
