@@ -447,6 +447,9 @@ func ensureService(kc kubernetes.Interface, vs *api.VaultServer, svc *core.Servi
 		if svc.Spec.HealthCheckNodePort > 0 {
 			in.Spec.HealthCheckNodePort = svc.Spec.HealthCheckNodePort
 		}
+		if svc.Spec.PublishNotReadyAddresses {
+			in.Spec.PublishNotReadyAddresses = true
+		}
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
 	}, metav1.PatchOptions{})

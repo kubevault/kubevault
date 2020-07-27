@@ -429,12 +429,12 @@ func (v *vaultSrv) GetHeadlessService() *core.Service {
 			Selector: v.vs.OffshootSelectors(),
 			Ports: []core.ServicePort{
 				{
-					Name:     "vault-internal",
+					Name:     "http",
 					Protocol: core.ProtocolTCP,
 					Port:     VaultClientPort,
 				},
 				{
-					Name:     "cluster-internal",
+					Name:     "https-internal",
 					Protocol: core.ProtocolTCP,
 					Port:     VaultClusterPort,
 				},
