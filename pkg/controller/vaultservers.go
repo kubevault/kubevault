@@ -392,8 +392,37 @@ func ensureDeployment(kc kubernetes.Interface, vs *api.VaultServer, d *appsv1.De
 }
 
 // ensureStatefulSet creates/patches sts
-func ensureStatefulSet(kc kubernetes.Interface, vs *api.VaultServer, d *appsv1.StatefulSet) error {
+func ensureStatefulSet(kc kubernetes.Interface, vs *api.VaultServer, sts *appsv1.StatefulSet) error {
 	return errors.New("not implemented error")
+	_, _, err := apps_util.CreateOrPatchStatefulSet(context.TODO(), kc, sts.ObjectMeta, func(in *appsv1.StatefulSet) *appsv1.StatefulSet {
+		in.Labels = core_util.UpsertMap(in.Labels, sts.Labels)
+		in.Annotations = core_util.UpsertMap(in.Annotations, sts.Annotations)
+		in.Spec.Replicas = sts.Spec.Replicas
+		in.Spec.Selector = sts.Spec.Selector
+		in.Spec.UpdateStrategy = sts.Spec.UpdateStrategy
+
+		in.Spec.Template.Labels = sts.Spec.Template.Labels
+		in.Spec.Template.Annotations = sts.Spec.Template.Annotations
+		in.Spec.Template.Spec.Containers = core_util.UpsertContainers(in.Spec.Template.Spec.Containers, sts.Spec.Template.Spec.Containers)
+		in.Spec.Template.Spec.InitContainers = core_util.UpsertContainers(in.Spec.Template.Spec.InitContainers, sts.Spec.Template.Spec.InitContainers)
+		in.Spec.Template.Spec.ServiceAccountName = sts.Spec.Template.Spec.ServiceAccountName
+		in.Spec.Template.Spec.NodeSelector = sts.Spec.Template.Spec.NodeSelector
+		in.Spec.Template.Spec.Affinity = sts.Spec.Template.Spec.Affinity
+		if sts.Spec.Template.Spec.SchedulerName != "" {
+			in.Spec.Template.Spec.SchedulerName = sts.Spec.Template.Spec.SchedulerName
+		}
+		in.Spec.Template.Spec.Tolerations = sts.Spec.Template.Spec.Tolerations
+		in.Spec.Template.Spec.ImagePullSecrets = sts.Spec.Template.Spec.ImagePullSecrets
+		in.Spec.Template.Spec.PriorityClassName = sts.Spec.Template.Spec.PriorityClassName
+		in.Spec.Template.Spec.Priority = sts.Spec.Template.Spec.Priority
+		in.Spec.Template.Spec.SecurityContext = sts.Spec.Template.Spec.SecurityContext
+		in.Spec.Template.Spec.Volumes = core_util.UpsertVolume(in.Spec.Template.Spec.Volumes, sts.Spec.Template.Spec.Volumes...)
+
+		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
+		return in
+
+	}, metav1.PatchOptions{})
+	return err
 }
 
 // ensureService creates/patches service
