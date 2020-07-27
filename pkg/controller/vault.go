@@ -48,13 +48,13 @@ import (
 )
 
 const (
-	EnvVaultAddr            = "VAULT_API_ADDR"
+	EnvVaultAPIAddr         = "VAULT_API_ADDR"
 	EnvVaultClusterAddr     = "VAULT_CLUSTER_ADDR"
 	EnvVaultCACert          = "VAULT_CACERT"
 	VaultClientPort         = 8200
 	VaultClusterPort        = 8201
 	vaultTLSAssetVolumeName = "vault-tls-secret"
-	TLSCACertKey            = "cacert.crt"
+	TLSCACertKey            = "ca.crt"
 )
 
 var (
@@ -429,12 +429,12 @@ func (v *vaultSrv) GetHeadlessService() *core.Service {
 			Selector: v.vs.OffshootSelectors(),
 			Ports: []core.ServicePort{
 				{
-					Name:     "client-internal",
+					Name:     "vault-internal",
 					Protocol: core.ProtocolTCP,
 					Port:     VaultClientPort,
 				},
 				{
-					Name:     "vault-internal",
+					Name:     "cluster-internal",
 					Protocol: core.ProtocolTCP,
 					Port:     VaultClusterPort,
 				},
@@ -620,14 +620,6 @@ func (v *vaultSrv) GetContainer() core.Container {
 		},
 		Env: []core.EnvVar{
 			{
-				Name:  EnvVaultAddr,
-				Value: util.VaultServiceURL(v.vs.OffshootName(), v.vs.Namespace, VaultClientPort),
-			},
-			{
-				Name:  EnvVaultClusterAddr,
-				Value: util.VaultServiceURL(v.vs.OffshootName(), v.vs.Namespace, VaultClusterPort),
-			},
-			{
 				Name: "HOSTNAME",
 				ValueFrom: &core.EnvVarSource{
 					FieldRef: &core.ObjectFieldSelector{
@@ -653,6 +645,14 @@ func (v *vaultSrv) GetContainer() core.Container {
 						FieldPath:  "status.podIP",
 					},
 				},
+			},
+			{
+				Name:  EnvVaultAPIAddr,
+				Value: util.VaultServiceURL(v.vs.Name, v.vs.Namespace, VaultClientPort),
+			},
+			{
+				Name:  EnvVaultClusterAddr,
+				Value: util.VaultServiceURL(v.vs.Name, v.vs.Namespace, VaultClusterPort),
 			},
 			{
 				Name:  EnvVaultCACert,
