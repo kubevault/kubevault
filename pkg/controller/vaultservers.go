@@ -292,8 +292,18 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 			return err
 		}
 	} else {
-		sts := v.GetStatefulSet(podT)
-		err := ensureStatefulSet(c.kubeClient, vs, sts)
+		headlessSvc := v.GetHeadlessService()
+		err := ensureService(c.kubeClient, vs, headlessSvc)
+		if err != nil {
+			return err
+		}
+
+		// XXX Add pvc support
+		claims := make([]core.PersistentVolumeClaim, 0)
+
+		sts := v.GetStatefulSet(headlessSvc, podT, claims)
+
+		err = ensureStatefulSet(c.kubeClient, vs, sts)
 		if err != nil {
 			return err
 		}

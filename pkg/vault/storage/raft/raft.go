@@ -62,7 +62,7 @@ func NewOptions(kubeClient kubernetes.Interface, vaultServer *api.VaultServer, r
 
 // Apply ...
 func (o *Options) Apply(pt *core.PodTemplateSpec) error {
-	return errors.New("not implemented error")
+	return nil
 }
 
 // GetStorageConfig ...

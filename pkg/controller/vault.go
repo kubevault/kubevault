@@ -67,8 +67,9 @@ type Vault interface {
 	GetConfig() (*core.ConfigMap, error)
 	Apply(pt *core.PodTemplateSpec) error
 	GetService() *core.Service
+	GetHeadlessService() *core.Service
 	GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment
-	GetStatefulSet(pt *core.PodTemplateSpec) *apps.StatefulSet
+	GetStatefulSet(svc *core.Service, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *apps.StatefulSet
 	GetServiceAccounts() []core.ServiceAccount
 	GetRBACRolesAndRoleBindings() ([]rbac.Role, []rbac.RoleBinding)
 	GetRBACClusterRoleBinding() rbac.ClusterRoleBinding
@@ -409,6 +410,41 @@ func (v *vaultSrv) GetService() *core.Service {
 	}
 }
 
+func (v *vaultSrv) GetHeadlessService() *core.Service {
+	annotations := map[string]string{
+		"service.alpha.kubernetes.io/tolerate-unready-endpoints": "true",
+	}
+
+	return &core.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-internal", v.vs.OffshootName()),
+			Namespace: v.vs.Namespace,
+			Labels:    v.vs.OffshootLabels(),
+			Annotations: core_util.UpsertMap(
+				v.vs.Spec.ServiceTemplate.Annotations,
+				annotations,
+			),
+		},
+		Spec: core.ServiceSpec{
+			Selector: v.vs.OffshootSelectors(),
+			Ports: []core.ServicePort{
+				{
+					Name:     "client",
+					Protocol: core.ProtocolTCP,
+					Port:     VaultClientPort,
+				},
+				{
+					Name:     "cluster-internal",
+					Protocol: core.ProtocolTCP,
+					Port:     VaultClusterPort,
+				},
+			},
+			ClusterIP:                "None",
+			PublishNotReadyAddresses: true,
+		},
+	}
+}
+
 func (v *vaultSrv) GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment {
 	if v.strg == nil {
 		return nil
@@ -436,12 +472,33 @@ func (v *vaultSrv) GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment {
 	}
 }
 
-func (v *vaultSrv) GetStatefulSet(pt *core.PodTemplateSpec) *apps.StatefulSet {
+func (v *vaultSrv) GetStatefulSet(svc *core.Service, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *apps.StatefulSet {
 	if v.stfStrg == nil {
 		return nil
 	}
 
-	return &apps.StatefulSet{}
+	if svc == nil {
+		return nil
+	}
+
+	return &apps.StatefulSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        v.vs.OffshootName(),
+			Namespace:   v.vs.Namespace,
+			Labels:      v.vs.OffshootLabels(),
+			Annotations: v.vs.Spec.PodTemplate.Controller.Annotations,
+		},
+		Spec: apps.StatefulSetSpec{
+			Replicas:    v.vs.Spec.Replicas,
+			Selector:    &metav1.LabelSelector{MatchLabels: v.vs.OffshootSelectors()},
+			ServiceName: svc.ObjectMeta.Name,
+			Template:    *pt,
+			UpdateStrategy: apps.StatefulSetUpdateStrategy{
+				Type: apps.RollingUpdateStatefulSetStrategyType,
+			},
+			VolumeClaimTemplates: vcts,
+		},
+	}
 }
 
 func (v *vaultSrv) GetServiceAccounts() []core.ServiceAccount {
