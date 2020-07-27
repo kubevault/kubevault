@@ -37,6 +37,12 @@ type Options struct {
 const configTemplate = `
 storage "raft" {
   path = "{{ .RaftSpec.Path }}"
+
+  {{- for $n := range (iter .Replicas) }}
+  retry_join {
+    leader_api_addr = "http://vault-{{ $n }}.vault-internal:8200"
+  }
+  {{- end }}
 }
 `
 
@@ -56,7 +62,7 @@ func NewOptions(kubeClient kubernetes.Interface, vaultServer *api.VaultServer, r
 
 // Apply ...
 func (o *Options) Apply(pt *core.PodTemplateSpec) error {
-	return fmt.Errorf("not implemented error")
+	return errors.New("not implemented error")
 }
 
 // GetStorageConfig ...
@@ -65,6 +71,13 @@ func (o *Options) GetStorageConfig() (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "compile storage template failed")
 	}
+
+	// https://github.com/bradfitz/iter
+	t = t.Funcs(map[string]interface{}{
+		"iter": func(n int) []struct{} {
+			return make([]struct{}, n)
+		},
+	})
 
 	buf := bytes.NewBuffer(make([]byte, 1024))
 	if err := t.Execute(buf, o); err != nil {
