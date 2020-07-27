@@ -33,8 +33,12 @@ type Options struct {
 	Replicas int32
 }
 
-// configTemplate is the template used to produce the Vault configuration
-const configTemplate = `
+const (
+	// VaultRaftVolumeName is the name of the backend volume created.
+	VaultRaftVolumeName = "vault-raft-backend"
+
+	// configTemplate is the template used to produce the Vault configuration
+	configTemplate = `
 storage "raft" {
   path = "{{ .RaftSpec.Path }}"
 
@@ -45,6 +49,7 @@ storage "raft" {
   {{- end }}
 }
 `
+)
 
 // NewOptions instanciate the Raft storage.
 func NewOptions(kubeClient kubernetes.Interface, vaultServer *api.VaultServer, rs api.RaftSpec) (*Options, error) {
@@ -62,6 +67,22 @@ func NewOptions(kubeClient kubernetes.Interface, vaultServer *api.VaultServer, r
 
 // Apply ...
 func (o *Options) Apply(pt *core.PodTemplateSpec) error {
+	if o.Path == "" {
+		return errors.New("path is empty")
+	}
+
+	pt.Spec.Volumes = append(pt.Spec.Volumes, core.Volume{
+		Name: VaultRaftVolumeName,
+		VolumeSource: core.VolumeSource{
+			EmptyDir: &core.EmptyDirVolumeSource{},
+		},
+	})
+
+	pt.Spec.Containers[0].VolumeMounts = append(pt.Spec.Containers[0].VolumeMounts, core.VolumeMount{
+		Name:      VaultRaftVolumeName,
+		MountPath: o.Path,
+	})
+
 	return nil
 }
 
