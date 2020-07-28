@@ -170,7 +170,7 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 			"localhost",
 			fmt.Sprintf("*.%s.pod", v.vs.Namespace),
 			fmt.Sprintf("%s.%s.svc", v.vs.Name, v.vs.Namespace),
-			fmt.Sprintf("*.%s-internal", v.vs.Name),
+			fmt.Sprintf("*.%s-internal:8200", v.vs.Name),
 		},
 		IPs: []net.IP{
 			net.ParseIP("127.0.0.1"),
