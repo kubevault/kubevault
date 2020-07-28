@@ -91,9 +91,6 @@ func TestOptions_GetStorageConfig(t *testing.T) {
 	vaultServer := &api.VaultServer{
 		Spec: api.VaultServerSpec{
 			Replicas: &three,
-			TLS: &api.TLSPolicy{
-				CABundle: []byte("DUMMY CACERT"),
-			},
 		},
 	}
 
@@ -105,32 +102,26 @@ func TestOptions_GetStorageConfig(t *testing.T) {
 	out := `
 storage "raft" {
   path = "/test"
+
   retry_join {
     leader_api_addr         = "https://vault-0.vault-internal:8200"
+    leader_ca_cert_file     = "/etc/vault/tls/cacert.crt"
     leader_client_cert_file = "/etc/vault/tls/tls.crt"
     leader_client_key_file  = "/etc/vault/tls/tls.key"
-
-    leader_ca_cert = <<-EOS
-DUMMY CACERT
-EOS
   }
+
   retry_join {
     leader_api_addr         = "https://vault-1.vault-internal:8200"
+    leader_ca_cert_file     = "/etc/vault/tls/cacert.crt"
     leader_client_cert_file = "/etc/vault/tls/tls.crt"
     leader_client_key_file  = "/etc/vault/tls/tls.key"
-
-    leader_ca_cert = <<-EOS
-DUMMY CACERT
-EOS
   }
+
   retry_join {
     leader_api_addr         = "https://vault-2.vault-internal:8200"
+    leader_ca_cert_file     = "/etc/vault/tls/cacert.crt"
     leader_client_cert_file = "/etc/vault/tls/tls.crt"
     leader_client_key_file  = "/etc/vault/tls/tls.key"
-
-    leader_ca_cert = <<-EOS
-DUMMY CACERT
-EOS
   }
 }
 `

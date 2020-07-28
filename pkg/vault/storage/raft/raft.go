@@ -31,7 +31,6 @@ import (
 type Options struct {
 	api.RaftSpec
 	Replicas int32
-	CABundle string
 }
 
 const (
@@ -42,19 +41,14 @@ const (
 	configTemplate = `
 storage "raft" {
   path = "{{ .RaftSpec.Path }}"
-
-  {{- $tls := .CABundle }}
-  {{- range $i, $_ := (iter .Replicas) }}
+{{ range $i, $_ := (iter .Replicas) }}
   retry_join {
     leader_api_addr         = "https://vault-{{ $i }}.vault-internal:8200"
+    leader_ca_cert_file     = "/etc/vault/tls/cacert.crt"
     leader_client_cert_file = "/etc/vault/tls/tls.crt"
     leader_client_key_file  = "/etc/vault/tls/tls.key"
-
-    leader_ca_cert = <<-EOS
-{{ $tls }}
-EOS
   }
-  {{- end }}
+{{ end -}}
 }
 `
 )
@@ -68,10 +62,6 @@ func NewOptions(kubeClient kubernetes.Interface, vaultServer *api.VaultServer, r
 
 	if vaultServer.Spec.Replicas != nil {
 		o.Replicas = *vaultServer.Spec.Replicas
-	}
-
-	if vaultServer.Spec.TLS != nil {
-		o.CABundle = string(vaultServer.Spec.TLS.CABundle)
 	}
 
 	return o, nil
