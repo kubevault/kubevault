@@ -412,19 +412,12 @@ func (v *vaultSrv) GetService() *core.Service {
 }
 
 func (v *vaultSrv) GetHeadlessService(name string) *core.Service {
-	annotations := map[string]string{
-		"service.alpha.kubernetes.io/tolerate-unready-endpoints": "true",
-	}
-
 	return &core.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: v.vs.Namespace,
-			Labels:    v.vs.OffshootLabels(),
-			Annotations: core_util.UpsertMap(
-				v.vs.Spec.ServiceTemplate.Annotations,
-				annotations,
-			),
+			Name:        name,
+			Namespace:   v.vs.Namespace,
+			Labels:      v.vs.OffshootLabels(),
+			Annotations: v.vs.Spec.ServiceTemplate.Annotations,
 		},
 		Spec: core.ServiceSpec{
 			Selector: v.vs.OffshootSelectors(),
