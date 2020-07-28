@@ -25,6 +25,7 @@ import (
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
+	core_util "kmodules.xyz/client-go/core/v1"
 )
 
 // Options represents the instance of the Raft storage.
@@ -74,6 +75,17 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	}
 
 	// Change the environments variables
+	pt.Spec.Containers[0].Env = core_util.UpsertEnvVars(
+		pt.Spec.Containers[0].Env,
+		core.EnvVar{
+			Name:  "VAULT_API_ADDR",
+			Value: "https://$(POD_IP):8200",
+		},
+		core.EnvVar{
+			Name:  "VAULT_CLUSTER_ADDR",
+			Value: "https://$(HOSTNAME).vault-internal:8200",
+		},
+	)
 
 	// Configure the volume
 	pt.Spec.Volumes = append(pt.Spec.Volumes, core.Volume{

@@ -50,11 +50,11 @@ func TestOptions_Apply(t *testing.T) {
 					Env: []core.EnvVar{
 						{
 							Name:  "VAULT_API_ADDR",
-							Value: "https://$(POD_IP):8200",
+							Value: "https://vault.default.svc:8200",
 						},
 						{
 							Name:  "VAULT_CLUSTER_ADDR",
-							Value: "https://vault-0.vault-internal:8200",
+							Value: "https://vault.default.svc:8200",
 						},
 					},
 				},
@@ -73,7 +73,7 @@ func TestOptions_Apply(t *testing.T) {
 			},
 			{
 				Name:  "VAULT_CLUSTER_ADDR",
-				Value: "https://vault-0.vault-internal:8200",
+				Value: "https://$(HOSTNAME).vault-internal:8200",
 			},
 		}
 		got := pt.Spec.Containers[0].Env
