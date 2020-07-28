@@ -400,6 +400,7 @@ func ensureStatefulSet(kc kubernetes.Interface, vs *api.VaultServer, sts *appsv1
 		in.Annotations = core_util.UpsertMap(in.Annotations, sts.Annotations)
 		in.Spec.Replicas = sts.Spec.Replicas
 		in.Spec.Selector = sts.Spec.Selector
+		in.Spec.ServiceName = sts.Spec.ServiceName
 		in.Spec.UpdateStrategy = sts.Spec.UpdateStrategy
 
 		in.Spec.Template.Labels = sts.Spec.Template.Labels
