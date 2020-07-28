@@ -67,9 +67,9 @@ type Vault interface {
 	GetConfig() (*core.ConfigMap, error)
 	Apply(pt *core.PodTemplateSpec) error
 	GetService() *core.Service
-	GetHeadlessService() *core.Service
+	GetHeadlessService(name string) *core.Service
 	GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment
-	GetStatefulSet(svc *core.Service, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *apps.StatefulSet
+	GetStatefulSet(serviceName string, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *apps.StatefulSet
 	GetServiceAccounts() []core.ServiceAccount
 	GetRBACRolesAndRoleBindings() ([]rbac.Role, []rbac.RoleBinding)
 	GetRBACClusterRoleBinding() rbac.ClusterRoleBinding
@@ -411,14 +411,14 @@ func (v *vaultSrv) GetService() *core.Service {
 	}
 }
 
-func (v *vaultSrv) GetHeadlessService() *core.Service {
+func (v *vaultSrv) GetHeadlessService(name string) *core.Service {
 	annotations := map[string]string{
 		"service.alpha.kubernetes.io/tolerate-unready-endpoints": "true",
 	}
 
 	return &core.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-internal", v.vs.OffshootName()),
+			Name:      name,
 			Namespace: v.vs.Namespace,
 			Labels:    v.vs.OffshootLabels(),
 			Annotations: core_util.UpsertMap(
@@ -473,12 +473,8 @@ func (v *vaultSrv) GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment {
 	}
 }
 
-func (v *vaultSrv) GetStatefulSet(svc *core.Service, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *apps.StatefulSet {
+func (v *vaultSrv) GetStatefulSet(serviceName string, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *apps.StatefulSet {
 	if v.stfStrg == nil {
-		return nil
-	}
-
-	if svc == nil {
 		return nil
 	}
 
@@ -492,7 +488,7 @@ func (v *vaultSrv) GetStatefulSet(svc *core.Service, pt *core.PodTemplateSpec, v
 		Spec: apps.StatefulSetSpec{
 			Replicas:    v.vs.Spec.Replicas,
 			Selector:    &metav1.LabelSelector{MatchLabels: v.vs.OffshootSelectors()},
-			ServiceName: svc.ObjectMeta.Name,
+			ServiceName: serviceName,
 			Template:    *pt,
 			UpdateStrategy: apps.StatefulSetUpdateStrategy{
 				Type: apps.RollingUpdateStatefulSetStrategyType,

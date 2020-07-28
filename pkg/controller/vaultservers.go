@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
@@ -292,7 +293,8 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 			return err
 		}
 	} else {
-		headlessSvc := v.GetHeadlessService()
+		serviceName := fmt.Sprintf("%s-internal", vs.OffshootName())
+		headlessSvc := v.GetHeadlessService(serviceName)
 		err := ensureService(c.kubeClient, vs, headlessSvc)
 		if err != nil {
 			return err
@@ -301,7 +303,7 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 		// XXX Add pvc support
 		claims := make([]core.PersistentVolumeClaim, 0)
 
-		sts := v.GetStatefulSet(headlessSvc, podT, claims)
+		sts := v.GetStatefulSet(serviceName, podT, claims)
 
 		err = ensureStatefulSet(c.kubeClient, vs, sts)
 		if err != nil {
