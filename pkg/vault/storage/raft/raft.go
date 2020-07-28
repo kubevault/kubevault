@@ -47,9 +47,12 @@ storage "raft" {
   {{- range $i, $_ := (iter .Replicas) }}
   retry_join {
     leader_api_addr         = "https://vault-{{ $i }}.vault-internal:8200"
-    leader_ca_cert          = "{{ $tls }}"
     leader_client_cert_file = "/etc/vault/tls/tls.crt"
     leader_client_key_file  = "/etc/vault/tls/tls.key"
+
+    leader_ca_cert = <<-EOS
+{{ $tls }}
+EOS
   }
   {{- end }}
 }
