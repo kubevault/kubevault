@@ -83,11 +83,16 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 		},
 		core.EnvVar{
 			Name:  "VAULT_CLUSTER_ADDR",
-			Value: "https://$(HOSTNAME).vault-internal:8200",
+			Value: "https://$(HOSTNAME).vault-internal:8201",
 		},
 		core.EnvVar{
-			Name:  "VAULT_RAFT_NODE_ID",
-			Value: "$(HOSTNAME).vault-internal",
+			Name: "VAULT_RAFT_NODE_ID",
+			ValueFrom: &core.EnvVarSource{
+				FieldRef: &core.ObjectFieldSelector{
+					APIVersion: "v1",
+					FieldPath:  "metadata.name",
+				},
+			},
 		},
 	)
 

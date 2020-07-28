@@ -170,14 +170,21 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 			"localhost",
 			fmt.Sprintf("*.%s.pod", v.vs.Namespace),
 			fmt.Sprintf("%s.%s.svc", v.vs.Name, v.vs.Namespace),
-			fmt.Sprintf("*.%s-internal", v.vs.Name),
 		},
 		IPs: []net.IP{
 			net.ParseIP("127.0.0.1"),
 		},
 	}
 
-	srvCrt, srvKey, err := store.NewServerCertPairBytes(altNames)
+	// XXX when required only
+	altNames.DNSNames = append(
+		altNames.DNSNames,
+		"*.vault-internal",
+		fmt.Sprintf("%s.vault-internal.%s.svc", v.vs.Name, v.vs.Namespace),
+	)
+
+	//srvCrt, srvKey, err := store.NewServerCertPairBytes(altNames)
+	srvCrt, srvKey, err := store.NewPeerCertPairBytes(altNames)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "vault server create crt/key pair error")
 	}

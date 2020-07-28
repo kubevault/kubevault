@@ -54,7 +54,7 @@ func TestOptions_Apply(t *testing.T) {
 						},
 						{
 							Name:  "VAULT_CLUSTER_ADDR",
-							Value: "https://vault.default.svc:8200",
+							Value: "https://vault.default.svc:8201",
 						},
 					},
 				},
@@ -73,14 +73,10 @@ func TestOptions_Apply(t *testing.T) {
 			},
 			{
 				Name:  "VAULT_CLUSTER_ADDR",
-				Value: "https://$(HOSTNAME).vault-internal:8200",
-			},
-			{
-				Name:  "VAULT_RAFT_NODE_ID",
-				Value: "$(HOSTNAME).vault-internal",
+				Value: "https://$(HOSTNAME).vault-internal:8201",
 			},
 		}
-		got := pt.Spec.Containers[0].Env
+		got := pt.Spec.Containers[0].Env[:2]
 		if !assert.Equal(t, env, got) {
 			fmt.Println("expected:", env)
 			fmt.Println("got:", got)
