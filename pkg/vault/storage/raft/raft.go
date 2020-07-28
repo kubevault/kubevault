@@ -85,6 +85,10 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 			Name:  "VAULT_CLUSTER_ADDR",
 			Value: "https://$(HOSTNAME).vault-internal:8200",
 		},
+		core.EnvVar{
+			Name:  "VAULT_RAFT_NODE_ID",
+			Value: "$(HOSTNAME).vault-internal",
+		},
 	)
 
 	// Configure the volume

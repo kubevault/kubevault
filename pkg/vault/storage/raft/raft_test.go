@@ -75,6 +75,10 @@ func TestOptions_Apply(t *testing.T) {
 				Name:  "VAULT_CLUSTER_ADDR",
 				Value: "https://$(HOSTNAME).vault-internal:8200",
 			},
+			{
+				Name:  "VAULT_RAFT_NODE_ID",
+				Value: "$(HOSTNAME).vault-internal",
+			},
 		}
 		got := pt.Spec.Containers[0].Env
 		if !assert.Equal(t, env, got) {
