@@ -94,6 +94,10 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 				},
 			},
 		},
+		core.EnvVar{
+			Name:  "VAULT_LOG_LEVEL",
+			Value: "debug",
+		},
 	)
 
 	// Configure the volume
