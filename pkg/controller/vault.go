@@ -670,24 +670,19 @@ func (v *vaultSrv) GetContainer() core.Container {
 			Name:          "cluster-port",
 			ContainerPort: int32(VaultClusterPort),
 		}},
-		ReadinessProbe: func() *core.Probe {
-			if v.vs.Spec.PodTemplate.Spec.ReadinessProbe != nil {
-				return v.vs.Spec.PodTemplate.Spec.ReadinessProbe
-			}
-			return &core.Probe{
-				Handler: core.Handler{
-					HTTPGet: &core.HTTPGetAction{
-						Path:   "/v1/sys/health",
-						Port:   intstr.FromInt(VaultClientPort),
-						Scheme: core.URISchemeHTTPS,
-					},
+		ReadinessProbe: &core.Probe{
+			Handler: core.Handler{
+				HTTPGet: &core.HTTPGetAction{
+					Path:   "/v1/sys/health?standbyok=true&perfstandbyok=true",
+					Port:   intstr.FromInt(VaultClientPort),
+					Scheme: core.URISchemeHTTPS,
 				},
-				InitialDelaySeconds: 10,
-				TimeoutSeconds:      10,
-				PeriodSeconds:       10,
-				FailureThreshold:    5,
-			}
-		}(),
+			},
+			InitialDelaySeconds: 10,
+			TimeoutSeconds:      10,
+			PeriodSeconds:       10,
+			FailureThreshold:    5,
+		},
 		Resources: v.vs.Spec.PodTemplate.Spec.Resources,
 	}
 }
