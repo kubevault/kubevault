@@ -758,7 +758,7 @@ spec:
                     properties:
                       path:
                         description: "Path specifies the filesystem path where the
-                          vault data gets stored. \n This value can be overriden by
+                          vault data gets stored. \n This value can be overridden by
                           setting the VAULT_RAFT_PATH environment variable."
                         type: string
                     required:
