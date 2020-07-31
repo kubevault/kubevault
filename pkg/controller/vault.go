@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	capi "kubevault.dev/operator/apis/catalog/v1alpha1"
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	cs "kubevault.dev/operator/client/clientset/versioned"
 	"kubevault.dev/operator/pkg/vault/exporter"
@@ -77,7 +78,7 @@ type vaultSrv struct {
 	unslr      unsealer.Unsealer
 	exprtr     exporter.Exporter
 	kubeClient kubernetes.Interface
-	image      string
+	config     capi.VaultServerVersionVault
 }
 
 func NewVault(vs *api.VaultServer, config *rest.Config, kc kubernetes.Interface, vc cs.Interface) (Vault, error) {
@@ -92,23 +93,24 @@ func NewVault(vs *api.VaultServer, config *rest.Config, kc kubernetes.Interface,
 		return nil, err
 	}
 
-	// it is not required to have unsealer
-	unslr, err := unsealer.NewUnsealerService(config, vs, version.Spec.Unsealer.Image)
+	// it is *not* required to have unsealer
+	unslr, err := unsealer.NewUnsealerService(config, vs, version)
 	if err != nil {
 		return nil, err
 	}
 
-	exprtr, err := exporter.NewExporter(version.Spec.Exporter.Image)
+	exprtr, err := exporter.NewExporter(version)
 	if err != nil {
 		return nil, err
 	}
+
 	return &vaultSrv{
 		vs:         vs,
 		strg:       strg,
 		unslr:      unslr,
 		exprtr:     exprtr,
 		kubeClient: kc,
-		image:      version.Spec.Vault.Image,
+		config:     version.Spec.Vault,
 	}, nil
 }
 
@@ -512,8 +514,9 @@ func (v *vaultSrv) GetPodTemplate(c core.Container, saName string) *core.PodTemp
 
 func (v *vaultSrv) GetContainer() core.Container {
 	return core.Container{
-		Name:  util.VaultContainerName,
-		Image: v.image,
+		Name:            util.VaultContainerName,
+		Image:           v.config.Image,
+		ImagePullPolicy: v.config.ImagePullPolicy,
 		Command: []string{
 			"/bin/vault",
 			"server",

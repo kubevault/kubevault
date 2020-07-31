@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"time"
 
+	capi "kubevault.dev/operator/apis/catalog/v1alpha1"
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	sa_util "kubevault.dev/operator/pkg/util"
 	"kubevault.dev/operator/pkg/vault/unsealer/aws"
@@ -56,7 +57,7 @@ type unsealerSrv struct {
 	kc         kubernetes.Interface
 	vs         *api.VaultServer
 	unsealer   Unsealer
-	image      string
+	config     capi.VaultServerVersionUnsealer
 }
 
 func newUnsealer(s *api.UnsealerSpec) (Unsealer, error) {
@@ -73,10 +74,11 @@ func newUnsealer(s *api.UnsealerSpec) (Unsealer, error) {
 	}
 }
 
-func NewUnsealerService(restConfig *rest.Config, vs *api.VaultServer, image string) (Unsealer, error) {
+func NewUnsealerService(restConfig *rest.Config, vs *api.VaultServer, version *capi.VaultServerVersion) (Unsealer, error) {
 	if vs == nil {
 		return nil, errors.New("VaultServer is nil")
 	}
+
 	if vs.Spec.Unsealer == nil {
 		glog.Infoln(".spec.unsealer is nil")
 		return nil, nil
@@ -91,12 +93,13 @@ func NewUnsealerService(restConfig *rest.Config, vs *api.VaultServer, image stri
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create kubernetes client")
 	}
+
 	return &unsealerSrv{
 		restConfig: restConfig,
 		vs:         vs,
 		kc:         kc,
-		image:      image,
 		unsealer:   unslr,
+		config:     version.Spec.Unsealer,
 	}, nil
 }
 
@@ -112,8 +115,9 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 
 	unslr := u.vs.Spec.Unsealer
 	cont := core.Container{
-		Name:  util.VaultUnsealerContainerName,
-		Image: u.image,
+		Name:            util.VaultUnsealerContainerName,
+		Image:           u.config.Image,
+		ImagePullPolicy: u.config.ImagePullPolicy,
 	}
 	args = append(args,
 		"run",

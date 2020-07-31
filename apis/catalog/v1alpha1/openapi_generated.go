@@ -17423,8 +17423,16 @@ func schema_operator_apis_catalog_v1alpha1_VaultServerVersionExporter(ref common
 				Properties: map[string]spec.Schema{
 					"image": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "Image is the Docker image name",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"imagePullPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ImagePullPolicy one of Always, Never, IfNotPresent. It defaults to Always if :latest is used, or IfNotPresent overwise.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -17538,8 +17546,16 @@ func schema_operator_apis_catalog_v1alpha1_VaultServerVersionUnsealer(ref common
 				Properties: map[string]spec.Schema{
 					"image": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "Image is the Docker image name",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"imagePullPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ImagePullPolicy one of Always, Never, IfNotPresent. It defaults to Always if :latest is used, or IfNotPresent overwise.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -17558,8 +17574,16 @@ func schema_operator_apis_catalog_v1alpha1_VaultServerVersionVault(ref common.Re
 				Properties: map[string]spec.Schema{
 					"image": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Description: "Image is the Docker image name",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"imagePullPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ImagePullPolicy one of Always, Never, IfNotPresent. It defaults to Always if :latest is used, or IfNotPresent overwise.",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},

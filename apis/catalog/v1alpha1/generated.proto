@@ -21,6 +21,7 @@ syntax = 'proto2';
 
 package kubevault.dev.operator.apis.catalog.v1alpha1;
 
+import "k8s.io/api/core/v1/generated.proto";
 import "k8s.io/apimachinery/pkg/apis/meta/v1/generated.proto";
 import "k8s.io/apimachinery/pkg/runtime/generated.proto";
 import "k8s.io/apimachinery/pkg/runtime/schema/generated.proto";
@@ -42,7 +43,12 @@ message VaultServerVersion {
 
 // VaultServerVersionExporter is the image for the vault exporter
 message VaultServerVersionExporter {
+  // Image is the Docker image name
   optional string image = 1;
+
+  // ImagePullPolicy one of Always, Never, IfNotPresent. It defaults to Always if :latest is used, or IfNotPresent overwise.
+  // +optional
+  optional string imagePullPolicy = 2;
 }
 
 // VaultServerVersionList is a list of VaultserverVersions
@@ -74,11 +80,21 @@ message VaultServerVersionSpec {
 
 // VaultServerVersionUnsealer is the image for the vault unsealer
 message VaultServerVersionUnsealer {
+  // Image is the Docker image name
   optional string image = 1;
+
+  // ImagePullPolicy one of Always, Never, IfNotPresent. It defaults to Always if :latest is used, or IfNotPresent overwise.
+  // +optional
+  optional string imagePullPolicy = 2;
 }
 
 // VaultServerVersionVault is the vault image
 message VaultServerVersionVault {
+  // Image is the Docker image name
   optional string image = 1;
+
+  // ImagePullPolicy one of Always, Never, IfNotPresent. It defaults to Always if :latest is used, or IfNotPresent overwise.
+  // +optional
+  optional string imagePullPolicy = 2;
 }
 
