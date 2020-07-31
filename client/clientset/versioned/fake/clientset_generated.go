@@ -19,11 +19,6 @@ limitations under the License.
 package fake
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/watch"
-	"k8s.io/client-go/discovery"
-	fakediscovery "k8s.io/client-go/discovery/fake"
-	"k8s.io/client-go/testing"
 	clientset "kubevault.dev/operator/client/clientset/versioned"
 	catalogv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/catalog/v1alpha1"
 	fakecatalogv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/catalog/v1alpha1/fake"
@@ -35,6 +30,12 @@ import (
 	fakekubevaultv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/fake"
 	policyv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1"
 	fakepolicyv1alpha1 "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/fake"
+
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/discovery"
+	fakediscovery "k8s.io/client-go/discovery/fake"
+	"k8s.io/client-go/testing"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.

@@ -19,9 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	rest "k8s.io/client-go/rest"
 	v1alpha1 "kubevault.dev/operator/apis/config/v1alpha1"
 	"kubevault.dev/operator/client/clientset/versioned/scheme"
+
+	rest "k8s.io/client-go/rest"
 )
 
 type ConfigV1alpha1Interface interface {
