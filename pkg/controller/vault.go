@@ -183,6 +183,7 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 		fmt.Sprintf("%s.vault-internal.%s.svc", v.vs.Name, v.vs.Namespace),
 	)
 
+	// XXX allow both kind of certificates to be made depending on the usage.
 	//srvCrt, srvKey, err := store.NewServerCertPairBytes(altNames)
 	srvCrt, srvKey, err := store.NewPeerCertPairBytes(altNames)
 	if err != nil {

@@ -108,6 +108,8 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 		},
 	})
 
+	// TODO Configure the PVCs
+
 	pt.Spec.Containers[0].VolumeMounts = append(pt.Spec.Containers[0].VolumeMounts, core.VolumeMount{
 		Name:      VaultRaftVolumeName,
 		MountPath: o.Path,
