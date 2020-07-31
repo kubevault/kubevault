@@ -16759,7 +16759,7 @@
       ],
       "properties": {
         "credentialSecret": {
-          "description": "Specifies the secret name containing AWS access key and AWS secret key secret data:\n\t- access_key:\u003cvalue\u003e\n - secret_key:\u003cvalue\u003e",
+          "description": "Specifies the secret name containing AWS access key and AWS secret key secret data:\n - access_key:\u003cvalue\u003e\n - secret_key:\u003cvalue\u003e",
           "type": "string"
         },
         "endpoint": {
@@ -16788,11 +16788,11 @@
       ],
       "properties": {
         "aadClientSecret": {
-          "description": "Specifies the name of secret containing client id and client secret of AAD application secret data:\n\t- client-id:\u003cvalue\u003e\n\t- client-secret:\u003cvalue\u003e",
+          "description": "Specifies the name of secret containing client id and client secret of AAD application secret data:\n - client-id:\u003cvalue\u003e\n - client-secret:\u003cvalue\u003e",
           "type": "string"
         },
         "clientCertSecret": {
-          "description": "Specifies the name of secret containing client cert and client cert password secret data:\n\t- client-cert:\u003cvalue\u003e\n\t- client-cert-password: \u003cvalue\u003e",
+          "description": "Specifies the name of secret containing client cert and client cert password secret data:\n - client-cert:\u003cvalue\u003e\n\t- client-cert-password: \u003cvalue\u003e",
           "type": "string"
         },
         "cloud": {
@@ -16823,7 +16823,7 @@
       ],
       "properties": {
         "accountKeySecret": {
-          "description": "Specifies the secret containing Azure Storage account key. secret data:\n\t- account_key:\u003cvalue\u003e",
+          "description": "Specifies the secret containing Azure Storage account key. secret data:\n - account_key:\u003cvalue\u003e",
           "type": "string"
         },
         "accountName": {
@@ -16886,7 +16886,7 @@
       "type": "object",
       "properties": {
         "aclTokenSecretName": {
-          "description": "Specifies the secret name that contains ACL token with permission to read and write from the path in Consul's key-value store. secret data:\n\t- aclToken:\u003cvalue\u003e",
+          "description": "Specifies the secret name that contains ACL token with permission to read and write from the path in Consul's key-value store. secret data:\n - aclToken:\u003cvalue\u003e",
           "type": "string"
         },
         "address": {
@@ -16942,7 +16942,7 @@
           "type": "string"
         },
         "tlsSecretName": {
-          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for consul communication Secret data:\n\t- ca.crt\n\t- client.crt\n - client.key",
+          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for consul communication Secret data:\n - ca.crt\n - client.crt\n - client.key",
           "type": "string"
         },
         "tlsSkipVerify": {
@@ -16956,7 +16956,7 @@
       "type": "object",
       "properties": {
         "credentialSecret": {
-          "description": "Specifies the secret name containing AWS access key and AWS secret key secret data:\n\t- access_key=\u003cvalue\u003e\n - secret_key=\u003cvalue\u003e",
+          "description": "Specifies the secret name containing AWS access key and AWS secret key secret data:\n - access_key=\u003cvalue\u003e\n - secret_key=\u003cvalue\u003e",
           "type": "string"
         },
         "endpoint": {
@@ -16982,7 +16982,7 @@
           "type": "string"
         },
         "sessionTokenSecret": {
-          "description": "Specifies the secret name containing AWS session token secret data:\n\t- session_token:\u003cvalue\u003e",
+          "description": "Specifies the secret name containing AWS session token secret data:\n - session_token:\u003cvalue\u003e",
           "type": "string"
         },
         "table": {
@@ -17008,7 +17008,7 @@
           "type": "string"
         },
         "credentialSecretName": {
-          "description": "Specifies the secret name that contain username and password to use when authenticating with the etcd server secret data:\n\t- username:\u003cvalue\u003e\n\t- password:\u003cvalue\u003e",
+          "description": "Specifies the secret name that contain username and password to use when authenticating with the etcd server secret data:\n - username:\u003cvalue\u003e\n - password:\u003cvalue\u003e",
           "type": "string"
         },
         "discoverySrv": {
@@ -17032,7 +17032,7 @@
           "type": "boolean"
         },
         "tlsSecretName": {
-          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication secret data:\n\t- ca.crt\n - client.crt\n - client.key",
+          "description": "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication secret data:\n - ca.crt\n - client.crt\n - client.key",
           "type": "string"
         }
       }
@@ -17071,7 +17071,7 @@
           "type": "string"
         },
         "credentialSecret": {
-          "description": "Secret containing Google application credential secret data:\n\t- sa.json:\u003cvalue\u003e",
+          "description": "Secret containing Google application credential secret data:\n - sa.json:\u003cvalue\u003e",
           "type": "string"
         },
         "haEnabled": {
@@ -17101,7 +17101,7 @@
           "type": "string"
         },
         "credentialSecret": {
-          "description": "Secret containing Google application credential secret data:\n\t- sa.json:\u003cvalue\u003e",
+          "description": "Secret containing Google application credential secret data:\n - sa.json:\u003cvalue\u003e",
           "type": "string"
         },
         "kmsCryptoKey": {
@@ -17181,11 +17181,11 @@
           "type": "string"
         },
         "tlsCASecret": {
-          "description": "Specifies the name of the secret containing the CA certificate to connect using TLS. secret data:\n\t- tls_ca_file=\u003cca_cert\u003e",
+          "description": "Specifies the name of the secret containing the CA certificate to connect using TLS. secret data:\n - tls_ca_file=\u003cca_cert\u003e",
           "type": "string"
         },
         "userCredentialSecret": {
-          "description": "Specifies the MySQL username and password to connect to the database secret data:\n\t- username=\u003cvalue\u003e\n\t- password=\u003cvalue\u003e",
+          "description": "Specifies the MySQL username and password to connect to the database secret data:\n - username=\u003cvalue\u003e\n - password=\u003cvalue\u003e",
           "type": "string"
         }
       }
@@ -17198,7 +17198,7 @@
       ],
       "properties": {
         "connectionURLSecret": {
-          "description": "Specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL. A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters). secret data:\n\t- connection_url:\u003cdata\u003e",
+          "description": "Specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL. A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters). secret data:\n - connection_url:\u003cdata\u003e",
           "type": "string"
         },
         "maxParallel": {
@@ -17224,7 +17224,7 @@
           "type": "string"
         },
         "credentialSecret": {
-          "description": "Specifies the secret name containing AWS access key and AWS secret key secret data:\n\t- access_key=\u003cvalue\u003e\n - secret_key=\u003cvalue\u003e",
+          "description": "Specifies the secret name containing AWS access key and AWS secret key secret data:\n - access_key=\u003cvalue\u003e\n - secret_key=\u003cvalue\u003e",
           "type": "string"
         },
         "disableSSL": {
@@ -17249,7 +17249,7 @@
           "type": "string"
         },
         "sessionTokenSecret": {
-          "description": "Specifies the secret name containing AWS session token secret data:\n\t- session_token:\u003cvalue\u003e",
+          "description": "Specifies the secret name containing AWS session token secret data:\n - session_token:\u003cvalue\u003e",
           "type": "string"
         }
       }
@@ -17264,7 +17264,7 @@
       ],
       "properties": {
         "authTokenSecret": {
-          "description": "Specifies secret containing auth token from alternate authentication. secret data:\n\t- auth_token=\u003cvalue\u003e",
+          "description": "Specifies secret containing auth token from alternate authentication. secret data:\n - auth_token=\u003cvalue\u003e",
           "type": "string"
         },
         "authURL": {
@@ -17276,7 +17276,7 @@
           "type": "string"
         },
         "credentialSecret": {
-          "description": "Specifies the name of the secret containing the OpenStack account/username and password secret data:\n\t- username=\u003cvalue\u003e\n\t- password=\u003cvalue\u003e",
+          "description": "Specifies the name of the secret containing the OpenStack account/username and password secret data:\n - username=\u003cvalue\u003e\n - password=\u003cvalue\u003e",
           "type": "string"
         },
         "domain": {

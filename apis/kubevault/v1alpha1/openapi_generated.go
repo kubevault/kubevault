@@ -17350,7 +17350,7 @@ func schema_operator_apis_kubevault_v1alpha1_AwsKmsSsmSpec(ref common.ReferenceC
 					},
 					"credentialSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name containing AWS access key and AWS secret key secret data:\n\t- access_key:<value>\n - secret_key:<value>",
+							Description: "Specifies the secret name containing AWS access key and AWS secret key secret data:\n - access_key:<value>\n - secret_key:<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -17399,14 +17399,14 @@ func schema_operator_apis_kubevault_v1alpha1_AzureKeyVault(ref common.ReferenceC
 					},
 					"clientCertSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the name of secret containing client cert and client cert password secret data:\n\t- client-cert:<value>\n\t- client-cert-password: <value>",
+							Description: "Specifies the name of secret containing client cert and client cert password secret data:\n - client-cert:<value>\n\t- client-cert-password: <value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"aadClientSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the name of secret containing client id and client secret of AAD application secret data:\n\t- client-id:<value>\n\t- client-secret:<value>",
+							Description: "Specifies the name of secret containing client id and client secret of AAD application secret data:\n - client-id:<value>\n - client-secret:<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -17441,7 +17441,7 @@ func schema_operator_apis_kubevault_v1alpha1_AzureSpec(ref common.ReferenceCallb
 					},
 					"accountKeySecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret containing Azure Storage account key. secret data:\n\t- account_key:<value>",
+							Description: "Specifies the secret containing Azure Storage account key. secret data:\n - account_key:<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -17617,7 +17617,7 @@ func schema_operator_apis_kubevault_v1alpha1_ConsulSpec(ref common.ReferenceCall
 					},
 					"aclTokenSecretName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name that contains ACL token with permission to read and write from the path in Consul's key-value store. secret data:\n\t- aclToken:<value>",
+							Description: "Specifies the secret name that contains ACL token with permission to read and write from the path in Consul's key-value store. secret data:\n - aclToken:<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -17638,7 +17638,7 @@ func schema_operator_apis_kubevault_v1alpha1_ConsulSpec(ref common.ReferenceCall
 					},
 					"tlsSecretName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for consul communication Secret data:\n\t- ca.crt\n\t- client.crt\n - client.key",
+							Description: "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for consul communication Secret data:\n - ca.crt\n - client.crt\n - client.key",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -17714,14 +17714,14 @@ func schema_operator_apis_kubevault_v1alpha1_DynamoDBSpec(ref common.ReferenceCa
 					},
 					"credentialSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name containing AWS access key and AWS secret key secret data:\n\t- access_key=<value>\n - secret_key=<value>",
+							Description: "Specifies the secret name containing AWS access key and AWS secret key secret data:\n - access_key=<value>\n - secret_key=<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"sessionTokenSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name containing AWS session token secret data:\n\t- session_token:<value>",
+							Description: "Specifies the secret name containing AWS session token secret data:\n - session_token:<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -17790,14 +17790,14 @@ func schema_operator_apis_kubevault_v1alpha1_EtcdSpec(ref common.ReferenceCallba
 					},
 					"credentialSecretName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name that contain username and password to use when authenticating with the etcd server secret data:\n\t- username:<value>\n\t- password:<value>",
+							Description: "Specifies the secret name that contain username and password to use when authenticating with the etcd server secret data:\n - username:<value>\n - password:<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"tlsSecretName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication secret data:\n\t- ca.crt\n - client.crt\n - client.key",
+							Description: "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication secret data:\n - ca.crt\n - client.crt\n - client.key",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -17875,7 +17875,7 @@ func schema_operator_apis_kubevault_v1alpha1_GcsSpec(ref common.ReferenceCallbac
 					},
 					"credentialSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Secret containing Google application credential secret data:\n\t- sa.json:<value>",
+							Description: "Secret containing Google application credential secret data:\n - sa.json:<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -17931,7 +17931,7 @@ func schema_operator_apis_kubevault_v1alpha1_GoogleKmsGcsSpec(ref common.Referen
 					},
 					"credentialSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Secret containing Google application credential secret data:\n\t- sa.json:<value>",
+							Description: "Secret containing Google application credential secret data:\n - sa.json:<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -18039,14 +18039,14 @@ func schema_operator_apis_kubevault_v1alpha1_MySQLSpec(ref common.ReferenceCallb
 					},
 					"userCredentialSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the MySQL username and password to connect to the database secret data:\n\t- username=<value>\n\t- password=<value>",
+							Description: "Specifies the MySQL username and password to connect to the database secret data:\n - username=<value>\n - password=<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"tlsCASecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the name of the secret containing the CA certificate to connect using TLS. secret data:\n\t- tls_ca_file=<ca_cert>",
+							Description: "Specifies the name of the secret containing the CA certificate to connect using TLS. secret data:\n - tls_ca_file=<ca_cert>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -18074,7 +18074,7 @@ func schema_operator_apis_kubevault_v1alpha1_PostgreSQLSpec(ref common.Reference
 				Properties: map[string]spec.Schema{
 					"connectionURLSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL. A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters). secret data:\n\t- connection_url:<data>",
+							Description: "Specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL. A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters). secret data:\n - connection_url:<data>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -18130,14 +18130,14 @@ func schema_operator_apis_kubevault_v1alpha1_S3Spec(ref common.ReferenceCallback
 					},
 					"credentialSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name containing AWS access key and AWS secret key secret data:\n\t- access_key=<value>\n - secret_key=<value>",
+							Description: "Specifies the secret name containing AWS access key and AWS secret key secret data:\n - access_key=<value>\n - secret_key=<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
 					"sessionTokenSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name containing AWS session token secret data:\n\t- session_token:<value>",
+							Description: "Specifies the secret name containing AWS session token secret data:\n - session_token:<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -18193,7 +18193,7 @@ func schema_operator_apis_kubevault_v1alpha1_SwiftSpec(ref common.ReferenceCallb
 					},
 					"credentialSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the name of the secret containing the OpenStack account/username and password secret data:\n\t- username=<value>\n\t- password=<value>",
+							Description: "Specifies the name of the secret containing the OpenStack account/username and password secret data:\n - username=<value>\n - password=<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -18249,7 +18249,7 @@ func schema_operator_apis_kubevault_v1alpha1_SwiftSpec(ref common.ReferenceCallb
 					},
 					"authTokenSecret": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies secret containing auth token from alternate authentication. secret data:\n\t- auth_token=<value>",
+							Description: "Specifies secret containing auth token from alternate authentication. secret data:\n - auth_token=<value>",
 							Type:        []string{"string"},
 							Format:      "",
 						},

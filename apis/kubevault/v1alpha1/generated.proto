@@ -119,7 +119,7 @@ message AwsKmsSsmSpec {
 
   // Specifies the secret name containing AWS access key and AWS secret key
   // secret data:
-  // 	- access_key:<value>
+  //  - access_key:<value>
   //  - secret_key:<value>
   // +optional
   optional string credentialSecret = 4;
@@ -145,15 +145,15 @@ message AzureKeyVault {
 
   // Specifies the name of secret containing client cert and client cert password
   // secret data:
-  // 	- client-cert:<value>
+  //  - client-cert:<value>
   // 	- client-cert-password: <value>
   // +optional
   optional string clientCertSecret = 4;
 
   // Specifies the name of secret containing client id and client secret of AAD application
   // secret data:
-  // 	- client-id:<value>
-  // 	- client-secret:<value>
+  //  - client-id:<value>
+  //  - client-secret:<value>
   // +optional
   optional string aadClientSecret = 5;
 
@@ -171,7 +171,7 @@ message AzureSpec {
 
   // Specifies the secret containing Azure Storage account key.
   // secret data:
-  // 	- account_key:<value>
+  //  - account_key:<value>
   optional string accountKeySecret = 2;
 
   // Specifies the Azure Storage Blob container name.
@@ -280,7 +280,7 @@ message ConsulSpec {
   // Specifies the secret name that contains ACL token with permission
   // to read and write from the path in Consul's key-value store.
   // secret data:
-  // 	- aclToken:<value>
+  //  - aclToken:<value>
   // +optional
   optional string aclTokenSecretName = 11;
 
@@ -297,8 +297,8 @@ message ConsulSpec {
   // Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file
   // for consul communication
   // Secret data:
-  // 	- ca.crt
-  // 	- client.crt
+  //  - ca.crt
+  //  - client.crt
   //  - client.key
   // +optional
   optional string tlsSecretName = 14;
@@ -346,14 +346,14 @@ message DynamoDBSpec {
 
   // Specifies the secret name containing AWS access key and AWS secret key
   // secret data:
-  // 	- access_key=<value>
+  //  - access_key=<value>
   //  - secret_key=<value>
   // +optional
   optional string credentialSecret = 7;
 
   // Specifies the secret name containing AWS session token
   // secret data:
-  // 	- session_token:<value>
+  //  - session_token:<value>
   // +optional
   optional string sessionTokenSecret = 8;
 
@@ -392,14 +392,14 @@ message EtcdSpec {
 
   // Specifies the secret name that contain username and password to use when authenticating with the etcd server
   // secret data:
-  // 	- username:<value>
-  // 	- password:<value>
+  //  - username:<value>
+  //  - password:<value>
   // +optional
   optional string credentialSecretName = 7;
 
   // Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication
   // secret data:
-  // 	- ca.crt
+  //  - ca.crt
   //  - client.crt
   //  - client.key
   // +optional
@@ -442,7 +442,7 @@ message GcsSpec {
 
   // Secret containing Google application credential
   // secret data:
-  // 	- sa.json:<value>
+  //  - sa.json:<value>
   // +optional
   optional string credentialSecret = 5;
 }
@@ -466,7 +466,7 @@ message GoogleKmsGcsSpec {
 
   // Secret containing Google application credential
   // secret data:
-  // 	- sa.json:<value>
+  //  - sa.json:<value>
   // +optional
   optional string credentialSecret = 6;
 }
@@ -513,13 +513,13 @@ message MySQLSpec {
 
   // Specifies the MySQL username and password to connect to the database
   // secret data:
-  // 	- username=<value>
-  // 	- password=<value>
+  //  - username=<value>
+  //  - password=<value>
   optional string userCredentialSecret = 4;
 
   // Specifies the name of the secret containing the CA certificate to connect using TLS.
   // secret data:
-  // 	- tls_ca_file=<ca_cert>
+  //  - tls_ca_file=<ca_cert>
   // +optional
   optional string tlsCASecret = 5;
 
@@ -535,7 +535,7 @@ message PostgreSQLSpec {
   // Specifies the name of the secret containing the connection string to use to authenticate and connect to PostgreSQL.
   // A full list of supported parameters can be found in the pq library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters).
   // secret data:
-  // 	- connection_url:<data>
+  //  - connection_url:<data>
   optional string connectionURLSecret = 1;
 
   // Specifies the name of the table in which to write Vault data.
@@ -565,14 +565,14 @@ message S3Spec {
 
   // Specifies the secret name containing AWS access key and AWS secret key
   // secret data:
-  // 	- access_key=<value>
+  //  - access_key=<value>
   //  - secret_key=<value>
   // +optional
   optional string credentialSecret = 4;
 
   // Specifies the secret name containing AWS session token
   // secret data:
-  // 	- session_token:<value>
+  //  - session_token:<value>
   // +optional
   optional string sessionTokenSecret = 5;
 
@@ -601,8 +601,8 @@ message SwiftSpec {
 
   // Specifies the name of the secret containing the OpenStack account/username and password
   // secret data:
-  // 	- username=<value>
-  // 	- password=<value>
+  //  - username=<value>
+  //  - password=<value>
   optional string credentialSecret = 3;
 
   // Specifies the name of the tenant. If left blank, this will default to the default tenant of the username.
@@ -635,7 +635,7 @@ message SwiftSpec {
 
   // Specifies secret containing auth token from alternate authentication.
   // secret data:
-  // 	- auth_token=<value>
+  //  - auth_token=<value>
   // +optional
   optional string authTokenSecret = 11;
 
