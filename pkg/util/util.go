@@ -18,6 +18,7 @@ package util
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/golang/glog"
@@ -38,18 +39,25 @@ func GetJwtTokenSecretFromServiceAccount(kc kubernetes.Interface, name, namespac
 
 	if len(sa.Secrets) == 0 {
 		return nil, errors.New("token secret still haven't created yet")
-	} else {
-		// get secret
-		for _, s := range sa.Secrets {
-			sr, err := kc.CoreV1().Secrets(namespace).Get(context.TODO(), s.Name, metav1.GetOptions{})
-			if err == nil {
-				return sr, nil
-			} else if !kerr.IsNotFound(err) {
-				return nil, err
-			}
-		}
-		return nil, errors.New("token secret is not available")
 	}
+
+	// get the token secret
+	for _, s := range sa.Secrets {
+		if !strings.HasPrefix(s.Name, name+"-token") {
+			glog.V(3).Infof("Skipping token %s not matching the %s-token prefix", s.Name, name)
+			continue
+		}
+
+		sr, err := kc.CoreV1().Secrets(namespace).Get(context.TODO(), s.Name, metav1.GetOptions{})
+		if err == nil {
+			return sr, nil
+		}
+		if !kerr.IsNotFound(err) {
+			return nil, err
+		}
+	}
+
+	return nil, errors.New("token secret is not available")
 }
 
 func TryGetJwtTokenSecretNameFromServiceAccount(kc kubernetes.Interface, name string, namespace string, interval time.Duration, timeout time.Duration) (*core.Secret, error) {
