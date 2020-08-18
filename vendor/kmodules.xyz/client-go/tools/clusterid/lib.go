@@ -17,9 +17,12 @@ limitations under the License.
 package clusterid
 
 import (
+	"context"
 	"flag"
 
 	"github.com/spf13/pflag"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
 var clusterName = ""
@@ -34,4 +37,12 @@ func AddGoFlags(fs *flag.FlagSet) {
 
 func ClusterName() string {
 	return clusterName
+}
+
+func ClusterUID(client corev1.NamespaceInterface) (string, error) {
+	ns, err := client.Get(context.TODO(), metav1.NamespaceSystem, metav1.GetOptions{})
+	if err != nil {
+		return "", err
+	}
+	return string(ns.UID), nil
 }
