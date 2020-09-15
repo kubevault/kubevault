@@ -33,6 +33,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/client-go/api/v1.Condition":       schema_kmodulesxyz_client_go_api_v1_Condition(ref),
 		"kmodules.xyz/client-go/api/v1.TLSConfig":       schema_kmodulesxyz_client_go_api_v1_TLSConfig(ref),
 		"kmodules.xyz/client-go/api/v1.X509Subject":     schema_kmodulesxyz_client_go_api_v1_X509Subject(ref),
+		"kmodules.xyz/client-go/api/v1.stringSetMerger": schema_kmodulesxyz_client_go_api_v1_stringSetMerger(ref),
 	}
 }
 
@@ -109,9 +110,9 @@ func schema_kmodulesxyz_client_go_api_v1_CertificateSpec(ref common.ReferenceCal
 							},
 						},
 					},
-					"uriSANs": {
+					"uris": {
 						SchemaProps: spec.SchemaProps{
-							Description: "URISANs is a list of URI Subject Alternative Names to be set on this Certificate.",
+							Description: "URIs is a list of URI subjectAltNames to be set on the Certificate.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -123,9 +124,9 @@ func schema_kmodulesxyz_client_go_api_v1_CertificateSpec(ref common.ReferenceCal
 							},
 						},
 					},
-					"emailSANs": {
+					"emailAddresses": {
 						SchemaProps: spec.SchemaProps{
-							Description: "EmailSANs is a list of email subjectAltNames to be set on the Certificate.",
+							Description: "EmailAddresses is a list of email subjectAltNames to be set on the Certificate.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -348,6 +349,16 @@ func schema_kmodulesxyz_client_go_api_v1_X509Subject(ref common.ReferenceCallbac
 						},
 					},
 				},
+			},
+		},
+	}
+}
+
+func schema_kmodulesxyz_client_go_api_v1_stringSetMerger(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
 			},
 		},
 	}

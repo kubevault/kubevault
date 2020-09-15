@@ -167,9 +167,9 @@ API rule violation: list_type_missing,k8s.io/apimachinery/pkg/apis/meta/v1,Updat
 API rule violation: list_type_missing,k8s.io/apimachinery/pkg/runtime,RawExtension,Raw
 API rule violation: list_type_missing,k8s.io/apimachinery/pkg/runtime,Unknown,Raw
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,CertificateSpec,DNSNames
-API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,CertificateSpec,EmailSANs
+API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,CertificateSpec,EmailAddresses
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,CertificateSpec,IPAddresses
-API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,CertificateSpec,URISANs
+API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,CertificateSpec,URIs
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,TLSConfig,Certificates
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,X509Subject,Countries
 API rule violation: list_type_missing,kmodules.xyz/client-go/api/v1,X509Subject,Localities
@@ -287,6 +287,7 @@ API rule violation: names_match,k8s.io/apimachinery/pkg/runtime,Unknown,Raw
 API rule violation: names_match,k8s.io/apimachinery/pkg/util/intstr,IntOrString,IntVal
 API rule violation: names_match,k8s.io/apimachinery/pkg/util/intstr,IntOrString,StrVal
 API rule violation: names_match,k8s.io/apimachinery/pkg/util/intstr,IntOrString,Type
+API rule violation: names_match,kmodules.xyz/client-go/api/v1,CertificateSpec,URIs
 API rule violation: names_match,kmodules.xyz/offshoot-api/api/v1,ContainerRuntimeSettings,IONice
 API rule violation: names_match,kubevault.dev/operator/apis/engine/v1alpha1,SecretEngineConfiguration,MongoDB
 API rule violation: names_match,kubevault.dev/operator/apis/engine/v1alpha1,SecretEngineConfiguration,MySQL

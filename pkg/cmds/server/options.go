@@ -24,7 +24,7 @@ import (
 	"kubevault.dev/operator/pkg/controller"
 	"kubevault.dev/operator/pkg/docker"
 
-	prom "github.com/coreos/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
+	prom "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	"github.com/spf13/pflag"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
