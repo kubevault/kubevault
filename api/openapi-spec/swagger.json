@@ -20863,10 +20863,6 @@
             "type": "string"
           }
         },
-        "namespace": {
-          "description": "Namespace of Prometheus. Service monitors will be created in this namespace. Deprecated: use prometheus.serviceMonitor.namespace",
-          "type": "string"
-        },
         "port": {
           "description": "Port number for the exporter side car. Deprecated: use exporter.port",
           "type": "integer",
@@ -20890,10 +20886,6 @@
           "additionalProperties": {
             "type": "string"
           }
-        },
-        "namespace": {
-          "description": "Namespace of Prometheus. Service monitors will be created in this namespace.",
-          "type": "string"
         }
       }
     },

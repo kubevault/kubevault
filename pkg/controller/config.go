@@ -24,7 +24,7 @@ import (
 	vaultinformers "kubevault.dev/operator/client/informers/externalversions"
 	"kubevault.dev/operator/pkg/eventer"
 
-	pcm "github.com/coreos/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
+	pcm "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	core "k8s.io/api/core/v1"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/informers"

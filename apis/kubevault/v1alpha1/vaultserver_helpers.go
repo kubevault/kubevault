@@ -17,8 +17,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"fmt"
-
 	"kubevault.dev/operator/api/crds"
 
 	"kmodules.xyz/client-go/apiextensions"
@@ -99,6 +97,10 @@ type vaultServerStatsService struct {
 	*VaultServer
 }
 
+func (e vaultServerStatsService) ServiceMonitorAdditionalLabels() map[string]string {
+	return e.VaultServer.OffshootLabels()
+}
+
 func (e vaultServerStatsService) GetNamespace() string {
 	return e.VaultServer.GetNamespace()
 }
@@ -108,8 +110,7 @@ func (e vaultServerStatsService) ServiceName() string {
 }
 
 func (e vaultServerStatsService) ServiceMonitorName() string {
-	sfix := fmt.Sprintf("%s-%s", e.Namespace, e.Name)
-	return meta_util.NameWithSuffix("vault", sfix)
+	return e.ServiceName()
 }
 
 func (e vaultServerStatsService) Path() string {

@@ -1,8 +1,28 @@
+/*
+Copyright AppsCode Inc. and Contributors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package v1
 
 import (
+	"reflect"
+
+	"github.com/imdario/mergo"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/sets"
 )
 
 type TLSConfig struct {
@@ -53,14 +73,13 @@ type CertificateSpec struct {
 	// +optional
 	IPAddresses []string `json:"ipAddresses,omitempty" protobuf:"bytes,8,rep,name=ipAddresses"`
 
-	// URISANs is a list of URI Subject Alternative Names to be set on this
-	// Certificate.
+	// URIs is a list of URI subjectAltNames to be set on the Certificate.
 	// +optional
-	URISANs []string `json:"uriSANs,omitempty" protobuf:"bytes,9,rep,name=uriSANs"`
+	URIs []string `json:"uris,omitempty" protobuf:"bytes,9,rep,name=uris"`
 
-	// EmailSANs is a list of email subjectAltNames to be set on the Certificate.
+	// EmailAddresses is a list of email subjectAltNames to be set on the Certificate.
 	// +optional
-	EmailSANs []string `json:"emailSANs,omitempty" protobuf:"bytes,10,rep,name=emailSANs"`
+	EmailAddresses []string `json:"emailAddresses,omitempty" protobuf:"bytes,10,rep,name=emailAddresses"`
 }
 
 // X509Subject Full X509 name specification
@@ -133,6 +152,34 @@ func GetCertificateSecretName(certificates []CertificateSpec, alias string) (str
 	return cert.SecretName, cert.SecretName != ""
 }
 
+// SetMissingSpecForCertificate sets the missing spec fields for a certificate.
+// If the certificate does not exist, it will add a new certificate with the desired spec.
+func SetMissingSpecForCertificate(certificates []CertificateSpec, spec CertificateSpec) []CertificateSpec {
+	idx, _ := GetCertificate(certificates, spec.Alias)
+	if idx != -1 {
+		err := mergo.Merge(&certificates[idx], spec, mergo.WithTransformers(stringSetMerger{}))
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		certificates = append(certificates, spec)
+	}
+	return certificates
+}
+
+// SetSpecForCertificate sets the spec for a certificate.
+// If the certificate does not exist, it will add a new certificate with the desired spec.
+// Otherwise, the spec will be overwritten.
+func SetSpecForCertificate(certificates []CertificateSpec, spec CertificateSpec) []CertificateSpec {
+	idx, _ := GetCertificate(certificates, spec.Alias)
+	if idx != -1 {
+		certificates[idx] = spec
+	} else {
+		certificates = append(certificates, spec)
+	}
+	return certificates
+}
+
 // SetMissingSecretNameForCertificate sets the missing secret name for a certificate.
 // If the certificate does not exist, it will add a new certificate with the desired secret name.
 func SetMissingSecretNameForCertificate(certificates []CertificateSpec, alias, secretName string) []CertificateSpec {
@@ -174,4 +221,34 @@ func RemoveCertificate(certificates []CertificateSpec, alias string) []Certifica
 		return certificates
 	}
 	return append(certificates[:idx], certificates[idx+1:]...)
+}
+
+type stringSetMerger struct {
+}
+
+func (t stringSetMerger) Transformer(typ reflect.Type) func(dst, src reflect.Value) error {
+	if typ == reflect.TypeOf([]string{}) {
+		return func(dst, src reflect.Value) error {
+			if dst.CanSet() {
+				if dst.Len() <= 1 && src.Len() == 0 {
+					return nil
+				}
+				if dst.Len() == 0 && src.Len() == 1 {
+					dst.Set(src)
+					return nil
+				}
+
+				out := sets.NewString()
+				for i := 0; i < dst.Len(); i++ {
+					out.Insert(dst.Index(i).String())
+				}
+				for i := 0; i < src.Len(); i++ {
+					out.Insert(src.Index(i).String())
+				}
+				dst.Set(reflect.ValueOf(out.List()))
+			}
+			return nil
+		}
+	}
+	return nil
 }
