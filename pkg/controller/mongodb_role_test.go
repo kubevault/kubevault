@@ -118,7 +118,7 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 						if assert.Nil(t, err2) {
 							assert.Condition(t, func() (success bool) {
 								return len(p.Status.Conditions) > 0 &&
-									kmapi.IsConditionTrue(p.Status.Conditions, kmapi.ConditionFailure) &&
+									kmapi.IsConditionTrue(p.Status.Conditions, kmapi.ConditionFailed) &&
 									!kmapi.HasCondition(p.Status.Conditions, kmapi.ConditionAvailable)
 							}, "should have status.conditions")
 						}
@@ -131,7 +131,7 @@ func TestUserManagerController_reconcileMongoDBRole(t *testing.T) {
 						assert.Condition(t, func() (success bool) {
 							return p.Status.Phase == MongoDBRolePhaseSuccess &&
 								len(p.Status.Conditions) > 0 &&
-								!kmapi.HasCondition(p.Status.Conditions, kmapi.ConditionFailure) &&
+								!kmapi.HasCondition(p.Status.Conditions, kmapi.ConditionFailed) &&
 								kmapi.IsConditionTrue(p.Status.Conditions, kmapi.ConditionAvailable)
 						}, "should not have status.conditions")
 					}

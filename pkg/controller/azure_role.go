@@ -123,7 +123,7 @@ func (c *VaultController) reconcileAzureRole(rClient azure.AzureRoleInterface, r
 			role.ObjectMeta,
 			func(status *api.AzureRoleStatus) *api.AzureRoleStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
+					Type:    kmapi.ConditionFailed,
 					Status:  kmapi.ConditionTrue,
 					Reason:  "FailedToCreateRole",
 					Message: err.Error(),
@@ -142,7 +142,7 @@ func (c *VaultController) reconcileAzureRole(rClient azure.AzureRoleInterface, r
 		func(status *api.AzureRoleStatus) *api.AzureRoleStatus {
 			status.Phase = AzureRolePhaseSuccess
 			status.ObservedGeneration = role.Generation
-			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailed)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
 				Status:  kmapi.ConditionTrue,

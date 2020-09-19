@@ -124,7 +124,7 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 			se.ObjectMeta,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
+					Type:    kmapi.ConditionFailed,
 					Status:  kmapi.ConditionTrue,
 					Reason:  "FailedToCreateSecretEnginePolicy",
 					Message: err.Error(),
@@ -145,7 +145,7 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 			se.ObjectMeta,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
+					Type:    kmapi.ConditionFailed,
 					Status:  kmapi.ConditionTrue,
 					Reason:  "FailedToUpdateAuthRole",
 					Message: err.Error(),
@@ -166,7 +166,7 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 			se.ObjectMeta,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
+					Type:    kmapi.ConditionFailed,
 					Status:  kmapi.ConditionTrue,
 					Reason:  "FailedToEnableSecretEngine",
 					Message: err.Error(),
@@ -187,7 +187,7 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 			se.ObjectMeta,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
+					Type:    kmapi.ConditionFailed,
 					Status:  kmapi.ConditionTrue,
 					Reason:  "FailedToCreateSecretEngineConfig",
 					Message: err.Error(),
@@ -207,7 +207,7 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 		func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 			status.ObservedGeneration = se.Generation
 			status.Phase = SecretEnginePhaseSuccess
-			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailed)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
 				Status:  kmapi.ConditionTrue,
