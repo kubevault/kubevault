@@ -120,7 +120,7 @@ func (c *VaultController) runDatabaseAccessRequestInjector(key string) error {
 						req.ObjectMeta,
 						func(status *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
 							status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-								Type:               kmapi.ConditionFailure,
+								Type:               kmapi.ConditionFailed,
 								Status:             kmapi.ConditionTrue,
 								Reason:             "FailedToCreateCredentialManager",
 								Message:            err.Error(),
@@ -194,7 +194,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(cm credential.Credentia
 			req.ObjectMeta,
 			func(status *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:               kmapi.ConditionFailure,
+					Type:               kmapi.ConditionFailed,
 					Status:             kmapi.ConditionTrue,
 					Reason:             "FailedToGetCredential",
 					Message:            err.Error(),
@@ -224,7 +224,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(cm credential.Credentia
 			req.ObjectMeta,
 			func(status *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:               kmapi.ConditionFailure,
+					Type:               kmapi.ConditionFailed,
 					Status:             kmapi.ConditionTrue,
 					Reason:             "FailedToCreateSecret",
 					Message:            err.Error(),
@@ -275,7 +275,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(cm credential.Credentia
 			req.ObjectMeta,
 			func(status *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:               kmapi.ConditionFailure,
+					Type:               kmapi.ConditionFailed,
 					Status:             kmapi.ConditionTrue,
 					Reason:             "FailedToCreateRole",
 					Message:            err.Error(),
@@ -296,7 +296,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(cm credential.Credentia
 			req.ObjectMeta,
 			func(status *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:               kmapi.ConditionFailure,
+					Type:               kmapi.ConditionFailed,
 					Status:             kmapi.ConditionTrue,
 					Reason:             "FailedToCreateRoleBinding",
 					Message:            err.Error(),
@@ -314,7 +314,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(cm credential.Credentia
 		c.extClient.EngineV1alpha1(),
 		req.ObjectMeta,
 		func(status *api.DatabaseAccessRequestStatus) *api.DatabaseAccessRequestStatus {
-			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailed)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:               kmapi.ConditionAvailable,
 				Status:             kmapi.ConditionTrue,
@@ -381,7 +381,7 @@ func databaseAccessRequestSuccessfullyProcessed(req *api.DatabaseAccessRequest) 
 
 	// lookup for failed condition
 	for _, cond := range req.Status.Conditions {
-		if cond.Type == kmapi.ConditionFailure {
+		if cond.Type == kmapi.ConditionFailed {
 			return false
 		}
 	}

@@ -124,7 +124,7 @@ func (c *VaultController) reconcileMongoDBRole(rClient database.DatabaseRoleInte
 			role.ObjectMeta,
 			func(status *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
+					Type:    kmapi.ConditionFailed,
 					Status:  kmapi.ConditionTrue,
 					Reason:  "FailedToCreateRole",
 					Message: err.Error(),

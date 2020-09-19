@@ -107,7 +107,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			vs.ObjectMeta,
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
+					Type:    kmapi.ConditionFailed,
 					Status:  kmapi.ConditionTrue,
 					Reason:  "FailedToCreateVaultTLSSecret",
 					Message: err.Error(),
@@ -127,7 +127,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			vs.ObjectMeta,
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
+					Type:    kmapi.ConditionFailed,
 					Status:  kmapi.ConditionTrue,
 					Reason:  "FailedToCreateVaultConfig",
 					Message: err.Error(),
@@ -147,7 +147,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			vs.ObjectMeta,
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
+					Type:    kmapi.ConditionFailed,
 					Status:  kmapi.ConditionTrue,
 					Reason:  "FailedToDeployVault",
 					Message: err.Error(),
@@ -167,7 +167,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			vs.ObjectMeta,
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
+					Type:    kmapi.ConditionFailed,
 					Status:  kmapi.ConditionTrue,
 					Reason:  "FailedToCreateAppBinding",
 					Message: err.Error(),
