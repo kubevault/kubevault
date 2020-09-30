@@ -15992,6 +15992,30 @@
         }
       }
     },
+    "dev.kubevault.operator.apis.engine.v1alpha1.KVConfiguration": {
+      "description": "KVConfiguration defines a Key-Value engine configuration",
+      "type": "object",
+      "properties": {
+        "casRequired": {
+          "description": "If true, then all operations on the KV store require the cas (Compare-and-Swap) parameter to be set. https://www.vaultproject.io/api-docs/secret/kv/kv-v2#cas_required https://www.vaultproject.io/docs/secrets/kv/kv-v2#usage",
+          "type": "boolean"
+        },
+        "deleteVersionsAfter": {
+          "description": "If set, keys will be automatically deleted after this length of time. Accepts a Go duration format string. https://golang.org/pkg/time/#ParseDuration",
+          "type": "string"
+        },
+        "maxVersions": {
+          "description": "The maximum number of versions to keep for any given key. Defaults to 0, which indicates that the Vault default (10) should be used.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "version": {
+          "description": "The version of the KV engine to enable. Defaults to \"1\", can be either \"1\" or \"2\"",
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "dev.kubevault.operator.apis.engine.v1alpha1.Lease": {
       "description": "Lease contains lease info",
       "type": "object",
@@ -16626,6 +16650,9 @@
         },
         "gcp": {
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.GCPConfiguration"
+        },
+        "kv": {
+          "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.KVConfiguration"
         },
         "mongodb": {
           "$ref": "#/definitions/dev.kubevault.operator.apis.engine.v1alpha1.MongoDBConfiguration"

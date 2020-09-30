@@ -31,6 +31,7 @@ const (
 	EngineTypeGCP            = "gcp"
 	EngineTypeAzure          = "azure"
 	EngineTypeDatabase       = "database"
+	EngineTypeKV             = "kv"
 )
 
 // +genclient
@@ -76,6 +77,7 @@ type SecretEngineConfiguration struct {
 	Postgres *PostgresConfiguration `json:"postgres,omitempty" protobuf:"bytes,4,opt,name=postgres"`
 	MongoDB  *MongoDBConfiguration  `json:"mongodb,omitempty" protobuf:"bytes,5,opt,name=mongodb"`
 	MySQL    *MySQLConfiguration    `json:"mysql,omitempty" protobuf:"bytes,6,opt,name=mysql"`
+	KV       *KVConfiguration       `json:"kv,omitempty" protobuf:"bytes,7,opt,name=kv"`
 }
 
 // https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials
@@ -231,6 +233,27 @@ type MySQLConfiguration struct {
 	// Specifies the maximum amount of time a connection may be reused.
 	// If <= 0s connections are reused forever.
 	MaxConnectionLifetime string `json:"maxConnectionLifetime,omitempty" protobuf:"bytes,6,opt,name=maxConnectionLifetime"`
+}
+
+// KVConfiguration defines a Key-Value engine configuration
+// TODO: fill in doc links
+type KVConfiguration struct {
+	// The version of the KV engine to enable. Defaults to "1", can be either "1" or "2"
+	Version int64 `json:"version,omitempty" protobuf:"bytes,1,name=version"`
+
+	// The maximum number of versions to keep for any given key. Defaults to 0, which indicates that the Vault default (10) should be
+	// used.
+	MaxVersions int64 `json:"maxVersions,omitempty" protobuf:"varint,2,name=maxVersions"`
+
+	// If true, then all operations on the KV store require the cas (Compare-and-Swap) parameter to be set.
+	// https://www.vaultproject.io/api-docs/secret/kv/kv-v2#cas_required
+	// https://www.vaultproject.io/docs/secrets/kv/kv-v2#usage
+	CasRequired bool `json:"casRequired,omitempty" protobuf:"bool,3,name=casRequired"`
+
+	// If set, keys will be automatically deleted after this length of time. Accepts a Go duration format
+	// string.
+	// https://golang.org/pkg/time/#ParseDuration
+	DeleteVersionsAfter string `json:"deleteVersionsAfter,omitempty" protobuf:"bytes,4,name=deleteVersionsAfter"`
 }
 
 type SecretEnginePhase string
