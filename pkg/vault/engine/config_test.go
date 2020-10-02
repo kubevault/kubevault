@@ -19,6 +19,7 @@ package engine
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -303,6 +304,73 @@ func NewFakeVaultServer() *httptest.Server {
 
 			w.WriteHeader(http.StatusOK)
 		}
+	}).Methods(http.MethodPost)
+
+	router.HandleFunc(fmt.Sprintf("/v1/%s/config", DefaultKVPath), func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		var data interface{}
+
+		mustWriteString := func(s string) {
+			_, err := w.Write([]byte(s))
+			utilruntime.Must(err)
+		}
+
+		fail := func(message string) {
+			w.WriteHeader(http.StatusBadRequest)
+			mustWriteString(message)
+			mustWriteString("\n")
+		}
+
+		expectedVersion := r.Header.Get(KVTestHeaderExpectedVersion)
+		if expectedVersion == "1" {
+			fail("KV version 1 does not support the `config` endpoint")
+			return
+		}
+
+		if expectedVersion != "2" {
+			fail(fmt.Sprintf("Unknown expected KV version: %v", expectedVersion))
+			return
+		}
+
+		err := json.NewDecoder(r.Body).Decode(&data)
+
+		if err != nil {
+			fail("Unable to decode request payload:")
+			mustWriteString(err.Error())
+			return
+		} else {
+			m := data.(map[string]interface{})
+
+			check := func(header, param string) bool {
+				if e := r.Header.Get(header); len(e) != 0 {
+					if e == ExpectBlank {
+						e = ""
+					}
+
+					v, ok := m[param]
+
+					if !ok || (e == ExpectBlank && len(v.(string)) == 0) {
+						fail(fmt.Sprintf("`%s` not supplied, but expected '%v'", param, e))
+						return false
+					}
+
+					if e != v {
+						fail(fmt.Sprintf("incorrect or invalid `%s`: expected: '%v', got: '%v'", param, e, v))
+						return false
+					}
+				}
+
+				return true
+			}
+
+			if !check(KVTestHeaderExpectedMaxVersions, KVConfigMaxVersions) ||
+				!check(KVTestHeaderExpectedCasRequired, KVConfigCasRequired) ||
+				!check(KVTestHeaderExpectedDeleteVersionsAfter, KVConfigDeleteVersionsAfter) {
+				return
+			}
+		}
+
+		w.WriteHeader(http.StatusOK)
 	}).Methods(http.MethodPost)
 
 	return httptest.NewServer(router)
@@ -708,6 +776,193 @@ func TestSecretEngine_CreateAWSConfig(t *testing.T) {
 
 			if err := seClient.CreateAWSConfig(); (err != nil) != tt.wantErr {
 				t.Errorf("CreateAWSConfig() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestSecretEngine_CreateKVConfig(t *testing.T) {
+	srv := NewFakeVaultServer()
+	defer srv.Close()
+
+	tests := []struct {
+		name         string
+		secretEngine *api.SecretEngine
+		wantErr      bool
+		extraHeaders map[string]string
+	}{
+		{
+			name: "KV - Missing config",
+			secretEngine: &api.SecretEngine{
+				Spec: api.SecretEngineSpec{
+					SecretEngineConfiguration: api.SecretEngineConfiguration{},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "KV V1 - Successful Operation",
+			secretEngine: &api.SecretEngine{
+				Spec: api.SecretEngineSpec{
+					SecretEngineConfiguration: api.SecretEngineConfiguration{
+						KV: &api.KVConfiguration{
+							Version: 1,
+						},
+					},
+				},
+			},
+			wantErr: false,
+			extraHeaders: map[string]string{
+				KVTestHeaderExpectedVersion: "1",
+			},
+		},
+		{
+			name: "KV V2 - Successful Operation",
+			secretEngine: &api.SecretEngine{
+				Spec: api.SecretEngineSpec{
+					SecretEngineConfiguration: api.SecretEngineConfiguration{
+						KV: &api.KVConfiguration{
+							Version: 2,
+						},
+					},
+				},
+			},
+			wantErr: false,
+			extraHeaders: map[string]string{
+				KVTestHeaderExpectedVersion: "2",
+			},
+		},
+		{
+			name: "KV V2 - Default MaxVersions",
+			secretEngine: &api.SecretEngine{
+				Spec: api.SecretEngineSpec{
+					SecretEngineConfiguration: api.SecretEngineConfiguration{
+						KV: &api.KVConfiguration{
+							Version: 2,
+						},
+					},
+				},
+			},
+			wantErr: false,
+			extraHeaders: map[string]string{
+				KVTestHeaderExpectedVersion:     "2",
+				KVTestHeaderExpectedMaxVersions: "0",
+			},
+		},
+		{
+			name: "KV V2 - Explicit MaxVersions",
+			secretEngine: &api.SecretEngine{
+				Spec: api.SecretEngineSpec{
+					SecretEngineConfiguration: api.SecretEngineConfiguration{
+						KV: &api.KVConfiguration{
+							Version:     2,
+							MaxVersions: 5,
+						},
+					},
+				},
+			},
+			wantErr: false,
+			extraHeaders: map[string]string{
+				KVTestHeaderExpectedVersion:     "2",
+				KVTestHeaderExpectedMaxVersions: "5",
+			},
+		},
+		{
+			name: "KV V2 - Default CasRequired",
+			secretEngine: &api.SecretEngine{
+				Spec: api.SecretEngineSpec{
+					SecretEngineConfiguration: api.SecretEngineConfiguration{
+						KV: &api.KVConfiguration{
+							Version: 2,
+						},
+					},
+				},
+			},
+			wantErr: false,
+			extraHeaders: map[string]string{
+				KVTestHeaderExpectedVersion:     "2",
+				KVTestHeaderExpectedCasRequired: "false",
+			},
+		},
+		{
+			name: "KV V2 - Explicit CasRequired",
+			secretEngine: &api.SecretEngine{
+				Spec: api.SecretEngineSpec{
+					SecretEngineConfiguration: api.SecretEngineConfiguration{
+						KV: &api.KVConfiguration{
+							Version:     2,
+							CasRequired: true,
+						},
+					},
+				},
+			},
+			wantErr: false,
+			extraHeaders: map[string]string{
+				KVTestHeaderExpectedVersion:     "2",
+				KVTestHeaderExpectedCasRequired: "true",
+			},
+		},
+		{
+			name: "KV V2 - Default DeleteVersionsAfter",
+			secretEngine: &api.SecretEngine{
+				Spec: api.SecretEngineSpec{
+					SecretEngineConfiguration: api.SecretEngineConfiguration{
+						KV: &api.KVConfiguration{
+							Version: 2,
+						},
+					},
+				},
+			},
+			wantErr: false,
+			extraHeaders: map[string]string{
+				KVTestHeaderExpectedVersion:             "2",
+				KVTestHeaderExpectedDeleteVersionsAfter: ExpectBlank,
+			},
+		},
+		{
+			name: "KV V2 - Explicit DefaultVersionsAfter",
+			secretEngine: &api.SecretEngine{
+				Spec: api.SecretEngineSpec{
+					SecretEngineConfiguration: api.SecretEngineConfiguration{
+						KV: &api.KVConfiguration{
+							Version:             2,
+							DeleteVersionsAfter: "3h25m19s",
+						},
+					},
+				},
+			},
+			wantErr: false,
+			extraHeaders: map[string]string{
+				KVTestHeaderExpectedVersion:             "2",
+				KVTestHeaderExpectedDeleteVersionsAfter: "3h25m19s",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			vc, err := vaultClient(srv.URL)
+			assert.Nil(t, err, "failed to create vault client")
+
+			if tt.extraHeaders != nil {
+				headers := vc.Headers()
+				for k, v := range tt.extraHeaders {
+					headers.Add(k, v)
+				}
+				vc.SetHeaders(headers)
+			}
+
+			seClient := &SecretEngine{
+				appClient:    &appcatfake.FakeAppcatalogV1alpha1{},
+				secretEngine: tt.secretEngine,
+				vaultClient:  vc,
+				kubeClient:   kfake.NewSimpleClientset(),
+				path:         DefaultKVPath,
+			}
+
+			if err := seClient.CreateKVConfig(); (err != nil) != tt.wantErr {
+				t.Errorf("CreateKVConfig() error = %v, wantErr: %v", err, tt.wantErr)
 			}
 		})
 	}
