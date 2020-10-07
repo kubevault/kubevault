@@ -271,7 +271,7 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 	}
 
 	cRB := v.GetRBACClusterRoleBinding()
-	err = ensurClusterRoleBinding(c.kubeClient, vs, cRB)
+	err = ensureClusterRoleBinding(c.kubeClient, vs, cRB)
 	if err != nil {
 		return err
 	}
@@ -456,8 +456,8 @@ func ensureConfigMap(kc kubernetes.Interface, vs *api.VaultServer, cm *core.Conf
 	return err
 }
 
-// ensurClusterRoleBinding creates or patches rbac ClusterRoleBinding
-func ensurClusterRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, cRBinding rbac.ClusterRoleBinding) error {
+// ensureClusterRoleBinding creates or patches rbac ClusterRoleBinding
+func ensureClusterRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, cRBinding rbac.ClusterRoleBinding) error {
 	_, _, err := rbac_util.CreateOrPatchClusterRoleBinding(
 		context.TODO(),
 		kc,
