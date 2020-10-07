@@ -38,6 +38,7 @@ import (
 )
 
 const Token = "root"
+const ExpectBlank = "{{{BLANK}}}"
 
 func vaultClient(addr string) (*vaultapi.Client, error) {
 	cfg := vaultapi.DefaultConfig()

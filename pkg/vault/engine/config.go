@@ -30,6 +30,10 @@ import (
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
+const KVConfigMaxVersions = "max_versions"
+const KVConfigCasRequired = "cas_required"
+const KVConfigDeleteVersionsAfter = "delete_version_after"
+
 func (seClient *SecretEngine) CreateConfig() error {
 	vAppRef := &appcat.AppReference{
 		Namespace: seClient.secretEngine.Namespace,
@@ -58,6 +62,8 @@ func (seClient *SecretEngine) CreateConfig() error {
 		err = seClient.CreatePostgresConfig()
 	} else if engSpec.MongoDB != nil {
 		err = seClient.CreateMongoDBConfig()
+	} else if engSpec.KV != nil {
+		err = seClient.CreateKVConfig()
 	} else {
 		return errors.New("failed to create config: unknown secret engine type")
 	}
