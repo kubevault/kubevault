@@ -30,8 +30,8 @@ const (
 	// TLS related file name for etcd
 	EtcdTLSAssetDir    = "/etc/vault/storage/etcd/tls/"
 	EtcdClientCaName   = "ca.crt"
-	EtcdClientCertName = "client.crt"
-	EtcdClientKeyName  = "client.key"
+	EtcdClientCertName = "tls.crt"
+	EtcdClientKeyName  = "tls.key"
 )
 
 var etcdStorageFmt = `

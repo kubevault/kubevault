@@ -321,8 +321,8 @@ type ConsulSpec struct {
 	// for consul communication
 	// Secret data:
 	//	- ca.crt
-	//	- client.crt
-	//  - client.key
+	//	- tls.crt
+	//  - tls.key
 	// +optional
 	TLSSecretName string `json:"tlsSecretName,omitempty" protobuf:"bytes,14,opt,name=tlsSecretName"`
 
@@ -379,8 +379,8 @@ type EtcdSpec struct {
 	// Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication
 	// secret data:
 	//	- ca.crt
-	//  - client.crt
-	//  - client.key
+	//  - tls.crt
+	//  - tls.key
 	// +optional
 	TLSSecretName string `json:"tlsSecretName,omitempty" protobuf:"bytes,8,opt,name=tlsSecretName"`
 }

@@ -34,8 +34,8 @@ const (
 	// TLS related file name for consul
 	ConsulTLSAssetDir    = "/etc/vault/storage/consul/tls/"
 	ConsulClientCaName   = "ca.crt"
-	ConsulClientCertName = "client.crt"
-	ConsulClientKeyName  = "client.key"
+	ConsulClientCertName = "tls.crt"
+	ConsulClientKeyName  = "tls.key"
 )
 
 var consulStorageFmt = `
