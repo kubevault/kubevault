@@ -55,7 +55,7 @@ path "{{ . }}/key/*" {
 }
 
 path "/sys/leases/*" {
-  capabilities = ["create","update"]
+	capabilities = ["create","update"]
 }
 `
 
@@ -142,7 +142,10 @@ func (seClient *SecretEngine) CreatePolicy() error {
 	var policyTemplate string
 	engSpec := seClient.secretEngine.Spec
 
-	if engSpec.GCP != nil {
+	if engSpec.KV != nil {
+		// There are no additional policies required to maintain the KV engine
+		return nil
+	} else if engSpec.GCP != nil {
 		policyTemplate = SecretEnginePolicyGCP
 	} else if engSpec.AWS != nil {
 		policyTemplate = SecretEnginePolicyAWS
@@ -248,6 +251,10 @@ func (seClient *SecretEngine) UpdateAuthRole() error {
 }
 
 func (seClient *SecretEngine) DeletePolicyAndUpdateRole() error {
+	// no additional policies created for KV engine
+	if seClient.secretEngine.Spec.KV != nil {
+		return nil
+	}
 	// delete policy created for this secret engine
 	policyName := seClient.secretEngine.GetPolicyName()
 	err := seClient.vaultClient.Sys().DeletePolicy(policyName)

@@ -16,7 +16,33 @@ limitations under the License.
 
 package engine
 
+import (
+	"net/http"
+
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+)
+
 const KVTestHeaderExpectedVersion = "X-Vault-KV-Expected-Version"
 const KVTestHeaderExpectedMaxVersions = "X-Vault-KV-Expected-Max-Version"
 const KVTestHeaderExpectedCasRequired = "X-Vault-KV-Expected-Cas-Required"
 const KVTestHeaderExpectedDeleteVersionsAfter = "X-Vault-KV-Expected-Delete-Versions-After"
+const KVTestHeaderExpectedPolicy = "X-Vault-Expected-Policy-Name"
+
+func mustWrite(b []byte, w http.ResponseWriter) {
+	_, err := w.Write(b)
+	utilruntime.Must(err)
+}
+
+func mustWriteString(s string, w http.ResponseWriter) {
+	mustWrite([]byte(s), w)
+}
+
+func fail(message string, w http.ResponseWriter) {
+	w.WriteHeader(http.StatusBadRequest)
+	mustWriteString(message, w)
+	mustWriteString("\n", w)
+}
+
+func success(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusOK)
+}

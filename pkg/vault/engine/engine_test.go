@@ -151,18 +151,8 @@ func NewFakeVaultMountServer() *httptest.Server {
 		data, _ := ioutil.ReadAll(r.Body)
 
 		fail := func(message string) {
-			w.WriteHeader(http.StatusBadRequest)
-			if _, err := w.Write([]byte(message)); err != nil {
-				return
-			}
-
-			if _, err := w.Write([]byte("\n")); err != nil {
-				return
-			}
-
-			if _, err := w.Write(data); err != nil {
-				return
-			}
+			fail(message, w)
+			mustWrite(data, w)
 		}
 
 		var newdata map[string]interface{}
@@ -172,11 +162,8 @@ func NewFakeVaultMountServer() *httptest.Server {
 
 			if engineType == api.EngineTypeKV {
 				if options := newdata["options"]; options != nil {
-					fmt.Printf("  options provided: %v\n", options)
 					if optionMap, ok := options.(map[string]interface{}); ok {
-						fmt.Println("  options is a map")
 						if version, ok := optionMap["version"]; ok {
-							fmt.Println("  version:", version)
 							expectedVersion := r.Header.Get(KVTestHeaderExpectedVersion)
 							if expectedVersion == "" {
 								fail("unable to verify version; expected version header is missing")
@@ -186,8 +173,6 @@ func NewFakeVaultMountServer() *httptest.Server {
 							if expectedVersion != version {
 								fail(fmt.Sprintf("expected version %v, got: %v", expectedVersion, version))
 								return
-							} else {
-								fmt.Println("  version matches expected version")
 							}
 						} else {
 							// Technically, it's not, but enabling the KV engine at v1 when the

@@ -311,15 +311,8 @@ func NewFakeVaultServer() *httptest.Server {
 		defer r.Body.Close()
 		var data interface{}
 
-		mustWriteString := func(s string) {
-			_, err := w.Write([]byte(s))
-			utilruntime.Must(err)
-		}
-
 		fail := func(message string) {
-			w.WriteHeader(http.StatusBadRequest)
-			mustWriteString(message)
-			mustWriteString("\n")
+			fail(message, w)
 		}
 
 		expectedVersion := r.Header.Get(KVTestHeaderExpectedVersion)
@@ -337,7 +330,7 @@ func NewFakeVaultServer() *httptest.Server {
 
 		if err != nil {
 			fail("Unable to decode request payload:")
-			mustWriteString(err.Error())
+			mustWriteString(err.Error(), w)
 			return
 		} else {
 			m := data.(map[string]interface{})
