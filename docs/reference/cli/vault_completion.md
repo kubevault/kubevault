@@ -1,27 +1,62 @@
 ---
-title: Vault
+title: Vault Completion
 menu:
   docs_{{ .version }}:
-    identifier: vault
-    name: Vault
+    identifier: vault-completion
+    name: Vault Completion
     parent: reference-cli
-    weight: 0
-
 menu_name: docs_{{ .version }}
 section_menu_id: reference
-url: /docs/{{ .version }}/reference/cli/
-aliases:
-- /docs/{{ .version }}/reference/cli/vault/
 ---
-## vault
+## vault completion
 
-KubeVault cli by AppsCode
+Generate completion script
 
 ### Synopsis
 
-KubeVault cli by AppsCode
+To load completions:
+
+Bash:
+
+$ source <(kubectl-vault completion bash)
+
+# To load completions for each session, execute once:
+Linux:
+  $ kubectl-vault completion bash > /etc/bash_completion.d/kubectl-vault
+MacOS:
+  $ kubectl-vault completion bash > /usr/local/etc/bash_completion.d/kubectl-vault
+
+Zsh:
+
+# If shell completion is not already enabled in your environment you will need
+# to enable it.  You can execute the following once:
+
+$ echo "autoload -U compinit; compinit" >> ~/.zshrc
+
+# To load completions for each session, execute once:
+$ kubectl-vault completion zsh > "${fpath[1]}/_kubectl-vault"
+
+# You will need to start a new shell for this setup to take effect.
+
+Fish:
+
+$ kubectl-vault completion fish | source
+
+# To load completions for each session, execute once:
+$ kubectl-vault completion fish > ~/.config/fish/completions/kubectl-vault.fish
+
+
+```
+vault completion [bash|zsh|fish|powershell]
+```
 
 ### Options
+
+```
+  -h, --help   help for completion
+```
+
+### Options inherited from parent commands
 
 ```
       --alsologtostderr                  log to standard error as well as files
@@ -34,7 +69,6 @@ KubeVault cli by AppsCode
       --client-key string                Path to a client key file for TLS
       --cluster string                   The name of the kubeconfig cluster to use
       --context string                   The name of the kubeconfig context to use
-  -h, --help                             help for vault
       --insecure-skip-tls-verify         If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string                Path to the kubeconfig file to use for CLI requests.
       --log-backtrace-at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
@@ -55,8 +89,5 @@ KubeVault cli by AppsCode
 
 ### SEE ALSO
 
-* [vault approve](/docs/reference/cli/vault_approve.md)	 - Approve request
-* [vault completion](/docs/reference/cli/vault_completion.md)	 - Generate completion script
-* [vault deny](/docs/reference/cli/vault_deny.md)	 - Deny request
-* [vault version](/docs/reference/cli/vault_version.md)	 - Prints binary version number.
+* [vault](/docs/reference/cli/vault.md)	 - KubeVault cli by AppsCode
 
