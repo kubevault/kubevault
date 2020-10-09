@@ -1127,7 +1127,7 @@ k8s.io/utils/net
 k8s.io/utils/path
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# kmodules.xyz/client-go v0.0.0-20201007024140-3223988adf40
+# kmodules.xyz/client-go v0.0.0-20201008164401-74d81f261ec5
 kmodules.xyz/client-go
 kmodules.xyz/client-go/admissionregistration/v1beta1
 kmodules.xyz/client-go/api/v1
@@ -1155,7 +1155,7 @@ kmodules.xyz/constants/azure
 kmodules.xyz/constants/google
 # kmodules.xyz/crd-schema-fuzz v0.0.0-20200922204806-c1426cd7fcf4
 kmodules.xyz/crd-schema-fuzz
-# kmodules.xyz/custom-resources v0.0.0-20200922210108-70f2815a43bb
+# kmodules.xyz/custom-resources v0.0.0-20201008012351-6d8090f759d4
 kmodules.xyz/custom-resources/apis/appcatalog
 kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1
 kmodules.xyz/custom-resources/client/clientset/versioned
@@ -1165,7 +1165,7 @@ kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alph
 kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/fake
 kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/util
 kmodules.xyz/custom-resources/crds
-# kmodules.xyz/monitoring-agent-api v0.0.0-20200922204510-b8b5610e5385
+# kmodules.xyz/monitoring-agent-api v0.0.0-20201007104803-408a1ff2de8d
 kmodules.xyz/monitoring-agent-api/agents
 kmodules.xyz/monitoring-agent-api/agents/prometheus
 kmodules.xyz/monitoring-agent-api/agents/prometheusbuiltin

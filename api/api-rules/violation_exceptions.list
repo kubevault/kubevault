@@ -182,8 +182,6 @@ API rule violation: list_type_missing,kmodules.xyz/custom-resources/apis/appcata
 API rule violation: list_type_missing,kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1,AppBindingList,Items
 API rule violation: list_type_missing,kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1,AppBindingSpec,SecretTransforms
 API rule violation: list_type_missing,kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1,ClientConfig,CABundle
-API rule violation: list_type_missing,kmodules.xyz/monitoring-agent-api/api/v1,AgentSpec,Args
-API rule violation: list_type_missing,kmodules.xyz/monitoring-agent-api/api/v1,AgentSpec,Env
 API rule violation: list_type_missing,kmodules.xyz/monitoring-agent-api/api/v1,PrometheusExporterSpec,Args
 API rule violation: list_type_missing,kmodules.xyz/monitoring-agent-api/api/v1,PrometheusExporterSpec,Env
 API rule violation: list_type_missing,kmodules.xyz/offshoot-api/api/v1,ContainerRuntimeSettings,Env

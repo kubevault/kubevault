@@ -291,7 +291,7 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 		return err
 	}
 
-	if vs.Spec.Monitor != nil && vs.Spec.Monitor.Prometheus != nil && vs.Spec.Monitor.Prometheus.Exporter != nil {
+	if vs.Spec.Monitor != nil && vs.Spec.Monitor.Prometheus != nil {
 		if _, vt, err := c.ensureStatsService(vs); err != nil { // Error ignored intentionally
 			c.recorder.Eventf(
 				vs,
