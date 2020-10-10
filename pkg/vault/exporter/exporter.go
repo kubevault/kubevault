@@ -80,7 +80,7 @@ func (exp monitor) Apply(pt *core.PodTemplateSpec, vs *api.VaultServer) error {
 		c.Args = append(c.Args, fmt.Sprintf("--vault.tls-cacert=%s", vs.Spec.TLS.CABundle))
 	}
 
-	if agent != nil && agent.Prometheus != nil && agent.Prometheus.Exporter != nil {
+	if agent != nil && agent.Prometheus != nil {
 		c.Args = append(c.Args, agent.Prometheus.Exporter.Args...)
 		c.Env = agent.Prometheus.Exporter.Env
 		c.Resources = agent.Prometheus.Exporter.Resources
