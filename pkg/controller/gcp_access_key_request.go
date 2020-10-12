@@ -77,7 +77,7 @@ func (c *VaultController) runGCPAccessKeyRequestInjector(key string) error {
 
 			var condType string
 			for _, c := range req.Status.Conditions {
-				if (c.Type == kmapi.ConditionRequestApproved && c.Status == kmapi.ConditionTrue) || (c.Type == kmapi.ConditionRequestDenied && c.Status == kmapi.ConditionTrue) {
+				if (c.Type == kmapi.ConditionRequestApproved && c.Status == core.ConditionTrue) || (c.Type == kmapi.ConditionRequestDenied && c.Status == core.ConditionTrue) {
 					condType = c.Type
 				}
 			}
@@ -123,7 +123,7 @@ func (c *VaultController) runGCPAccessKeyRequestInjector(key string) error {
 						func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
 							status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 								Type:               kmapi.ConditionFailed,
-								Status:             kmapi.ConditionTrue,
+								Status:             core.ConditionTrue,
 								Reason:             "FailedToCreateCredentialManager",
 								Message:            err.Error(),
 								LastTransitionTime: metav1.Now(),
@@ -197,7 +197,7 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(cm credential.CredentialM
 			func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:               kmapi.ConditionFailed,
-					Status:             kmapi.ConditionTrue,
+					Status:             core.ConditionTrue,
 					Reason:             "FailedToGetCredential",
 					Message:            err.Error(),
 					LastTransitionTime: metav1.Now(),
@@ -227,7 +227,7 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(cm credential.CredentialM
 			func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:               kmapi.ConditionFailed,
-					Status:             kmapi.ConditionTrue,
+					Status:             core.ConditionTrue,
 					Reason:             "FailedToCreateSecret",
 					Message:            err.Error(),
 					LastTransitionTime: metav1.Now(),
@@ -278,7 +278,7 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(cm credential.CredentialM
 			func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:               kmapi.ConditionFailed,
-					Status:             kmapi.ConditionTrue,
+					Status:             core.ConditionTrue,
 					Reason:             "FailedToCreateRole",
 					Message:            err.Error(),
 					LastTransitionTime: metav1.Now(),
@@ -299,7 +299,7 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(cm credential.CredentialM
 			func(status *api.GCPAccessKeyRequestStatus) *api.GCPAccessKeyRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:               kmapi.ConditionFailed,
-					Status:             kmapi.ConditionTrue,
+					Status:             core.ConditionTrue,
 					Reason:             "FailedToCreateRoleBinding",
 					Message:            err.Error(),
 					LastTransitionTime: metav1.Now(),
@@ -319,7 +319,7 @@ func (c *VaultController) reconcileGCPAccessKeyRequest(cm credential.CredentialM
 			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailed)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:               kmapi.ConditionAvailable,
-				Status:             kmapi.ConditionTrue,
+				Status:             core.ConditionTrue,
 				Message:            "The requested credentials successfully issued.",
 				Reason:             "SuccessfullyIssuedCredential",
 				LastTransitionTime: metav1.Now(),

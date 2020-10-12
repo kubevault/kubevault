@@ -26,6 +26,7 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -125,7 +126,7 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:    kmapi.ConditionFailed,
-					Status:  kmapi.ConditionTrue,
+					Status:  core.ConditionTrue,
 					Reason:  "FailedToCreateSecretEnginePolicy",
 					Message: err.Error(),
 				})
@@ -146,7 +147,7 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:    kmapi.ConditionFailed,
-					Status:  kmapi.ConditionTrue,
+					Status:  core.ConditionTrue,
 					Reason:  "FailedToUpdateAuthRole",
 					Message: err.Error(),
 				})
@@ -167,7 +168,7 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:    kmapi.ConditionFailed,
-					Status:  kmapi.ConditionTrue,
+					Status:  core.ConditionTrue,
 					Reason:  "FailedToEnableSecretEngine",
 					Message: err.Error(),
 				})
@@ -188,7 +189,7 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 			func(status *api.SecretEngineStatus) *api.SecretEngineStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:    kmapi.ConditionFailed,
-					Status:  kmapi.ConditionTrue,
+					Status:  core.ConditionTrue,
 					Reason:  "FailedToCreateSecretEngineConfig",
 					Message: err.Error(),
 				})
@@ -210,7 +211,7 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailed)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
-				Status:  kmapi.ConditionTrue,
+				Status:  core.ConditionTrue,
 				Reason:  "Provisioned",
 				Message: "secret engine is ready to use",
 			})
