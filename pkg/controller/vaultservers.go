@@ -108,7 +108,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:    kmapi.ConditionFailed,
-					Status:  kmapi.ConditionTrue,
+					Status:  core.ConditionTrue,
 					Reason:  "FailedToCreateVaultTLSSecret",
 					Message: err.Error(),
 				})
@@ -128,7 +128,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:    kmapi.ConditionFailed,
-					Status:  kmapi.ConditionTrue,
+					Status:  core.ConditionTrue,
 					Reason:  "FailedToCreateVaultConfig",
 					Message: err.Error(),
 				})
@@ -148,7 +148,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:    kmapi.ConditionFailed,
-					Status:  kmapi.ConditionTrue,
+					Status:  core.ConditionTrue,
 					Reason:  "FailedToDeployVault",
 					Message: err.Error(),
 				})
@@ -168,7 +168,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:    kmapi.ConditionFailed,
-					Status:  kmapi.ConditionTrue,
+					Status:  core.ConditionTrue,
 					Reason:  "FailedToCreateAppBinding",
 					Message: err.Error(),
 				})
@@ -187,7 +187,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			status.ObservedGeneration = vs.Generation
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionReady,
-				Status:  kmapi.ConditionTrue,
+				Status:  core.ConditionTrue,
 				Reason:  "Provisioned",
 				Message: "vault server is ready to use",
 			})
