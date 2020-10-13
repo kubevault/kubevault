@@ -120,6 +120,12 @@ path "/sys/leases/*" {
 }
 `
 
+const SecretEnginePolicyKVV2 = `
+path "{{ . }}/config" {
+	capabilities = ["create", "update", "read", "delete"]
+}
+`
+
 type KubernetesAuthRole struct {
 	Data RoleData `json:"data"`
 }
@@ -143,8 +149,14 @@ func (seClient *SecretEngine) CreatePolicy() error {
 	engSpec := seClient.secretEngine.Spec
 
 	if engSpec.KV != nil {
-		// There are no additional policies required to maintain the KV engine
-		return nil
+		if engSpec.KV.Version <= 1 {
+			// There are no additional policies required to maintain the KV V1engine
+			return nil
+		} else if engSpec.KV.Version == 2 {
+			policyTemplate = SecretEnginePolicyKVV2
+		} else {
+			return errors.New(fmt.Sprintf("Unknown KV Version: %d", engSpec.KV.Version))
+		}
 	} else if engSpec.GCP != nil {
 		policyTemplate = SecretEnginePolicyGCP
 	} else if engSpec.AWS != nil {
@@ -251,15 +263,23 @@ func (seClient *SecretEngine) UpdateAuthRole() error {
 }
 
 func (seClient *SecretEngine) DeletePolicyAndUpdateRole() error {
-	// no additional policies created for KV engine
-	if seClient.secretEngine.Spec.KV != nil {
-		return nil
+	var isKVEngine bool
+	if isKVEngine = seClient.secretEngine.Spec.KV != nil; isKVEngine {
+		if seClient.secretEngine.Spec.KV.Version <= 1 {
+			// no additional policies created for KV engine V1
+			return nil
+		}
 	}
 	// delete policy created for this secret engine
 	policyName := seClient.secretEngine.GetPolicyName()
 	err := seClient.vaultClient.Sys().DeletePolicy(policyName)
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("failed to delete vault policy: %s", policyName))
+	}
+
+	if isKVEngine {
+		// We're done here
+		return nil
 	}
 
 	// get policy controller role name from appbinding and

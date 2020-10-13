@@ -27,6 +27,7 @@ const KVTestHeaderExpectedMaxVersions = "X-Vault-KV-Expected-Max-Version"
 const KVTestHeaderExpectedCasRequired = "X-Vault-KV-Expected-Cas-Required"
 const KVTestHeaderExpectedDeleteVersionsAfter = "X-Vault-KV-Expected-Delete-Versions-After"
 const KVTestHeaderExpectedPolicy = "X-Vault-Expected-Policy-Name"
+const KVTestHeaderDenyDelete = "X-Vault-Deny-Delete"
 
 func mustWrite(b []byte, w http.ResponseWriter) {
 	_, err := w.Write(b)

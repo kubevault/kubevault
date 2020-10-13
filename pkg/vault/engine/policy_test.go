@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 	"unicode"
@@ -105,18 +106,37 @@ var expectedPolicies = map[string]string{
 		|path "/sys/leases/*" {
 		|	capabilities = ["create","update"]
 		|}`),
+	"kvv2": stripMargin(`
+    |path "secret/config" {
+    |	capabilities = ["create", "update", "read", "delete"]
+    }`),
+
+	"kvv2-custom-path": stripMargin(`
+    |path "kvv2/config" {
+    |	capabilities = ["create", "update", "read", "delete"]
+    }`),
 }
 
-func NewFakeVaultPolicyServer() *httptest.Server {
+const aclBasePath = "/v1/sys/policies/acl"
+
+func NewFakeVaultPolicyServer(requestRecorder *map[string]int) *httptest.Server {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/v1/sys/policies/acl/{path}", func(w http.ResponseWriter, r *http.Request) {
+	recordPath := func(path string) {
+		if requestRecorder != nil {
+			(*requestRecorder)[path] = (*requestRecorder)[path] + 1
+		}
+	}
+
+	router.HandleFunc(fmt.Sprintf("%s/{path}", aclBasePath), func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		path := vars["path"]
 		body := r.Body
 		data, _ := ioutil.ReadAll(body)
 		var newdata map[string]interface{}
 		_ = json.Unmarshal(data, &newdata)
+
+		recordPath(fmt.Sprintf("/v1/sys/policies/acl/%s", path))
 
 		fail := func(message string) {
 			fail(message, w)
@@ -163,8 +183,28 @@ func NewFakeVaultPolicyServer() *httptest.Server {
 		success()
 	}).Methods(http.MethodPut)
 
-	router.HandleFunc("/v1/sys/policies/acl/{path}", func(w http.ResponseWriter, r *http.Request) {
-		fail("KV Engine has no policy to delete", w)
+	router.HandleFunc(fmt.Sprintf("%s/{path}", aclBasePath), func(w http.ResponseWriter, r *http.Request) {
+		var denyDelete bool
+
+		vars := mux.Vars(r)
+		path := vars["path"]
+
+		recordPath(fmt.Sprintf("/v1/sys/policies/acl/%s", path))
+
+		if rawDenyDelete := r.Header.Get(KVTestHeaderDenyDelete); len(rawDenyDelete) != 0 {
+			var err error
+			if denyDelete, err = strconv.ParseBool(rawDenyDelete); err != nil {
+				fail(fmt.Sprintf("Unable to parse '%s' as boolean: %v", rawDenyDelete, err), w)
+				return
+			}
+		}
+
+		if denyDelete {
+			fail(fmt.Sprintf("Attempt to delete policy '%s', but deletes are denied for this path", path), w)
+			return
+		}
+
+		success(w)
 	}).Methods(http.MethodDelete)
 
 	return httptest.NewServer(router)
@@ -172,7 +212,7 @@ func NewFakeVaultPolicyServer() *httptest.Server {
 
 func TestSecretEngine_CreatePolicy(t *testing.T) {
 
-	srv := NewFakeVaultPolicyServer()
+	srv := NewFakeVaultPolicyServer(nil)
 	defer srv.Close()
 
 	tests := []struct {
@@ -258,17 +298,38 @@ func TestSecretEngine_CreatePolicy(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:           "KV V2 Secret Engine does not create policies",
+			name:           "KV V2 Secret Engine requires a policy for configuration",
 			path:           "secret",
-			expectedPolicy: "none",
+			expectedPolicy: "kvv2",
 			secretEngine: &api.SecretEngine{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "kv-v1",
+					Name:      "kv-v2",
 					Namespace: "demo",
 				},
 				Spec: api.SecretEngineSpec{
 					VaultRef: v1.LocalObjectReference{},
 					Path:     "",
+					SecretEngineConfiguration: api.SecretEngineConfiguration{
+						KV: &api.KVConfiguration{
+							Version: 2,
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:           "KV V2 Secret Engine - custom path",
+			path:           "kvv2",
+			expectedPolicy: "kvv2-custom-path",
+			secretEngine: &api.SecretEngine{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "kv-v2",
+					Namespace: "demo",
+				},
+				Spec: api.SecretEngineSpec{
+					VaultRef: v1.LocalObjectReference{},
+					Path:     "kvv2",
 					SecretEngineConfiguration: api.SecretEngineConfiguration{
 						KV: &api.KVConfiguration{
 							Version: 2,
@@ -301,15 +362,20 @@ func TestSecretEngine_CreatePolicy(t *testing.T) {
 	}
 }
 
-func TestSecretEngine_DeletePolicy_KV(t *testing.T) {
-	srv := NewFakeVaultPolicyServer()
+func TestSecretEngine_DeletePolicy(t *testing.T) {
+	callRecorder := map[string]int{}
+
+	srv := NewFakeVaultPolicyServer(&callRecorder)
 	defer srv.Close()
 
-	t.Run("KV Engine does not need to delete policies", func(t *testing.T) {
-		vc, err := vaultClient(srv.URL)
-		assert.Nil(t, err, "failed to create vault client")
-
-		seClient := &SecretEngine{
+	tests := []struct {
+		name         string
+		secretEngine *api.SecretEngine
+		expectDelete bool
+		wantErr      bool
+	}{
+		{
+			name: "KV V1 Engine does not need to delete policies",
 			secretEngine: &api.SecretEngine{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "kv-v1",
@@ -323,12 +389,56 @@ func TestSecretEngine_DeletePolicy_KV(t *testing.T) {
 					},
 				},
 			},
-			path:        "",
-			vaultClient: vc,
-		}
+			expectDelete: false,
+			wantErr:      false,
+		},
+		{
+			name: "KV V2 Engine deletes policy",
+			secretEngine: &api.SecretEngine{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "kv-v2",
+					Namespace: "demo",
+				},
+				Spec: api.SecretEngineSpec{
+					VaultRef: v1.LocalObjectReference{},
+					Path:     "",
+					SecretEngineConfiguration: api.SecretEngineConfiguration{
+						KV: &api.KVConfiguration{
+							Version: 2,
+						},
+					},
+				},
+			},
+			expectDelete: true,
+			wantErr:      false,
+		},
+	}
 
-		if err := seClient.DeletePolicyAndUpdateRole(); err != nil {
-			t.Errorf("DeletePolicyAndUpdateRole() error = %v", err)
-		}
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			vc, err := vaultClient(srv.URL)
+			assert.Nil(t, err, "failed to create vault client")
+
+			headers := vc.Headers()
+			headers.Add(KVTestHeaderDenyDelete, strconv.FormatBool(!tt.expectDelete))
+			vc.SetHeaders(headers)
+
+			seClient := &SecretEngine{
+				secretEngine: tt.secretEngine,
+				path:         "secret",
+				vaultClient:  vc,
+			}
+
+			if err := seClient.DeletePolicyAndUpdateRole(); (err != nil) != tt.wantErr {
+				t.Errorf("DeletePolicyAndUpdateRole() error = %v", err)
+			}
+
+			if tt.expectDelete {
+				expectedPath := fmt.Sprintf("%s/k8s.-.%s.%s", aclBasePath, tt.secretEngine.ObjectMeta.Namespace, tt.secretEngine.ObjectMeta.Name)
+				if callRecorder[expectedPath] == 0 {
+					t.Errorf("Expected an HTTP request to '%s', but none were recorded. All recorded calls:\n%v", expectedPath, callRecorder)
+				}
+			}
+		})
+	}
 }
