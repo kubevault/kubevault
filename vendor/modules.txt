@@ -1127,7 +1127,7 @@ k8s.io/utils/net
 k8s.io/utils/path
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# kmodules.xyz/client-go v0.0.0-20201021051118-03dac1aea508
+# kmodules.xyz/client-go v0.0.0-20201027113349-01a6d453d836
 kmodules.xyz/client-go
 kmodules.xyz/client-go/admissionregistration/v1beta1
 kmodules.xyz/client-go/api/v1
@@ -1172,7 +1172,7 @@ kmodules.xyz/monitoring-agent-api/agents/prometheusbuiltin
 kmodules.xyz/monitoring-agent-api/agents/prometheusoperator
 kmodules.xyz/monitoring-agent-api/api/v1
 kmodules.xyz/monitoring-agent-api/prometheus/v1
-# kmodules.xyz/offshoot-api v0.0.0-20200922211229-36acc531abab
+# kmodules.xyz/offshoot-api v0.0.0-20201027212804-f5e6dc573558
 kmodules.xyz/offshoot-api/api/v1
 # kmodules.xyz/webhook-runtime v0.0.0-20200922211931-8337935590de
 kmodules.xyz/webhook-runtime/admission/v1beta1
