@@ -1602,6 +1602,8 @@ kmodules.xyz/client-go v0.0.0-20200922200830-63d86b6e5b63 h1:luKlEul8LMhyyftoZN3
 kmodules.xyz/client-go v0.0.0-20200922200830-63d86b6e5b63/go.mod h1:JZN34jqk6ZlR+QOnBPpnUVBab4rmfamqxfSvLaulBMY=
 kmodules.xyz/client-go v0.0.0-20201021051118-03dac1aea508 h1:LjidyEzvw1rSlwRQLWNfElleLJ6vr9Uu5tn5H6JO+QA=
 kmodules.xyz/client-go v0.0.0-20201021051118-03dac1aea508/go.mod h1:pnRh7gtJ6ErPJQBkQeRlpD95KRtxhD4eGrYagZEU8RM=
+kmodules.xyz/client-go v0.0.0-20201027113349-01a6d453d836 h1:oRtOV4teHgELaRJx+mjkpjlO03S9xl1g020RUoU4FDI=
+kmodules.xyz/client-go v0.0.0-20201027113349-01a6d453d836/go.mod h1:pnRh7gtJ6ErPJQBkQeRlpD95KRtxhD4eGrYagZEU8RM=
 kmodules.xyz/constants v0.0.0-20200506032633-a21e58ceec72 h1:0sM6nE7aJon/PSdqZTj0bKJlPyzobXkG0wVYKpjcJJE=
 kmodules.xyz/constants v0.0.0-20200506032633-a21e58ceec72/go.mod h1:DbiFk1bJ1KEO94t1SlAn7tzc+Zz95rSXgyUKa2nzPmY=
 kmodules.xyz/crd-schema-fuzz v0.0.0-20200922204806-c1426cd7fcf4 h1:NWWv+Qju8xzHZT9hIk1+BbgQtIytNOoCU4g4vqUmh3M=
@@ -1610,8 +1612,8 @@ kmodules.xyz/custom-resources v0.0.0-20201008012351-6d8090f759d4 h1:eftT0CrrAYK1
 kmodules.xyz/custom-resources v0.0.0-20201008012351-6d8090f759d4/go.mod h1:+YU32jSWaGGE4etTr/iCF88tLAeDNq1lhptVymjUbjg=
 kmodules.xyz/monitoring-agent-api v0.0.0-20201022103441-f51a42fb9ac8 h1:4WDb9Dt6/mLqLunbd+MseB7FtI8sO8334T8u1kCxZkI=
 kmodules.xyz/monitoring-agent-api v0.0.0-20201022103441-f51a42fb9ac8/go.mod h1:cfJEY2nsOqFF1tLzVqPj6n4KHWfbpRNf/WinOOD/bT4=
-kmodules.xyz/offshoot-api v0.0.0-20200922211229-36acc531abab h1:d/4AFAN0TfKgwhjbQYzwXXHT/5/vTP7SAAvS4uJX+wQ=
-kmodules.xyz/offshoot-api v0.0.0-20200922211229-36acc531abab/go.mod h1:Wy3/mWK2lWQOviKVpBtiCEYtLaYIaSiym8leZNKBUd4=
+kmodules.xyz/offshoot-api v0.0.0-20201027212804-f5e6dc573558 h1:/gk1vlGimdRj3fYS2NUsoV4UKQxW/I2ORXssnz2sBNI=
+kmodules.xyz/offshoot-api v0.0.0-20201027212804-f5e6dc573558/go.mod h1:+tGJRjfzEFm01qWQZcmTkFhB5dWA1jKHXnlUS6O4ZkQ=
 kmodules.xyz/openshift v0.0.0-20200922211657-1ece16d36c18/go.mod h1:kOnEGdrj+DxTYJWHftqEHeYywCgh9tEiBOD5kPhVbCc=
 kmodules.xyz/webhook-runtime v0.0.0-20200922211931-8337935590de h1:uWgv78OoOWx9eQdu6SEkPopvbpnL8WxZEMNd3/Oye2w=
 kmodules.xyz/webhook-runtime v0.0.0-20200922211931-8337935590de/go.mod h1:5A8s2nvrNAZGrt0OlsiiuZIik3xWyKW6+ZSwgljIm78=
