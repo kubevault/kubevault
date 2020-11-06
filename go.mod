@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/appscode/go v0.0.0-20200928211031-cc0c23082d91
 	github.com/aws/aws-sdk-go v1.31.9
-	github.com/codeskyblue/go-sh v0.0.0-20190412065543-76bd3d59ff27
+	github.com/codeskyblue/go-sh v0.0.0-20200712050446-30169cf553fe
 	github.com/evanphx/json-patch v4.9.0+incompatible
 	github.com/go-openapi/spec v0.19.8
 	github.com/gogo/protobuf v1.3.1
@@ -22,11 +22,12 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus-operator/prometheus-operator v0.42.0
 	github.com/spf13/afero v1.2.2
-	github.com/spf13/cobra v0.0.5
+	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.5.1
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	gomodules.xyz/cert v1.0.3
+	gomodules.xyz/pointer v0.0.0-20201105071923-daf60fa55209 // indirect
 	google.golang.org/api v0.26.0
 	k8s.io/api v0.18.9
 	k8s.io/apiextensions-apiserver v0.18.9
@@ -36,13 +37,13 @@ require (
 	k8s.io/kube-aggregator v0.18.9
 	k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
 	k8s.io/kubernetes v1.18.9
-	kmodules.xyz/client-go v0.0.0-20201027113349-01a6d453d836
-	kmodules.xyz/constants v0.0.0-20200506032633-a21e58ceec72
+	kmodules.xyz/client-go v0.0.0-20201105071625-0b277310b9b8
+	kmodules.xyz/constants v0.0.0-20200923054614-6b87dbbae4d6
 	kmodules.xyz/crd-schema-fuzz v0.0.0-20200922204806-c1426cd7fcf4
-	kmodules.xyz/custom-resources v0.0.0-20201008012351-6d8090f759d4
-	kmodules.xyz/monitoring-agent-api v0.0.0-20201022103441-f51a42fb9ac8
-	kmodules.xyz/offshoot-api v0.0.0-20201027212804-f5e6dc573558
-	kmodules.xyz/webhook-runtime v0.0.0-20200922211931-8337935590de
+	kmodules.xyz/custom-resources v0.0.0-20201105075444-3c6af51b4f79
+	kmodules.xyz/monitoring-agent-api v0.0.0-20201105074044-be7a1044891a
+	kmodules.xyz/offshoot-api v0.0.0-20201105074700-8675f5f686f2
+	kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6
 	sigs.k8s.io/yaml v1.2.0
 )
 
