@@ -12,10 +12,6 @@ section_menu_id: reference
 
 Launch Vault operator
 
-### Synopsis
-
-Launch Vault operator
-
 ```
 vault-operator run [flags]
 ```

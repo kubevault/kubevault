@@ -17,10 +17,6 @@ aliases:
 
 Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
 
-### Synopsis
-
-Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
-
 ### Options
 
 ```
