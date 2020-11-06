@@ -17,10 +17,6 @@ aliases:
 
 KubeVault cli by AppsCode
 
-### Synopsis
-
-KubeVault cli by AppsCode
-
 ### Options
 
 ```

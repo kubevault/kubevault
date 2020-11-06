@@ -12,10 +12,6 @@ section_menu_id: reference
 
 Approve request
 
-### Synopsis
-
-Approve request
-
 ```
 vault approve [flags]
 ```

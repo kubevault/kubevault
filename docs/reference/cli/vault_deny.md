@@ -12,10 +12,6 @@ section_menu_id: reference
 
 Deny request
 
-### Synopsis
-
-Deny request
-
 ```
 vault deny [flags]
 ```
