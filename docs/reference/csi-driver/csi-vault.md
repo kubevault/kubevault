@@ -17,10 +17,6 @@ aliases:
 
 Vault CSI by Appscode - Start farms
 
-### Synopsis
-
-Vault CSI by Appscode - Start farms
-
 ### Options
 
 ```

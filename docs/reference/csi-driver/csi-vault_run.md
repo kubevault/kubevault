@@ -12,10 +12,6 @@ section_menu_id: reference
 
 Run Vault CSI driver
 
-### Synopsis
-
-Run Vault CSI driver
-
 ```
 csi-vault run [flags]
 ```
@@ -41,7 +37,7 @@ csi-vault run [flags]
   -h, --help                                                    help for run
       --http2-max-streams-per-connection int                    The limit that the server gives to clients for the maximum number of streams in an HTTP/2 connection. Zero means to use golang's default. (default 1000)
       --kubeconfig string                                       kubeconfig file pointing at the 'core' kubernetes server.
-      --node string                                             Hostname (default "fv-az12-726")
+      --node string                                             Hostname (default "fv-az195-497")
       --probe-timeout duration                                  Probe timeout in seconds (default 1s)
       --profiling                                               Enable profiling via web interface host:port/debug/pprof/ (default true)
       --qps float                                               The maximum QPS to the master from this client (default 100)
