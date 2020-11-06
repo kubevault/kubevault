@@ -23,9 +23,9 @@ import (
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"kubevault.dev/operator/pkg/eventer"
 
-	"github.com/appscode/go/log"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
+	"gomodules.xyz/x/log"
 	appsv1 "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"

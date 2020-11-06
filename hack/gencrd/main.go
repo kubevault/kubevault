@@ -30,9 +30,9 @@ import (
 	policyinstall "kubevault.dev/operator/apis/policy/install"
 	policyv1alpha1 "kubevault.dev/operator/apis/policy/v1alpha1"
 
-	gort "github.com/appscode/go/runtime"
 	"github.com/go-openapi/spec"
 	"github.com/golang/glog"
+	gort "gomodules.xyz/runtime"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/kube-openapi/pkg/common"
@@ -57,17 +57,13 @@ func generateSwaggerJson() {
 			Title:   "KubeVault",
 			Version: "v0.3.0",
 			Contact: &spec.ContactInfo{
-				ContactInfoProps: spec.ContactInfoProps{
-					Name:  "AppsCode Inc.",
-					URL:   "https://appscode.com",
-					Email: "kubevault@appscode.com",
-				},
+				Name:  "AppsCode Inc.",
+				URL:   "https://appscode.com",
+				Email: "kubevault@appscode.com",
 			},
 			License: &spec.License{
-				LicenseProps: spec.LicenseProps{
-					Name: "Apache 2.0",
-					URL:  "https://www.apache.org/licenses/LICENSE-2.0.html",
-				},
+				Name: "Apache 2.0",
+				URL:  "https://www.apache.org/licenses/LICENSE-2.0.html",
 			},
 		},
 		OpenAPIDefinitions: []common.GetOpenAPIDefinitions{

@@ -26,9 +26,9 @@ import (
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/credential"
 
-	"github.com/appscode/go/crypto/rand"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
+	"gomodules.xyz/x/crypto/rand"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"

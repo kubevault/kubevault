@@ -25,8 +25,8 @@ import (
 	extfake "kubevault.dev/operator/client/clientset/versioned/fake"
 	clientsetscheme "kubevault.dev/operator/client/clientset/versioned/scheme"
 
-	"github.com/appscode/go/types"
 	"github.com/stretchr/testify/assert"
+	"gomodules.xyz/pointer"
 	admission "k8s.io/api/admission/v1beta1"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -69,7 +69,7 @@ var (
 		},
 		Spec: api.VaultServerSpec{
 			Version:  "1.2.3",
-			Replicas: types.Int32P(1),
+			Replicas: pointer.Int32P(1),
 			TLS:      nil,
 			Backend:  api.BackendStorageSpec{},
 			Unsealer: nil,
@@ -111,7 +111,7 @@ func TestVaultServerValidator_Admit(t *testing.T) {
 		{
 			testName:  "Update VaultServer nodes, operation allowed",
 			operation: admission.Update,
-			object:    func() api.VaultServer { v := validVaultServer(); v.Spec.Replicas = types.Int32P(10); return v }(),
+			object:    func() api.VaultServer { v := validVaultServer(); v.Spec.Replicas = pointer.Int32P(10); return v }(),
 			oldObject: validVaultServer(),
 			allowed:   true,
 		},
@@ -186,7 +186,7 @@ func TestValidateVaultServer(t *testing.T) {
 		},
 		{
 			testName:    "spec.nodes is invalid, expect error",
-			vs:          func() *api.VaultServer { v := vs; v.Spec.Replicas = types.Int32P(0); return &v }(),
+			vs:          func() *api.VaultServer { v := vs; v.Spec.Replicas = pointer.Int32P(0); return &v }(),
 			extraSecret: nil,
 			expectErr:   true,
 		},
@@ -473,7 +473,7 @@ func TestValidateUpdate(t *testing.T) {
 	}{
 		{
 			testName:    "update nodes, expect no error",
-			object:      func() api.VaultServer { v := validVaultServer(); v.Spec.Replicas = types.Int32P(10); return v }(),
+			object:      func() api.VaultServer { v := validVaultServer(); v.Spec.Replicas = pointer.Int32P(10); return v }(),
 			oldObject:   validVaultServer(),
 			expectedErr: false,
 		},

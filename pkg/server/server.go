@@ -27,7 +27,7 @@ import (
 	"kubevault.dev/operator/pkg/controller"
 	"kubevault.dev/operator/pkg/eventer"
 
-	"github.com/appscode/go/types"
+	"gomodules.xyz/pointer"
 	admission "k8s.io/api/admission/v1beta1"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -209,7 +209,7 @@ func (c completedConfig) New() (*VaultServer, error) {
 							Namespace: "default",
 						},
 						Spec: api.VaultServerSpec{
-							Replicas: types.Int32P(1),
+							Replicas: pointer.Int32P(1),
 							Version:  "0.11.1",
 						},
 					}, ctx.StopCh)

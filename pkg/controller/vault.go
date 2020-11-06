@@ -33,7 +33,7 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	"github.com/spf13/afero"
+	"gomodules.xyz/blobfs"
 	"gomodules.xyz/cert"
 	"gomodules.xyz/cert/certstore"
 	apps "k8s.io/api/apps/v1"
@@ -142,7 +142,7 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 		return sr, v.vs.Spec.TLS.CABundle, nil
 	}
 
-	store, err := certstore.NewCertStore(afero.NewMemMapFs(), filepath.Join("", "pki"))
+	store, err := certstore.New(blobfs.NewInMemoryFS(), filepath.Join("", "pki"))
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "certificate store create error")
 	}
