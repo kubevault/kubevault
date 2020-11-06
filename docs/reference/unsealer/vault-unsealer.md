@@ -17,10 +17,6 @@ aliases:
 
 Automates initialisation and unsealing of Hashicorp Vault
 
-### Synopsis
-
-Automates initialisation and unsealing of Hashicorp Vault
-
 ### Options
 
 ```

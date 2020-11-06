@@ -12,10 +12,6 @@ section_menu_id: reference
 
 Launch Vault unsealer
 
-### Synopsis
-
-Launch Vault unsealer
-
 ```
 vault-unsealer run [flags]
 ```
