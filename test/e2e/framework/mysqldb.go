@@ -21,9 +21,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/appscode/go/crypto/rand"
-	"github.com/appscode/go/types"
 	. "github.com/onsi/gomega"
+	"gomodules.xyz/pointer"
+	"gomodules.xyz/x/crypto/rand"
 	apps "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -194,7 +194,7 @@ func (f *Framework) DeployMysql() (*appcat.AppReference, error) {
 				Name: MysqlCredentialSecret,
 			},
 			ClientConfig: appcat.ClientConfig{
-				URL:                   types.StringP(fmt.Sprintf("tcp(%s.%s.svc:3306)/", mysqlDBServiceName, f.namespace)),
+				URL:                   pointer.StringP(fmt.Sprintf("tcp(%s.%s.svc:3306)/", mysqlDBServiceName, f.namespace)),
 				InsecureSkipTLSVerify: true,
 			},
 		},

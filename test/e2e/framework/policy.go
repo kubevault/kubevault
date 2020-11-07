@@ -21,8 +21,8 @@ import (
 
 	api "kubevault.dev/operator/apis/policy/v1alpha1"
 
-	"github.com/appscode/go/crypto/rand"
 	. "github.com/onsi/gomega"
+	"gomodules.xyz/x/crypto/rand"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	meta_util "kmodules.xyz/client-go/meta"
