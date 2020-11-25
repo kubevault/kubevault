@@ -42,7 +42,7 @@ require (
 	kmodules.xyz/client-go v0.0.0-20201105071625-0b277310b9b8
 	kmodules.xyz/constants v0.0.0-20200923054614-6b87dbbae4d6
 	kmodules.xyz/crd-schema-fuzz v0.0.0-20200922204806-c1426cd7fcf4
-	kmodules.xyz/custom-resources v0.0.0-20201105075444-3c6af51b4f79
+	kmodules.xyz/custom-resources v0.0.0-20201124062543-bd8d35c21b0c
 	kmodules.xyz/monitoring-agent-api v0.0.0-20201105074044-be7a1044891a
 	kmodules.xyz/offshoot-api v0.0.0-20201105074700-8675f5f686f2
 	kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6
