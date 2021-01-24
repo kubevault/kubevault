@@ -26,6 +26,7 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -125,8 +126,8 @@ func (c *VaultController) reconcileMySQLRole(rClient database.DatabaseRoleInterf
 			role.ObjectMeta,
 			func(status *api.MySQLRoleStatus) *api.MySQLRoleStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
-					Status:  kmapi.ConditionTrue,
+					Type:    kmapi.ConditionFailed,
+					Status:  core.ConditionTrue,
 					Reason:  "FailedToCreateRole",
 					Message: err.Error(),
 				})
@@ -143,10 +144,10 @@ func (c *VaultController) reconcileMySQLRole(rClient database.DatabaseRoleInterf
 		func(status *api.MySQLRoleStatus) *api.MySQLRoleStatus {
 			status.Phase = MySQLRolePhaseSuccess
 			status.ObservedGeneration = role.Generation
-			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailed)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
-				Status:  kmapi.ConditionTrue,
+				Status:  core.ConditionTrue,
 				Reason:  "Provisioned",
 				Message: "role is ready to use",
 			})

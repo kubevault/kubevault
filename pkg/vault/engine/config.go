@@ -24,6 +24,7 @@ import (
 	"kubevault.dev/operator/pkg/vault"
 
 	"github.com/pkg/errors"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
@@ -104,11 +105,11 @@ func (seClient *SecretEngine) CreateMySQLConfig() error {
 		if err != nil {
 			return err
 		}
-		if v, ok := secret.Data[appcat.KeyUsername]; ok {
-			payload[appcat.KeyUsername] = string(v)
+		if v, ok := secret.Data[core.BasicAuthUsernameKey]; ok {
+			payload[core.BasicAuthUsernameKey] = string(v)
 		}
-		if v, ok := secret.Data[appcat.KeyPassword]; ok {
-			payload[appcat.KeyPassword] = string(v)
+		if v, ok := secret.Data[core.BasicAuthPasswordKey]; ok {
+			payload[core.BasicAuthPasswordKey] = string(v)
 		}
 	}
 
@@ -173,11 +174,11 @@ func (seClient *SecretEngine) CreateMongoDBConfig() error {
 		if err != nil {
 			return err
 		}
-		if v, ok := secret.Data[appcat.KeyUsername]; ok {
-			payload[appcat.KeyUsername] = string(v)
+		if v, ok := secret.Data[core.BasicAuthUsernameKey]; ok {
+			payload[core.BasicAuthUsernameKey] = string(v)
 		}
-		if v, ok := secret.Data[appcat.KeyPassword]; ok {
-			payload[appcat.KeyPassword] = string(v)
+		if v, ok := secret.Data[core.BasicAuthPasswordKey]; ok {
+			payload[core.BasicAuthPasswordKey] = string(v)
 		}
 	}
 
@@ -239,11 +240,11 @@ func (seClient *SecretEngine) CreatePostgresConfig() error {
 		if err != nil {
 			return err
 		}
-		if v, ok := secret.Data[appcat.KeyUsername]; ok {
-			payload[appcat.KeyUsername] = string(v)
+		if v, ok := secret.Data[core.BasicAuthUsernameKey]; ok {
+			payload[core.BasicAuthUsernameKey] = string(v)
 		}
-		if v, ok := secret.Data[appcat.KeyPassword]; ok {
-			payload[appcat.KeyPassword] = string(v)
+		if v, ok := secret.Data[core.BasicAuthPasswordKey]; ok {
+			payload[core.BasicAuthPasswordKey] = string(v)
 		}
 	}
 

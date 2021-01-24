@@ -58,8 +58,8 @@ discovery_srv = "etcd.com"
 ha_enabled = "false"
 sync = "false"
 tls_ca_file = "/etc/vault/storage/etcd/tls/ca.crt"
-tls_cert_file = "/etc/vault/storage/etcd/tls/client.crt"
-tls_key_file = "/etc/vault/storage/etcd/tls/client.key"
+tls_cert_file = "/etc/vault/storage/etcd/tls/tls.crt"
+tls_key_file = "/etc/vault/storage/etcd/tls/tls.key"
 }
 `
 

@@ -149,14 +149,14 @@ func TestVaultController_reconcileSecretEngine(t *testing.T) {
 				if tt.wantErr {
 					assert.Condition(t, func() (success bool) {
 						return len(se.Status.Conditions) > 0 &&
-							kmapi.IsConditionTrue(se.Status.Conditions, kmapi.ConditionFailure) &&
+							kmapi.IsConditionTrue(se.Status.Conditions, kmapi.ConditionFailed) &&
 							!kmapi.HasCondition(se.Status.Conditions, kmapi.ConditionAvailable)
 					}, "Should have status.conditions")
 				} else {
 					assert.Condition(t, func() (success bool) {
 						return se.Status.Phase == SecretEnginePhaseSuccess &&
 							len(se.Status.Conditions) > 0 &&
-							!kmapi.HasCondition(se.Status.Conditions, kmapi.ConditionFailure) &&
+							!kmapi.HasCondition(se.Status.Conditions, kmapi.ConditionFailed) &&
 							kmapi.IsConditionTrue(se.Status.Conditions, kmapi.ConditionAvailable)
 					}, "Shouldn't have status.conditions")
 				}

@@ -27,6 +27,7 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -101,10 +102,10 @@ func (c *VaultController) reconcilePolicyBinding(pb *policyapi.VaultPolicyBindin
 			func(status *policyapi.VaultPolicyBindingStatus) *policyapi.VaultPolicyBindingStatus {
 				status.Phase = policyapi.PolicyBindingFailed
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:               kmapi.ConditionFailure,
-					Status:             kmapi.ConditionTrue,
-					Reason:             "FailedToEnsurePolicyBinding",
-					Message:            err.Error(),
+					Type:    kmapi.ConditionFailed,
+					Status:  core.ConditionTrue,
+					Reason:  "FailedToEnsurePolicyBinding",
+					Message: err.Error(),
 					LastTransitionTime: metav1.NewTime(time.Now()),
 				})
 				return status
@@ -122,10 +123,10 @@ func (c *VaultController) reconcilePolicyBinding(pb *policyapi.VaultPolicyBindin
 		func(status *policyapi.VaultPolicyBindingStatus) *policyapi.VaultPolicyBindingStatus {
 			status.ObservedGeneration = pb.Generation
 			status.Phase = policyapi.PolicyBindingSuccess
-			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailed)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
-				Status:  kmapi.ConditionTrue,
+				Status:  core.ConditionTrue,
 				Reason:  "Provisioned",
 				Message: "policy binding is ready to use",
 			})

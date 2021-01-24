@@ -23,10 +23,10 @@ import (
 	"kubevault.dev/operator/pkg/controller"
 	"kubevault.dev/operator/test/e2e/framework"
 
-	logs "github.com/appscode/go/log/golog"
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
+	logs "gomodules.xyz/x/log/golog"
 	ka "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
 	"kmodules.xyz/client-go/tools/clientcmd"
 )

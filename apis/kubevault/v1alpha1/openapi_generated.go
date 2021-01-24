@@ -23,7 +23,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	types "github.com/appscode/go/encoding/json/types"
 	spec "github.com/go-openapi/spec"
 	resource "k8s.io/apimachinery/pkg/api/resource"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,7 +33,6 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/appscode/go/encoding/json/types.IntHash":                          schema_go_encoding_json_types_IntHash(ref),
 		"k8s.io/api/apps/v1.ControllerRevision":                                       schema_k8sio_api_apps_v1_ControllerRevision(ref),
 		"k8s.io/api/apps/v1.ControllerRevisionList":                                   schema_k8sio_api_apps_v1_ControllerRevisionList(ref),
 		"k8s.io/api/apps/v1.DaemonSet":                                                schema_k8sio_api_apps_v1_DaemonSet(ref),
@@ -332,7 +330,12 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"k8s.io/apimachinery/pkg/runtime.Unknown":                                     schema_k8sio_apimachinery_pkg_runtime_Unknown(ref),
 		"k8s.io/apimachinery/pkg/util/intstr.IntOrString":                             schema_apimachinery_pkg_util_intstr_IntOrString(ref),
 		"k8s.io/apimachinery/pkg/version.Info":                                        schema_k8sio_apimachinery_pkg_version_Info(ref),
+		"kmodules.xyz/client-go/api/v1.CertificatePrivateKey":                         schema_kmodulesxyz_client_go_api_v1_CertificatePrivateKey(ref),
+		"kmodules.xyz/client-go/api/v1.CertificateSpec":                               schema_kmodulesxyz_client_go_api_v1_CertificateSpec(ref),
 		"kmodules.xyz/client-go/api/v1.Condition":                                     schema_kmodulesxyz_client_go_api_v1_Condition(ref),
+		"kmodules.xyz/client-go/api/v1.TLSConfig":                                     schema_kmodulesxyz_client_go_api_v1_TLSConfig(ref),
+		"kmodules.xyz/client-go/api/v1.X509Subject":                                   schema_kmodulesxyz_client_go_api_v1_X509Subject(ref),
+		"kmodules.xyz/client-go/api/v1.stringSetMerger":                               schema_kmodulesxyz_client_go_api_v1_stringSetMerger(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AddKeyTransform":      schema_custom_resources_apis_appcatalog_v1alpha1_AddKeyTransform(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AddKeysFromTransform": schema_custom_resources_apis_appcatalog_v1alpha1_AddKeysFromTransform(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppBinding":           schema_custom_resources_apis_appcatalog_v1alpha1_AppBinding(ref),
@@ -390,18 +393,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.VaultServerStatus":            schema_operator_apis_kubevault_v1alpha1_VaultServerStatus(ref),
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.VaultStatus":                  schema_operator_apis_kubevault_v1alpha1_VaultStatus(ref),
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.vaultServerStatsService":      schema_operator_apis_kubevault_v1alpha1_vaultServerStatsService(ref),
-	}
-}
-
-func schema_go_encoding_json_types_IntHash(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "IntHash represents as int64 Generation and string Hash. It is json serialized into <int64>$<hash_string>.",
-				Type:        types.IntHash{}.OpenAPISchemaType(),
-				Format:      types.IntHash{}.OpenAPISchemaFormat(),
-			},
-		},
 	}
 }
 
@@ -15589,6 +15580,135 @@ func schema_k8sio_apimachinery_pkg_version_Info(ref common.ReferenceCallback) co
 	}
 }
 
+func schema_kmodulesxyz_client_go_api_v1_CertificatePrivateKey(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "CertificatePrivateKey contains configuration options for private keys used by the Certificate controller. This allows control of how private keys are rotated.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"encoding": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The private key cryptography standards (PKCS) encoding for this certificate's private key to be encoded in. If provided, allowed values are \"pkcs1\" and \"pkcs8\" standing for PKCS#1 and PKCS#8, respectively. Defaults to PKCS#1 if not specified. See here for the difference between the formats: https://stackoverflow.com/a/48960291",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_kmodulesxyz_client_go_api_v1_CertificateSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"alias": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Alias represents the identifier of the certificate.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"secretName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the k8s secret name that holds the certificates. Default to <resource-name>-<cert-alias>-cert.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"subject": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Full X509 name specification (https://golang.org/pkg/crypto/x509/pkix/#Name).",
+							Ref:         ref("kmodules.xyz/client-go/api/v1.X509Subject"),
+						},
+					},
+					"duration": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Certificate default Duration",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
+					"renewBefore": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Certificate renew before expiration duration",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
+					"dnsNames": {
+						SchemaProps: spec.SchemaProps{
+							Description: "DNSNames is a list of subject alt names to be used on the Certificate.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"ipAddresses": {
+						SchemaProps: spec.SchemaProps{
+							Description: "IPAddresses is a list of IP addresses to be used on the Certificate",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"uris": {
+						SchemaProps: spec.SchemaProps{
+							Description: "URIs is a list of URI subjectAltNames to be set on the Certificate.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"emailAddresses": {
+						SchemaProps: spec.SchemaProps{
+							Description: "EmailAddresses is a list of email subjectAltNames to be set on the Certificate.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"privateKey": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Options to control private keys used for the Certificate.",
+							Ref:         ref("kmodules.xyz/client-go/api/v1.CertificatePrivateKey"),
+						},
+					},
+				},
+				Required: []string{"alias"},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Duration", "kmodules.xyz/client-go/api/v1.CertificatePrivateKey", "kmodules.xyz/client-go/api/v1.X509Subject"},
+	}
+}
+
 func schema_kmodulesxyz_client_go_api_v1_Condition(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -15645,6 +15765,167 @@ func schema_kmodulesxyz_client_go_api_v1_Condition(ref common.ReferenceCallback)
 	}
 }
 
+func schema_kmodulesxyz_client_go_api_v1_TLSConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"issuerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "IssuerRef is a reference to a Certificate Issuer.",
+							Ref:         ref("k8s.io/api/core/v1.TypedLocalObjectReference"),
+						},
+					},
+					"certificates": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Certificate provides server and/or client certificate options used by application pods. These options are passed to a cert-manager Certificate object. xref: https://github.com/jetstack/cert-manager/blob/v0.16.0/pkg/apis/certmanager/v1beta1/types_certificate.go#L82-L162",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kmodules.xyz/client-go/api/v1.CertificateSpec"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/api/core/v1.TypedLocalObjectReference", "kmodules.xyz/client-go/api/v1.CertificateSpec"},
+	}
+}
+
+func schema_kmodulesxyz_client_go_api_v1_X509Subject(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "X509Subject Full X509 name specification",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"organizations": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Organizations to be used on the Certificate.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"countries": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Countries to be used on the CertificateSpec.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"organizationalUnits": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Organizational Units to be used on the CertificateSpec.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"localities": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Cities to be used on the CertificateSpec.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"provinces": {
+						SchemaProps: spec.SchemaProps{
+							Description: "State/Provinces to be used on the CertificateSpec.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"streetAddresses": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Street addresses to be used on the CertificateSpec.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"postalCodes": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Postal codes to be used on the CertificateSpec.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"serialNumber": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Serial number to be used on the CertificateSpec.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_kmodulesxyz_client_go_api_v1_stringSetMerger(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+			},
+		},
+	}
+}
+
 func schema_custom_resources_apis_appcatalog_v1alpha1_AddKeyTransform(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -15674,7 +15955,7 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_AddKeyTransform(ref common
 						},
 					},
 				},
-				Required: []string{"key", "value", "stringValue"},
+				Required: []string{"key"},
 			},
 		},
 	}
@@ -16105,56 +16386,11 @@ func schema_kmodulesxyz_monitoring_agent_api_api_v1_AgentSpec(ref common.Referen
 							Ref: ref("kmodules.xyz/monitoring-agent-api/api/v1.PrometheusSpec"),
 						},
 					},
-					"args": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Arguments to the entrypoint. The docker image's CMD is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell Deprecated: use prometheus.exporter.args",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Type:   []string{"string"},
-										Format: "",
-									},
-								},
-							},
-						},
-					},
-					"env": {
-						VendorExtensible: spec.VendorExtensible{
-							Extensions: spec.Extensions{
-								"x-kubernetes-patch-merge-key": "name",
-								"x-kubernetes-patch-strategy":  "merge",
-							},
-						},
-						SchemaProps: spec.SchemaProps{
-							Description: "List of environment variables to set in the container. Cannot be updated. Deprecated Deprecated: use prometheus.exporter.env",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Ref: ref("k8s.io/api/core/v1.EnvVar"),
-									},
-								},
-							},
-						},
-					},
-					"resources": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Compute Resources required by exporter container. Cannot be updated. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/ Deprecated: use prometheus.exporter.resources",
-							Ref:         ref("k8s.io/api/core/v1.ResourceRequirements"),
-						},
-					},
-					"securityContext": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Security options the pod should run with. More info: https://kubernetes.io/docs/concepts/policy/security-context/ More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ Deprecated: use prometheus.exporter.securityContext",
-							Ref:         ref("k8s.io/api/core/v1.SecurityContext"),
-						},
-					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.EnvVar", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.SecurityContext", "kmodules.xyz/monitoring-agent-api/api/v1.PrometheusSpec"},
+			"kmodules.xyz/monitoring-agent-api/api/v1.PrometheusSpec"},
 	}
 }
 
@@ -16230,50 +16466,14 @@ func schema_kmodulesxyz_monitoring_agent_api_api_v1_PrometheusSpec(ref common.Re
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"port": {
+					"exporter": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Port number for the exporter side car. Deprecated: use exporter.port",
-							Type:        []string{"integer"},
-							Format:      "int32",
-						},
-					},
-					"namespace": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Namespace of Prometheus. Service monitors will be created in this namespace. Deprecated: use prometheus.serviceMonitor.namespace",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"labels": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Labels are key value pairs that is used to select Prometheus instance via ServiceMonitor labels. Deprecated: use prometheus.serviceMonitor.labels",
-							Type:        []string{"object"},
-							AdditionalProperties: &spec.SchemaOrBool{
-								Allows: true,
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Type:   []string{"string"},
-										Format: "",
-									},
-								},
-							},
-						},
-					},
-					"interval": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Interval at which metrics should be scraped Deprecated: use prometheus.serviceMonitor.interval",
-							Type:        []string{"string"},
-							Format:      "",
+							Ref: ref("kmodules.xyz/monitoring-agent-api/api/v1.PrometheusExporterSpec"),
 						},
 					},
 					"serviceMonitor": {
 						SchemaProps: spec.SchemaProps{
 							Ref: ref("kmodules.xyz/monitoring-agent-api/api/v1.ServiceMonitorSpec"),
-						},
-					},
-					"exporter": {
-						SchemaProps: spec.SchemaProps{
-							Ref: ref("kmodules.xyz/monitoring-agent-api/api/v1.PrometheusExporterSpec"),
 						},
 					},
 				},
@@ -16290,13 +16490,6 @@ func schema_kmodulesxyz_monitoring_agent_api_api_v1_ServiceMonitorSpec(ref commo
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"namespace": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Namespace of Prometheus. Service monitors will be created in this namespace.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"labels": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Labels are key value pairs that is used to select Prometheus instance via ServiceMonitor labels.",
@@ -16910,11 +17103,24 @@ func schema_kmodulesxyz_offshoot_api_api_v1_PodSpec(ref common.ReferenceCallback
 							Ref:         ref("k8s.io/api/core/v1.Lifecycle"),
 						},
 					},
+					"dnsPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Set DNS policy for the pod. Defaults to \"ClusterFirst\". Valid values are 'ClusterFirstWithHostNet', 'ClusterFirst', 'Default' or 'None'. DNS parameters given in DNSConfig will be merged with the policy selected with DNSPolicy. To have DNS options set along with hostNetwork, you have to specify DNS policy explicitly to 'ClusterFirstWithHostNet'.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"dnsConfig": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the DNS parameters of a pod. Parameters specified here will be merged to the generated DNS configuration based on DNSPolicy.",
+							Ref:         ref("k8s.io/api/core/v1.PodDNSConfig"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.Affinity", "k8s.io/api/core/v1.Container", "k8s.io/api/core/v1.EnvVar", "k8s.io/api/core/v1.Lifecycle", "k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.PodSecurityContext", "k8s.io/api/core/v1.Probe", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.Toleration"},
+			"k8s.io/api/core/v1.Affinity", "k8s.io/api/core/v1.Container", "k8s.io/api/core/v1.EnvVar", "k8s.io/api/core/v1.Lifecycle", "k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.PodDNSConfig", "k8s.io/api/core/v1.PodSecurityContext", "k8s.io/api/core/v1.Probe", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.Toleration"},
 	}
 }
 
@@ -17638,7 +17844,7 @@ func schema_operator_apis_kubevault_v1alpha1_ConsulSpec(ref common.ReferenceCall
 					},
 					"tlsSecretName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for consul communication Secret data:\n\t- ca.crt\n\t- client.crt\n - client.key",
+							Description: "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for consul communication Secret data:\n\t- ca.crt\n\t- tls.crt\n - tls.key",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -17797,7 +18003,7 @@ func schema_operator_apis_kubevault_v1alpha1_EtcdSpec(ref common.ReferenceCallba
 					},
 					"tlsSecretName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication secret data:\n\t- ca.crt\n - client.crt\n - client.key",
+							Description: "Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication secret data:\n\t- ca.crt\n - tls.crt\n - tls.key",
 							Type:        []string{"string"},
 							Format:      "",
 						},

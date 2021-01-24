@@ -71,10 +71,16 @@ func EnsureContainerDeleted(containers []core.Container, name string) []core.Con
 func UpsertContainer(containers []core.Container, upsert core.Container) []core.Container {
 	for i, container := range containers {
 		if container.Name == upsert.Name {
-			err := mergo.MergeWithOverwrite(&container, upsert)
+			err := mergo.Merge(&container, upsert, mergo.WithOverride)
 			if err != nil {
 				panic(err)
 			}
+			// mergo does not overwrite "dst (container)" using empty "src (upsert)" values.
+			// This causes problem we want to remove args or commands (eg, disable TLS).
+			// TODO: should this be done for all the []string type fields (eg, EnvFrom etc.)?
+			container.Command = upsert.Command
+			container.Args = upsert.Args
+			container.Env = upsert.Env
 			containers[i] = container
 			return containers
 		}
@@ -298,6 +304,37 @@ func IsOwnedBy(dependent metav1.Object, owner metav1.Object) (owned bool, contro
 		}
 	}
 	return false, false
+}
+
+func IsOwnerOfGroup(ctrl *metav1.OwnerReference, group string) (bool, string, error) {
+	if ctrl == nil {
+		return false, "", nil
+	}
+	gv, err := schema.ParseGroupVersion(ctrl.APIVersion)
+	if err != nil {
+		return false, "", err
+	}
+	if gv.Group != group {
+		return false, "", nil
+	}
+	return true, ctrl.Kind, nil
+}
+
+func IsOwnerOfGroupKind(ctrl *metav1.OwnerReference, group, kind string) (bool, error) {
+	if ctrl == nil {
+		return false, nil
+	}
+	gv, err := schema.ParseGroupVersion(ctrl.APIVersion)
+	if err != nil {
+		return false, err
+	}
+	if gv.Group != group {
+		return false, nil
+	}
+	if ctrl.Kind != kind {
+		return false, nil
+	}
+	return true, nil
 }
 
 func UpsertToleration(tolerations []core.Toleration, upsert core.Toleration) []core.Toleration {

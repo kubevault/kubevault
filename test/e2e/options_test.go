@@ -28,8 +28,8 @@ import (
 	"kubevault.dev/operator/pkg/cmds/server"
 	"kubevault.dev/operator/test/e2e/framework"
 
-	"github.com/appscode/go/flags"
-	logs "github.com/appscode/go/log/golog"
+	"gomodules.xyz/x/flags"
+	logs "gomodules.xyz/x/log/golog"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/util/homedir"

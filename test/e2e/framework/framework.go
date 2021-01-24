@@ -24,11 +24,11 @@ import (
 	cs "kubevault.dev/operator/client/clientset/versioned"
 	db_cs "kubevault.dev/operator/client/clientset/versioned"
 
-	"github.com/appscode/go/crypto/rand"
-	aggregator "github.com/appscode/go/util/errors"
 	. "github.com/onsi/gomega"
-	"github.com/spf13/afero"
+	"gomodules.xyz/blobfs"
 	"gomodules.xyz/cert/certstore"
+	"gomodules.xyz/x/crypto/rand"
+	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	ka "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
@@ -67,7 +67,7 @@ type Framework struct {
 }
 
 func New(kubeClient kubernetes.Interface, extClient cs.Interface, appc appcat_cs.AppcatalogV1alpha1Interface, dbClient db_cs.Interface, kaClient ka.Interface, webhookEnabled bool, clientConfig *rest.Config, runDynamoDBTest bool) *Framework {
-	store, err := certstore.NewCertStore(afero.NewMemMapFs(), filepath.Join("", "pki"))
+	store, err := certstore.New(blobfs.NewInMemoryFS(), filepath.Join("", "pki"))
 	Expect(err).NotTo(HaveOccurred())
 
 	err = store.InitCA()
@@ -153,7 +153,7 @@ func (f *Framework) Cleanup() error {
 	}
 
 	if len(errs) != 0 {
-		return aggregator.NewAggregate(errs)
+		return utilerrors.NewAggregate(errs)
 	}
 	return nil
 }

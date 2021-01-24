@@ -23,9 +23,9 @@ import (
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 
-	"github.com/appscode/go/crypto/rand"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"gomodules.xyz/x/crypto/rand"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	meta_util "kmodules.xyz/client-go/meta"

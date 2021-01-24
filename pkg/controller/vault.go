@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	capi "kubevault.dev/operator/apis/catalog/v1alpha1"
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	cs "kubevault.dev/operator/client/clientset/versioned"
 	"kubevault.dev/operator/pkg/vault/exporter"
@@ -32,7 +33,7 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	"github.com/spf13/afero"
+	"gomodules.xyz/blobfs"
 	"gomodules.xyz/cert"
 	"gomodules.xyz/cert/certstore"
 	apps "k8s.io/api/apps/v1"
@@ -77,7 +78,7 @@ type vaultSrv struct {
 	unslr      unsealer.Unsealer
 	exprtr     exporter.Exporter
 	kubeClient kubernetes.Interface
-	image      string
+	config     capi.VaultServerVersionVault
 }
 
 func NewVault(vs *api.VaultServer, config *rest.Config, kc kubernetes.Interface, vc cs.Interface) (Vault, error) {
@@ -92,23 +93,24 @@ func NewVault(vs *api.VaultServer, config *rest.Config, kc kubernetes.Interface,
 		return nil, err
 	}
 
-	// it is not required to have unsealer
-	unslr, err := unsealer.NewUnsealerService(config, vs, version.Spec.Unsealer.Image)
+	// it is *not* required to have unsealer
+	unslr, err := unsealer.NewUnsealerService(config, vs, version)
 	if err != nil {
 		return nil, err
 	}
 
-	exprtr, err := exporter.NewExporter(version.Spec.Exporter.Image)
+	exprtr, err := exporter.NewExporter(version)
 	if err != nil {
 		return nil, err
 	}
+
 	return &vaultSrv{
 		vs:         vs,
 		strg:       strg,
 		unslr:      unslr,
 		exprtr:     exprtr,
 		kubeClient: kc,
-		image:      version.Spec.Vault.Image,
+		config:     version.Spec.Vault,
 	}, nil
 }
 
@@ -140,7 +142,7 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 		return sr, v.vs.Spec.TLS.CABundle, nil
 	}
 
-	store, err := certstore.NewCertStore(afero.NewMemMapFs(), filepath.Join("", "pki"))
+	store, err := certstore.New(blobfs.NewInMemoryFS(), filepath.Join("", "pki"))
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "certificate store create error")
 	}
@@ -512,8 +514,9 @@ func (v *vaultSrv) GetPodTemplate(c core.Container, saName string) *core.PodTemp
 
 func (v *vaultSrv) GetContainer() core.Container {
 	return core.Container{
-		Name:  util.VaultContainerName,
-		Image: v.image,
+		Name:            util.VaultContainerName,
+		Image:           v.config.Image,
+		ImagePullPolicy: v.config.ImagePullPolicy,
 		Command: []string{
 			"/bin/vault",
 			"server",
@@ -522,11 +525,38 @@ func (v *vaultSrv) GetContainer() core.Container {
 		Env: []core.EnvVar{
 			{
 				Name:  EnvVaultAddr,
-				Value: util.VaultServiceURL(v.vs.Name, v.vs.Namespace, VaultClientPort),
+				Value: util.VaultServiceURL(v.vs.OffshootName(), v.vs.Namespace, VaultClientPort),
 			},
 			{
 				Name:  EnvVaultClusterAddr,
-				Value: util.VaultServiceURL(v.vs.Name, v.vs.Namespace, VaultClusterPort),
+				Value: util.VaultServiceURL(v.vs.OffshootName(), v.vs.Namespace, VaultClusterPort),
+			},
+			{
+				Name: "HOSTNAME",
+				ValueFrom: &core.EnvVarSource{
+					FieldRef: &core.ObjectFieldSelector{
+						APIVersion: "v1",
+						FieldPath:  "metadata.name",
+					},
+				},
+			},
+			{
+				Name: "HOST_IP",
+				ValueFrom: &core.EnvVarSource{
+					FieldRef: &core.ObjectFieldSelector{
+						APIVersion: "v1",
+						FieldPath:  "status.hostIP",
+					},
+				},
+			},
+			{
+				Name: "POD_IP",
+				ValueFrom: &core.EnvVarSource{
+					FieldRef: &core.ObjectFieldSelector{
+						APIVersion: "v1",
+						FieldPath:  "status.podIP",
+					},
+				},
 			},
 		},
 		SecurityContext: &core.SecurityContext{
@@ -543,19 +573,24 @@ func (v *vaultSrv) GetContainer() core.Container {
 			Name:          "cluster-port",
 			ContainerPort: int32(VaultClusterPort),
 		}},
-		ReadinessProbe: &core.Probe{
-			Handler: core.Handler{
-				HTTPGet: &core.HTTPGetAction{
-					Path:   "/v1/sys/health",
-					Port:   intstr.FromInt(VaultClientPort),
-					Scheme: core.URISchemeHTTPS,
+		ReadinessProbe: func() *core.Probe {
+			if v.vs.Spec.PodTemplate.Spec.ReadinessProbe != nil {
+				return v.vs.Spec.PodTemplate.Spec.ReadinessProbe
+			}
+			return &core.Probe{
+				Handler: core.Handler{
+					HTTPGet: &core.HTTPGetAction{
+						Path:   "/v1/sys/health",
+						Port:   intstr.FromInt(VaultClientPort),
+						Scheme: core.URISchemeHTTPS,
+					},
 				},
-			},
-			InitialDelaySeconds: 10,
-			TimeoutSeconds:      10,
-			PeriodSeconds:       10,
-			FailureThreshold:    5,
-		},
+				InitialDelaySeconds: 10,
+				TimeoutSeconds:      10,
+				PeriodSeconds:       10,
+				FailureThreshold:    5,
+			}
+		}(),
 		Resources: v.vs.Spec.PodTemplate.Spec.Resources,
 	}
 }

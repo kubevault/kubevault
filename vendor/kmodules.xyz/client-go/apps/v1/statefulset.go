@@ -18,13 +18,13 @@ package v1
 
 import (
 	"context"
+	"fmt"
 
 	core_util "kmodules.xyz/client-go/core/v1"
 
-	. "github.com/appscode/go/types"
-	atypes "github.com/appscode/go/types"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
+	"gomodules.xyz/pointer"
 	apps "k8s.io/api/apps/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -104,10 +104,27 @@ func TryUpdateStatefulSet(ctx context.Context, c kubernetes.Interface, meta meta
 	return
 }
 
+func IsStatefulSetReady(obj *apps.StatefulSet) bool {
+	replicas := int32(1)
+	if obj.Spec.Replicas != nil {
+		replicas = *obj.Spec.Replicas
+	}
+	return replicas == obj.Status.ReadyReplicas
+}
+
+func StatefulSetsAreReady(items []*apps.StatefulSet) (bool, string) {
+	for _, sts := range items {
+		if !IsStatefulSetReady(sts) {
+			return false, fmt.Sprintf("All desired replicas are not ready. For StatefulSet: %s/%s desired replicas: %d, ready replicas: %d.", sts.Namespace, sts.Name, pointer.Int32(sts.Spec.Replicas), sts.Status.ReadyReplicas)
+		}
+	}
+	return true, "All desired replicas are ready."
+}
+
 func WaitUntilStatefulSetReady(ctx context.Context, c kubernetes.Interface, meta metav1.ObjectMeta) error {
 	return wait.PollImmediate(kutil.RetryInterval, kutil.ReadinessTimeout, func() (bool, error) {
 		if obj, err := c.AppsV1().StatefulSets(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{}); err == nil {
-			return Int32(obj.Spec.Replicas) == obj.Status.ReadyReplicas, nil
+			return IsStatefulSetReady(obj), nil
 		}
 		return false, nil
 	})
@@ -125,7 +142,7 @@ func DeleteStatefulSet(ctx context.Context, c kubernetes.Interface, meta metav1.
 
 	// Update StatefulSet
 	_, _, err = PatchStatefulSet(ctx, c, statefulSet, func(in *apps.StatefulSet) *apps.StatefulSet {
-		in.Spec.Replicas = atypes.Int32P(0)
+		in.Spec.Replicas = pointer.Int32P(0)
 		return in
 	}, metav1.PatchOptions{})
 	if err != nil {

@@ -19,6 +19,7 @@ package exporter
 import (
 	"fmt"
 
+	capi "kubevault.dev/operator/apis/catalog/v1alpha1"
 	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/util"
 
@@ -39,15 +40,15 @@ type Exporter interface {
 }
 
 type monitor struct {
-	image string
+	config capi.VaultServerVersionExporter
 }
 
 var telemetryCfg = `telemetry {
   statsd_address = "0.0.0.0:%v"
 }`
 
-func NewExporter(image string) (Exporter, error) {
-	return monitor{image: image}, nil
+func NewExporter(config *capi.VaultServerVersion) (Exporter, error) {
+	return monitor{config: config.Spec.Exporter}, nil
 }
 
 func (exp monitor) Apply(pt *core.PodTemplateSpec, vs *api.VaultServer) error {
@@ -59,8 +60,8 @@ func (exp monitor) Apply(pt *core.PodTemplateSpec, vs *api.VaultServer) error {
 
 	c := core.Container{
 		Name:            util.VaultExporterContainerName,
-		Image:           exp.image,
-		ImagePullPolicy: core.PullIfNotPresent,
+		Image:           exp.config.Image,
+		ImagePullPolicy: exp.config.ImagePullPolicy,
 		Ports: []core.ContainerPort{
 			{
 				Name:          "udp",
@@ -79,7 +80,7 @@ func (exp monitor) Apply(pt *core.PodTemplateSpec, vs *api.VaultServer) error {
 		c.Args = append(c.Args, fmt.Sprintf("--vault.tls-cacert=%s", vs.Spec.TLS.CABundle))
 	}
 
-	if agent != nil && agent.Prometheus != nil && agent.Prometheus.Exporter != nil {
+	if agent != nil && agent.Prometheus != nil {
 		c.Args = append(c.Args, agent.Prometheus.Exporter.Args...)
 		c.Env = agent.Prometheus.Exporter.Env
 		c.Resources = agent.Prometheus.Exporter.Resources

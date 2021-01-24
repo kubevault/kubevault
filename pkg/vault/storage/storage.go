@@ -26,7 +26,7 @@ import (
 	"kubevault.dev/operator/pkg/vault/storage/gcs"
 	"kubevault.dev/operator/pkg/vault/storage/inmem"
 	"kubevault.dev/operator/pkg/vault/storage/mysql"
-	postgresql "kubevault.dev/operator/pkg/vault/storage/postgersql"
+	"kubevault.dev/operator/pkg/vault/storage/postgresql"
 	"kubevault.dev/operator/pkg/vault/storage/s3"
 	"kubevault.dev/operator/pkg/vault/storage/swift"
 
@@ -43,29 +43,30 @@ type Storage interface {
 func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage, error) {
 	s := vs.Spec.Backend
 
-	if s.Inmem != nil {
+	switch {
+	case s.Inmem != nil:
 		return inmem.NewOptions()
-	} else if s.Etcd != nil {
+	case s.Etcd != nil:
 		return etcd.NewOptions(*s.Etcd)
-	} else if s.Gcs != nil {
+	case s.Gcs != nil:
 		return gcs.NewOptions(*s.Gcs)
-	} else if s.S3 != nil {
+	case s.S3 != nil:
 		return s3.NewOptions(*s.S3)
-	} else if s.Azure != nil {
+	case s.Azure != nil:
 		return azure.NewOptions(*s.Azure)
-	} else if s.PostgreSQL != nil {
+	case s.PostgreSQL != nil:
 		return postgresql.NewOptions(kubeClient, vs.Namespace, *s.PostgreSQL)
-	} else if s.MySQL != nil {
+	case s.MySQL != nil:
 		return mysql.NewOptions(kubeClient, vs.Namespace, *s.MySQL)
-	} else if s.File != nil {
+	case s.File != nil:
 		return file.NewOptions(kubeClient, vs, s.File)
-	} else if s.DynamoDB != nil {
+	case s.DynamoDB != nil:
 		return dynamodb.NewOptions(*s.DynamoDB)
-	} else if s.Swift != nil {
+	case s.Swift != nil:
 		return swift.NewOptions(*s.Swift)
-	} else if s.Consul != nil {
+	case s.Consul != nil:
 		return consul.NewOptions(kubeClient, vs.Namespace, *s.Consul)
-	} else {
+	default:
 		return nil, errors.New("invalid storage backend")
 	}
 }

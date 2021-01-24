@@ -26,9 +26,9 @@ import (
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/credential"
 
-	"github.com/appscode/go/crypto/rand"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
+	"gomodules.xyz/x/crypto/rand"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -77,7 +77,7 @@ func (c *VaultController) runAzureAccessKeyRequestInjector(key string) error {
 
 			var condType string
 			for _, c := range req.Status.Conditions {
-				if (c.Type == kmapi.ConditionRequestApproved && c.Status == kmapi.ConditionTrue) || (c.Type == kmapi.ConditionRequestDenied && c.Status == kmapi.ConditionTrue) {
+				if (c.Type == kmapi.ConditionRequestApproved && c.Status == core.ConditionTrue) || (c.Type == kmapi.ConditionRequestDenied && c.Status == core.ConditionTrue) {
 					condType = c.Type
 				}
 			}
@@ -120,8 +120,8 @@ func (c *VaultController) runAzureAccessKeyRequestInjector(key string) error {
 						req.ObjectMeta,
 						func(status *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
 							status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-								Type:               kmapi.ConditionFailure,
-								Status:             kmapi.ConditionTrue,
+								Type:               kmapi.ConditionFailed,
+								Status:             core.ConditionTrue,
 								Reason:             "FailedToCreateCredentialManager",
 								Message:            err.Error(),
 								LastTransitionTime: metav1.Now(),
@@ -194,8 +194,8 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(cm credential.Credentia
 			req.ObjectMeta,
 			func(status *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:               kmapi.ConditionFailure,
-					Status:             kmapi.ConditionTrue,
+					Type:               kmapi.ConditionFailed,
+					Status:             core.ConditionTrue,
 					Reason:             "FailedToGetCredential",
 					Message:            err.Error(),
 					LastTransitionTime: metav1.Now(),
@@ -224,8 +224,8 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(cm credential.Credentia
 			req.ObjectMeta,
 			func(status *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:               kmapi.ConditionFailure,
-					Status:             kmapi.ConditionTrue,
+					Type:               kmapi.ConditionFailed,
+					Status:             core.ConditionTrue,
 					Reason:             "FailedToCreateSecret",
 					Message:            err.Error(),
 					LastTransitionTime: metav1.Now(),
@@ -275,8 +275,8 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(cm credential.Credentia
 			req.ObjectMeta,
 			func(status *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:               kmapi.ConditionFailure,
-					Status:             kmapi.ConditionTrue,
+					Type:               kmapi.ConditionFailed,
+					Status:             core.ConditionTrue,
 					Reason:             "FailedToCreateRole",
 					Message:            err.Error(),
 					LastTransitionTime: metav1.Now(),
@@ -296,8 +296,8 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(cm credential.Credentia
 			req.ObjectMeta,
 			func(status *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:               kmapi.ConditionFailure,
-					Status:             kmapi.ConditionTrue,
+					Type:               kmapi.ConditionFailed,
+					Status:             core.ConditionTrue,
 					Reason:             "FailedToCreateRoleBinding",
 					Message:            err.Error(),
 					LastTransitionTime: metav1.Now(),
@@ -314,10 +314,10 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(cm credential.Credentia
 		c.extClient.EngineV1alpha1(),
 		req.ObjectMeta,
 		func(status *api.AzureAccessKeyRequestStatus) *api.AzureAccessKeyRequestStatus {
-			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailure)
+			status.Conditions = kmapi.RemoveCondition(status.Conditions, kmapi.ConditionFailed)
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:               kmapi.ConditionAvailable,
-				Status:             kmapi.ConditionTrue,
+				Status:             core.ConditionTrue,
 				Message:            "The requested credentials successfully issued.",
 				Reason:             "SuccessfullyIssuedCredential",
 				LastTransitionTime: metav1.Now(),
@@ -381,7 +381,7 @@ func azureAccessKeyRequestSuccessfullyProcessed(req *api.AzureAccessKeyRequest) 
 
 	// lookup for failed condition
 	for _, cond := range req.Status.Conditions {
-		if cond.Type == kmapi.ConditionFailure {
+		if cond.Type == kmapi.ConditionFailed {
 			return false
 		}
 	}

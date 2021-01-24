@@ -19,7 +19,7 @@ package v1alpha1
 import (
 	"time"
 
-	"github.com/appscode/go/encoding/json/types"
+	"gomodules.xyz/x/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -58,7 +58,7 @@ type VaultServerSpec struct {
 	Replicas *int32 `json:"replicas,omitempty" protobuf:"varint,1,opt,name=replicas"`
 
 	// Version of Vault server to be deployed.
-	Version types.StrYo `json:"version" protobuf:"bytes,2,opt,name=version,casttype=github.com/appscode/go/encoding/json/types.StrYo"`
+	Version types.StrYo `json:"version" protobuf:"bytes,2,opt,name=version,casttype=gomodules.xyz/x/encoding/json/types.StrYo"`
 
 	// Name of the ConfigMap for Vault's configuration
 	// In this configMap contain extra config for vault
@@ -321,8 +321,8 @@ type ConsulSpec struct {
 	// for consul communication
 	// Secret data:
 	//	- ca.crt
-	//	- client.crt
-	//  - client.key
+	//	- tls.crt
+	//  - tls.key
 	// +optional
 	TLSSecretName string `json:"tlsSecretName,omitempty" protobuf:"bytes,14,opt,name=tlsSecretName"`
 
@@ -379,8 +379,8 @@ type EtcdSpec struct {
 	// Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication
 	// secret data:
 	//	- ca.crt
-	//  - client.crt
-	//  - client.key
+	//  - tls.crt
+	//  - tls.key
 	// +optional
 	TLSSecretName string `json:"tlsSecretName,omitempty" protobuf:"bytes,8,opt,name=tlsSecretName"`
 }

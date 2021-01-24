@@ -17,6 +17,7 @@ limitations under the License.
 package v1
 
 import (
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -28,22 +29,10 @@ const (
 	ConditionInitialized = "Initialized"
 	ConditionReady       = "Ready"
 	ConditionAvailable   = "Available"
-	ConditionFailure     = "Failure"
+	ConditionFailed      = "Failed"
 
 	ConditionRequestApproved = "Approved"
 	ConditionRequestDenied   = "Denied"
-)
-
-type ConditionStatus string
-
-// These are valid condition statuses. "ConditionTrue" means a resource is in the condition.
-// "ConditionFalse" means a resource is not in the condition. "ConditionUnknown" means kubernetes
-// can't decide if a resource is in the condition or not. In the future, we could add other
-// intermediate conditions, e.g. ConditionDegraded.
-const (
-	ConditionTrue    ConditionStatus = "True"
-	ConditionFalse   ConditionStatus = "False"
-	ConditionUnknown ConditionStatus = "Unknown"
 )
 
 type Condition struct {
@@ -54,7 +43,7 @@ type Condition struct {
 	Type string `json:"type" protobuf:"bytes,1,opt,name=type"`
 	// Status of the condition, one of True, False, Unknown.
 	// +required
-	Status ConditionStatus `json:"status" protobuf:"bytes,2,opt,name=status"`
+	Status core.ConditionStatus `json:"status" protobuf:"bytes,2,opt,name=status"`
 	// If set, this represents the .metadata.generation that the condition was set based upon.
 	// For instance, if .metadata.generation is currently 12, but the .status.condition[x].observedGeneration is 9, the condition is out of date
 	// with respect to the current state of the instance.
@@ -73,6 +62,22 @@ type Condition struct {
 	// This field may be empty.
 	// +required
 	Message string `json:"message" protobuf:"bytes,6,opt,name=message"`
+}
+
+func NewCondition(reason string, message string, generation int64, conditionStatus ...bool) Condition {
+	cs := core.ConditionTrue
+	if len(conditionStatus) > 0 && !conditionStatus[0] {
+		cs = core.ConditionFalse
+	}
+
+	return Condition{
+		Type:               reason,
+		Reason:             reason,
+		Message:            message,
+		Status:             cs,
+		LastTransitionTime: metav1.Now(),
+		ObservedGeneration: generation,
+	}
 }
 
 // HasCondition returns "true" if the desired condition provided in "condType" is present in the condition list.
@@ -112,10 +117,11 @@ func SetCondition(conditions []Condition, newCondition Condition) []Condition {
 	// The desired conditions is not in the condition list or is not in its desired state.
 	// Update it if present in the condition list, or append the new condition if it does not present.
 	newCondition.LastTransitionTime = metav1.Now()
-	if idx != -1 {
-		conditions[idx] = newCondition
-	} else {
+	if idx == -1 {
 		conditions = append(conditions, newCondition)
+	} else if newCondition.ObservedGeneration >= curCond.ObservedGeneration {
+		// only update if the new condition is based on observed generation at least as updated as the current condition
+		conditions[idx] = newCondition
 	}
 	return conditions
 }
@@ -134,7 +140,18 @@ func RemoveCondition(conditions []Condition, condType string) []Condition {
 // It returns "false" if the desired condition is not in "true" state or is not in the condition list.
 func IsConditionTrue(conditions []Condition, condType string) bool {
 	for i := range conditions {
-		if conditions[i].Type == condType && conditions[i].Status == ConditionTrue {
+		if conditions[i].Type == condType && conditions[i].Status == core.ConditionTrue {
+			return true
+		}
+	}
+	return false
+}
+
+// IsConditionFalse returns "true" if the desired condition is in false state.
+// It returns "false" if the desired condition is not in "false" state or is not in the condition list.
+func IsConditionFalse(conditions []Condition, condType string) bool {
+	for i := range conditions {
+		if conditions[i].Type == condType && conditions[i].Status == core.ConditionFalse {
 			return true
 		}
 	}

@@ -16,7 +16,10 @@ limitations under the License.
 
 package v1alpha1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
 
 const (
 	ResourceKindVaultServerVersion = "VaultServerVersion"
@@ -61,17 +64,29 @@ type VaultServerVersionSpec struct {
 
 // VaultServerVersionVault is the vault image
 type VaultServerVersionVault struct {
+	// Image is the Docker image name
 	Image string `json:"image" protobuf:"bytes,1,opt,name=image"`
+	// ImagePullPolicy one of Always, Never, IfNotPresent. It defaults to Always if :latest is used, or IfNotPresent overwise.
+	// +optional
+	ImagePullPolicy corev1.PullPolicy `json:"imagePullPolicy,omitempty" protobuf:"bytes,2,opt,name=imagePullPolicy,casttype=PullPolicy"`
 }
 
 // VaultServerVersionUnsealer is the image for the vault unsealer
 type VaultServerVersionUnsealer struct {
+	// Image is the Docker image name
 	Image string `json:"image" protobuf:"bytes,1,opt,name=image"`
+	// ImagePullPolicy one of Always, Never, IfNotPresent. It defaults to Always if :latest is used, or IfNotPresent overwise.
+	// +optional
+	ImagePullPolicy corev1.PullPolicy `json:"imagePullPolicy,omitempty" protobuf:"bytes,2,opt,name=imagePullPolicy,casttype=PullPolicy"`
 }
 
 // VaultServerVersionExporter is the image for the vault exporter
 type VaultServerVersionExporter struct {
+	// Image is the Docker image name
 	Image string `json:"image" protobuf:"bytes,1,opt,name=image"`
+	// ImagePullPolicy one of Always, Never, IfNotPresent. It defaults to Always if :latest is used, or IfNotPresent overwise.
+	// +optional
+	ImagePullPolicy corev1.PullPolicy `json:"imagePullPolicy,omitempty" protobuf:"bytes,2,opt,name=imagePullPolicy,casttype=PullPolicy"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

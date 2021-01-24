@@ -298,8 +298,8 @@ message ConsulSpec {
   // for consul communication
   // Secret data:
   // 	- ca.crt
-  // 	- client.crt
-  //  - client.key
+  // 	- tls.crt
+  //  - tls.key
   // +optional
   optional string tlsSecretName = 14;
 
@@ -400,8 +400,8 @@ message EtcdSpec {
   // Specifies the secret name that contains tls_ca_file, tls_cert_file and tls_key_file for etcd communication
   // secret data:
   // 	- ca.crt
-  //  - client.crt
-  //  - client.key
+  //  - tls.crt
+  //  - tls.key
   // +optional
   optional string tlsSecretName = 8;
 }

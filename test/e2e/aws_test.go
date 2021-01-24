@@ -472,7 +472,7 @@ var _ = Describe("AWS Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestApproved,
-							Status:             kmapi.ConditionTrue,
+							Status:             core.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
@@ -494,7 +494,7 @@ var _ = Describe("AWS Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestDenied,
-							Status:             kmapi.ConditionTrue,
+							Status:             core.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},
@@ -548,7 +548,7 @@ var _ = Describe("AWS Secret Engine", func() {
 					Conditions: []kmapi.Condition{
 						{
 							Type:               kmapi.ConditionRequestApproved,
-							Status:             kmapi.ConditionTrue,
+							Status:             core.ConditionTrue,
 							LastTransitionTime: metav1.Now(),
 						},
 					},

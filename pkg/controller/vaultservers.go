@@ -23,9 +23,9 @@ import (
 	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"kubevault.dev/operator/pkg/eventer"
 
-	"github.com/appscode/go/log"
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
+	"gomodules.xyz/x/log"
 	appsv1 "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
@@ -107,8 +107,8 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			vs.ObjectMeta,
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
-					Status:  kmapi.ConditionTrue,
+					Type:    kmapi.ConditionFailed,
+					Status:  core.ConditionTrue,
 					Reason:  "FailedToCreateVaultTLSSecret",
 					Message: err.Error(),
 				})
@@ -127,8 +127,8 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			vs.ObjectMeta,
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
-					Status:  kmapi.ConditionTrue,
+					Type:    kmapi.ConditionFailed,
+					Status:  core.ConditionTrue,
 					Reason:  "FailedToCreateVaultConfig",
 					Message: err.Error(),
 				})
@@ -147,8 +147,8 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			vs.ObjectMeta,
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
-					Status:  kmapi.ConditionTrue,
+					Type:    kmapi.ConditionFailed,
+					Status:  core.ConditionTrue,
 					Reason:  "FailedToDeployVault",
 					Message: err.Error(),
 				})
@@ -167,8 +167,8 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			vs.ObjectMeta,
 			func(status *api.VaultServerStatus) *api.VaultServerStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailure,
-					Status:  kmapi.ConditionTrue,
+					Type:    kmapi.ConditionFailed,
+					Status:  core.ConditionTrue,
 					Reason:  "FailedToCreateAppBinding",
 					Message: err.Error(),
 				})
@@ -187,7 +187,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			status.ObservedGeneration = vs.Generation
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionReady,
-				Status:  kmapi.ConditionTrue,
+				Status:  core.ConditionTrue,
 				Reason:  "Provisioned",
 				Message: "vault server is ready to use",
 			})
@@ -271,7 +271,7 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 	}
 
 	cRB := v.GetRBACClusterRoleBinding()
-	err = ensurClusterRoleBinding(c.kubeClient, vs, cRB)
+	err = ensureClusterRoleBinding(c.kubeClient, vs, cRB)
 	if err != nil {
 		return err
 	}
@@ -291,7 +291,7 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 		return err
 	}
 
-	if vs.Spec.Monitor != nil && vs.Spec.Monitor.Prometheus != nil && vs.Spec.Monitor.Prometheus.Exporter != nil {
+	if vs.Spec.Monitor != nil && vs.Spec.Monitor.Prometheus != nil {
 		if _, vt, err := c.ensureStatsService(vs); err != nil { // Error ignored intentionally
 			c.recorder.Eventf(
 				vs,
@@ -456,8 +456,8 @@ func ensureConfigMap(kc kubernetes.Interface, vs *api.VaultServer, cm *core.Conf
 	return err
 }
 
-// ensurClusterRoleBinding creates or patches rbac ClusterRoleBinding
-func ensurClusterRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, cRBinding rbac.ClusterRoleBinding) error {
+// ensureClusterRoleBinding creates or patches rbac ClusterRoleBinding
+func ensureClusterRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, cRBinding rbac.ClusterRoleBinding) error {
 	_, _, err := rbac_util.CreateOrPatchClusterRoleBinding(
 		context.TODO(),
 		kc,
