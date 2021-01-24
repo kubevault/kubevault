@@ -28,6 +28,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
+	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -102,10 +103,10 @@ func (c *VaultController) reconcilePolicyBinding(pb *policyapi.VaultPolicyBindin
 			func(status *policyapi.VaultPolicyBindingStatus) *policyapi.VaultPolicyBindingStatus {
 				status.Phase = policyapi.PolicyBindingFailed
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-					Type:    kmapi.ConditionFailed,
-					Status:  core.ConditionTrue,
-					Reason:  "FailedToEnsurePolicyBinding",
-					Message: err.Error(),
+					Type:               kmapi.ConditionFailed,
+					Status:             core.ConditionTrue,
+					Reason:             "FailedToEnsurePolicyBinding",
+					Message:            err.Error(),
 					LastTransitionTime: metav1.NewTime(time.Now()),
 				})
 				return status

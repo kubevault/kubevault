@@ -137,8 +137,8 @@ spec:
                     as backend storage in vault"
                   properties:
                     accountKeySecret:
-                      description: "Specifies the secret containing Azure Storage
-                        account key. secret data: \t- account_key:<value>"
+                      description: 'Specifies the secret containing Azure Storage
+                        account key. secret data:  - account_key:<value>'
                       type: string
                     accountName:
                       description: Specifies the Azure Storage account name.
@@ -162,9 +162,9 @@ spec:
                     storage in vault"
                   properties:
                     aclTokenSecretName:
-                      description: "Specifies the secret name that contains ACL token
-                        with permission to read and write from the path in Consul's
-                        key-value store. secret data: \t- aclToken:<value>"
+                      description: 'Specifies the secret name that contains ACL token
+                        with permission to read and write from the path in Consul''s
+                        key-value store. secret data:  - aclToken:<value>'
                       type: string
                     address:
                       description: Specifies the address of the Consul agent to communicate
@@ -225,9 +225,9 @@ spec:
                         values are "tls10", "tls11" or "tls12".
                       type: string
                     tlsSecretName:
-                      description: "Specifies the secret name that contains tls_ca_file,
+                      description: 'Specifies the secret name that contains tls_ca_file,
                         tls_cert_file and tls_key_file for consul communication Secret
-                        data: \t- ca.crt \t- tls.crt  - tls.key"
+                        data:  - ca.crt  - client.crt  - client.key'
                       type: string
                     tlsSkipVerify:
                       description: Specifies if the TLS host verification should be
@@ -240,9 +240,9 @@ spec:
                     as backend storage in vault"
                   properties:
                     credentialSecret:
-                      description: "Specifies the secret name containing AWS access
-                        key and AWS secret key secret data: \t- access_key=<value>
-                        \ - secret_key=<value>"
+                      description: 'Specifies the secret name containing AWS access
+                        key and AWS secret key secret data:  - access_key=<value>  -
+                        secret_key=<value>'
                       type: string
                     endpoint:
                       description: Specifies an alternative, AWS compatible, DynamoDB
@@ -266,8 +266,8 @@ spec:
                       description: Specifies the AWS region
                       type: string
                     sessionTokenSecret:
-                      description: "Specifies the secret name containing AWS session
-                        token secret data: \t- session_token:<value>"
+                      description: 'Specifies the secret name containing AWS session
+                        token secret data:  - session_token:<value>'
                       type: string
                     table:
                       description: 'Specifies the name of the DynamoDB table in which
@@ -289,9 +289,9 @@ spec:
                       description: Specifies the addresses of the etcd instances
                       type: string
                     credentialSecretName:
-                      description: "Specifies the secret name that contain username
+                      description: 'Specifies the secret name that contain username
                         and password to use when authenticating with the etcd server
-                        secret data: \t- username:<value> \t- password:<value>"
+                        secret data:  - username:<value>  - password:<value>'
                       type: string
                     discoverySrv:
                       description: Specifies the domain name to query for SRV records
@@ -313,9 +313,9 @@ spec:
                         services on startup
                       type: boolean
                     tlsSecretName:
-                      description: "Specifies the secret name that contains tls_ca_file,
+                      description: 'Specifies the secret name that contains tls_ca_file,
                         tls_cert_file and tls_key_file for etcd communication secret
-                        data: \t- ca.crt  - tls.crt  - tls.key"
+                        data:  - ca.crt  - client.crt  - client.key'
                       type: string
                   required:
                   - address
@@ -669,8 +669,8 @@ spec:
                         the whole object at once, but will not retry any failures.
                       type: string
                     credentialSecret:
-                      description: "Secret containing Google application credential
-                        secret data: \t- sa.json:<value>"
+                      description: 'Secret containing Google application credential
+                        secret data:  - sa.json:<value>'
                       type: string
                     haEnabled:
                       description: Specifies if high availability mode is enabled.
@@ -708,12 +708,12 @@ spec:
                         not exist, Vault will attempt to create it.
                       type: string
                     tlsCASecret:
-                      description: "Specifies the name of the secret containing the
-                        CA certificate to connect using TLS. secret data: \t- tls_ca_file=<ca_cert>"
+                      description: 'Specifies the name of the secret containing the
+                        CA certificate to connect using TLS. secret data:  - tls_ca_file=<ca_cert>'
                       type: string
                     userCredentialSecret:
-                      description: "Specifies the MySQL username and password to connect
-                        to the database secret data: \t- username=<value> \t- password=<value>"
+                      description: 'Specifies the MySQL username and password to connect
+                        to the database secret data:  - username=<value>  - password=<value>'
                       type: string
                   required:
                   - userCredentialSecret
@@ -724,11 +724,11 @@ spec:
                     as backend storage in vault"
                   properties:
                     connectionURLSecret:
-                      description: "Specifies the name of the secret containing the
+                      description: 'Specifies the name of the secret containing the
                         connection string to use to authenticate and connect to PostgreSQL.
                         A full list of supported parameters can be found in the pq
                         library documentation(https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters).
-                        secret data: \t- connection_url:<data>"
+                        secret data:  - connection_url:<data>'
                       type: string
                     maxParallel:
                       description: ' Specifies the maximum number of concurrent requests
@@ -752,9 +752,9 @@ spec:
                       description: Specifies the name of the bucket to use for storage.
                       type: string
                     credentialSecret:
-                      description: "Specifies the secret name containing AWS access
-                        key and AWS secret key secret data: \t- access_key=<value>
-                        \ - secret_key=<value>"
+                      description: 'Specifies the secret name containing AWS access
+                        key and AWS secret key secret data:  - access_key=<value>  -
+                        secret_key=<value>'
                       type: string
                     disableSSL:
                       description: Specifies if SSL should be used for the endpoint
@@ -776,8 +776,8 @@ spec:
                       description: Specifies the AWS region
                       type: string
                     sessionTokenSecret:
-                      description: "Specifies the secret name containing AWS session
-                        token secret data: \t- session_token:<value>"
+                      description: 'Specifies the secret name containing AWS session
+                        token secret data:  - session_token:<value>'
                       type: string
                   required:
                   - bucket
@@ -788,8 +788,8 @@ spec:
                     backend storage in vault"
                   properties:
                     authTokenSecret:
-                      description: "Specifies secret containing auth token from alternate
-                        authentication. secret data: \t- auth_token=<value>"
+                      description: 'Specifies secret containing auth token from alternate
+                        authentication. secret data:  - auth_token=<value>'
                       type: string
                     authURL:
                       description: Specifies the OpenStack authentication endpoint.
@@ -798,9 +798,9 @@ spec:
                       description: Specifies the name of the Swift container.
                       type: string
                     credentialSecret:
-                      description: "Specifies the name of the secret containing the
-                        OpenStack account/username and password secret data: \t- username=<value>
-                        \t- password=<value>"
+                      description: 'Specifies the name of the secret containing the
+                        OpenStack account/username and password secret data:  - username=<value>  -
+                        password=<value>'
                       type: string
                     domain:
                       description: Specifies the name of the user domain.
@@ -6304,9 +6304,9 @@ spec:
                         to unseal vault using aws kms ssm
                       properties:
                         credentialSecret:
-                          description: "Specifies the secret name containing AWS access
-                            key and AWS secret key secret data: \t- access_key:<value>
-                            \ - secret_key:<value>"
+                          description: 'Specifies the secret name containing AWS access
+                            key and AWS secret key secret data:  - access_key:<value>  -
+                            secret_key:<value>'
                           type: string
                         endpoint:
                           description: Used to make AWS KMS requests. This is useful,
@@ -6331,13 +6331,13 @@ spec:
                         to unseal vault using azure key vault
                       properties:
                         aadClientSecret:
-                          description: "Specifies the name of secret containing client
-                            id and client secret of AAD application secret data: \t-
-                            client-id:<value> \t- client-secret:<value>"
+                          description: 'Specifies the name of secret containing client
+                            id and client secret of AAD application secret data:  -
+                            client-id:<value>  - client-secret:<value>'
                           type: string
                         clientCertSecret:
                           description: "Specifies the name of secret containing client
-                            cert and client cert password secret data: \t- client-cert:<value>
+                            cert and client cert password secret data:  - client-cert:<value>
                             \t- client-cert-password: <value>"
                           type: string
                         cloud:
@@ -6367,8 +6367,8 @@ spec:
                             to store values in
                           type: string
                         credentialSecret:
-                          description: "Secret containing Google application credential
-                            secret data: \t- sa.json:<value>"
+                          description: 'Secret containing Google application credential
+                            secret data:  - sa.json:<value>'
                           type: string
                         kmsCryptoKey:
                           description: The name of the Google Cloud KMS crypto key
