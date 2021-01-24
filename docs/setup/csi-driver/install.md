@@ -32,7 +32,7 @@ Vault CSI driver can be installed via a script or as a Helm chart.
 
 ## Using Helm 3
 
-Vault CSI driver can be installed via [Helm](https://helm.sh) using the [chart](https://github.com/appscode/kubevault/csi-driver/tree/{{< param "info.version" >}}/charts/csi-vault) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `csi-vault`
+Vault CSI driver can be installed via [Helm](https://helm.sh) using the [chart](https://github.com/appscode/kubevault/installer/tree/{{< param "info.version" >}}/charts/csi-vault) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `csi-vault`
 
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
@@ -47,14 +47,14 @@ $ helm install csi-vault appscode/csi-vault \
   --namespace kube-system
 ```
 
-To see the detailed configuration options, visit [here](https://github.com/kubevault/csi-driver/tree/{{< param "info.version" >}}/charts/csi-vault).
+To see the detailed configuration options, visit [here](https://github.com/kubevault/installer/tree/{{< param "info.version" >}}/charts/csi-vault).
 
 </div>
 <div class="tab-pane fade" id="helm2" role="tabpanel" aria-labelledby="helm2-tab">
 
 ## Using Helm 2
 
-Vault CSI driver can be installed via [Helm](https://helm.sh) using the [chart](https://github.com/appscode/kubevault/csi-driver/tree/{{< param "info.version" >}}/charts/csi-vault) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `csi-vault`
+Vault CSI driver can be installed via [Helm](https://helm.sh) using the [chart](https://github.com/appscode/kubevault/installer/tree/{{< param "info.version" >}}/charts/csi-vault) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `csi-vault`
 
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
@@ -69,7 +69,7 @@ $ helm install appscode/csi-vault --name csi-vault \
   --namespace kube-system
 ```
 
-To see the detailed configuration options, visit [here](https://github.com/kubevault/csi-driver/tree/{{< param "info.version" >}}/charts/csi-vault).
+To see the detailed configuration options, visit [here](https://github.com/kubevault/installer/tree/{{< param "info.version" >}}/charts/csi-vault).
 
 </div>
 <div class="tab-pane fade" id="script" role="tabpanel" aria-labelledby="script-tab">
@@ -92,7 +92,7 @@ $ helm template csi-vault appscode/csi-vault \
   --no-hooks | kubectl apply -f -
 ```
 
-To see the detailed configuration options, visit [here](https://github.com/kubevault/csi-driver/tree/{{< param "info.version" >}}/charts/csi-vault).
+To see the detailed configuration options, visit [here](https://github.com/kubevault/installer/tree/{{< param "info.version" >}}/charts/csi-vault).
 
 </div>
 </div>

@@ -32,7 +32,7 @@ Vault operator can be installed via a script or as a Helm chart.
 
 ## Using Helm 3
 
-Vault operator can be installed via [Helm](https://helm.sh/) using the [chart](https://github.com/kubevault/operator/tree/{{< param "info.version" >}}/charts/vault-operator) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `my-release`:
+Vault operator can be installed via [Helm](https://helm.sh/) using the [chart](https://github.com/kubevault/installer/tree/{{< param "info.version" >}}/charts/vault-operator) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `my-release`:
 
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
@@ -60,14 +60,14 @@ $ helm install vault-catalog appscode/vault-catalog --version {{< param "info.ve
 $ helm upgrade vault-catalog appscode/vault-catalog --version {{< param "info.version" >}} --namespace kube-system
 ```
 
-To see the detailed configuration options, visit [here](https://github.com/kubevault/operator/tree/{{< param "info.version" >}}/charts/vault-operator).
+To see the detailed configuration options, visit [here](https://github.com/kubevault/installer/tree/{{< param "info.version" >}}/charts/vault-operator).
 
 </div>
 <div class="tab-pane fade" id="helm2" role="tabpanel" aria-labelledby="helm2-tab">
 
 ## Using Helm 2
 
-Vault operator can be installed via [Helm](https://helm.sh/) using the [chart](https://github.com/kubevault/operator/tree/{{< param "info.version" >}}/charts/vault-operator) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `my-release`:
+Vault operator can be installed via [Helm](https://helm.sh/) using the [chart](https://github.com/kubevault/installer/tree/{{< param "info.version" >}}/charts/vault-operator) from [AppsCode Charts Repository](https://github.com/appscode/charts). To install the chart with the release name `my-release`:
 
 ```console
 $ helm repo add appscode https://charts.appscode.com/stable/
@@ -95,7 +95,7 @@ $ helm install appscode/vault-catalog --name vault-catalog --version {{< param "
 $ helm upgrade vault-catalog appscode/vault-catalog --version {{< param "info.version" >}} --namespace kube-system
 ```
 
-To see the detailed configuration options, visit [here](https://github.com/kubevault/operator/tree/{{< param "info.version" >}}/charts/vault-operator).
+To see the detailed configuration options, visit [here](https://github.com/kubevault/installer/tree/{{< param "info.version" >}}/charts/vault-operator).
 
 </div>
 <div class="tab-pane fade" id="script" role="tabpanel" aria-labelledby="script-tab">
@@ -130,7 +130,7 @@ $ helm template vault-catalog appscode/vault-catalog \
   --namespace kube-system | kubectl apply -f -
 ```
 
-To see the detailed configuration options, visit [here](https://github.com/kubevault/operator/tree/{{< param "info.version" >}}/charts/vault-operator).
+To see the detailed configuration options, visit [here](https://github.com/kubevault/installer/tree/{{< param "info.version" >}}/charts/vault-operator).
 
 </div>
 </div>
