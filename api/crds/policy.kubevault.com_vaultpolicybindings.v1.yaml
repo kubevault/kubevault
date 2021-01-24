@@ -161,6 +161,137 @@ spec:
                     required:
                     - bindSecretID
                     type: object
+                  jwt:
+                    description: 'More info: https://www.vaultproject.io/api-docs/auth/jwt#configure'
+                    properties:
+                      allowedRedirectUris:
+                        description: The list of allowed values for redirect_uri during
+                          OIDC logins.
+                        items:
+                          type: string
+                        type: array
+                      boundAudiences:
+                        description: List of aud claims to match against. Any match
+                          is sufficient. Required for "jwt" roles, optional for "oidc"
+                          roles.
+                        items:
+                          type: string
+                        type: array
+                      boundClaims:
+                        additionalProperties:
+                          type: string
+                        description: If set, a map of claims/values to match against.
+                          The expected value may be a single string or a list of strings.
+                          The interpretation of the bound claim values is configured
+                          with bound_claims_type.
+                        type: object
+                      boundClaimsType:
+                        description: Configures the interpretation of the bound_claims
+                          values. If "string" (the default), the values will treated
+                          as string literals and must match exactly. If set to "glob",
+                          the values will be interpreted as globs, with * matching
+                          any number of characters.
+                        type: string
+                      boundSubject:
+                        description: If set, requires that the sub claim matches this
+                          value.
+                        type: string
+                      claimMappings:
+                        additionalProperties:
+                          type: string
+                        description: If set, a map of claims (keys) to be copied to
+                          specified metadata fields (values).
+                        type: object
+                      groupClaim:
+                        description: The claim to use to uniquely identify the set
+                          of groups to which the user belongs; this will be used as
+                          the names for the Identity group aliases created due to
+                          a successful login. The claim value must be a list of strings.
+                        type: string
+                      name:
+                        description: 'Name of the role. This defaults to following
+                          format: k8s.${cluster}.${metadata.namespace}.${metadata.name}'
+                        type: string
+                      oidcScopes:
+                        description: If set, a list of OIDC scopes to be used with
+                          an OIDC role. The standard scope "openid" is automatically
+                          included and need not be specified.
+                        items:
+                          type: string
+                        type: array
+                      path:
+                        description: 'Specifies the path where jwt/oidc auth is enabled
+                          default : jwt'
+                        type: string
+                      roleType:
+                        description: Type of role, either "oidc" (default) or "jwt".
+                        type: string
+                      tokenBoundCidrs:
+                        description: List of CIDR blocks; if set, specifies blocks
+                          of IP addresses which can authenticate successfully, and
+                          ties the resulting token to these blocks as well.
+                        items:
+                          type: string
+                        type: array
+                      tokenExplicitMaxTTL:
+                        description: If set, will encode an explicit max TTL onto
+                          the token. This is a hard cap even if token_ttl and token_max_ttl
+                          would otherwise allow a renewal.
+                        format: int64
+                        type: integer
+                      tokenMaxTTL:
+                        description: The maximum lifetime for generated tokens. This
+                          current value of this will be referenced at renewal time.
+                        format: int64
+                        type: integer
+                      tokenNoDefaultPolicy:
+                        description: If set, the default policy will not be set on
+                          generated tokens; otherwise it will be added to the policies
+                          set in token_policies.
+                        type: boolean
+                      tokenNumUses:
+                        description: The maximum number of times a generated token
+                          may be used (within its lifetime); 0 means unlimited.
+                        format: int64
+                        type: integer
+                      tokenPeriod:
+                        description: The period, if any, to set on the token.
+                        format: int64
+                        type: integer
+                      tokenPolicies:
+                        description: List of policies to encode onto generated tokens.
+                          Depending on the auth method, this list may be supplemented
+                          by user/group/other values.
+                        items:
+                          type: string
+                        type: array
+                      tokenTTL:
+                        description: The incremental lifetime for generated tokens.
+                          This current value of this will be referenced at renewal
+                          time.
+                        format: int64
+                        type: integer
+                      tokenType:
+                        description: 'The type of token that should be generated.
+                          Can be service, batch, or default to use the mount''s tuned
+                          default (which unless changed will be service tokens). For
+                          token store roles, there are two additional possibilities:
+                          default-service and default-batch which specify the type
+                          to return unless the client requests a different type at
+                          generation time.'
+                        type: string
+                      userClaim:
+                        description: The claim to use to uniquely identify the user;
+                          this will be used as the name for the Identity entity alias
+                          created due to a successful login. The claim value must
+                          be a string.
+                        type: string
+                      verboseOidcLogging:
+                        type: boolean
+                    required:
+                    - allowedRedirectUris
+                    - userClaim
+                    type: object
                   kubernetes:
                     description: 'Kubernetes refers to Vault users who are authenticated
                       via Kubernetes auth method More info: https://www.vaultproject.io/docs/auth/kubernetes.html#configuration'
@@ -200,6 +331,51 @@ spec:
                     required:
                     - serviceAccountNames
                     - serviceAccountNamespaces
+                    type: object
+                  ldapGroup:
+                    description: 'More info: https://www.vaultproject.io/api-docs/auth/ldap#configure-ldap'
+                    properties:
+                      name:
+                        description: The name of the LDAP group
+                        type: string
+                      path:
+                        description: 'Specifies the path where ldap groups auth is
+                          enabled default : ldap/groups'
+                        type: string
+                      policies:
+                        description: List of policies to encode onto generated tokens.
+                          Depending on the auth method, this list may be supplemented
+                          by user/group/other values.
+                        items:
+                          type: string
+                        type: array
+                    required:
+                    - name
+                    type: object
+                  ldapUser:
+                    description: 'More info: https://www.vaultproject.io/api-docs/auth/ldap#create-update-ldap-user'
+                    properties:
+                      groups:
+                        description: List of groups associated to the user.
+                        items:
+                          type: string
+                        type: array
+                      path:
+                        description: 'Specifies the path where ldap groups auth is
+                          enabled default : ldap/users'
+                        type: string
+                      policies:
+                        description: List of policies to encode onto generated tokens.
+                          Depending on the auth method, this list may be supplemented
+                          by user/group/other values.
+                        items:
+                          type: string
+                        type: array
+                      username:
+                        description: The username of the LDAP user
+                        type: string
+                    required:
+                    - username
                     type: object
                 type: object
               vaultRef:

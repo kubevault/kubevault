@@ -366,7 +366,10 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/offshoot-api/api/v1.ServiceSpec":                                schema_kmodulesxyz_offshoot_api_api_v1_ServiceSpec(ref),
 		"kmodules.xyz/offshoot-api/api/v1.ServiceTemplateSpec":                        schema_kmodulesxyz_offshoot_api_api_v1_ServiceTemplateSpec(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.AppRoleSubjectRef":               schema_operator_apis_policy_v1alpha1_AppRoleSubjectRef(ref),
+		"kubevault.dev/operator/apis/policy/v1alpha1.JWTSubjectRef":                   schema_operator_apis_policy_v1alpha1_JWTSubjectRef(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.KubernetesSubjectRef":            schema_operator_apis_policy_v1alpha1_KubernetesSubjectRef(ref),
+		"kubevault.dev/operator/apis/policy/v1alpha1.LdapGroupSubjectRef":             schema_operator_apis_policy_v1alpha1_LdapGroupSubjectRef(ref),
+		"kubevault.dev/operator/apis/policy/v1alpha1.LdapUserSubjectRef":              schema_operator_apis_policy_v1alpha1_LdapUserSubjectRef(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.PolicyIdentifier":                schema_operator_apis_policy_v1alpha1_PolicyIdentifier(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.ServiceAccountReference":         schema_operator_apis_policy_v1alpha1_ServiceAccountReference(ref),
 		"kubevault.dev/operator/apis/policy/v1alpha1.SubjectRef":                      schema_operator_apis_policy_v1alpha1_SubjectRef(ref),
@@ -17478,6 +17481,224 @@ func schema_operator_apis_policy_v1alpha1_AppRoleSubjectRef(ref common.Reference
 	}
 }
 
+func schema_operator_apis_policy_v1alpha1_JWTSubjectRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "More info: https://www.vaultproject.io/api-docs/auth/jwt#create-role",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path where jwt/oidc auth is enabled default : jwt",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Name of the role. This defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"roleType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Type of role, either \"oidc\" (default) or \"jwt\".",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"boundAudiences": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of aud claims to match against. Any match is sufficient. Required for \"jwt\" roles, optional for \"oidc\" roles.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"userClaim": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The claim to use to uniquely identify the user; this will be used as the name for the Identity entity alias created due to a successful login. The claim value must be a string.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"boundSubject": {
+						SchemaProps: spec.SchemaProps{
+							Description: "If set, requires that the sub claim matches this value.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"boundClaims": {
+						SchemaProps: spec.SchemaProps{
+							Description: "If set, a map of claims/values to match against. The expected value may be a single string or a list of strings. The interpretation of the bound claim values is configured with bound_claims_type.",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"boundClaimsType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Configures the interpretation of the bound_claims values. If \"string\" (the default), the values will treated as string literals and must match exactly. If set to \"glob\", the values will be interpreted as globs, with * matching any number of characters.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"groupClaim": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The claim to use to uniquely identify the set of groups to which the user belongs; this will be used as the names for the Identity group aliases created due to a successful login. The claim value must be a list of strings.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"claimMappings": {
+						SchemaProps: spec.SchemaProps{
+							Description: "If set, a map of claims (keys) to be copied to specified metadata fields (values).",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"oidcScopes": {
+						SchemaProps: spec.SchemaProps{
+							Description: "If set, a list of OIDC scopes to be used with an OIDC role. The standard scope \"openid\" is automatically included and need not be specified.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"allowedRedirectUris": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The list of allowed values for redirect_uri during OIDC logins.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"verboseOidcLogging": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
+					"tokenTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The incremental lifetime for generated tokens. This current value of this will be referenced at renewal time.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"tokenMaxTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The maximum lifetime for generated tokens. This current value of this will be referenced at renewal time.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"tokenPolicies": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of policies to encode onto generated tokens. Depending on the auth method, this list may be supplemented by user/group/other values.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"tokenBoundCidrs": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of CIDR blocks; if set, specifies blocks of IP addresses which can authenticate successfully, and ties the resulting token to these blocks as well.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"tokenExplicitMaxTTL": {
+						SchemaProps: spec.SchemaProps{
+							Description: "If set, will encode an explicit max TTL onto the token. This is a hard cap even if token_ttl and token_max_ttl would otherwise allow a renewal.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"tokenNoDefaultPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "If set, the default policy will not be set on generated tokens; otherwise it will be added to the policies set in token_policies.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"tokenNumUses": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The maximum number of times a generated token may be used (within its lifetime); 0 means unlimited.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"tokenPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The period, if any, to set on the token.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"tokenType": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The type of token that should be generated. Can be service, batch, or default to use the mount's tuned default (which unless changed will be service tokens). For token store roles, there are two additional possibilities: default-service and default-batch which specify the type to return unless the client requests a different type at generation time.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"userClaim", "allowedRedirectUris"},
+			},
+		},
+	}
+}
+
 func schema_operator_apis_policy_v1alpha1_KubernetesSubjectRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -17555,6 +17776,104 @@ func schema_operator_apis_policy_v1alpha1_KubernetesSubjectRef(ref common.Refere
 	}
 }
 
+func schema_operator_apis_policy_v1alpha1_LdapGroupSubjectRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "More info: https://www.vaultproject.io/api-docs/auth/ldap#create-update-ldap-group",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path where ldap groups auth is enabled default : ldap/groups",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The name of the LDAP group",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"policies": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of policies to encode onto generated tokens. Depending on the auth method, this list may be supplemented by user/group/other values.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"name"},
+			},
+		},
+	}
+}
+
+func schema_operator_apis_policy_v1alpha1_LdapUserSubjectRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "More info: https://www.vaultproject.io/api-docs/auth/ldap#create-update-ldap-user",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the path where ldap groups auth is enabled default : ldap/users",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"username": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The username of the LDAP user",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"policies": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of policies to encode onto generated tokens. Depending on the auth method, this list may be supplemented by user/group/other values.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"groups": {
+						SchemaProps: spec.SchemaProps{
+							Description: "List of groups associated to the user.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"username"},
+			},
+		},
+	}
+}
+
 func schema_operator_apis_policy_v1alpha1_PolicyIdentifier(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -17625,11 +17944,28 @@ func schema_operator_apis_policy_v1alpha1_SubjectRef(ref common.ReferenceCallbac
 							Ref:         ref("kubevault.dev/operator/apis/policy/v1alpha1.AppRoleSubjectRef"),
 						},
 					},
+					"ldapGroup": {
+						SchemaProps: spec.SchemaProps{
+							Description: "More info: https://www.vaultproject.io/api-docs/auth/ldap#configure-ldap",
+							Ref:         ref("kubevault.dev/operator/apis/policy/v1alpha1.LdapGroupSubjectRef"),
+						},
+					},
+					"ldapUser": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/policy/v1alpha1.LdapUserSubjectRef"),
+						},
+					},
+					"jwt": {
+						SchemaProps: spec.SchemaProps{
+							Description: "More info: https://www.vaultproject.io/api-docs/auth/jwt#configure",
+							Ref:         ref("kubevault.dev/operator/apis/policy/v1alpha1.JWTSubjectRef"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"kubevault.dev/operator/apis/policy/v1alpha1.AppRoleSubjectRef", "kubevault.dev/operator/apis/policy/v1alpha1.KubernetesSubjectRef"},
+			"kubevault.dev/operator/apis/policy/v1alpha1.AppRoleSubjectRef", "kubevault.dev/operator/apis/policy/v1alpha1.JWTSubjectRef", "kubevault.dev/operator/apis/policy/v1alpha1.KubernetesSubjectRef", "kubevault.dev/operator/apis/policy/v1alpha1.LdapGroupSubjectRef", "kubevault.dev/operator/apis/policy/v1alpha1.LdapUserSubjectRef"},
 	}
 }
 

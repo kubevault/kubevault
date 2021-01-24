@@ -21,14 +21,17 @@ package v1alpha1
 
 import (
 	fmt "fmt"
+
 	io "io"
+
+	proto "github.com/gogo/protobuf/proto"
+
+	k8s_io_api_core_v1 "k8s.io/api/core/v1"
+
 	math "math"
 	math_bits "math/bits"
 	reflect "reflect"
 	strings "strings"
-
-	proto "github.com/gogo/protobuf/proto"
-	k8s_io_api_core_v1 "k8s.io/api/core/v1"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.

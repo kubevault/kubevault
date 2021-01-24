@@ -21,13 +21,12 @@ package externalversions
 import (
 	"fmt"
 
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	cache "k8s.io/client-go/tools/cache"
 	v1alpha1 "kubevault.dev/operator/apis/catalog/v1alpha1"
 	enginev1alpha1 "kubevault.dev/operator/apis/engine/v1alpha1"
 	kubevaultv1alpha1 "kubevault.dev/operator/apis/kubevault/v1alpha1"
 	policyv1alpha1 "kubevault.dev/operator/apis/policy/v1alpha1"
-
-	schema "k8s.io/apimachinery/pkg/runtime/schema"
-	cache "k8s.io/client-go/tools/cache"
 )
 
 // GenericInformer is type of SharedIndexInformer which will locate and delegate to other

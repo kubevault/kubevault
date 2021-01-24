@@ -73,7 +73,7 @@ func (v *VaultPolicyBinding) SetDefaults() {
 
 	if v.Spec.SubjectRef.Kubernetes != nil {
 		if v.Spec.SubjectRef.Kubernetes.Path == "" {
-			v.Spec.SubjectRef.Kubernetes.Path = "kubernetes"
+			v.Spec.SubjectRef.Kubernetes.Path = "kubernetes/role"
 		}
 		if v.Spec.SubjectRef.Kubernetes.Name == "" {
 			v.Spec.SubjectRef.Kubernetes.Name = v.PolicyBindingName()
@@ -82,13 +82,33 @@ func (v *VaultPolicyBinding) SetDefaults() {
 
 	if v.Spec.SubjectRef.AppRole != nil {
 		if v.Spec.SubjectRef.AppRole.Path == "" {
-			v.Spec.SubjectRef.AppRole.Path = "approle"
+			v.Spec.SubjectRef.AppRole.Path = "approle/role"
 		}
 		if v.Spec.SubjectRef.AppRole.RoleName == "" {
 			v.Spec.SubjectRef.AppRole.RoleName = v.PolicyBindingName()
 		}
 	}
 
+	if v.Spec.SubjectRef.LdapGroup != nil {
+		if v.Spec.SubjectRef.LdapGroup.Path == "" {
+			v.Spec.SubjectRef.LdapGroup.Path = "ldap/groups"
+		}
+	}
+
+	if v.Spec.SubjectRef.LdapUser != nil {
+		if v.Spec.SubjectRef.LdapUser.Path == "" {
+			v.Spec.SubjectRef.LdapUser.Path = "ldap/users"
+		}
+	}
+
+	if v.Spec.SubjectRef.JWT != nil {
+		if v.Spec.SubjectRef.JWT.Path == "" {
+			v.Spec.SubjectRef.JWT.Path = "jwt/role"
+		}
+		if v.Spec.SubjectRef.JWT.Name == "" {
+			v.Spec.SubjectRef.JWT.Name = v.PolicyBindingName()
+		}
+	}
 }
 
 func (v VaultPolicyBinding) GeneratePayload(i interface{}) (map[string]interface{}, error) {
@@ -102,5 +122,5 @@ func (v VaultPolicyBinding) GeneratePayload(i interface{}) (map[string]interface
 }
 
 func (v VaultPolicyBinding) GeneratePath(name, path string) string {
-	return fmt.Sprintf("auth/%s/role/%s", path, name)
+	return fmt.Sprintf("auth/%s/%s", path, name)
 }

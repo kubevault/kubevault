@@ -123,6 +123,73 @@ func TestReconcilePolicyBinding(t *testing.T) {
 	}
 }
 
+func TestFinalizePolicyBinding(t *testing.T) {
+	srv := NewFakeVaultServer()
+	defer srv.Close()
+	vApp := vaultAppBinding(srv.URL, vaultTokenSecret().Name)
+	appc := appcatfake.NewSimpleClientset(vApp)
+	kc := kfake.NewSimpleClientset(vaultTokenSecret())
+
+	cases := []struct {
+		testName  string
+		vPBind    *policyapi.VaultPolicyBinding
+		vPolicy   *policyapi.VaultPolicy
+		expectErr bool
+	}{
+		{
+			testName:  "no error, valid VaultPolicyBinding",
+			vPolicy:   validVaultPolicy(vApp),
+			vPBind:    validVaultPolicyBinding(validVaultPolicy(vApp).Name),
+			expectErr: false,
+		},
+		{
+			testName:  "no error, VaultPolicyBinding doesn't exist",
+			vPolicy:   nil,
+			vPBind:    nil,
+			expectErr: false,
+		},
+		{
+			testName:  "error, invalid VaultPolicyBinding",
+			vPolicy:   nil,
+			vPBind:    simpleVaultPolicyBinding(),
+			expectErr: true,
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.testName, func(t *testing.T) {
+			cs := csfake.NewSimpleClientset()
+			pc := cs.PolicyV1alpha1()
+			if c.vPolicy != nil {
+				_, err := pc.VaultPolicies(c.vPolicy.Namespace).Create(context.TODO(), c.vPolicy, metav1.CreateOptions{})
+				assert.Nil(t, err)
+			} else {
+				c.vPolicy = simpleVaultPolicy()
+			}
+
+			if c.vPBind != nil {
+				_, err := pc.VaultPolicyBindings(c.vPBind.Namespace).Create(context.TODO(), c.vPBind, metav1.CreateOptions{})
+				assert.Nil(t, err)
+			} else {
+				c.vPBind = simpleVaultPolicyBinding()
+			}
+
+			ctrl := &VaultController{
+				kubeClient:       kc,
+				extClient:        cs,
+				appCatalogClient: appc.AppcatalogV1alpha1(),
+			}
+
+			err := ctrl.finalizePolicyBinding(c.vPBind)
+			if c.expectErr {
+				assert.NotNil(t, err)
+			} else {
+				assert.Nil(t, err)
+			}
+		})
+	}
+}
+
 func TestRunPolicyBindingFinalizer(t *testing.T) {
 	srv := NewFakeVaultServer()
 	defer srv.Close()

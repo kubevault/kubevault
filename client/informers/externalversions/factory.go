@@ -23,17 +23,16 @@ import (
 	sync "sync"
 	time "time"
 
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	runtime "k8s.io/apimachinery/pkg/runtime"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	cache "k8s.io/client-go/tools/cache"
 	versioned "kubevault.dev/operator/client/clientset/versioned"
 	catalog "kubevault.dev/operator/client/informers/externalversions/catalog"
 	engine "kubevault.dev/operator/client/informers/externalversions/engine"
 	internalinterfaces "kubevault.dev/operator/client/informers/externalversions/internalinterfaces"
 	kubevault "kubevault.dev/operator/client/informers/externalversions/kubevault"
 	policy "kubevault.dev/operator/client/informers/externalversions/policy"
-
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	runtime "k8s.io/apimachinery/pkg/runtime"
-	schema "k8s.io/apimachinery/pkg/runtime/schema"
-	cache "k8s.io/client-go/tools/cache"
 )
 
 // SharedInformerOption defines the functional option type for SharedInformerFactory.
