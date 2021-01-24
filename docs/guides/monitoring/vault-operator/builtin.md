@@ -122,7 +122,7 @@ We have deployed KubeVault operator in `kube-system` namespace. KubeVault operat
 Let's check `vault-operator-apiserver-cert` secret has been created in `monitoring` namespace.
 
 ```console
-$ kubectl get  secrets -n monitoring -l=app=vault-operator
+$ kubectl get  secrets -n monitoring -l=app.kubernetes.io/name=vault-operator
 NAME                            TYPE                DATA   AGE
 vault-operator-apiserver-cert   kubernetes.io/tls   2      107m
 ```

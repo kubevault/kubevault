@@ -46,7 +46,7 @@ appscode/vault-catalog  {{< param "info.version" >}}         {{< param "info.ver
 $ helm install vault-operator appscode/vault-operator --version {{< param "info.version" >}} --namespace kube-system
 
 # Step 2: wait until crds are registered
-$ kubectl get crds -l app=vault -w
+$ kubectl get crds -l app.kubernetes.io/name=kubevault -w
 NAME                                        AGE
 vaultservers.kubevault.com                  12s
 vaultserverversions.catalog.kubevault.com    8s
@@ -81,7 +81,7 @@ appscode/vault-catalog  {{< param "info.version" >}}         {{< param "info.ver
 $ helm install appscode/vault-operator --name vault-operator --version {{< param "info.version" >}} --namespace kube-system
 
 # Step 2: wait until crds are registered
-$ kubectl get crds -l app=vault -w
+$ kubectl get crds -l app.kubernetes.io/name=kubevault -w
 NAME                                        AGE
 vaultservers.kubevault.com                  12s
 vaultserverversions.catalog.kubevault.com    8s
@@ -119,7 +119,7 @@ $ helm template vault-operator appscode/vault-operator \
   --no-hooks | kubectl apply -f -
 
 # Step 2: wait until crds are registered
-$ kubectl get crds -l app=vault -w
+$ kubectl get crds -l app.kubernetes.io/name=kubevault -w
 NAME                                        AGE
 vaultservers.kubevault.com                  12s
 vaultserverversions.catalog.kubevault.com    8s
@@ -150,7 +150,7 @@ $ kubectl create clusterrolebinding "cluster-admin-$(whoami)" \
 To check if Vault operator pods have started, run the following command:
 
 ```console
-$ kubectl get pods --all-namespaces -l app=vault-operator --watch
+$ kubectl get pods --all-namespaces -l app.kubernetes.io/name=vault-operator --watch
 
 NAMESPACE     NAME                              READY   STATUS    RESTARTS   AGE
 kube-system   vault-operator-746d568685-m2w65   1/1     Running   0          5m44s
@@ -161,7 +161,7 @@ Once the operator pods are running, you can cancel the above command by typing `
 Now, to confirm CRD groups have been registered by the operator, run the following command:
 
 ```console
-$ kubectl get crd -l app=vault
+$ kubectl get crd -l app.kubernetes.io/name=kubevault
 NAME                                        CREATED AT
 awsaccesskeyrequests.engine.kubevault.com   2019-01-08T05:57:21Z
 awsroles.engine.kubevault.com               2019-01-08T05:57:21Z
@@ -414,7 +414,7 @@ To detect Vault operator version, exec into the operator pod and run `vault-oper
 
 ```console
 $ POD_NAMESPACE=kube-system
-$ POD_NAME=$(kubectl get pods -n $POD_NAMESPACE -l app=vault-operator -o jsonpath={.items[0].metadata.name})
+$ POD_NAME=$(kubectl get pods -n $POD_NAMESPACE -l app.kubernetes.io/name=vault-operator -o jsonpath={.items[0].metadata.name})
 $ kubectl exec -it $POD_NAME -n $POD_NAMESPACE vault-operator version
 
 Version = {{< param "info.version" >}}

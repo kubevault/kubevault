@@ -111,7 +111,7 @@ KubeVault operator exports operator metrics via TLS secured `api` endpoint. So, 
 Let's check secret vault-operator-apiserver-cert has been created in monitoring namespace.
 
 ```console
-$ kubectl get secret -n monitoring -l=app=vault-operator
+$ kubectl get secret -n monitoring -l=app.kubernetes.io/name=vault-operator
 NAME                            TYPE                DATA   AGE
 vault-operator-apiserver-cert   kubernetes.io/tls   2      8m27s
 ```

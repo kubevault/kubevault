@@ -178,7 +178,7 @@ If you want to communicate with the Vault servers using [Vault (CLI)](https://ww
 Get your desire Vault server pod name:
 
 ```console
-$ kubectl get pods -n demo -l=app=vault
+$ kubectl get pods -n demo -l=app.kubernetes.io/name=vault-operator
 NAME                    READY   STATUS    RESTARTS   AGE
 vault-8679f4cbf-v78cs   3/3     Running   0          93m
 ```
