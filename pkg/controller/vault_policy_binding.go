@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"time"
 
 	"kubevault.dev/operator/apis"
 	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
@@ -92,7 +93,7 @@ func (c *VaultController) runVaultPolicyBindingInjector(key string) error {
 // reconcilePolicyBinding reconciles the vault's policy binding
 func (c *VaultController) reconcilePolicyBinding(pb *policyapi.VaultPolicyBinding, pbClient pbinding.PolicyBinding) error {
 	// create or update policy
-	err := pbClient.Ensure(pb.PolicyBindingName())
+	err := pbClient.Ensure(pb)
 	if err != nil {
 		_, err2 := patchutil.UpdateVaultPolicyBindingStatus(
 			context.TODO(),
@@ -105,6 +106,7 @@ func (c *VaultController) reconcilePolicyBinding(pb *policyapi.VaultPolicyBindin
 					Status:  core.ConditionTrue,
 					Reason:  "FailedToEnsurePolicyBinding",
 					Message: err.Error(),
+					LastTransitionTime: metav1.NewTime(time.Now()),
 				})
 				return status
 			},
@@ -150,7 +152,7 @@ func (c *VaultController) runPolicyBindingFinalizer(pb *policyapi.VaultPolicyBin
 	// If no error occurred:
 	//	- Delete the policy
 	if err == nil {
-		err = pbClient.Delete(pb.PolicyBindingName())
+		err = pbClient.Delete(pb)
 		if err != nil {
 			return errors.Wrap(err, "failed to delete the auth role created for policy binding")
 		}

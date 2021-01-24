@@ -3,10 +3,13 @@ module kubevault.dev/operator
 go 1.12
 
 require (
-	github.com/aws/aws-sdk-go v1.31.13
-	github.com/codeskyblue/go-sh v0.0.0-20200712050446-30169cf553fe
-	github.com/evanphx/json-patch v4.9.0+incompatible
-	github.com/go-openapi/spec v0.19.8
+	github.com/appscode/go v0.0.0-20200323182826-54e98e09185a
+	github.com/aws/aws-sdk-go v1.28.2
+	github.com/codeskyblue/go-sh v0.0.0-20190412065543-76bd3d59ff27
+	github.com/coreos/prometheus-operator v0.39.0
+	github.com/davecgh/go-spew v1.1.1
+	github.com/evanphx/json-patch v4.5.0+incompatible
+	github.com/go-openapi/spec v0.19.3
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/gofuzz v1.1.0

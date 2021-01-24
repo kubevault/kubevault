@@ -18,7 +18,6 @@ package policybinding
 
 import (
 	"context"
-	"fmt"
 
 	api "kubevault.dev/operator/apis/policy/v1alpha1"
 	cs "kubevault.dev/operator/client/clientset/versioned"
@@ -34,9 +33,9 @@ import (
 
 type PolicyBinding interface {
 	// create or update policy binding
-	Ensure(name string) error
+	Ensure(pBind *api.VaultPolicyBinding) error
 	// delete policy binding
-	Delete(name string) error
+	Delete(pBind *api.VaultPolicyBinding) error
 }
 
 func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Interface, kc kubernetes.Interface, pBind *api.VaultPolicyBinding) (PolicyBinding, error) {
@@ -46,15 +45,46 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 	if len(pBind.Spec.Policies) == 0 {
 		return nil, errors.New(".spec.policies must be non empty")
 	}
+
+	if pBind.Spec.SubjectRef.Kubernetes == nil && pBind.Spec.SubjectRef.AppRole == nil {
+		return nil, errors.New(".spec.policies.subjectRef must be non empty")
+	}
+
+	// set def values
+	pBind.SetDefaults()
+
 	pb := &pBinding{}
+	// kubernetes auth
 	if pBind.Spec.Kubernetes != nil {
-		pb.saNames = pBind.Spec.Kubernetes.ServiceAccountNames
-		pb.saNamespaces = pBind.Spec.Kubernetes.ServiceAccountNamespaces
-		pb.ttl = pBind.Spec.Kubernetes.TTL
-		pb.maxTTL = pBind.Spec.Kubernetes.MaxTTL
-		pb.period = pBind.Spec.Kubernetes.Period
-		pb.path = pBind.Spec.Kubernetes.Path
-		pb.setKubernetesDefaults()
+		pb.authKubernetes = &pBindingKubernetes{
+			SaNames:      pBind.Spec.Kubernetes.ServiceAccountNames,
+			SaNamespaces: pBind.Spec.Kubernetes.ServiceAccountNamespaces,
+			TokenTTL:     pBind.Spec.Kubernetes.TTL,
+			TokenMaxTTL:  pBind.Spec.Kubernetes.MaxTTL,
+			TokenPeriod:  pBind.Spec.Kubernetes.Period,
+			name:         pBind.Spec.Kubernetes.Name,
+			path:         pBind.Spec.Kubernetes.Path,
+		}
+	}
+
+	if pBind.Spec.AppRole != nil {
+		pb.authAppRole = &pBindingAppRole{
+			BindSecretID:         pBind.Spec.AppRole.BindSecretID,
+			SecretIDBoundCidrs:   pBind.Spec.AppRole.SecretIDBoundCidrs,
+			SecretIDNumUses:      pBind.Spec.AppRole.SecretIDNumUses,
+			SecretIDTTL:          pBind.Spec.AppRole.SecretIDTTL,
+			EnableLocalSecretIDs: pBind.Spec.AppRole.EnableLocalSecretIDs,
+			TokenTTL:             pBind.Spec.AppRole.TokenTTL,
+			TokenMaxTTL:          pBind.Spec.AppRole.TokenMaxTTL,
+			TokenBoundCidrs:      pBind.Spec.AppRole.TokenBoundCidrs,
+			TokenExplicitMaxTTL:  pBind.Spec.AppRole.TokenExplicitMaxTTL,
+			TokenNoDefaultPolicy: pBind.Spec.AppRole.TokenNoDefaultPolicy,
+			TokenNumUses:         pBind.Spec.AppRole.TokenNumUses,
+			TokenPeriod:          pBind.Spec.AppRole.TokenPeriod,
+			TokenType:            pBind.Spec.AppRole.TokenType,
+			roleName:             pBind.Spec.AppRole.RoleName,
+			path:                 pBind.Spec.AppRole.Path,
+		}
 	}
 
 	// check whether VaultPolicy exists
@@ -89,60 +119,96 @@ func NewPolicyBindingClient(c cs.Interface, appc appcat_cs.AppcatalogV1alpha1Int
 	if err != nil {
 		return nil, err
 	}
+
 	return pb, nil
 }
 
 type pBinding struct {
-	vClient      *vaultapi.Client
-	policies     []string
-	saNames      []string
-	saNamespaces []string
-	ttl          string
-	maxTTL       string
-	period       string
-	path         string
+	vClient        *vaultapi.Client
+	policies       []string
+	authKubernetes *pBindingKubernetes
+	authAppRole    *pBindingAppRole
 }
 
-func (p *pBinding) setKubernetesDefaults() {
-	if p.path == "" {
-		p.path = "kubernetes"
-	}
+type pBindingKubernetes struct {
+	path          string
+	name          string
+	SaNames       []string `json:"bound_service_account_names,omitempty"`
+	SaNamespaces  []string `json:"bound_service_account_namespaces,omitempty"`
+	TokenTTL      string   `json:"token_ttl,omitempty"`
+	TokenPolicies []string `json:"token_policies,omitempty"`
+	TokenMaxTTL   string   `json:"token_max_ttl,omitempty"`
+	TokenPeriod   string   `json:"token_period,omitempty"`
+}
+
+type pBindingAppRole struct {
+	path                 string
+	roleName             string
+	BindSecretID         bool     `json:"bind_secret_id"`
+	SecretIDBoundCidrs   []string `json:"secret_id_bound_cidrs,omitempty"`
+	SecretIDNumUses      int64    `json:"secret_id_num_uses,omitempty"`
+	SecretIDTTL          string   `json:"secret_id_ttl,omitempty"`
+	EnableLocalSecretIDs bool     `json:"enable_local_secret_ids,omitempty"`
+	TokenTTL             int64    `json:"token_ttl,omitempty"`
+	TokenMaxTTL          int64    `json:"token_max_ttl,omitempty"`
+	TokenPolicies        []string `json:"token_policies,omitempty"`
+	TokenBoundCidrs      []string `json:"token_bound_cidrs,omitempty"`
+	TokenExplicitMaxTTL  int64    `json:"token_explicit_max_ttl,omitempty"`
+	TokenNoDefaultPolicy bool     `json:"token_no_default_policy,omitempty"`
+	TokenNumUses         int64    `json:"token_num_uses"`
+	TokenPeriod          int64    `json:"token_period,omitempty"`
+	TokenType            string   `json:"token_type,omitempty"`
 }
 
 // create or update policy binding
 // it's safe to call it multiple times
-func (p *pBinding) Ensure(name string) error {
-	path := fmt.Sprintf("/v1/auth/%s/role/%s", p.path, name)
-	req := p.vClient.NewRequest("POST", path)
-	payload := map[string]interface{}{
-		"bound_service_account_names":      p.saNames,
-		"bound_service_account_namespaces": p.saNamespaces,
-		"policies":                         p.policies,
-		"ttl":                              p.ttl,
-		"max_ttl":                          p.maxTTL,
-		"period":                           p.period,
+func (p *pBinding) Ensure(pBind *api.VaultPolicyBinding) error {
+	// kubernetes auth
+	if p.authKubernetes != nil {
+		path := pBind.GeneratePath(p.authKubernetes.name, p.authKubernetes.path)
+		p.authKubernetes.TokenPolicies = p.policies
+		payload, err := pBind.GeneratePayload(p.authKubernetes)
+		if err != nil {
+			return err
+		}
+		_, err = p.vClient.Logical().Write(path, payload)
+		if err != nil {
+			return err
+		}
 	}
-
-	err := req.SetJSONBody(payload)
-	if err != nil {
-		return err
-	}
-
-	_, err = p.vClient.RawRequest(req)
-	if err != nil {
-		return err
+	// approle auth
+	if p.authAppRole != nil {
+		path := pBind.GeneratePath(p.authAppRole.roleName, p.authAppRole.path)
+		p.authAppRole.TokenPolicies = p.policies
+		payload, err := pBind.GeneratePayload(p.authAppRole)
+		if err != nil {
+			return err
+		}
+		_, err = p.vClient.Logical().Write(path, payload)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 // delete policy binding
 // it's safe to call it, even if 'name' doesn't exist in vault
-func (p *pBinding) Delete(name string) error {
-	path := fmt.Sprintf("/v1/auth/%s/role/%s", p.path, name)
-	req := p.vClient.NewRequest("DELETE", path)
-	_, err := p.vClient.RawRequest(req)
-	if err != nil {
-		return err
+func (p *pBinding) Delete(pBind *api.VaultPolicyBinding) error {
+	if p.authKubernetes != nil {
+		path := pBind.GeneratePath(p.authKubernetes.name, p.authKubernetes.path)
+		_, err := p.vClient.Logical().Delete(path)
+		if err != nil {
+			return err
+		}
+	}
+	// approle auth
+	if p.authAppRole != nil {
+		path := pBind.GeneratePath(p.authAppRole.roleName, p.authAppRole.path)
+		_, err := p.vClient.Logical().Delete(path)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

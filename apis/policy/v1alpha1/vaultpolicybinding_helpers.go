@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"kubevault.dev/operator/api/crds"
@@ -70,7 +71,36 @@ func (v *VaultPolicyBinding) SetDefaults() {
 		v.Spec.VaultRoleName = v.PolicyBindingName()
 	}
 
-	if v.Spec.SubjectRef.Kubernetes != nil && v.Spec.SubjectRef.Kubernetes.Path == "" {
-		v.Spec.SubjectRef.Kubernetes.Path = "kubernetes"
+	if v.Spec.SubjectRef.Kubernetes != nil {
+		if v.Spec.SubjectRef.Kubernetes.Path == "" {
+			v.Spec.SubjectRef.Kubernetes.Path = "kubernetes"
+		}
+		if v.Spec.SubjectRef.Kubernetes.Name == "" {
+			v.Spec.SubjectRef.Kubernetes.Name = v.PolicyBindingName()
+		}
 	}
+
+	if v.Spec.SubjectRef.AppRole != nil {
+		if v.Spec.SubjectRef.AppRole.Path == "" {
+			v.Spec.SubjectRef.AppRole.Path = "approle"
+		}
+		if v.Spec.SubjectRef.AppRole.RoleName == "" {
+			v.Spec.SubjectRef.AppRole.RoleName = v.PolicyBindingName()
+		}
+	}
+
+}
+
+func (v VaultPolicyBinding) GeneratePayload(i interface{}) (map[string]interface{}, error) {
+	var err error
+	payload := make(map[string]interface{})
+	byte, err := json.Marshal(i)
+	if err == nil {
+		err = json.Unmarshal(byte, &payload)
+	}
+	return payload, err
+}
+
+func (v VaultPolicyBinding) GeneratePath(name, path string) string {
+	return fmt.Sprintf("auth/%s/role/%s", path, name)
 }

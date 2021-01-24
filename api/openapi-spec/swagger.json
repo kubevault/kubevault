@@ -17580,6 +17580,94 @@
         }
       }
     },
+    "dev.kubevault.operator.apis.policy.v1alpha1.AppRoleSubjectRef": {
+      "description": "More info: https://www.vaultproject.io/api-docs/auth/approle#create-update-approle",
+      "type": "object",
+      "required": [
+        "bindSecretID"
+      ],
+      "properties": {
+        "bindSecretID": {
+          "description": "Require secret_id to be presented when logging in using this AppRole.",
+          "type": "boolean"
+        },
+        "enableLocalSecretIds": {
+          "description": "If set, the secret IDs generated using this role will be cluster local. This can only be set during role creation and once set, it can't be reset later.",
+          "type": "boolean"
+        },
+        "path": {
+          "description": "Specifies the path where approle auth is enabled default : approle",
+          "type": "string"
+        },
+        "roleName": {
+          "description": "RoleName is the Name of the AppRole This defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}",
+          "type": "string"
+        },
+        "secretIdBoundCidrs": {
+          "description": "List of CIDR blocks; if set, specifies blocks of IP addresses which can perform the login operation.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "secretIdNumUses": {
+          "description": "Number of times any particular SecretID can be used to fetch a token from this AppRole, after which the SecretID will expire. A value of zero will allow unlimited uses.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "secretIdTTL": {
+          "description": "Duration in either an integer number of seconds (3600) or an integer time unit (60m) after which any SecretID expires.",
+          "type": "string"
+        },
+        "tokenBoundCidrs": {
+          "description": "List of CIDR blocks; if set, specifies blocks of IP addresses which can authenticate successfully, and ties the resulting token to these blocks as well.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tokenExplicitMaxTTL": {
+          "description": "If set, will encode an explicit max TTL onto the token. This is a hard cap even if token_ttl and token_max_ttl would otherwise allow a renewal.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "tokenMaxTTL": {
+          "description": "The maximum lifetime for generated tokens. This current value of this will be referenced at renewal time.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "tokenNoDefaultPolicy": {
+          "description": "If set, the default policy will not be set on generated tokens; otherwise it will be added to the policies set in token_policies.",
+          "type": "boolean"
+        },
+        "tokenNumUses": {
+          "description": "The maximum number of times a generated token may be used (within its lifetime); 0 means unlimited.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "tokenPeriod": {
+          "description": "The period, if any, to set on the token.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "tokenPolicies": {
+          "description": "List of policies to encode onto generated tokens. Depending on the auth method, this list may be supplemented by user/group/other values.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tokenTTL": {
+          "description": "The incremental lifetime for generated tokens. This current value of this will be referenced at renewal time.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "tokenType": {
+          "description": "The type of token that should be generated. Can be service, batch, or default to use the mount's tuned default (which unless changed will be service tokens). For token store roles, there are two additional possibilities: default-service and default-batch which specify the type to return unless the client requests a different type at generation time.",
+          "type": "string"
+        }
+      }
+    },
     "dev.kubevault.operator.apis.policy.v1alpha1.KubernetesSubjectRef": {
       "description": "More info: https://www.vaultproject.io/api/auth/kubernetes/index.html#create-role",
       "type": "object",
@@ -17590,6 +17678,10 @@
       "properties": {
         "maxTTL": {
           "description": "Specifies the maximum allowed lifetime of tokens issued in seconds using this role.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the role",
           "type": "string"
         },
         "path": {
@@ -17636,6 +17728,10 @@
     "dev.kubevault.operator.apis.policy.v1alpha1.SubjectRef": {
       "type": "object",
       "properties": {
+        "appRole": {
+          "description": "More info: https://www.vaultproject.io/docs/auth/approle#configuration",
+          "$ref": "#/definitions/dev.kubevault.operator.apis.policy.v1alpha1.AppRoleSubjectRef"
+        },
         "kubernetes": {
           "description": "Kubernetes refers to Vault users who are authenticated via Kubernetes auth method More info: https://www.vaultproject.io/docs/auth/kubernetes.html#configuration",
           "$ref": "#/definitions/dev.kubevault.operator.apis.policy.v1alpha1.KubernetesSubjectRef"

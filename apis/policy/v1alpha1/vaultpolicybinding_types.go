@@ -79,6 +79,8 @@ type SubjectRef struct {
 	// Kubernetes refers to Vault users who are authenticated via Kubernetes auth method
 	// More info: https://www.vaultproject.io/docs/auth/kubernetes.html#configuration
 	Kubernetes *KubernetesSubjectRef `json:"kubernetes,omitempty" protobuf:"bytes,1,opt,name=kubernetes"`
+	// More info: https://www.vaultproject.io/docs/auth/approle#configuration
+	AppRole *AppRoleSubjectRef `json:"appRole,omitempty" protobuf:"bytes,2,opt,name=appRole"`
 }
 
 // More info: https://www.vaultproject.io/api/auth/kubernetes/index.html#create-role
@@ -88,25 +90,82 @@ type KubernetesSubjectRef struct {
 	// +optional
 	Path string `json:"path,omitempty" protobuf:"bytes,1,opt,name=path"`
 
+	// Name of the role
+	Name string `json:"name,omitempty" protobuf:"bytes,2,rep,name=name"`
+
 	// Specifies the names of the service account to bind with policy
-	ServiceAccountNames []string `json:"serviceAccountNames" protobuf:"bytes,2,rep,name=serviceAccountNames"`
+	ServiceAccountNames []string `json:"serviceAccountNames" protobuf:"bytes,3,rep,name=serviceAccountNames"`
 
 	// Specifies the namespaces of the service account
-	ServiceAccountNamespaces []string `json:"serviceAccountNamespaces" protobuf:"bytes,3,rep,name=serviceAccountNamespaces"`
+	ServiceAccountNamespaces []string `json:"serviceAccountNamespaces" protobuf:"bytes,4,rep,name=serviceAccountNamespaces"`
 
 	//Specifies the TTL period of tokens issued using this role in seconds.
 	// +optional
-	TTL string `json:"ttl,omitempty" protobuf:"bytes,4,opt,name=ttl"`
+	TTL string `json:"ttl,omitempty" protobuf:"bytes,5,opt,name=ttl"`
 
 	//Specifies the maximum allowed lifetime of tokens issued in seconds using this role.
 	// +optional
-	MaxTTL string `json:"maxTTL,omitempty" protobuf:"bytes,5,opt,name=maxTTL"`
+	MaxTTL string `json:"maxTTL,omitempty" protobuf:"bytes,6,opt,name=maxTTL"`
 
 	// If set, indicates that the token generated using this role should never expire.
 	// The token should be renewed within the duration specified by this value.
 	// At each renewal, the token's TTL will be set to the value of this parameter.
 	// +optional
-	Period string `json:"period,omitempty" protobuf:"bytes,6,opt,name=period"`
+	Period string `json:"period,omitempty" protobuf:"bytes,7,opt,name=period"`
+}
+
+// More info: https://www.vaultproject.io/api-docs/auth/approle#create-update-approle
+type AppRoleSubjectRef struct {
+	// Specifies the path where approle auth is enabled
+	// default : approle
+	// +optional
+	Path string `json:"path,omitempty" protobuf:"bytes,1,opt,name=path"`
+
+	// RoleName is the Name of the AppRole
+	// This defaults to following format: k8s.${cluster}.${metadata.namespace}.${metadata.name}
+	RoleName string `json:"roleName,omitempty" protobuf:"bytes,2,opt,name=roleName"`
+
+	// Require secret_id to be presented when logging in using this AppRole.
+	BindSecretID bool `json:"bindSecretID" protobuf:"bytes,3,opt,name=bindSecretID"`
+
+	// List of CIDR blocks; if set, specifies blocks of IP addresses which can perform the login operation.
+	SecretIDBoundCidrs []string `json:"secretIdBoundCidrs,omitempty" protobuf:"bytes,4,opt,name=secretIdBoundCidrs"`
+
+	// Number of times any particular SecretID can be used to fetch a token from this AppRole, after which the SecretID will expire. A value of zero will allow unlimited uses.
+	SecretIDNumUses int64 `json:"secretIdNumUses,omitempty" protobuf:"bytes,5,opt,name=secretIdNumUses"`
+
+	// Duration in either an integer number of seconds (3600) or an integer time unit (60m) after which any SecretID expires.
+	SecretIDTTL string `json:"secretIdTTL,omitempty" protobuf:"bytes,6,opt,name=secretIdTTL"`
+
+	// If set, the secret IDs generated using this role will be cluster local. This can only be set during role creation and once set, it can't be reset later.
+	EnableLocalSecretIDs bool `json:"enableLocalSecretIds,omitempty" protobuf:"bytes,7,opt,name=enableLocalSecretIds"`
+
+	// The incremental lifetime for generated tokens. This current value of this will be referenced at renewal time.
+	TokenTTL int64 `json:"tokenTTL,omitempty" protobuf:"bytes,8,opt,name=tokenTTL"`
+
+	// The maximum lifetime for generated tokens. This current value of this will be referenced at renewal time.
+	TokenMaxTTL int64 `json:"tokenMaxTTL,omitempty" protobuf:"bytes,9,opt,name=tokentokenMaxTTL_max_ttl"`
+
+	// List of policies to encode onto generated tokens. Depending on the auth method, this list may be supplemented by user/group/other values.
+	TokenPolicies []string `json:"tokenPolicies,omitempty" protobuf:"bytes,10,opt,name=tokenPolicies"`
+
+	// List of CIDR blocks; if set, specifies blocks of IP addresses which can authenticate successfully, and ties the resulting token to these blocks as well.
+	TokenBoundCidrs []string `json:"tokenBoundCidrs,omitempty" protobuf:"bytes,11,opt,name=tokenBoundCidrs"`
+
+	// If set, will encode an explicit max TTL onto the token. This is a hard cap even if token_ttl and token_max_ttl would otherwise allow a renewal.
+	TokenExplicitMaxTTL int64 `json:"tokenExplicitMaxTTL,omitempty" protobuf:"bytes,12,opt,name=tokenExplicitMaxTTL"`
+
+	// If set, the default policy will not be set on generated tokens; otherwise it will be added to the policies set in token_policies.
+	TokenNoDefaultPolicy bool `json:"tokenNoDefaultPolicy,omitempty" protobuf:"bytes,13,opt,name=tokenNoDefaultPolicy"`
+
+	// The maximum number of times a generated token may be used (within its lifetime); 0 means unlimited.
+	TokenNumUses int64 `json:"tokenNumUses,omitempty" protobuf:"bytes,14,opt,name=tokenNumUses"`
+
+	// The period, if any, to set on the token.
+	TokenPeriod int64 `json:"tokenPeriod,omitempty" protobuf:"bytes,15,opt,name=tokenPeriod"`
+
+	// The type of token that should be generated. Can be service, batch, or default to use the mount's tuned default (which unless changed will be service tokens). For token store roles, there are two additional possibilities: default-service and default-batch which specify the type to return unless the client requests a different type at generation time.
+	TokenType string `json:"tokenType,omitempty" protobuf:"bytes,16,opt,name=tokenType"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
