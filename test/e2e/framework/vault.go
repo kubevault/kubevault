@@ -29,7 +29,6 @@ import (
 	"github.com/pkg/errors"
 	"gomodules.xyz/pointer"
 	"gomodules.xyz/x/crypto/rand"
-	apps "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -37,8 +36,8 @@ import (
 )
 
 var (
-	vaultServiceName    = rand.WithUniqSuffix("test-svc-vault")
-	vaultDeploymentName = rand.WithUniqSuffix("test-vault-deploy")
+	vaultServiceName     = rand.WithUniqSuffix("test-svc-vault")
+	vaultstatefulsetName = rand.WithUniqSuffix("test-vault-deploy")
 )
 
 const (
@@ -89,7 +88,7 @@ func (f *Framework) DeployVaultServer() (*appcat.AppReference, error) {
 
 // DeployVault will do
 //	- create service
-//	- create deployment
+//	- create statefulset
 //	- create vault token secret
 func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 	label := map[string]string{
@@ -120,12 +119,12 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 		return nil, errors.Wrapf(err, "failed to create service(%s/%s)", srv.Namespace, srv.Name)
 	}
 
-	d := apps.Deployment{
+	d := apps.statefulset{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: f.namespace,
-			Name:      vaultDeploymentName,
+			Name:      vaultstatefulsetName,
 		},
-		Spec: apps.DeploymentSpec{
+		Spec: apps.statefulsetSpec{
 			Replicas: func(i int32) *int32 { return &i }(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: label,
@@ -158,13 +157,13 @@ func (f *Framework) DeployVault() (*appcat.AppReference, error) {
 		},
 	}
 
-	_, err = f.CreateDeployment(d)
+	_, err = f.Createstatefulset(d)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to create deployment(%s/%s)", d.Namespace, d.Name)
+		return nil, errors.Wrapf(err, "failed to create statefulset(%s/%s)", d.Namespace, d.Name)
 	}
 
 	Eventually(func() bool {
-		if obj, err := f.KubeClient.AppsV1().Deployments(f.namespace).Get(context.TODO(), d.GetName(), metav1.GetOptions{}); err == nil {
+		if obj, err := f.KubeClient.AppsV1().statefulsets(f.namespace).Get(context.TODO(), d.GetName(), metav1.GetOptions{}); err == nil {
 			return *obj.Spec.Replicas == obj.Status.ReadyReplicas
 		}
 		return false
@@ -242,7 +241,7 @@ func (f *Framework) DeleteVault() error {
 		return err
 	}
 
-	err = f.DeleteDeployment(vaultDeploymentName, f.namespace)
+	err = f.Deletestatefulset(vaultstatefulsetName, f.namespace)
 	return err
 }
 

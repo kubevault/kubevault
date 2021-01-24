@@ -129,23 +129,23 @@ var _ = Describe("VaultServer", func() {
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("configMap (%s/%s) should not exists", namespace, name))
 		}
 
-		checkForVaultDeploymentCreatedOrUpdated = func(name, namespace string, vs *api.VaultServer) {
-			By(fmt.Sprintf("Waiting for vault deployment (%s/%s) to create/update", namespace, name))
+		checkForVaultstatefulsetCreatedOrUpdated = func(name, namespace string, vs *api.VaultServer) {
+			By(fmt.Sprintf("Waiting for vault statefulset (%s/%s) to create/update", namespace, name))
 			Eventually(func() bool {
-				d, err := f.KubeClient.AppsV1().Deployments(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+				d, err := f.KubeClient.AppsV1().statefulsets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err == nil {
 					return *d.Spec.Replicas == *vs.Spec.Replicas
 				}
 				return false
-			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("deployment (%s/%s) replicas should be equal to v.spec.nodes", namespace, name))
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("statefulset (%s/%s) replicas should be equal to v.spec.nodes", namespace, name))
 		}
 
-		checkForVaultDeploymentDeleted = func(name, namespace string) {
-			By(fmt.Sprintf("Waiting for vault deployment (%s/%s) to delete", namespace, name))
+		checkForVaultstatefulsetDeleted = func(name, namespace string) {
+			By(fmt.Sprintf("Waiting for vault statefulset (%s/%s) to delete", namespace, name))
 			Eventually(func() bool {
-				_, err := f.KubeClient.AppsV1().Deployments(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+				_, err := f.KubeClient.AppsV1().statefulsets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				return kerr.IsNotFound(err)
-			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("deployment (%s/%s) should not exists", namespace, name))
+			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("statefulset (%s/%s) should not exists", namespace, name))
 		}
 
 		checkForVaultServerCreated = func(name, namespace string) {
@@ -188,7 +188,7 @@ var _ = Describe("VaultServer", func() {
 			checkForVaultServerCreated(vs.Name, vs.Namespace)
 			checkForVaultTLSSecretCreated(vs.TLSSecretName(), vs.Namespace)
 			checkForVaultConfigMapCreated(vs.ConfigMapName(), vs.Namespace)
-			checkForVaultDeploymentCreatedOrUpdated(vs.Name, vs.Namespace, vs)
+			checkForVaultstatefulsetCreatedOrUpdated(vs.Name, vs.Namespace, vs)
 			checkForAppBindingCreated(vs.Name, vs.Namespace)
 			By("vault server created")
 		}
@@ -209,7 +209,7 @@ var _ = Describe("VaultServer", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(*vs.Spec.Replicas == replicas).To(BeTrue(), "should match replicas")
 
-			checkForVaultDeploymentCreatedOrUpdated(vs.Name, vs.Namespace, vs)
+			checkForVaultstatefulsetCreatedOrUpdated(vs.Name, vs.Namespace, vs)
 		}
 
 		checkForVaultIsUnsealed = func(vs *api.VaultServer) {
@@ -230,7 +230,7 @@ var _ = Describe("VaultServer", func() {
 			checkForVaultServerDeleted(vs.Name, vs.Namespace)
 			checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
 			checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
-			checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
+			checkForVaultstatefulsetDeleted(vs.Name, vs.Namespace)
 			checkForAppBindingDeleted(vs.Name, vs.Namespace)
 		}
 

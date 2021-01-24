@@ -129,6 +129,6 @@ jobs:
           echo -n "$TEST_CREDENTIALS" > hack/config/.env
           echo >> hack/config/.env
           echo "GOOGLE_SERVICE_ACCOUNT_JSON_KEY=$(echo $GOOGLE_SERVICE_ACCOUNT_JSON_KEY)" >> hack/config/.env
-          make install || ( kubectl describe deployment -n kube-system vault-operator; kubectl logs -n kube-system deployment/vault-operator; exit 1; )
+          make install || ( kubectl describe statefulset -n kube-system vault-operator; kubectl logs -n kube-system statefulset/vault-operator; exit 1; )
           echo
           make e2e-tests

@@ -69,8 +69,7 @@ type Vault interface {
 	Apply(pt *core.PodTemplateSpec) error
 	GetService() *core.Service
 	GetHeadlessService(name string) *core.Service
-	GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment
-	GetStatefulSet(serviceName string, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *apps.StatefulSet
+	GetStatefulSet(serviceName string, pt *core.PodTemplateSpec, pvcs []core.PersistentVolumeClaim) *apps.StatefulSet
 	GetServiceAccounts() []core.ServiceAccount
 	GetRBACRolesAndRoleBindings() ([]rbac.Role, []rbac.RoleBinding)
 	GetRBACClusterRoleBinding() rbac.ClusterRoleBinding
@@ -444,33 +443,6 @@ func (v *vaultSrv) GetHeadlessService(name string) *core.Service {
 			},
 			ClusterIP:                "None",
 			PublishNotReadyAddresses: true,
-		},
-	}
-}
-
-func (v *vaultSrv) GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment {
-	if v.strg == nil {
-		return nil
-	}
-
-	return &apps.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        v.vs.OffshootName(),
-			Namespace:   v.vs.Namespace,
-			Labels:      v.vs.OffshootLabels(),
-			Annotations: v.vs.Spec.PodTemplate.Controller.Annotations,
-		},
-		Spec: apps.DeploymentSpec{
-			Replicas: v.vs.Spec.Replicas,
-			Selector: &metav1.LabelSelector{MatchLabels: v.vs.OffshootSelectors()},
-			Template: *pt,
-			Strategy: apps.DeploymentStrategy{
-				Type: apps.RollingUpdateDeploymentStrategyType,
-				RollingUpdate: &apps.RollingUpdateDeployment{
-					MaxUnavailable: func(a intstr.IntOrString) *intstr.IntOrString { return &a }(intstr.FromInt(1)),
-					MaxSurge:       func(a intstr.IntOrString) *intstr.IntOrString { return &a }(intstr.FromInt(1)),
-				},
-			},
 		},
 	}
 }

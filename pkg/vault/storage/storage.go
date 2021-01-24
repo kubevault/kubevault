@@ -36,7 +36,7 @@ import (
 )
 
 // Storage represents a storage that requires the Vault server to be
-// deployed in a Deployment.
+// deployed in a StatefulSet.
 type Storage interface {
 	Apply(pt *core.PodTemplateSpec) error
 	GetStorageConfig() (string, error)

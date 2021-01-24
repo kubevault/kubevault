@@ -37,7 +37,7 @@ import (
 type vaultFake struct {
 	sr                *core.Secret
 	cm                *core.ConfigMap
-	dp                *appsv1.Deployment
+	sts               *appsv1.StatefulSet
 	sa                *core.ServiceAccount
 	svc               *core.Service
 	roles             []rbac.Role
@@ -71,14 +71,11 @@ func (v *vaultFake) Apply(pt *core.PodTemplateSpec) error {
 func (v *vaultFake) GetService() *core.Service {
 	return v.svc
 }
-func (v *vaultFake) GetDeployment(pt *core.PodTemplateSpec) *appsv1.Deployment {
-	return v.dp
-}
 func (v *vaultFake) GetHeadlessService(name string) *core.Service {
 	panic("implement me")
 }
-func (v *vaultFake) GetStatefulSet(serviceName string, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *appsv1.StatefulSet {
-	panic("implement me")
+func (v *vaultFake) GetStatefulSet(serviceName string, pt *core.PodTemplateSpec, pvcs []core.PersistentVolumeClaim) *appsv1.StatefulSet {
+	return v.sts
 }
 func (v *vaultFake) GetServiceAccounts() []core.ServiceAccount {
 	return []core.ServiceAccount{*v.sa}
@@ -123,7 +120,7 @@ func TestReconcileVault(t *testing.T) {
 		},
 		cnt: core.Container{},
 		pt:  &core.PodTemplateSpec{},
-		dp: &appsv1.Deployment{
+		sts: &appsv1.StatefulSet{
 			ObjectMeta: getVaultObjectMeta(1),
 		},
 		svc: &core.Service{
@@ -197,8 +194,8 @@ func TestReconcileVault(t *testing.T) {
 			} else {
 				assert.Nil(t, err, "error must be nil")
 
-				_, err := vaultCtrl.kubeClient.AppsV1().Deployments(test.vs.Namespace).Get(context.TODO(), test.vs.Name, metav1.GetOptions{})
-				assert.Nil(t, err, "deployment for vaultserver should exist")
+				_, err := vaultCtrl.kubeClient.AppsV1().StatefulSets(test.vs.Namespace).Get(context.TODO(), test.vs.Name, metav1.GetOptions{})
+				assert.Nil(t, err, "statefulset for vaultserver should exist")
 			}
 		})
 	}
@@ -214,7 +211,7 @@ func TestDeployVault(t *testing.T) {
 		},
 		cnt: core.Container{},
 		pt:  &core.PodTemplateSpec{},
-		dp: &appsv1.Deployment{
+		sts: &appsv1.StatefulSet{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "dp-test",
 				Namespace: "test",

@@ -97,7 +97,7 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 
 // reconcileVault reconciles the vault cluster's state to the spec specified by v
 // by preparing the TLS secrets, deploying vault cluster,
-// and finally updating the vault deployment if needed.
+// and finally updating the vault statefulset if needed.
 // It also creates AppBinding containing vault connection configuration
 func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 	err := c.CreateVaultTLSSecret(vs, v)
@@ -247,7 +247,7 @@ func (c *VaultController) CreateVaultConfig(vs *api.VaultServer, v Vault) error 
 }
 
 // - create service account for vault pod
-// - create deployment
+// - create statefulset
 // - create service
 // - create rbac role, rolebinding and cluster rolebinding
 func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
@@ -286,29 +286,20 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 		return err
 	}
 
-	d := v.GetDeployment(podT)
-	if d != nil {
-		err := ensureDeployment(c.kubeClient, vs, d)
-		if err != nil {
-			return err
-		}
-	} else {
-		serviceName := fmt.Sprintf("%s-internal", vs.OffshootName())
-		headlessSvc := v.GetHeadlessService(serviceName)
-		err := ensureService(c.kubeClient, vs, headlessSvc)
-		if err != nil {
-			return err
-		}
+	serviceName := fmt.Sprintf("%s-internal", vs.OffshootName())
+	headlessSvc := v.GetHeadlessService(serviceName)
+	err = ensureService(c.kubeClient, vs, headlessSvc)
+	if err != nil {
+		return err
+	}
 
-		// XXX Add pvc support
-		claims := make([]core.PersistentVolumeClaim, 0)
+	// XXX Add pvc support
+	claims := make([]core.PersistentVolumeClaim, 0)
+	sts := v.GetStatefulSet(serviceName, podT, claims)
 
-		sts := v.GetStatefulSet(serviceName, podT, claims)
-
-		err = ensureStatefulSet(c.kubeClient, vs, sts)
-		if err != nil {
-			return err
-		}
+	err = ensureStatefulSet(c.kubeClient, vs, sts)
+	if err != nil {
+		return err
 	}
 
 	if vs.Spec.Monitor != nil && vs.Spec.Monitor.Prometheus != nil {
@@ -355,38 +346,6 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 func ensureServiceAccount(kc kubernetes.Interface, vs *api.VaultServer, sa *core.ServiceAccount) error {
 	_, _, err := core_util.CreateOrPatchServiceAccount(context.TODO(), kc, sa.ObjectMeta, func(in *core.ServiceAccount) *core.ServiceAccount {
 		in.Labels = core_util.UpsertMap(in.Labels, sa.Labels)
-		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
-		return in
-	}, metav1.PatchOptions{})
-	return err
-}
-
-// ensureDeployment creates/patches deployment
-func ensureDeployment(kc kubernetes.Interface, vs *api.VaultServer, d *appsv1.Deployment) error {
-	_, _, err := apps_util.CreateOrPatchDeployment(context.TODO(), kc, d.ObjectMeta, func(in *appsv1.Deployment) *appsv1.Deployment {
-		in.Labels = core_util.UpsertMap(in.Labels, d.Labels)
-		in.Annotations = core_util.UpsertMap(in.Annotations, d.Annotations)
-		in.Spec.Replicas = d.Spec.Replicas
-		in.Spec.Selector = d.Spec.Selector
-		in.Spec.Strategy = d.Spec.Strategy
-
-		in.Spec.Template.Labels = d.Spec.Template.Labels
-		in.Spec.Template.Annotations = d.Spec.Template.Annotations
-		in.Spec.Template.Spec.Containers = core_util.UpsertContainers(in.Spec.Template.Spec.Containers, d.Spec.Template.Spec.Containers)
-		in.Spec.Template.Spec.InitContainers = core_util.UpsertContainers(in.Spec.Template.Spec.InitContainers, d.Spec.Template.Spec.InitContainers)
-		in.Spec.Template.Spec.ServiceAccountName = d.Spec.Template.Spec.ServiceAccountName
-		in.Spec.Template.Spec.NodeSelector = d.Spec.Template.Spec.NodeSelector
-		in.Spec.Template.Spec.Affinity = d.Spec.Template.Spec.Affinity
-		if d.Spec.Template.Spec.SchedulerName != "" {
-			in.Spec.Template.Spec.SchedulerName = d.Spec.Template.Spec.SchedulerName
-		}
-		in.Spec.Template.Spec.Tolerations = d.Spec.Template.Spec.Tolerations
-		in.Spec.Template.Spec.ImagePullSecrets = d.Spec.Template.Spec.ImagePullSecrets
-		in.Spec.Template.Spec.PriorityClassName = d.Spec.Template.Spec.PriorityClassName
-		in.Spec.Template.Spec.Priority = d.Spec.Template.Spec.Priority
-		in.Spec.Template.Spec.SecurityContext = d.Spec.Template.Spec.SecurityContext
-		in.Spec.Template.Spec.Volumes = core_util.UpsertVolume(in.Spec.Template.Spec.Volumes, d.Spec.Template.Spec.Volumes...)
-
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
 	}, metav1.PatchOptions{})
