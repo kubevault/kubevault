@@ -396,6 +396,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleList":                     schema_operator_apis_engine_v1alpha1_GCPRoleList(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleSpec":                     schema_operator_apis_engine_v1alpha1_GCPRoleSpec(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.GCPRoleStatus":                   schema_operator_apis_engine_v1alpha1_GCPRoleStatus(ref),
+		"kubevault.dev/operator/apis/engine/v1alpha1.KVConfiguration":                 schema_operator_apis_engine_v1alpha1_KVConfiguration(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.Lease":                           schema_operator_apis_engine_v1alpha1_Lease(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.LeaseConfig":                     schema_operator_apis_engine_v1alpha1_LeaseConfig(ref),
 		"kubevault.dev/operator/apis/engine/v1alpha1.MongoDBConfiguration":            schema_operator_apis_engine_v1alpha1_MongoDBConfiguration(ref),
@@ -18837,6 +18838,47 @@ func schema_operator_apis_engine_v1alpha1_GCPRoleStatus(ref common.ReferenceCall
 	}
 }
 
+func schema_operator_apis_engine_v1alpha1_KVConfiguration(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "KVConfiguration defines a Key-Value engine configuration",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"version": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The version of the KV engine to enable. Defaults to \"1\", can be either \"1\" or \"2\"",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"maxVersions": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The maximum number of versions to keep for any given key. Defaults to 0, which indicates that the Vault default (10) should be used.",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"casRequired": {
+						SchemaProps: spec.SchemaProps{
+							Description: "If true, then all operations on the KV store require the cas (Compare-and-Swap) parameter to be set. https://www.vaultproject.io/api-docs/secret/kv/kv-v2#cas_required https://www.vaultproject.io/docs/secrets/kv/kv-v2#usage",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"deleteVersionsAfter": {
+						SchemaProps: spec.SchemaProps{
+							Description: "If set, keys will be automatically deleted after this length of time. Accepts a Go duration format string. https://golang.org/pkg/time/#ParseDuration",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func schema_operator_apis_engine_v1alpha1_Lease(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -19867,11 +19909,16 @@ func schema_operator_apis_engine_v1alpha1_SecretEngineConfiguration(ref common.R
 							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MySQLConfiguration"),
 						},
 					},
+					"kv": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.KVConfiguration"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"kubevault.dev/operator/apis/engine/v1alpha1.AWSConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.AzureConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.GCPConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.MongoDBConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.MySQLConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.PostgresConfiguration"},
+			"kubevault.dev/operator/apis/engine/v1alpha1.AWSConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.AzureConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.GCPConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.KVConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.MongoDBConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.MySQLConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.PostgresConfiguration"},
 	}
 }
 
@@ -19968,12 +20015,17 @@ func schema_operator_apis_engine_v1alpha1_SecretEngineSpec(ref common.ReferenceC
 							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.MySQLConfiguration"),
 						},
 					},
+					"kv": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/engine/v1alpha1.KVConfiguration"),
+						},
+					},
 				},
 				Required: []string{"vaultRef"},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.LocalObjectReference", "kubevault.dev/operator/apis/engine/v1alpha1.AWSConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.AzureConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.GCPConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.MongoDBConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.MySQLConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.PostgresConfiguration"},
+			"k8s.io/api/core/v1.LocalObjectReference", "kubevault.dev/operator/apis/engine/v1alpha1.AWSConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.AzureConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.GCPConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.KVConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.MongoDBConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.MySQLConfiguration", "kubevault.dev/operator/apis/engine/v1alpha1.PostgresConfiguration"},
 	}
 }
 

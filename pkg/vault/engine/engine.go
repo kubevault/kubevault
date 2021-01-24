@@ -17,6 +17,8 @@ limitations under the License.
 package engine
 
 import (
+	"strconv"
+
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	"kubevault.dev/operator/pkg/vault"
 	"kubevault.dev/operator/pkg/vault/role/aws"
@@ -30,6 +32,9 @@ import (
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
+
+const DefaultKVPath = "secret"
+const DefaultKVVersion = 1
 
 type SecretEngine struct {
 	appClient    appcat_cs.AppcatalogV1alpha1Interface
@@ -75,6 +80,9 @@ func GetSecretEnginePath(engine *api.SecretEngine) string {
 	if engine.Spec.Azure != nil {
 		return azure.DefaultAzurePath
 	}
+	if engine.Spec.KV != nil {
+		return DefaultKVPath
+	}
 	return database.DefaultDatabasePath
 }
 
@@ -106,6 +114,7 @@ func (seClient *SecretEngine) EnableSecretEngine() error {
 		return nil
 	}
 	var engineType string
+	options := make(map[string]string)
 	engSpec := seClient.secretEngine.Spec
 	if engSpec.AWS != nil {
 		engineType = api.EngineTypeAWS
@@ -115,12 +124,23 @@ func (seClient *SecretEngine) EnableSecretEngine() error {
 		engineType = api.EngineTypeAzure
 	} else if engSpec.MongoDB != nil || engSpec.Postgres != nil || engSpec.MySQL != nil {
 		engineType = api.EngineTypeDatabase
+	} else if engSpec.KV != nil {
+		engineType = api.EngineTypeKV
+		// We need to ensure that we set the desired version at creation time to
+		// avoid breaking clients that are expecting a V2 mount, and to avoid making
+		// the mount unavailable when we configure the version.
+		if engSpec.KV.Version == 0 {
+			options["version"] = strconv.FormatInt(DefaultKVVersion, 10)
+		} else {
+			options["version"] = strconv.FormatInt(engSpec.KV.Version, 10)
+		}
 	} else {
 		return errors.New("failed to enable secret engine: unknown secret engine type")
 	}
 
 	err = seClient.vaultClient.Sys().Mount(seClient.path, &vaultapi.MountInput{
-		Type: engineType,
+		Type:    engineType,
+		Options: options,
 	})
 	if err != nil {
 		return err

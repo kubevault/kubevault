@@ -521,6 +521,27 @@ message GCPRoleStatus {
   repeated kmodules.xyz.client_go.api.v1.Condition conditions = 3;
 }
 
+// KVConfiguration defines a Key-Value engine configuration
+// TODO: fill in doc links
+message KVConfiguration {
+  // The version of the KV engine to enable. Defaults to "1", can be either "1" or "2"
+  optional int64 version = 1;
+
+  // The maximum number of versions to keep for any given key. Defaults to 0, which indicates that the Vault default (10) should be
+  // used.
+  optional int64 maxVersions = 2;
+
+  // If true, then all operations on the KV store require the cas (Compare-and-Swap) parameter to be set.
+  // https://www.vaultproject.io/api-docs/secret/kv/kv-v2#cas_required
+  // https://www.vaultproject.io/docs/secrets/kv/kv-v2#usage
+  optional bool casRequired = 3;
+
+  // If set, keys will be automatically deleted after this length of time. Accepts a Go duration format
+  // string.
+  // https://golang.org/pkg/time/#ParseDuration
+  optional string deleteVersionsAfter = 4;
+}
+
 // Lease contains lease info
 message Lease {
   // lease id
@@ -865,6 +886,8 @@ message SecretEngineConfiguration {
   optional MongoDBConfiguration mongodb = 5;
 
   optional MySQLConfiguration mysql = 6;
+
+  optional KVConfiguration kv = 7;
 }
 
 message SecretEngineList {

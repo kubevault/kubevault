@@ -19,6 +19,7 @@ package engine
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	api "kubevault.dev/operator/apis/engine/v1alpha1"
 	"kubevault.dev/operator/pkg/vault"
@@ -28,6 +29,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
+
+const KVConfigMaxVersions = "max_versions"
+const KVConfigCasRequired = "cas_required"
+const KVConfigDeleteVersionsAfter = "delete_version_after"
 
 func (seClient *SecretEngine) CreateConfig() error {
 	vAppRef := &appcat.AppReference{
@@ -57,6 +62,8 @@ func (seClient *SecretEngine) CreateConfig() error {
 		err = seClient.CreatePostgresConfig()
 	} else if engSpec.MongoDB != nil {
 		err = seClient.CreateMongoDBConfig()
+	} else if engSpec.KV != nil {
+		err = seClient.CreateKVConfig()
 	} else {
 		return errors.New("failed to create config: unknown secret engine type")
 	}
@@ -455,5 +462,42 @@ func (seClient *SecretEngine) CreateGCPConfig() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create gcp config")
 	}
+	return nil
+}
+
+func (seClient *SecretEngine) CreateKVConfig() error {
+	path := fmt.Sprintf("/v1/%s/config", seClient.path)
+	config := seClient.secretEngine.Spec.KV
+
+	if config == nil {
+		return errors.New("KV config is nil")
+	}
+
+	if seClient.vaultClient == nil {
+		return errors.New("vault client is nil")
+	}
+
+	if config.Version < 2 {
+		// KV V1 does not have any configuration options beyond the mount tuning parameters shared by all mounts (and not configured
+		// here).
+		return nil
+	}
+
+	req := seClient.vaultClient.NewRequest("POST", path)
+	payload := map[string]interface{}{}
+
+	payload[KVConfigMaxVersions] = strconv.FormatInt(config.MaxVersions, 10)
+	payload[KVConfigCasRequired] = strconv.FormatBool(config.CasRequired)
+	payload[KVConfigDeleteVersionsAfter] = config.DeleteVersionsAfter
+
+	if err := req.SetJSONBody(payload); err != nil {
+		return errors.Wrap(err, "failed to load payload in config create request")
+	}
+
+	_, err := seClient.vaultClient.RawRequest(req)
+	if err != nil {
+		return errors.Wrap(err, "failed to create KV config")
+	}
+
 	return nil
 }
