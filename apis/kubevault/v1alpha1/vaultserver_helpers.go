@@ -17,7 +17,10 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"fmt"
+
 	"kubevault.dev/operator/api/crds"
+	"kubevault.dev/operator/apis/kubevault"
 
 	"kmodules.xyz/client-go/apiextensions"
 	meta_util "kmodules.xyz/client-go/meta"
@@ -26,6 +29,10 @@ import (
 
 func (_ VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
 	return crds.MustCustomResourceDefinition(SchemeGroupVersion.WithResource(ResourceVaultServers))
+}
+
+func (_ VaultServer) ResourceFQN() string {
+	return fmt.Sprintf("%s.%s", ResourceVaultServers, kubevault.GroupName)
 }
 
 func (v VaultServer) GetKey() string {
@@ -58,8 +65,9 @@ func (v VaultServer) AppBindingName() string {
 
 func (v VaultServer) OffshootSelectors() map[string]string {
 	return map[string]string{
-		"app":     "vault",
-		"cluster": v.Name,
+		meta_util.NameLabelKey:      v.ResourceFQN(),
+		meta_util.InstanceLabelKey:  v.Name,
+		meta_util.ManagedByLabelKey: kubevault.GroupName,
 	}
 }
 
