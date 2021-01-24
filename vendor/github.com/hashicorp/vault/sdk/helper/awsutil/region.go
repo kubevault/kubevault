@@ -1,21 +1,21 @@
 package awsutil
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
-	hclog "github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/errwrap"
 )
 
 // "us-east-1 is used because it's where AWS first provides support for new features,
 // is a widely used region, and is the most common one for some services like STS.
 const DefaultRegion = "us-east-1"
 
-var ec2MetadataBaseURL = "http://169.254.169.254"
+// This is nil by default, but is exposed in case it needs to be changed for tests.
+var ec2Endpoint *string
 
 /*
 It's impossible to mimic "normal" AWS behavior here because it's not consistent
@@ -37,39 +37,37 @@ Our chosen approach is:
 
 This approach should be used in future updates to this logic.
 */
-func GetOrDefaultRegion(logger hclog.Logger, configuredRegion string) string {
+func GetRegion(configuredRegion string) (string, error) {
 	if configuredRegion != "" {
-		return configuredRegion
+		return configuredRegion, nil
 	}
 
 	sess, err := session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	})
 	if err != nil {
-		logger.Warn(fmt.Sprintf("unable to start session, defaulting region to %s", DefaultRegion))
-		return DefaultRegion
+		return "", errwrap.Wrapf("got error when starting session: {{err}}", err)
 	}
 
 	region := aws.StringValue(sess.Config.Region)
 	if region != "" {
-		return region
+		return region, nil
 	}
 
 	metadata := ec2metadata.New(sess, &aws.Config{
-		Endpoint:                          aws.String(ec2MetadataBaseURL + "/latest"),
+		Endpoint:                          ec2Endpoint,
 		EC2MetadataDisableTimeoutOverride: aws.Bool(true),
 		HTTPClient: &http.Client{
 			Timeout: time.Second,
 		},
 	})
 	if !metadata.Available() {
-		return DefaultRegion
+		return DefaultRegion, nil
 	}
 
 	region, err = metadata.Region()
 	if err != nil {
-		logger.Warn("unable to retrieve region from instance metadata, defaulting region to %s", DefaultRegion)
-		return DefaultRegion
+		return "", errwrap.Wrapf("unable to retrieve region from instance metadata: {{err}}", err)
 	}
-	return region
+	return region, nil
 }

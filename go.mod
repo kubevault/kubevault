@@ -12,8 +12,8 @@ require (
 	github.com/google/gofuzz v1.1.0
 	github.com/gorilla/mux v1.7.3
 	github.com/hashicorp/go-cleanhttp v0.5.1
-	github.com/hashicorp/vault v1.3.0
-	github.com/hashicorp/vault/api v1.0.5-0.20191108163347-bdd38fca2cff
+	github.com/hashicorp/vault/api v1.0.5-0.20200317185738-82f498082f02
+	github.com/hashicorp/vault/sdk v0.1.14-0.20200702114606-96dd7d6e10db
 	github.com/lib/pq v1.2.0
 	github.com/ncw/swift v1.0.49
 	github.com/onsi/ginkgo v1.11.0
