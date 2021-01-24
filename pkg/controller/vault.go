@@ -49,9 +49,11 @@ import (
 const (
 	EnvVaultAddr            = "VAULT_API_ADDR"
 	EnvVaultClusterAddr     = "VAULT_CLUSTER_ADDR"
+	EnvVaultCACert          = "VAULT_CACERT"
 	VaultClientPort         = 8200
 	VaultClusterPort        = 8201
 	vaultTLSAssetVolumeName = "vault-tls-secret"
+	TLSCACertKey            = "cacert.crt"
 )
 
 var (
@@ -178,6 +180,7 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 		Data: map[string][]byte{
 			core.TLSCertKey:       srvCrt,
 			core.TLSPrivateKeyKey: srvKey,
+			TLSCACertKey:          store.CACertBytes(),
 		},
 	}
 	v.vs.Spec.TLS.CABundle = store.CACertBytes()
@@ -557,6 +560,10 @@ func (v *vaultSrv) GetContainer() core.Container {
 						FieldPath:  "status.podIP",
 					},
 				},
+			},
+			{
+				Name:  EnvVaultCACert,
+				Value: fmt.Sprintf("%s%s", util.VaultTLSAssetDir, TLSCACertKey),
 			},
 		},
 		SecurityContext: &core.SecurityContext{
