@@ -45,6 +45,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	core_util "kmodules.xyz/client-go/core/v1"
+	meta_util "kmodules.xyz/client-go/meta"
 )
 
 const (
@@ -557,7 +558,7 @@ func (v *vaultSrv) GetRBACRolesAndRoleBindings() ([]rbac.Role, []rbac.RoleBindin
 func (v *vaultSrv) GetRBACClusterRoleBinding() rbac.ClusterRoleBinding {
 	return rbac.ClusterRoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   v.vs.Namespace + "-" + v.vs.Name + "-k8s-token-reviewer",
+			Name:   meta_util.NameWithPrefix(v.vs.Namespace+"-"+v.vs.Name, "k8s-token-reviewer"),
 			Labels: v.vs.OffshootLabels(),
 		},
 		RoleRef: rbac.RoleRef{
