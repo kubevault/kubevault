@@ -48,6 +48,8 @@ type vaultFake struct {
 	ErrInApply        bool
 }
 
+var _ Vault = &vaultFake{}
+
 func (v *vaultFake) GetServerTLS() (*core.Secret, []byte, error) {
 	if v.ErrInGetServerTLS {
 		return nil, nil, fmt.Errorf("error")
@@ -71,6 +73,12 @@ func (v *vaultFake) GetService() *core.Service {
 }
 func (v *vaultFake) GetDeployment(pt *core.PodTemplateSpec) *appsv1.Deployment {
 	return v.dp
+}
+func (v *vaultFake) GetHeadlessService(name string) *core.Service {
+	panic("implement me")
+}
+func (v *vaultFake) GetStatefulSet(serviceName string, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *appsv1.StatefulSet {
+	panic("implement me")
 }
 func (v *vaultFake) GetServiceAccounts() []core.ServiceAccount {
 	return []core.ServiceAccount{*v.sa}

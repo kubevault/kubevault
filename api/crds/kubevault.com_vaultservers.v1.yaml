@@ -752,6 +752,18 @@ spec:
                     required:
                     - connectionURLSecret
                     type: object
+                  raft:
+                    description: "RaftSpec defines the configuration for the Raft
+                      integrated storage. \n https://www.vaultproject.io/docs/configuration/storage/raft"
+                    properties:
+                      path:
+                        description: "Path specifies the filesystem path where the
+                          vault data gets stored. \n This value can be overriden by
+                          setting the VAULT_RAFT_PATH environment variable."
+                        type: string
+                    required:
+                    - path
+                    type: object
                   s3:
                     description: "vault doc: https://www.vaultproject.io/docs/configuration/storage/s3.html
                       \n S3Spec defines configuration to set up Amazon S3 Storage

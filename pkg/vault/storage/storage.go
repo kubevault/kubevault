@@ -35,12 +35,17 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+// Storage represents a storage that requires the Vault server to be
+// deployed in a Deployment.
 type Storage interface {
 	Apply(pt *core.PodTemplateSpec) error
 	GetStorageConfig() (string, error)
 }
 
-func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage, error) {
+// NewStorage is the factory creating the Storage based on the Backend given in
+// the VaultServer spec.
+func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage,
+	error) {
 	s := vs.Spec.Backend
 
 	switch {

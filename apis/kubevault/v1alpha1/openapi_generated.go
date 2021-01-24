@@ -383,6 +383,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.ModeSpec":                     schema_operator_apis_kubevault_v1alpha1_ModeSpec(ref),
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.MySQLSpec":                    schema_operator_apis_kubevault_v1alpha1_MySQLSpec(ref),
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.PostgreSQLSpec":               schema_operator_apis_kubevault_v1alpha1_PostgreSQLSpec(ref),
+		"kubevault.dev/operator/apis/kubevault/v1alpha1.RaftSpec":                     schema_operator_apis_kubevault_v1alpha1_RaftSpec(ref),
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.S3Spec":                       schema_operator_apis_kubevault_v1alpha1_S3Spec(ref),
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.SwiftSpec":                    schema_operator_apis_kubevault_v1alpha1_SwiftSpec(ref),
 		"kubevault.dev/operator/apis/kubevault/v1alpha1.TLSPolicy":                    schema_operator_apis_kubevault_v1alpha1_TLSPolicy(ref),
@@ -17736,11 +17737,16 @@ func schema_operator_apis_kubevault_v1alpha1_BackendStorageSpec(ref common.Refer
 							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.ConsulSpec"),
 						},
 					},
+					"raft": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kubevault.dev/operator/apis/kubevault/v1alpha1.RaftSpec"),
+						},
+					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"kubevault.dev/operator/apis/kubevault/v1alpha1.AzureSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.ConsulSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.DynamoDBSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.EtcdSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.FileSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.GcsSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.InmemSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.MySQLSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.PostgreSQLSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.S3Spec", "kubevault.dev/operator/apis/kubevault/v1alpha1.SwiftSpec"},
+			"kubevault.dev/operator/apis/kubevault/v1alpha1.AzureSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.ConsulSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.DynamoDBSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.EtcdSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.FileSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.GcsSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.InmemSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.MySQLSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.PostgreSQLSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.RaftSpec", "kubevault.dev/operator/apis/kubevault/v1alpha1.S3Spec", "kubevault.dev/operator/apis/kubevault/v1alpha1.SwiftSpec"},
 	}
 }
 
@@ -18301,6 +18307,27 @@ func schema_operator_apis_kubevault_v1alpha1_PostgreSQLSpec(ref common.Reference
 					},
 				},
 				Required: []string{"connectionURLSecret"},
+			},
+		},
+	}
+}
+
+func schema_operator_apis_kubevault_v1alpha1_RaftSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "RaftSpec defines the configuration for the Raft integrated storage.\n\nhttps://www.vaultproject.io/docs/configuration/storage/raft",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Path specifies the filesystem path where the vault data gets stored.\n\nThis value can be overriden by setting the VAULT_RAFT_PATH environment variable.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"path"},
 			},
 		},
 	}

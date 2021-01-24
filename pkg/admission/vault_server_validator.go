@@ -309,6 +309,10 @@ func ValidateVaultServer(client kubernetes.Interface, extClient cs.Interface, vs
 		}
 	}
 
+	if vs.Spec.Backend.Raft != nil {
+		numOfBackend++
+	}
+
 	if numOfBackend != 1 {
 		if numOfBackend == 0 {
 			return errors.New("spec.backend is not specified")
