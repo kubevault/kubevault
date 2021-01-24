@@ -56,7 +56,7 @@ data:
     disable_mlock = true
 ```
 
-To use Consul as a storage backend, first, we need to deploy Consul. Documentation for deploying Consul in Kubernetes can be found [here](https://www.consul.io/docs/platform/k8s/run.html). Below is an example yaml for deploying Consul suitable for demo purposes:
+To use Consul as a storage backend, first, we need to deploy Consul. Documentation for deploying Consul in Kubernetes can be found [here](https://www.consul.io/docs/k8s/installation/install). Below is an example yaml for deploying Consul suitable for demo purposes:
 
 ```yaml
 apiVersion: v1
