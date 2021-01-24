@@ -196,16 +196,22 @@ func (f *Framework) DeployPostgresSQL() (string, error) {
 }
 
 func (f *Framework) setupPostgreSQL(pod core.Pod) error {
+	tunnel := portforward.NewTunnel(portforward.TunnelOptions{
+		Client:    f.KubeClient.CoreV1().RESTClient(),
+		Config:    f.ClientConfig,
+		Resource:  "pods",
+		Name:      pod.Name,
+		Namespace: pod.Namespace,
+		Remote:    5432,
+	})
+	defer tunnel.Close()
 
-	portFwd := portforward.NewTunnel(f.KubeClient.CoreV1().RESTClient(), f.ClientConfig, pod.GetNamespace(), pod.GetName(), 5432)
-	defer portFwd.Close()
-
-	err := portFwd.ForwardPort()
+	err := tunnel.ForwardPort()
 	if err != nil {
 		return errors.Wrapf(err, "failed to port forward for pod(%s)", pod.GetName())
 	}
 
-	conn := fmt.Sprintf("postgres://postgres:root@localhost:%s/database?sslmode=disable", strconv.Itoa(portFwd.Local))
+	conn := fmt.Sprintf("postgres://postgres:root@localhost:%s/database?sslmode=disable", strconv.Itoa(tunnel.Local))
 
 	db, err := sql.Open("postgres", conn)
 	if err != nil {

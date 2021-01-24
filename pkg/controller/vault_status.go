@@ -209,16 +209,23 @@ func (c *VaultController) getVaultStatus(p *core.Pod, tlsConfig *vaultapi.TLSCon
 	if !meta_util.PossiblyInCluster() {
 		// if not incluster mode, use port forwarding to access pod
 
-		portFwd := portforward.NewTunnel(c.kubeClient.CoreV1().RESTClient(), c.clientConfig, p.Namespace, p.Name, 8200)
-		defer portFwd.Close()
+		tunnel := portforward.NewTunnel(portforward.TunnelOptions{
+			Client:    c.kubeClient.CoreV1().RESTClient(),
+			Config:    c.clientConfig,
+			Resource:  "pods",
+			Name:      p.Name,
+			Namespace: p.Namespace,
+			Remote:    8200,
+		})
+		defer tunnel.Close()
 
-		err := portFwd.ForwardPort()
+		err := tunnel.ForwardPort()
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to get vault pod status: port forward failed for pod (%s/%s).", p.Namespace, p.Name)
 		}
 
 		podAddr = "localhost"
-		podPort = strconv.Itoa(portFwd.Local)
+		podPort = strconv.Itoa(tunnel.Local)
 	}
 
 	vaultClient, err := util.NewVaultClient(podAddr, podPort, tlsConfig)
