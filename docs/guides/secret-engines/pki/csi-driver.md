@@ -280,7 +280,7 @@ Here, you can also pass the following parameters optionally to issue the certifi
 Let's create a separate namespace called `trial` for testing purpose.
 
 ```console
-$ kubectl create ns trail
+$ kubectl create ns trial
 namespace/trail created
 ```
 

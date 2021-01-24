@@ -8,14 +8,14 @@ spec:
     - name: mypod
       image: busybox
       command:
-        - sleep
-        - "3600"
+      - sleep
+      - "3600"
       volumeMounts:
-        - name: my-vault-volume
-          mountPath: "/etc/kv"
-          readOnly: true
-  serviceAccountName: vault
+      - name: my-vault-volume
+        mountPath: "/etc/kv"
+        readOnly: true
+  serviceAccountName: pod-sa # service account that was created
   volumes:
-    - name: my-vault-volume
-      persistentVolumeClaim:
-        claimName: csi-pvc-kv
+  - name: my-vault-volume
+    persistentVolumeClaim:
+      claimName: csi-pvc-kv

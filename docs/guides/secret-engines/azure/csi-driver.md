@@ -310,7 +310,7 @@ storageclass.storage.k8s.io/vault-azure-storage created
 Let's create a separate namespace called `trial` for testing purpose.
 
 ```console
-$ kubectl create ns trail
+$ kubectl create ns trial
 namespace/trail created
 ```
 
