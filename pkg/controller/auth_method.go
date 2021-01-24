@@ -1,11 +1,11 @@
 /*
-Copyright The KubeVault Authors.
+Copyright AppsCode Inc. and Contributors
 
-Licensed under the Apache License, Version 2.0 (the "License");
+Licensed under the AppsCode Community License 1.0.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    https://github.com/appscode/licenses/raw/1.0.0/AppsCode-Community-1.0.0.md
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,13 +23,13 @@ import (
 	"path/filepath"
 	"time"
 
-	vaultconfig "kubevault.dev/operator/apis/config/v1alpha1"
-	api "kubevault.dev/operator/apis/kubevault/v1alpha1"
-	policyapi "kubevault.dev/operator/apis/policy/v1alpha1"
-	vaultcs "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1"
-	patchutil "kubevault.dev/operator/client/clientset/versioned/typed/kubevault/v1alpha1/util"
-	policycs "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1"
-	policyutil "kubevault.dev/operator/client/clientset/versioned/typed/policy/v1alpha1/util"
+	vaultconfig "kubevault.dev/apimachinery/apis/config/v1alpha1"
+	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
+	policyapi "kubevault.dev/apimachinery/apis/policy/v1alpha1"
+	vaultcs "kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1"
+	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/util"
+	policycs "kubevault.dev/apimachinery/client/clientset/versioned/typed/policy/v1alpha1"
+	policyutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/policy/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault"
 	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 

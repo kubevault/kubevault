@@ -1,11 +1,10 @@
-# Copyright 2019 AppsCode Inc.
-# Copyright 2016 The Kubernetes Authors.
+# Copyright AppsCode Inc. and Contributors
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the AppsCode Community License 1.0.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#     https://github.com/appscode/licenses/raw/1.0.0/AppsCode-Community-1.0.0.md
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,11 +18,6 @@ GO_PKG   := kubevault.dev
 REPO     := $(notdir $(shell pwd))
 BIN      := vault-operator
 COMPRESS ?= no
-
-# Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
-CRD_OPTIONS          ?= "crd:trivialVersions=true,preserveUnknownFields=false,crdVersions={v1beta1,v1}"
-CODE_GENERATOR_IMAGE ?= appscode/gengo:release-1.18
-API_GROUPS           ?= kubevault:v1alpha1 catalog:v1alpha1 config:v1alpha1 policy:v1alpha1 engine:v1alpha1
 
 # Where to push the docker image.
 REGISTRY ?= kubevault
@@ -52,17 +46,17 @@ endif
 ### These variables should not need tweaking.
 ###
 
-SRC_PKGS := api apis client cmd pkg # directories which hold app source excluding tests (not vendored)
-SRC_DIRS := $(SRC_PKGS) test hack/gencrd hack/gendocs # directories which hold app source (not vendored)
+SRC_PKGS := cmd pkg
+SRC_DIRS := $(SRC_PKGS) test hack/gendocs # directories which hold app source (not vendored)
 
-DOCKER_PLATFORMS := linux/amd64 linux/arm linux/arm64
+DOCKER_PLATFORMS := linux/amd64 linux/arm64
 BIN_PLATFORMS    := $(DOCKER_PLATFORMS)
 
 # Used internally.  Users should pass GOOS and/or GOARCH.
 OS   := $(if $(GOOS),$(GOOS),$(shell go env GOOS))
 ARCH := $(if $(GOARCH),$(GOARCH),$(shell go env GOARCH))
 
-BASEIMAGE_PROD   ?= gcr.io/distroless/static-debian10
+BASEIMAGE_PROD   ?= gcr.io/distroless/base-debian10
 BASEIMAGE_DBG    ?= debian:buster
 
 IMAGE            := $(REGISTRY)/$(BIN)
@@ -74,7 +68,6 @@ TAG_DBG          := $(VERSION)-dbg_$(OS)_$(ARCH)
 
 GO_VERSION       ?= 1.15
 BUILD_IMAGE      ?= appscode/golang-dev:$(GO_VERSION)
-CHART_TEST_IMAGE ?= quay.io/helmpack/chart-testing:v3.0.0
 
 OUTBIN = bin/$(OS)_$(ARCH)/$(BIN)
 ifeq ($(OS),windows)
@@ -135,131 +128,8 @@ version:
 	@echo ::set-output name=commit_hash::$(commit_hash)
 	@echo ::set-output name=commit_timestamp::$(commit_timestamp)
 
-# Generate a typed clientset
-.PHONY: clientset
-clientset:
-	@docker run --rm                                     \
-		-u $$(id -u):$$(id -g)                           \
-		-v /tmp:/.cache                                  \
-		-v $$(pwd):$(DOCKER_REPO_ROOT)                   \
-		-w $(DOCKER_REPO_ROOT)                           \
-		--env HTTP_PROXY=$(HTTP_PROXY)                   \
-		--env HTTPS_PROXY=$(HTTPS_PROXY)                 \
-		$(CODE_GENERATOR_IMAGE)                          \
-		/go/src/k8s.io/code-generator/generate-groups.sh \
-			all                                          \
-			$(GO_PKG)/$(REPO)/client                     \
-			$(GO_PKG)/$(REPO)/apis                       \
-			"$(API_GROUPS)"                              \
-			--go-header-file "./hack/license/go.txt"
-
-# Generate openapi schema
-.PHONY: openapi
-openapi: $(addprefix openapi-, $(subst :,_, $(API_GROUPS)))
-	@echo "Generating api/openapi-spec/swagger.json"
-	@docker run --rm                                     \
-		-u $$(id -u):$$(id -g)                           \
-		-v /tmp:/.cache                                  \
-		-v $$(pwd):$(DOCKER_REPO_ROOT)                   \
-		-w $(DOCKER_REPO_ROOT)                           \
-		--env HTTP_PROXY=$(HTTP_PROXY)                   \
-		--env HTTPS_PROXY=$(HTTPS_PROXY)                 \
-	    --env GO111MODULE=on                             \
-	    --env GOFLAGS="-mod=vendor"                      \
-		$(BUILD_IMAGE)                                   \
-		go run hack/gencrd/main.go
-
-openapi-%:
-	@echo "Generating openapi schema for $(subst _,/,$*)"
-	@mkdir -p api/api-rules
-	@docker run --rm                                     \
-		-u $$(id -u):$$(id -g)                           \
-		-v /tmp:/.cache                                  \
-		-v $$(pwd):$(DOCKER_REPO_ROOT)                   \
-		-w $(DOCKER_REPO_ROOT)                           \
-		--env HTTP_PROXY=$(HTTP_PROXY)                   \
-		--env HTTPS_PROXY=$(HTTPS_PROXY)                 \
-		$(CODE_GENERATOR_IMAGE)                          \
-		openapi-gen                                      \
-			--v 1 --logtostderr                          \
-			--go-header-file "./hack/license/go.txt" \
-			--input-dirs "$(GO_PKG)/$(REPO)/apis/$(subst _,/,$*),k8s.io/apimachinery/pkg/apis/meta/v1,k8s.io/apimachinery/pkg/api/resource,k8s.io/apimachinery/pkg/runtime,k8s.io/apimachinery/pkg/util/intstr,k8s.io/apimachinery/pkg/version,k8s.io/api/core/v1,k8s.io/api/apps/v1,kmodules.xyz/offshoot-api/api/v1,kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1,kmodules.xyz/monitoring-agent-api/api/v1,k8s.io/api/rbac/v1,kmodules.xyz/client-go/api/v1" \
-			--output-package "$(GO_PKG)/$(REPO)/apis/$(subst _,/,$*)" \
-			--report-filename api/api-rules/violation_exceptions.list
-
-# Generate CRD manifests
-.PHONY: gen-crds
-gen-crds:
-	@echo "Generating CRD manifests"
-	@docker run --rm                        \
-		-u $$(id -u):$$(id -g)              \
-		-v /tmp:/.cache                     \
-		-v $$(pwd):$(DOCKER_REPO_ROOT)      \
-		-w $(DOCKER_REPO_ROOT)              \
-	    --env HTTP_PROXY=$(HTTP_PROXY)      \
-	    --env HTTPS_PROXY=$(HTTPS_PROXY)    \
-		$(CODE_GENERATOR_IMAGE)             \
-		controller-gen                      \
-			$(CRD_OPTIONS)                  \
-			paths="./apis/..."              \
-			output:crd:artifacts:config=api/crds
-
-crds_to_patch := kubevault.com_vaultservers.yaml
-
-.PHONY: patch-crds
-patch-crds: $(addprefix patch-crd-, $(crds_to_patch))
-patch-crd-%: $(BUILD_DIRS)
-	@echo "patching $*"
-	@kubectl patch -f api/crds/$* -p "$$(cat hack/crd-patch.json)" --type=json --local=true -o yaml > bin/$*
-	@mv bin/$* api/crds/$*
-
-.PHONY: label-crds
-label-crds: $(BUILD_DIRS)
-	@for f in api/crds/*.yaml; do \
-		echo "applying app.kubernetes.io/name=kubevault label to $$f"; \
-		kubectl label --overwrite -f $$f --local=true -o yaml app.kubernetes.io/name=kubevault > bin/crd.yaml; \
-		mv bin/crd.yaml $$f; \
-	done
-
-.PHONY: gen-crd-protos
-gen-crd-protos: $(addprefix gen-crd-protos-, $(subst :,_, $(API_GROUPS)))
-
-gen-crd-protos-%:
-	@echo "Generating protobuf for $(subst _,/,$*)"
-	@docker run --rm                                     \
-		-u $$(id -u):$$(id -g)                           \
-		-v /tmp:/.cache                                  \
-		-v $$(pwd):$(DOCKER_REPO_ROOT)                   \
-		-w $(DOCKER_REPO_ROOT)                           \
-		--env HTTP_PROXY=$(HTTP_PROXY)                   \
-		--env HTTPS_PROXY=$(HTTPS_PROXY)                 \
-		$(CODE_GENERATOR_IMAGE)                          \
-		go-to-protobuf                                   \
-			--go-header-file "./hack/license/go.txt"     \
-			--proto-import=$(DOCKER_REPO_ROOT)/vendor    \
-			--proto-import=$(DOCKER_REPO_ROOT)/third_party/protobuf \
-			--apimachinery-packages=-k8s.io/apimachinery/pkg/api/resource,-k8s.io/apimachinery/pkg/apis/meta/v1,-k8s.io/apimachinery/pkg/apis/meta/v1beta1,-k8s.io/apimachinery/pkg/runtime,-k8s.io/apimachinery/pkg/runtime/schema,-k8s.io/apimachinery/pkg/util/intstr \
-			--packages=-k8s.io/api/core/v1,-k8s.io/api/apps/v1,-k8s.io/api/rbac/v1,-kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1,-kmodules.xyz/monitoring-agent-api/api/v1,-kmodules.xyz/offshoot-api/api/v1,-kmodules.xyz/client-go/api/v1,kubevault.dev/operator/apis/$(subst _,/,$*)
-
-.PHONY: gen-bindata
-gen-bindata:
-	@docker run                                                 \
-	    -i                                                      \
-	    --rm                                                    \
-	    -u $$(id -u):$$(id -g)                                  \
-	    -v $$(pwd):/src                                         \
-	    -w /src/api/crds                                        \
-		-v /tmp:/.cache                                         \
-	    --env HTTP_PROXY=$(HTTP_PROXY)                          \
-	    --env HTTPS_PROXY=$(HTTPS_PROXY)                        \
-	    $(BUILD_IMAGE)                                          \
-	    go-bindata -ignore=\\.go -ignore=\\.DS_Store -mode=0644 -modtime=1573722179 -o bindata.go -pkg crds ./...
-
-.PHONY: manifests
-manifests: gen-crds patch-crds label-crds gen-bindata
-
-.PHONY: gen
-gen: clientset gen-crd-protos manifests openapi
+gen:
+	@true
 
 fmt: $(BUILD_DIRS)
 	@docker run                                                 \
@@ -459,7 +329,10 @@ lint: $(BUILD_DIRS)
 $(BUILD_DIRS):
 	@mkdir -p $@
 
-REGISTRY_SECRET ?=
+REGISTRY_SECRET 	?=
+KUBE_NAMESPACE  	?=
+LICENSE_FILE    	?=
+IMAGE_PULL_POLICY 	?= Always
 
 ifeq ($(strip $(REGISTRY_SECRET)),)
 	IMAGE_PULL_SECRETS =
@@ -483,18 +356,18 @@ install:
 .PHONY: uninstall
 uninstall:
 	@cd ../installer; \
-	helm uninstall vault-operator --namespace=kube-system || true; \
-	helm uninstall vault-catalog --namespace=kube-system || true
+	helm uninstall kubevault-catalog --namespace=$(KUBE_NAMESPACE) || true; \
+	helm uninstall kubevault-community --namespace=$(KUBE_NAMESPACE) || true
 
 .PHONY: purge
 purge: uninstall
-	kubectl delete crds -l app=kubevault
+	kubectl delete crds -l app.kubernetes.io/name=kubevault
 
 .PHONY: dev
 dev: gen fmt push
 
 .PHONY: verify
-verify: verify-gen #verify-modules
+verify: verify-modules verify-gen
 
 .PHONY: verify-modules
 verify-modules:
@@ -507,7 +380,7 @@ verify-modules:
 .PHONY: verify-gen
 verify-gen: gen fmt
 	@if !(git diff --exit-code HEAD); then \
-		echo "generated files are out of date, run make gen fmt"; exit 1; \
+		echo "files are out of date, run make gen fmt"; exit 1; \
 	fi
 
 .PHONY: add-license
@@ -567,12 +440,8 @@ release:
 clean:
 	rm -rf .go bin
 
-.PHONY: run
-run:
-	GO111MODULE=on go run -mod=vendor ./cmd/vault-operator run \
-		--v=3 \
-		--secure-port=8443 \
-		--kubeconfig=$(KUBECONFIG) \
-		--authorization-kubeconfig=$(KUBECONFIG) \
-		--authentication-kubeconfig=$(KUBECONFIG) \
-		--authentication-skip-lookup
+.PHONY: push-to-kind
+push-to-kind: container
+	@echo "Loading docker image into kind cluster...."
+	@kind load docker-image $(IMAGE):$(TAG)
+	@echo "Image has been pushed successfully into kind cluster."

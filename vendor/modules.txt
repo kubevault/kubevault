@@ -651,26 +651,19 @@ k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
 # k8s.io/apiextensions-apiserver v0.18.9
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions
-k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/install
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1
-k8s.io/apiextensions-apiserver/pkg/apiserver/schema
-k8s.io/apiextensions-apiserver/pkg/apiserver/schema/pruning
 k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset
 k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/scheme
 k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1
 k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1
 # k8s.io/apimachinery v0.18.9 => github.com/kmodules/apimachinery v0.19.0-alpha.0.0.20200922195535-0c9a1b86beec
-k8s.io/apimachinery/pkg/api/apitesting
-k8s.io/apimachinery/pkg/api/apitesting/fuzzer
-k8s.io/apimachinery/pkg/api/apitesting/roundtrip
 k8s.io/apimachinery/pkg/api/equality
 k8s.io/apimachinery/pkg/api/errors
 k8s.io/apimachinery/pkg/api/meta
 k8s.io/apimachinery/pkg/api/resource
 k8s.io/apimachinery/pkg/api/validation
 k8s.io/apimachinery/pkg/api/validation/path
-k8s.io/apimachinery/pkg/apis/meta/fuzzer
 k8s.io/apimachinery/pkg/apis/meta/internalversion
 k8s.io/apimachinery/pkg/apis/meta/internalversion/scheme
 k8s.io/apimachinery/pkg/apis/meta/v1
@@ -1139,8 +1132,6 @@ kmodules.xyz/client-go/tools/queue
 kmodules.xyz/constants/aws
 kmodules.xyz/constants/azure
 kmodules.xyz/constants/google
-# kmodules.xyz/crd-schema-fuzz v0.0.0-20200922204806-c1426cd7fcf4
-kmodules.xyz/crd-schema-fuzz
 # kmodules.xyz/custom-resources v0.0.0-20201124062543-bd8d35c21b0c
 kmodules.xyz/custom-resources/apis/appcatalog
 kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1
@@ -1163,6 +1154,53 @@ kmodules.xyz/offshoot-api/api/v1
 # kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6
 kmodules.xyz/webhook-runtime/admission/v1beta1
 kmodules.xyz/webhook-runtime/registry/admissionreview/v1beta1
+# kubevault.dev/apimachinery v0.0.0-20210124211354-5738aa125d4d
+kubevault.dev/apimachinery/apis
+kubevault.dev/apimachinery/apis/catalog
+kubevault.dev/apimachinery/apis/catalog/install
+kubevault.dev/apimachinery/apis/catalog/v1alpha1
+kubevault.dev/apimachinery/apis/config
+kubevault.dev/apimachinery/apis/config/v1alpha1
+kubevault.dev/apimachinery/apis/engine
+kubevault.dev/apimachinery/apis/engine/install
+kubevault.dev/apimachinery/apis/engine/v1alpha1
+kubevault.dev/apimachinery/apis/kubevault
+kubevault.dev/apimachinery/apis/kubevault/install
+kubevault.dev/apimachinery/apis/kubevault/v1alpha1
+kubevault.dev/apimachinery/apis/policy
+kubevault.dev/apimachinery/apis/policy/install
+kubevault.dev/apimachinery/apis/policy/v1alpha1
+kubevault.dev/apimachinery/client/clientset/versioned
+kubevault.dev/apimachinery/client/clientset/versioned/fake
+kubevault.dev/apimachinery/client/clientset/versioned/scheme
+kubevault.dev/apimachinery/client/clientset/versioned/typed/catalog/v1alpha1
+kubevault.dev/apimachinery/client/clientset/versioned/typed/catalog/v1alpha1/fake
+kubevault.dev/apimachinery/client/clientset/versioned/typed/config/v1alpha1
+kubevault.dev/apimachinery/client/clientset/versioned/typed/config/v1alpha1/fake
+kubevault.dev/apimachinery/client/clientset/versioned/typed/engine/v1alpha1
+kubevault.dev/apimachinery/client/clientset/versioned/typed/engine/v1alpha1/fake
+kubevault.dev/apimachinery/client/clientset/versioned/typed/engine/v1alpha1/util
+kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1
+kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/fake
+kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/util
+kubevault.dev/apimachinery/client/clientset/versioned/typed/policy/v1alpha1
+kubevault.dev/apimachinery/client/clientset/versioned/typed/policy/v1alpha1/fake
+kubevault.dev/apimachinery/client/clientset/versioned/typed/policy/v1alpha1/util
+kubevault.dev/apimachinery/client/informers/externalversions
+kubevault.dev/apimachinery/client/informers/externalversions/catalog
+kubevault.dev/apimachinery/client/informers/externalversions/catalog/v1alpha1
+kubevault.dev/apimachinery/client/informers/externalversions/engine
+kubevault.dev/apimachinery/client/informers/externalversions/engine/v1alpha1
+kubevault.dev/apimachinery/client/informers/externalversions/internalinterfaces
+kubevault.dev/apimachinery/client/informers/externalversions/kubevault
+kubevault.dev/apimachinery/client/informers/externalversions/kubevault/v1alpha1
+kubevault.dev/apimachinery/client/informers/externalversions/policy
+kubevault.dev/apimachinery/client/informers/externalversions/policy/v1alpha1
+kubevault.dev/apimachinery/client/listers/catalog/v1alpha1
+kubevault.dev/apimachinery/client/listers/engine/v1alpha1
+kubevault.dev/apimachinery/client/listers/kubevault/v1alpha1
+kubevault.dev/apimachinery/client/listers/policy/v1alpha1
+kubevault.dev/apimachinery/crds
 # sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.7
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client/pkg/client
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client/proto/client
