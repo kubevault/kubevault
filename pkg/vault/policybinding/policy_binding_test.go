@@ -18,7 +18,6 @@ package policybinding
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -268,9 +267,6 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/kubernetes/role/ok", func(w http.ResponseWriter, r *http.Request) {
 		v := map[string]interface{}{}
 		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
-		fmt.Println("***")
-		fmt.Println(v)
-		fmt.Println("***")
 		if ok := isKeyValExist(v, "bound_service_account_names", goodPBind.authKubernetes.SaNames); !ok {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -307,86 +303,7 @@ func NewFakeVaultServer() *httptest.Server {
 	}).Methods(http.MethodDelete)
 
 	// approle
-
 	router.HandleFunc("/v1/auth/approle/role/ok", func(w http.ResponseWriter, r *http.Request) {
-		v := map[string]interface{}{}
-		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
-		fmt.Println("***")
-		fmt.Println(v)
-		fmt.Println("***")
-		if ok := isKeyValExist(v, "bind_secret_id", goodPBind.authAppRole.BindSecretID); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "secret_id_bound_cidrs", goodPBind.authAppRole.SecretIDBoundCidrs); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "secret_id_num_uses", goodPBind.authAppRole.SecretIDNumUses); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "secret_id_ttl", goodPBind.authAppRole.SecretIDTTL); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "enable_local_secret_ids", goodPBind.authAppRole.EnableLocalSecretIDs); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "token_ttl", goodPBind.authAppRole.TokenTTL); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "token_max_ttl", goodPBind.authAppRole.TokenMaxTTL); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "token_policies", goodPBind.authAppRole.TokenPolicies); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "token_bound_cidrs", goodPBind.authAppRole.TokenBoundCidrs); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "token_explicit_max_ttl", goodPBind.authAppRole.TokenExplicitMaxTTL); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "token_no_default_policy", goodPBind.authAppRole.TokenNoDefaultPolicy); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "token_num_uses", goodPBind.authAppRole.TokenNumUses); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "token_period", goodPBind.authAppRole.TokenPeriod); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "token_type", goodPBind.authAppRole.TokenType); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-	}).Methods(http.MethodPut)
-
-	router.HandleFunc("/v1/auth/kubernetes/role/err", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusBadRequest)
-	}).Methods(http.MethodDelete)
-
-	router.HandleFunc("/v1/auth/approle/role/ok", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}).Methods(http.MethodDelete)
-
-	router.HandleFunc("/v1/auth/approle/role/err", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusBadRequest)
-	}).Methods(http.MethodDelete)
-
-	// ldap group
-	router.HandleFunc("/v1/auth/ldap/groups/ok", func(w http.ResponseWriter, r *http.Request) {
 		v := map[string]interface{}{}
 		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
 		if ok := isKeyValExist(v, "bind_secret_id", goodPBind.authAppRole.BindSecretID); !ok {
@@ -406,10 +323,6 @@ func NewFakeVaultServer() *httptest.Server {
 			return
 		}
 		if ok := isKeyValExist(v, "enable_local_secret_ids", goodPBind.authAppRole.EnableLocalSecretIDs); !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if ok := isKeyValExist(v, "token_ttl", goodPBind.authAppRole.TokenTTL); !ok {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -457,6 +370,13 @@ func NewFakeVaultServer() *httptest.Server {
 	}).Methods(http.MethodDelete)
 
 	router.HandleFunc("/v1/auth/approle/role/err", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
+	}).Methods(http.MethodDelete)
+
+	// ldap group
+	router.HandleFunc("/v1/auth/ldap/groups/ok", func(w http.ResponseWriter, r *http.Request) {
+		v := map[string]interface{}{}
+		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
 		if ok := isKeyValExist(v, "policies", goodPBind.authLdapGroup.Policies); !ok {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -475,9 +395,6 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/ldap/users/ok", func(w http.ResponseWriter, r *http.Request) {
 		v := map[string]interface{}{}
 		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
-		fmt.Println("***")
-		fmt.Println(v)
-		fmt.Println("***")
 		if ok := isKeyValExist(v, "policies", goodPBind.authLdapUser.Policies); !ok {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -500,9 +417,6 @@ func NewFakeVaultServer() *httptest.Server {
 	router.HandleFunc("/v1/auth/jwt/role/ok", func(w http.ResponseWriter, r *http.Request) {
 		v := map[string]interface{}{}
 		utilruntime.Must(json.NewDecoder(r.Body).Decode(&v))
-		fmt.Println("***")
-		fmt.Println(v)
-		fmt.Println("***")
 		if ok := isKeyValExist(v, "role_type", goodPBind.authJWT.RoleType); !ok {
 			w.WriteHeader(http.StatusBadRequest)
 			return
