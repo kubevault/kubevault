@@ -32,7 +32,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.18.9
 	k8s.io/apimachinery v0.18.9
 	k8s.io/apiserver v0.18.9
-	k8s.io/client-go v12.0.0+incompatible
+	k8s.io/client-go v0.18.9
 	k8s.io/kube-aggregator v0.18.9
 	k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
 	k8s.io/kubernetes v1.18.9
