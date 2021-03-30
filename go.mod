@@ -1,6 +1,6 @@
 module kubevault.dev/operator
 
-go 1.12
+go 1.15
 
 require (
 	github.com/aws/aws-sdk-go v1.31.13
@@ -42,7 +42,7 @@ require (
 	kmodules.xyz/monitoring-agent-api v0.0.0-20201105074044-be7a1044891a
 	kmodules.xyz/offshoot-api v0.0.0-20201105074700-8675f5f686f2
 	kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6
-	kubevault.dev/apimachinery v0.0.0-20210124211354-5738aa125d4d
+	kubevault.dev/apimachinery sts-api
 )
 
 replace bitbucket.org/ww/goautoneg => gomodules.xyz/goautoneg v0.0.0-20120707110453-a547fc61f48d
