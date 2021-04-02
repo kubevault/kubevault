@@ -54,3 +54,8 @@ const (
 	// required for SecretTypeAzureAuth
 	AzureMSIToken = "msiToken"
 )
+
+const (
+	// moved from operator/pkg/controller/vault.go
+	TLSCACertKey = "ca.crt"
+)

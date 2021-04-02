@@ -35,6 +35,15 @@ import (
 )
 
 func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service, kutil.VerbType, error) {
+	var statsSvc api.NamedServiceTemplateSpec
+
+	for i := range vs.Spec.ServiceTemplates {
+		temp := vs.Spec.ServiceTemplates[i]
+		if temp.Alias == api.VaultServerServiceStats {
+			statsSvc = temp
+		}
+	}
+
 	meta := metav1.ObjectMeta{
 		Name:      vs.StatsServiceName(),
 		Namespace: vs.Namespace,
@@ -44,6 +53,7 @@ func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service
 		in.Labels = vs.StatsLabels()
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 
+		in.Annotations = statsSvc.Annotations
 		in.Spec.Selector = vs.OffshootSelectors()
 		monSpec := vs.Spec.Monitor
 		port := monSpec.Prometheus.Exporter.Port
@@ -59,6 +69,14 @@ func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service
 			},
 		}
 		in.Spec.Ports = core_util.MergeServicePorts(in.Spec.Ports, desired)
+		in.Spec.ClusterIP = statsSvc.Spec.ClusterIP
+		in.Spec.Type = statsSvc.Spec.Type
+		in.Spec.ExternalIPs = statsSvc.Spec.ExternalIPs
+		in.Spec.LoadBalancerIP = statsSvc.Spec.LoadBalancerIP
+		in.Spec.LoadBalancerSourceRanges = statsSvc.Spec.LoadBalancerSourceRanges
+		in.Spec.ExternalTrafficPolicy = statsSvc.Spec.ExternalTrafficPolicy
+		in.Spec.HealthCheckNodePort = statsSvc.Spec.HealthCheckNodePort
+		in.Spec.SessionAffinityConfig = statsSvc.Spec.SessionAffinityConfig
 		return in
 	}, metav1.PatchOptions{})
 }

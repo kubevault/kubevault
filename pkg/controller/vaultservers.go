@@ -18,7 +18,6 @@ package controller
 
 import (
 	"context"
-	"fmt"
 
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/util"
@@ -218,7 +217,9 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 }
 
 func (c *VaultController) CreateVaultTLSSecret(vs *api.VaultServer, v Vault) error {
-	sr, ca, err := v.GetServerTLS()
+	// prev: sr, ca, err := v.GetServerTLS()
+	// changed after GetServerTLS() in vault.go
+	sr, _, err := v.GetServerTLS()
 	if err != nil {
 		return err
 	}
@@ -228,10 +229,11 @@ func (c *VaultController) CreateVaultTLSSecret(vs *api.VaultServer, v Vault) err
 		return err
 	}
 
+	tls := vs.Spec.TLS
 	_, _, err = patchutil.CreateOrPatchVaultServer(context.TODO(), c.extClient.KubevaultV1alpha1(), vs.ObjectMeta, func(in *api.VaultServer) *api.VaultServer {
-		in.Spec.TLS = &api.TLSPolicy{
-			TLSSecret: sr.Name,
-			CABundle:  ca,
+		in.Spec.TLS = &kmapi.TLSConfig{
+			IssuerRef:    tls.IssuerRef,
+			Certificates: tls.Certificates,
 		}
 		return in
 	}, metav1.PatchOptions{})
@@ -293,8 +295,9 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 			return err
 		}
 	} else {
-		serviceName := fmt.Sprintf("%s-internal", vs.OffshootName())
-		headlessSvc := v.GetHeadlessService(serviceName)
+
+		serviceName := vs.ServiceName(api.VaultServerServiceInternal)
+		headlessSvc := v.GetHeadlessService()
 		err := ensureService(c.kubeClient, vs, headlessSvc)
 		if err != nil {
 			return err

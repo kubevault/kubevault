@@ -344,10 +344,15 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference":         schema_custom_resources_apis_appcatalog_v1alpha1_AppReference(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.ClientConfig":         schema_custom_resources_apis_appcatalog_v1alpha1_ClientConfig(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.ObjectReference":      schema_custom_resources_apis_appcatalog_v1alpha1_ObjectReference(ref),
+		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.Param":                schema_custom_resources_apis_appcatalog_v1alpha1_Param(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.RemoveKeyTransform":   schema_custom_resources_apis_appcatalog_v1alpha1_RemoveKeyTransform(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.RenameKeyTransform":   schema_custom_resources_apis_appcatalog_v1alpha1_RenameKeyTransform(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.SecretTransform":      schema_custom_resources_apis_appcatalog_v1alpha1_SecretTransform(ref),
 		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.ServiceReference":     schema_custom_resources_apis_appcatalog_v1alpha1_ServiceReference(ref),
+		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.StashAddon":           schema_custom_resources_apis_appcatalog_v1alpha1_StashAddon(ref),
+		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.StashAddonSpec":       schema_custom_resources_apis_appcatalog_v1alpha1_StashAddonSpec(ref),
+		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.StashTaskSpec":        schema_custom_resources_apis_appcatalog_v1alpha1_StashTaskSpec(ref),
+		"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.TaskRef":              schema_custom_resources_apis_appcatalog_v1alpha1_TaskRef(ref),
 		"kmodules.xyz/monitoring-agent-api/api/v1.AgentSpec":                          schema_kmodulesxyz_monitoring_agent_api_api_v1_AgentSpec(ref),
 		"kmodules.xyz/monitoring-agent-api/api/v1.PrometheusExporterSpec":             schema_kmodulesxyz_monitoring_agent_api_api_v1_PrometheusExporterSpec(ref),
 		"kmodules.xyz/monitoring-agent-api/api/v1.PrometheusSpec":                     schema_kmodulesxyz_monitoring_agent_api_api_v1_PrometheusSpec(ref),
@@ -382,6 +387,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.KubernetesSecretSpec":     schema_apimachinery_apis_kubevault_v1alpha1_KubernetesSecretSpec(ref),
 		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.ModeSpec":                 schema_apimachinery_apis_kubevault_v1alpha1_ModeSpec(ref),
 		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.MySQLSpec":                schema_apimachinery_apis_kubevault_v1alpha1_MySQLSpec(ref),
+		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.NamedServiceTemplateSpec": schema_apimachinery_apis_kubevault_v1alpha1_NamedServiceTemplateSpec(ref),
 		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.PostgreSQLSpec":           schema_apimachinery_apis_kubevault_v1alpha1_PostgreSQLSpec(ref),
 		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.RaftSpec":                 schema_apimachinery_apis_kubevault_v1alpha1_RaftSpec(ref),
 		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.S3Spec":                   schema_apimachinery_apis_kubevault_v1alpha1_S3Spec(ref),
@@ -15614,6 +15620,12 @@ func schema_kmodulesxyz_client_go_api_v1_CertificateSpec(ref common.ReferenceCal
 							Format:      "",
 						},
 					},
+					"issuerRef": {
+						SchemaProps: spec.SchemaProps{
+							Description: "IssuerRef is a reference to a Certificate Issuer.",
+							Ref:         ref("k8s.io/api/core/v1.TypedLocalObjectReference"),
+						},
+					},
 					"secretName": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the k8s secret name that holds the certificates. Default to <resource-name>-<cert-alias>-cert.",
@@ -15706,7 +15718,7 @@ func schema_kmodulesxyz_client_go_api_v1_CertificateSpec(ref common.ReferenceCal
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.Duration", "kmodules.xyz/client-go/api/v1.CertificatePrivateKey", "kmodules.xyz/client-go/api/v1.X509Subject"},
+			"k8s.io/api/core/v1.TypedLocalObjectReference", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration", "kmodules.xyz/client-go/api/v1.CertificatePrivateKey", "kmodules.xyz/client-go/api/v1.X509Subject"},
 	}
 }
 
@@ -16233,6 +16245,32 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_ObjectReference(ref common
 	}
 }
 
+func schema_custom_resources_apis_appcatalog_v1alpha1_Param(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "Param declares a value to use for the Param called Name.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"name", "value"},
+			},
+		},
+	}
+}
+
 func schema_custom_resources_apis_appcatalog_v1alpha1_RemoveKeyTransform(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -16367,6 +16405,121 @@ func schema_custom_resources_apis_appcatalog_v1alpha1_ServiceReference(ref commo
 				Required: []string{"scheme", "name", "port"},
 			},
 		},
+	}
+}
+
+func schema_custom_resources_apis_appcatalog_v1alpha1_StashAddon(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"stash": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.StashAddonSpec"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.StashAddonSpec"},
+	}
+}
+
+func schema_custom_resources_apis_appcatalog_v1alpha1_StashAddonSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "StashAddonSpec is the spec for app",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"addon": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.StashTaskSpec"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.StashTaskSpec"},
+	}
+}
+
+func schema_custom_resources_apis_appcatalog_v1alpha1_StashTaskSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "StashTaskSpec is the spec for app",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"backupTask": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Backup task definition",
+							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.TaskRef"),
+						},
+					},
+					"restoreTask": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Restore task definition",
+							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.TaskRef"),
+						},
+					},
+				},
+				Required: []string{"backupTask", "restoreTask"},
+			},
+		},
+		Dependencies: []string{
+			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.TaskRef"},
+	}
+}
+
+func schema_custom_resources_apis_appcatalog_v1alpha1_TaskRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"params": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Params specifies a list of parameter to pass to the Task. Stash will use this parameters to resolve the task.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.Param"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"name"},
+			},
+		},
+		Dependencies: []string{
+			"kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.Param"},
 	}
 }
 
@@ -16960,20 +17113,6 @@ func schema_kmodulesxyz_offshoot_api_api_v1_PodSpec(ref common.ReferenceCallback
 							Format:      "",
 						},
 					},
-					"args": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Arguments to the entrypoint. The docker image's CMD is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Type:   []string{"string"},
-										Format: "",
-									},
-								},
-							},
-						},
-					},
 					"nodeSelector": {
 						SchemaProps: spec.SchemaProps{
 							Description: "NodeSelector is a selector which must be true for the pod to fit on a node. Selector which must match a node's labels for the pod to be scheduled on that node. More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/",
@@ -16987,12 +17126,6 @@ func schema_kmodulesxyz_offshoot_api_api_v1_PodSpec(ref common.ReferenceCallback
 									},
 								},
 							},
-						},
-					},
-					"resources": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Compute Resources required by the sidecar container.",
-							Ref:         ref("k8s.io/api/core/v1.ResourceRequirements"),
 						},
 					},
 					"affinity": {
@@ -17034,17 +17167,65 @@ func schema_kmodulesxyz_offshoot_api_api_v1_PodSpec(ref common.ReferenceCallback
 							},
 						},
 					},
-					"env": {
+					"priorityClassName": {
 						SchemaProps: spec.SchemaProps{
-							Description: "List of environment variables to set in the container. Cannot be updated.",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Ref: ref("k8s.io/api/core/v1.EnvVar"),
-									},
-								},
-							},
+							Description: "If specified, indicates the pod's priority. \"system-node-critical\" and \"system-cluster-critical\" are two special keywords which indicate the highest priorities with the former being the highest priority. Any other name must be defined by creating a PriorityClass object with that name. If not specified, the pod priority will be default or zero if there is no default.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"priority": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The priority value. Various system components use this field to find the priority of the pod. When Priority Admission Controller is enabled, it prevents users from setting this field. The admission controller populates this field from PriorityClassName. The higher the value, the higher the priority.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"hostNetwork": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Host networking requested for this pod. Use the host's network namespace. If this option is set, the ports that will be used must be specified. Default to false.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"hostPID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Use the host's pid namespace. Optional: Default to false.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"hostIPC": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Use the host's ipc namespace. Optional: Default to false.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"shareProcessNamespace": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Share a single process namespace between all of the containers in a pod. When this is set containers will be able to view and signal processes from other containers in the same pod, and the first process in each container will not be assigned PID 1. HostPID and ShareProcessNamespace cannot both be set. Optional: Default to false.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"securityContext": {
+						SchemaProps: spec.SchemaProps{
+							Description: "SecurityContext holds pod-level security attributes and common container settings. Optional: Defaults to empty.  See type description for default values of each field.",
+							Ref:         ref("k8s.io/api/core/v1.PodSecurityContext"),
+						},
+					},
+					"dnsPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Set DNS policy for the pod. Defaults to \"ClusterFirst\". Valid values are 'ClusterFirstWithHostNet', 'ClusterFirst', 'Default' or 'None'. DNS parameters given in DNSConfig will be merged with the policy selected with DNSPolicy. To have DNS options set along with hostNetwork, you have to specify DNS policy explicitly to 'ClusterFirstWithHostNet'.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"dnsConfig": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the DNS parameters of a pod. Parameters specified here will be merged to the generated DNS configuration based on DNSPolicy.",
+							Ref:         ref("k8s.io/api/core/v1.PodDNSConfig"),
 						},
 					},
 					"initContainers": {
@@ -17066,24 +17247,37 @@ func schema_kmodulesxyz_offshoot_api_api_v1_PodSpec(ref common.ReferenceCallback
 							},
 						},
 					},
-					"priorityClassName": {
+					"args": {
 						SchemaProps: spec.SchemaProps{
-							Description: "If specified, indicates the pod's priority. \"system-node-critical\" and \"system-cluster-critical\" are two special keywords which indicate the highest priorities with the former being the highest priority. Any other name must be defined by creating a PriorityClass object with that name. If not specified, the pod priority will be default or zero if there is no default.",
-							Type:        []string{"string"},
-							Format:      "",
+							Description: "Arguments to the entrypoint. The docker image's CMD is used if this is not provided. Variable references $(VAR_NAME) are expanded using the container's environment. If a variable cannot be resolved, the reference in the input string will be unchanged. The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME). Escaped references will never be expanded, regardless of whether the variable exists or not. Cannot be updated. More info: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#running-a-command-in-a-shell",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
 						},
 					},
-					"priority": {
+					"env": {
 						SchemaProps: spec.SchemaProps{
-							Description: "The priority value. Various system components use this field to find the priority of the pod. When Priority Admission Controller is enabled, it prevents users from setting this field. The admission controller populates this field from PriorityClassName. The higher the value, the higher the priority.",
-							Type:        []string{"integer"},
-							Format:      "int32",
+							Description: "List of environment variables to set in the container. Cannot be updated.",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/core/v1.EnvVar"),
+									},
+								},
+							},
 						},
 					},
-					"securityContext": {
+					"resources": {
 						SchemaProps: spec.SchemaProps{
-							Description: "SecurityContext holds pod-level security attributes and common container settings. Optional: Defaults to empty.  See type description for default values of each field.",
-							Ref:         ref("k8s.io/api/core/v1.PodSecurityContext"),
+							Description: "Compute Resources required by the sidecar container.",
+							Ref:         ref("k8s.io/api/core/v1.ResourceRequirements"),
 						},
 					},
 					"livenessProbe": {
@@ -17104,24 +17298,17 @@ func schema_kmodulesxyz_offshoot_api_api_v1_PodSpec(ref common.ReferenceCallback
 							Ref:         ref("k8s.io/api/core/v1.Lifecycle"),
 						},
 					},
-					"dnsPolicy": {
+					"containerSecurityContext": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Set DNS policy for the pod. Defaults to \"ClusterFirst\". Valid values are 'ClusterFirstWithHostNet', 'ClusterFirst', 'Default' or 'None'. DNS parameters given in DNSConfig will be merged with the policy selected with DNSPolicy. To have DNS options set along with hostNetwork, you have to specify DNS policy explicitly to 'ClusterFirstWithHostNet'.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"dnsConfig": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the DNS parameters of a pod. Parameters specified here will be merged to the generated DNS configuration based on DNSPolicy.",
-							Ref:         ref("k8s.io/api/core/v1.PodDNSConfig"),
+							Description: "Security options the pod should run with. More info: https://kubernetes.io/docs/concepts/policy/security-context/ More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
+							Ref:         ref("k8s.io/api/core/v1.SecurityContext"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.Affinity", "k8s.io/api/core/v1.Container", "k8s.io/api/core/v1.EnvVar", "k8s.io/api/core/v1.Lifecycle", "k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.PodDNSConfig", "k8s.io/api/core/v1.PodSecurityContext", "k8s.io/api/core/v1.Probe", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.Toleration"},
+			"k8s.io/api/core/v1.Affinity", "k8s.io/api/core/v1.Container", "k8s.io/api/core/v1.EnvVar", "k8s.io/api/core/v1.Lifecycle", "k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.PodDNSConfig", "k8s.io/api/core/v1.PodSecurityContext", "k8s.io/api/core/v1.Probe", "k8s.io/api/core/v1.ResourceRequirements", "k8s.io/api/core/v1.SecurityContext", "k8s.io/api/core/v1.Toleration"},
 	}
 }
 
@@ -18277,6 +18464,40 @@ func schema_apimachinery_apis_kubevault_v1alpha1_MySQLSpec(ref common.ReferenceC
 	}
 }
 
+func schema_apimachinery_apis_kubevault_v1alpha1_NamedServiceTemplateSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"alias": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Alias represents the identifier of the service.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Standard object's metadata. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata",
+							Ref:         ref("kmodules.xyz/offshoot-api/api/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specification of the desired behavior of the service. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status",
+							Ref:         ref("kmodules.xyz/offshoot-api/api/v1.ServiceSpec"),
+						},
+					},
+				},
+				Required: []string{"alias"},
+			},
+		},
+		Dependencies: []string{
+			"kmodules.xyz/offshoot-api/api/v1.ObjectMeta", "kmodules.xyz/offshoot-api/api/v1.ServiceSpec"},
+	}
+}
+
 func schema_apimachinery_apis_kubevault_v1alpha1_PostgreSQLSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -18679,24 +18900,24 @@ func schema_apimachinery_apis_kubevault_v1alpha1_VaultServerSpec(ref common.Refe
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"replicas": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Number of replicas to deploy for a Vault deployment. If unspecified, defaults to 1.",
-							Type:        []string{"integer"},
-							Format:      "int32",
-						},
-					},
 					"version": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Version of Vault server to be deployed.",
+							Description: "Version of VaultServer to be deployed.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
-					"configSource": {
+					"replicas": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Name of the ConfigMap for Vault's configuration In this configMap contain extra config for vault ConfigSource is an optional field to provide extra configuration for vault. File name should be 'vault.hcl'. If specified, this file will be appended to the controller configuration file.",
-							Ref:         ref("k8s.io/api/core/v1.VolumeSource"),
+							Description: "Number of instances to deploy for a VaultServer.",
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
+					"configSecret": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ConfigSecret is an optional field to provide extra configuration for vault. This secret contain extra config for vault File name should be 'vault.hcl'. If specified, this file will be appended to the controller configuration file.",
+							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
 					"dataSources": {
@@ -18715,7 +18936,7 @@ func schema_apimachinery_apis_kubevault_v1alpha1_VaultServerSpec(ref common.Refe
 					"tls": {
 						SchemaProps: spec.SchemaProps{
 							Description: "TLS policy of vault nodes",
-							Ref:         ref("kubevault.dev/apimachinery/apis/kubevault/v1alpha1.TLSPolicy"),
+							Ref:         ref("kmodules.xyz/client-go/api/v1.TLSConfig"),
 						},
 					},
 					"backend": {
@@ -18755,10 +18976,31 @@ func schema_apimachinery_apis_kubevault_v1alpha1_VaultServerSpec(ref common.Refe
 							Ref:         ref("kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec"),
 						},
 					},
-					"serviceTemplate": {
+					"serviceTemplates": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ServiceTemplate is an optional configuration for service used to expose vault",
-							Ref:         ref("kmodules.xyz/offshoot-api/api/v1.ServiceTemplateSpec"),
+							Description: "ServiceTemplates is an optional configuration for services used to expose database",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("kubevault.dev/apimachinery/apis/kubevault/v1alpha1.NamedServiceTemplateSpec"),
+									},
+								},
+							},
+						},
+					},
+					"halted": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Indicates that the database is halted and all offshoot Kubernetes resources except PVCs are deleted.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"terminationPolicy": {
+						SchemaProps: spec.SchemaProps{
+							Description: "TerminationPolicy controls the delete operation for database",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},
@@ -18766,7 +19008,7 @@ func schema_apimachinery_apis_kubevault_v1alpha1_VaultServerSpec(ref common.Refe
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.VolumeSource", "kmodules.xyz/monitoring-agent-api/api/v1.AgentSpec", "kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec", "kmodules.xyz/offshoot-api/api/v1.ServiceTemplateSpec", "kubevault.dev/apimachinery/apis/kubevault/v1alpha1.AuthMethod", "kubevault.dev/apimachinery/apis/kubevault/v1alpha1.BackendStorageSpec", "kubevault.dev/apimachinery/apis/kubevault/v1alpha1.TLSPolicy", "kubevault.dev/apimachinery/apis/kubevault/v1alpha1.UnsealerSpec"},
+			"k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.VolumeSource", "kmodules.xyz/client-go/api/v1.TLSConfig", "kmodules.xyz/monitoring-agent-api/api/v1.AgentSpec", "kmodules.xyz/offshoot-api/api/v1.PodTemplateSpec", "kubevault.dev/apimachinery/apis/kubevault/v1alpha1.AuthMethod", "kubevault.dev/apimachinery/apis/kubevault/v1alpha1.BackendStorageSpec", "kubevault.dev/apimachinery/apis/kubevault/v1alpha1.NamedServiceTemplateSpec", "kubevault.dev/apimachinery/apis/kubevault/v1alpha1.UnsealerSpec"},
 	}
 }
 

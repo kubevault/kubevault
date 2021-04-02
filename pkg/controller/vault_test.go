@@ -34,6 +34,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	kfake "k8s.io/client-go/kubernetes/fake"
+	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
 const (
@@ -212,8 +213,8 @@ func TestGetServerTLS(t *testing.T) {
 			vs: &api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(1),
 				Spec: api.VaultServerSpec{
-					TLS: &api.TLSPolicy{
-						TLSSecret: "vault-tls-cred",
+					TLS: &kmapi.TLSConfig{
+						// user not providing anything
 					},
 				},
 			},
@@ -230,8 +231,8 @@ func TestGetServerTLS(t *testing.T) {
 			vs: &api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(1),
 				Spec: api.VaultServerSpec{
-					TLS: &api.TLSPolicy{
-						TLSSecret: "vault-tls-cred",
+					TLS: &kmapi.TLSConfig{
+						// user not providing anything
 					},
 				},
 			},
