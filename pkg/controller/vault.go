@@ -350,7 +350,7 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 			Name: "controller-config",
 			VolumeSource: core.VolumeSource{
 				Secret: &core.SecretVolumeSource{
-					SecretName:  v.vs.ConfigMapName(),
+					SecretName: v.vs.ConfigMapName(),
 				},
 			},
 		})

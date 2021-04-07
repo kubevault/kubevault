@@ -18,8 +18,9 @@ package util
 
 import (
 	"fmt"
-	conapi "kubevault.dev/apimachinery/apis"
 	"path/filepath"
+
+	conapi "kubevault.dev/apimachinery/apis"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	core "k8s.io/api/core/v1"
@@ -53,7 +54,7 @@ listener "tcp" {
 // NewConfigWithDefaultParams appends to given config data some default params:
 // - tcp listener
 func NewConfigWithDefaultParams() string {
-	return fmt.Sprintf(listenerFmt, filepath.Join(VaultTLSAssetDir, core.TLSCertKey), filepath.Join(VaultTLSAssetDir, core.TLSPrivateKeyKey),filepath.Join(VaultTLSAssetDir, conapi.TLSCACertKey))
+	return fmt.Sprintf(listenerFmt, filepath.Join(VaultTLSAssetDir, core.TLSCertKey), filepath.Join(VaultTLSAssetDir, core.TLSPrivateKeyKey), filepath.Join(VaultTLSAssetDir, conapi.TLSCACertKey))
 }
 
 // ListenerConfig creates tcp listener config
@@ -61,7 +62,7 @@ func GetListenerConfig() string {
 	listenerCfg := fmt.Sprintf(listenerFmt,
 		filepath.Join(VaultTLSAssetDir, core.TLSCertKey),
 		filepath.Join(VaultTLSAssetDir, core.TLSPrivateKeyKey),
-		filepath.Join(VaultTLSAssetDir,conapi.TLSCACertKey))
+		filepath.Join(VaultTLSAssetDir, conapi.TLSCACertKey))
 
 	return listenerCfg
 }
