@@ -229,15 +229,7 @@ func (c *VaultController) CreateVaultTLSSecret(vs *api.VaultServer, v Vault) err
 		return err
 	}
 
-	tls := vs.Spec.TLS
-	_, _, err = patchutil.CreateOrPatchVaultServer(context.TODO(), c.extClient.KubevaultV1alpha1(), vs.ObjectMeta, func(in *api.VaultServer) *api.VaultServer {
-		in.Spec.TLS = &kmapi.TLSConfig{
-			IssuerRef:    tls.IssuerRef,
-			Certificates: tls.Certificates,
-		}
-		return in
-	}, metav1.PatchOptions{})
-	return err
+	return nil
 }
 
 func (c *VaultController) CreateVaultConfig(vs *api.VaultServer, v Vault) error {
@@ -245,7 +237,7 @@ func (c *VaultController) CreateVaultConfig(vs *api.VaultServer, v Vault) error 
 	if err != nil {
 		return err
 	}
-	return ensureConfigMap(c.kubeClient, vs, cm)
+	return ensureConfigSecret(c.kubeClient, vs, cm)
 }
 
 // - create service account for vault pod
@@ -288,30 +280,19 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 		return err
 	}
 
-	d := v.GetDeployment(podT)
-	if d != nil {
-		err := ensureDeployment(c.kubeClient, vs, d)
-		if err != nil {
-			return err
-		}
-	} else {
+	serviceName := vs.ServiceName(api.VaultServerServiceInternal)
+	headlessSvc := v.GetHeadlessService()
+	err = ensureService(c.kubeClient, vs, headlessSvc)
+	if err != nil {
+		return err
+	}
 
-		serviceName := vs.ServiceName(api.VaultServerServiceInternal)
-		headlessSvc := v.GetHeadlessService()
-		err := ensureService(c.kubeClient, vs, headlessSvc)
-		if err != nil {
-			return err
-		}
-
-		// XXX Add pvc support
-		claims := make([]core.PersistentVolumeClaim, 0)
-
-		sts := v.GetStatefulSet(serviceName, podT, claims)
-
-		err = ensureStatefulSet(c.kubeClient, vs, sts)
-		if err != nil {
-			return err
-		}
+	// XXX Add pvc support
+	claims := make([]core.PersistentVolumeClaim, 0)
+	sts := v.GetStatefulSet(serviceName, podT, claims)
+	err = ensureStatefulSet(c.kubeClient, vs, sts)
+	if err != nil {
+		return err
 	}
 
 	if vs.Spec.Monitor != nil && vs.Spec.Monitor.Prometheus != nil {
@@ -504,12 +485,13 @@ func ensureSecret(kc kubernetes.Interface, vs *api.VaultServer, s *core.Secret) 
 	return err
 }
 
-// ensureConfigMap creates/patches configMap
-func ensureConfigMap(kc kubernetes.Interface, vs *api.VaultServer, cm *core.ConfigMap) error {
-	_, _, err := core_util.CreateOrPatchConfigMap(context.TODO(), kc, cm.ObjectMeta, func(in *core.ConfigMap) *core.ConfigMap {
-		in.Labels = core_util.UpsertMap(in.Labels, cm.Labels)
-		in.Annotations = core_util.UpsertMap(in.Annotations, cm.Annotations)
-		in.Data = cm.Data
+// ensureConfigSecret creates/patches Secret
+func ensureConfigSecret(kc kubernetes.Interface, vs *api.VaultServer, secret *core.Secret) error {
+	_, _, err := core_util.CreateOrPatchSecret(context.TODO(), kc, secret.ObjectMeta, func(in *core.Secret) *core.Secret {
+		in.Labels = core_util.UpsertMap(in.Labels, secret.Labels)
+		in.Annotations = core_util.UpsertMap(in.Annotations, secret.Annotations)
+		in.Data = secret.Data
+		in.StringData = secret.StringData
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
 	}, metav1.PatchOptions{})

@@ -192,7 +192,7 @@ func vaultPolicyBindingForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy
 			},
 			SubjectRef: policyapi.SubjectRef{
 				Kubernetes: &policyapi.KubernetesSubjectRef{
-					Path:                     string(api.AuthTypeKubernetes),
+					Path:                     filepath.Join(string(api.AuthTypeKubernetes),"role"),
 					ServiceAccountNames:      []string{vs.ServiceAccountName()},
 					ServiceAccountNamespaces: []string{vs.Namespace},
 					TTL:                      ttlForAuthMethod,
@@ -390,6 +390,8 @@ func waitUntilVaultPolicyBindingIsReady(c policycs.PolicyV1alpha1Interface, vpb 
 
 		if vpb.Status.Phase == policyapi.PolicyBindingSuccess {
 			return true, nil
+		} else if vpb.Status.Phase == policyapi.PolicyBindingFailed {
+			return true, errors.New(fmt.Sprintf("VaultPolicyBinding %s/%s is failed",vpb.Namespace,vpb.Name))
 		}
 
 		glog.Infof("auth method controller: attempt %d: VaultPolicyBinding %s/%s is not succeeded", attempt, vpb.Namespace, vpb.Name)

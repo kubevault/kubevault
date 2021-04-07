@@ -56,11 +56,11 @@ func (v *vaultFake) GetServerTLS() (*core.Secret, []byte, error) {
 	}
 	return v.sr, nil, nil
 }
-func (v *vaultFake) GetConfig() (*core.ConfigMap, error) {
+func (v *vaultFake) GetConfig() (*core.Secret, error) {
 	if v.ErrInGetConfig {
 		return nil, fmt.Errorf("error")
 	}
-	return v.cm, nil
+	return v.sr, nil
 }
 func (v *vaultFake) Apply(pt *core.PodTemplateSpec) error {
 	if v.ErrInApply {
@@ -74,7 +74,7 @@ func (v *vaultFake) GetService() *core.Service {
 func (v *vaultFake) GetDeployment(pt *core.PodTemplateSpec) *appsv1.Deployment {
 	return v.dp
 }
-func (v *vaultFake) GetHeadlessService(name string) *core.Service {
+func (v *vaultFake) GetHeadlessService() *core.Service {
 	panic("implement me")
 }
 func (v *vaultFake) GetStatefulSet(serviceName string, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *appsv1.StatefulSet {

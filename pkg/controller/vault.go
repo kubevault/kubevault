@@ -65,11 +65,10 @@ var (
 
 type Vault interface {
 	GetServerTLS() (*core.Secret, []byte, error)
-	GetConfig() (*core.ConfigMap, error)
+	GetConfig() (*core.Secret, error)
 	Apply(pt *core.PodTemplateSpec) error
 	GetService() *core.Service
 	GetHeadlessService() *core.Service
-	GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment
 	GetStatefulSet(serviceName string, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *apps.StatefulSet
 	GetServiceAccounts() []core.ServiceAccount
 	GetRBACRolesAndRoleBindings() ([]rbac.Role, []rbac.RoleBinding)
@@ -177,16 +176,11 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 
 	// get the secretName
 	secretName := v.vs.GetCertSecretName("vault")
-	_, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
-
+	secret, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 	if err != nil && !errors2.IsNotFound(err) {
 		return nil, nil, err
 	} else if errors2.IsNotFound(err) {
 		// create secret
-		if err != nil {
-			return nil, nil, errors.Wrap(err, "error creating secret")
-		}
-
 		store, err := certstore.New(blobfs.NewInMemoryFS(), filepath.Join("", "pki"))
 		if err != nil {
 			return nil, nil, errors.Wrap(err, "certificate store create error")
@@ -236,9 +230,10 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 				core.TLSPrivateKeyKey: srvKey, // tls.key
 				conapi.TLSCACertKey:   store.CACertBytes(),
 			},
+			Type: core.SecretTypeTLS,
 		}
 		// create the secret
-		secret, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Create(context.TODO(), tlsSecret, metav1.CreateOptions{})
+		secret, err = v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Create(context.TODO(), tlsSecret, metav1.CreateOptions{})
 		if err != nil {
 			return nil, nil, errors.Wrap(err, "secret creating error")
 		}
@@ -246,8 +241,21 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 		return secret, store.CACertBytes(), nil
 	}
 
-	// one of the first two cases will reach here: do it later
-	return nil, nil, nil
+	// Already secret exist
+	// validate it:
+	// - check tls.crt, tls.key, ca.crt exist
+	data := secret.Data
+	if _, ok := data[core.TLSCertKey]; !ok {
+		return nil, nil, errors.New("tls.crt is missing")
+	}
+	if _, ok := data[core.TLSPrivateKeyKey]; !ok {
+		return nil, nil, errors.New("tls.key is missing")
+	}
+	ca, ok := data[conapi.TLSCACertKey]
+	if !ok {
+		return nil, nil, errors.New("ca.crt is missing")
+	}
+	return secret, ca, nil
 }
 
 // GetConfig will return the vault config in ConfigMap
@@ -255,12 +263,15 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 // - listener config
 // - storage config
 // - user provided extra config
-func (v *vaultSrv) GetConfig() (*core.ConfigMap, error) {
-	configMapName := v.vs.ConfigMapName()
+func (v *vaultSrv) GetConfig() (*core.Secret, error) {
+	configSecretName := v.vs.ConfigMapName()
 	cfgData := util.GetListenerConfig()
 
 	storageCfg := ""
 	var err error
+
+	// TODO:
+	//   - need to check while adding support for PVC
 	if v.strg != nil {
 		storageCfg, err = v.strg.GetStorageConfig()
 		if err != nil {
@@ -280,17 +291,17 @@ func (v *vaultSrv) GetConfig() (*core.ConfigMap, error) {
 
 	cfgData = strings.Join([]string{cfgData, storageCfg, exporterCfg}, "\n")
 
-	configM := &core.ConfigMap{
+	secret := &core.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      configMapName,
+			Name:      configSecretName,
 			Namespace: v.vs.Namespace,
 			Labels:    v.vs.OffshootLabels(),
 		},
-		Data: map[string]string{
+		StringData: map[string]string{
 			filepath.Base(util.VaultConfigFile): cfgData,
 		},
 	}
-	return configM, nil
+	return secret, nil
 }
 
 // - add secret volume mount for tls secret
@@ -338,10 +349,8 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 		}, core.Volume{
 			Name: "controller-config",
 			VolumeSource: core.VolumeSource{
-				ConfigMap: &core.ConfigMapVolumeSource{
-					LocalObjectReference: core.LocalObjectReference{
-						Name: v.vs.ConfigMapName(),
-					},
+				Secret: &core.SecretVolumeSource{
+					SecretName:  v.vs.ConfigMapName(),
 				},
 			},
 		})
@@ -360,21 +369,9 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 		})
 	}
 
-	tlsSecret := v.vs.TLSSecretName()
-	if v.vs.Spec.TLS != nil && v.vs.Spec.TLS.Certificates != nil {
-		secret, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(context.TODO(), tlsSecret, metav1.GetOptions{})
-		if err != nil {
-			return errors.Wrap(err, "error getting secret")
-		}
-
-		val, ok := secret.Data[conapi.TLSCACertKey]
-		if !ok {
-			return errors.New("missing ca.crt")
-		}
-
-		tlsSecret = string(val)
-	}
-
+	// TODO:
+	// 	- feature: make tls optional if possible
+	tlsSecret := v.vs.GetCertSecretName("vault")
 	pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, core.Volume{
 		Name: vaultTLSAssetVolumeName,
 		VolumeSource: core.VolumeSource{
@@ -552,9 +549,6 @@ func (v *vaultSrv) GetDeployment(pt *core.PodTemplateSpec) *apps.Deployment {
 }
 
 func (v *vaultSrv) GetStatefulSet(serviceName string, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *apps.StatefulSet {
-	if v.stfStrg == nil {
-		return nil
-	}
 
 	return &apps.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{

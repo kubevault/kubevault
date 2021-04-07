@@ -18,6 +18,7 @@ package util
 
 import (
 	"fmt"
+	conapi "kubevault.dev/apimachinery/apis"
 	"path/filepath"
 
 	vaultapi "github.com/hashicorp/vault/api"
@@ -45,20 +46,22 @@ listener "tcp" {
   cluster_address = "0.0.0.0:8201"
   tls_cert_file = "%s"
   tls_key_file  = "%s"
+  tls_client_ca_file = "%s"  
 }
 `
 
 // NewConfigWithDefaultParams appends to given config data some default params:
 // - tcp listener
 func NewConfigWithDefaultParams() string {
-	return fmt.Sprintf(listenerFmt, filepath.Join(VaultTLSAssetDir, core.TLSCertKey), filepath.Join(VaultTLSAssetDir, core.TLSPrivateKeyKey))
+	return fmt.Sprintf(listenerFmt, filepath.Join(VaultTLSAssetDir, core.TLSCertKey), filepath.Join(VaultTLSAssetDir, core.TLSPrivateKeyKey),filepath.Join(VaultTLSAssetDir, conapi.TLSCACertKey))
 }
 
 // ListenerConfig creates tcp listener config
 func GetListenerConfig() string {
 	listenerCfg := fmt.Sprintf(listenerFmt,
 		filepath.Join(VaultTLSAssetDir, core.TLSCertKey),
-		filepath.Join(VaultTLSAssetDir, core.TLSPrivateKeyKey))
+		filepath.Join(VaultTLSAssetDir, core.TLSPrivateKeyKey),
+		filepath.Join(VaultTLSAssetDir,conapi.TLSCACertKey))
 
 	return listenerCfg
 }
