@@ -77,7 +77,7 @@ func (v VaultServer) OffshootLabels() map[string]string {
 	return meta_util.FilterKeys("kubevault.com", v.OffshootSelectors(), v.Labels)
 }
 
-func (v VaultServer) ConfigMapName() string {
+func (v VaultServer) ConfigSecretName() string {
 	return meta_util.NameWithSuffix(v.Name, "vault-config")
 }
 

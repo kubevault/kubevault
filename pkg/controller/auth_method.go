@@ -192,7 +192,7 @@ func vaultPolicyBindingForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy
 			},
 			SubjectRef: policyapi.SubjectRef{
 				Kubernetes: &policyapi.KubernetesSubjectRef{
-					Path:                     filepath.Join(string(api.AuthTypeKubernetes), "role"),
+					Path:                     string(api.AuthTypeKubernetes),
 					ServiceAccountNames:      []string{vs.ServiceAccountName()},
 					ServiceAccountNamespaces: []string{vs.Namespace},
 					TTL:                      ttlForAuthMethod,

@@ -1477,8 +1477,8 @@ kmodules.xyz/offshoot-api v0.0.0-20210309181939-c52e06bbfb3a/go.mod h1:RMHLigHIL
 kmodules.xyz/openshift v0.0.0-20201105073146-0da509a7d39f/go.mod h1:vFwB/f5rVH5QoKXb/MN5xndDzYbmip2N8Zn68wgywlk=
 kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6 h1:9+EIwxUrXrM8QD9rC1Fg+6CQK0vPniFO3ClaKih010M=
 kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6/go.mod h1:xLgewoOzwR5ZrVOHQ2SR0P4E7tgCyBWbYlUawEXgeF4=
-kubevault.dev/apimachinery v0.0.0-20210402092942-9f6060b311c9 h1:iNPBJJhE74hHmQFETYO/Q1/ynXXFJLzfAhF+OZMIXcY=
-kubevault.dev/apimachinery v0.0.0-20210402092942-9f6060b311c9/go.mod h1:cmGNff316l9bApOyIu0TigEOAFZYZz+idZ+yFMPzacY=
+kubevault.dev/apimachinery v0.0.0-20210408094757-ef36d54d9a41 h1:9BGcl7nYFl4pGDtyrb6oHgqzafODFbZ9kV+OR6l+3m8=
+kubevault.dev/apimachinery v0.0.0-20210408094757-ef36d54d9a41/go.mod h1:cmGNff316l9bApOyIu0TigEOAFZYZz+idZ+yFMPzacY=
 modernc.org/cc v1.0.0/go.mod h1:1Sk4//wdnYJiUIxnW8ddKpaOJCF37yAdqYnkxUpaYxw=
 modernc.org/golex v1.0.0/go.mod h1:b/QX9oBD/LhixY6NDh+IdGv17hgB+51fET1i2kPSmvk=
 modernc.org/mathutil v1.0.0/go.mod h1:wU0vUrJsVWBZ4P6e7xtFJEhFSNsfRLJ8H458uRjg03k=

@@ -264,7 +264,7 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 // - storage config
 // - user provided extra config
 func (v *vaultSrv) GetConfig() (*core.Secret, error) {
-	configSecretName := v.vs.ConfigMapName()
+	configSecretName := v.vs.ConfigSecretName()
 	cfgData := util.GetListenerConfig()
 
 	storageCfg := ""
@@ -350,7 +350,7 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 			Name: "controller-config",
 			VolumeSource: core.VolumeSource{
 				Secret: &core.SecretVolumeSource{
-					SecretName: v.vs.ConfigMapName(),
+					SecretName: v.vs.ConfigSecretName(),
 				},
 			},
 		})
