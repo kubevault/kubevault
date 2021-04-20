@@ -178,7 +178,7 @@ storage "test"{
 				assert.NotNil(t, err)
 			} else {
 				if assert.Nil(t, err) {
-					assert.Equal(t, test.vs.ConfigMapName(), cm.Name)
+					assert.Equal(t, test.vs.ConfigSecretName(), cm.Name)
 					assert.Equal(t, test.exptConfigMData, cm.Data)
 				}
 			}

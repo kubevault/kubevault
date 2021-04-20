@@ -18,7 +18,6 @@ package admission
 
 import (
 	"context"
-	kmapi "kmodules.xyz/client-go/api/v1"
 	"testing"
 
 	catalog "kubevault.dev/apimachinery/apis/catalog/v1alpha1"
@@ -35,6 +34,7 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/kubernetes/scheme"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 )
 

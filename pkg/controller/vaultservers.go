@@ -345,38 +345,6 @@ func ensureServiceAccount(kc kubernetes.Interface, vs *api.VaultServer, sa *core
 	return err
 }
 
-// ensureDeployment creates/patches deployment
-func ensureDeployment(kc kubernetes.Interface, vs *api.VaultServer, d *appsv1.Deployment) error {
-	_, _, err := apps_util.CreateOrPatchDeployment(context.TODO(), kc, d.ObjectMeta, func(in *appsv1.Deployment) *appsv1.Deployment {
-		in.Labels = core_util.UpsertMap(in.Labels, d.Labels)
-		in.Annotations = core_util.UpsertMap(in.Annotations, d.Annotations)
-		in.Spec.Replicas = d.Spec.Replicas
-		in.Spec.Selector = d.Spec.Selector
-		in.Spec.Strategy = d.Spec.Strategy
-
-		in.Spec.Template.Labels = d.Spec.Template.Labels
-		in.Spec.Template.Annotations = d.Spec.Template.Annotations
-		in.Spec.Template.Spec.Containers = core_util.UpsertContainers(in.Spec.Template.Spec.Containers, d.Spec.Template.Spec.Containers)
-		in.Spec.Template.Spec.InitContainers = core_util.UpsertContainers(in.Spec.Template.Spec.InitContainers, d.Spec.Template.Spec.InitContainers)
-		in.Spec.Template.Spec.ServiceAccountName = d.Spec.Template.Spec.ServiceAccountName
-		in.Spec.Template.Spec.NodeSelector = d.Spec.Template.Spec.NodeSelector
-		in.Spec.Template.Spec.Affinity = d.Spec.Template.Spec.Affinity
-		if d.Spec.Template.Spec.SchedulerName != "" {
-			in.Spec.Template.Spec.SchedulerName = d.Spec.Template.Spec.SchedulerName
-		}
-		in.Spec.Template.Spec.Tolerations = d.Spec.Template.Spec.Tolerations
-		in.Spec.Template.Spec.ImagePullSecrets = d.Spec.Template.Spec.ImagePullSecrets
-		in.Spec.Template.Spec.PriorityClassName = d.Spec.Template.Spec.PriorityClassName
-		in.Spec.Template.Spec.Priority = d.Spec.Template.Spec.Priority
-		in.Spec.Template.Spec.SecurityContext = d.Spec.Template.Spec.SecurityContext
-		in.Spec.Template.Spec.Volumes = core_util.UpsertVolume(in.Spec.Template.Spec.Volumes, d.Spec.Template.Spec.Volumes...)
-
-		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
-		return in
-	}, metav1.PatchOptions{})
-	return err
-}
-
 // ensureStatefulSet creates/patches sts
 func ensureStatefulSet(kc kubernetes.Interface, vs *api.VaultServer, sts *appsv1.StatefulSet) error {
 	_, _, err := apps_util.CreateOrPatchStatefulSet(context.TODO(), kc, sts.ObjectMeta, func(in *appsv1.StatefulSet) *appsv1.StatefulSet {
