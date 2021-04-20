@@ -18,6 +18,7 @@ package admission
 
 import (
 	"context"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	"testing"
 
 	catalog "kubevault.dev/apimachinery/apis/catalog/v1alpha1"
@@ -192,7 +193,7 @@ func TestValidateVaultServer(t *testing.T) {
 		},
 		{
 			testName:    "spec.tls.tlsSecret is empty, expect error",
-			vs:          func() *api.VaultServer { v := vs; v.Spec.TLS = &api.TLSPolicy{TLSSecret: ""}; return &v }(),
+			vs:          func() *api.VaultServer { v := vs; v.Spec.TLS = &kmapi.TLSConfig{Certificates: nil}; return &v }(),
 			extraSecret: nil,
 			expectErr:   true,
 		},
