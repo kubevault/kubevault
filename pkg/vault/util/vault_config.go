@@ -47,7 +47,7 @@ listener "tcp" {
   cluster_address = "0.0.0.0:8201"
   tls_cert_file = "%s"
   tls_key_file  = "%s"
-  tls_client_ca_file = "%s"  
+  tls_client_ca_file = "%s"
 }
 `
 

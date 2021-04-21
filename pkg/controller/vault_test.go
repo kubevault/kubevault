@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"testing"
 
+	conapi "kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/exporter"
 	"kubevault.dev/operator/pkg/vault/storage"
@@ -179,7 +180,7 @@ storage "test"{
 			} else {
 				if assert.Nil(t, err) {
 					assert.Equal(t, test.vs.ConfigSecretName(), cm.Name)
-					assert.Equal(t, test.exptConfigMData, cm.Data)
+					assert.Equal(t, test.exptConfigMData, cm.StringData)
 				}
 			}
 		})
@@ -214,7 +215,12 @@ func TestGetServerTLS(t *testing.T) {
 				ObjectMeta: getVaultObjectMeta(1),
 				Spec: api.VaultServerSpec{
 					TLS: &kmapi.TLSConfig{
-						// user not providing anything
+						Certificates: []kmapi.CertificateSpec{
+							{
+								Alias:      string(api.VaultServerCert),
+								SecretName: "vault-tls-cred",
+							},
+						},
 					},
 				},
 			},
@@ -222,6 +228,11 @@ func TestGetServerTLS(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "vault-tls-cred",
 					Namespace: getVaultObjectMeta(1).Namespace,
+				},
+				Data: map[string][]byte{
+					core.TLSCertKey:       []byte(""),
+					core.TLSPrivateKeyKey: []byte(""),
+					conapi.TLSCACertKey:   []byte(""),
 				},
 			},
 			expectErr: false,
@@ -232,12 +243,25 @@ func TestGetServerTLS(t *testing.T) {
 				ObjectMeta: getVaultObjectMeta(1),
 				Spec: api.VaultServerSpec{
 					TLS: &kmapi.TLSConfig{
-						// user not providing anything
+						Certificates: []kmapi.CertificateSpec{
+							{
+								Alias:      string(api.VaultServerCert),
+								SecretName: "vault-tls-cred",
+							},
+						},
 					},
 				},
 			},
-			extraSecret: nil,
-			expectErr:   true,
+			extraSecret: &core.Secret{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "vault-tls-cred",
+					Namespace: getVaultObjectMeta(1).Namespace,
+				},
+				Data: map[string][]byte{
+					core.TLSCertKey: []byte(""),
+				},
+			},
+			expectErr: true,
 		},
 		{
 			name: "no error, create secret successfully",
