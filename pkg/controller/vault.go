@@ -68,7 +68,7 @@ type Vault interface {
 	GetConfig() (*core.Secret, error)
 	Apply(pt *core.PodTemplateSpec) error
 	GetService() *core.Service
-	GetHeadlessService() *core.Service
+	GetGoverningService() *core.Service
 	GetStatefulSet(serviceName string, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *apps.StatefulSet
 	GetServiceAccounts() []core.ServiceAccount
 	GetRBACRolesAndRoleBindings() ([]rbac.Role, []rbac.RoleBinding)
@@ -505,7 +505,7 @@ func (v *vaultSrv) GetService() *core.Service {
 	}
 }
 
-func (v *vaultSrv) GetHeadlessService() *core.Service {
+func (v *vaultSrv) GetGoverningService() *core.Service {
 	var inSvc api.NamedServiceTemplateSpec
 	for i := range v.vs.Spec.ServiceTemplates {
 		temp := v.vs.Spec.ServiceTemplates[i]

@@ -281,7 +281,7 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 	}
 
 	serviceName := vs.ServiceName(api.VaultServerServiceInternal)
-	headlessSvc := v.GetHeadlessService()
+	headlessSvc := v.GetGoverningService()
 	err = ensureService(c.kubeClient, vs, headlessSvc)
 	if err != nil {
 		return err
