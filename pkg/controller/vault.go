@@ -341,7 +341,9 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 		pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, core.Volume{
 			Name: "user-config",
 			VolumeSource: core.VolumeSource{
-				Secret: &core.SecretVolumeSource{},
+				Secret: &core.SecretVolumeSource{
+					SecretName: v.vs.Spec.ConfigSecret.Name,
+				},
 			},
 		})
 	}
