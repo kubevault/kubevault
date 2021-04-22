@@ -349,7 +349,7 @@ func waitUntilVaultServerIsReady(c vaultcs.KubevaultV1alpha1Interface, vs *api.V
 			return true, nil
 		}
 
-		if !kmapi.IsConditionTrue(vs.Status.Conditions, kmapi.ConditionFailed) {
+		if kmapi.IsConditionTrue(vs.Status.Conditions, kmapi.ConditionFailed) {
 			return true, errors.New(fmt.Sprintf("VaultServer %s/%s is failed", vs.Namespace, vs.Name))
 		}
 
