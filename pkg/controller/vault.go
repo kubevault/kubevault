@@ -332,7 +332,7 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 			},
 		})
 
-	if v.vs.Spec.TLS != nil {
+	if v.vs.Spec.ConfigSecret != nil {
 		initCont.VolumeMounts = core_util.UpsertVolumeMount(initCont.VolumeMounts, core.VolumeMount{
 			Name:      "user-config",
 			MountPath: "/etc/vault/user",
