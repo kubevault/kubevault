@@ -18,8 +18,8 @@ package policybinding
 
 import (
 	"context"
-	conapi "kubevault.dev/apimachinery/apis"
 
+	conapi "kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/policy/v1alpha1"
 	cs "kubevault.dev/apimachinery/client/clientset/versioned"
 	"kubevault.dev/operator/pkg/vault"

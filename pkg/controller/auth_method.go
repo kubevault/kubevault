@@ -20,7 +20,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	kmapi "kmodules.xyz/client-go/api/v1"
 	"path/filepath"
 	"time"
 
@@ -42,6 +41,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
@@ -349,7 +349,7 @@ func waitUntilVaultServerIsReady(c vaultcs.KubevaultV1alpha1Interface, vs *api.V
 			return true, nil
 		}
 
-		if !kmapi.IsConditionTrue(vs.Status.Conditions,  kmapi.ConditionFailed) {
+		if !kmapi.IsConditionTrue(vs.Status.Conditions, kmapi.ConditionFailed) {
 			return true, errors.New(fmt.Sprintf("VaultServer %s/%s is failed", vs.Namespace, vs.Name))
 		}
 
