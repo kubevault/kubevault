@@ -127,155 +127,112 @@ func NewVault(vs *api.VaultServer, config *rest.Config, kc kubernetes.Interface,
 }
 
 func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
-	tls := v.vs.Spec.TLS
-	//if tls == nil {
-	//	return nil, nil, errors.New("TLS config cannot be nil")
-	//}
 
-	// TODO: Case 1: User provided tls and tls Certificates exists, validate and use it
-	if tls != nil && tls.Certificates != nil {
-		secretName := v.vs.GetCertSecretName(string(api.VaultServerCert))
-		secret, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
-		if err != nil && errors2.IsNotFound(err) {
-			// Create new secret using the TLS configuration
-			store, err := certstore.New(blobfs.NewInMemoryFS(), filepath.Join("", "pki"))
-			if err != nil {
-				return nil, nil, errors.Wrap(err, "certificate store creation error")
-			}
-
-			err = store.NewCA()
-			if err != nil {
-				return nil, nil, errors.Wrap(err, "ca certificate creation error")
-			}
-
-			altNames := cert.AltNames{
-				DNSNames: []string{
-					"localhost",
-					fmt.Sprintf("*.%s.pod", v.vs.Namespace),
-					fmt.Sprintf("%s.%s.svc", v.vs.Name, v.vs.Namespace),
-				},
-				IPs: []net.IP{
-					net.ParseIP("127.0.0.1"),
-				},
-			}
-
-			// XXX when required only
-			altNames.DNSNames = append(
-				altNames.DNSNames,
-				"*.vault-internal",
-				fmt.Sprintf("%s.vault-internal.%s.svc", v.vs.Name, v.vs.Namespace),
-			)
-
-			// XXX allow both kind of certificates to be made depending on the usage.
-
-			// srvCrt, srvKey, err := store.NewServerCertPairBytes(altNames)
-			srvCrt, srvKey, err := store.NewPeerCertPairBytes(altNames)
-			if err != nil {
-				return nil, nil, errors.Wrap(err, "vault server create crt/key pair error")
-			}
-
-			tlsSecret := &core.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      secretName,
-					Namespace: v.vs.Namespace,
-					Labels:    v.vs.OffshootLabels(),
-				},
-				Data: map[string][]byte{
-					core.TLSCertKey:       srvCrt, // tls.crt
-					core.TLSPrivateKeyKey: srvKey, // tls.key
-					conapi.TLSCACertKey:   store.CACertBytes(),
-				},
-				Type: core.SecretTypeTLS,
-			}
-			// create the secret
-			secret, err = v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Create(context.TODO(), tlsSecret, metav1.CreateOptions{})
-			if err != nil {
-				return nil, nil, errors.Wrap(err, "secret creation error")
-			}
-
-			return secret, store.CACertBytes(), nil
-
-		} else if err != nil {
-			return nil, nil, err
-		}
-
-		// validation of existing secret: check if tls.crt, tls.key, ca.crt exist
-		data := secret.Data
-		if _, ok := data[core.TLSCertKey]; !ok {
-			return nil, nil, errors.New("tls.crt is missing")
-		}
-		if _, ok := data[core.TLSPrivateKeyKey]; !ok {
-			return nil, nil, errors.New("tls.key is missing")
-		}
-		ca, ok := data[conapi.TLSCACertKey]
-		if !ok {
-			return nil, nil, errors.New("ca.crt is missing")
-		}
-		return secret, ca, nil
-	}
-
-	// TODO: Case #2: User provided only the secret name, generate secret with this name & use it
-	// TODO: Case #3: User did not provide anything, generate the default secret name & use it
+	// For now:
+	// 	No need to check TLS nil or not
+	// 	-> get secret name
+	// 	-> if already exists
+	//		--> validate it
+	//  -> otherwise
+	//		-> create secrets
+	//		-> CA k8s secret with owner
+	//		-> server k8s secret with owner
+	// 	-> return
 
 	secretName := v.vs.GetCertSecretName(string(api.VaultServerCert))
-	store, err := certstore.New(blobfs.NewInMemoryFS(), filepath.Join("", "pki"))
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "certificate store creation error")
+	secret, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
+
+	if err != nil && errors2.IsNotFound(err) {
+		// Create new secret using the TLS configuration
+		store, err := certstore.New(blobfs.NewInMemoryFS(), filepath.Join("", "pki"))
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "certificate store creation error")
+		}
+
+		err = store.NewCA()
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "ca certificate creation error")
+		}
+
+		altNames := cert.AltNames{
+			DNSNames: []string{
+				"localhost",
+				fmt.Sprintf("*.%s.pod", v.vs.Namespace),
+				fmt.Sprintf("%s.%s.svc", v.vs.ServiceName(api.VaultServerServiceVault), v.vs.Namespace),
+				fmt.Sprintf("*.%s.%s.svc", v.vs.ServiceName(api.VaultServerServiceInternal), v.vs.Namespace),
+				fmt.Sprintf("%s.%s.svc", v.vs.ServiceName(api.VaultServerServiceInternal), v.vs.Namespace),
+			},
+			IPs: []net.IP{
+				net.ParseIP("127.0.0.1"),
+			},
+		}
+
+		// srvCrt, srvKey, err := store.NewServerCertPairBytes(altNames)
+		srvCrt, srvKey, err := store.NewPeerCertPairBytes(altNames)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "vault server create crt/key pair error")
+		}
+
+		// TODO:
+		// 	- what if user provide the CA secret
+		tlsCASecret := &core.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      v.vs.GetCertSecretName(string(api.VaultCACert)),
+				Namespace: v.vs.Namespace,
+				Labels:    v.vs.OffshootLabels(),
+			},
+			Data: map[string][]byte{
+				core.TLSCertKey:       store.CACertBytes(),
+				core.TLSPrivateKeyKey: store.CAKeyBytes(),
+			},
+			Type: core.SecretTypeTLS,
+		}
+
+		tlsServerSecret := &core.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      secretName,
+				Namespace: v.vs.Namespace,
+				Labels:    v.vs.OffshootLabels(),
+			},
+			Data: map[string][]byte{
+				core.TLSCertKey:       srvCrt, // tls.crt
+				core.TLSPrivateKeyKey: srvKey, // tls.key
+				conapi.TLSCACertKey:   store.CACertBytes(),
+			},
+			Type: core.SecretTypeTLS,
+		}
+
+		// create the secret
+		secretServer, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Create(context.TODO(), tlsServerSecret, metav1.CreateOptions{})
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "failed to create server secret")
+		}
+
+		_, err = v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Create(context.TODO(), tlsCASecret, metav1.CreateOptions{})
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "failed to create CA secret")
+		}
+
+		return secretServer, store.CACertBytes(), nil
+
+	} else if err != nil {
+		return nil, nil, err
 	}
 
-	err = store.NewCA()
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "ca certificate creation error")
+	// secrets already exists
+	// validation of existing secret: check if tls.crt, tls.key, ca.crt exist
+	data := secret.Data
+	if _, ok := data[core.TLSCertKey]; !ok {
+		return nil, nil, errors.New("tls.crt is missing")
 	}
-
-	altNames := cert.AltNames{
-		DNSNames: []string{
-			"localhost",
-			fmt.Sprintf("*.%s.pod", v.vs.Namespace),
-			fmt.Sprintf("%s.%s.svc", v.vs.Name, v.vs.Namespace),
-		},
-		IPs: []net.IP{
-			net.ParseIP("127.0.0.1"),
-		},
+	if _, ok := data[core.TLSPrivateKeyKey]; !ok {
+		return nil, nil, errors.New("tls.key is missing")
 	}
-
-	// XXX when required only
-	altNames.DNSNames = append(
-		altNames.DNSNames,
-		"*.vault-internal",
-		fmt.Sprintf("%s.vault-internal.%s.svc", v.vs.Name, v.vs.Namespace),
-	)
-
-	// XXX allow both kind of certificates to be made depending on the usage.
-
-	// srvCrt, srvKey, err := store.NewServerCertPairBytes(altNames)
-	srvCrt, srvKey, err := store.NewPeerCertPairBytes(altNames)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "vault server create crt/key pair error")
+	ca, ok := data[conapi.TLSCACertKey]
+	if !ok {
+		return nil, nil, errors.New("ca.crt is missing")
 	}
-
-	tlsSecret := &core.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      secretName,
-			Namespace: v.vs.Namespace,
-			Labels:    v.vs.OffshootLabels(),
-		},
-		Data: map[string][]byte{
-			core.TLSCertKey:       srvCrt, // tls.crt
-			core.TLSPrivateKeyKey: srvKey, // tls.key
-			conapi.TLSCACertKey:   store.CACertBytes(),
-		},
-		Type: core.SecretTypeTLS,
-	}
-
-	// create the secret
-	secret, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Create(context.TODO(), tlsSecret, metav1.CreateOptions{})
-
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "secret creation error")
-	}
-
-	return secret, store.CACertBytes(), nil
+	return secret, ca, nil
 }
 
 // GetConfig will return the vault config in ConfigMap
