@@ -94,6 +94,9 @@ func (v VaultServer) StatsServiceName() string {
 }
 
 func (v VaultServer) ServiceName(alias ServiceAlias) string {
+	if alias == VaultServerServiceVault {
+		return v.Name
+	}
 	return meta_util.NameWithSuffix(v.Name, string(alias))
 }
 

@@ -424,14 +424,14 @@ func (v *vaultSrv) GetService() *core.Service {
 	var vsTemplate api.NamedServiceTemplateSpec
 	for i := range v.vs.Spec.ServiceTemplates {
 		namedSpec := v.vs.Spec.ServiceTemplates[i]
-		if namedSpec.Alias == "vault" {
+		if namedSpec.Alias == api.VaultServerServiceVault {
 			vsTemplate = namedSpec
 		}
 	}
 
 	return &core.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        v.vs.OffshootName(),
+			Name:        v.vs.ServiceName(api.VaultServerServiceVault),
 			Namespace:   v.vs.Namespace,
 			Labels:      v.vs.OffshootLabels(),
 			Annotations: vsTemplate.Annotations,
@@ -719,19 +719,24 @@ func (v *vaultSrv) GetContainer() core.Container {
 			Name:          "cluster-port",
 			ContainerPort: int32(VaultClusterPort),
 		}},
-		ReadinessProbe: &core.Probe{
-			Handler: core.Handler{
-				HTTPGet: &core.HTTPGetAction{
-					Path:   "/v1/sys/health?standbyok=true&perfstandbyok=true",
-					Port:   intstr.FromInt(VaultClientPort),
-					Scheme: core.URISchemeHTTPS,
+		ReadinessProbe: func() *core.Probe {
+			if v.vs.Spec.PodTemplate.Spec.ReadinessProbe != nil {
+				return v.vs.Spec.PodTemplate.Spec.ReadinessProbe
+			}
+			return &core.Probe{
+				Handler: core.Handler{
+					HTTPGet: &core.HTTPGetAction{
+						Path:   "/v1/sys/health?standbyok=true&perfstandbyok=true",
+						Port:   intstr.FromInt(VaultClientPort),
+						Scheme: core.URISchemeHTTPS,
+					},
 				},
-			},
-			InitialDelaySeconds: 10,
-			TimeoutSeconds:      10,
-			PeriodSeconds:       10,
-			FailureThreshold:    5,
-		},
+				InitialDelaySeconds: 10,
+				TimeoutSeconds:      10,
+				PeriodSeconds:       10,
+				FailureThreshold:    5,
+			}
+		}(),
 		Resources: v.vs.Spec.PodTemplate.Spec.Resources,
 	}
 }
