@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	"path/filepath"
 	"time"
 
@@ -348,6 +349,10 @@ func waitUntilVaultServerIsReady(c vaultcs.KubevaultV1alpha1Interface, vs *api.V
 			return true, nil
 		}
 
+		if !kmapi.IsConditionTrue(vs.Status.Conditions,  kmapi.ConditionFailed) {
+			return true, errors.New(fmt.Sprintf("VaultServer %s/%s is failed", vs.Namespace, vs.Name))
+		}
+
 		glog.Infof("auth method controller: attempt %d: VaultServer %s/%s is not ready", attempt, vs.Namespace, vs.Name)
 		return false, nil
 	}, stopCh)
@@ -368,6 +373,8 @@ func waitUntilVaultPolicyIsReady(c policycs.PolicyV1alpha1Interface, vp *policya
 
 		if vp.Status.Phase == policyapi.PolicySuccess {
 			return true, nil
+		} else if vp.Status.Phase == policyapi.PolicyFailed {
+			return true, errors.New(fmt.Sprintf("VaultPolicy %s/%s is failed", vp.Namespace, vp.Name))
 		}
 
 		glog.Infof("auth method controller: attempt %d: VaultPolicy %s/%s is not succeeded", attempt, vp.Namespace, vp.Name)

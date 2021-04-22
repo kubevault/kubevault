@@ -2047,7 +2047,7 @@ spec:
                 type: object
               type: array
             halted:
-              description: Indicates that the database is halted and all offshoot
+              description: Indicates that the vault server is halted and all offshoot
                 Kubernetes resources except PVCs are deleted.
               type: boolean
             monitor:
@@ -5293,7 +5293,8 @@ spec:
                 type: object
               type: array
             terminationPolicy:
-              description: TerminationPolicy controls the delete operation for database
+              description: TerminationPolicy controls the delete operation for vault
+                server
               enum:
               - Halt
               - Delete

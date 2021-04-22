@@ -144,7 +144,7 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 
 	if u.vs.Spec.TLS != nil && u.vs.Spec.TLS.Certificates != nil {
 		// Get k8s secret
-		secretName := u.vs.GetCertSecretName("vault")
+		secretName := u.vs.GetCertSecretName(string(api.VaultServerServiceVault))
 		secret, err := u.kc.CoreV1().Secrets(u.vs.Namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to get secret")

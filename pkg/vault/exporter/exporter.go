@@ -83,21 +83,19 @@ func (exp monitor) Apply(pt *core.PodTemplateSpec, vs *api.VaultServer) error {
 
 	if vs.Spec.TLS != nil && vs.Spec.TLS.Certificates != nil {
 		// Get k8s secret
-		secretName := vs.GetCertSecretName("vault")
+		secretName := vs.GetCertSecretName(string(api.VaultServerServiceVault))
 		secret, err := exp.kClient.CoreV1().Secrets(vs.Namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to get secret")
 		}
 
 		// Read ca.crt from the secret
-		// caCert := conapi.TLSCACertKey
 		byt, ok := secret.Data[conapi.TLSCACertKey]
 		if !ok {
 			return errors.New("missing ca.crt in vault secret")
 		}
 
 		// export ca.crt as tls-cacert
-		// c.Args = append(c.Args, fmt.Sprintf("--vault.tls-cacert=%s", vs.Spec.TLS.Certificates))
 		c.Args = append(c.Args, fmt.Sprintf("--vault.tls-cacert=%s", string(byt)))
 	}
 

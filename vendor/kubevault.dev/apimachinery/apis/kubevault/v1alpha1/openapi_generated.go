@@ -18991,14 +18991,14 @@ func schema_apimachinery_apis_kubevault_v1alpha1_VaultServerSpec(ref common.Refe
 					},
 					"halted": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Indicates that the database is halted and all offshoot Kubernetes resources except PVCs are deleted.",
+							Description: "Indicates that the vault server is halted and all offshoot Kubernetes resources except PVCs are deleted.",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},
 					},
 					"terminationPolicy": {
 						SchemaProps: spec.SchemaProps{
-							Description: "TerminationPolicy controls the delete operation for database",
+							Description: "TerminationPolicy controls the delete operation for vault server",
 							Type:        []string{"string"},
 							Format:      "",
 						},

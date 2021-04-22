@@ -1192,7 +1192,7 @@ kmodules.xyz/offshoot-api/api/v1
 ## explicit
 kmodules.xyz/webhook-runtime/admission/v1beta1
 kmodules.xyz/webhook-runtime/registry/admissionreview/v1beta1
-# kubevault.dev/apimachinery v0.0.0-20210420104835-e06878d0b77e
+# kubevault.dev/apimachinery v0.0.0-20210422080215-b49b5b6ddcc0
 ## explicit
 kubevault.dev/apimachinery/apis
 kubevault.dev/apimachinery/apis/catalog
