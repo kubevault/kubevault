@@ -17,14 +17,18 @@ limitations under the License.
 package exporter
 
 import (
+	"context"
 	"fmt"
 
+	conapi "kubevault.dev/apimachinery/apis"
 	capi "kubevault.dev/apimachinery/apis/catalog/v1alpha1"
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/util"
 
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	core_util "kmodules.xyz/client-go/core/v1"
 )
 
@@ -40,15 +44,16 @@ type Exporter interface {
 }
 
 type monitor struct {
-	config capi.VaultServerVersionExporter
+	config  capi.VaultServerVersionExporter
+	kClient kubernetes.Interface
 }
 
 var telemetryCfg = `telemetry {
   statsd_address = "0.0.0.0:%v"
 }`
 
-func NewExporter(config *capi.VaultServerVersion) (Exporter, error) {
-	return monitor{config: config.Spec.Exporter}, nil
+func NewExporter(config *capi.VaultServerVersion, kClient kubernetes.Interface) (Exporter, error) {
+	return monitor{config: config.Spec.Exporter, kClient: kClient}, nil
 }
 
 func (exp monitor) Apply(pt *core.PodTemplateSpec, vs *api.VaultServer) error {
@@ -76,8 +81,22 @@ func (exp monitor) Apply(pt *core.PodTemplateSpec, vs *api.VaultServer) error {
 		},
 	}
 
-	if vs.Spec.TLS != nil && vs.Spec.TLS.CABundle != nil {
-		c.Args = append(c.Args, fmt.Sprintf("--vault.tls-cacert=%s", vs.Spec.TLS.CABundle))
+	if vs.Spec.TLS != nil && vs.Spec.TLS.Certificates != nil {
+		// Get k8s secret
+		secretName := vs.GetCertSecretName(string(api.VaultServerServiceVault))
+		secret, err := exp.kClient.CoreV1().Secrets(vs.Namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
+		if err != nil {
+			return errors.Wrap(err, "failed to get secret")
+		}
+
+		// Read ca.crt from the secret
+		byt, ok := secret.Data[conapi.TLSCACertKey]
+		if !ok {
+			return errors.New("missing ca.crt in vault secret")
+		}
+
+		// export ca.crt as tls-cacert
+		c.Args = append(c.Args, fmt.Sprintf("--vault.tls-cacert=%s", string(byt)))
 	}
 
 	if agent != nil && agent.Prometheus != nil {

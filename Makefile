@@ -343,15 +343,16 @@ endif
 .PHONY: install
 install:
 	@cd ../installer; \
-	helm install vault-operator charts/vault-operator \
+	helm install kubevault-community charts/kubevault-community \
 		--namespace=kube-system \
 		--set operator.registry=$(REGISTRY) \
+		--set operator.repository=$(BIN) \
 		--set operator.tag=$(TAG) \
 		--set imagePullPolicy=Always \
 		$(IMAGE_PULL_SECRETS); \
 	kubectl wait --for=condition=Ready pods -n kube-system -l 'app.kubernetes.io/name=vault-operator,app.kubernetes.io/instance=vault-operator' --timeout=5m; \
 	kubectl wait --for=condition=Available apiservice -l 'app.kubernetes.io/name=vault-operator,app.kubernetes.io/instance=vault-operator' --timeout=5m; \
-	helm install vault-catalog charts/vault-catalog --namespace=kube-system
+	helm install kubevault-catalog charts/kubevault-catalog --namespace=kube-system
 
 .PHONY: uninstall
 uninstall:

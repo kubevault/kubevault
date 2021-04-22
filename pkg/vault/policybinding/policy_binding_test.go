@@ -41,11 +41,11 @@ var (
 			TokenTTL:     "100",
 			TokenMaxTTL:  "100",
 			TokenPeriod:  "100",
-			path:         "kubernetes/role",
+			path:         "kubernetes",
 		},
 		authAppRole: &pBindingAppRole{
 			roleName:             "ok",
-			path:                 "approle/role",
+			path:                 "approle",
 			BindSecretID:         true,
 			SecretIDBoundCidrs:   []string{"192.168.0.200/32"},
 			SecretIDNumUses:      200,
@@ -62,16 +62,16 @@ var (
 		},
 		authLdapGroup: &pBindingLdapGroup{
 			name: "ok",
-			path: "ldap/groups",
+			path: "ldap",
 		},
 		authLdapUser: &pBindingLdapUser{
 			username: "ok",
-			path:     "ldap/users",
+			path:     "ldap",
 			Groups:   []string{"group1", "group2"},
 		},
 		authJWT: &pBindingJWT{
 			name:                 "ok",
-			path:                 "jwt/role",
+			path:                 "jwt",
 			RoleType:             "oidc",
 			BoundAudiences:       []string{"FFXlsY2atr_aaaa_hMtsE-zTAeTZnu8"},
 			UserClaim:            "sub",
@@ -534,6 +534,7 @@ func TestEnsure(t *testing.T) {
 	if !assert.Nil(t, err, "failed to create vault client") {
 		return
 	}
+
 	goodPBind.vClient = vc
 	badPBind.vClient = vc
 

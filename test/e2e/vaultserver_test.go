@@ -187,7 +187,7 @@ var _ = Describe("VaultServer", func() {
 
 			checkForVaultServerCreated(vs.Name, vs.Namespace)
 			checkForVaultTLSSecretCreated(vs.TLSSecretName(), vs.Namespace)
-			checkForVaultConfigMapCreated(vs.ConfigMapName(), vs.Namespace)
+			checkForVaultConfigMapCreated(vs.ConfigSecretName(), vs.Namespace)
 			checkForVaultDeploymentCreatedOrUpdated(vs.Name, vs.Namespace, vs)
 			checkForAppBindingCreated(vs.Name, vs.Namespace)
 			By("vault server created")
@@ -229,7 +229,7 @@ var _ = Describe("VaultServer", func() {
 		checkForVaultServerCleanup = func(vs *api.VaultServer) {
 			checkForVaultServerDeleted(vs.Name, vs.Namespace)
 			checkForSecretDeleted(vs.TLSSecretName(), vs.Namespace)
-			checkForVaultConfigMapDeleted(vs.ConfigMapName(), vs.Namespace)
+			checkForVaultConfigMapDeleted(vs.ConfigSecretName(), vs.Namespace)
 			checkForVaultDeploymentDeleted(vs.Name, vs.Namespace)
 			checkForAppBindingDeleted(vs.Name, vs.Namespace)
 		}
@@ -1247,9 +1247,15 @@ var _ = Describe("VaultServer", func() {
 				}
 
 				vs = f.VaultServerWithUnsealer(1, etcd, *unseal)
-				vs.Spec.ServiceTemplate = ofst.ServiceTemplateSpec{
-					Spec: ofst.ServiceSpec{
-						Type: core.ServiceTypeNodePort,
+
+				vs.Spec.ServiceTemplates = []api.NamedServiceTemplateSpec{
+					{
+						Alias: api.VaultServerServiceVault,
+						ServiceTemplateSpec: ofst.ServiceTemplateSpec{
+							Spec: ofst.ServiceSpec{
+								Type: core.ServiceTypeNodePort,
+							},
+						},
 					},
 				}
 			})

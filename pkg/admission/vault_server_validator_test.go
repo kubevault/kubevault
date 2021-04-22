@@ -34,6 +34,7 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	kfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/kubernetes/scheme"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	meta_util "kmodules.xyz/client-go/meta"
 )
 
@@ -192,7 +193,7 @@ func TestValidateVaultServer(t *testing.T) {
 		},
 		{
 			testName:    "spec.tls.tlsSecret is empty, expect error",
-			vs:          func() *api.VaultServer { v := vs; v.Spec.TLS = &api.TLSPolicy{TLSSecret: ""}; return &v }(),
+			vs:          func() *api.VaultServer { v := vs; v.Spec.TLS = &kmapi.TLSConfig{Certificates: nil}; return &v }(),
 			extraSecret: nil,
 			expectErr:   true,
 		},

@@ -19,6 +19,7 @@ package policybinding
 import (
 	"context"
 
+	conapi "kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/policy/v1alpha1"
 	cs "kubevault.dev/apimachinery/client/clientset/versioned"
 	"kubevault.dev/operator/pkg/vault"
@@ -247,7 +248,7 @@ type pBindingJWT struct {
 func (p *pBinding) Ensure(pBind *api.VaultPolicyBinding) error {
 	// kubernetes auth
 	if p.authKubernetes != nil {
-		path := pBind.GeneratePath(p.authKubernetes.name, p.authKubernetes.path)
+		path := pBind.GeneratePath(p.authKubernetes.name, p.authKubernetes.path, conapi.VaultAuthK8sRole)
 		p.authKubernetes.TokenPolicies = p.policies
 		payload, err := pBind.GeneratePayload(p.authKubernetes)
 		if err != nil {
@@ -260,7 +261,7 @@ func (p *pBinding) Ensure(pBind *api.VaultPolicyBinding) error {
 	}
 	// approle auth
 	if p.authAppRole != nil {
-		path := pBind.GeneratePath(p.authAppRole.roleName, p.authAppRole.path)
+		path := pBind.GeneratePath(p.authAppRole.roleName, p.authAppRole.path, conapi.VaultAuthApprole)
 		p.authAppRole.TokenPolicies = p.policies
 		payload, err := pBind.GeneratePayload(p.authAppRole)
 		if err != nil {
@@ -273,7 +274,7 @@ func (p *pBinding) Ensure(pBind *api.VaultPolicyBinding) error {
 	}
 	// ldap group auth
 	if p.authLdapGroup != nil {
-		path := pBind.GeneratePath(p.authLdapGroup.name, p.authLdapGroup.path)
+		path := pBind.GeneratePath(p.authLdapGroup.name, p.authLdapGroup.path, conapi.VaultAuthLDAPGroups)
 		p.authLdapGroup.Policies = p.policies
 		payload, err := pBind.GeneratePayload(p.authLdapGroup)
 		if err != nil {
@@ -286,7 +287,7 @@ func (p *pBinding) Ensure(pBind *api.VaultPolicyBinding) error {
 	}
 	// ldap user auth
 	if p.authLdapUser != nil {
-		path := pBind.GeneratePath(p.authLdapUser.username, p.authLdapUser.path)
+		path := pBind.GeneratePath(p.authLdapUser.username, p.authLdapUser.path, conapi.VaultAuthLDAPUsers)
 		p.authLdapUser.Policies = p.policies
 		payload, err := pBind.GeneratePayload(p.authLdapUser)
 		if err != nil {
@@ -299,7 +300,7 @@ func (p *pBinding) Ensure(pBind *api.VaultPolicyBinding) error {
 	}
 	// jwt auth
 	if p.authJWT != nil {
-		path := pBind.GeneratePath(p.authJWT.name, p.authJWT.path)
+		path := pBind.GeneratePath(p.authJWT.name, p.authJWT.path, conapi.VaultAuthJWTRole)
 		p.authJWT.TokenPolicies = p.policies
 		payload, err := pBind.GeneratePayload(p.authJWT)
 		if err != nil {
@@ -318,7 +319,7 @@ func (p *pBinding) Ensure(pBind *api.VaultPolicyBinding) error {
 // it's safe to call it, even if 'name' doesn't exist in vault
 func (p *pBinding) Delete(pBind *api.VaultPolicyBinding) error {
 	if p.authKubernetes != nil {
-		path := pBind.GeneratePath(p.authKubernetes.name, p.authKubernetes.path)
+		path := pBind.GeneratePath(p.authKubernetes.name, p.authKubernetes.path, conapi.VaultAuthK8sRole)
 		_, err := p.vClient.Logical().Delete(path)
 		if err != nil {
 			return err
@@ -326,7 +327,7 @@ func (p *pBinding) Delete(pBind *api.VaultPolicyBinding) error {
 	}
 	// approle auth
 	if p.authAppRole != nil {
-		path := pBind.GeneratePath(p.authAppRole.roleName, p.authAppRole.path)
+		path := pBind.GeneratePath(p.authAppRole.roleName, p.authAppRole.path, conapi.VaultAuthApprole)
 		_, err := p.vClient.Logical().Delete(path)
 		if err != nil {
 			return err

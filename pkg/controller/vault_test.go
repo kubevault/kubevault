@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"testing"
 
+	conapi "kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/exporter"
 	"kubevault.dev/operator/pkg/vault/storage"
@@ -34,6 +35,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	kfake "k8s.io/client-go/kubernetes/fake"
+	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
 const (
@@ -177,8 +179,8 @@ storage "test"{
 				assert.NotNil(t, err)
 			} else {
 				if assert.Nil(t, err) {
-					assert.Equal(t, test.vs.ConfigMapName(), cm.Name)
-					assert.Equal(t, test.exptConfigMData, cm.Data)
+					assert.Equal(t, test.vs.ConfigSecretName(), cm.Name)
+					assert.Equal(t, test.exptConfigMData, cm.StringData)
 				}
 			}
 		})
@@ -212,8 +214,13 @@ func TestGetServerTLS(t *testing.T) {
 			vs: &api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(1),
 				Spec: api.VaultServerSpec{
-					TLS: &api.TLSPolicy{
-						TLSSecret: "vault-tls-cred",
+					TLS: &kmapi.TLSConfig{
+						Certificates: []kmapi.CertificateSpec{
+							{
+								Alias:      string(api.VaultServerCert),
+								SecretName: "vault-tls-cred",
+							},
+						},
 					},
 				},
 			},
@@ -221,6 +228,11 @@ func TestGetServerTLS(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "vault-tls-cred",
 					Namespace: getVaultObjectMeta(1).Namespace,
+				},
+				Data: map[string][]byte{
+					core.TLSCertKey:       []byte(""),
+					core.TLSPrivateKeyKey: []byte(""),
+					conapi.TLSCACertKey:   []byte(""),
 				},
 			},
 			expectErr: false,
@@ -230,13 +242,26 @@ func TestGetServerTLS(t *testing.T) {
 			vs: &api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(1),
 				Spec: api.VaultServerSpec{
-					TLS: &api.TLSPolicy{
-						TLSSecret: "vault-tls-cred",
+					TLS: &kmapi.TLSConfig{
+						Certificates: []kmapi.CertificateSpec{
+							{
+								Alias:      string(api.VaultServerCert),
+								SecretName: "vault-tls-cred",
+							},
+						},
 					},
 				},
 			},
-			extraSecret: nil,
-			expectErr:   true,
+			extraSecret: &core.Secret{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "vault-tls-cred",
+					Namespace: getVaultObjectMeta(1).Namespace,
+				},
+				Data: map[string][]byte{
+					core.TLSCertKey: []byte(""),
+				},
+			},
+			expectErr: true,
 		},
 		{
 			name: "no error, create secret successfully",

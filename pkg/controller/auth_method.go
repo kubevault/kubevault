@@ -41,6 +41,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 )
@@ -348,6 +349,10 @@ func waitUntilVaultServerIsReady(c vaultcs.KubevaultV1alpha1Interface, vs *api.V
 			return true, nil
 		}
 
+		if kmapi.IsConditionTrue(vs.Status.Conditions, kmapi.ConditionFailed) {
+			return true, errors.New(fmt.Sprintf("VaultServer %s/%s is failed", vs.Namespace, vs.Name))
+		}
+
 		glog.Infof("auth method controller: attempt %d: VaultServer %s/%s is not ready", attempt, vs.Namespace, vs.Name)
 		return false, nil
 	}, stopCh)
@@ -368,6 +373,8 @@ func waitUntilVaultPolicyIsReady(c policycs.PolicyV1alpha1Interface, vp *policya
 
 		if vp.Status.Phase == policyapi.PolicySuccess {
 			return true, nil
+		} else if vp.Status.Phase == policyapi.PolicyFailed {
+			return true, errors.New(fmt.Sprintf("VaultPolicy %s/%s is failed", vp.Namespace, vp.Name))
 		}
 
 		glog.Infof("auth method controller: attempt %d: VaultPolicy %s/%s is not succeeded", attempt, vp.Namespace, vp.Name)
@@ -390,6 +397,8 @@ func waitUntilVaultPolicyBindingIsReady(c policycs.PolicyV1alpha1Interface, vpb 
 
 		if vpb.Status.Phase == policyapi.PolicyBindingSuccess {
 			return true, nil
+		} else if vpb.Status.Phase == policyapi.PolicyBindingFailed {
+			return true, errors.New(fmt.Sprintf("VaultPolicyBinding %s/%s is failed", vpb.Namespace, vpb.Name))
 		}
 
 		glog.Infof("auth method controller: attempt %d: VaultPolicyBinding %s/%s is not succeeded", attempt, vpb.Namespace, vpb.Name)

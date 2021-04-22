@@ -17,9 +17,11 @@ limitations under the License.
 package unsealer
 
 import (
+	"context"
 	"fmt"
 	"time"
 
+	conapi "kubevault.dev/apimachinery/apis"
 	capi "kubevault.dev/apimachinery/apis/catalog/v1alpha1"
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 	sa_util "kubevault.dev/operator/pkg/util"
@@ -33,6 +35,7 @@ import (
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	core_util "kmodules.xyz/client-go/core/v1"
@@ -139,8 +142,23 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 		args = append(args, "--overwrite-existing=true")
 	}
 
-	if u.vs.Spec.TLS != nil && u.vs.Spec.TLS.CABundle != nil {
-		args = append(args, fmt.Sprintf("--vault.ca-cert=%s", u.vs.Spec.TLS.CABundle))
+	if u.vs.Spec.TLS != nil && u.vs.Spec.TLS.Certificates != nil {
+		// Get k8s secret
+		secretName := u.vs.GetCertSecretName(string(api.VaultServerServiceVault))
+		secret, err := u.kc.CoreV1().Secrets(u.vs.Namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
+		if err != nil {
+			return errors.Wrap(err, "failed to get secret")
+		}
+
+		// Read ca.crt from the secret
+		// caCert := conapi.TLSCACertKey
+		byt, ok := secret.Data[conapi.TLSCACertKey]
+		if !ok {
+			return errors.New("missing ca.crt in vault secret")
+		}
+
+		// export ca.crt as tls-cacert
+		args = append(args, fmt.Sprintf("--vault.tls-cacert=%s", string(byt)))
 	}
 
 	// Add kubernetes auth flags

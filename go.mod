@@ -1,6 +1,6 @@
 module kubevault.dev/operator
 
-go 1.12
+go 1.15
 
 require (
 	github.com/aws/aws-sdk-go v1.31.13
@@ -36,13 +36,13 @@ require (
 	k8s.io/kube-aggregator v0.18.9
 	k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
 	k8s.io/kubernetes v1.18.9
-	kmodules.xyz/client-go v0.0.0-20210213000708-f480974ce46d
+	kmodules.xyz/client-go v0.0.0-20210315112949-a05d2cc96f28
 	kmodules.xyz/constants v0.0.0-20200923054614-6b87dbbae4d6
-	kmodules.xyz/custom-resources v0.0.0-20210216191337-d890c51255a5
+	kmodules.xyz/custom-resources v0.0.0-20210222235834-b3f8dc56b6a3
 	kmodules.xyz/monitoring-agent-api v0.0.0-20201105074044-be7a1044891a
-	kmodules.xyz/offshoot-api v0.0.0-20201105074700-8675f5f686f2
+	kmodules.xyz/offshoot-api v0.0.0-20210309181939-c52e06bbfb3a
 	kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6
-	kubevault.dev/apimachinery v0.0.0-20210124211354-5738aa125d4d
+	kubevault.dev/apimachinery v0.0.0-20210422110003-3360adf2fa7f
 )
 
 replace bitbucket.org/ww/goautoneg => gomodules.xyz/goautoneg v0.0.0-20120707110453-a547fc61f48d

@@ -29,6 +29,7 @@ listener "tcp" {
   cluster_address = "0.0.0.0:8201"
   tls_cert_file = "/etc/vault/tls/tls.crt"
   tls_key_file  = "/etc/vault/tls/tls.key"
+  tls_client_ca_file = "/etc/vault/tls/ca.crt"
 }
 `
 	assert.Equal(t, expectedOutput, GetListenerConfig())

@@ -22,7 +22,9 @@ import (
 	"kubevault.dev/apimachinery/apis/kubevault"
 	"kubevault.dev/apimachinery/crds"
 
+	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/client-go/apiextensions"
+	"kmodules.xyz/client-go/meta"
 	meta_util "kmodules.xyz/client-go/meta"
 	mona "kmodules.xyz/monitoring-agent-api/api/v1"
 )
@@ -75,7 +77,7 @@ func (v VaultServer) OffshootLabels() map[string]string {
 	return meta_util.FilterKeys("kubevault.com", v.OffshootSelectors(), v.Labels)
 }
 
-func (v VaultServer) ConfigMapName() string {
+func (v VaultServer) ConfigSecretName() string {
 	return meta_util.NameWithSuffix(v.Name, "vault-config")
 }
 
@@ -91,10 +93,35 @@ func (v VaultServer) StatsServiceName() string {
 	return meta_util.NameWithSuffix(v.Name, "stats")
 }
 
+func (v VaultServer) ServiceName(alias ServiceAlias) string {
+	if alias == VaultServerServiceVault {
+		return v.Name
+	}
+	return meta_util.NameWithSuffix(v.Name, string(alias))
+}
+
 func (v VaultServer) StatsLabels() map[string]string {
 	labels := v.OffshootLabels()
 	labels["feature"] = "stats"
 	return labels
+}
+
+// Returns the default certificate secret name for given alias.
+func (vs *VaultServer) DefaultCertSecretName(alias string) string {
+	return meta.NameWithSuffix(fmt.Sprintf("%s-%s", vs.Name, alias), "certs")
+}
+
+// Returns certificate secret name for given alias if exists,
+// otherwise returns the default certificate secret name.
+func (vs *VaultServer) GetCertSecretName(alias string) string {
+	if vs.Spec.TLS != nil {
+		sName, valid := kmapi.GetCertificateSecretName(vs.Spec.TLS.Certificates, alias)
+		if valid {
+			return sName
+		}
+	}
+
+	return vs.DefaultCertSecretName(alias)
 }
 
 func (v VaultServer) StatsService() mona.StatsAccessor {

@@ -531,6 +531,15 @@ message MySQLSpec {
   optional int64 maxParallel = 6;
 }
 
+message NamedServiceTemplateSpec {
+  // Alias represents the identifier of the service.
+  optional string alias = 1;
+
+  // ServiceTemplate is an optional configuration for a service used to expose VaultServer
+  // +optional
+  optional kmodules.xyz.offshoot_api.api.v1.ServiceTemplateSpec serviceTemplateSpec = 2;
+}
+
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/postgresql.html
 //
 // PostgreSQLSpec defines configuration to set up PostgreSQL storage as backend storage in vault
@@ -726,21 +735,18 @@ message VaultServerList {
 }
 
 message VaultServerSpec {
-  // Number of replicas to deploy for a Vault deployment.
-  // If unspecified, defaults to 1.
-  // +optional
-  optional int32 replicas = 1;
+  // Version of VaultServer to be deployed.
+  optional string version = 1;
 
-  // Version of Vault server to be deployed.
-  optional string version = 2;
+  // Number of instances to deploy for a VaultServer.
+  optional int32 replicas = 2;
 
-  // Name of the ConfigMap for Vault's configuration
-  // In this configMap contain extra config for vault
-  // ConfigSource is an optional field to provide extra configuration for vault.
+  // ConfigSecret is an optional field to provide extra configuration for vault.
+  // This secret contain extra config for vault
   // File name should be 'vault.hcl'.
   // If specified, this file will be appended to the controller configuration file.
   // +optional
-  optional k8s.io.api.core.v1.VolumeSource configSource = 3;
+  optional k8s.io.api.core.v1.LocalObjectReference configSecret = 3;
 
   // DataSources is a list of Configmaps/Secrets in the same namespace as the VaultServer
   // object, which shall be mounted into the VaultServer Pods.
@@ -751,7 +757,7 @@ message VaultServerSpec {
 
   // TLS policy of vault nodes
   // +optional
-  optional TLSPolicy tls = 5;
+  optional kmodules.xyz.client_go.api.v1.TLSConfig tls = 5;
 
   // backend storage configuration for vault
   optional BackendStorageSpec backend = 6;
@@ -772,9 +778,17 @@ message VaultServerSpec {
   // +optional
   optional kmodules.xyz.offshoot_api.api.v1.PodTemplateSpec podTemplate = 10;
 
-  // ServiceTemplate is an optional configuration for service used to expose vault
+  // ServiceTemplates is an optional configuration for services used to expose database
   // +optional
-  optional kmodules.xyz.offshoot_api.api.v1.ServiceTemplateSpec serviceTemplate = 11;
+  repeated NamedServiceTemplateSpec serviceTemplates = 11;
+
+  // Indicates that the vault server is halted and all offshoot Kubernetes resources except PVCs are deleted.
+  // +optional
+  optional bool halted = 12;
+
+  // TerminationPolicy controls the delete operation for vault server
+  // +optional
+  optional string terminationPolicy = 13;
 }
 
 message VaultServerStatus {

@@ -35,9 +35,10 @@ import (
 )
 
 type vaultFake struct {
+	gvrSvc            *core.Service
 	sr                *core.Secret
 	cm                *core.ConfigMap
-	dp                *appsv1.Deployment
+	sts               *appsv1.StatefulSet
 	sa                *core.ServiceAccount
 	svc               *core.Service
 	roles             []rbac.Role
@@ -56,11 +57,11 @@ func (v *vaultFake) GetServerTLS() (*core.Secret, []byte, error) {
 	}
 	return v.sr, nil, nil
 }
-func (v *vaultFake) GetConfig() (*core.ConfigMap, error) {
+func (v *vaultFake) GetConfig() (*core.Secret, error) {
 	if v.ErrInGetConfig {
 		return nil, fmt.Errorf("error")
 	}
-	return v.cm, nil
+	return v.sr, nil
 }
 func (v *vaultFake) Apply(pt *core.PodTemplateSpec) error {
 	if v.ErrInApply {
@@ -71,14 +72,12 @@ func (v *vaultFake) Apply(pt *core.PodTemplateSpec) error {
 func (v *vaultFake) GetService() *core.Service {
 	return v.svc
 }
-func (v *vaultFake) GetDeployment(pt *core.PodTemplateSpec) *appsv1.Deployment {
-	return v.dp
-}
-func (v *vaultFake) GetHeadlessService(name string) *core.Service {
-	panic("implement me")
+
+func (v *vaultFake) GetGoverningService() *core.Service {
+	return v.gvrSvc
 }
 func (v *vaultFake) GetStatefulSet(serviceName string, pt *core.PodTemplateSpec, vcts []core.PersistentVolumeClaim) *appsv1.StatefulSet {
-	panic("implement me")
+	return v.sts
 }
 func (v *vaultFake) GetServiceAccounts() []core.ServiceAccount {
 	return []core.ServiceAccount{*v.sa}
@@ -104,9 +103,9 @@ func TestReconcileVault(t *testing.T) {
 				Namespace: "test",
 			},
 			Data: map[string][]byte{
-				"ca.crt":     []byte("ca"),
-				"server.crt": []byte("srv"),
-				"server.key": []byte("srv"),
+				"ca.crt":  []byte("ca"),
+				"tls.crt": []byte("srv"),
+				"tls.key": []byte("srv"),
 			},
 		},
 		cm: &core.ConfigMap{
@@ -123,10 +122,13 @@ func TestReconcileVault(t *testing.T) {
 		},
 		cnt: core.Container{},
 		pt:  &core.PodTemplateSpec{},
-		dp: &appsv1.Deployment{
+		sts: &appsv1.StatefulSet{
 			ObjectMeta: getVaultObjectMeta(1),
 		},
 		svc: &core.Service{
+			ObjectMeta: getVaultObjectMeta(1),
+		},
+		gvrSvc: &core.Service{
 			ObjectMeta: getVaultObjectMeta(1),
 		},
 		roles: []rbac.Role{},
@@ -184,7 +186,7 @@ func TestReconcileVault(t *testing.T) {
 				recorder:         record.NewFakeRecorder(0),
 				ctxCancels:       map[string]CtxWithCancel{},
 				authMethodCtx:    map[string]CtxWithCancel{},
-				extClient:        cfake.NewSimpleClientset(),
+				extClient:        cfake.NewSimpleClientset(test.vs),
 				appCatalogClient: appcatfake.NewSimpleClientset().AppcatalogV1alpha1(),
 			}
 
@@ -197,7 +199,7 @@ func TestReconcileVault(t *testing.T) {
 			} else {
 				assert.Nil(t, err, "error must be nil")
 
-				_, err := vaultCtrl.kubeClient.AppsV1().Deployments(test.vs.Namespace).Get(context.TODO(), test.vs.Name, metav1.GetOptions{})
+				_, err := vaultCtrl.kubeClient.AppsV1().StatefulSets(test.vs.Namespace).Get(context.TODO(), test.vs.Name, metav1.GetOptions{})
 				assert.Nil(t, err, "deployment for vaultserver should exist")
 			}
 		})
@@ -214,7 +216,13 @@ func TestDeployVault(t *testing.T) {
 		},
 		cnt: core.Container{},
 		pt:  &core.PodTemplateSpec{},
-		dp: &appsv1.Deployment{
+		sts: &appsv1.StatefulSet{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "dp-test",
+				Namespace: "test",
+			},
+		},
+		gvrSvc: &core.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "dp-test",
 				Namespace: "test",

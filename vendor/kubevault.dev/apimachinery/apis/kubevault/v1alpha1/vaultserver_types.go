@@ -19,7 +19,6 @@ package v1alpha1
 import (
 	"time"
 
-	"gomodules.xyz/x/encoding/json/types"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -52,21 +51,18 @@ type VaultServer struct {
 }
 
 type VaultServerSpec struct {
-	// Number of replicas to deploy for a Vault deployment.
-	// If unspecified, defaults to 1.
-	// +optional
-	Replicas *int32 `json:"replicas,omitempty" protobuf:"varint,1,opt,name=replicas"`
+	// Version of VaultServer to be deployed.
+	Version string `json:"version" protobuf:"bytes,1,opt,name=version"`
 
-	// Version of Vault server to be deployed.
-	Version types.StrYo `json:"version" protobuf:"bytes,2,opt,name=version,casttype=gomodules.xyz/x/encoding/json/types.StrYo"`
+	// Number of instances to deploy for a VaultServer.
+	Replicas *int32 `json:"replicas,omitempty" protobuf:"varint,2,opt,name=replicas"`
 
-	// Name of the ConfigMap for Vault's configuration
-	// In this configMap contain extra config for vault
-	// ConfigSource is an optional field to provide extra configuration for vault.
+	// ConfigSecret is an optional field to provide extra configuration for vault.
+	// This secret contain extra config for vault
 	// File name should be 'vault.hcl'.
 	// If specified, this file will be appended to the controller configuration file.
 	// +optional
-	ConfigSource *core.VolumeSource `json:"configSource,omitempty" protobuf:"bytes,3,opt,name=configSource"`
+	ConfigSecret *core.LocalObjectReference `json:"configSecret,omitempty" protobuf:"bytes,3,opt,name=configSecret"`
 
 	// DataSources is a list of Configmaps/Secrets in the same namespace as the VaultServer
 	// object, which shall be mounted into the VaultServer Pods.
@@ -77,7 +73,7 @@ type VaultServerSpec struct {
 
 	// TLS policy of vault nodes
 	// +optional
-	TLS *TLSPolicy `json:"tls,omitempty" protobuf:"bytes,5,opt,name=tls"`
+	TLS *kmapi.TLSConfig `json:"tls,omitempty" protobuf:"bytes,5,opt,name=tls"`
 
 	// backend storage configuration for vault
 	Backend BackendStorageSpec `json:"backend" protobuf:"bytes,6,opt,name=backend"`
@@ -98,9 +94,17 @@ type VaultServerSpec struct {
 	// +optional
 	PodTemplate ofst.PodTemplateSpec `json:"podTemplate,omitempty" protobuf:"bytes,10,opt,name=podTemplate"`
 
-	// ServiceTemplate is an optional configuration for service used to expose vault
+	// ServiceTemplates is an optional configuration for services used to expose database
 	// +optional
-	ServiceTemplate ofst.ServiceTemplateSpec `json:"serviceTemplate,omitempty" protobuf:"bytes,11,opt,name=serviceTemplate"`
+	ServiceTemplates []NamedServiceTemplateSpec `json:"serviceTemplates,omitempty" protobuf:"bytes,11,rep,name=serviceTemplates"`
+
+	// Indicates that the vault server is halted and all offshoot Kubernetes resources except PVCs are deleted.
+	// +optional
+	Halted bool `json:"halted,omitempty" protobuf:"varint,12,opt,name=halted"`
+
+	// TerminationPolicy controls the delete operation for vault server
+	// +optional
+	TerminationPolicy TerminationPolicy `json:"terminationPolicy,omitempty" protobuf:"bytes,13,opt,name=terminationPolicy,casttype=TerminationPolicy"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
