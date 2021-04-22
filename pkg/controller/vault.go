@@ -348,7 +348,7 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 
 	// TODO:
 	// 	- feature: make tls optional if possible
-	tlsSecret := v.vs.GetCertSecretName("vault")
+	tlsSecret := v.vs.GetCertSecretName(string(api.VaultServerCert))
 	pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes, core.Volume{
 		Name: vaultTLSAssetVolumeName,
 		VolumeSource: core.VolumeSource{
