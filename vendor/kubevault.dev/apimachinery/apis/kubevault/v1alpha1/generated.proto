@@ -782,11 +782,11 @@ message VaultServerSpec {
   // +optional
   repeated NamedServiceTemplateSpec serviceTemplates = 11;
 
-  // Indicates that the database is halted and all offshoot Kubernetes resources except PVCs are deleted.
+  // Indicates that the vault server is halted and all offshoot Kubernetes resources except PVCs are deleted.
   // +optional
   optional bool halted = 12;
 
-  // TerminationPolicy controls the delete operation for database
+  // TerminationPolicy controls the delete operation for vault server
   // +optional
   optional string terminationPolicy = 13;
 }

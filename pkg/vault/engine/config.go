@@ -306,8 +306,8 @@ func (seClient *SecretEngine) CreateElasticsearchConfig() error {
 	req := seClient.vaultClient.NewRequest("POST", path)
 
 	payload := map[string]interface{}{
-		"plugin_name": config.PluginName,
-		"allowed_roles": config.AllowedRoles,
+		"plugin_name":    config.PluginName,
+		"allowed_roles":  config.AllowedRoles,
 		"connection_url": connURL,
 	}
 
@@ -317,7 +317,7 @@ func (seClient *SecretEngine) CreateElasticsearchConfig() error {
 			return errors.Wrap(err, "Failed to get secret for Elasticsearch database config")
 		}
 
-		if err = dbApp.TransformSecret(seClient.kubeClient, secret.Data); err !=nil {
+		if err = dbApp.TransformSecret(seClient.kubeClient, secret.Data); err != nil {
 			return err
 		}
 		if v, ok := secret.Data[core.BasicAuthUsernameKey]; ok {

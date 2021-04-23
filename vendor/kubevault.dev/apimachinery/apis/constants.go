@@ -59,3 +59,11 @@ const (
 	// moved from operator/pkg/controller/vault.go
 	TLSCACertKey = "ca.crt"
 )
+
+const (
+	VaultAuthK8sRole    = "role"
+	VaultAuthApprole    = "role"
+	VaultAuthLDAPGroups = "groups"
+	VaultAuthLDAPUsers  = "users"
+	VaultAuthJWTRole    = "role"
+)
