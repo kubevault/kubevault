@@ -122,7 +122,7 @@ func (seClient *SecretEngine) EnableSecretEngine() error {
 		engineType = api.EngineTypeGCP
 	} else if engSpec.Azure != nil {
 		engineType = api.EngineTypeAzure
-	} else if engSpec.MongoDB != nil || engSpec.Postgres != nil || engSpec.MySQL != nil {
+	} else if engSpec.MongoDB != nil || engSpec.Postgres != nil || engSpec.MySQL != nil || engSpec.Elasticsearch != nil {
 		engineType = api.EngineTypeDatabase
 	} else if engSpec.KV != nil {
 		engineType = api.EngineTypeKV

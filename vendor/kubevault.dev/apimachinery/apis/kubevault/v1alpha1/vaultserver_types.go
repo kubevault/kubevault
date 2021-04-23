@@ -98,11 +98,11 @@ type VaultServerSpec struct {
 	// +optional
 	ServiceTemplates []NamedServiceTemplateSpec `json:"serviceTemplates,omitempty" protobuf:"bytes,11,rep,name=serviceTemplates"`
 
-	// Indicates that the vault server is halted and all offshoot Kubernetes resources except PVCs are deleted.
+	// Indicates that the database is halted and all offshoot Kubernetes resources except PVCs are deleted.
 	// +optional
 	Halted bool `json:"halted,omitempty" protobuf:"varint,12,opt,name=halted"`
 
-	// TerminationPolicy controls the delete operation for vault server
+	// TerminationPolicy controls the delete operation for database
 	// +optional
 	TerminationPolicy TerminationPolicy `json:"terminationPolicy,omitempty" protobuf:"bytes,13,opt,name=terminationPolicy,casttype=TerminationPolicy"`
 }

@@ -32,6 +32,7 @@ type EngineV1alpha1Interface interface {
 	AzureAccessKeyRequestsGetter
 	AzureRolesGetter
 	DatabaseAccessRequestsGetter
+	ElasticsearchRolesGetter
 	GCPAccessKeyRequestsGetter
 	GCPRolesGetter
 	MongoDBRolesGetter
@@ -63,6 +64,10 @@ func (c *EngineV1alpha1Client) AzureRoles(namespace string) AzureRoleInterface {
 
 func (c *EngineV1alpha1Client) DatabaseAccessRequests(namespace string) DatabaseAccessRequestInterface {
 	return newDatabaseAccessRequests(c, namespace)
+}
+
+func (c *EngineV1alpha1Client) ElasticsearchRoles(namespace string) ElasticsearchRoleInterface {
+	return newElasticsearchRoles(c, namespace)
 }
 
 func (c *EngineV1alpha1Client) GCPAccessKeyRequests(namespace string) GCPAccessKeyRequestInterface {

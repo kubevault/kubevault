@@ -24,6 +24,19 @@ import (
 type VaultServerPhase string
 
 const (
+	// used for VaultServer that are currently provisioning
+	VaultServerPhaseProvisioning VaultServerPhase = "Provisioning"
+	// used for VaultServer for which data is currently restoring
+	VaultServerPhaseDataRestoring VaultServerPhase = "DataRestoring"
+	// used for VaultServer that are currently ReplicaReady, AcceptingConnection and Ready
+	VaultServerPhaseReady VaultServerPhase = "Ready"
+	// used for VaultServer that can connect, ReplicaReady == false || Ready == false (eg, ES yellow)
+	VaultServerPhaseCritical VaultServerPhase = "Critical"
+	// used for VaultServer that can't connect
+	VaultServerPhaseNotReady VaultServerPhase = "NotReady"
+	// used for VaultServer that are halted
+	VaultServerPhaseHalted VaultServerPhase = "Halted"
+
 	// used for VaultServer that are sealed
 	VaultServerPhaseSealed VaultServerPhase = "Sealed"
 	// used for VaultServer that are unsealed
@@ -65,12 +78,3 @@ type NamedServiceTemplateSpec struct {
 	// +optional
 	ofst.ServiceTemplateSpec `json:",inline,omitempty" protobuf:"bytes,2,opt,name=serviceTemplateSpec"`
 }
-
-// +kubebuilder:validation:Enum=ca;server;client;
-type VaultCertificateAlias string
-
-const (
-	VaultCACert     VaultCertificateAlias = "ca"
-	VaultServerCert VaultCertificateAlias = "server"
-	VaultClientCert VaultCertificateAlias = "client"
-)
