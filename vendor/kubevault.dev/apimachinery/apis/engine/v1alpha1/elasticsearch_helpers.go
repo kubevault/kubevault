@@ -25,7 +25,7 @@ import (
 )
 
 func (_ ElasticsearchRole) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
-	return crds.MustCustomResourceDefinition(SchemeGroupVersion.WithResource(ResourceMongoDBRoles))
+	return crds.MustCustomResourceDefinition(SchemeGroupVersion.WithResource(ResourceElasticsearchRoles))
 }
 
 const DefaultElasticsearchDatabasePlugin = "elasticsearch-database-plugin"
