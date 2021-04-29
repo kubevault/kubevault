@@ -264,14 +264,14 @@ type ElasticsearchConfiguration struct {
 	// Specifies the Elasticsearch database appbinding reference
 	DatabaseRef appcat.AppReference `json:"databaseRef" protobuf:"bytes,1,opt,name=databaseRef"`
 
+	// List of the roles allowed to use this connection.
+	// Defaults to empty (no roles), if contains a "*" any role can use this connection.
+	AllowedRoles []string `json:"allowedRoles,omitempty" protobuf:"bytes,3,rep,name=allowedRoles"`
+
 	// Specifies the name of the plugin to use for this connection.
 	// Default plugin:
 	//  - for elasticsearch: elasticsearch-database-plugin
 	PluginName string `json:"pluginName,omitempty" protobuf:"bytes,2,opt,name=pluginName"`
-
-	// List of the roles allowed to use this connection.
-	// Defaults to empty (no roles), if contains a "*" any role can use this connection.
-	AllowedRoles []string `json:"allowedRoles,omitempty" protobuf:"bytes,3,rep,name=allowedRoles"`
 
 	// The URL for Elasticsearch's API ("http://localhost:9200").
 	// +kubebuilder:validation:Required

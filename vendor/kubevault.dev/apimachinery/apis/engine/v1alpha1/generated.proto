@@ -388,14 +388,14 @@ message ElasticsearchConfiguration {
   // Specifies the Elasticsearch database appbinding reference
   optional kmodules.xyz.custom_resources.apis.appcatalog.v1alpha1.AppReference databaseRef = 1;
 
+  // List of the roles allowed to use this connection.
+  // Defaults to empty (no roles), if contains a "*" any role can use this connection.
+  repeated string allowedRoles = 3;
+
   // Specifies the name of the plugin to use for this connection.
   // Default plugin:
   //  - for elasticsearch: elasticsearch-database-plugin
   optional string pluginName = 2;
-
-  // List of the roles allowed to use this connection.
-  // Defaults to empty (no roles), if contains a "*" any role can use this connection.
-  repeated string allowedRoles = 3;
 
   // The URL for Elasticsearch's API ("http://localhost:9200").
   // +kubebuilder:validation:Required

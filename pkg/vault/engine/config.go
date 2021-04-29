@@ -297,7 +297,7 @@ func (seClient *SecretEngine) CreateElasticsearchConfig() error {
 		return errors.Wrap(err, "failed to get DatabaseAppBinding for Elasticsearch database config")
 	}
 
-	connURL, err := dbApp.URLTemplate()
+	connURL, err := dbApp.URL()
 	if err != nil {
 		return errors.Wrap(err, "failed to get Elasticsearch database connection url")
 	}
@@ -306,9 +306,9 @@ func (seClient *SecretEngine) CreateElasticsearchConfig() error {
 	req := seClient.vaultClient.NewRequest("POST", path)
 
 	payload := map[string]interface{}{
-		"plugin_name":    config.PluginName,
-		"allowed_roles":  config.AllowedRoles,
-		"connection_url": connURL,
+		"plugin_name":   config.PluginName,
+		"allowed_roles": config.AllowedRoles,
+		"url":           connURL,
 	}
 
 	if dbApp.Spec.Secret != nil {

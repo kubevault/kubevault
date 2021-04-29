@@ -19661,13 +19661,6 @@ func schema_apimachinery_apis_engine_v1alpha1_ElasticsearchConfiguration(ref com
 							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
 						},
 					},
-					"pluginName": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Specifies the name of the plugin to use for this connection. Default plugin:\n - for elasticsearch: elasticsearch-database-plugin",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"allowedRoles": {
 						SchemaProps: spec.SchemaProps{
 							Description: "List of the roles allowed to use this connection. Defaults to empty (no roles), if contains a \"*\" any role can use this connection.",
@@ -19680,6 +19673,13 @@ func schema_apimachinery_apis_engine_v1alpha1_ElasticsearchConfiguration(ref com
 									},
 								},
 							},
+						},
+					},
+					"pluginName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Specifies the name of the plugin to use for this connection. Default plugin:\n - for elasticsearch: elasticsearch-database-plugin",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 					"url": {
