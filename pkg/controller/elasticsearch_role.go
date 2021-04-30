@@ -18,7 +18,6 @@ package controller
 
 import (
 	"context"
-
 	"kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/engine/v1alpha1/util"

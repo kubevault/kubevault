@@ -395,7 +395,7 @@ add-license:
 		--env HTTP_PROXY=$(HTTP_PROXY)                   \
 		--env HTTPS_PROXY=$(HTTPS_PROXY)                 \
 		$(BUILD_IMAGE)                                   \
-		ltag -t "./hack/license" --excludes "vendor contrib" -v
+		ltag -t "./hack/license" --excludes "vendor contrib .go bin" -v
 
 .PHONY: check-license
 check-license:
