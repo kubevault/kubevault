@@ -94,6 +94,11 @@ type VaultController struct {
 	mgRoleInformer cache.SharedIndexInformer
 	mgRoleLister   engine_listers.MongoDBRoleLister
 
+	// ElasticsearchRole
+	esRoleQueue    *queue.Worker
+	esRoleInformer cache.SharedIndexInformer
+	esRoleLister   engine_listers.ElasticsearchRoleLister
+
 	// AWSRole
 	awsRoleQueue    *queue.Worker
 	awsRoleInformer cache.SharedIndexInformer
@@ -159,6 +164,7 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 		engineapi.MongoDBRole{}.CustomResourceDefinition(),
 		engineapi.MySQLRole{}.CustomResourceDefinition(),
 		engineapi.PostgresRole{}.CustomResourceDefinition(),
+		engineapi.ElasticsearchRole{}.CustomResourceDefinition(),
 		engineapi.SecretEngine{}.CustomResourceDefinition(),
 	}
 	return apiextensions.RegisterCRDs(c.crdClient, crds)
@@ -205,6 +211,7 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	go c.pgRoleQueue.Run(stopCh)
 	go c.myRoleQueue.Run(stopCh)
 	go c.mgRoleQueue.Run(stopCh)
+	go c.esRoleQueue.Run(stopCh)
 
 	// For AWSRole
 	go c.awsRoleQueue.Run(stopCh)

@@ -117,6 +117,7 @@ func (c *Config) New() (*VaultController, error) {
 	ctrl.initPostgresRoleWatcher()
 	ctrl.initMySQLRoleWatcher()
 	ctrl.initMongoDBRoleWatcher()
+	ctrl.initElasticsearchRoleWatcher()
 	ctrl.initDatabaseAccessWatcher()
 
 	// For AWSRole
