@@ -138,6 +138,7 @@ func NewDatabaseRoleForElasticsearch(kClient kubernetes.Interface, appClient app
 		return nil, errors.WithStack(err)
 	}
 
+	// The path where Elasticsearch DB Path is Enabled. Def: database
 	path, err := GetElasticsearchDatabasePath(role)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get database path")
@@ -193,7 +194,7 @@ func (d *DatabaseRole) IsDatabaseEnabled() (bool, error) {
 }
 
 // https://www.vaultproject.io/api/secret/databases/index.html#delete-role
-//
+
 // DeleteRole deletes role
 // It doesn't give error even if respective role doesn't exist.
 // But does give error (404) if the secret engine itself is missing in the given path.

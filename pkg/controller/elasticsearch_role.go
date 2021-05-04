@@ -47,6 +47,7 @@ func (c *VaultController) initElasticsearchRoleWatcher() {
 }
 
 func (c *VaultController) runElasticsearchRoleInjector(key string) error {
+	// key := name/namespace
 	obj, exist, err := c.esRoleInformer.GetIndexer().GetByKey(key)
 	if err != nil {
 		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
@@ -60,7 +61,7 @@ func (c *VaultController) runElasticsearchRoleInjector(key string) error {
 		role := obj.(*api.ElasticsearchRole).DeepCopy()
 
 		glog.Infof("Sync/Add/Update for ElasticsearchRole %s/%s", role.Namespace, role.Name)
-
+		// DeletionTimestamp has been set, if HasFinalizer, then run ESRoleFinalizer.
 		if role.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
 				return c.runElasticsearchRoleFinalizer(role)
@@ -80,6 +81,7 @@ func (c *VaultController) runElasticsearchRoleInjector(key string) error {
 			// Conditions are empty, when the ElasticsearchRole obj is enqueued for the first time.
 			// Set status.phase to "Processing".
 			if role.Status.Conditions == nil {
+				// using a "newRole" var is preferred here. If we directly set the "role" here, we may get nil pointer exception in case of error.
 				newRole, err := patchutil.UpdateElasticsearchRoleStatus(
 					context.TODO(),
 					c.extClient.EngineV1alpha1(),

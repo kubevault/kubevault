@@ -82,7 +82,7 @@ func (c *VaultController) runSecretEngineInjector(key string) error {
 			// Conditions are empty, when the secretEngine obj is enqueued for first time.
 			// Set status.phase to "Processing".
 			if se.Status.Conditions == nil {
-				// using a "newSE" is preferred here. If we directly set the "se" here, we may get nil pointer exception in case of error
+				// using a "newSE" var is preferred here. If we directly set the "se" here, we may get nil pointer exception in case of error.
 				newSE, err := patchutil.UpdateSecretEngineStatus(
 					context.TODO(),
 					c.extClient.EngineV1alpha1(),

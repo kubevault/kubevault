@@ -40,8 +40,7 @@ func (seClient *SecretEngine) CreateConfig() error {
 		Name:      seClient.secretEngine.Spec.VaultRef.Name,
 	}
 
-	// Update vault client so that it has the permission
-	// to create config
+	// Update vault client so that it has the permission to create config
 	vClient, err2 := vault.NewClient(seClient.kubeClient, seClient.appClient, vAppRef)
 	if err2 != nil {
 		return errors.Wrap(err2, "failed to create vault api client")
@@ -74,7 +73,7 @@ func (seClient *SecretEngine) CreateConfig() error {
 
 // https://www.vaultproject.io/api/secret/databases/index.html#configure-connection
 // https:https://www.vaultproject.io/api/secret/databases/mysql-maria.html#configure-connection
-//
+
 // CreateMySQLConfig creates MySQL database configuration
 func (seClient *SecretEngine) CreateMySQLConfig() error {
 	config := seClient.secretEngine.Spec.MySQL
@@ -142,7 +141,7 @@ func (seClient *SecretEngine) CreateMySQLConfig() error {
 
 // https://www.vaultproject.io/api/secret/databases/index.html#configure-connection
 // https://www.vaultproject.io/api/secret/databases/mongodb.html#configure-connection
-//
+
 // CreateMongoDBConfig creates MongoDB database configuration
 func (seClient *SecretEngine) CreateMongoDBConfig() error {
 	config := seClient.secretEngine.Spec.MongoDB
@@ -208,7 +207,7 @@ func (seClient *SecretEngine) CreateMongoDBConfig() error {
 
 // https://www.vaultproject.io/api/secret/databases/index.html#configure-connection
 // https://www.vaultproject.io/api/secret/databases/postgresql.html#configure-connection
-//
+
 // CreatePostgresConfig creates database configuration
 func (seClient *SecretEngine) CreatePostgresConfig() error {
 	config := seClient.secretEngine.Spec.Postgres
@@ -280,7 +279,7 @@ func (seClient *SecretEngine) CreatePostgresConfig() error {
 
 // https://www.vaultproject.io/api/secret/databases/index.html#configure-connection
 // https://www.vaultproject.io/api/secret/databases/elasticdb#configure-connection
-//
+
 // CreateElasticsearchConfig creates database configuration
 func (seClient *SecretEngine) CreateElasticsearchConfig() error {
 	config := seClient.secretEngine.Spec.Elasticsearch

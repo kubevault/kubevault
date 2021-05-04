@@ -54,6 +54,7 @@ func NewSecretEngine(kClient kubernetes.Interface, appClient appcat_cs.Appcatalo
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create vault api client")
 	}
+
 	// If path is not provided then set path to
 	// default secret engine path (i.e. "gcp", "aws", "azure", "database")
 	path := GetSecretEnginePath(engine)
@@ -109,10 +110,10 @@ func (seClient *SecretEngine) EnableSecretEngine() error {
 	if err != nil {
 		return err
 	}
-
 	if enabled {
 		return nil
 	}
+
 	var engineType string
 	options := make(map[string]string)
 	engSpec := seClient.secretEngine.Spec

@@ -55,7 +55,7 @@ func NewElasticsearchRole(kClient kubernetes.Interface, appClient appcat_cs.Appc
 }
 
 // https://www.vaultproject.io/api/secret/databases/index.html#create-role
-//
+
 // CreateRole creates role
 func (p *ElasticsearchRole) CreateRole() error {
 	name := p.esRole.RoleName()
