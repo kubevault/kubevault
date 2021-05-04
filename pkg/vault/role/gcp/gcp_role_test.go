@@ -18,7 +18,6 @@ package gcp
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -51,7 +50,7 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 	cfg.Address = srv.URL
 	cl, err := vaultapi.NewClient(cfg)
 	if err != nil {
-		log.Println("Failed to create vault client!")
+		klog.Println("Failed to create vault client!")
 		return nil, nil
 	}
 

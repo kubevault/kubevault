@@ -19,7 +19,6 @@ package gcp
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"testing"
 
@@ -42,7 +41,7 @@ func TestLogin(t *testing.T) {
 
 	jsonBytes, err := ioutil.ReadFile(credentialaddr)
 	if err != nil {
-		log.Fatal(err)
+		klog.Fatal(err)
 	}
 
 	au, err := New(&authtype.AuthInfo{
@@ -79,10 +78,10 @@ func TestLogin(t *testing.T) {
 	})
 
 	if err != nil {
-		log.Println("New failed!")
+		klog.Println("New failed!")
 	}
 	if au == nil {
-		log.Println("au nil!")
+		klog.Println("au nil!")
 		t.Skip()
 	}
 

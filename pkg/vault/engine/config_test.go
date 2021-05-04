@@ -20,7 +20,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -92,21 +91,21 @@ func NewFakeVaultServer() *httptest.Server {
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			_, err := w.Write([]byte(err.Error()))
-			log.Println(err)
+			klog.Println(err)
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["subscription_id"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
 				_, err := w.Write([]byte("subscription id isn't provided"))
-				log.Println(err)
+				klog.Println(err)
 				return
 			}
 
 			if v, ok := m["tenant_id"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
 				_, err := w.Write([]byte("tenant id isn't provided"))
-				log.Println(err)
+				klog.Println(err)
 				return
 			}
 			w.WriteHeader(http.StatusOK)
@@ -120,21 +119,21 @@ func NewFakeVaultServer() *httptest.Server {
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			_, err := w.Write([]byte(err.Error()))
-			log.Println(err)
+			klog.Println(err)
 			return
 		}
 		m := data.(map[string]interface{})
 		if v, ok := m["access_key"]; !ok || len(v.(string)) == 0 {
 			w.WriteHeader(http.StatusBadRequest)
 			_, err := w.Write([]byte("access_key id isn't provided"))
-			log.Println(err)
+			klog.Println(err)
 			return
 		}
 
 		if v, ok := m["secret_key"]; !ok || len(v.(string)) == 0 {
 			w.WriteHeader(http.StatusBadRequest)
 			_, err := w.Write([]byte("secret_key isn't provided"))
-			log.Println(err)
+			klog.Println(err)
 			return
 		}
 		w.WriteHeader(http.StatusOK)
@@ -148,21 +147,21 @@ func NewFakeVaultServer() *httptest.Server {
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			_, err := w.Write([]byte(err.Error()))
-			log.Println(err)
+			klog.Println(err)
 			return
 		} else {
 			m := data.(map[string]interface{})
 			if v, ok := m["subscription_id"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
 				_, err := w.Write([]byte("subscription id isn't provided"))
-				log.Println(err)
+				klog.Println(err)
 				return
 			}
 
 			if v, ok := m["tenant_id"]; !ok || len(v.(string)) == 0 {
 				w.WriteHeader(http.StatusBadRequest)
 				_, err := w.Write([]byte("tenant id isn't provided"))
-				log.Println(err)
+				klog.Println(err)
 				return
 			}
 			w.WriteHeader(http.StatusOK)

@@ -27,8 +27,10 @@ import (
 )
 
 // VaultPolicyBindingLister helps list VaultPolicyBindings.
+// All objects returned here must be treated as read-only.
 type VaultPolicyBindingLister interface {
 	// List lists all VaultPolicyBindings in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.VaultPolicyBinding, err error)
 	// VaultPolicyBindings returns an object that can list and get VaultPolicyBindings.
 	VaultPolicyBindings(namespace string) VaultPolicyBindingNamespaceLister
@@ -59,10 +61,13 @@ func (s *vaultPolicyBindingLister) VaultPolicyBindings(namespace string) VaultPo
 }
 
 // VaultPolicyBindingNamespaceLister helps list and get VaultPolicyBindings.
+// All objects returned here must be treated as read-only.
 type VaultPolicyBindingNamespaceLister interface {
 	// List lists all VaultPolicyBindings in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.VaultPolicyBinding, err error)
 	// Get retrieves the VaultPolicyBinding from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.VaultPolicyBinding, error)
 	VaultPolicyBindingNamespaceListerExpansion
 }

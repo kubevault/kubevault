@@ -27,8 +27,10 @@ import (
 )
 
 // GCPRoleLister helps list GCPRoles.
+// All objects returned here must be treated as read-only.
 type GCPRoleLister interface {
 	// List lists all GCPRoles in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.GCPRole, err error)
 	// GCPRoles returns an object that can list and get GCPRoles.
 	GCPRoles(namespace string) GCPRoleNamespaceLister
@@ -59,10 +61,13 @@ func (s *gCPRoleLister) GCPRoles(namespace string) GCPRoleNamespaceLister {
 }
 
 // GCPRoleNamespaceLister helps list and get GCPRoles.
+// All objects returned here must be treated as read-only.
 type GCPRoleNamespaceLister interface {
 	// List lists all GCPRoles in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.GCPRole, err error)
 	// Get retrieves the GCPRole from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.GCPRole, error)
 	GCPRoleNamespaceListerExpansion
 }

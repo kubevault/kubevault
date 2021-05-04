@@ -22,6 +22,8 @@ import (
 	clientset "kmodules.xyz/custom-resources/client/clientset/versioned"
 	appcatalogv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 	fakeappcatalogv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/fake"
+	metricsv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/metrics/v1alpha1"
+	fakemetricsv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/metrics/v1alpha1/fake"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
@@ -80,4 +82,9 @@ var _ clientset.Interface = &Clientset{}
 // AppcatalogV1alpha1 retrieves the AppcatalogV1alpha1Client
 func (c *Clientset) AppcatalogV1alpha1() appcatalogv1alpha1.AppcatalogV1alpha1Interface {
 	return &fakeappcatalogv1alpha1.FakeAppcatalogV1alpha1{Fake: &c.Fake}
+}
+
+// MetricsV1alpha1 retrieves the MetricsV1alpha1Client
+func (c *Clientset) MetricsV1alpha1() metricsv1alpha1.MetricsV1alpha1Interface {
+	return &fakemetricsv1alpha1.FakeMetricsV1alpha1{Fake: &c.Fake}
 }

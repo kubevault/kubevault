@@ -27,8 +27,10 @@ import (
 )
 
 // MongoDBRoleLister helps list MongoDBRoles.
+// All objects returned here must be treated as read-only.
 type MongoDBRoleLister interface {
 	// List lists all MongoDBRoles in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.MongoDBRole, err error)
 	// MongoDBRoles returns an object that can list and get MongoDBRoles.
 	MongoDBRoles(namespace string) MongoDBRoleNamespaceLister
@@ -59,10 +61,13 @@ func (s *mongoDBRoleLister) MongoDBRoles(namespace string) MongoDBRoleNamespaceL
 }
 
 // MongoDBRoleNamespaceLister helps list and get MongoDBRoles.
+// All objects returned here must be treated as read-only.
 type MongoDBRoleNamespaceLister interface {
 	// List lists all MongoDBRoles in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.MongoDBRole, err error)
 	// Get retrieves the MongoDBRole from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.MongoDBRole, error)
 	MongoDBRoleNamespaceListerExpansion
 }

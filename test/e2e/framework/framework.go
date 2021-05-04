@@ -17,7 +17,6 @@ limitations under the License.
 package framework
 
 import (
-	"log"
 	"path/filepath"
 	"time"
 
@@ -90,32 +89,32 @@ func New(kubeClient kubernetes.Interface, extClient cs.Interface, appc appcat_cs
 func (f *Framework) InitialSetup() error {
 	var err error
 	if !SelfHostedOperator {
-		log.Println("Deploying vault...")
+		klog.Println("Deploying vault...")
 		f.VaultAppRef, err = f.DeployVault()
 		if err != nil {
 			return err
 		}
 	} else {
-		log.Println("Deploying vault...")
+		klog.Println("Deploying vault...")
 		f.VaultAppRef, err = f.DeployVaultServer()
 		if err != nil {
 			return err
 		}
 	}
 
-	log.Println("Deploying Mongodb...")
+	klog.Println("Deploying Mongodb...")
 	f.MongoAppRef, err = f.DeployMongodb()
 	if err != nil {
 		return err
 	}
 
-	log.Println("Deploying Mysql... ")
+	klog.Println("Deploying Mysql... ")
 	f.MysqlAppRef, err = f.DeployMysql()
 	if err != nil {
 		return err
 	}
 
-	log.Println("Deploying postgres...")
+	klog.Println("Deploying postgres...")
 	f.PostgresAppRef, err = f.DeployPostgres()
 	if err != nil {
 		return err

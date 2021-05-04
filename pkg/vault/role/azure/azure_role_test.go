@@ -18,7 +18,6 @@ package azure
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -43,7 +42,7 @@ func setupVaultServer() *httptest.Server {
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			_, err := w.Write([]byte(err.Error()))
-			log.Println(err)
+			klog.Println(err)
 			return
 		} else {
 			m := data.(map[string]interface{})
@@ -52,7 +51,7 @@ func setupVaultServer() *httptest.Server {
 			if (!ok1 || len(value1.(string)) == 0) && (!ok2 || len(value2.(string)) == 0) {
 				w.WriteHeader(http.StatusBadRequest)
 				_, err := w.Write([]byte("both azure_roles and application_object_id are missing"))
-				log.Println(err)
+				klog.Println(err)
 				return
 			}
 			w.WriteHeader(http.StatusOK)
@@ -67,7 +66,7 @@ func setupVaultServer() *httptest.Server {
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			_, err := w.Write([]byte(err.Error()))
-			log.Println(err)
+			klog.Println(err)
 			return
 		} else {
 			m := data.(map[string]interface{})
@@ -76,7 +75,7 @@ func setupVaultServer() *httptest.Server {
 			if (!ok1 || len(value1.(string)) == 0) && (!ok2 || len(value2.(string)) == 0) {
 				w.WriteHeader(http.StatusBadRequest)
 				_, err := w.Write([]byte("both azure_roles and application_object_id are missing"))
-				log.Println(err)
+				klog.Println(err)
 				return
 			}
 			w.WriteHeader(http.StatusOK)
@@ -110,7 +109,7 @@ func TestAzureRole_CreateRole(t *testing.T) {
 	cfg.Address = srv.URL
 	cl, err := vaultapi.NewClient(cfg)
 	if err != nil {
-		log.Println("Failed to create vault client!")
+		klog.Println("Failed to create vault client!")
 		t.Skip()
 	}
 
@@ -254,7 +253,7 @@ func TestAzureRole_DeleteRole(t *testing.T) {
 	cfg.Address = srv.URL
 	cl, err := vaultapi.NewClient(cfg)
 	if err != nil {
-		log.Println("Failed to create vault client!")
+		klog.Println("Failed to create vault client!")
 		t.Skip()
 	}
 

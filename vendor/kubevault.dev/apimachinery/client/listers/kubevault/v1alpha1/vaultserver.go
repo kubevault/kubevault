@@ -27,8 +27,10 @@ import (
 )
 
 // VaultServerLister helps list VaultServers.
+// All objects returned here must be treated as read-only.
 type VaultServerLister interface {
 	// List lists all VaultServers in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.VaultServer, err error)
 	// VaultServers returns an object that can list and get VaultServers.
 	VaultServers(namespace string) VaultServerNamespaceLister
@@ -59,10 +61,13 @@ func (s *vaultServerLister) VaultServers(namespace string) VaultServerNamespaceL
 }
 
 // VaultServerNamespaceLister helps list and get VaultServers.
+// All objects returned here must be treated as read-only.
 type VaultServerNamespaceLister interface {
 	// List lists all VaultServers in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.VaultServer, err error)
 	// Get retrieves the VaultServer from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.VaultServer, error)
 	VaultServerNamespaceListerExpansion
 }

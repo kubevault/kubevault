@@ -27,8 +27,10 @@ import (
 )
 
 // SecretEngineLister helps list SecretEngines.
+// All objects returned here must be treated as read-only.
 type SecretEngineLister interface {
 	// List lists all SecretEngines in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.SecretEngine, err error)
 	// SecretEngines returns an object that can list and get SecretEngines.
 	SecretEngines(namespace string) SecretEngineNamespaceLister
@@ -59,10 +61,13 @@ func (s *secretEngineLister) SecretEngines(namespace string) SecretEngineNamespa
 }
 
 // SecretEngineNamespaceLister helps list and get SecretEngines.
+// All objects returned here must be treated as read-only.
 type SecretEngineNamespaceLister interface {
 	// List lists all SecretEngines in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.SecretEngine, err error)
 	// Get retrieves the SecretEngine from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.SecretEngine, error)
 	SecretEngineNamespaceListerExpansion
 }

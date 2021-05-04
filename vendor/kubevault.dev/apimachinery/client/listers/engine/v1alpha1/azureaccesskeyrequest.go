@@ -27,8 +27,10 @@ import (
 )
 
 // AzureAccessKeyRequestLister helps list AzureAccessKeyRequests.
+// All objects returned here must be treated as read-only.
 type AzureAccessKeyRequestLister interface {
 	// List lists all AzureAccessKeyRequests in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.AzureAccessKeyRequest, err error)
 	// AzureAccessKeyRequests returns an object that can list and get AzureAccessKeyRequests.
 	AzureAccessKeyRequests(namespace string) AzureAccessKeyRequestNamespaceLister
@@ -59,10 +61,13 @@ func (s *azureAccessKeyRequestLister) AzureAccessKeyRequests(namespace string) A
 }
 
 // AzureAccessKeyRequestNamespaceLister helps list and get AzureAccessKeyRequests.
+// All objects returned here must be treated as read-only.
 type AzureAccessKeyRequestNamespaceLister interface {
 	// List lists all AzureAccessKeyRequests in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.AzureAccessKeyRequest, err error)
 	// Get retrieves the AzureAccessKeyRequest from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.AzureAccessKeyRequest, error)
 	AzureAccessKeyRequestNamespaceListerExpansion
 }

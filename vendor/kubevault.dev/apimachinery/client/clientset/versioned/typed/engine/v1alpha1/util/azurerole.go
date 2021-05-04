@@ -25,12 +25,12 @@ import (
 	cs "kubevault.dev/apimachinery/client/clientset/versioned/typed/engine/v1alpha1"
 
 	jsonpatch "github.com/evanphx/json-patch"
-	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/klog/v2"
 	kutil "kmodules.xyz/client-go"
 )
 
@@ -43,7 +43,7 @@ func CreateOrPatchAzureRole(
 ) (*api.AzureRole, kutil.VerbType, error) {
 	cur, err := c.AzureRoles(meta.Namespace).Get(ctx, meta.Name, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
-		glog.V(3).Infof("Creating AzureRole %s/%s.", meta.Namespace, meta.Name)
+		klog.V(3).Infof("Creating AzureRole %s/%s.", meta.Namespace, meta.Name)
 		out, err := c.AzureRoles(meta.Namespace).Create(ctx, transform(&api.AzureRole{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       api.ResourceKindAzureRole,
@@ -95,7 +95,7 @@ func PatchAzureRoleObject(
 	if len(patch) == 0 || string(patch) == "{}" {
 		return cur, kutil.VerbUnchanged, nil
 	}
-	glog.V(3).Infof("Patching AzureRole %s/%s with %s.", cur.Namespace, cur.Name, string(patch))
+	klog.V(3).Infof("Patching AzureRole %s/%s with %s.", cur.Namespace, cur.Name, string(patch))
 	out, err := c.AzureRoles(cur.Namespace).Patch(ctx, cur.Name, types.MergePatchType, patch, opts)
 	return out, kutil.VerbPatched, err
 }
@@ -117,7 +117,7 @@ func TryUpdateAzureRole(
 			result, e2 = c.AzureRoles(cur.Namespace).Update(ctx, transform(cur.DeepCopy()), opts)
 			return e2 == nil, nil
 		}
-		glog.Errorf("Attempt %d failed to update AzureRole %s/%s due to %v.", attempt, cur.Namespace, cur.Name, e2)
+		klog.Errorf("Attempt %d failed to update AzureRole %s/%s due to %v.", attempt, cur.Namespace, cur.Name, e2)
 		return false, nil
 	})
 

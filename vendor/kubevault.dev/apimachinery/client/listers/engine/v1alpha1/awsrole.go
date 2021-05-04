@@ -27,8 +27,10 @@ import (
 )
 
 // AWSRoleLister helps list AWSRoles.
+// All objects returned here must be treated as read-only.
 type AWSRoleLister interface {
 	// List lists all AWSRoles in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.AWSRole, err error)
 	// AWSRoles returns an object that can list and get AWSRoles.
 	AWSRoles(namespace string) AWSRoleNamespaceLister
@@ -59,10 +61,13 @@ func (s *aWSRoleLister) AWSRoles(namespace string) AWSRoleNamespaceLister {
 }
 
 // AWSRoleNamespaceLister helps list and get AWSRoles.
+// All objects returned here must be treated as read-only.
 type AWSRoleNamespaceLister interface {
 	// List lists all AWSRoles in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.AWSRole, err error)
 	// Get retrieves the AWSRole from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.AWSRole, error)
 	AWSRoleNamespaceListerExpansion
 }
