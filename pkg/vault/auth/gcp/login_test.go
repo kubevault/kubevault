@@ -19,7 +19,6 @@ package gcp
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"testing"
 
@@ -29,6 +28,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/klog/v2"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
@@ -42,7 +42,7 @@ func TestLogin(t *testing.T) {
 
 	jsonBytes, err := ioutil.ReadFile(credentialaddr)
 	if err != nil {
-		log.Fatal(err)
+		klog.Fatal(err)
 	}
 
 	au, err := New(&authtype.AuthInfo{
@@ -79,10 +79,10 @@ func TestLogin(t *testing.T) {
 	})
 
 	if err != nil {
-		log.Println("New failed!")
+		klog.Infoln("New failed!")
 	}
 	if au == nil {
-		log.Println("au nil!")
+		klog.Infoln("au nil!")
 		t.Skip()
 	}
 

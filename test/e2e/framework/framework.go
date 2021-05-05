@@ -17,7 +17,6 @@ limitations under the License.
 package framework
 
 import (
-	"log"
 	"path/filepath"
 	"time"
 
@@ -31,6 +30,7 @@ import (
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/klog/v2"
 	ka "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
@@ -90,32 +90,32 @@ func New(kubeClient kubernetes.Interface, extClient cs.Interface, appc appcat_cs
 func (f *Framework) InitialSetup() error {
 	var err error
 	if !SelfHostedOperator {
-		log.Println("Deploying vault...")
+		klog.Infoln("Deploying vault...")
 		f.VaultAppRef, err = f.DeployVault()
 		if err != nil {
 			return err
 		}
 	} else {
-		log.Println("Deploying vault...")
+		klog.Infoln("Deploying vault...")
 		f.VaultAppRef, err = f.DeployVaultServer()
 		if err != nil {
 			return err
 		}
 	}
 
-	log.Println("Deploying Mongodb...")
+	klog.Infoln("Deploying Mongodb...")
 	f.MongoAppRef, err = f.DeployMongodb()
 	if err != nil {
 		return err
 	}
 
-	log.Println("Deploying Mysql... ")
+	klog.Infoln("Deploying Mysql... ")
 	f.MysqlAppRef, err = f.DeployMysql()
 	if err != nil {
 		return err
 	}
 
-	log.Println("Deploying postgres...")
+	klog.Infoln("Deploying postgres...")
 	f.PostgresAppRef, err = f.DeployPostgres()
 	if err != nil {
 		return err

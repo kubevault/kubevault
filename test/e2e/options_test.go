@@ -18,7 +18,6 @@ package e2e_test
 
 import (
 	"flag"
-	"log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -28,11 +27,12 @@ import (
 	"kubevault.dev/operator/pkg/cmds/server"
 	"kubevault.dev/operator/test/e2e/framework"
 
+	"gomodules.xyz/kglog"
 	"gomodules.xyz/x/flags"
-	logs "gomodules.xyz/x/log/golog"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/util/homedir"
+	"k8s.io/klog/v2"
 	appcatscheme "kmodules.xyz/custom-resources/client/clientset/versioned/scheme"
 )
 
@@ -80,12 +80,12 @@ func TestMain(m *testing.M) {
 
 func enableLogging() {
 	defer func() {
-		logs.InitLogs()
-		defer logs.FlushLogs()
+		kglog.InitLogs()
+		defer kglog.FlushLogs()
 	}()
 	err := flag.Set("logtostderr", "true")
 	if err != nil {
-		log.Printf("Set flag failed with :%v\n", err)
+		klog.Infof("Set flag failed with :%v\n", err)
 	}
 	logLevelFlag := flag.Lookup("v")
 	if logLevelFlag != nil {

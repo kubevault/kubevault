@@ -25,13 +25,13 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/pkg/errors"
-	"gomodules.xyz/x/log"
 	appsv1 "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/klog/v2"
 	kutil "kmodules.xyz/client-go"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	apps_util "kmodules.xyz/client-go/apps/v1"
@@ -317,7 +317,7 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 		}
 	} else {
 		if err := c.ensureStatsServiceDeleted(vs); err != nil { // Error ignored intentionally
-			log.Warningf("failed to delete stats Service %s, reason: %s", vs.StatsServiceName(), err)
+			klog.Warningf("failed to delete stats Service %s, reason: %s", vs.StatsServiceName(), err)
 		} else {
 			c.recorder.Eventf(
 				vs,

@@ -27,8 +27,10 @@ import (
 )
 
 // AWSAccessKeyRequestLister helps list AWSAccessKeyRequests.
+// All objects returned here must be treated as read-only.
 type AWSAccessKeyRequestLister interface {
 	// List lists all AWSAccessKeyRequests in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.AWSAccessKeyRequest, err error)
 	// AWSAccessKeyRequests returns an object that can list and get AWSAccessKeyRequests.
 	AWSAccessKeyRequests(namespace string) AWSAccessKeyRequestNamespaceLister
@@ -59,10 +61,13 @@ func (s *aWSAccessKeyRequestLister) AWSAccessKeyRequests(namespace string) AWSAc
 }
 
 // AWSAccessKeyRequestNamespaceLister helps list and get AWSAccessKeyRequests.
+// All objects returned here must be treated as read-only.
 type AWSAccessKeyRequestNamespaceLister interface {
 	// List lists all AWSAccessKeyRequests in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.AWSAccessKeyRequest, err error)
 	// Get retrieves the AWSAccessKeyRequest from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.AWSAccessKeyRequest, error)
 	AWSAccessKeyRequestNamespaceListerExpansion
 }

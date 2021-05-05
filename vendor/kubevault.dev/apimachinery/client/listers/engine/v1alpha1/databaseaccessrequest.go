@@ -27,8 +27,10 @@ import (
 )
 
 // DatabaseAccessRequestLister helps list DatabaseAccessRequests.
+// All objects returned here must be treated as read-only.
 type DatabaseAccessRequestLister interface {
 	// List lists all DatabaseAccessRequests in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.DatabaseAccessRequest, err error)
 	// DatabaseAccessRequests returns an object that can list and get DatabaseAccessRequests.
 	DatabaseAccessRequests(namespace string) DatabaseAccessRequestNamespaceLister
@@ -59,10 +61,13 @@ func (s *databaseAccessRequestLister) DatabaseAccessRequests(namespace string) D
 }
 
 // DatabaseAccessRequestNamespaceLister helps list and get DatabaseAccessRequests.
+// All objects returned here must be treated as read-only.
 type DatabaseAccessRequestNamespaceLister interface {
 	// List lists all DatabaseAccessRequests in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.DatabaseAccessRequest, err error)
 	// Get retrieves the DatabaseAccessRequest from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.DatabaseAccessRequest, error)
 	DatabaseAccessRequestNamespaceListerExpansion
 }

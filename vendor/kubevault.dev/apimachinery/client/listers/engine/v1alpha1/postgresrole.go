@@ -27,8 +27,10 @@ import (
 )
 
 // PostgresRoleLister helps list PostgresRoles.
+// All objects returned here must be treated as read-only.
 type PostgresRoleLister interface {
 	// List lists all PostgresRoles in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.PostgresRole, err error)
 	// PostgresRoles returns an object that can list and get PostgresRoles.
 	PostgresRoles(namespace string) PostgresRoleNamespaceLister
@@ -59,10 +61,13 @@ func (s *postgresRoleLister) PostgresRoles(namespace string) PostgresRoleNamespa
 }
 
 // PostgresRoleNamespaceLister helps list and get PostgresRoles.
+// All objects returned here must be treated as read-only.
 type PostgresRoleNamespaceLister interface {
 	// List lists all PostgresRoles in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.PostgresRole, err error)
 	// Get retrieves the PostgresRole from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.PostgresRole, error)
 	PostgresRoleNamespaceListerExpansion
 }

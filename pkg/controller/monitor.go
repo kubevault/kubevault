@@ -23,10 +23,10 @@ import (
 	"kubevault.dev/operator/pkg/vault/exporter"
 
 	"github.com/pkg/errors"
-	"gomodules.xyz/x/log"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/klog/v2"
 	kutil "kmodules.xyz/client-go"
 	core_util "kmodules.xyz/client-go/core/v1"
 	meta_util "kmodules.xyz/client-go/meta"
@@ -82,7 +82,7 @@ func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service
 }
 
 func (c *VaultController) ensureStatsServiceDeleted(vs *api.VaultServer) error {
-	log.Infof("deleting stats service %s/%s", vs.Namespace, vs.StatsServiceName())
+	klog.Infof("deleting stats service %s/%s", vs.Namespace, vs.StatsServiceName())
 	err := c.kubeClient.CoreV1().Services(vs.Namespace).Delete(
 		context.TODO(),
 		vs.StatsServiceName(),
@@ -144,7 +144,7 @@ func (c *VaultController) manageMonitor(vs *api.VaultServer) error {
 		if oldAgent != nil &&
 			oldAgent.GetType() != vs.Spec.Monitor.Agent {
 			if _, err := oldAgent.Delete(vs.StatsService()); err != nil {
-				log.Errorf("error in deleting Prometheus agent. Reason: %v", err.Error())
+				klog.Errorf("error in deleting Prometheus agent. Reason: %v", err.Error())
 			}
 		}
 
@@ -154,7 +154,7 @@ func (c *VaultController) manageMonitor(vs *api.VaultServer) error {
 		return c.setNewAgent(vs)
 	} else if oldAgent != nil {
 		if _, err := oldAgent.Delete(vs.StatsService()); err != nil {
-			log.Errorf("error in deleting Prometheus agent. Reason: %v", err.Error())
+			klog.Errorf("error in deleting Prometheus agent. Reason: %v", err.Error())
 		}
 	}
 	return nil

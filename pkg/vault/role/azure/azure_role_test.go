@@ -18,7 +18,6 @@ package azure
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -31,6 +30,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	kfake "k8s.io/client-go/kubernetes/fake"
+	"k8s.io/klog/v2"
 )
 
 func setupVaultServer() *httptest.Server {
@@ -43,7 +43,7 @@ func setupVaultServer() *httptest.Server {
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			_, err := w.Write([]byte(err.Error()))
-			log.Println(err)
+			klog.Infoln(err)
 			return
 		} else {
 			m := data.(map[string]interface{})
@@ -52,7 +52,7 @@ func setupVaultServer() *httptest.Server {
 			if (!ok1 || len(value1.(string)) == 0) && (!ok2 || len(value2.(string)) == 0) {
 				w.WriteHeader(http.StatusBadRequest)
 				_, err := w.Write([]byte("both azure_roles and application_object_id are missing"))
-				log.Println(err)
+				klog.Infoln(err)
 				return
 			}
 			w.WriteHeader(http.StatusOK)
@@ -67,7 +67,7 @@ func setupVaultServer() *httptest.Server {
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			_, err := w.Write([]byte(err.Error()))
-			log.Println(err)
+			klog.Infoln(err)
 			return
 		} else {
 			m := data.(map[string]interface{})
@@ -76,7 +76,7 @@ func setupVaultServer() *httptest.Server {
 			if (!ok1 || len(value1.(string)) == 0) && (!ok2 || len(value2.(string)) == 0) {
 				w.WriteHeader(http.StatusBadRequest)
 				_, err := w.Write([]byte("both azure_roles and application_object_id are missing"))
-				log.Println(err)
+				klog.Infoln(err)
 				return
 			}
 			w.WriteHeader(http.StatusOK)
@@ -110,7 +110,7 @@ func TestAzureRole_CreateRole(t *testing.T) {
 	cfg.Address = srv.URL
 	cl, err := vaultapi.NewClient(cfg)
 	if err != nil {
-		log.Println("Failed to create vault client!")
+		klog.Infoln("Failed to create vault client!")
 		t.Skip()
 	}
 
@@ -254,7 +254,7 @@ func TestAzureRole_DeleteRole(t *testing.T) {
 	cfg.Address = srv.URL
 	cl, err := vaultapi.NewClient(cfg)
 	if err != nil {
-		log.Println("Failed to create vault client!")
+		klog.Infoln("Failed to create vault client!")
 		t.Skip()
 	}
 

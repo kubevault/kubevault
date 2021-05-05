@@ -27,10 +27,13 @@ import (
 )
 
 // VaultServerVersionLister helps list VaultServerVersions.
+// All objects returned here must be treated as read-only.
 type VaultServerVersionLister interface {
 	// List lists all VaultServerVersions in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.VaultServerVersion, err error)
 	// Get retrieves the VaultServerVersion from the index for a given name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.VaultServerVersion, error)
 	VaultServerVersionListerExpansion
 }

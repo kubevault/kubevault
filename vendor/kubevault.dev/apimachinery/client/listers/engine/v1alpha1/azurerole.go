@@ -27,8 +27,10 @@ import (
 )
 
 // AzureRoleLister helps list AzureRoles.
+// All objects returned here must be treated as read-only.
 type AzureRoleLister interface {
 	// List lists all AzureRoles in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.AzureRole, err error)
 	// AzureRoles returns an object that can list and get AzureRoles.
 	AzureRoles(namespace string) AzureRoleNamespaceLister
@@ -59,10 +61,13 @@ func (s *azureRoleLister) AzureRoles(namespace string) AzureRoleNamespaceLister 
 }
 
 // AzureRoleNamespaceLister helps list and get AzureRoles.
+// All objects returned here must be treated as read-only.
 type AzureRoleNamespaceLister interface {
 	// List lists all AzureRoles in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.AzureRole, err error)
 	// Get retrieves the AzureRole from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.AzureRole, error)
 	AzureRoleNamespaceListerExpansion
 }
