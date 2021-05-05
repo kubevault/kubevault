@@ -31,6 +31,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	kfake "k8s.io/client-go/kubernetes/fake"
+	"k8s.io/klog/v2"
 )
 
 func CreateDemoDB() ([]GCPRole, *httptest.Server) {
@@ -50,7 +51,7 @@ func CreateDemoDB() ([]GCPRole, *httptest.Server) {
 	cfg.Address = srv.URL
 	cl, err := vaultapi.NewClient(cfg)
 	if err != nil {
-		klog.Println("Failed to create vault client!")
+		klog.Infoln("Failed to create vault client!")
 		return nil, nil
 	}
 

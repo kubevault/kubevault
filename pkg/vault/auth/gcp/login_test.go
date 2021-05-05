@@ -28,6 +28,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/klog/v2"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 )
 
@@ -78,10 +79,10 @@ func TestLogin(t *testing.T) {
 	})
 
 	if err != nil {
-		klog.Println("New failed!")
+		klog.Infoln("New failed!")
 	}
 	if au == nil {
-		klog.Println("au nil!")
+		klog.Infoln("au nil!")
 		t.Skip()
 	}
 
