@@ -31,7 +31,7 @@ import (
 	k8s "kubevault.dev/operator/pkg/vault/unsealer/kubernetes"
 	"kubevault.dev/operator/pkg/vault/util"
 
-	"github.com/golang/glog"
+	"k8s.io/klog/v2"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	rbac "k8s.io/api/rbac/v1"
@@ -83,7 +83,7 @@ func NewUnsealerService(restConfig *rest.Config, vs *api.VaultServer, version *c
 	}
 
 	if vs.Spec.Unsealer == nil {
-		glog.Infoln(".spec.unsealer is nil")
+		klog.Infoln(".spec.unsealer is nil")
 		return nil, nil
 	}
 

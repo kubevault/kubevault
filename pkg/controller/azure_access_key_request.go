@@ -26,7 +26,7 @@ import (
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/credential"
 
-	"github.com/golang/glog"
+	"k8s.io/klog/v2"
 	"github.com/pkg/errors"
 	"gomodules.xyz/x/crypto/rand"
 	core "k8s.io/api/core/v1"
@@ -47,17 +47,17 @@ func (c *VaultController) initAzureAccessKeyWatcher() {
 func (c *VaultController) runAzureAccessKeyRequestInjector(key string) error {
 	obj, exist, err := c.azureAccessInformer.GetIndexer().GetByKey(key)
 	if err != nil {
-		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
+		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
 
 	if !exist {
-		glog.Warningf("AzureAccessKeyRequest %s does not exist anymore", key)
+		klog.Warningf("AzureAccessKeyRequest %s does not exist anymore", key)
 
 	} else {
 		req := obj.(*api.AzureAccessKeyRequest).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for AzureAccessKeyRequest %s/%s", req.Namespace, req.Name)
+		klog.Infof("Sync/Add/Update for AzureAccessKeyRequest %s/%s", req.Namespace, req.Name)
 
 		if req.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(req.ObjectMeta, apis.Finalizer) {
@@ -84,7 +84,7 @@ func (c *VaultController) runAzureAccessKeyRequestInjector(key string) error {
 
 			// If condition type is not set yet, set the phase to "WaitingForApproval".
 			if condType == "" {
-				glog.Infof("For AzureAccessKeyRequest %s/%s: request is not approved/denied yet", req.Namespace, req.Name)
+				klog.Infof("For AzureAccessKeyRequest %s/%s: request is not approved/denied yet", req.Namespace, req.Name)
 
 				_, err := patchutil.UpdateAzureAccessKeyRequestStatus(
 					context.TODO(),
@@ -165,7 +165,7 @@ func (c *VaultController) runAzureAccessKeyRequestInjector(key string) error {
 					return errors.Wrapf(utilerrors.NewAggregate([]error{err3, err}), "For AzureAccessKeyRequest %s/%s", req.Namespace, req.Name)
 				}
 			} else if condType == kmapi.ConditionRequestDenied {
-				glog.Infof("For AzureAccessKeyRequest %s/%s: request is denied", req.Namespace, req.Name)
+				klog.Infof("For AzureAccessKeyRequest %s/%s: request is denied", req.Namespace, req.Name)
 			}
 		}
 	}
@@ -331,7 +331,7 @@ func (c *VaultController) reconcileAzureAccessKeyRequest(cm credential.Credentia
 }
 
 func (c *VaultController) runAzureAccessKeyRequestFinalizer(req *api.AzureAccessKeyRequest) error {
-	glog.Infof("Processing finalizer for AzureAccessKeyRequest %s/%s", req.Namespace, req.Name)
+	klog.Infof("Processing finalizer for AzureAccessKeyRequest %s/%s", req.Namespace, req.Name)
 
 	cm, err := credential.NewCredentialManagerForAzure(c.kubeClient, c.appCatalogClient, c.extClient, req)
 
@@ -346,7 +346,7 @@ func (c *VaultController) runAzureAccessKeyRequestFinalizer(req *api.AzureAccess
 			return errors.Errorf("AzureAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 		}
 	} else {
-		glog.Warningf("Skipping cleanup for AzureAccessKeyRequest: %s/%s with error: %v", req.Namespace, req.Name, err)
+		klog.Warningf("Skipping cleanup for AzureAccessKeyRequest: %s/%s with error: %v", req.Namespace, req.Name, err)
 	}
 
 	_, _, err = patchutil.PatchAzureAccessKeyRequest(context.TODO(), c.extClient.EngineV1alpha1(), req, func(in *api.AzureAccessKeyRequest) *api.AzureAccessKeyRequest {
@@ -356,7 +356,7 @@ func (c *VaultController) runAzureAccessKeyRequestFinalizer(req *api.AzureAccess
 	if err != nil {
 		return errors.Errorf("AzureAccessKeyRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 	} else {
-		glog.Infof("Removed finalizer for AzureAccessKeyRequest %s/%s", req.Namespace, req.Name)
+		klog.Infof("Removed finalizer for AzureAccessKeyRequest %s/%s", req.Namespace, req.Name)
 	}
 
 	return nil

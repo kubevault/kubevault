@@ -23,7 +23,7 @@ import (
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"kubevault.dev/operator/pkg/eventer"
 
-	"github.com/golang/glog"
+	"k8s.io/klog/v2"
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
@@ -52,13 +52,13 @@ func (c *VaultController) initVaultServerWatcher() {
 func (c *VaultController) runVaultServerInjector(key string) error {
 	obj, exists, err := c.vsInformer.GetIndexer().GetByKey(key)
 	if err != nil {
-		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
+		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
 
 	if !exists {
 		// Below we will warm up our cache with a VaultServer, so that we will see a delete for one d
-		glog.Warningf("VaultServer %s does not exist anymore\n", key)
+		klog.Warningf("VaultServer %s does not exist anymore\n", key)
 
 		// stop vault status monitor
 		if ctxWithCancel, ok := c.ctxCancels[key]; ok {
@@ -75,7 +75,7 @@ func (c *VaultController) runVaultServerInjector(key string) error {
 	} else {
 		vs := obj.(*api.VaultServer).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for VaultServer %s/%s\n", vs.Namespace, vs.Name)
+		klog.Infof("Sync/Add/Update for VaultServer %s/%s\n", vs.Namespace, vs.Name)
 
 		if vs.DeletionTimestamp != nil {
 			return nil

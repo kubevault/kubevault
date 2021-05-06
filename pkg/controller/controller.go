@@ -29,7 +29,7 @@ import (
 	vault_listers "kubevault.dev/apimachinery/client/listers/kubevault/v1alpha1"
 	policy_listers "kubevault.dev/apimachinery/client/listers/policy/v1alpha1"
 
-	"github.com/golang/glog"
+	"k8s.io/klog/v2"
 	pcm "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/util/runtime"
@@ -188,7 +188,7 @@ func (c *VaultController) Run(stopCh <-chan struct{}) {
 func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	defer runtime.HandleCrash()
 
-	glog.Info("Starting Vault controller")
+	klog.Info("Starting Vault controller")
 
 	c.extInformerFactory.Start(stopCh)
 	for _, v := range c.extInformerFactory.WaitForCacheSync(stopCh) {
@@ -238,5 +238,5 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	go c.secretEngineQueue.Run(stopCh)
 
 	<-stopCh
-	glog.Info("Stopping Vault operator")
+	klog.Info("Stopping Vault operator")
 }

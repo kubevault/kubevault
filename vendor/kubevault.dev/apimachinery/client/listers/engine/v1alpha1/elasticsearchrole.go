@@ -27,8 +27,10 @@ import (
 )
 
 // ElasticsearchRoleLister helps list ElasticsearchRoles.
+// All objects returned here must be treated as read-only.
 type ElasticsearchRoleLister interface {
 	// List lists all ElasticsearchRoles in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.ElasticsearchRole, err error)
 	// ElasticsearchRoles returns an object that can list and get ElasticsearchRoles.
 	ElasticsearchRoles(namespace string) ElasticsearchRoleNamespaceLister
@@ -59,10 +61,13 @@ func (s *elasticsearchRoleLister) ElasticsearchRoles(namespace string) Elasticse
 }
 
 // ElasticsearchRoleNamespaceLister helps list and get ElasticsearchRoles.
+// All objects returned here must be treated as read-only.
 type ElasticsearchRoleNamespaceLister interface {
 	// List lists all ElasticsearchRoles in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.ElasticsearchRole, err error)
 	// Get retrieves the ElasticsearchRole from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.ElasticsearchRole, error)
 	ElasticsearchRoleNamespaceListerExpansion
 }

@@ -24,7 +24,7 @@ import (
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/database"
 
-	"github.com/golang/glog"
+	"k8s.io/klog/v2"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -50,17 +50,17 @@ func (c *VaultController) runElasticsearchRoleInjector(key string) error {
 	// key := name/namespace
 	obj, exist, err := c.esRoleInformer.GetIndexer().GetByKey(key)
 	if err != nil {
-		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
+		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
 
 	if !exist {
-		glog.Warningf("ElasticsearchRole %s does not exist anymore", key)
+		klog.Warningf("ElasticsearchRole %s does not exist anymore", key)
 
 	} else {
 		role := obj.(*api.ElasticsearchRole).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for ElasticsearchRole %s/%s", role.Namespace, role.Name)
+		klog.Infof("Sync/Add/Update for ElasticsearchRole %s/%s", role.Namespace, role.Name)
 		// DeletionTimestamp has been set, if HasFinalizer, then run ESRoleFinalizer.
 		if role.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
@@ -160,12 +160,12 @@ func (c *VaultController) reconcileElasticsearchRole(rClient database.DatabaseRo
 		return err
 	}
 
-	glog.Infof("Successfully processed ElasticsearchRole: %s/%s", role.Namespace, role.Name)
+	klog.Infof("Successfully processed ElasticsearchRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }
 
 func (c *VaultController) runElasticsearchRoleFinalizer(role *api.ElasticsearchRole) error {
-	glog.Infof("Processing finalizer for ElasticsearchRole: %s/%s", role.Namespace, role.Name)
+	klog.Infof("Processing finalizer for ElasticsearchRole: %s/%s", role.Namespace, role.Name)
 
 	rClient, err := database.NewDatabaseRoleForElasticsearch(c.kubeClient, c.appCatalogClient, role)
 	// The error could be generated for:
@@ -185,7 +185,7 @@ func (c *VaultController) runElasticsearchRoleFinalizer(role *api.ElasticsearchR
 			return errors.Wrap(err, "failed to delete database role")
 		}
 	} else {
-		glog.Warningf("Skipping cleanup for ElasticsearchRole: %s/%s with error: %v", role.Namespace, role.Name, err)
+		klog.Warningf("Skipping cleanup for ElasticsearchRole: %s/%s with error: %v", role.Namespace, role.Name, err)
 	}
 
 	// remove finalizer
@@ -197,6 +197,6 @@ func (c *VaultController) runElasticsearchRoleFinalizer(role *api.ElasticsearchR
 		return errors.Wrapf(err, "failed to remove finalizer for ElasticsearchRole: %s/%s", role.Namespace, role.Name)
 	}
 
-	glog.Infof("Removed finalizer for ElasticsearchRole: %s/%s", role.Namespace, role.Name)
+	klog.Infof("Removed finalizer for ElasticsearchRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }

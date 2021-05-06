@@ -18,13 +18,13 @@ package controller
 
 import (
 	"context"
+	"k8s.io/klog/v2"
 
 	"kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/engine/v1alpha1"
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/aws"
 
-	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -49,17 +49,17 @@ func (c *VaultController) initAWSRoleWatcher() {
 func (c *VaultController) runAWSRoleInjector(key string) error {
 	obj, exist, err := c.awsRoleInformer.GetIndexer().GetByKey(key)
 	if err != nil {
-		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
+		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
 
 	if !exist {
-		glog.Warningf("AWSRole %s does not exist anymore", key)
+		klog.Warningf("AWSRole %s does not exist anymore", key)
 
 	} else {
 		role := obj.(*api.AWSRole).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for AWSRole %s/%s", role.Namespace, role.Name)
+		klog.Infof("Sync/Add/Update for AWSRole %s/%s", role.Namespace, role.Name)
 
 		if role.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
@@ -156,12 +156,12 @@ func (c *VaultController) reconcileAWSRole(rClient aws.AWSRoleInterface, role *a
 		return err
 	}
 
-	glog.Infof("Successfully processed AWSRole: %s/%s", role.Namespace, role.Name)
+	klog.Infof("Successfully processed AWSRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }
 
 func (c *VaultController) runAWSRoleFinalizer(role *api.AWSRole) error {
-	glog.Infof("Processing finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
+	klog.Infof("Processing finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
 
 	rClient, err := aws.NewAWSRole(c.kubeClient, c.appCatalogClient, role)
 	// The error could be generated for:
@@ -181,7 +181,7 @@ func (c *VaultController) runAWSRoleFinalizer(role *api.AWSRole) error {
 			return errors.Wrap(err, "failed to delete aws role")
 		}
 	} else {
-		glog.Warningf("Skipping cleanup for AWSRole: %s/%s with error: %v", role.Namespace, role.Name, err)
+		klog.Warningf("Skipping cleanup for AWSRole: %s/%s with error: %v", role.Namespace, role.Name, err)
 	}
 
 	// remove finalizer
@@ -193,6 +193,6 @@ func (c *VaultController) runAWSRoleFinalizer(role *api.AWSRole) error {
 		return errors.Wrapf(err, "failed to remove finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
 	}
 
-	glog.Infof("Removed finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
+	klog.Infof("Removed finalizer for AWSRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }

@@ -26,7 +26,7 @@ import (
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/policy/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/policy"
 
-	"github.com/golang/glog"
+	"k8s.io/klog/v2"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -48,21 +48,21 @@ func (c *VaultController) initVaultPolicyWatcher() {
 func (c *VaultController) runVaultPolicyInjector(key string) error {
 	obj, exists, err := c.vplcyInformer.GetIndexer().GetByKey(key)
 	if err != nil {
-		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
+		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
 
 	if !exists {
-		glog.Warningf("VaultPolicy %s does not exist anymore\n", key)
+		klog.Warningf("VaultPolicy %s does not exist anymore\n", key)
 	} else {
 		vPolicy := obj.(*policyapi.VaultPolicy).DeepCopy()
-		glog.Infof("Sync/Add/Update for VaultPolicy %s/%s\n", vPolicy.Namespace, vPolicy.Name)
+		klog.Infof("Sync/Add/Update for VaultPolicy %s/%s\n", vPolicy.Namespace, vPolicy.Name)
 
 		if vPolicy.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(vPolicy.ObjectMeta, apis.Finalizer) {
 				return c.runPolicyFinalizer(vPolicy)
 			} else {
-				glog.Infof("Finalizer not found for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
+				klog.Infof("Finalizer not found for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
 			}
 		} else {
 			if !core_util.HasFinalizer(vPolicy.ObjectMeta, apis.Finalizer) {
@@ -149,14 +149,14 @@ func (c *VaultController) reconcilePolicy(vPolicy *policyapi.VaultPolicy, pClien
 		return err
 	}
 
-	glog.Infof("Successfully processed VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name)
+	klog.Infof("Successfully processed VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name)
 	return nil
 }
 
 // runPolicyFinalizer wil periodically run the finalizePolicy until finalizePolicy func produces no error
 // After that it will remove the finalizer string from the objectMeta of VaultPolicy
 func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy) error {
-	glog.Infof("Processing finalizer for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
+	klog.Infof("Processing finalizer for VaultPolicy %s/%s", vPolicy.Namespace, vPolicy.Name)
 
 	pClient, err := policy.NewPolicyClientForVault(c.kubeClient, c.appCatalogClient, vPolicy)
 	// The error could be generated for:
@@ -170,7 +170,7 @@ func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy) err
 			return errors.Wrap(err, "failed to delete vault policy")
 		}
 	} else {
-		glog.Warningf("Skipping cleanup for VaultPolicy: %s/%s with error: %v", vPolicy.Namespace, vPolicy.Name, err)
+		klog.Warningf("Skipping cleanup for VaultPolicy: %s/%s with error: %v", vPolicy.Namespace, vPolicy.Name, err)
 	}
 
 	// Remove finalizer
@@ -182,6 +182,6 @@ func (c *VaultController) runPolicyFinalizer(vPolicy *policyapi.VaultPolicy) err
 		return errors.Wrap(err, fmt.Sprintf("failed to remove finalizer for VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name))
 	}
 
-	glog.Infof("Removed finalizer for VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name)
+	klog.Infof("Removed finalizer for VaultPolicy: %s/%s", vPolicy.Namespace, vPolicy.Name)
 	return nil
 }

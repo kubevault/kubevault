@@ -25,7 +25,7 @@ import (
 	cs_util "kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/util"
 
-	"github.com/golang/glog"
+	"k8s.io/klog/v2"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
@@ -57,7 +57,7 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, vs *api.Va
 		// Do not wait to update Phase ASAP.
 		latest, err := c.updateVaultCRStatus(vs.Name, vs.Namespace, &s)
 		if err != nil {
-			glog.Errorf("vault status monitor: failed updating the status for the vault server %s: %v", vs.Name, err)
+			klog.Errorf("vault status monitor: failed updating the status for the vault server %s: %v", vs.Name, err)
 		}
 		if latest != nil {
 			vs = latest
@@ -66,7 +66,7 @@ func (c *VaultController) monitorAndUpdateStatus(ctx context.Context, vs *api.Va
 
 		select {
 		case err := <-ctx.Done():
-			glog.Infof("vault status monitor: stop monitoring vault (%s/%s), reason: %v\n", vs.Namespace, vs.Name, err)
+			klog.Infof("vault status monitor: stop monitoring vault (%s/%s), reason: %v\n", vs.Namespace, vs.Name, err)
 			return
 		case <-time.After(5 * time.Second):
 		}
@@ -85,18 +85,18 @@ func (c *VaultController) updateLocalVaultCRStatus(vs *api.VaultServer, s *api.V
 
 	version, err := c.extClient.CatalogV1alpha1().VaultServerVersions().Get(context.TODO(), string(vs.Spec.Version), metav1.GetOptions{})
 	if err != nil {
-		glog.Errorf("vault status monitor: failed to get vault server version(%s): %v", vs.Spec.Version, err)
+		klog.Errorf("vault status monitor: failed to get vault server version(%s): %v", vs.Spec.Version, err)
 		return
 	}
 
 	pods, err := c.kubeClient.CoreV1().Pods(namespace).List(context.TODO(), opt)
 	if err != nil {
-		glog.Errorf("vault status monitor: failed to update vault replica status: failed listing pods for the vault server (%s.%s): %v", namespace, name, err)
+		klog.Errorf("vault status monitor: failed to update vault replica status: failed listing pods for the vault server (%s.%s): %v", namespace, name, err)
 		return
 	}
 
 	if len(pods.Items) == 0 {
-		glog.Errorf("vault status monitor: for the vault server (%s.%s): no pods found", namespace, name)
+		klog.Errorf("vault status monitor: for the vault server (%s.%s): no pods found", namespace, name)
 		return
 	}
 
@@ -117,7 +117,7 @@ func (c *VaultController) updateLocalVaultCRStatus(vs *api.VaultServer, s *api.V
 
 		hr, err := c.getVaultStatus(&p, tlsConfig)
 		if err != nil {
-			glog.Error("vault status monitor:", err)
+			klog.Error("vault status monitor:", err)
 			continue
 		}
 

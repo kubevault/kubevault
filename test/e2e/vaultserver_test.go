@@ -30,7 +30,7 @@ import (
 	"kubevault.dev/operator/pkg/vault/util"
 	"kubevault.dev/operator/test/e2e/framework"
 
-	"github.com/golang/glog"
+	"k8s.io/klog/v2"
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/ncw/swift"
@@ -263,20 +263,20 @@ var _ = Describe("VaultServer", func() {
 									if err == nil {
 										return status.HAEnabled
 									} else {
-										glog.Errorln(err)
+										klog.Errorln(err)
 									}
 								} else {
-									glog.Errorln(err)
+									klog.Errorln(err)
 								}
 							}
 						} else {
-							glog.Errorln(err)
+							klog.Errorln(err)
 						}
 					} else {
-						glog.Errorln(err)
+						klog.Errorln(err)
 					}
 				} else {
-					glog.Errorln(err)
+					klog.Errorln(err)
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("HA should be enabled in vault server (%s/%s)", vs.Namespace, vs.Name))

@@ -24,7 +24,7 @@ import (
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/engine"
 
-	"github.com/golang/glog"
+	"k8s.io/klog/v2"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -50,17 +50,17 @@ func (c *VaultController) runSecretEngineInjector(key string) error {
 	// key := name/namespace
 	obj, exist, err := c.secretEngineInformer.GetIndexer().GetByKey(key)
 	if err != nil {
-		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
+		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
 
 	if !exist {
-		glog.Warningf("SecretEngine %s does not exist anymore", key)
+		klog.Warningf("SecretEngine %s does not exist anymore", key)
 
 	} else {
 		se := obj.(*api.SecretEngine).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for SecretEngine %s/%s", se.Namespace, se.Name)
+		klog.Infof("Sync/Add/Update for SecretEngine %s/%s", se.Namespace, se.Name)
 
 		if se.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(se.ObjectMeta, apis.Finalizer) {
@@ -225,12 +225,12 @@ func (c *VaultController) reconcileSecretEngine(seClient engine.EngineInterface,
 		return err
 	}
 
-	glog.Infof("Successfully processed SecretEngine: %s/%s", se.Namespace, se.Name)
+	klog.Infof("Successfully processed SecretEngine: %s/%s", se.Namespace, se.Name)
 	return nil
 }
 
 func (c *VaultController) runSecretEngineFinalizer(se *api.SecretEngine) error {
-	glog.Infof("Processing finalizer for SecretEngine %s/%s", se.Namespace, se.Name)
+	klog.Infof("Processing finalizer for SecretEngine %s/%s", se.Namespace, se.Name)
 
 	seClient, err := engine.NewSecretEngine(c.kubeClient, c.appCatalogClient, se)
 	// The error could be generated for:
@@ -251,7 +251,7 @@ func (c *VaultController) runSecretEngineFinalizer(se *api.SecretEngine) error {
 			return errors.Wrap(err, "failed to disable secret engine")
 		}
 	} else {
-		glog.Warningf("Skipping cleanup for SecretEngine: %s/%s with error: %v", se.Namespace, se.Name, err)
+		klog.Warningf("Skipping cleanup for SecretEngine: %s/%s with error: %v", se.Namespace, se.Name, err)
 	}
 
 	// remove finalizer
@@ -263,6 +263,6 @@ func (c *VaultController) runSecretEngineFinalizer(se *api.SecretEngine) error {
 		return errors.Wrapf(err, "failed to remove finalizer for SecretEngine: %s/%s", se.Namespace, se.Name)
 	}
 
-	glog.Infof("Removed finalizer for SecretEngine: %s/%s", se.Namespace, se.Name)
+	klog.Infof("Removed finalizer for SecretEngine: %s/%s", se.Namespace, se.Name)
 	return nil
 }

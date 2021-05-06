@@ -33,7 +33,6 @@ import (
 	"kubevault.dev/operator/pkg/vault"
 	authtype "kubevault.dev/operator/pkg/vault/auth/types"
 
-	"github.com/golang/glog"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
@@ -41,6 +40,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
@@ -62,7 +62,7 @@ const (
 
 func (c *VaultController) runAuthMethodsReconcile(vs *api.VaultServer) {
 	if vs == nil {
-		glog.Errorln("VaultServer is nil")
+		klog.Errorln("VaultServer is nil")
 		return
 	}
 
@@ -88,27 +88,27 @@ func (c *VaultController) runAuthMethodsReconcile(vs *api.VaultServer) {
 //  - enable or disable auth methods in vault
 func (c *VaultController) reconcileAuthMethods(vs *api.VaultServer, ctx context.Context) {
 	if vs == nil {
-		glog.Errorf("VaultServer is nil")
+		klog.Errorf("VaultServer is nil")
 		return
 	}
 
 	var err error
 	vs, err = waitUntilVaultServerIsReady(c.extClient.KubevaultV1alpha1(), vs, ctx.Done())
 	if err != nil {
-		glog.Errorf("error when wating for VaultServer to get ready: %s", err)
+		klog.Errorf("error when wating for VaultServer to get ready: %s", err)
 		return
 	}
 
 	vp := vaultPolicyForAuthMethod(vs)
 	err = ensureVaultPolicy(c.extClient.PolicyV1alpha1(), vp, vs)
 	if err != nil {
-		glog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
+		klog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
 		return
 	}
 	// wait until VaultPolicy is succeeded
 	err = waitUntilVaultPolicyIsReady(c.extClient.PolicyV1alpha1(), vp, ctx.Done())
 	if err != nil {
-		glog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
+		klog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
 		return
 	}
 
@@ -116,26 +116,26 @@ func (c *VaultController) reconcileAuthMethods(vs *api.VaultServer, ctx context.
 	vpb := vaultPolicyBindingForAuthMethod(vs)
 	err = ensureVaultPolicyBinding(c.extClient.PolicyV1alpha1(), vpb, vs)
 	if err != nil {
-		glog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
+		klog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
 		return
 	}
 	// wait until VaultPolicyBinding is succeeded
 	err = waitUntilVaultPolicyBindingIsReady(c.extClient.PolicyV1alpha1(), vpb, ctx.Done())
 	if err != nil {
-		glog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
+		klog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
 		return
 	}
 
 	// enable or disable auth method based on .spec.authMethods and .status.authMethodStatus
 	vc, err := newVaultClientForAuthMethodController(c.kubeClient, c.appCatalogClient, vs)
 	if err != nil {
-		glog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
+		klog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
 		return
 	}
 
 	authStatus, err := enableAuthMethods(vc, vs.Spec.AuthMethods)
 	if err != nil {
-		glog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
+		klog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
 		return
 	}
 
@@ -153,11 +153,11 @@ func (c *VaultController) reconcileAuthMethods(vs *api.VaultServer, ctx context.
 		metav1.UpdateOptions{},
 	)
 	if err != nil {
-		glog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
+		klog.Errorf("auth method controller: for VaultServer %s/%s: %s", vs.Namespace, vs.Name, err)
 		return
 	}
 
-	glog.Infof("auth method controller: for VaultServer %s/%s: auth method enable or disable operation applied", vs.Namespace, vs.Name)
+	klog.Infof("auth method controller: for VaultServer %s/%s: auth method enable or disable operation applied", vs.Namespace, vs.Name)
 }
 
 func vaultPolicyForAuthMethod(vs *api.VaultServer) *policyapi.VaultPolicy {
@@ -353,7 +353,7 @@ func waitUntilVaultServerIsReady(c vaultcs.KubevaultV1alpha1Interface, vs *api.V
 			return true, errors.New(fmt.Sprintf("VaultServer %s/%s is failed", vs.Namespace, vs.Name))
 		}
 
-		glog.Infof("auth method controller: attempt %d: VaultServer %s/%s is not ready", attempt, vs.Namespace, vs.Name)
+		klog.Infof("auth method controller: attempt %d: VaultServer %s/%s is not ready", attempt, vs.Namespace, vs.Name)
 		return false, nil
 	}, stopCh)
 	return vs, err
@@ -377,7 +377,7 @@ func waitUntilVaultPolicyIsReady(c policycs.PolicyV1alpha1Interface, vp *policya
 			return true, errors.New(fmt.Sprintf("VaultPolicy %s/%s is failed", vp.Namespace, vp.Name))
 		}
 
-		glog.Infof("auth method controller: attempt %d: VaultPolicy %s/%s is not succeeded", attempt, vp.Namespace, vp.Name)
+		klog.Infof("auth method controller: attempt %d: VaultPolicy %s/%s is not succeeded", attempt, vp.Namespace, vp.Name)
 		return false, nil
 	}, stopCh)
 	return err
@@ -401,7 +401,7 @@ func waitUntilVaultPolicyBindingIsReady(c policycs.PolicyV1alpha1Interface, vpb 
 			return true, errors.New(fmt.Sprintf("VaultPolicyBinding %s/%s is failed", vpb.Namespace, vpb.Name))
 		}
 
-		glog.Infof("auth method controller: attempt %d: VaultPolicyBinding %s/%s is not succeeded", attempt, vpb.Namespace, vpb.Name)
+		klog.Infof("auth method controller: attempt %d: VaultPolicyBinding %s/%s is not succeeded", attempt, vpb.Namespace, vpb.Name)
 		return false, nil
 	}, stopCh)
 	return err

@@ -19658,6 +19658,7 @@ func schema_apimachinery_apis_engine_v1alpha1_ElasticsearchConfiguration(ref com
 					"databaseRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the Elasticsearch database appbinding reference",
+							Default:     map[string]interface{}{},
 							Ref:         ref("kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1.AppReference"),
 						},
 					},
@@ -19668,8 +19669,9 @@ func schema_apimachinery_apis_engine_v1alpha1_ElasticsearchConfiguration(ref com
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Type:   []string{"string"},
-										Format: "",
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
 									},
 								},
 							},
@@ -19776,17 +19778,20 @@ func schema_apimachinery_apis_engine_v1alpha1_ElasticsearchRole(ref common.Refer
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
 						},
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kubevault.dev/apimachinery/apis/engine/v1alpha1.ElasticsearchRoleSpec"),
+							Default: map[string]interface{}{},
+							Ref:     ref("kubevault.dev/apimachinery/apis/engine/v1alpha1.ElasticsearchRoleSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("kubevault.dev/apimachinery/apis/engine/v1alpha1.ElasticsearchRoleStatus"),
+							Default: map[string]interface{}{},
+							Ref:     ref("kubevault.dev/apimachinery/apis/engine/v1alpha1.ElasticsearchRoleStatus"),
 						},
 					},
 				},
@@ -19819,7 +19824,8 @@ func schema_apimachinery_apis_engine_v1alpha1_ElasticsearchRoleList(ref common.R
 					},
 					"metadata": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
 						},
 					},
 					"items": {
@@ -19829,7 +19835,8 @@ func schema_apimachinery_apis_engine_v1alpha1_ElasticsearchRoleList(ref common.R
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("kubevault.dev/apimachinery/apis/engine/v1alpha1.ElasticsearchRole"),
+										Default: map[string]interface{}{},
+										Ref:     ref("kubevault.dev/apimachinery/apis/engine/v1alpha1.ElasticsearchRole"),
 									},
 								},
 							},
@@ -19853,6 +19860,7 @@ func schema_apimachinery_apis_engine_v1alpha1_ElasticsearchRoleSpec(ref common.R
 					"vaultRef": {
 						SchemaProps: spec.SchemaProps{
 							Description: "VaultRef is the name of a AppBinding referencing to a Vault Server",
+							Default:     map[string]interface{}{},
 							Ref:         ref("k8s.io/api/core/v1.LocalObjectReference"),
 						},
 					},
@@ -19897,8 +19905,9 @@ func schema_apimachinery_apis_engine_v1alpha1_ElasticsearchRoleSpec(ref common.R
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Type:   []string{"string"},
-										Format: "",
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
 									},
 								},
 							},
@@ -19911,8 +19920,9 @@ func schema_apimachinery_apis_engine_v1alpha1_ElasticsearchRoleSpec(ref common.R
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Type:   []string{"string"},
-										Format: "",
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
 									},
 								},
 							},
@@ -19953,7 +19963,8 @@ func schema_apimachinery_apis_engine_v1alpha1_ElasticsearchRoleStatus(ref common
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("kmodules.xyz/client-go/api/v1.Condition"),
+										Default: map[string]interface{}{},
+										Ref:     ref("kmodules.xyz/client-go/api/v1.Condition"),
 									},
 								},
 							},

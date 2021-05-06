@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/glog"
+	"k8s.io/klog/v2"
 	"k8s.io/client-go/kubernetes"
 	"kmodules.xyz/client-go/tools/clientcmd"
 )
@@ -32,12 +32,12 @@ func TestTryGetJwtTokenSecretNameFromServiceAccount(t *testing.T) {
 	clientConfig, err := clientcmd.BuildConfigFromContext("/home/ac/.kube/config",
 		"minikube")
 	if err != nil {
-		glog.Fatal(err)
+		klog.Fatal(err)
 	}
 
 	kc, err := kubernetes.NewForConfig(clientConfig)
 	if err != nil {
-		glog.Fatal(err)
+		klog.Fatal(err)
 	}
 
 	s, err := TryGetJwtTokenSecretNameFromServiceAccount(kc, "ddd", "default", time.Second, time.Second*3)

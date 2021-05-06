@@ -25,7 +25,7 @@ import (
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/policy/v1alpha1/util"
 	pbinding "kubevault.dev/operator/pkg/vault/policybinding"
 
-	"github.com/golang/glog"
+	"k8s.io/klog/v2"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
@@ -48,22 +48,22 @@ func (c *VaultController) initVaultPolicyBindingWatcher() {
 func (c *VaultController) runVaultPolicyBindingInjector(key string) error {
 	obj, exists, err := c.vplcyBindingInformer.GetIndexer().GetByKey(key)
 	if err != nil {
-		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
+		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
 
 	if !exists {
-		glog.Warningf("VaultPolicyBinding %s does not exist anymore\n", key)
+		klog.Warningf("VaultPolicyBinding %s does not exist anymore\n", key)
 	} else {
 		pb := obj.(*policyapi.VaultPolicyBinding).DeepCopy()
-		glog.Infof("Sync/Add/Update for VaultPolicyBinding %s/%s\n", pb.Namespace, pb.Name)
+		klog.Infof("Sync/Add/Update for VaultPolicyBinding %s/%s\n", pb.Namespace, pb.Name)
 
 		if pb.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(pb.ObjectMeta, apis.Finalizer) {
 				// Finalize VaultPolicyBinding
 				return c.runPolicyBindingFinalizer(pb)
 			} else {
-				glog.Infof("Finalizer not found for VaultPolicyBinding %s/%s", pb.Namespace, pb.Name)
+				klog.Infof("Finalizer not found for VaultPolicyBinding %s/%s", pb.Namespace, pb.Name)
 			}
 		} else {
 			if !core_util.HasFinalizer(pb.ObjectMeta, apis.Finalizer) {
@@ -139,12 +139,12 @@ func (c *VaultController) reconcilePolicyBinding(pb *policyapi.VaultPolicyBindin
 		return err
 	}
 
-	glog.Infof("Successfully processed VaultPolicyBinding: %s/%s", pb.Namespace, pb.Name)
+	klog.Infof("Successfully processed VaultPolicyBinding: %s/%s", pb.Namespace, pb.Name)
 	return nil
 }
 
 func (c *VaultController) runPolicyBindingFinalizer(pb *policyapi.VaultPolicyBinding) error {
-	glog.Infof("Processing finalizer for VaultPolicyBinding: %s/%s", pb.Namespace, pb.Name)
+	klog.Infof("Processing finalizer for VaultPolicyBinding: %s/%s", pb.Namespace, pb.Name)
 
 	pbClient, err := pbinding.NewPolicyBindingClient(c.extClient, c.appCatalogClient, c.kubeClient, pb)
 	// The error could be generated for:
@@ -158,7 +158,7 @@ func (c *VaultController) runPolicyBindingFinalizer(pb *policyapi.VaultPolicyBin
 			return errors.Wrap(err, "failed to delete the auth role created for policy binding")
 		}
 	} else {
-		glog.Warningf("Skipping cleanup for VaultPolicyBinding: %s/%s with error: %v", pb.Namespace, pb.Name, err)
+		klog.Warningf("Skipping cleanup for VaultPolicyBinding: %s/%s with error: %v", pb.Namespace, pb.Name, err)
 	}
 
 	// Remove finalizer
@@ -170,7 +170,7 @@ func (c *VaultController) runPolicyBindingFinalizer(pb *policyapi.VaultPolicyBin
 		return errors.Wrapf(err, "failed to remove finalizer for VaultPolicyBinding: %s/%s", pb.Namespace, pb.Name)
 	}
 
-	glog.Infof("Removed finalizer for VaultPolicyBinding %s/%s", pb.Namespace, pb.Name)
+	klog.Infof("Removed finalizer for VaultPolicyBinding %s/%s", pb.Namespace, pb.Name)
 	return nil
 }
 
