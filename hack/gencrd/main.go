@@ -21,6 +21,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"k8s.io/klog/v2"
 	cataloginstall "kubevault.dev/apimachinery/apis/catalog/install"
 	catalogv1alpha1 "kubevault.dev/apimachinery/apis/catalog/v1alpha1"
 	engineinstall "kubevault.dev/apimachinery/apis/engine/install"
@@ -31,7 +32,6 @@ import (
 	policyv1alpha1 "kubevault.dev/apimachinery/apis/policy/v1alpha1"
 
 	"github.com/go-openapi/spec"
-	"k8s.io/klog/v2"
 	gort "gomodules.xyz/runtime"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
