@@ -14,33 +14,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package util
-
-import (
-	"fmt"
-	"testing"
-	"time"
-
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/klog/v2"
-	"kmodules.xyz/client-go/tools/clientcmd"
-)
-
-func TestTryGetJwtTokenSecretNameFromServiceAccount(t *testing.T) {
-	t.Skip()
-	// look this carefully
-	clientConfig, err := clientcmd.BuildConfigFromContext("/home/ac/.kube/config",
-		"minikube")
-	if err != nil {
-		klog.Fatal(err)
-	}
-
-	kc, err := kubernetes.NewForConfig(clientConfig)
-	if err != nil {
-		klog.Fatal(err)
-	}
-
-	s, err := TryGetJwtTokenSecretNameFromServiceAccount(kc, "ddd", "default", time.Second, time.Second*3)
-	fmt.Println(err)
-	fmt.Println(s)
-}
+package elasticsearch

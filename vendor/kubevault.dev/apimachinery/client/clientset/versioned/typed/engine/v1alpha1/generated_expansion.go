@@ -28,6 +28,8 @@ type AzureRoleExpansion interface{}
 
 type DatabaseAccessRequestExpansion interface{}
 
+type ElasticsearchRoleExpansion interface{}
+
 type GCPAccessKeyRequestExpansion interface{}
 
 type GCPRoleExpansion interface{}

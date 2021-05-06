@@ -109,6 +109,21 @@ func GetVaultRefAndRole(cr crd.Interface, ref api.RoleRef) (*appcat.AppReference
 		}
 		return vAppRef, r.RoleName(), dbPath, nil
 
+	case api.ResourceKindElasticsearchRole:
+		r, err := cr.EngineV1alpha1().ElasticsearchRoles(ref.Namespace).Get(context.TODO(), ref.Name, metav1.GetOptions{})
+		if err != nil {
+			return nil, "", "", errors.Wrapf(err, "ElasticsearchRole %s/%s", ref.Namespace, ref.Name)
+		}
+		vAppRef := &appcat.AppReference{
+			Namespace: r.Namespace,
+			Name:      r.Spec.VaultRef.Name,
+		}
+		dbPath, err := databaserole.GetElasticsearchDatabasePath(r)
+		if err != nil {
+			return nil, "", "", errors.Wrapf(err, "failed to get database path for ElasticsearchRole %s/%s", ref.Namespace, ref.Name)
+		}
+		return vAppRef, r.RoleName(), dbPath, nil
+
 	default:
 		return nil, "", "", errors.Errorf("unknown or unsupported role kind '%s'", ref.Kind)
 	}

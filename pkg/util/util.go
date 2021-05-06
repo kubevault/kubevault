@@ -21,13 +21,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/klog/v2"
 )
 
 // https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#token-controller
@@ -44,7 +44,7 @@ func GetJwtTokenSecretFromServiceAccount(kc kubernetes.Interface, name, namespac
 	// get the token secret
 	for _, s := range sa.Secrets {
 		if !strings.HasPrefix(s.Name, name+"-token") {
-			glog.V(3).Infof("Skipping token %s not matching the %s-token prefix", s.Name, name)
+			klog.V(3).Infof("Skipping token %s not matching the %s-token prefix", s.Name, name)
 			continue
 		}
 
@@ -70,7 +70,7 @@ func TryGetJwtTokenSecretNameFromServiceAccount(kc kubernetes.Interface, name st
 		if err == nil {
 			return true, nil
 		} else {
-			glog.Errorf("trying to get jwt token secret name from service account %s/%s: %s", namespace, name, err)
+			klog.Errorf("trying to get jwt token secret name from service account %s/%s: %s", namespace, name, err)
 		}
 		return false, nil
 	})

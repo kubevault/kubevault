@@ -381,6 +381,118 @@ message DatabaseAccessRequestStatus {
   optional int64 observedGeneration = 5;
 }
 
+// ElasticsearchConfiguration defines a Elasticsearch app configuration.
+// https://www.vaultproject.io/api-docs/secret/databases/elasticdb
+// TODO: Fill in the fields
+message ElasticsearchConfiguration {
+  // Specifies the Elasticsearch database appbinding reference
+  optional kmodules.xyz.custom_resources.apis.appcatalog.v1alpha1.AppReference databaseRef = 1;
+
+  // List of the roles allowed to use this connection.
+  // Defaults to empty (no roles), if contains a "*" any role can use this connection.
+  repeated string allowedRoles = 3;
+
+  // Specifies the name of the plugin to use for this connection.
+  // Default plugin:
+  //  - for elasticsearch: elasticsearch-database-plugin
+  optional string pluginName = 2;
+
+  // The URL for Elasticsearch's API ("http://localhost:9200").
+  // +kubebuilder:validation:Required
+  optional string url = 4;
+
+  // The username to be used in the connection URL ("vault").
+  // +kubebuilder:validation:Required
+  optional string username = 5;
+
+  // The password to be used in the connection URL ("pa55w0rd").
+  // +kubebuilder:validation:Required
+  optional string password = 6;
+
+  // The path to a PEM-encoded CA cert file to use to verify the Elasticsearch server's identity.
+  optional string caCert = 7;
+
+  // The path to a directory of PEM-encoded CA cert files to use to verify the Elasticsearch server's identity.
+  optional string caPath = 8;
+
+  // The path to the certificate for the Elasticsearch client to present for communication.
+  optional string clientCert = 9;
+
+  // The path to the key for the Elasticsearch client to use for communication.
+  optional string clientKey = 10;
+
+  // This, if set, is used to set the SNI host when connecting via 1TLS.
+  optional string tlsServerName = 11;
+
+  // Not recommended. Default to false. Can be set to true to disable SSL verification.
+  // +kubebuilder:default:=false
+  optional bool insecure = 12;
+}
+
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:path=elasticsearchroles,singular=elasticsearchrole,categories={vault,appscode,all}
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.phase"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
+message ElasticsearchRole {
+  optional k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta metadata = 1;
+
+  optional ElasticsearchRoleSpec spec = 2;
+
+  optional ElasticsearchRoleStatus status = 3;
+}
+
+message ElasticsearchRoleList {
+  optional k8s.io.apimachinery.pkg.apis.meta.v1.ListMeta metadata = 1;
+
+  // Items is a list of ElasticsearchRole objects
+  repeated ElasticsearchRole items = 2;
+}
+
+// ElasticsearchRoleSpec contains connection information, Elasticsearch role info etc
+message ElasticsearchRoleSpec {
+  // VaultRef is the name of a AppBinding referencing to a Vault Server
+  optional k8s.io.api.core.v1.LocalObjectReference vaultRef = 1;
+
+  // DatabaseRef specifies the database appbinding reference in any namespace
+  optional kmodules.xyz.custom_resources.apis.appcatalog.v1alpha1.AppReference databaseRef = 2;
+
+  // Specifies the database name under which the role will be created
+  optional string databaseName = 3;
+
+  // Specifies the path where secret engine is enabled
+  optional string path = 4;
+
+  // Specifies the TTL for the leases associated with this role.
+  // Accepts time suffixed strings ("1h") or an integer number of seconds.
+  // Defaults to system/engine default TTL time
+  optional string defaultTTL = 5;
+
+  // Specifies the maximum TTL for the leases associated with this role.
+  // Accepts time suffixed strings ("1h") or an integer number of seconds.
+  // Defaults to system/engine default TTL time.
+  optional string maxTTL = 6;
+
+  // https://www.vaultproject.io/api/secret/databases/elasticdb.html#creation_statements
+  // Specifies the database statements executed to create and configure a user.
+  repeated string creationStatements = 7;
+
+  // https://www.vaultproject.io/api/secret/databases/elasticdb.html#revocation_statements
+  // Specifies the database statements to be executed to revoke a user.
+  repeated string revocationStatements = 8;
+}
+
+message ElasticsearchRoleStatus {
+  optional string phase = 1;
+
+  // ObservedGeneration is the most recent generation observed for this ElasticsearchRole. It corresponds to the
+  // ElasticsearchRole's generation, which is updated on mutation by the API Server.
+  optional int64 observedGeneration = 2;
+
+  // Represents the latest available observations of a ElasticsearchRole current state.
+  repeated kmodules.xyz.client_go.api.v1.Condition conditions = 3;
+}
+
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:path=gcpaccesskeyrequests,singular=gcpaccesskeyrequest,categories={vault,appscode,all}
 // +kubebuilder:subresource:status
@@ -888,6 +1000,8 @@ message SecretEngineConfiguration {
   optional MySQLConfiguration mysql = 6;
 
   optional KVConfiguration kv = 7;
+
+  optional ElasticsearchConfiguration elasticsearch = 8;
 }
 
 message SecretEngineList {

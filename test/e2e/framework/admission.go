@@ -27,13 +27,13 @@ import (
 	srvr "kubevault.dev/operator/pkg/cmds/server"
 
 	shell "github.com/codeskyblue/go-sh"
-	"github.com/golang/glog"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	restclient "k8s.io/client-go/rest"
+	"k8s.io/klog/v2"
 	kapi "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1beta1"
 	meta_util "kmodules.xyz/client-go/meta"
 )
@@ -79,11 +79,11 @@ func (f *Framework) isApiSvcReady(apiSvcName string) error {
 	}
 	for _, cond := range apiSvc.Status.Conditions {
 		if cond.Type == kapi.Available && cond.Status == kapi.ConditionTrue {
-			glog.Infof("APIService %v status is true", apiSvcName)
+			klog.Infof("APIService %v status is true", apiSvcName)
 			return nil
 		}
 	}
-	glog.Errorf("APIService %v not ready yet", apiSvcName)
+	klog.Errorf("APIService %v not ready yet", apiSvcName)
 	return fmt.Errorf("APIService %v not ready yet", apiSvcName)
 }
 

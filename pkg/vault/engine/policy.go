@@ -163,7 +163,7 @@ func (seClient *SecretEngine) CreatePolicy() error {
 		policyTemplate = SecretEnginePolicyAWS
 	} else if engSpec.Azure != nil {
 		policyTemplate = SecretEnginePolicyAzure
-	} else if engSpec.MySQL != nil || engSpec.MongoDB != nil || engSpec.Postgres != nil {
+	} else if engSpec.MySQL != nil || engSpec.MongoDB != nil || engSpec.Postgres != nil || engSpec.Elasticsearch != nil {
 		policyTemplate = SecretEnginePolicyDatabase
 	} else {
 		return errors.New("unknown secret engine type")

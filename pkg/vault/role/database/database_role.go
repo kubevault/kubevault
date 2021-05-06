@@ -22,6 +22,7 @@ import (
 	api "kubevault.dev/apimachinery/apis/engine/v1alpha1"
 	vault "kubevault.dev/operator/pkg/vault"
 	"kubevault.dev/operator/pkg/vault/role"
+	"kubevault.dev/operator/pkg/vault/role/database/elasticsearch"
 	"kubevault.dev/operator/pkg/vault/role/database/mongodb"
 	"kubevault.dev/operator/pkg/vault/role/database/mysql"
 	"kubevault.dev/operator/pkg/vault/role/database/postgres"
@@ -127,6 +128,34 @@ func NewDatabaseRoleForMongodb(kClient kubernetes.Interface, appClient appcat_cs
 	return d, nil
 }
 
+func NewDatabaseRoleForElasticsearch(kClient kubernetes.Interface, appClient appcat_cs.AppcatalogV1alpha1Interface, role *api.ElasticsearchRole) (DatabaseRoleInterface, error) {
+	vAppRef := &appcat.AppReference{
+		Namespace: role.Namespace,
+		Name:      role.Spec.VaultRef.Name,
+	}
+	vClient, err := vault.NewClient(kClient, appClient, vAppRef)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	// The path where Elasticsearch DB Path is Enabled. Def: database
+	path, err := GetElasticsearchDatabasePath(role)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get database path")
+	}
+
+	es, err := elasticsearch.NewElasticsearchRole(kClient, appClient, vClient, role, path)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create elasticsearch role client")
+	}
+	d := &DatabaseRole{
+		RoleInterface: es,
+		path:          path,
+		vaultClient:   vClient,
+	}
+	return d, nil
+}
+
 // EnableDatabase enables database secret engine
 // It first checks whether database is enabled or not
 func (d *DatabaseRole) EnableDatabase() error {
@@ -165,7 +194,7 @@ func (d *DatabaseRole) IsDatabaseEnabled() (bool, error) {
 }
 
 // https://www.vaultproject.io/api/secret/databases/index.html#delete-role
-//
+
 // DeleteRole deletes role
 // It doesn't give error even if respective role doesn't exist.
 // But does give error (404) if the secret engine itself is missing in the given path.
@@ -198,6 +227,14 @@ func GetMongoDBDatabasePath(role *api.MongoDBRole) (string, error) {
 
 // If database path does not exist, then use default database path
 func GetPostgresDatabasePath(role *api.PostgresRole) (string, error) {
+	if role.Spec.Path != "" {
+		return role.Spec.Path, nil
+	}
+	return DefaultDatabasePath, nil
+}
+
+// If database path does not exist, then use default database path
+func GetElasticsearchDatabasePath(role *api.ElasticsearchRole) (string, error) {
 	if role.Spec.Path != "" {
 		return role.Spec.Path, nil
 	}

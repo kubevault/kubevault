@@ -35,75 +35,77 @@ import (
 )
 
 const (
-	MongoDBRolePhaseSuccess    api.MongoDBRolePhase = "Success"
-	MongoDBRolePhaseProcessing api.MongoDBRolePhase = "Processing"
+	ElasticsearchRolePhaseSuccess    api.ElasticsearchRolePhase = "Success"
+	ElasticsearchRolePhaseProcessing api.ElasticsearchRolePhase = "Processing"
 )
 
-func (c *VaultController) initMongoDBRoleWatcher() {
-	c.mgRoleInformer = c.extInformerFactory.Engine().V1alpha1().MongoDBRoles().Informer()
-	c.mgRoleQueue = queue.New(api.ResourceKindMongoDBRole, c.MaxNumRequeues, c.NumThreads, c.runMongoDBRoleInjector)
-	c.mgRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.mgRoleQueue.GetQueue()))
-	c.mgRoleLister = c.extInformerFactory.Engine().V1alpha1().MongoDBRoles().Lister()
+func (c *VaultController) initElasticsearchRoleWatcher() {
+	c.esRoleInformer = c.extInformerFactory.Engine().V1alpha1().ElasticsearchRoles().Informer()
+	c.esRoleQueue = queue.New(api.ResourceKindElasticsearchRole, c.MaxNumRequeues, c.NumThreads, c.runElasticsearchRoleInjector)
+	c.esRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.esRoleQueue.GetQueue()))
+	c.esRoleLister = c.extInformerFactory.Engine().V1alpha1().ElasticsearchRoles().Lister()
 }
 
-func (c *VaultController) runMongoDBRoleInjector(key string) error {
-	obj, exist, err := c.mgRoleInformer.GetIndexer().GetByKey(key)
+func (c *VaultController) runElasticsearchRoleInjector(key string) error {
+	// key := name/namespace
+	obj, exist, err := c.esRoleInformer.GetIndexer().GetByKey(key)
 	if err != nil {
 		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
 
 	if !exist {
-		klog.Warningf("MongoDBRole %s does not exist anymore", key)
+		klog.Warningf("ElasticsearchRole %s does not exist anymore", key)
 
 	} else {
-		role := obj.(*api.MongoDBRole).DeepCopy()
+		role := obj.(*api.ElasticsearchRole).DeepCopy()
 
-		klog.Infof("Sync/Add/Update for MongoDBRole %s/%s", role.Namespace, role.Name)
-
+		klog.Infof("Sync/Add/Update for ElasticsearchRole %s/%s", role.Namespace, role.Name)
+		// DeletionTimestamp has been set, if HasFinalizer, then run ESRoleFinalizer.
 		if role.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
-				return c.runMongoDBRoleFinalizer(role)
+				return c.runElasticsearchRoleFinalizer(role)
 			}
 		} else {
 			if !core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
 				// Add finalizer
-				_, _, err := patchutil.PatchMongoDBRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(in *api.MongoDBRole) *api.MongoDBRole {
+				_, _, err := patchutil.PatchElasticsearchRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(in *api.ElasticsearchRole) *api.ElasticsearchRole {
 					in.ObjectMeta = core_util.AddFinalizer(in.ObjectMeta, apis.Finalizer)
 					return in
 				}, metav1.PatchOptions{})
 				if err != nil {
-					return errors.Wrapf(err, "failed to set MongoDBRole finalizer for %s/%s", role.Namespace, role.Name)
+					return errors.Wrapf(err, "failed to set ElasticsearchRole finalizer for %s/%s", role.Namespace, role.Name)
 				}
 			}
 
-			// Conditions are empty, when the MongoDBRole obj is enqueued for the first time.
+			// Conditions are empty, when the ElasticsearchRole obj is enqueued for the first time.
 			// Set status.phase to "Processing".
 			if role.Status.Conditions == nil {
-				newRole, err := patchutil.UpdateMongoDBRoleStatus(
+				// using a "newRole" var is preferred here. If we directly set the "role" here, we may get nil pointer exception in case of error.
+				newRole, err := patchutil.UpdateElasticsearchRoleStatus(
 					context.TODO(),
 					c.extClient.EngineV1alpha1(),
 					role.ObjectMeta,
-					func(status *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
-						status.Phase = MongoDBRolePhaseProcessing
+					func(status *api.ElasticsearchRoleStatus) *api.ElasticsearchRoleStatus {
+						status.Phase = ElasticsearchRolePhaseProcessing
 						return status
 					},
 					metav1.UpdateOptions{},
 				)
 				if err != nil {
-					return errors.Wrapf(err, "failed to update status for MongoDBRole: %s/%s", role.Namespace, role.Name)
+					return errors.Wrapf(err, "failed to update status for ElasticsearchRole: %s/%s", role.Namespace, role.Name)
 				}
 				role = newRole
 			}
 
-			rClient, err := database.NewDatabaseRoleForMongodb(c.kubeClient, c.appCatalogClient, role)
+			rClient, err := database.NewDatabaseRoleForElasticsearch(c.kubeClient, c.appCatalogClient, role)
 			if err != nil {
 				return err
 			}
 
-			err = c.reconcileMongoDBRole(rClient, role)
+			err = c.reconcileElasticsearchRole(rClient, role)
 			if err != nil {
-				return errors.Wrapf(err, "failed to reconcile MongoDBRole: %s/%s", role.Namespace, role.Name)
+				return errors.Wrapf(err, "failed to reconcile ElasticsearchRole: %s/%s", role.Namespace, role.Name)
 			}
 		}
 	}
@@ -114,16 +116,16 @@ func (c *VaultController) runMongoDBRoleInjector(key string) error {
 //	For vault:
 // 	  - configure a role that maps a name in Vault to an SQL statement to execute to create the database credential.
 //    - sync role
-//	  - revoke previous lease of all the respective mongodbRoleBinding and reissue a new lease
-func (c *VaultController) reconcileMongoDBRole(rClient database.DatabaseRoleInterface, role *api.MongoDBRole) error {
+//	  - revoke previous lease of all the respective elasticsearchRoleBinding and reissue a new lease
+func (c *VaultController) reconcileElasticsearchRole(rClient database.DatabaseRoleInterface, role *api.ElasticsearchRole) error {
 	// create role
 	err := rClient.CreateRole()
 	if err != nil {
-		_, err2 := patchutil.UpdateMongoDBRoleStatus(
+		_, err2 := patchutil.UpdateElasticsearchRoleStatus(
 			context.TODO(),
 			c.extClient.EngineV1alpha1(),
 			role.ObjectMeta,
-			func(status *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
+			func(status *api.ElasticsearchRoleStatus) *api.ElasticsearchRoleStatus {
 				status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 					Type:    kmapi.ConditionFailed,
 					Status:  core.ConditionTrue,
@@ -137,12 +139,12 @@ func (c *VaultController) reconcileMongoDBRole(rClient database.DatabaseRoleInte
 		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to create role")})
 	}
 
-	_, err = patchutil.UpdateMongoDBRoleStatus(
+	_, err = patchutil.UpdateElasticsearchRoleStatus(
 		context.TODO(),
 		c.extClient.EngineV1alpha1(),
 		role.ObjectMeta,
-		func(status *api.MongoDBRoleStatus) *api.MongoDBRoleStatus {
-			status.Phase = MongoDBRolePhaseSuccess
+		func(status *api.ElasticsearchRoleStatus) *api.ElasticsearchRoleStatus {
+			status.Phase = ElasticsearchRolePhaseSuccess
 			status.ObservedGeneration = role.Generation
 			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
 				Type:    kmapi.ConditionAvailable,
@@ -158,17 +160,17 @@ func (c *VaultController) reconcileMongoDBRole(rClient database.DatabaseRoleInte
 		return err
 	}
 
-	klog.Infof("Successfully processed MongoDBRole: %s/%s", role.Namespace, role.Name)
+	klog.Infof("Successfully processed ElasticsearchRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }
 
-func (c *VaultController) runMongoDBRoleFinalizer(role *api.MongoDBRole) error {
-	klog.Infof("Processing finalizer for MongoDBRole: %s/%s", role.Namespace, role.Name)
+func (c *VaultController) runElasticsearchRoleFinalizer(role *api.ElasticsearchRole) error {
+	klog.Infof("Processing finalizer for ElasticsearchRole: %s/%s", role.Namespace, role.Name)
 
-	rClient, err := database.NewDatabaseRoleForMongodb(c.kubeClient, c.appCatalogClient, role)
+	rClient, err := database.NewDatabaseRoleForElasticsearch(c.kubeClient, c.appCatalogClient, role)
 	// The error could be generated for:
 	//   - invalid vaultRef in the spec
-	// In this case, the operator should be able to delete the MongoDBRole (ie. remove finalizer).
+	// In this case, the operator should be able to delete the ElasticsearchRole (ie. remove finalizer).
 	// If no error occurred:
 	//	- Delete the db role created in vault
 	if err == nil {
@@ -183,18 +185,18 @@ func (c *VaultController) runMongoDBRoleFinalizer(role *api.MongoDBRole) error {
 			return errors.Wrap(err, "failed to delete database role")
 		}
 	} else {
-		klog.Warningf("Skipping cleanup for MongoDBRole: %s/%s with error: %v", role.Namespace, role.Name, err)
+		klog.Warningf("Skipping cleanup for ElasticsearchRole: %s/%s with error: %v", role.Namespace, role.Name, err)
 	}
 
 	// remove finalizer
-	_, _, err = patchutil.PatchMongoDBRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(in *api.MongoDBRole) *api.MongoDBRole {
+	_, _, err = patchutil.PatchElasticsearchRole(context.TODO(), c.extClient.EngineV1alpha1(), role, func(in *api.ElasticsearchRole) *api.ElasticsearchRole {
 		in.ObjectMeta = core_util.RemoveFinalizer(in.ObjectMeta, apis.Finalizer)
 		return in
 	}, metav1.PatchOptions{})
 	if err != nil {
-		return errors.Wrapf(err, "failed to remove finalizer for MongoDBRole: %s/%s", role.Namespace, role.Name)
+		return errors.Wrapf(err, "failed to remove finalizer for ElasticsearchRole: %s/%s", role.Namespace, role.Name)
 	}
 
-	klog.Infof("Removed finalizer for MongoDBRole: %s/%s", role.Namespace, role.Name)
+	klog.Infof("Removed finalizer for ElasticsearchRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }

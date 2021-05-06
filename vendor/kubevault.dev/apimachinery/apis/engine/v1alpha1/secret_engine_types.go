@@ -71,13 +71,14 @@ type SecretEngineList struct {
 }
 
 type SecretEngineConfiguration struct {
-	AWS      *AWSConfiguration      `json:"aws,omitempty" protobuf:"bytes,1,opt,name=aws"`
-	Azure    *AzureConfiguration    `json:"azure,omitempty" protobuf:"bytes,2,opt,name=azure"`
-	GCP      *GCPConfiguration      `json:"gcp,omitempty" protobuf:"bytes,3,opt,name=gcp"`
-	Postgres *PostgresConfiguration `json:"postgres,omitempty" protobuf:"bytes,4,opt,name=postgres"`
-	MongoDB  *MongoDBConfiguration  `json:"mongodb,omitempty" protobuf:"bytes,5,opt,name=mongodb"`
-	MySQL    *MySQLConfiguration    `json:"mysql,omitempty" protobuf:"bytes,6,opt,name=mysql"`
-	KV       *KVConfiguration       `json:"kv,omitempty" protobuf:"bytes,7,opt,name=kv"`
+	AWS           *AWSConfiguration           `json:"aws,omitempty" protobuf:"bytes,1,opt,name=aws"`
+	Azure         *AzureConfiguration         `json:"azure,omitempty" protobuf:"bytes,2,opt,name=azure"`
+	GCP           *GCPConfiguration           `json:"gcp,omitempty" protobuf:"bytes,3,opt,name=gcp"`
+	Postgres      *PostgresConfiguration      `json:"postgres,omitempty" protobuf:"bytes,4,opt,name=postgres"`
+	MongoDB       *MongoDBConfiguration       `json:"mongodb,omitempty" protobuf:"bytes,5,opt,name=mongodb"`
+	MySQL         *MySQLConfiguration         `json:"mysql,omitempty" protobuf:"bytes,6,opt,name=mysql"`
+	KV            *KVConfiguration            `json:"kv,omitempty" protobuf:"bytes,7,opt,name=kv"`
+	Elasticsearch *ElasticsearchConfiguration `json:"elasticsearch,omitempty" protobuf:"bytes,8,opt,name=elasticsearch"`
 }
 
 // https://www.vaultproject.io/api/secret/aws/index.html#configure-root-iam-credentials
@@ -254,6 +255,54 @@ type KVConfiguration struct {
 	// string.
 	// https://golang.org/pkg/time/#ParseDuration
 	DeleteVersionsAfter string `json:"deleteVersionsAfter,omitempty" protobuf:"bytes,4,name=deleteVersionsAfter"`
+}
+
+// ElasticsearchConfiguration defines a Elasticsearch app configuration.
+// https://www.vaultproject.io/api-docs/secret/databases/elasticdb
+// TODO: Fill in the fields
+type ElasticsearchConfiguration struct {
+	// Specifies the Elasticsearch database appbinding reference
+	DatabaseRef appcat.AppReference `json:"databaseRef" protobuf:"bytes,1,opt,name=databaseRef"`
+
+	// List of the roles allowed to use this connection.
+	// Defaults to empty (no roles), if contains a "*" any role can use this connection.
+	AllowedRoles []string `json:"allowedRoles,omitempty" protobuf:"bytes,3,rep,name=allowedRoles"`
+
+	// Specifies the name of the plugin to use for this connection.
+	// Default plugin:
+	//  - for elasticsearch: elasticsearch-database-plugin
+	PluginName string `json:"pluginName,omitempty" protobuf:"bytes,2,opt,name=pluginName"`
+
+	// The URL for Elasticsearch's API ("http://localhost:9200").
+	// +kubebuilder:validation:Required
+	Url string `json:"url,omitempty" protobuf:"bytes,4,opt,name=url"`
+
+	// The username to be used in the connection URL ("vault").
+	// +kubebuilder:validation:Required
+	Username string `json:"username,omitempty" protobuf:"bytes,5,opt,name=username"`
+
+	// The password to be used in the connection URL ("pa55w0rd").
+	// +kubebuilder:validation:Required
+	Password string `json:"password,omitempty" protobuf:"bytes,6,opt,name=password"`
+
+	// The path to a PEM-encoded CA cert file to use to verify the Elasticsearch server's identity.
+	CACert string `json:"caCert,omitempty" protobuf:"bytes,7,opt,name=caCert"`
+
+	// The path to a directory of PEM-encoded CA cert files to use to verify the Elasticsearch server's identity.
+	CAPath string `json:"caPath,omitempty" protobuf:"bytes,8,opt,name=caPath"`
+
+	// The path to the certificate for the Elasticsearch client to present for communication.
+	ClientCert string `json:"clientCert,omitempty" protobuf:"bytes,9,opt,name=clientCert"`
+
+	// The path to the key for the Elasticsearch client to use for communication.
+	ClientKey string `json:"clientKey,omitempty" protobuf:"bytes,10,opt,name=clientKey"`
+
+	// This, if set, is used to set the SNI host when connecting via 1TLS.
+	TLSServerName string `json:"tlsServerName,omitempty" protobuf:"bytes,11,opt,name=tlsServerName"`
+
+	// Not recommended. Default to false. Can be set to true to disable SSL verification.
+	// +kubebuilder:default:=false
+	Insecure bool `json:"insecure,omitempty" protobuf:"bytes,12,opt,name=insecure"`
 }
 
 type SecretEnginePhase string

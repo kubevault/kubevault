@@ -40,8 +40,7 @@ func (seClient *SecretEngine) CreateConfig() error {
 		Name:      seClient.secretEngine.Spec.VaultRef.Name,
 	}
 
-	// Update vault client so that it has the permission
-	// to create config
+	// Update vault client so that it has the permission to create config
 	vClient, err2 := vault.NewClient(seClient.kubeClient, seClient.appClient, vAppRef)
 	if err2 != nil {
 		return errors.Wrap(err2, "failed to create vault api client")
@@ -62,6 +61,8 @@ func (seClient *SecretEngine) CreateConfig() error {
 		err = seClient.CreatePostgresConfig()
 	} else if engSpec.MongoDB != nil {
 		err = seClient.CreateMongoDBConfig()
+	} else if engSpec.Elasticsearch != nil {
+		err = seClient.CreateElasticsearchConfig()
 	} else if engSpec.KV != nil {
 		err = seClient.CreateKVConfig()
 	} else {
@@ -72,7 +73,7 @@ func (seClient *SecretEngine) CreateConfig() error {
 
 // https://www.vaultproject.io/api/secret/databases/index.html#configure-connection
 // https:https://www.vaultproject.io/api/secret/databases/mysql-maria.html#configure-connection
-//
+
 // CreateMySQLConfig creates MySQL database configuration
 func (seClient *SecretEngine) CreateMySQLConfig() error {
 	config := seClient.secretEngine.Spec.MySQL
@@ -140,7 +141,7 @@ func (seClient *SecretEngine) CreateMySQLConfig() error {
 
 // https://www.vaultproject.io/api/secret/databases/index.html#configure-connection
 // https://www.vaultproject.io/api/secret/databases/mongodb.html#configure-connection
-//
+
 // CreateMongoDBConfig creates MongoDB database configuration
 func (seClient *SecretEngine) CreateMongoDBConfig() error {
 	config := seClient.secretEngine.Spec.MongoDB
@@ -206,7 +207,7 @@ func (seClient *SecretEngine) CreateMongoDBConfig() error {
 
 // https://www.vaultproject.io/api/secret/databases/index.html#configure-connection
 // https://www.vaultproject.io/api/secret/databases/postgresql.html#configure-connection
-//
+
 // CreatePostgresConfig creates database configuration
 func (seClient *SecretEngine) CreatePostgresConfig() error {
 	config := seClient.secretEngine.Spec.Postgres
@@ -273,6 +274,82 @@ func (seClient *SecretEngine) CreatePostgresConfig() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create database config")
 	}
+	return nil
+}
+
+// https://www.vaultproject.io/api/secret/databases/index.html#configure-connection
+// https://www.vaultproject.io/api/secret/databases/elasticdb#configure-connection
+
+// CreateElasticsearchConfig creates database configuration
+func (seClient *SecretEngine) CreateElasticsearchConfig() error {
+	config := seClient.secretEngine.Spec.Elasticsearch
+	if config == nil {
+		return errors.New("Elasticsearch database config is nil")
+	}
+
+	// Set Default plugin name, if config, PluginName is empty
+	config.SetDefaults()
+
+	dbAppRef := config.DatabaseRef
+	dbApp, err := seClient.appClient.AppBindings(dbAppRef.Namespace).Get(context.TODO(), dbAppRef.Name, metav1.GetOptions{})
+	if err != nil {
+		return errors.Wrap(err, "failed to get DatabaseAppBinding for Elasticsearch database config")
+	}
+
+	connURL, err := dbApp.URL()
+	if err != nil {
+		return errors.Wrap(err, "failed to get Elasticsearch database connection url")
+	}
+
+	path := fmt.Sprintf("/v1/%s/config/%s", seClient.path, api.GetDBNameFromAppBindingRef(&dbAppRef))
+	req := seClient.vaultClient.NewRequest("POST", path)
+
+	payload := map[string]interface{}{
+		"plugin_name":   config.PluginName,
+		"allowed_roles": config.AllowedRoles,
+		"url":           connURL,
+	}
+
+	if dbApp.Spec.Secret != nil {
+		secret, err := seClient.kubeClient.CoreV1().Secrets(dbAppRef.Namespace).Get(context.TODO(), dbApp.Spec.Secret.Name, metav1.GetOptions{})
+		if err != nil {
+			return errors.Wrap(err, "Failed to get secret for Elasticsearch database config")
+		}
+
+		if err = dbApp.TransformSecret(seClient.kubeClient, secret.Data); err != nil {
+			return err
+		}
+		if v, ok := secret.Data[core.BasicAuthUsernameKey]; ok {
+			payload[core.BasicAuthUsernameKey] = string(v)
+		}
+		if v, ok := secret.Data[core.BasicAuthPasswordKey]; ok {
+			payload[core.BasicAuthPasswordKey] = string(v)
+		}
+	}
+
+	if config.CACert != "" {
+		payload["ca_cert"] = config.CACert
+	}
+	if config.CAPath != "" {
+		payload["ca_path"] = config.CAPath
+	}
+	if config.ClientCert != "" {
+		payload["client_cert"] = config.ClientCert
+	}
+	if config.TLSServerName != "" {
+		payload["tls_server_name"] = config.TLSServerName
+	}
+	if config.Insecure {
+		payload["insecure"] = config.Insecure
+	}
+
+	if err = req.SetJSONBody(payload); err != nil {
+		return errors.WithStack(err)
+	}
+	if _, err = seClient.vaultClient.RawRequest(req); err != nil {
+		return errors.Wrap(err, "Failed to create Elasticsearch database config")
+	}
+
 	return nil
 }
 

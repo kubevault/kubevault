@@ -29,7 +29,6 @@ import (
 	vault_listers "kubevault.dev/apimachinery/client/listers/kubevault/v1alpha1"
 	policy_listers "kubevault.dev/apimachinery/client/listers/policy/v1alpha1"
 
-	"github.com/golang/glog"
 	pcm "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/util/runtime"
@@ -38,6 +37,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
+	"k8s.io/klog/v2"
 	reg_util "kmodules.xyz/client-go/admissionregistration/v1beta1"
 	"kmodules.xyz/client-go/apiextensions"
 	"kmodules.xyz/client-go/tools/queue"
@@ -93,6 +93,11 @@ type VaultController struct {
 	mgRoleQueue    *queue.Worker
 	mgRoleInformer cache.SharedIndexInformer
 	mgRoleLister   engine_listers.MongoDBRoleLister
+
+	// ElasticsearchRole
+	esRoleQueue    *queue.Worker
+	esRoleInformer cache.SharedIndexInformer
+	esRoleLister   engine_listers.ElasticsearchRoleLister
 
 	// AWSRole
 	awsRoleQueue    *queue.Worker
@@ -159,6 +164,7 @@ func (c *VaultController) ensureCustomResourceDefinitions() error {
 		engineapi.MongoDBRole{}.CustomResourceDefinition(),
 		engineapi.MySQLRole{}.CustomResourceDefinition(),
 		engineapi.PostgresRole{}.CustomResourceDefinition(),
+		engineapi.ElasticsearchRole{}.CustomResourceDefinition(),
 		engineapi.SecretEngine{}.CustomResourceDefinition(),
 	}
 	return apiextensions.RegisterCRDs(c.crdClient, crds)
@@ -182,7 +188,7 @@ func (c *VaultController) Run(stopCh <-chan struct{}) {
 func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	defer runtime.HandleCrash()
 
-	glog.Info("Starting Vault controller")
+	klog.Info("Starting Vault controller")
 
 	c.extInformerFactory.Start(stopCh)
 	for _, v := range c.extInformerFactory.WaitForCacheSync(stopCh) {
@@ -205,6 +211,7 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	go c.pgRoleQueue.Run(stopCh)
 	go c.myRoleQueue.Run(stopCh)
 	go c.mgRoleQueue.Run(stopCh)
+	go c.esRoleQueue.Run(stopCh)
 
 	// For AWSRole
 	go c.awsRoleQueue.Run(stopCh)
@@ -231,5 +238,5 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	go c.secretEngineQueue.Run(stopCh)
 
 	<-stopCh
-	glog.Info("Stopping Vault operator")
+	klog.Info("Stopping Vault operator")
 }

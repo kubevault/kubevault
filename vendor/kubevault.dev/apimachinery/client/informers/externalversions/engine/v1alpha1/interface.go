@@ -34,6 +34,8 @@ type Interface interface {
 	AzureRoles() AzureRoleInformer
 	// DatabaseAccessRequests returns a DatabaseAccessRequestInformer.
 	DatabaseAccessRequests() DatabaseAccessRequestInformer
+	// ElasticsearchRoles returns a ElasticsearchRoleInformer.
+	ElasticsearchRoles() ElasticsearchRoleInformer
 	// GCPAccessKeyRequests returns a GCPAccessKeyRequestInformer.
 	GCPAccessKeyRequests() GCPAccessKeyRequestInformer
 	// GCPRoles returns a GCPRoleInformer.
@@ -82,6 +84,11 @@ func (v *version) AzureRoles() AzureRoleInformer {
 // DatabaseAccessRequests returns a DatabaseAccessRequestInformer.
 func (v *version) DatabaseAccessRequests() DatabaseAccessRequestInformer {
 	return &databaseAccessRequestInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// ElasticsearchRoles returns a ElasticsearchRoleInformer.
+func (v *version) ElasticsearchRoles() ElasticsearchRoleInformer {
+	return &elasticsearchRoleInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // GCPAccessKeyRequests returns a GCPAccessKeyRequestInformer.

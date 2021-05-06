@@ -30,7 +30,6 @@ import (
 	"kubevault.dev/operator/pkg/vault/util"
 	"kubevault.dev/operator/test/e2e/framework"
 
-	"github.com/golang/glog"
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/ncw/swift"
@@ -42,6 +41,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/klog/v2"
 	awsconsts "kmodules.xyz/constants/aws"
 	googleconsts "kmodules.xyz/constants/google"
 	ofst "kmodules.xyz/offshoot-api/api/v1"
@@ -263,20 +263,20 @@ var _ = Describe("VaultServer", func() {
 									if err == nil {
 										return status.HAEnabled
 									} else {
-										glog.Errorln(err)
+										klog.Errorln(err)
 									}
 								} else {
-									glog.Errorln(err)
+									klog.Errorln(err)
 								}
 							}
 						} else {
-							glog.Errorln(err)
+							klog.Errorln(err)
 						}
 					} else {
-						glog.Errorln(err)
+						klog.Errorln(err)
 					}
 				} else {
-					glog.Errorln(err)
+					klog.Errorln(err)
 				}
 				return false
 			}, timeOut, pollingInterval).Should(BeTrue(), fmt.Sprintf("HA should be enabled in vault server (%s/%s)", vs.Namespace, vs.Name))

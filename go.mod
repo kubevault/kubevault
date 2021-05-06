@@ -7,7 +7,6 @@ require (
 	github.com/codeskyblue/go-sh v0.0.0-20200712050446-30169cf553fe
 	github.com/go-openapi/spec v0.19.5
 	github.com/gogo/protobuf v1.3.2
-	github.com/golang/glog v0.0.0-20210429001901-424d2337a529
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/go-cleanhttp v0.5.1
 	github.com/hashicorp/vault/api v1.1.0
@@ -45,7 +44,7 @@ require (
 	kmodules.xyz/monitoring-agent-api v0.0.0-20210504040241-261c2428d207
 	kmodules.xyz/offshoot-api v0.0.0-20210504040651-7951e351f0f5
 	kmodules.xyz/webhook-runtime v0.0.0-20210504042742-3a9911e3dcdc
-	kubevault.dev/apimachinery v0.0.0-20210505232652-a0cc7d66cf6a
+	kubevault.dev/apimachinery v0.0.0-20210506060648-ed34d530ac23
 )
 
 replace bitbucket.org/ww/goautoneg => gomodules.xyz/goautoneg v0.0.0-20120707110453-a547fc61f48d

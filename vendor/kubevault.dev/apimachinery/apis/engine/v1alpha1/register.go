@@ -71,6 +71,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&MySQLRoleList{},
 		&PostgresRole{},
 		&PostgresRoleList{},
+		&ElasticsearchRole{},
+		&ElasticsearchRoleList{},
 	)
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&metav1.Status{},

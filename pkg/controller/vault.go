@@ -139,8 +139,8 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 	//		-> server k8s secret with owner
 	// 	-> return
 
-	secretName := v.vs.GetCertSecretName(string(api.VaultServerCert))
-	secret, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
+	sSecretName := v.vs.GetCertSecretName(string(api.VaultServerCert))
+	secret, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Get(context.TODO(), sSecretName, metav1.GetOptions{})
 
 	if err != nil && errors2.IsNotFound(err) {
 		// Create new secret using the TLS configuration
@@ -175,45 +175,46 @@ func (v *vaultSrv) GetServerTLS() (*core.Secret, []byte, error) {
 
 		// TODO:
 		// 	- what if user provide the CA secret
-		tlsCASecret := &core.Secret{
-			ObjectMeta: metav1.ObjectMeta{
+		_, _, err = core_util.CreateOrPatchSecret(context.TODO(), v.kubeClient,
+			metav1.ObjectMeta{
 				Name:      v.vs.GetCertSecretName(string(api.VaultCACert)),
 				Namespace: v.vs.Namespace,
-				Labels:    v.vs.OffshootLabels(),
 			},
-			Data: map[string][]byte{
-				core.TLSCertKey:       store.CACertBytes(),
-				core.TLSPrivateKeyKey: store.CAKeyBytes(),
-			},
-			Type: core.SecretTypeTLS,
+			func(in *core.Secret) *core.Secret {
+				in.Labels = v.vs.OffshootLabels()
+				core_util.EnsureOwnerReference(&in.ObjectMeta, metav1.NewControllerRef(v.vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
+				in.Data = map[string][]byte{
+					core.TLSCertKey:       store.CACertBytes(),
+					core.TLSPrivateKeyKey: store.CAKeyBytes(),
+				}
+				in.Type = core.SecretTypeTLS
+				return in
+			}, metav1.PatchOptions{})
+		if err != nil {
+			return nil, nil, err
 		}
 
-		tlsServerSecret := &core.Secret{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      secretName,
+		serverSecret, _, err := core_util.CreateOrPatchSecret(context.TODO(), v.kubeClient,
+			metav1.ObjectMeta{
+				Name:      sSecretName,
 				Namespace: v.vs.Namespace,
-				Labels:    v.vs.OffshootLabels(),
 			},
-			Data: map[string][]byte{
-				core.TLSCertKey:       srvCrt, // tls.crt
-				core.TLSPrivateKeyKey: srvKey, // tls.key
-				conapi.TLSCACertKey:   store.CACertBytes(),
-			},
-			Type: core.SecretTypeTLS,
-		}
-
-		// create the secret
-		secretServer, err := v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Create(context.TODO(), tlsServerSecret, metav1.CreateOptions{})
+			func(in *core.Secret) *core.Secret {
+				in.Labels = v.vs.OffshootLabels()
+				core_util.EnsureOwnerReference(&in.ObjectMeta, metav1.NewControllerRef(v.vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
+				in.Data = map[string][]byte{
+					core.TLSCertKey:       srvCrt, // tls.crt
+					core.TLSPrivateKeyKey: srvKey, // tls.key
+					conapi.TLSCACertKey:   store.CACertBytes(),
+				}
+				in.Type = core.SecretTypeTLS
+				return in
+			}, metav1.PatchOptions{})
 		if err != nil {
-			return nil, nil, errors.Wrap(err, "failed to create server secret")
+			return nil, nil, err
 		}
 
-		_, err = v.kubeClient.CoreV1().Secrets(v.vs.Namespace).Create(context.TODO(), tlsCASecret, metav1.CreateOptions{})
-		if err != nil {
-			return nil, nil, errors.Wrap(err, "failed to create CA secret")
-		}
-
-		return secretServer, store.CACertBytes(), nil
+		return serverSecret, store.CACertBytes(), nil
 
 	} else if err != nil {
 		return nil, nil, err

@@ -24,11 +24,11 @@ import (
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/role/azure"
 
-	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
@@ -49,17 +49,17 @@ func (c *VaultController) initAzureRoleWatcher() {
 func (c *VaultController) runAzureRoleInjector(key string) error {
 	obj, exist, err := c.azureRoleInformer.GetIndexer().GetByKey(key)
 	if err != nil {
-		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
+		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
 
 	if !exist {
-		glog.Warningf("AzureRole %s does not exist anymore", key)
+		klog.Warningf("AzureRole %s does not exist anymore", key)
 
 	} else {
 		role := obj.(*api.AzureRole).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for AzureRole %s/%s", role.Namespace, role.Name)
+		klog.Infof("Sync/Add/Update for AzureRole %s/%s", role.Namespace, role.Name)
 
 		if role.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(role.ObjectMeta, apis.Finalizer) {
@@ -158,12 +158,12 @@ func (c *VaultController) reconcileAzureRole(rClient azure.AzureRoleInterface, r
 		return err
 	}
 
-	glog.Infof("Successfully processed AzureRole: %s/%s", role.Namespace, role.Name)
+	klog.Infof("Successfully processed AzureRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }
 
 func (c *VaultController) runAzureRoleFinalizer(role *api.AzureRole) error {
-	glog.Infof("Processing finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
+	klog.Infof("Processing finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
 
 	rClient, err := azure.NewAzureRole(c.kubeClient, c.appCatalogClient, role)
 	// The error could be generated for:
@@ -183,7 +183,7 @@ func (c *VaultController) runAzureRoleFinalizer(role *api.AzureRole) error {
 			return errors.Wrap(err, "failed to delete azure role")
 		}
 	} else {
-		glog.Warningf("Skipping cleanup for AzureRole: %s/%s with error: %v", role.Namespace, role.Name, err)
+		klog.Warningf("Skipping cleanup for AzureRole: %s/%s with error: %v", role.Namespace, role.Name, err)
 	}
 
 	// remove finalizer
@@ -195,6 +195,6 @@ func (c *VaultController) runAzureRoleFinalizer(role *api.AzureRole) error {
 		return errors.Wrapf(err, "failed to remove finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
 	}
 
-	glog.Infof("Removed finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
+	klog.Infof("Removed finalizer for AzureRole: %s/%s", role.Namespace, role.Name)
 	return nil
 }

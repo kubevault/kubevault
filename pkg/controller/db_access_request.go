@@ -26,12 +26,12 @@ import (
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/engine/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/credential"
 
-	"github.com/golang/glog"
 	"github.com/pkg/errors"
 	"gomodules.xyz/x/crypto/rand"
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"
@@ -47,17 +47,17 @@ func (c *VaultController) initDatabaseAccessWatcher() {
 func (c *VaultController) runDatabaseAccessRequestInjector(key string) error {
 	obj, exist, err := c.dbAccessInformer.GetIndexer().GetByKey(key)
 	if err != nil {
-		glog.Errorf("Fetching object with key %s from store failed with %v", key, err)
+		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)
 		return err
 	}
 
 	if !exist {
-		glog.Warningf("DatabaseAccessRequest %s does not exist anymore", key)
+		klog.Warningf("DatabaseAccessRequest %s does not exist anymore", key)
 
 	} else {
 		req := obj.(*api.DatabaseAccessRequest).DeepCopy()
 
-		glog.Infof("Sync/Add/Update for DatabaseAccessRequest %s/%s", req.Namespace, req.Name)
+		klog.Infof("Sync/Add/Update for DatabaseAccessRequest %s/%s", req.Namespace, req.Name)
 
 		if req.DeletionTimestamp != nil {
 			if core_util.HasFinalizer(req.ObjectMeta, apis.Finalizer) {
@@ -84,7 +84,7 @@ func (c *VaultController) runDatabaseAccessRequestInjector(key string) error {
 
 			// If condition type is not set yet, set the phase to "WaitingForApproval".
 			if condType == "" {
-				glog.Infof("For DatabaseAccessRequest %s/%s: request is not approved/denied yet", req.Namespace, req.Name)
+				klog.Infof("For DatabaseAccessRequest %s/%s: request is not approved/denied yet", req.Namespace, req.Name)
 
 				_, err := patchutil.UpdateDatabaseAccessRequestStatus(
 					context.TODO(),
@@ -165,7 +165,7 @@ func (c *VaultController) runDatabaseAccessRequestInjector(key string) error {
 					return errors.Wrapf(utilerrors.NewAggregate([]error{err3, err}), "For DatabaseAccessRequest %s/%s", req.Namespace, req.Name)
 				}
 			} else if condType == kmapi.ConditionRequestDenied {
-				glog.Infof("For DatabaseAccessRequest %s/%s: request is denied", req.Namespace, req.Name)
+				klog.Infof("For DatabaseAccessRequest %s/%s: request is denied", req.Namespace, req.Name)
 			}
 		}
 	}
@@ -331,7 +331,7 @@ func (c *VaultController) reconcileDatabaseAccessRequest(cm credential.Credentia
 }
 
 func (c *VaultController) runDatabaseAccessRequestFinalizer(req *api.DatabaseAccessRequest) error {
-	glog.Infof("Processing finalizer for DatabaseAccessRequest %s/%s", req.Namespace, req.Name)
+	klog.Infof("Processing finalizer for DatabaseAccessRequest %s/%s", req.Namespace, req.Name)
 
 	cm, err := credential.NewCredentialManagerForDatabase(c.kubeClient, c.appCatalogClient, c.extClient, req)
 
@@ -346,7 +346,7 @@ func (c *VaultController) runDatabaseAccessRequestFinalizer(req *api.DatabaseAcc
 			return errors.Errorf("DatabaseAccessRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 		}
 	} else {
-		glog.Warningf("Skipping cleanup for DatabaseAccessRequest: %s/%s with error: %v", req.Namespace, req.Name, err)
+		klog.Warningf("Skipping cleanup for DatabaseAccessRequest: %s/%s with error: %v", req.Namespace, req.Name, err)
 	}
 
 	_, _, err = patchutil.PatchDatabaseAccessRequest(context.TODO(), c.extClient.EngineV1alpha1(), req, func(in *api.DatabaseAccessRequest) *api.DatabaseAccessRequest {
@@ -356,7 +356,7 @@ func (c *VaultController) runDatabaseAccessRequestFinalizer(req *api.DatabaseAcc
 	if err != nil {
 		return errors.Errorf("DatabaseAccessRequest %s/%s finalizer: %v", req.Namespace, req.Name, err)
 	} else {
-		glog.Infof("Removed finalizer for DatabaseAccessRequest %s/%s", req.Namespace, req.Name)
+		klog.Infof("Removed finalizer for DatabaseAccessRequest %s/%s", req.Namespace, req.Name)
 	}
 
 	return nil

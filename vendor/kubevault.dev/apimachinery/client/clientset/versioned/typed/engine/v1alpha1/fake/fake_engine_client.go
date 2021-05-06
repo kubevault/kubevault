@@ -49,6 +49,10 @@ func (c *FakeEngineV1alpha1) DatabaseAccessRequests(namespace string) v1alpha1.D
 	return &FakeDatabaseAccessRequests{c, namespace}
 }
 
+func (c *FakeEngineV1alpha1) ElasticsearchRoles(namespace string) v1alpha1.ElasticsearchRoleInterface {
+	return &FakeElasticsearchRoles{c, namespace}
+}
+
 func (c *FakeEngineV1alpha1) GCPAccessKeyRequests(namespace string) v1alpha1.GCPAccessKeyRequestInterface {
 	return &FakeGCPAccessKeyRequests{c, namespace}
 }

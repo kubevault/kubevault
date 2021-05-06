@@ -71,6 +71,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Engine().V1alpha1().AzureRoles().Informer()}, nil
 	case enginev1alpha1.SchemeGroupVersion.WithResource("databaseaccessrequests"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Engine().V1alpha1().DatabaseAccessRequests().Informer()}, nil
+	case enginev1alpha1.SchemeGroupVersion.WithResource("elasticsearchroles"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Engine().V1alpha1().ElasticsearchRoles().Informer()}, nil
 	case enginev1alpha1.SchemeGroupVersion.WithResource("gcpaccesskeyrequests"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Engine().V1alpha1().GCPAccessKeyRequests().Informer()}, nil
 	case enginev1alpha1.SchemeGroupVersion.WithResource("gcproles"):

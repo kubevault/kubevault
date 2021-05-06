@@ -58,6 +58,14 @@ type DatabaseAccessRequestListerExpansion interface{}
 // DatabaseAccessRequestNamespaceLister.
 type DatabaseAccessRequestNamespaceListerExpansion interface{}
 
+// ElasticsearchRoleListerExpansion allows custom methods to be added to
+// ElasticsearchRoleLister.
+type ElasticsearchRoleListerExpansion interface{}
+
+// ElasticsearchRoleNamespaceListerExpansion allows custom methods to be added to
+// ElasticsearchRoleNamespaceLister.
+type ElasticsearchRoleNamespaceListerExpansion interface{}
+
 // GCPAccessKeyRequestListerExpansion allows custom methods to be added to
 // GCPAccessKeyRequestLister.
 type GCPAccessKeyRequestListerExpansion interface{}
