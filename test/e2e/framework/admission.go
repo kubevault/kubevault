@@ -27,13 +27,13 @@ import (
 	srvr "kubevault.dev/operator/pkg/cmds/server"
 
 	shell "github.com/codeskyblue/go-sh"
-	"k8s.io/klog/v2"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	restclient "k8s.io/client-go/rest"
+	"k8s.io/klog/v2"
 	kapi "k8s.io/kube-aggregator/pkg/apis/apiregistration/v1beta1"
 	meta_util "kmodules.xyz/client-go/meta"
 )

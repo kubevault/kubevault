@@ -23,7 +23,6 @@ import (
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"kubevault.dev/operator/pkg/eventer"
 
-	"k8s.io/klog/v2"
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"

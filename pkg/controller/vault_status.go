@@ -25,13 +25,13 @@ import (
 	cs_util "kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/util"
 
-	"k8s.io/klog/v2"
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/klog/v2"
 	meta_util "kmodules.xyz/client-go/meta"
 	"kmodules.xyz/client-go/tools/portforward"
 )

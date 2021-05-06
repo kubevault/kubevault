@@ -18,7 +18,6 @@ package controller
 
 import (
 	"context"
-	"k8s.io/klog/v2"
 
 	"kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/engine/v1alpha1"
@@ -29,6 +28,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	core_util "kmodules.xyz/client-go/core/v1"
 	"kmodules.xyz/client-go/tools/queue"

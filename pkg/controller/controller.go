@@ -29,7 +29,6 @@ import (
 	vault_listers "kubevault.dev/apimachinery/client/listers/kubevault/v1alpha1"
 	policy_listers "kubevault.dev/apimachinery/client/listers/policy/v1alpha1"
 
-	"k8s.io/klog/v2"
 	pcm "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/util/runtime"
@@ -38,6 +37,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
+	"k8s.io/klog/v2"
 	reg_util "kmodules.xyz/client-go/admissionregistration/v1beta1"
 	"kmodules.xyz/client-go/apiextensions"
 	"kmodules.xyz/client-go/tools/queue"

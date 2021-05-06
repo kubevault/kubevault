@@ -21,13 +21,13 @@ import (
 	"strings"
 	"time"
 
-	"k8s.io/klog/v2"
 	"github.com/pkg/errors"
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/klog/v2"
 )
 
 // https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#token-controller
