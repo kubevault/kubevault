@@ -21,6 +21,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.6.1
 	go.bytebuilders.dev/audit v0.0.0-20210606035915-e588bc9c711d
+	go.bytebuilders.dev/license-verifier v0.9.2
+	go.bytebuilders.dev/license-verifier/kubernetes v0.9.2
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	gomodules.xyz/blobfs v0.1.7
 	gomodules.xyz/cert v1.2.0

@@ -33,6 +33,7 @@ import (
 )
 
 type ExtraOptions struct {
+	LicenseFile             string
 	DockerRegistry          string
 	MaxNumRequeues          int
 	NumThreads              int
@@ -56,6 +57,8 @@ func NewExtraOptions() *ExtraOptions {
 
 func (s *ExtraOptions) AddGoFlags(fs *flag.FlagSet) {
 	clusterid.AddGoFlags(fs)
+
+	fs.StringVar(&s.LicenseFile, "license-file", s.LicenseFile, "Path to license file")
 
 	fs.StringVar(&s.DockerRegistry, "docker-registry", s.DockerRegistry, "Docker image registry for sidecar, init-container, check-job, recovery-job and kubectl-job")
 

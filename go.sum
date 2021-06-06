@@ -836,6 +836,8 @@ go.bytebuilders.dev/audit v0.0.0-20210606035915-e588bc9c711d h1:V/S452JsejWFlOUS
 go.bytebuilders.dev/audit v0.0.0-20210606035915-e588bc9c711d/go.mod h1:PzGL88QBvh85+uO5dswfMleG/pn53FQgu2+TOcxEW/U=
 go.bytebuilders.dev/license-verifier v0.9.2 h1:v1ARKQSKEJM22m7BWLHHTsSOf//o/VLAvGgvpm/njEQ=
 go.bytebuilders.dev/license-verifier v0.9.2/go.mod h1:0sBh2Y3jcTLQYeV9ySbBgN5Ibatp6aNtvH/gI1ZFXCk=
+go.bytebuilders.dev/license-verifier/kubernetes v0.9.2 h1:XHeEDdUkdD8cr8aTavhvHvcBV20gw4DAiFDeTeSzHn4=
+go.bytebuilders.dev/license-verifier/kubernetes v0.9.2/go.mod h1:GR9AxzvK3o4X3A3+okmatKXVJNLtUNXOCrtTu3TFGpE=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.3.5 h1:XAzx9gjCb0Rxj7EoqcClPD1d5ZBxZJk0jbuoPHenBt0=
@@ -1119,6 +1121,7 @@ gomodules.xyz/jsonpatch/v2 v2.1.0 h1:Phva6wqu+xR//Njw6iorylFFgn/z547tw5Ne3HZPQ+k
 gomodules.xyz/jsonpatch/v2 v2.1.0/go.mod h1:IhYNNY4jnS53ZnfE4PAmpKtDpTCj1JFXc+3mwe7XcUU=
 gomodules.xyz/jsonpath v0.0.1 h1:iSVuNrGuLPgxQtHCX/8LK2kizjJSqCZR7PM1iKSV2oU=
 gomodules.xyz/jsonpath v0.0.1/go.mod h1:du28vmLHrgEV48JqK/7rn92YHsVDoQuqrowb2w6YZmE=
+gomodules.xyz/kglog v0.0.1/go.mod h1:+zsiQO9SrbeUeqI5fYEIl/96o5dNoWUM0J69BUMEmDc=
 gomodules.xyz/kglog v0.0.3/go.mod h1:01XKTo7D9zFN/efA6G+UKKiCkuogQHJdXqSvgseEyJg=
 gomodules.xyz/logs v0.0.1 h1:in9286fzHDuW1sBer9knlXOS/DGr72302eC9YKX0LCk=
 gomodules.xyz/logs v0.0.1/go.mod h1:tiZ6IumZCKtQtzjFkbZ+iuKk6PBG/cvQs/wGEzffqic=
@@ -1137,6 +1140,7 @@ gomodules.xyz/wait v0.0.0-20210218105358-639bd9211545 h1:iiD24jN1H8PzliVe1igIzYs
 gomodules.xyz/wait v0.0.0-20210218105358-639bd9211545/go.mod h1:g/epKzZQuCqgvhzhaoG4cSBNGHqnOrhFR4Q7szDJ1JM=
 gomodules.xyz/x v0.0.0-20201105065653-91c568df6331/go.mod h1:Q5P/WKpi2XymJJ4mBhUlBVsCzoL167c78CxyIind/pA=
 gomodules.xyz/x v0.0.2/go.mod h1:E7ulagfan4tGmqGE07MD0J8o3HvCcPR862vYRvR0qd4=
+gomodules.xyz/x v0.0.3/go.mod h1:E7ulagfan4tGmqGE07MD0J8o3HvCcPR862vYRvR0qd4=
 gomodules.xyz/x v0.0.5 h1:2ysXizs7gC9QpFds6qNGxMuzNwBzhM9VUfGVSv9Vv+E=
 gomodules.xyz/x v0.0.5/go.mod h1:EGy7cB7ifSuOcbNFc0U1zUPTf5yY8RtXVJlAlhGS9OE=
 gonum.org/v1/gonum v0.0.0-20180816165407-929014505bf4/go.mod h1:Y+Yx5eoAFn32cQvJDxZx5Dpnq+c3wtXuadVZAcxbbBo=
@@ -1259,6 +1263,7 @@ k8s.io/utils v0.0.0-20201110183641-67b214c5f920/go.mod h1:jPW/WVKK9YHAvNhRxK0md/
 kmodules.xyz/apiversion v0.2.0 h1:vAQYqZFm4xu4pbB1cAdHbFEPES6EQkcR4wc06xdTOWk=
 kmodules.xyz/apiversion v0.2.0/go.mod h1:oPX8g8LvlPdPX3Yc5YvCzJHQnw3YF/X4/jdW0b1am80=
 kmodules.xyz/client-go v0.0.0-20210504024435-1eb80721e9b8/go.mod h1:Q5iJv9pP1jHSfCz0YKRci4NE9THiKVccU2KEay7udik=
+kmodules.xyz/client-go v0.0.0-20210514054158-27e164b43474/go.mod h1:R+xaDwIcqjPygQcVd3+0K2WBEwMB+wSZJAK18WdSr0A=
 kmodules.xyz/client-go v0.0.0-20210604221903-63c016279a47/go.mod h1:UmCe/Qt2Y6vW4JIX41RiXVhnAlm8HuCOcv0dDWFJme0=
 kmodules.xyz/client-go v0.0.0-20210605021217-cabaee7b953e h1:HjlVO+dcHorvndX6BYT/TWxdEi7xj9LAbuqpU0Z/JlU=
 kmodules.xyz/client-go v0.0.0-20210605021217-cabaee7b953e/go.mod h1:UmCe/Qt2Y6vW4JIX41RiXVhnAlm8HuCOcv0dDWFJme0=
