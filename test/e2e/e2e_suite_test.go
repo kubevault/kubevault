@@ -26,7 +26,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
-	"gomodules.xyz/kglog"
+	"gomodules.xyz/logs"
 	ka "k8s.io/kube-aggregator/pkg/client/clientset_generated/clientset"
 	"kmodules.xyz/client-go/tools/clientcmd"
 )
@@ -40,7 +40,7 @@ var (
 )
 
 func TestE2e(t *testing.T) {
-	kglog.InitLogs()
+	logs.InitLogs()
 	RegisterFailHandler(Fail)
 	SetDefaultEventuallyTimeout(TIMEOUT)
 	junitReporter := reporters.NewJUnitReporter("junit.xml")

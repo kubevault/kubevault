@@ -43,6 +43,9 @@ func (c *VaultController) initElasticsearchRoleWatcher() {
 	c.esRoleInformer = c.extInformerFactory.Engine().V1alpha1().ElasticsearchRoles().Informer()
 	c.esRoleQueue = queue.New(api.ResourceKindElasticsearchRole, c.MaxNumRequeues, c.NumThreads, c.runElasticsearchRoleInjector)
 	c.esRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.esRoleQueue.GetQueue()))
+	if c.auditor != nil {
+		c.esRoleInformer.AddEventHandler(c.auditor)
+	}
 	c.esRoleLister = c.extInformerFactory.Engine().V1alpha1().ElasticsearchRoles().Lister()
 }
 

@@ -76,6 +76,7 @@ func (s *ExtraOptions) AddFlags(fs *pflag.FlagSet) {
 func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 	var err error
 
+	cfg.LicenseFile = s.LicenseFile
 	cfg.DockerRegistry = s.DockerRegistry
 	cfg.MaxNumRequeues = s.MaxNumRequeues
 	cfg.NumThreads = s.NumThreads

@@ -43,6 +43,9 @@ func (c *VaultController) initPostgresRoleWatcher() {
 	c.pgRoleInformer = c.extInformerFactory.Engine().V1alpha1().PostgresRoles().Informer()
 	c.pgRoleQueue = queue.New(api.ResourceKindPostgresRole, c.MaxNumRequeues, c.NumThreads, c.runPostgresRoleInjector)
 	c.pgRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.pgRoleQueue.GetQueue()))
+	if c.auditor != nil {
+		c.pgRoleInformer.AddEventHandler(c.auditor)
+	}
 	c.pgRoleLister = c.extInformerFactory.Engine().V1alpha1().PostgresRoles().Lister()
 }
 

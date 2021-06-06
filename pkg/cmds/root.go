@@ -17,14 +17,11 @@ limitations under the License.
 package cmds
 
 import (
-	"flag"
 	"os"
 
 	"kubevault.dev/apimachinery/client/clientset/versioned/scheme"
 
 	"github.com/spf13/cobra"
-	"gomodules.xyz/kglog"
-	"gomodules.xyz/x/flags"
 	v "gomodules.xyz/x/version"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	genericapiserver "k8s.io/apiserver/pkg/server"
@@ -40,7 +37,6 @@ func NewRootCmd() *cobra.Command {
 		Short:             `Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes`,
 		DisableAutoGenTag: true,
 		PersistentPreRun: func(c *cobra.Command, args []string) {
-			flags.DumpAll(c.Flags())
 			cli.SendAnalytics(c, v.Version.Version)
 
 			utilruntime.Must(scheme.AddToScheme(clientsetscheme.Scheme))
@@ -48,8 +44,6 @@ func NewRootCmd() *cobra.Command {
 			utilruntime.Must(scheme.AddToScheme(legacyscheme.Scheme))
 		},
 	}
-	rootCmd.PersistentFlags().AddGoFlagSet(flag.CommandLine)
-	kglog.ParseFlags()
 	rootCmd.PersistentFlags().BoolVar(&cli.EnableAnalytics, "enable-analytics", cli.EnableAnalytics, "Send analytical events to Google Analytics")
 
 	rootCmd.AddCommand(v.NewCmdVersion())

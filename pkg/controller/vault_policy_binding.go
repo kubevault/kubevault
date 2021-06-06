@@ -40,6 +40,9 @@ func (c *VaultController) initVaultPolicyBindingWatcher() {
 	c.vplcyBindingInformer = c.extInformerFactory.Policy().V1alpha1().VaultPolicyBindings().Informer()
 	c.vplcyBindingQueue = queue.New(policyapi.ResourceKindVaultPolicyBinding, c.MaxNumRequeues, c.NumThreads, c.runVaultPolicyBindingInjector)
 	c.vplcyBindingInformer.AddEventHandler(queue.NewReconcilableHandler(c.vplcyBindingQueue.GetQueue()))
+	if c.auditor != nil {
+		c.vplcyBindingInformer.AddEventHandler(c.auditor)
+	}
 	c.vplcyBindingLister = c.extInformerFactory.Policy().V1alpha1().VaultPolicyBindings().Lister()
 }
 

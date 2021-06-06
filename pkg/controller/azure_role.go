@@ -43,6 +43,9 @@ func (c *VaultController) initAzureRoleWatcher() {
 	c.azureRoleInformer = c.extInformerFactory.Engine().V1alpha1().AzureRoles().Informer()
 	c.azureRoleQueue = queue.New(api.ResourceKindAzureRole, c.MaxNumRequeues, c.NumThreads, c.runAzureRoleInjector)
 	c.azureRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.azureRoleQueue.GetQueue()))
+	if c.auditor != nil {
+		c.azureRoleInformer.AddEventHandler(c.auditor)
+	}
 	c.azureRoleLister = c.extInformerFactory.Engine().V1alpha1().AzureRoles().Lister()
 }
 

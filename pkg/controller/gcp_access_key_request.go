@@ -41,6 +41,9 @@ func (c *VaultController) initGCPAccessKeyWatcher() {
 	c.gcpAccessInformer = c.extInformerFactory.Engine().V1alpha1().GCPAccessKeyRequests().Informer()
 	c.gcpAccessQueue = queue.New(api.ResourceKindGCPAccessKeyRequest, c.MaxNumRequeues, c.NumThreads, c.runGCPAccessKeyRequestInjector)
 	c.gcpAccessInformer.AddEventHandler(queue.NewReconcilableHandler(c.gcpAccessQueue.GetQueue()))
+	if c.auditor != nil {
+		c.gcpAccessInformer.AddEventHandler(c.auditor)
+	}
 	c.gcpAccessLister = c.extInformerFactory.Engine().V1alpha1().GCPAccessKeyRequests().Lister()
 }
 

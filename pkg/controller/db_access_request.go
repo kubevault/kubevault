@@ -41,6 +41,9 @@ func (c *VaultController) initDatabaseAccessWatcher() {
 	c.dbAccessInformer = c.extInformerFactory.Engine().V1alpha1().DatabaseAccessRequests().Informer()
 	c.dbAccessQueue = queue.New(api.ResourceKindDatabaseAccessRequest, c.MaxNumRequeues, c.NumThreads, c.runDatabaseAccessRequestInjector)
 	c.dbAccessInformer.AddEventHandler(queue.NewReconcilableHandler(c.dbAccessQueue.GetQueue()))
+	if c.auditor != nil {
+		c.dbAccessInformer.AddEventHandler(c.auditor)
+	}
 	c.dbAccessLister = c.extInformerFactory.Engine().V1alpha1().DatabaseAccessRequests().Lister()
 }
 

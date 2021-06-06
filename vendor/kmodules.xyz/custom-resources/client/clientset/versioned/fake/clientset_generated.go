@@ -22,6 +22,8 @@ import (
 	clientset "kmodules.xyz/custom-resources/client/clientset/versioned"
 	appcatalogv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
 	fakeappcatalogv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1/fake"
+	auditorv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/auditor/v1alpha1"
+	fakeauditorv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/auditor/v1alpha1/fake"
 	metricsv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/metrics/v1alpha1"
 	fakemetricsv1alpha1 "kmodules.xyz/custom-resources/client/clientset/versioned/typed/metrics/v1alpha1/fake"
 
@@ -82,6 +84,11 @@ var _ clientset.Interface = &Clientset{}
 // AppcatalogV1alpha1 retrieves the AppcatalogV1alpha1Client
 func (c *Clientset) AppcatalogV1alpha1() appcatalogv1alpha1.AppcatalogV1alpha1Interface {
 	return &fakeappcatalogv1alpha1.FakeAppcatalogV1alpha1{Fake: &c.Fake}
+}
+
+// AuditorV1alpha1 retrieves the AuditorV1alpha1Client
+func (c *Clientset) AuditorV1alpha1() auditorv1alpha1.AuditorV1alpha1Interface {
+	return &fakeauditorv1alpha1.FakeAuditorV1alpha1{Fake: &c.Fake}
 }
 
 // MetricsV1alpha1 retrieves the MetricsV1alpha1Client

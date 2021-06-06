@@ -17,18 +17,18 @@ limitations under the License.
 package main
 
 import (
-	"os"
-
 	"kubevault.dev/operator/pkg/cmds"
 
-	"gomodules.xyz/kglog"
+	"gomodules.xyz/logs"
+	"k8s.io/klog/v2"
 )
 
 func main() {
-	kglog.InitLogs()
-	defer kglog.FlushLogs()
+	rootCmd := cmds.NewRootCmd(Version)
+	logs.Init(rootCmd, true)
+	defer logs.FlushLogs()
 
-	if err := cmds.NewRootCmd().Execute(); err != nil {
-		os.Exit(1)
+	if err := rootCmd.Execute(); err != nil {
+		klog.Fatal(err)
 	}
 }
