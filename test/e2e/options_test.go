@@ -27,7 +27,6 @@ import (
 	"kubevault.dev/operator/pkg/cmds/server"
 	"kubevault.dev/operator/test/e2e/framework"
 
-	"gomodules.xyz/flags"
 	"gomodules.xyz/logs"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
