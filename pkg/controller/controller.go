@@ -58,6 +58,8 @@ type VaultController struct {
 	appCatalogClient appcat_cs.AppcatalogV1alpha1Interface
 	crdClient        crd_cs.Interface
 	recorder         record.EventRecorder
+	// Audit Event Publisher
+	auditor cache.ResourceEventHandler
 	// Prometheus client
 	promClient pcm.MonitoringV1Interface
 

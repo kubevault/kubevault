@@ -25,9 +25,12 @@ import (
 	"kubevault.dev/operator/pkg/server"
 
 	"github.com/spf13/pflag"
+	license "go.bytebuilders.dev/license-verifier/kubernetes"
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
+	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
+	"k8s.io/apiserver/pkg/util/feature"
 	"kmodules.xyz/client-go/tools/clientcmd"
 )
 
@@ -42,6 +45,7 @@ type VaultServerOptions struct {
 }
 
 func NewVaultServerOptions(out, errOut io.Writer) *VaultServerOptions {
+	_ = feature.DefaultMutableFeatureGate.Set(fmt.Sprintf("%s=false", features.APIPriorityAndFairness))
 	o := &VaultServerOptions{
 		// TODO we will nil out the etcd storage options.  This requires a later level of k8s.io/apiserver
 		RecommendedOptions: genericoptions.NewRecommendedOptions(
@@ -107,6 +111,10 @@ func (o VaultServerOptions) Run(stopCh <-chan struct{}) error {
 	if err != nil {
 		return err
 	}
+
+	// Start periodic license verification
+	//nolint:errcheck
+	go license.VerifyLicensePeriodically(config.ExtraConfig.ClientConfig, config.ExtraConfig.LicenseFile, stopCh)
 
 	return s.Run(stopCh)
 }

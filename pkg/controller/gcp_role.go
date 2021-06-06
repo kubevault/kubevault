@@ -43,6 +43,9 @@ func (c *VaultController) initGCPRoleWatcher() {
 	c.gcpRoleInformer = c.extInformerFactory.Engine().V1alpha1().GCPRoles().Informer()
 	c.gcpRoleQueue = queue.New(api.ResourceKindGCPRole, c.MaxNumRequeues, c.NumThreads, c.runGCPRoleInjector)
 	c.gcpRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.gcpRoleQueue.GetQueue()))
+	if c.auditor != nil {
+		c.gcpRoleInformer.AddEventHandler(c.auditor)
+	}
 	c.gcpRoleLister = c.extInformerFactory.Engine().V1alpha1().GCPRoles().Lister()
 }
 

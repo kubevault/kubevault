@@ -43,6 +43,9 @@ func (c *VaultController) initSecretEngineWatcher() {
 	c.secretEngineInformer = c.extInformerFactory.Engine().V1alpha1().SecretEngines().Informer()
 	c.secretEngineQueue = queue.New(api.ResourceKindSecretEngine, c.MaxNumRequeues, c.NumThreads, c.runSecretEngineInjector)
 	c.secretEngineInformer.AddEventHandler(queue.NewReconcilableHandler(c.secretEngineQueue.GetQueue()))
+	if c.auditor != nil {
+		c.secretEngineInformer.AddEventHandler(c.auditor)
+	}
 	c.secretEngineLister = c.extInformerFactory.Engine().V1alpha1().SecretEngines().Lister()
 }
 

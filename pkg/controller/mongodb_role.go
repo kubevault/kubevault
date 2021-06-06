@@ -43,6 +43,9 @@ func (c *VaultController) initMongoDBRoleWatcher() {
 	c.mgRoleInformer = c.extInformerFactory.Engine().V1alpha1().MongoDBRoles().Informer()
 	c.mgRoleQueue = queue.New(api.ResourceKindMongoDBRole, c.MaxNumRequeues, c.NumThreads, c.runMongoDBRoleInjector)
 	c.mgRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.mgRoleQueue.GetQueue()))
+	if c.auditor != nil {
+		c.mgRoleInformer.AddEventHandler(c.auditor)
+	}
 	c.mgRoleLister = c.extInformerFactory.Engine().V1alpha1().MongoDBRoles().Lister()
 }
 

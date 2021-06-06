@@ -27,8 +27,7 @@ import (
 	"kubevault.dev/operator/pkg/cmds/server"
 	"kubevault.dev/operator/test/e2e/framework"
 
-	"gomodules.xyz/kglog"
-	"gomodules.xyz/x/flags"
+	"gomodules.xyz/logs"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/util/homedir"
@@ -80,8 +79,8 @@ func TestMain(m *testing.M) {
 
 func enableLogging() {
 	defer func() {
-		kglog.InitLogs()
-		defer kglog.FlushLogs()
+		logs.InitLogs()
+		defer logs.FlushLogs()
 	}()
 	err := flag.Set("logtostderr", "true")
 	if err != nil {
@@ -93,5 +92,5 @@ func enableLogging() {
 			return
 		}
 	}
-	flags.SetLogLevel(2)
+	_ = flag.Set("v", "2")
 }

@@ -14,6 +14,10 @@
 
 SHELL=/bin/bash -o pipefail
 
+PRODUCT_OWNER_NAME := appscode
+PRODUCT_NAME       := kubevault-community
+ENFORCE_LICENSE    ?=
+
 GO_PKG   := kubevault.dev
 REPO     := $(notdir $(shell pwd))
 BIN      := vault-operator
@@ -175,6 +179,9 @@ $(OUTBIN): .go/$(OUTBIN).stamp
 	    --env HTTPS_PROXY=$(HTTPS_PROXY)                        \
 	    $(BUILD_IMAGE)                                          \
 	    /bin/bash -c "                                          \
+	        PRODUCT_OWNER_NAME=$(PRODUCT_OWNER_NAME)            \
+	        PRODUCT_NAME=$(PRODUCT_NAME)                        \
+	        ENFORCE_LICENSE=$(ENFORCE_LICENSE)                  \
 	        ARCH=$(ARCH)                                        \
 	        OS=$(OS)                                            \
 	        VERSION=$(VERSION)                                  \
@@ -330,9 +337,9 @@ $(BUILD_DIRS):
 	@mkdir -p $@
 
 REGISTRY_SECRET 	?=
-KUBE_NAMESPACE  	?=
+KUBE_NAMESPACE  	?= kube-system
 LICENSE_FILE    	?=
-IMAGE_PULL_POLICY 	?= Always
+IMAGE_PULL_POLICY ?= IfNotPresent
 
 ifeq ($(strip $(REGISTRY_SECRET)),)
 	IMAGE_PULL_SECRETS =
@@ -343,22 +350,23 @@ endif
 .PHONY: install
 install:
 	@cd ../installer; \
-	helm install kubevault-community charts/kubevault-community \
-		--namespace=kube-system \
-		--set operator.registry=$(REGISTRY) \
-		--set operator.repository=$(BIN) \
-		--set operator.tag=$(TAG) \
-		--set imagePullPolicy=Always \
-		$(IMAGE_PULL_SECRETS); \
-	kubectl wait --for=condition=Ready pods -n kube-system -l 'app.kubernetes.io/name=vault-operator,app.kubernetes.io/instance=vault-operator' --timeout=5m; \
-	kubectl wait --for=condition=Available apiservice -l 'app.kubernetes.io/name=vault-operator,app.kubernetes.io/instance=vault-operator' --timeout=5m; \
+	helm install kubevault-operator charts/kubevault-operator \
+		--namespace=$(KUBE_NAMESPACE)              \
+		--set-file license=$(LICENSE_FILE)         \
+		--set operator.registry=$(REGISTRY)        \
+		--set operator.repository=$(BIN)           \
+		--set operator.tag=$(TAG)                  \
+		--set imagePullPolicy=$(IMAGE_PULL_POLICY) \
+		$(IMAGE_PULL_SECRETS);                     \
+	kubectl wait --for=condition=Ready pods -n kube-system -l 'app.kubernetes.io/name=kubevault-operator,app.kubernetes.io/instance=kubevault-operator' --timeout=5m; \
+	kubectl wait --for=condition=Available apiservice -l 'app.kubernetes.io/name=kubevault-operator,app.kubernetes.io/instance=kubevault-operator' --timeout=5m; \
 	helm install kubevault-catalog charts/kubevault-catalog --namespace=kube-system
 
 .PHONY: uninstall
 uninstall:
 	@cd ../installer; \
 	helm uninstall kubevault-catalog --namespace=$(KUBE_NAMESPACE) || true; \
-	helm uninstall kubevault-community --namespace=$(KUBE_NAMESPACE) || true
+	helm uninstall kubevault-operator --namespace=$(KUBE_NAMESPACE) || true
 
 .PHONY: purge
 purge: uninstall

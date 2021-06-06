@@ -33,6 +33,7 @@ import (
 )
 
 type ExtraOptions struct {
+	LicenseFile             string
 	DockerRegistry          string
 	MaxNumRequeues          int
 	NumThreads              int
@@ -57,6 +58,8 @@ func NewExtraOptions() *ExtraOptions {
 func (s *ExtraOptions) AddGoFlags(fs *flag.FlagSet) {
 	clusterid.AddGoFlags(fs)
 
+	fs.StringVar(&s.LicenseFile, "license-file", s.LicenseFile, "Path to license file")
+
 	fs.StringVar(&s.DockerRegistry, "docker-registry", s.DockerRegistry, "Docker image registry for sidecar, init-container, check-job, recovery-job and kubectl-job")
 
 	fs.Float64Var(&s.QPS, "qps", s.QPS, "The maximum QPS to the master from this client")
@@ -76,6 +79,7 @@ func (s *ExtraOptions) AddFlags(fs *pflag.FlagSet) {
 func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 	var err error
 
+	cfg.LicenseFile = s.LicenseFile
 	cfg.DockerRegistry = s.DockerRegistry
 	cfg.MaxNumRequeues = s.MaxNumRequeues
 	cfg.NumThreads = s.NumThreads

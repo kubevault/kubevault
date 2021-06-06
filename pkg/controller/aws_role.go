@@ -43,6 +43,9 @@ func (c *VaultController) initAWSRoleWatcher() {
 	c.awsRoleInformer = c.extInformerFactory.Engine().V1alpha1().AWSRoles().Informer()
 	c.awsRoleQueue = queue.New(api.ResourceKindAWSRole, c.MaxNumRequeues, c.NumThreads, c.runAWSRoleInjector)
 	c.awsRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.awsRoleQueue.GetQueue()))
+	if c.auditor != nil {
+		c.awsRoleInformer.AddEventHandler(c.auditor)
+	}
 	c.awsRoleLister = c.extInformerFactory.Engine().V1alpha1().AWSRoles().Lister()
 }
 

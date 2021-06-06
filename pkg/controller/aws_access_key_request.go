@@ -41,6 +41,9 @@ func (c *VaultController) initAWSAccessKeyWatcher() {
 	c.awsAccessInformer = c.extInformerFactory.Engine().V1alpha1().AWSAccessKeyRequests().Informer()
 	c.awsAccessQueue = queue.New(api.ResourceKindAWSAccessKeyRequest, c.MaxNumRequeues, c.NumThreads, c.runAWSAccessKeyRequestInjector)
 	c.awsAccessInformer.AddEventHandler(queue.NewReconcilableHandler(c.awsAccessQueue.GetQueue()))
+	if c.auditor != nil {
+		c.awsAccessInformer.AddEventHandler(c.auditor)
+	}
 	c.awsAccessLister = c.extInformerFactory.Engine().V1alpha1().AWSAccessKeyRequests().Lister()
 }
 

@@ -25,7 +25,7 @@ import (
 	"kubevault.dev/operator/pkg/eventer"
 
 	pcm "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
-	core "k8s.io/api/core/v1"
+	auditlib "go.bytebuilders.dev/audit/lib"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
@@ -53,6 +53,7 @@ type config struct {
 type Config struct {
 	config
 
+	LicenseFile      string
 	ClientConfig     *rest.Config
 	KubeClient       kubernetes.Interface
 	ExtClient        cs.Interface
@@ -73,23 +74,32 @@ func (c *Config) New() (*VaultController, error) {
 		return nil, err
 	}
 
+	// audit event publisher
+	natscfg, err := auditlib.NewNatsConfig(c.KubeClient.CoreV1().Namespaces(), c.LicenseFile)
+	if err != nil {
+		return nil, err
+	}
+	mapper := discovery.NewResourceMapper(discovery.NewRestMapper(c.KubeClient.Discovery()))
+	fn := auditlib.BillingEventCreator{
+		Mapper:    mapper,
+		LicenseID: natscfg.LicenseID,
+	}
+
 	ctrl := &VaultController{
-		config:           c.config,
-		clientConfig:     c.ClientConfig,
-		ctxCancels:       make(map[string]CtxWithCancel),
-		finalizerInfo:    NewMapFinalizer(),
-		authMethodCtx:    make(map[string]CtxWithCancel),
-		kubeClient:       c.KubeClient,
-		extClient:        c.ExtClient,
-		crdClient:        c.CRDClient,
-		promClient:       c.PromClient,
-		appCatalogClient: c.AppCatalogClient,
-		kubeInformerFactory: informers.NewSharedInformerFactoryWithOptions(
-			c.KubeClient,
-			c.ResyncPeriod,
-			informers.WithNamespace(core.NamespaceAll)),
-		extInformerFactory: vaultinformers.NewSharedInformerFactory(c.ExtClient, c.ResyncPeriod),
-		recorder:           eventer.NewEventRecorder(c.KubeClient, "vault-operator"),
+		config:              c.config,
+		clientConfig:        c.ClientConfig,
+		ctxCancels:          make(map[string]CtxWithCancel),
+		finalizerInfo:       NewMapFinalizer(),
+		authMethodCtx:       make(map[string]CtxWithCancel),
+		kubeClient:          c.KubeClient,
+		extClient:           c.ExtClient,
+		crdClient:           c.CRDClient,
+		promClient:          c.PromClient,
+		appCatalogClient:    c.AppCatalogClient,
+		kubeInformerFactory: informers.NewSharedInformerFactory(c.KubeClient, c.ResyncPeriod),
+		extInformerFactory:  vaultinformers.NewSharedInformerFactory(c.ExtClient, c.ResyncPeriod),
+		recorder:            eventer.NewEventRecorder(c.KubeClient, "vault-operator"),
+		auditor:             auditlib.NewEventPublisher(natscfg, mapper, fn.CreateEvent),
 	}
 
 	if err := ctrl.ensureCustomResourceDefinitions(); err != nil {

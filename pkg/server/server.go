@@ -27,6 +27,7 @@ import (
 	"kubevault.dev/operator/pkg/controller"
 	"kubevault.dev/operator/pkg/eventer"
 
+	license "go.bytebuilders.dev/license-verifier/kubernetes"
 	"gomodules.xyz/pointer"
 	admission "k8s.io/api/admission/v1beta1"
 	core "k8s.io/api/core/v1"
@@ -119,10 +120,6 @@ func (c completedConfig) New() (*VaultServer, error) {
 	if err != nil {
 		return nil, err
 	}
-	ctrl, err := c.ExtraConfig.New()
-	if err != nil {
-		return nil, err
-	}
 
 	var admissionHooks []hooks.AdmissionHook
 	if c.ExtraConfig.EnableValidatingWebhook {
@@ -139,6 +136,13 @@ func (c completedConfig) New() (*VaultServer, error) {
 			&vsadmission.PolicyBindingMutator{},
 			&vsadmission.VaultServerMutator{},
 		)
+	}
+
+	license.NewLicenseEnforcer(c.ExtraConfig.ClientConfig, c.ExtraConfig.LicenseFile).Install(genericServer.Handler.NonGoRestfulMux)
+
+	ctrl, err := c.ExtraConfig.New()
+	if err != nil {
+		return nil, err
 	}
 
 	s := &VaultServer{
