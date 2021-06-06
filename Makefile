@@ -350,7 +350,7 @@ endif
 .PHONY: install
 install:
 	@cd ../installer; \
-	helm install kubevault-community charts/kubevault-community \
+	helm install kubevault-operator charts/kubevault-operator \
 		--namespace=$(KUBE_NAMESPACE)              \
 		--set-file license=$(LICENSE_FILE)         \
 		--set operator.registry=$(REGISTRY)        \
@@ -358,15 +358,15 @@ install:
 		--set operator.tag=$(TAG)                  \
 		--set imagePullPolicy=$(IMAGE_PULL_POLICY) \
 		$(IMAGE_PULL_SECRETS);                     \
-	kubectl wait --for=condition=Ready pods -n kube-system -l 'app.kubernetes.io/name=vault-operator,app.kubernetes.io/instance=vault-operator' --timeout=5m; \
-	kubectl wait --for=condition=Available apiservice -l 'app.kubernetes.io/name=vault-operator,app.kubernetes.io/instance=vault-operator' --timeout=5m; \
+	kubectl wait --for=condition=Ready pods -n kube-system -l 'app.kubernetes.io/name=kubevault-operator,app.kubernetes.io/instance=kubevault-operator' --timeout=5m; \
+	kubectl wait --for=condition=Available apiservice -l 'app.kubernetes.io/name=kubevault-operator,app.kubernetes.io/instance=kubevault-operator' --timeout=5m; \
 	helm install kubevault-catalog charts/kubevault-catalog --namespace=kube-system
 
 .PHONY: uninstall
 uninstall:
 	@cd ../installer; \
 	helm uninstall kubevault-catalog --namespace=$(KUBE_NAMESPACE) || true; \
-	helm uninstall kubevault-community --namespace=$(KUBE_NAMESPACE) || true
+	helm uninstall kubevault-operator --namespace=$(KUBE_NAMESPACE) || true
 
 .PHONY: purge
 purge: uninstall

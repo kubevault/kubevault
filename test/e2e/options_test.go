@@ -93,5 +93,5 @@ func enableLogging() {
 			return
 		}
 	}
-	flags.SetLogLevel(2)
+	_ = flag.Set("v", "2")
 }
