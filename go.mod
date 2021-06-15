@@ -19,7 +19,7 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.6.1
-	go.bytebuilders.dev/audit v0.0.1
+	go.bytebuilders.dev/audit v0.0.2
 	go.bytebuilders.dev/license-verifier v0.9.2
 	go.bytebuilders.dev/license-verifier/kubernetes v0.9.2
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
@@ -40,7 +40,7 @@ require (
 	k8s.io/kube-aggregator v0.21.0
 	k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7
 	k8s.io/kubernetes v1.21.0
-	kmodules.xyz/client-go v0.0.0-20210605021217-cabaee7b953e
+	kmodules.xyz/client-go v0.0.0-20210614094429-affdb80e35c8
 	kmodules.xyz/constants v0.0.0-20210218100002-2c304bfda278
 	kmodules.xyz/custom-resources v0.0.0-20210605111625-741fcb992541
 	kmodules.xyz/monitoring-agent-api v0.0.0-20210504040241-261c2428d207
