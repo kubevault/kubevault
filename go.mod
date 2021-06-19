@@ -12,14 +12,14 @@ require (
 	github.com/hashicorp/vault/sdk v0.2.0
 	github.com/lib/pq v1.10.1
 	github.com/ncw/swift v1.0.49
-	github.com/onsi/ginkgo v1.16.2
-	github.com/onsi/gomega v1.12.0
+	github.com/onsi/ginkgo v1.16.4
+	github.com/onsi/gomega v1.13.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus-operator/prometheus-operator/pkg/client v0.47.0
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.6.1
-	go.bytebuilders.dev/audit v0.0.2
+	github.com/stretchr/testify v1.7.0
+	go.bytebuilders.dev/audit v0.0.7
 	go.bytebuilders.dev/license-verifier v0.9.2
 	go.bytebuilders.dev/license-verifier/kubernetes v0.9.2
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
@@ -37,16 +37,16 @@ require (
 	k8s.io/apiserver v0.21.1
 	k8s.io/client-go v0.21.1
 	k8s.io/klog/v2 v2.8.0
-	k8s.io/kube-aggregator v0.21.0
+	k8s.io/kube-aggregator v0.21.1
 	k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7
-	k8s.io/kubernetes v1.21.0
-	kmodules.xyz/client-go v0.0.0-20210614094429-affdb80e35c8
+	k8s.io/kubernetes v1.21.1
+	kmodules.xyz/client-go v0.0.0-20210617233340-13d22e91512b
 	kmodules.xyz/constants v0.0.0-20210218100002-2c304bfda278
-	kmodules.xyz/custom-resources v0.0.0-20210605111625-741fcb992541
-	kmodules.xyz/monitoring-agent-api v0.0.0-20210504040241-261c2428d207
-	kmodules.xyz/offshoot-api v0.0.0-20210504040651-7951e351f0f5
-	kmodules.xyz/webhook-runtime v0.0.0-20210504042742-3a9911e3dcdc
-	kubevault.dev/apimachinery v0.0.0-20210606125753-5ad33f626cc1
+	kmodules.xyz/custom-resources v0.0.0-20210618003440-c6bb400da153
+	kmodules.xyz/monitoring-agent-api v0.0.0-20210618110729-9cd872c66513
+	kmodules.xyz/offshoot-api v0.0.0-20210618005544-5217a24765da
+	kmodules.xyz/webhook-runtime v0.0.0-20210618013329-0accb929102b
+	kubevault.dev/apimachinery v0.0.0-20210618132815-c6233d6b25cd
 )
 
 replace bitbucket.org/ww/goautoneg => gomodules.xyz/goautoneg v0.0.0-20120707110453-a547fc61f48d
@@ -133,21 +133,21 @@ replace google.golang.org/grpc => google.golang.org/grpc v1.27.1
 
 replace helm.sh/helm/v3 => github.com/kubepack/helm/v3 v3.1.0-rc.1.0.20210503022716-7e2d4913a125
 
-replace k8s.io/api => k8s.io/api v0.21.0
+replace k8s.io/api => k8s.io/api v0.21.1
 
-replace k8s.io/apimachinery => github.com/kmodules/apimachinery v0.21.1-rc.0.0.20210405112358-ad4c2289ba4c
+replace k8s.io/apimachinery => github.com/kmodules/apimachinery v0.21.2-rc.0.0.20210617231004-332981b97d2d
 
-replace k8s.io/apiserver => github.com/kmodules/apiserver v0.21.1-0.20210525165825-102cf43e00fa
+replace k8s.io/apiserver => github.com/kmodules/apiserver v0.21.2-0.20210617231348-daadbf0c8d5e
 
-replace k8s.io/cli-runtime => k8s.io/cli-runtime v0.21.0
+replace k8s.io/cli-runtime => k8s.io/cli-runtime v0.21.1
 
-replace k8s.io/client-go => k8s.io/client-go v0.21.0
+replace k8s.io/client-go => k8s.io/client-go v0.21.1
 
-replace k8s.io/component-base => k8s.io/component-base v0.21.0
+replace k8s.io/component-base => k8s.io/component-base v0.21.1
 
 replace k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7
 
-replace k8s.io/kubernetes => github.com/kmodules/kubernetes v1.22.0-alpha.0.0.20210427080452-22d2e66bae50
+replace k8s.io/kubernetes => github.com/kmodules/kubernetes v1.22.0-alpha.0.0.20210617232219-a432af45d932
 
 replace k8s.io/utils => k8s.io/utils v0.0.0-20201110183641-67b214c5f920
 

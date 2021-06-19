@@ -30,6 +30,7 @@ import (
 	policy_listers "kubevault.dev/apimachinery/client/listers/policy/v1alpha1"
 
 	pcm "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
+	auditlib "go.bytebuilders.dev/audit/lib"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/informers"
@@ -58,10 +59,8 @@ type VaultController struct {
 	appCatalogClient appcat_cs.AppcatalogV1alpha1Interface
 	crdClient        crd_cs.Interface
 	recorder         record.EventRecorder
-	// Audit Event Publisher
-	auditor cache.ResourceEventHandler
-	// Prometheus client
-	promClient pcm.MonitoringV1Interface
+	auditor          *auditlib.EventPublisher
+	promClient       pcm.MonitoringV1Interface
 
 	kubeInformerFactory informers.SharedInformerFactory
 	extInformerFactory  vaultinformers.SharedInformerFactory

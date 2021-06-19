@@ -44,7 +44,7 @@ func (c *VaultController) initSecretEngineWatcher() {
 	c.secretEngineQueue = queue.New(api.ResourceKindSecretEngine, c.MaxNumRequeues, c.NumThreads, c.runSecretEngineInjector)
 	c.secretEngineInformer.AddEventHandler(queue.NewReconcilableHandler(c.secretEngineQueue.GetQueue()))
 	if c.auditor != nil {
-		c.secretEngineInformer.AddEventHandler(c.auditor)
+		c.secretEngineInformer.AddEventHandler(c.auditor.ForGVK(api.SchemeGroupVersion.WithKind(api.ResourceKindSecretEngine)))
 	}
 	c.secretEngineLister = c.extInformerFactory.Engine().V1alpha1().SecretEngines().Lister()
 }

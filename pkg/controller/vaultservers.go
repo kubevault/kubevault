@@ -44,7 +44,7 @@ func (c *VaultController) initVaultServerWatcher() {
 	c.vsQueue = queue.New(api.ResourceKindVaultServer, c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
 	c.vsInformer.AddEventHandler(queue.NewReconcilableHandler(c.vsQueue.GetQueue()))
 	if c.auditor != nil {
-		c.vsInformer.AddEventHandler(c.auditor)
+		c.vsInformer.AddEventHandler(c.auditor.ForGVK(api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 	}
 	c.vsLister = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Lister()
 }

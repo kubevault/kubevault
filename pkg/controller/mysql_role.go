@@ -44,7 +44,7 @@ func (c *VaultController) initMySQLRoleWatcher() {
 	c.myRoleQueue = queue.New(api.ResourceKindMySQLRole, c.MaxNumRequeues, c.NumThreads, c.runMySQLRoleInjector)
 	c.myRoleInformer.AddEventHandler(queue.NewReconcilableHandler(c.myRoleQueue.GetQueue()))
 	if c.auditor != nil {
-		c.myRoleInformer.AddEventHandler(c.auditor)
+		c.myRoleInformer.AddEventHandler(c.auditor.ForGVK(api.SchemeGroupVersion.WithKind(api.ResourceKindMySQLRole)))
 	}
 	c.myRoleLister = c.extInformerFactory.Engine().V1alpha1().MySQLRoles().Lister()
 }
