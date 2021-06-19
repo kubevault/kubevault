@@ -42,7 +42,7 @@ func (c *VaultController) initAzureAccessKeyWatcher() {
 	c.azureAccessQueue = queue.New(api.ResourceKindAzureAccessKeyRequest, c.MaxNumRequeues, c.NumThreads, c.runAzureAccessKeyRequestInjector)
 	c.azureAccessInformer.AddEventHandler(queue.NewReconcilableHandler(c.azureAccessQueue.GetQueue()))
 	if c.auditor != nil {
-		c.azureAccessInformer.AddEventHandler(c.auditor)
+		c.azureAccessInformer.AddEventHandler(c.auditor.ForGVK(api.SchemeGroupVersion.WithKind(api.ResourceKindAzureAccessKeyRequest)))
 	}
 	c.azureAccessLister = c.extInformerFactory.Engine().V1alpha1().AzureAccessKeyRequests().Lister()
 }

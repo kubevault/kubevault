@@ -26,22 +26,25 @@ import (
 	cloudeventssdk "github.com/cloudevents/sdk-go/v2"
 	"github.com/cloudevents/sdk-go/v2/binding/format"
 	cloudevents "github.com/cloudevents/sdk-go/v2/event"
-	"github.com/google/uuid"
-	"k8s.io/apimachinery/pkg/api/meta"
+	"go.bytebuilders.dev/license-verifier/info"
+	"gomodules.xyz/sync"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/klog/v2"
 	"kmodules.xyz/client-go/discovery"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
-type EventCreator func(obj runtime.Object) (*api.Event, error)
+type EventCreator func(obj client.Object) (*api.Event, error)
 
 type EventPublisher struct {
+	once    sync.Once
+	connect func() error
+
 	nats        *NatsConfig
 	mapper      discovery.ResourceMapper
 	createEvent EventCreator
@@ -52,16 +55,50 @@ func NewEventPublisher(
 	mapper discovery.ResourceMapper,
 	fn EventCreator,
 ) *EventPublisher {
-	return &EventPublisher{
-		nats:        nats,
+	p := &EventPublisher{
 		mapper:      mapper,
 		createEvent: fn,
 	}
+	p.connect = func() error {
+		p.nats = nats
+		return nil
+	}
+	return p
+}
+
+func NewResilientEventPublisher(
+	fnConnect func() (*NatsConfig, error),
+	mapper discovery.ResourceMapper,
+	fnCreateEvent EventCreator,
+) *EventPublisher {
+	p := &EventPublisher{
+		mapper:      mapper,
+		createEvent: fnCreateEvent,
+	}
+	p.connect = func() error {
+		var err error
+		p.nats, err = fnConnect()
+		if err != nil {
+			klog.V(5).InfoS("failed to connect with event receiver", "error", err)
+		}
+		return err
+	}
+	return p
 }
 
 func (p *EventPublisher) Publish(ev *api.Event, et api.EventType) error {
 	event := cloudeventssdk.NewEvent()
-	setEventDefaults(&event, p.nats.Subject, et)
+	event.SetID(fmt.Sprintf("%s.%d", ev.Resource.GetUID(), ev.Resource.GetGeneration()))
+	// /byte.builders/auditor/license_id/feature/info.ProductName/api_group/api_resource/
+	// ref: https://github.com/cloudevents/spec/blob/v1.0.1/spec.md#source-1
+	event.SetSource(fmt.Sprintf("/byte.builders/auditor/%s/feature/%s/%s/%s", ev.LicenseID, info.ProductName, ev.ResourceID.Group, ev.ResourceID.Name))
+	// obj.getUID
+	// ref: https://github.com/cloudevents/spec/blob/v1.0.1/spec.md#subject
+	event.SetSubject(string(ev.Resource.GetUID()))
+	// builders.byte.auditor.{created, updated, deleted}.v1
+	// ref: https://github.com/cloudevents/spec/blob/v1.0.1/spec.md#type
+	event.SetType(string(et))
+	event.SetTime(time.Now().UTC())
 
 	if err := event.SetData(cloudevents.ApplicationJSON, ev); err != nil {
 		return err
@@ -72,23 +109,23 @@ func (p *EventPublisher) Publish(ev *api.Event, et api.EventType) error {
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*30)
+	ctx, cancel := context.WithTimeout(context.TODO(), natsEventPublishTimeout)
 	defer cancel()
 
 	for {
-		_, err = p.nats.Client.Request(p.nats.Subject, data, time.Second*5)
+		_, err = p.nats.Client.Request(p.nats.Subject, data, natsRequestTimeout)
 		if err == nil {
 			cancel()
 		} else {
-			klog.Warningln(err)
+			klog.V(5).Infoln(err)
 		}
 
 		select {
 		case <-ctx.Done():
 			if ctx.Err() == context.DeadlineExceeded {
-				klog.Warningf("failed to send event : %s", string(data))
+				klog.V(5).Infof("failed to send event : %s", string(data))
 			} else if ctx.Err() == context.Canceled {
-				klog.Infof("Published event `%s` to channel `%s` and acknowledged", et, p.nats.Subject)
+				klog.V(5).Infof("Published event `%s` to channel `%s` and acknowledged", et, p.nats.Subject)
 			}
 			return nil
 		default:
@@ -97,97 +134,31 @@ func (p *EventPublisher) Publish(ev *api.Event, et api.EventType) error {
 	}
 }
 
-func setEventDefaults(event *cloudevents.Event, natsSubject string, et api.EventType) {
-	event.SetID(uuid.New().String())
-	event.SetSubject(natsSubject)
-	event.SetType(string(et))
-	event.SetSource("kubeops.dev/auditor")
-	event.SetTime(time.Now())
-}
-
-var _ cache.ResourceEventHandler = &EventPublisher{}
-
-func (p *EventPublisher) OnAdd(o interface{}) {
-	obj, ok := o.(runtime.Object)
-	if !ok {
-		return
+func (p *EventPublisher) ForGVK(gvk schema.GroupVersionKind) cache.ResourceEventHandler {
+	if gvk.Version == "" || gvk.Kind == "" {
+		panic(fmt.Sprintf("incomplete GVK; %+v", gvk))
 	}
 
-	ev, err := p.createEvent(obj)
-	if err != nil {
-		klog.ErrorS(err, "failed to create event data")
-		return
-	}
+	return &ResourceEventPublisher{
+		p: p,
+		createEvent: func(obj client.Object) (*api.Event, error) {
+			r := obj.DeepCopyObject().(client.Object)
+			r.GetObjectKind().SetGroupVersionKind(gvk)
+			r.SetManagedFields(nil)
 
-	if err = p.Publish(ev, api.EventCreate); err != nil {
-		klog.Errorf("Error while publishing event, reason: %v", err)
-	}
-}
+			ev, err := p.createEvent(r)
+			if err != nil {
+				return nil, err
+			}
 
-func (p *EventPublisher) OnUpdate(oldObj, newObj interface{}) {
-	uOld, err := meta.Accessor(oldObj)
-	if err != nil {
-		klog.ErrorS(err, "failed to get accessor for old object")
-		return
-	}
-	uNew, err := meta.Accessor(newObj)
-	if err != nil {
-		klog.ErrorS(err, "failed to get accessor for new object")
-		return
-	}
+			p.once.Do(p.connect)
+			if p.nats == nil {
+				return nil, fmt.Errorf("not connected to nats")
+			}
+			ev.LicenseID = p.nats.LicenseID
 
-	obj, ok := newObj.(runtime.Object)
-	if !ok {
-		return
-	}
-
-	if uOld.GetUID() == uNew.GetUID() && uOld.GetGeneration() == uNew.GetGeneration() {
-		if klog.V(8).Enabled() {
-			klog.V(8).InfoS("skipping update event",
-				"gvk", obj.GetObjectKind().GroupVersionKind(),
-				"namespace", uNew.GetNamespace(),
-				"name", uNew.GetName(),
-			)
-		}
-		return
-	}
-
-	ev, err := p.createEvent(obj)
-	if err != nil {
-		klog.ErrorS(err, "failed to create event data")
-		return
-	}
-
-	if err = p.Publish(ev, api.EventUpdate); err != nil {
-		klog.Errorf("Error while publishing event, reason: %v", err)
-	}
-}
-
-func (p *EventPublisher) OnDelete(obj interface{}) {
-	var object runtime.Object
-	var ok bool
-	if object, ok = obj.(runtime.Object); !ok {
-		tombstone, ok := obj.(cache.DeletedFinalStateUnknown)
-		if !ok {
-			klog.Error("error decoding object, invalid type")
-			return
-		}
-		object, ok = tombstone.Obj.(runtime.Object)
-		if !ok {
-			utilruntime.HandleError(fmt.Errorf("error decoding object tombstone, invalid type"))
-			return
-		}
-		klog.V(4).Infof("Recovered deleted object '%v' from tombstone", tombstone.Obj.(metav1.Object).GetName())
-	}
-
-	ev, err := p.createEvent(object)
-	if err != nil {
-		klog.ErrorS(err, "failed to create event data")
-		return
-	}
-
-	if err := p.Publish(ev, api.EventDelete); err != nil {
-		klog.Errorf("Error while publishing event, reason: %v", err)
+			return ev, nil
+		},
 	}
 }
 
@@ -199,18 +170,98 @@ func (p *EventPublisher) SetupWithManagerForKind(ctx context.Context, mgr manage
 	if err != nil {
 		return err
 	}
-	i.AddEventHandler(p)
+	i.AddEventHandler(p.ForGVK(gvk))
 	return nil
 }
 
 func (p *EventPublisher) SetupWithManager(ctx context.Context, mgr manager.Manager, obj client.Object) error {
-	if p == nil {
-		return nil
-	}
-	i, err := mgr.GetCache().GetInformer(ctx, obj)
+	gvk, err := apiutil.GVKForObject(obj, mgr.GetScheme())
 	if err != nil {
 		return err
 	}
-	i.AddEventHandler(p)
-	return nil
+	return p.SetupWithManagerForKind(ctx, mgr, gvk)
+}
+
+type ResourceEventPublisher struct {
+	p           *EventPublisher
+	createEvent EventCreator
+}
+
+var _ cache.ResourceEventHandler = &ResourceEventPublisher{}
+
+func (p *ResourceEventPublisher) OnAdd(o interface{}) {
+	obj, ok := o.(client.Object)
+	if !ok {
+		return
+	}
+
+	ev, err := p.createEvent(obj)
+	if err != nil {
+		klog.V(5).InfoS("failed to create event data", "error", err)
+		return
+	}
+
+	if err = p.p.Publish(ev, api.EventCreated); err != nil {
+		klog.V(5).InfoS("error while publishing event", "error", err)
+	}
+}
+
+func (p *ResourceEventPublisher) OnUpdate(oldObj, newObj interface{}) {
+	uOld, ok := oldObj.(client.Object)
+	if !ok {
+		return
+	}
+	uNew, ok := newObj.(client.Object)
+	if !ok {
+		return
+	}
+
+	if uOld.GetUID() == uNew.GetUID() && uOld.GetGeneration() == uNew.GetGeneration() {
+		if klog.V(8).Enabled() {
+			klog.V(8).InfoS("skipping update event",
+				"gvk", uNew.GetObjectKind().GroupVersionKind(),
+				"namespace", uNew.GetNamespace(),
+				"name", uNew.GetName(),
+			)
+		}
+		return
+	}
+
+	ev, err := p.createEvent(uNew)
+	if err != nil {
+		klog.V(5).InfoS("failed to create event data", "error", err)
+		return
+	}
+
+	if err = p.p.Publish(ev, api.EventUpdated); err != nil {
+		klog.V(5).InfoS("failed to publish event", "error", err)
+	}
+}
+
+func (p *ResourceEventPublisher) OnDelete(obj interface{}) {
+	var object client.Object
+	var ok bool
+	if object, ok = obj.(client.Object); !ok {
+		tombstone, ok := obj.(cache.DeletedFinalStateUnknown)
+		if !ok {
+			klog.V(5).Info("error decoding object, invalid type")
+			return
+		}
+		object, ok = tombstone.Obj.(client.Object)
+		if !ok {
+			utilruntime.HandleError(fmt.Errorf("error decoding object tombstone, invalid type"))
+			return
+		}
+		klog.V(5).Infof("Recovered deleted object '%v' from tombstone", tombstone.Obj.(metav1.Object).GetName())
+	}
+
+	ev, err := p.createEvent(object)
+	if err != nil {
+		klog.V(5).InfoS("failed to create event data", "error", err)
+		return
+	}
+
+	if err := p.p.Publish(ev, api.EventDeleted); err != nil {
+		klog.V(5).InfoS("failed to publish event", "error", err)
+	}
 }

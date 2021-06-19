@@ -41,7 +41,7 @@ func (c *VaultController) initVaultPolicyWatcher() {
 	c.vplcyQueue = queue.New(policyapi.ResourceKindVaultPolicy, c.MaxNumRequeues, c.NumThreads, c.runVaultPolicyInjector)
 	c.vplcyInformer.AddEventHandler(queue.NewReconcilableHandler(c.vplcyQueue.GetQueue()))
 	if c.auditor != nil {
-		c.vplcyInformer.AddEventHandler(c.auditor)
+		c.vplcyInformer.AddEventHandler(c.auditor.ForGVK(policyapi.SchemeGroupVersion.WithKind(policyapi.ResourceKindVaultPolicy)))
 	}
 	c.vplcyLister = c.extInformerFactory.Policy().V1alpha1().VaultPolicies().Lister()
 }
