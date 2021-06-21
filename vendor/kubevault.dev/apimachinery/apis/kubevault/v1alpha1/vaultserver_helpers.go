@@ -17,7 +17,9 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"errors"
 	"fmt"
+	"path/filepath"
 
 	"kubevault.dev/apimachinery/apis/kubevault"
 	"kubevault.dev/apimachinery/crds"
@@ -154,4 +156,59 @@ func (e vaultServerStatsService) Path() string {
 
 func (e vaultServerStatsService) Scheme() string {
 	return ""
+}
+
+// Returns the Backend certificate secret name for given backend name.
+func (vs *VaultServer) BackendCertSecretName(backendName string) string {
+	return meta.NameWithSuffix(fmt.Sprintf("%s-%s", vs.Name, backendName), "certs")
+}
+
+func (vs *VaultServer) GetCertificateCN(alias VaultCertificateAlias) string {
+	return fmt.Sprintf("%s-%s", vs.Name, string(alias))
+}
+
+func (vs *VaultServer) Scheme() string {
+	if vs.Spec.TLS != nil {
+		return "https"
+	}
+	return "http"
+}
+
+func (vsb *BackendStorageSpec) GetBackendType() (VaultServerBackend, error) {
+	switch {
+	case vsb.Inmem != nil:
+		return VaultServerInmem, nil
+	case vsb.Etcd != nil:
+		return VaultServerEtcd, nil
+	case vsb.Gcs != nil:
+		return VaultServerGcs, nil
+	case vsb.S3 != nil:
+		return VaultServerS3, nil
+	case vsb.Azure != nil:
+		return VaultServerAzure, nil
+	case vsb.PostgreSQL != nil:
+		return VaultServerPostgreSQL, nil
+	case vsb.MySQL != nil:
+		return VaultServerMySQL, nil
+	case vsb.File != nil:
+		return VaultServerFile, nil
+	case vsb.DynamoDB != nil:
+		return VaultServerDynamoDB, nil
+	case vsb.Swift != nil:
+		return VaultServerSwift, nil
+	case vsb.Consul != nil:
+		return VaultServerConsul, nil
+	case vsb.Raft != nil:
+		return VaultServerRaft, nil
+	default:
+		return "unknown-backend", errors.New("backend type is not known")
+	}
+}
+
+func (v *VaultServer) GetBackendCertsName(cert string) (string, error) {
+	// Todo: Add conditions for other storage backends.
+	if v.Spec.Backend.Raft != nil {
+		return filepath.Join("/etc/vault/tls/storage/", cert), nil
+	}
+	return "", nil
 }

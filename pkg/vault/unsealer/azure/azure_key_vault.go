@@ -35,11 +35,13 @@ const (
 
 type Options struct {
 	api.AzureKeyVault
+	Backend string
 }
 
-func NewOptions(s api.AzureKeyVault) (*Options, error) {
+func NewOptions(s api.AzureKeyVault, backend api.VaultServerBackend) (*Options, error) {
 	return &Options{
-		s,
+		AzureKeyVault: s,
+		Backend:       string(backend),
 	}, nil
 }
 

@@ -46,6 +46,9 @@ $(GOLINT):
 $(STATICCHECK):
 	cd tools && go install honnef.co/go/tools/cmd/staticcheck
 
+$(STATICCHECK):
+	go install honnef.co/go/tools/cmd/staticcheck
+
 .PHONY: test
 test:
 	@$(foreach dir,$(MODULE_DIRS),(cd $(dir) && go test -race ./...) &&) true

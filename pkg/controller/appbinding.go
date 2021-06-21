@@ -36,9 +36,13 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 		Name:      vs.AppBindingName(),
 		Namespace: vs.Namespace,
 	}
-	_, caBundle, err := v.GetServerTLS()
-	if err != nil {
-		return err
+	var caBundle []byte
+	var err error
+	if vs.Spec.TLS != nil {
+		caBundle, err = v.GetCABundle()
+		if err != nil {
+			return err
+		}
 	}
 
 	vClientConf := appcat.ClientConfig{

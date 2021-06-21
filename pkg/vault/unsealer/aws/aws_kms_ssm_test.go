@@ -44,7 +44,9 @@ func TestOptions_Apply(t *testing.T) {
 	opts, err := NewOptions(api.AwsKmsSsmSpec{
 		KmsKeyID:     "test-key",
 		SsmKeyPrefix: "/cluster/demo",
-	})
+	},
+		"backend")
+
 	assert.Nil(t, err)
 
 	err = opts.Apply(pt)

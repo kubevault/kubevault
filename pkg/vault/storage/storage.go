@@ -27,6 +27,7 @@ import (
 	"kubevault.dev/operator/pkg/vault/storage/inmem"
 	"kubevault.dev/operator/pkg/vault/storage/mysql"
 	"kubevault.dev/operator/pkg/vault/storage/postgresql"
+	"kubevault.dev/operator/pkg/vault/storage/raft"
 	"kubevault.dev/operator/pkg/vault/storage/s3"
 	"kubevault.dev/operator/pkg/vault/storage/swift"
 
@@ -44,8 +45,7 @@ type Storage interface {
 
 // NewStorage is the factory creating the Storage based on the Backend given in
 // the VaultServer spec.
-func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage,
-	error) {
+func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage, error) {
 	s := vs.Spec.Backend
 
 	switch {
@@ -71,6 +71,8 @@ func NewStorage(kubeClient kubernetes.Interface, vs *api.VaultServer) (Storage,
 		return swift.NewOptions(*s.Swift)
 	case s.Consul != nil:
 		return consul.NewOptions(kubeClient, vs.Namespace, *s.Consul)
+	case s.Raft != nil:
+		return raft.NewOptions(kubeClient, vs)
 	default:
 		return nil, errors.New("invalid storage backend")
 	}

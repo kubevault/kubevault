@@ -34,11 +34,13 @@ const (
 
 type Options struct {
 	api.AwsKmsSsmSpec
+	Backend string
 }
 
-func NewOptions(s api.AwsKmsSsmSpec) (*Options, error) {
+func NewOptions(s api.AwsKmsSsmSpec, backend api.VaultServerBackend) (*Options, error) {
 	return &Options{
-		s,
+		AwsKmsSsmSpec: s,
+		Backend:       string(backend),
 	}, nil
 }
 

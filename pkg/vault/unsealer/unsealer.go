@@ -63,15 +63,15 @@ type unsealerSrv struct {
 	config     capi.VaultServerVersionUnsealer
 }
 
-func newUnsealer(s *api.UnsealerSpec) (Unsealer, error) {
+func newUnsealer(s *api.UnsealerSpec, backend api.VaultServerBackend) (Unsealer, error) {
 	if s.Mode.KubernetesSecret != nil {
-		return k8s.NewOptions(*s.Mode.KubernetesSecret)
+		return k8s.NewOptions(*s.Mode.KubernetesSecret, backend)
 	} else if s.Mode.GoogleKmsGcs != nil {
-		return google.NewOptions(*s.Mode.GoogleKmsGcs)
+		return google.NewOptions(*s.Mode.GoogleKmsGcs, backend)
 	} else if s.Mode.AwsKmsSsm != nil {
-		return aws.NewOptions(*s.Mode.AwsKmsSsm)
+		return aws.NewOptions(*s.Mode.AwsKmsSsm, backend)
 	} else if s.Mode.AzureKeyVault != nil {
-		return azure.NewOptions(*s.Mode.AzureKeyVault)
+		return azure.NewOptions(*s.Mode.AzureKeyVault, backend)
 	} else {
 		return nil, errors.New("unsealer mode is not valid/defined")
 	}
@@ -87,7 +87,12 @@ func NewUnsealerService(restConfig *rest.Config, vs *api.VaultServer, version *c
 		return nil, nil
 	}
 
-	unslr, err := newUnsealer(vs.Spec.Unsealer)
+	backend, err := vs.Spec.Backend.GetBackendType()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get the storage backend name")
+	}
+
+	unslr, err := newUnsealer(vs.Spec.Unsealer, backend)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create unsealer service")
 	}
@@ -143,8 +148,8 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 	}
 
 	if u.vs.Spec.TLS != nil && u.vs.Spec.TLS.Certificates != nil {
-		// Get k8s secret
-		secretName := u.vs.GetCertSecretName(string(api.VaultServerServiceVault))
+		// Get k8s secret of vault server
+		secretName := u.vs.GetCertSecretName(string(api.VaultServerCert))
 		secret, err := u.kc.CoreV1().Secrets(u.vs.Namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to get secret")
@@ -158,8 +163,11 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 		}
 
 		// export ca.crt as tls-cacert
-		args = append(args, fmt.Sprintf("--vault.tls-cacert=%s", string(byt)))
+		args = append(args, fmt.Sprintf("--vault.ca-cert=%s", string(byt)))
 	}
+
+	// add vault address
+	args = append(args, fmt.Sprintf(`--vault.address=%s://127.0.0.1:8200`, u.vs.Scheme()))
 
 	// Add kubernetes auth flags
 	args = append(args, fmt.Sprintf("--auth.k8s-host=%s", u.restConfig.Host))
