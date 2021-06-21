@@ -30,6 +30,7 @@ func TestOptions_Apply(t *testing.T) {
 	expected := []string{
 		"--mode=kubernetes-secret",
 		"--k8s.secret-name=test",
+		"--storage-backend=backend",
 	}
 	cont := core.Container{
 		Name: util.VaultUnsealerContainerName,
@@ -42,7 +43,7 @@ func TestOptions_Apply(t *testing.T) {
 
 	opts, err := NewOptions(api.KubernetesSecretSpec{
 		SecretName: "test",
-	})
+	}, "backend")
 	assert.Nil(t, err)
 
 	err = opts.Apply(&pt)

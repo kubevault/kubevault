@@ -235,6 +235,7 @@ func (c *VaultController) CreateVaultTLSSecret(vs *api.VaultServer, v Vault) err
 	if err := v.EnsureStorageTLS(); err != nil {
 		return err
 	}
+
 	return nil
 }
 
