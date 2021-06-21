@@ -64,7 +64,7 @@ const (
 	VaultClientPort         = 8200
 	VaultClusterPort        = 8201
 	vaultTLSAssetVolumeName = "vault-tls-secret"
-	Time365Days = 365*24*time.Hour
+	Time365Days             = 365 * 24 * time.Hour
 )
 
 var (
