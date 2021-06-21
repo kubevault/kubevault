@@ -55,7 +55,6 @@ import (
 	"k8s.io/klog/v2"
 	core_util "kmodules.xyz/client-go/core/v1"
 	meta_util "kmodules.xyz/client-go/meta"
-	certlib "kubedb.dev/elasticsearch/pkg/lib/cert"
 )
 
 const (
@@ -65,6 +64,7 @@ const (
 	VaultClientPort         = 8200
 	VaultClusterPort        = 8201
 	vaultTLSAssetVolumeName = "vault-tls-secret"
+	Time365Days = 365*24*time.Hour
 )
 
 var (
@@ -1103,7 +1103,7 @@ func newSignedCert(cfg cert.Config, key *rsa.PrivateKey, caCert *x509.Certificat
 		IPAddresses:  cfg.AltNames.IPs,
 		SerialNumber: serial,
 		NotBefore:    caCert.NotBefore,
-		NotAfter:     time.Now().Add(certlib.Duration365d).UTC(),
+		NotAfter:     time.Now().Add(Time365Days).UTC(),
 		KeyUsage:     x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
 		ExtKeyUsage:  cfg.Usages,
 		ExtraExtensions: []pkix.Extension{
