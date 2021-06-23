@@ -97,7 +97,8 @@ func getConfigData(extraConfig string, storageCfg string, exptrCfg string) strin
 	if len(extraConfig) != 0 {
 		cfg = fmt.Sprintf("%s\n%s", cfg, extraConfig)
 	}
-	cfg = fmt.Sprintf("%s\n%s\n%s", cfg, storageCfg, exptrCfg)
+	uiCfg := "ui = true"
+	cfg = fmt.Sprintf("%s\n%s\n%s\n%s", cfg, uiCfg, storageCfg, exptrCfg)
 	return cfg
 }
 
