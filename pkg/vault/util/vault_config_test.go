@@ -32,5 +32,5 @@ tls_key_file = "/etc/vault/tls/server/tls.key"
 tls_client_ca_file = "/etc/vault/tls/server/ca.crt"
 }
 `
-	assert.Equal(t, expectedOutput, GetListenerConfig(true))
+	assert.Equal(t, expectedOutput, GetListenerConfig("/etc/vault/tls/server/", true))
 }

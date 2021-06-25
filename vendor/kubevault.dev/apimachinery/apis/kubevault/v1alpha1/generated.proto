@@ -569,12 +569,6 @@ message RaftSpec {
   // +optional
   optional string path = 1;
 
-  // The identifier for the node in the Raft cluster.
-  // This value can be overridden by setting the VAULT_RAFT_NODE_ID environment variable.
-  // default: ""
-  // +optional
-  optional string nodeID = 2;
-
   // An integer multiplier used by servers to scale key Raft timing parameters.
   // Tuning this affects the time it takes Vault to detect leader failures and to perform leader elections,
   // at the expense of requiring more network and CPU resources for better performance.
@@ -592,10 +586,6 @@ message RaftSpec {
   // +optional
   optional int64 snapshotThreshold = 5;
 
-  // RetryJoin - It can have multiple stanzas, do it later!
-  // +optional
-  repeated RetryJoinSpec retryJoin = 6;
-
   // This configures the maximum number of bytes for a raft entry. It applies to both Put operations and transactions.
   // default: 1048576
   // +optional
@@ -608,22 +598,6 @@ message RaftSpec {
 
   // Storage to specify how storage shall be used.
   optional k8s.io.api.core.v1.PersistentVolumeClaimSpec storage = 9;
-}
-
-// RetryJoinSpec defines the configuration for the RetryJoin.
-// https://www.vaultproject.io/docs/configuration/storage/raft
-message RetryJoinSpec {
-  // Cloud auto-join configuration.
-  // +optional
-  optional string autoJoin = 2;
-
-  // The optional URI protocol scheme for addresses discovered via auto-join.
-  // +optional
-  optional string autoJoinScheme = 3;
-
-  // The optional port used for addressed discovered via auto-join.
-  // +optional
-  optional uint64 autoJoinPort = 4;
 }
 
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/s3.html

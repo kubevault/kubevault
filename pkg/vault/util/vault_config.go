@@ -38,9 +38,6 @@ const (
 const (
 	// VaultConfigFile is the file that vault pod uses to read config from
 	VaultConfigFile = "/etc/vault/config/vault.hcl"
-
-	// VaultTLSAssetDir is the dir where vault's server TLS sits
-	VaultTLSAssetDir = "/etc/vault/tls/server/"
 )
 
 var listenerFmt = `
@@ -52,12 +49,12 @@ listener "tcp" {
 `
 
 // ListenerConfig creates tcp listener config
-func GetListenerConfig(isTLSEnabled bool) string {
+func GetListenerConfig(mountPath string, isTLSEnabled bool) string {
 	var params []string
 	if isTLSEnabled {
-		params = append(params, fmt.Sprintf(`tls_cert_file = "%s"`, filepath.Join(VaultTLSAssetDir, core.TLSCertKey)))
-		params = append(params, fmt.Sprintf(`tls_key_file = "%s"`, filepath.Join(VaultTLSAssetDir, core.TLSPrivateKeyKey)))
-		params = append(params, fmt.Sprintf(`tls_client_ca_file = "%s"`, filepath.Join(VaultTLSAssetDir, conapi.TLSCACertKey)))
+		params = append(params, fmt.Sprintf(`tls_cert_file = "%s"`, filepath.Join(mountPath, core.TLSCertKey)))
+		params = append(params, fmt.Sprintf(`tls_key_file = "%s"`, filepath.Join(mountPath, core.TLSPrivateKeyKey)))
+		params = append(params, fmt.Sprintf(`tls_client_ca_file = "%s"`, filepath.Join(mountPath, conapi.TLSCACertKey)))
 	} else {
 		params = append(params, "tls_disable = true")
 	}

@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	conapi "kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 
 	"github.com/pkg/errors"
@@ -43,10 +44,7 @@ const VaultRaftVolumeName = "vault-raft-backend"
 
 // TLS related file name for Raft
 const (
-	RaftTLSAssetDir    = "/etc/vault/tls/storage/raft"
-	RaftClientCaName   = "ca.crt"
-	RaftClientCertName = "tls.crt"
-	RaftClientKeyName  = "tls.key"
+	RaftCertificatePath = "/etc/vault/tls/"
 )
 
 var raftStorageFmt = `
@@ -127,7 +125,7 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 			if pt.Spec.Containers[idx].Name == string(api.VaultServerServiceVault) {
 				pt.Spec.Containers[idx].VolumeMounts = append(pt.Spec.Containers[idx].VolumeMounts, core.VolumeMount{
 					Name:      raftTLSAssetVolume,
-					MountPath: RaftTLSAssetDir,
+					MountPath: o.vs.CertificateMountPath(RaftCertificatePath, string(api.VaultStorageCert)),
 				})
 			}
 		}
@@ -146,9 +144,6 @@ func (o *Options) GetStorageConfig() (string, error) {
 	if o.Path != "" {
 		params = append(params, fmt.Sprintf(`path = "%s"`, o.Path))
 	}
-	if o.NodeID != "" {
-		params = append(params, fmt.Sprintf(`node_id = "%s"`, o.NodeID))
-	}
 	if o.PerformanceMultiplier != 0 {
 		params = append(params, fmt.Sprintf(`performance_multiplier = %d`, o.PerformanceMultiplier))
 	}
@@ -166,12 +161,12 @@ func (o *Options) GetStorageConfig() (string, error) {
 	}
 	for id := 0; id < int(replicas); id++ {
 		var retryJoin []string
-		// e.g: retryJoin = append(retryJoin, fmt.Sprint(` leader_api_addr = "https://vault-0.vault-internal.demo.svc:8200"`))
 		retryJoin = append(retryJoin, fmt.Sprintf(` leader_api_addr = "%s://%s-%d.%s.%s.svc:8200"`, o.vs.Scheme(), o.vs.Name, id, o.vs.ServiceName(api.VaultServerServiceInternal), o.vs.Namespace))
 		if o.vs.Spec.TLS != nil {
-			retryJoin = append(retryJoin, fmt.Sprintf(` leader_ca_cert_file = "%s"`, filepath.Join(RaftTLSAssetDir, RaftClientCaName)))
-			retryJoin = append(retryJoin, fmt.Sprintf(` leader_client_cert_file = "%s"`, filepath.Join(RaftTLSAssetDir, RaftClientCertName)))
-			retryJoin = append(retryJoin, fmt.Sprintf(` leader_client_key_file = "%s"`, filepath.Join(RaftTLSAssetDir, RaftClientKeyName)))
+			mountPath := o.vs.CertificateMountPath(RaftCertificatePath, string(api.VaultStorageCert))
+			retryJoin = append(retryJoin, fmt.Sprintf(` leader_ca_cert_file = "%s"`, filepath.Join(mountPath, conapi.TLSCACertKey)))
+			retryJoin = append(retryJoin, fmt.Sprintf(` leader_client_cert_file = "%s"`, filepath.Join(mountPath, core.TLSCertKey)))
+			retryJoin = append(retryJoin, fmt.Sprintf(` leader_client_key_file = "%s"`, filepath.Join(mountPath, core.TLSPrivateKeyKey)))
 		}
 		params = append(params, fmt.Sprintf(retryJoinFmt, strings.Join(retryJoin, "\n")))
 	}

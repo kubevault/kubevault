@@ -36,8 +36,7 @@ func TestOptions_Apply(t *testing.T) {
 			Replicas: &three,
 			Backend: api.BackendStorageSpec{
 				Raft: &api.RaftSpec{
-					Path:      "/test",
-					RetryJoin: []api.RetryJoinSpec{},
+					Path: "/test",
 				},
 			},
 		},
@@ -97,8 +96,7 @@ func TestOptions_GetStorageConfig(t *testing.T) {
 			Replicas: &three,
 			Backend: api.BackendStorageSpec{
 				Raft: &api.RaftSpec{
-					Path:      "/test",
-					RetryJoin: []api.RetryJoinSpec{},
+					Path: "/test",
 				},
 			},
 		},

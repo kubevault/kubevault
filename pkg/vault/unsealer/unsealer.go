@@ -67,11 +67,11 @@ func newUnsealer(s *api.UnsealerSpec, backend api.VaultServerBackend) (Unsealer,
 	if s.Mode.KubernetesSecret != nil {
 		return k8s.NewOptions(*s.Mode.KubernetesSecret, backend)
 	} else if s.Mode.GoogleKmsGcs != nil {
-		return google.NewOptions(*s.Mode.GoogleKmsGcs, backend)
+		return google.NewOptions(*s.Mode.GoogleKmsGcs)
 	} else if s.Mode.AwsKmsSsm != nil {
-		return aws.NewOptions(*s.Mode.AwsKmsSsm, backend)
+		return aws.NewOptions(*s.Mode.AwsKmsSsm)
 	} else if s.Mode.AzureKeyVault != nil {
-		return azure.NewOptions(*s.Mode.AzureKeyVault, backend)
+		return azure.NewOptions(*s.Mode.AzureKeyVault)
 	} else {
 		return nil, errors.New("unsealer mode is not valid/defined")
 	}

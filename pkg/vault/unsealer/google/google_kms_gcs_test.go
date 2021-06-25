@@ -50,7 +50,7 @@ func TestOptions_Apply(t *testing.T) {
 		KmsLocation:  "loc",
 		KmsProject:   "pro",
 		Bucket:       "test",
-	}, "backend")
+	})
 	assert.Nil(t, err)
 
 	err = opts.Apply(pt)

@@ -93,7 +93,7 @@ func getVaultObjectMeta(i int) metav1.ObjectMeta {
 }
 
 func getConfigData(extraConfig string, storageCfg string, exptrCfg string) string {
-	cfg := util.GetListenerConfig(false)
+	cfg := util.GetListenerConfig("/etc/vault/tls/server/", false)
 	if len(extraConfig) != 0 {
 		cfg = fmt.Sprintf("%s\n%s", cfg, extraConfig)
 	}

@@ -754,12 +754,6 @@ type RaftSpec struct {
 	// +optional
 	Path string `json:"path,omitempty" protobuf:"bytes,1,opt,name=path"`
 
-	// The identifier for the node in the Raft cluster.
-	// This value can be overridden by setting the VAULT_RAFT_NODE_ID environment variable.
-	// default: ""
-	// +optional
-	NodeID string `json:"nodeID,omitempty" protobuf:"bytes,2,opt,name=nodeID"`
-
 	// An integer multiplier used by servers to scale key Raft timing parameters.
 	// Tuning this affects the time it takes Vault to detect leader failures and to perform leader elections,
 	// at the expense of requiring more network and CPU resources for better performance.
@@ -777,10 +771,6 @@ type RaftSpec struct {
 	// +optional
 	SnapshotThreshold *int64 `json:"snapshotThreshold,omitempty" protobuf:"bytes,5,opt,name=snapshotThreshold"`
 
-	// RetryJoin - It can have multiple stanzas, do it later!
-	// +optional
-	RetryJoin []RetryJoinSpec `json:"retryJoin,omitempty" protobuf:"bytes,6,opt,name=retryJoin"`
-
 	// This configures the maximum number of bytes for a raft entry. It applies to both Put operations and transactions.
 	// default: 1048576
 	// +optional
@@ -793,22 +783,6 @@ type RaftSpec struct {
 
 	// Storage to specify how storage shall be used.
 	Storage *core.PersistentVolumeClaimSpec `json:"storage,omitempty" protobuf:"bytes,9,opt,name=storage"`
-}
-
-// RetryJoinSpec defines the configuration for the RetryJoin.
-// https://www.vaultproject.io/docs/configuration/storage/raft
-type RetryJoinSpec struct {
-	// Cloud auto-join configuration.
-	// +optional
-	AutoJoin string `json:"autoJoin,omitempty" protobuf:"bytes,2,opt,name=autoJoin"`
-
-	// The optional URI protocol scheme for addresses discovered via auto-join.
-	// +optional
-	AutoJoinScheme string `json:"autoJoinScheme,omitempty" protobuf:"bytes,3,opt,name=autoJoinScheme"`
-
-	// The optional port used for addressed discovered via auto-join.
-	// +optional
-	AutoJoinPort uint64 `json:"autoJoinPort,omitempty" protobuf:"bytes,4,opt,name=autoJoinPort"`
 }
 
 // AzureKeyVault contain the fields that required to unseal vault using azure key vault

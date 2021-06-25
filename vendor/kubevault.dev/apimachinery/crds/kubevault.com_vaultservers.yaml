@@ -752,11 +752,6 @@ spec:
                         default: 1048576'
                       format: int64
                       type: integer
-                    nodeID:
-                      description: 'The identifier for the node in the Raft cluster.
-                        This value can be overridden by setting the VAULT_RAFT_NODE_ID
-                        environment variable. default: ""'
-                      type: string
                     path:
                       description: 'Path (string: "") specifies the filesystem path
                         where the vault data gets stored. This value can be overridden
@@ -771,27 +766,6 @@ spec:
                         resources for better performance. default: 0'
                       format: int64
                       type: integer
-                    retryJoin:
-                      description: RetryJoin - It can have multiple stanzas, do it
-                        later!
-                      items:
-                        description: RetryJoinSpec defines the configuration for the
-                          RetryJoin. https://www.vaultproject.io/docs/configuration/storage/raft
-                        properties:
-                          autoJoin:
-                            description: Cloud auto-join configuration.
-                            type: string
-                          autoJoinPort:
-                            description: The optional port used for addressed discovered
-                              via auto-join.
-                            format: int64
-                            type: integer
-                          autoJoinScheme:
-                            description: The optional URI protocol scheme for addresses
-                              discovered via auto-join.
-                            type: string
-                        type: object
-                      type: array
                     snapshotThreshold:
                       description: 'This controls the minimum number of raft commit
                         entries between snapshots that are saved to disk. default:

@@ -396,7 +396,6 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.NamedServiceTemplateSpec": schema_apimachinery_apis_kubevault_v1alpha1_NamedServiceTemplateSpec(ref),
 		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.PostgreSQLSpec":           schema_apimachinery_apis_kubevault_v1alpha1_PostgreSQLSpec(ref),
 		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.RaftSpec":                 schema_apimachinery_apis_kubevault_v1alpha1_RaftSpec(ref),
-		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.RetryJoinSpec":            schema_apimachinery_apis_kubevault_v1alpha1_RetryJoinSpec(ref),
 		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.S3Spec":                   schema_apimachinery_apis_kubevault_v1alpha1_S3Spec(ref),
 		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.SwiftSpec":                schema_apimachinery_apis_kubevault_v1alpha1_SwiftSpec(ref),
 		"kubevault.dev/apimachinery/apis/kubevault/v1alpha1.TLSPolicy":                schema_apimachinery_apis_kubevault_v1alpha1_TLSPolicy(ref),
@@ -19624,13 +19623,6 @@ func schema_apimachinery_apis_kubevault_v1alpha1_RaftSpec(ref common.ReferenceCa
 							Format:      "",
 						},
 					},
-					"nodeID": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The identifier for the node in the Raft cluster. This value can be overridden by setting the VAULT_RAFT_NODE_ID environment variable. default: \"\"",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
 					"performanceMultiplier": {
 						SchemaProps: spec.SchemaProps{
 							Description: "An integer multiplier used by servers to scale key Raft timing parameters. Tuning this affects the time it takes Vault to detect leader failures and to perform leader elections, at the expense of requiring more network and CPU resources for better performance. default: 0",
@@ -19650,20 +19642,6 @@ func schema_apimachinery_apis_kubevault_v1alpha1_RaftSpec(ref common.ReferenceCa
 							Description: "This controls the minimum number of raft commit entries between snapshots that are saved to disk. default: 8192",
 							Type:        []string{"integer"},
 							Format:      "int64",
-						},
-					},
-					"retryJoin": {
-						SchemaProps: spec.SchemaProps{
-							Description: "RetryJoin - It can have multiple stanzas, do it later!",
-							Type:        []string{"array"},
-							Items: &spec.SchemaOrArray{
-								Schema: &spec.Schema{
-									SchemaProps: spec.SchemaProps{
-										Default: map[string]interface{}{},
-										Ref:     ref("kubevault.dev/apimachinery/apis/kubevault/v1alpha1.RetryJoinSpec"),
-									},
-								},
-							},
 						},
 					},
 					"maxEntrySize": {
@@ -19690,41 +19668,7 @@ func schema_apimachinery_apis_kubevault_v1alpha1_RaftSpec(ref common.ReferenceCa
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/api/core/v1.PersistentVolumeClaimSpec", "kubevault.dev/apimachinery/apis/kubevault/v1alpha1.RetryJoinSpec"},
-	}
-}
-
-func schema_apimachinery_apis_kubevault_v1alpha1_RetryJoinSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
-	return common.OpenAPIDefinition{
-		Schema: spec.Schema{
-			SchemaProps: spec.SchemaProps{
-				Description: "RetryJoinSpec defines the configuration for the RetryJoin. https://www.vaultproject.io/docs/configuration/storage/raft",
-				Type:        []string{"object"},
-				Properties: map[string]spec.Schema{
-					"autoJoin": {
-						SchemaProps: spec.SchemaProps{
-							Description: "Cloud auto-join configuration.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"autoJoinScheme": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The optional URI protocol scheme for addresses discovered via auto-join.",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"autoJoinPort": {
-						SchemaProps: spec.SchemaProps{
-							Description: "The optional port used for addressed discovered via auto-join.",
-							Type:        []string{"integer"},
-							Format:      "int64",
-						},
-					},
-				},
-			},
-		},
+			"k8s.io/api/core/v1.PersistentVolumeClaimSpec"},
 	}
 }
 

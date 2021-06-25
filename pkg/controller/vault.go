@@ -65,6 +65,7 @@ const (
 	VaultClusterPort        = 8201
 	vaultTLSAssetVolumeName = "vault-tls-secret"
 	Time365Days             = 365 * 24 * time.Hour
+	UICfg                   = "ui = true"
 )
 
 var (
@@ -600,7 +601,7 @@ func (v *vaultSrv) EnsureStorageTLS() error {
 // - user provided extra config
 func (v *vaultSrv) GetConfig() (*core.Secret, error) {
 	configSecretName := v.vs.ConfigSecretName()
-	cfgData := util.GetListenerConfig(v.vs.Spec.TLS != nil)
+	cfgData := util.GetListenerConfig(v.vs.CertificateMountPath(v.vs.CertificatePath(), string(api.VaultServerCert)), v.vs.Spec.TLS != nil)
 
 	storageCfg := ""
 	var err error
@@ -619,10 +620,7 @@ func (v *vaultSrv) GetConfig() (*core.Secret, error) {
 		return nil, errors.Wrap(err, "failed to get exporter config")
 	}
 
-	// enable ui
-	uiCfg := "ui = true"
-
-	cfgData = strings.Join([]string{cfgData, uiCfg, storageCfg, exporterCfg}, "\n")
+	cfgData = strings.Join([]string{cfgData, UICfg, storageCfg, exporterCfg}, "\n")
 
 	secret := &core.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -726,7 +724,7 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 	if v.vs.Spec.TLS != nil {
 		cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{
 			Name:      vaultTLSAssetVolumeName,
-			MountPath: util.VaultTLSAssetDir,
+			MountPath: v.vs.CertificateMountPath(v.vs.CertificatePath(), string(api.VaultServerCert)),
 		})
 	}
 	cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{
@@ -991,7 +989,7 @@ func (v *vaultSrv) GetContainer() core.Container {
 		Command: []string{
 			"/bin/vault",
 			"server",
-			"-config=" + util.VaultConfigFile, "-log-level=debug",
+			"-config=" + util.VaultConfigFile,
 		},
 		Env: []core.EnvVar{
 			{
@@ -1074,7 +1072,8 @@ func (v *vaultSrv) GetContainer() core.Container {
 		container.Env = core_util.UpsertEnvVars(container.Env,
 			core.EnvVar{
 				Name:  EnvVaultCACert,
-				Value: fmt.Sprintf("%s%s", util.VaultTLSAssetDir, conapi.TLSCACertKey),
+				Value: filepath.Join(v.vs.CertificateMountPath(v.vs.CertificatePath(), conapi.TLSCACertKey)),
+				//Value: fmt.Sprintf("%s%s", util.VaultTLSAssetDir, conapi.TLSCACertKey),
 			})
 	}
 

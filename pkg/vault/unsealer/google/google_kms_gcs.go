@@ -38,13 +38,11 @@ const (
 
 type Options struct {
 	api.GoogleKmsGcsSpec
-	Backend string
 }
 
-func NewOptions(s api.GoogleKmsGcsSpec, backend api.VaultServerBackend) (*Options, error) {
+func NewOptions(s api.GoogleKmsGcsSpec) (*Options, error) {
 	return &Options{
 		GoogleKmsGcsSpec: s,
-		Backend:          string(backend),
 	}, nil
 }
 
