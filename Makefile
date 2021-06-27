@@ -337,7 +337,7 @@ $(BUILD_DIRS):
 	@mkdir -p $@
 
 REGISTRY_SECRET 	?=
-KUBE_NAMESPACE  	?= kube-system
+KUBE_NAMESPACE  	?= kubevault
 LICENSE_FILE    	?=
 IMAGE_PULL_POLICY ?= IfNotPresent
 
@@ -351,7 +351,7 @@ endif
 install:
 	@cd ../installer; \
 	helm install kubevault-operator charts/kubevault-operator \
-		--namespace=$(KUBE_NAMESPACE)              \
+		--namespace=$(KUBE_NAMESPACE) --create-namespace \
 		--set-file license=$(LICENSE_FILE)         \
 		--set operator.registry=$(REGISTRY)        \
 		--set operator.repository=$(BIN)           \
