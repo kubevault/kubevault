@@ -66,6 +66,7 @@ const (
 	vaultTLSAssetVolumeName = "vault-tls-secret"
 	Time365Days             = 365 * 24 * time.Hour
 	UICfg                   = "ui = true"
+	VaultVolumeMountConfig  = "config"
 )
 
 var (
@@ -601,7 +602,7 @@ func (v *vaultSrv) EnsureStorageTLS() error {
 // - user provided extra config
 func (v *vaultSrv) GetConfig() (*core.Secret, error) {
 	configSecretName := v.vs.ConfigSecretName()
-	cfgData := util.GetListenerConfig(v.vs.CertificateMountPath(v.vs.CertificatePath(), string(api.VaultServerCert)), v.vs.Spec.TLS != nil)
+	cfgData := util.GetListenerConfig(v.vs.CertificateMountPath(string(api.VaultServerCert)), v.vs.Spec.TLS != nil)
 
 	storageCfg := ""
 	var err error
@@ -664,7 +665,7 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 
 	initCont.VolumeMounts = core_util.UpsertVolumeMount(initCont.VolumeMounts,
 		core.VolumeMount{
-			Name:      "config",
+			Name:      VaultVolumeMountConfig,
 			MountPath: filepath.Dir(util.VaultConfigFile),
 		}, core.VolumeMount{
 			Name:      "controller-config",
@@ -673,7 +674,7 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 
 	pt.Spec.Volumes = core_util.UpsertVolume(pt.Spec.Volumes,
 		core.Volume{
-			Name: "config",
+			Name: VaultVolumeMountConfig,
 			VolumeSource: core.VolumeSource{
 				EmptyDir: &core.EmptyDirVolumeSource{},
 			},
@@ -724,11 +725,11 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 	if v.vs.Spec.TLS != nil {
 		cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{
 			Name:      vaultTLSAssetVolumeName,
-			MountPath: v.vs.CertificateMountPath(v.vs.CertificatePath(), string(api.VaultServerCert)),
+			MountPath: v.vs.CertificateMountPath(string(api.VaultServerCert)),
 		})
 	}
 	cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{
-		Name:      "config",
+		Name:      VaultVolumeMountConfig,
 		MountPath: filepath.Dir(util.VaultConfigFile),
 	})
 
@@ -1072,8 +1073,7 @@ func (v *vaultSrv) GetContainer() core.Container {
 		container.Env = core_util.UpsertEnvVars(container.Env,
 			core.EnvVar{
 				Name:  EnvVaultCACert,
-				Value: filepath.Join(v.vs.CertificateMountPath(v.vs.CertificatePath(), conapi.TLSCACertKey)),
-				//Value: fmt.Sprintf("%s%s", util.VaultTLSAssetDir, conapi.TLSCACertKey),
+				Value: filepath.Join(v.vs.CertificateMountPath(conapi.TLSCACertKey)),
 			})
 	}
 

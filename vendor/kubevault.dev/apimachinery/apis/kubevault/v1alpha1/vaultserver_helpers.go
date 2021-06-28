@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"kubevault.dev/apimachinery/apis"
 	"kubevault.dev/apimachinery/apis/kubevault"
 	"kubevault.dev/apimachinery/crds"
 
@@ -158,10 +159,6 @@ func (e vaultServerStatsService) Scheme() string {
 	return ""
 }
 
-func (vs *VaultServer) CertificatePath() string {
-	return "/etc/vault/tls"
-}
-
 // Returns the Backend certificate secret name for given backend name.
 func (vs *VaultServer) BackendCertSecretName(backendName string) string {
 	return meta.NameWithSuffix(fmt.Sprintf("%s-%s", vs.Name, backendName), "certs")
@@ -209,6 +206,6 @@ func (vsb *BackendStorageSpec) GetBackendType() (VaultServerBackend, error) {
 	}
 }
 
-func (v *VaultServer) CertificateMountPath(certificatePath, alias string) string {
-	return filepath.Join(certificatePath, alias)
+func (v *VaultServer) CertificateMountPath(alias string) string {
+	return filepath.Join(apis.CertificatePath, alias)
 }

@@ -39,12 +39,9 @@ type Options struct {
 	kClient kubernetes.Interface
 }
 
-// VaultRaftVolumeName is the name of the backend volume created.
-const VaultRaftVolumeName = "vault-raft-backend"
-
-// TLS related file name for Raft
 const (
-	RaftCertificatePath = "/etc/vault/tls/"
+	VaultVolumeMountData              = "data"
+	VaultServerVolumeMountStorageCert = "storage-cert"
 )
 
 var raftStorageFmt = `
@@ -70,7 +67,6 @@ func NewOptions(kubeClient kubernetes.Interface, vs *api.VaultServer) (*Options,
 
 // Apply ...
 func (o *Options) Apply(pt *core.PodTemplateSpec) error {
-	raftTLSAssetVolume := "vault-raft-tls"
 	if o.Path == "" {
 		return errors.New("path is empty")
 	}
@@ -105,7 +101,7 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	for idx := range pt.Spec.Containers {
 		if pt.Spec.Containers[idx].Name == string(api.VaultServerServiceVault) {
 			pt.Spec.Containers[idx].VolumeMounts = append(pt.Spec.Containers[idx].VolumeMounts, core.VolumeMount{
-				Name:      "data",
+				Name:      VaultVolumeMountData,
 				MountPath: o.Path,
 			})
 		}
@@ -113,7 +109,7 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 
 	if o.vs.Spec.TLS != nil {
 		pt.Spec.Volumes = append(pt.Spec.Volumes, core.Volume{
-			Name: raftTLSAssetVolume,
+			Name: VaultServerVolumeMountStorageCert,
 			VolumeSource: core.VolumeSource{
 				Secret: &core.SecretVolumeSource{
 					SecretName: o.vs.GetCertSecretName(string(api.VaultStorageCert)),
@@ -124,8 +120,8 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 		for idx := range pt.Spec.Containers {
 			if pt.Spec.Containers[idx].Name == string(api.VaultServerServiceVault) {
 				pt.Spec.Containers[idx].VolumeMounts = append(pt.Spec.Containers[idx].VolumeMounts, core.VolumeMount{
-					Name:      raftTLSAssetVolume,
-					MountPath: o.vs.CertificateMountPath(RaftCertificatePath, string(api.VaultStorageCert)),
+					Name:      VaultServerVolumeMountStorageCert,
+					MountPath: o.vs.CertificateMountPath(string(api.VaultStorageCert)),
 				})
 			}
 		}
@@ -163,7 +159,7 @@ func (o *Options) GetStorageConfig() (string, error) {
 		var retryJoin []string
 		retryJoin = append(retryJoin, fmt.Sprintf(` leader_api_addr = "%s://%s-%d.%s.%s.svc:8200"`, o.vs.Scheme(), o.vs.Name, id, o.vs.ServiceName(api.VaultServerServiceInternal), o.vs.Namespace))
 		if o.vs.Spec.TLS != nil {
-			mountPath := o.vs.CertificateMountPath(RaftCertificatePath, string(api.VaultStorageCert))
+			mountPath := o.vs.CertificateMountPath(string(api.VaultStorageCert))
 			retryJoin = append(retryJoin, fmt.Sprintf(` leader_ca_cert_file = "%s"`, filepath.Join(mountPath, conapi.TLSCACertKey)))
 			retryJoin = append(retryJoin, fmt.Sprintf(` leader_client_cert_file = "%s"`, filepath.Join(mountPath, core.TLSCertKey)))
 			retryJoin = append(retryJoin, fmt.Sprintf(` leader_client_key_file = "%s"`, filepath.Join(mountPath, core.TLSPrivateKeyKey)))

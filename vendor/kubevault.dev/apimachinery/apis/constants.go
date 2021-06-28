@@ -67,3 +67,7 @@ const (
 	VaultAuthLDAPUsers  = "users"
 	VaultAuthJWTRole    = "role"
 )
+
+const (
+	CertificatePath = "/etc/vault/tls"
+)
