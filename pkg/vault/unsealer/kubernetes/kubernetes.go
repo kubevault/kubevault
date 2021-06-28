@@ -35,13 +35,11 @@ const (
 
 type Options struct {
 	api.KubernetesSecretSpec
-	Backend string
 }
 
-func NewOptions(s api.KubernetesSecretSpec, backend api.VaultServerBackend) (*Options, error) {
+func NewOptions(s api.KubernetesSecretSpec) (*Options, error) {
 	return &Options{
 		KubernetesSecretSpec: s,
-		Backend:              string(backend),
 	}, nil
 }
 
@@ -64,21 +62,7 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	if o.SecretName != "" {
 		args = append(args, fmt.Sprintf("--k8s.secret-name=%s", o.SecretName))
 	}
-	args = append(args, fmt.Sprintf("--storage-backend=%s", o.Backend))
-
 	cont.Args = append(cont.Args, args...)
-
-	var envs []core.EnvVar
-	envs = append(envs, core.EnvVar{
-		Name: "POD_NAME",
-		ValueFrom: &core.EnvVarSource{
-			FieldRef: &core.ObjectFieldSelector{
-				FieldPath: "metadata.name",
-			},
-		},
-	})
-	cont.Env = core_util.UpsertEnvVars(cont.Env, envs...)
-
 	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)
 	return nil
 }

@@ -39,6 +39,10 @@ import (
 	"kmodules.xyz/client-go/tools/queue"
 )
 
+const (
+	VaultPVCName = "data"
+)
+
 func (c *VaultController) initVaultServerWatcher() {
 	c.vsInformer = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New(api.ResourceKindVaultServer, c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
@@ -341,7 +345,7 @@ func (c *VaultController) getPVCs(vs *api.VaultServer) []core.PersistentVolumeCl
 	if vs.Spec.Backend.Raft != nil && vs.Spec.Backend.Raft.Storage != nil {
 		pvc := core.PersistentVolumeClaim{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "data",
+				Name: VaultPVCName,
 			},
 			Spec: *vs.Spec.Backend.Raft.Storage,
 		}
