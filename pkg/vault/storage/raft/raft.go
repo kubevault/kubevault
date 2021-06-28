@@ -40,7 +40,7 @@ type Options struct {
 }
 
 const (
-	VaultVolumeMountData              = "data"
+	VaultServerVolumeMountData        = "data"
 	VaultServerVolumeMountStorageCert = "storage-cert"
 )
 
@@ -101,7 +101,7 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	for idx := range pt.Spec.Containers {
 		if pt.Spec.Containers[idx].Name == string(api.VaultServerServiceVault) {
 			pt.Spec.Containers[idx].VolumeMounts = append(pt.Spec.Containers[idx].VolumeMounts, core.VolumeMount{
-				Name:      VaultVolumeMountData,
+				Name:      VaultServerVolumeMountData,
 				MountPath: o.Path,
 			})
 		}

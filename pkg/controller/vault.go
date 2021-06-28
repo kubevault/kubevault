@@ -1073,7 +1073,7 @@ func (v *vaultSrv) GetContainer() core.Container {
 		container.Env = core_util.UpsertEnvVars(container.Env,
 			core.EnvVar{
 				Name:  EnvVaultCACert,
-				Value: filepath.Join(v.vs.CertificateMountPath(conapi.TLSCACertKey)),
+				Value: v.vs.CertificateMountPath(conapi.TLSCACertKey),
 			})
 	}
 
