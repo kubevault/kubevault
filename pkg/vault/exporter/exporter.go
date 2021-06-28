@@ -83,7 +83,7 @@ func (exp monitor) Apply(pt *core.PodTemplateSpec, vs *api.VaultServer) error {
 
 	if vs.Spec.TLS != nil && vs.Spec.TLS.Certificates != nil {
 		// Get k8s secret
-		secretName := vs.GetCertSecretName(string(api.VaultServerServiceVault))
+		secretName := vs.GetCertSecretName(string(api.VaultServerCert))
 		secret, err := exp.kClient.CoreV1().Secrets(vs.Namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to get secret")

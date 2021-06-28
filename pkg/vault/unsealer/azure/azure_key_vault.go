@@ -39,7 +39,7 @@ type Options struct {
 
 func NewOptions(s api.AzureKeyVault) (*Options, error) {
 	return &Options{
-		s,
+		AzureKeyVault: s,
 	}, nil
 }
 

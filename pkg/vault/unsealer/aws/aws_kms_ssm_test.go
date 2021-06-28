@@ -45,6 +45,7 @@ func TestOptions_Apply(t *testing.T) {
 		KmsKeyID:     "test-key",
 		SsmKeyPrefix: "/cluster/demo",
 	})
+
 	assert.Nil(t, err)
 
 	err = opts.Apply(pt)

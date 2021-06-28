@@ -39,7 +39,7 @@ type Options struct {
 
 func NewOptions(s api.KubernetesSecretSpec) (*Options, error) {
 	return &Options{
-		s,
+		KubernetesSecretSpec: s,
 	}, nil
 }
 
@@ -62,7 +62,6 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 	if o.SecretName != "" {
 		args = append(args, fmt.Sprintf("--k8s.secret-name=%s", o.SecretName))
 	}
-
 	cont.Args = append(cont.Args, args...)
 	pt.Spec.Containers = core_util.UpsertContainer(pt.Spec.Containers, cont)
 	return nil

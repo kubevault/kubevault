@@ -35,27 +35,55 @@ import (
 )
 
 type vaultFake struct {
-	gvrSvc            *core.Service
-	sr                *core.Secret
-	cm                *core.ConfigMap
-	sts               *appsv1.StatefulSet
-	sa                *core.ServiceAccount
-	svc               *core.Service
-	roles             []rbac.Role
-	pt                *core.PodTemplateSpec
-	cnt               core.Container
-	ErrInGetServerTLS bool
-	ErrInGetConfig    bool
-	ErrInApply        bool
+	gvrSvc                *core.Service
+	sr                    *core.Secret
+	cm                    *core.ConfigMap
+	sts                   *appsv1.StatefulSet
+	sa                    *core.ServiceAccount
+	svc                   *core.Service
+	roles                 []rbac.Role
+	pt                    *core.PodTemplateSpec
+	cnt                   core.Container
+	ErrInEnsureCA         bool
+	ErrInGetCABundle      bool
+	ErrInEnsureServerTLS  bool
+	ErrInEnsureClientTLS  bool
+	ErrInEnsureStorageTLS bool
+	ErrInGetConfig        bool
+	ErrInApply            bool
 }
 
 var _ Vault = &vaultFake{}
 
-func (v *vaultFake) GetServerTLS() (*core.Secret, []byte, error) {
-	if v.ErrInGetServerTLS {
-		return nil, nil, fmt.Errorf("error")
+func (v *vaultFake) EnsureCA() error {
+	if v.ErrInEnsureCA {
+		return fmt.Errorf("error")
 	}
-	return v.sr, nil, nil
+	return nil
+}
+func (v *vaultFake) GetCABundle() ([]byte, error) {
+	if v.ErrInGetCABundle {
+		return nil, fmt.Errorf("error")
+	}
+	return nil, nil
+}
+func (v *vaultFake) EnsureServerTLS() error {
+	if v.ErrInEnsureServerTLS {
+		return fmt.Errorf("error")
+	}
+	return nil
+}
+func (v *vaultFake) EnsureClientTLS() error {
+	if v.ErrInEnsureClientTLS {
+		return fmt.Errorf("error")
+	}
+	return nil
+}
+func (v *vaultFake) EnsureStorageTLS() error {
+	if v.ErrInEnsureStorageTLS {
+		return fmt.Errorf("error")
+	}
+	return nil
 }
 func (v *vaultFake) GetConfig() (*core.Secret, error) {
 	if v.ErrInGetConfig {
@@ -150,12 +178,30 @@ func TestReconcileVault(t *testing.T) {
 			expectErr: false,
 		},
 		{
-			name: "failed to create vault tls",
+			name: "failed to ensure vault server tls",
 			vs: &api.VaultServer{
 				ObjectMeta: getVaultObjectMeta(1),
 			},
 
-			vfake:     func(v vaultFake) *vaultFake { v.ErrInGetServerTLS = true; return &v }(vfk),
+			vfake:     func(v vaultFake) *vaultFake { v.ErrInEnsureServerTLS = true; return &v }(vfk),
+			expectErr: true,
+		},
+		{
+			name: "failed to ensure client tls",
+			vs: &api.VaultServer{
+				ObjectMeta: getVaultObjectMeta(1),
+			},
+
+			vfake:     func(v vaultFake) *vaultFake { v.ErrInEnsureClientTLS = true; return &v }(vfk),
+			expectErr: true,
+		},
+		{
+			name: "failed to ensure storage tls",
+			vs: &api.VaultServer{
+				ObjectMeta: getVaultObjectMeta(1),
+			},
+
+			vfake:     func(v vaultFake) *vaultFake { v.ErrInEnsureStorageTLS = true; return &v }(vfk),
 			expectErr: true,
 		},
 		{

@@ -3,26 +3,39 @@ module kubevault.dev/operator
 go 1.15
 
 require (
+	cloud.google.com/go v0.74.0 // indirect
+	cloud.google.com/go/storage v1.10.0 // indirect
+	github.com/Azure/go-autorest/autorest v0.11.18 // indirect
+	github.com/Azure/go-autorest/autorest/adal v0.9.13 // indirect
 	github.com/aws/aws-sdk-go v1.38.31
-	github.com/go-openapi/spec v0.19.5
+	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf // indirect
+	github.com/go-openapi/spec v0.19.8
+	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/gogo/protobuf v1.3.2
+	github.com/golang/snappy v0.0.3-0.20201103224600-674baa8c7fc3 // indirect
 	github.com/gorilla/mux v1.8.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0 // indirect
+	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1
 	github.com/hashicorp/vault/api v1.1.0
 	github.com/hashicorp/vault/sdk v0.2.0
+	github.com/kr/pretty v0.2.1 // indirect
 	github.com/lib/pq v1.10.1
-	github.com/ncw/swift v1.0.49
+	github.com/ncw/swift v1.0.52
 	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.13.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus-operator/prometheus-operator/pkg/client v0.47.0
+	github.com/prometheus/common v0.20.0 // indirect
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
+	github.com/xlab/treeprint v1.0.0 // indirect
 	go.bytebuilders.dev/audit v0.0.7
 	go.bytebuilders.dev/license-verifier v0.9.2
 	go.bytebuilders.dev/license-verifier/kubernetes v0.9.2
-	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+	golang.org/x/oauth2 v0.0.0-20210210192628-66670185b0cd
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	gomodules.xyz/blobfs v0.1.7
 	gomodules.xyz/cert v1.2.0
 	gomodules.xyz/go-sh v0.1.0
@@ -30,12 +43,15 @@ require (
 	gomodules.xyz/pointer v0.0.0-20201105071923-daf60fa55209
 	gomodules.xyz/runtime v0.2.0
 	gomodules.xyz/x v0.0.5
-	google.golang.org/api v0.26.0
+	google.golang.org/api v0.39.0
+	google.golang.org/genproto v0.0.0-20201214200347-8c77b98c765d // indirect
+	google.golang.org/grpc v1.34.0 // indirect
+	google.golang.org/protobuf v1.26.0 // indirect
 	k8s.io/api v0.21.1
 	k8s.io/apiextensions-apiserver v0.21.1
 	k8s.io/apimachinery v0.21.1
 	k8s.io/apiserver v0.21.1
-	k8s.io/client-go v0.21.1
+	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/klog/v2 v2.8.0
 	k8s.io/kube-aggregator v0.21.1
 	k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7
@@ -46,7 +62,7 @@ require (
 	kmodules.xyz/monitoring-agent-api v0.0.0-20210618110729-9cd872c66513
 	kmodules.xyz/offshoot-api v0.0.0-20210618005544-5217a24765da
 	kmodules.xyz/webhook-runtime v0.0.0-20210618013329-0accb929102b
-	kubevault.dev/apimachinery v0.0.0-20210618132815-c6233d6b25cd
+	kubevault.dev/apimachinery v0.0.0-20210628124552-b6457308ba0e
 )
 
 replace bitbucket.org/ww/goautoneg => gomodules.xyz/goautoneg v0.0.0-20120707110453-a547fc61f48d

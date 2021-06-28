@@ -561,13 +561,43 @@ message PostgreSQLSpec {
 }
 
 // RaftSpec defines the configuration for the Raft integrated storage.
-//
 // https://www.vaultproject.io/docs/configuration/storage/raft
 message RaftSpec {
-  // Path specifies the filesystem path where the vault data gets stored.
-  //
-  // This value can be overriden by setting the VAULT_RAFT_PATH environment variable.
+  // Path (string: "") specifies the filesystem path where the vault data gets stored.
+  // This value can be overridden by setting the VAULT_RAFT_PATH environment variable.
+  // default: ""
+  // +optional
   optional string path = 1;
+
+  // An integer multiplier used by servers to scale key Raft timing parameters.
+  // Tuning this affects the time it takes Vault to detect leader failures and to perform leader elections,
+  // at the expense of requiring more network and CPU resources for better performance.
+  // default: 0
+  // +optional
+  optional int64 performanceMultiplier = 3;
+
+  // This controls how many log entries are left in the log store on disk after a snapshot is made.
+  // default: 10000
+  // +optional
+  optional int64 trailingLogs = 4;
+
+  // This controls the minimum number of raft commit entries between snapshots that are saved to disk.
+  // default: 8192
+  // +optional
+  optional int64 snapshotThreshold = 5;
+
+  // This configures the maximum number of bytes for a raft entry. It applies to both Put operations and transactions.
+  // default: 1048576
+  // +optional
+  optional int64 maxEntrySize = 7;
+
+  // This is the interval after which autopilot will pick up any state changes.
+  // default: ""
+  // +optional
+  optional string autoPilotReconcileInterval = 8;
+
+  // Storage to specify how storage shall be used.
+  optional k8s.io.api.core.v1.PersistentVolumeClaimSpec storage = 9;
 }
 
 // vault doc: https://www.vaultproject.io/docs/configuration/storage/s3.html

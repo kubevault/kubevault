@@ -23,7 +23,6 @@ import (
 	vaultconfig "kubevault.dev/apimachinery/apis/config/v1alpha1"
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 
-	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	core_util "kmodules.xyz/client-go/core/v1"
@@ -36,15 +35,18 @@ func (c *VaultController) ensureAppBindings(vs *api.VaultServer, v Vault) error 
 		Name:      vs.AppBindingName(),
 		Namespace: vs.Namespace,
 	}
-	_, caBundle, err := v.GetServerTLS()
-	if err != nil {
-		return err
+	var caBundle []byte
+	var err error
+	if vs.Spec.TLS != nil {
+		caBundle, err = v.GetCABundle()
+		if err != nil {
+			return err
+		}
 	}
-
 	vClientConf := appcat.ClientConfig{
 		Service: &appcat.ServiceReference{
 			Name:   v.GetService().Name,
-			Scheme: string(core.URISchemeHTTPS),
+			Scheme: vs.Scheme(),
 			Port:   VaultClientPort,
 		},
 		CABundle: caBundle,

@@ -19,11 +19,13 @@ package util
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	conapi "kubevault.dev/apimachinery/apis"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	core "k8s.io/api/core/v1"
+	"k8s.io/klog/v2"
 )
 
 const (
@@ -36,44 +38,47 @@ const (
 const (
 	// VaultConfigFile is the file that vault pod uses to read config from
 	VaultConfigFile = "/etc/vault/config/vault.hcl"
-
-	// VaultTLSAssetDir is the dir where vault's server TLS sits
-	VaultTLSAssetDir = "/etc/vault/tls/"
 )
 
 var listenerFmt = `
 listener "tcp" {
   address = "0.0.0.0:8200"
   cluster_address = "0.0.0.0:8201"
-  tls_cert_file = "%s"
-  tls_key_file  = "%s"
-  tls_client_ca_file = "%s"
+  %s
 }
 `
 
-// NewConfigWithDefaultParams appends to given config data some default params:
-// - tcp listener
-func NewConfigWithDefaultParams() string {
-	return fmt.Sprintf(listenerFmt, filepath.Join(VaultTLSAssetDir, core.TLSCertKey), filepath.Join(VaultTLSAssetDir, core.TLSPrivateKeyKey), filepath.Join(VaultTLSAssetDir, conapi.TLSCACertKey))
-}
-
 // ListenerConfig creates tcp listener config
-func GetListenerConfig() string {
-	listenerCfg := fmt.Sprintf(listenerFmt,
-		filepath.Join(VaultTLSAssetDir, core.TLSCertKey),
-		filepath.Join(VaultTLSAssetDir, core.TLSPrivateKeyKey),
-		filepath.Join(VaultTLSAssetDir, conapi.TLSCACertKey))
+func GetListenerConfig(mountPath string, isTLSEnabled bool) string {
+	var params []string
+	if isTLSEnabled {
+		params = append(params, fmt.Sprintf(`tls_cert_file = "%s"`, filepath.Join(mountPath, core.TLSCertKey)))
+		params = append(params, fmt.Sprintf(`tls_key_file = "%s"`, filepath.Join(mountPath, core.TLSPrivateKeyKey)))
+		params = append(params, fmt.Sprintf(`tls_client_ca_file = "%s"`, filepath.Join(mountPath, conapi.TLSCACertKey)))
+	} else {
+		params = append(params, "tls_disable = true")
+	}
+
+	listenerCfg := fmt.Sprintf(listenerFmt, strings.Join(params, "\n"))
 
 	return listenerCfg
 }
 
 func NewVaultClient(hostname string, port string, tlsConfig *vaultapi.TLSConfig) (*vaultapi.Client, error) {
 	cfg := vaultapi.DefaultConfig()
-	podURL := fmt.Sprintf("https://%s:%s", hostname, port)
+	klog.Info("TLSConfig() => value of TLS Insecure: ", tlsConfig.Insecure)
+	podURL := fmt.Sprintf("%s://%s:%s", Scheme(tlsConfig.Insecure), hostname, port)
 	cfg.Address = podURL
 	err := cfg.ConfigureTLS(tlsConfig)
 	if err != nil {
 		return nil, err
 	}
 	return vaultapi.NewClient(cfg)
+}
+
+func Scheme(tlsInsecure bool) string {
+	if tlsInsecure {
+		return "http"
+	}
+	return "https"
 }

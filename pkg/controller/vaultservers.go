@@ -39,6 +39,10 @@ import (
 	"kmodules.xyz/client-go/tools/queue"
 )
 
+const (
+	VaultPVCName = "data"
+)
+
 func (c *VaultController) initVaultServerWatcher() {
 	c.vsInformer = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New(api.ResourceKindVaultServer, c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
@@ -219,18 +223,18 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 }
 
 func (c *VaultController) CreateVaultTLSSecret(vs *api.VaultServer, v Vault) error {
-	// prev: sr, ca, err := v.GetServerTLS()
-	// changed after GetServerTLS() in vault.go
-	sr, _, err := v.GetServerTLS()
-	if err != nil {
+	if err := v.EnsureCA(); err != nil {
 		return err
 	}
-
-	err = ensureSecret(c.kubeClient, vs, sr)
-	if err != nil {
+	if err := v.EnsureServerTLS(); err != nil {
 		return err
 	}
-
+	if err := v.EnsureClientTLS(); err != nil {
+		return err
+	}
+	if err := v.EnsureStorageTLS(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -290,7 +294,7 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 	}
 
 	// XXX Add pvc support
-	claims := make([]core.PersistentVolumeClaim, 0)
+	claims := c.getPVCs(vs)
 	sts := v.GetStatefulSet(serviceName, podT, claims)
 	err = ensureStatefulSet(c.kubeClient, vs, sts)
 	if err != nil {
@@ -337,6 +341,31 @@ func (c *VaultController) DeployVault(vs *api.VaultServer, v Vault) error {
 	return nil
 }
 
+func (c *VaultController) getPVCs(vs *api.VaultServer) []core.PersistentVolumeClaim {
+	if vs.Spec.Backend.Raft != nil && vs.Spec.Backend.Raft.Storage != nil {
+		pvc := core.PersistentVolumeClaim{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: VaultPVCName,
+			},
+			Spec: *vs.Spec.Backend.Raft.Storage,
+		}
+
+		if len(pvc.Spec.AccessModes) == 0 {
+			pvc.Spec.AccessModes = []core.PersistentVolumeAccessMode{
+				core.ReadWriteOnce,
+			}
+		}
+
+		if pvc.Spec.StorageClassName != nil {
+			pvc.Annotations = map[string]string{
+				"volume.beta.kubernetes.io/storage-class": *pvc.Spec.StorageClassName,
+			}
+		}
+		return []core.PersistentVolumeClaim{pvc}
+	}
+	return nil
+}
+
 // ensureServiceAccount creates/patches service account
 func ensureServiceAccount(kc kubernetes.Interface, vs *api.VaultServer, sa *core.ServiceAccount) error {
 	_, _, err := core_util.CreateOrPatchServiceAccount(context.TODO(), kc, sa.ObjectMeta, func(in *core.ServiceAccount) *core.ServiceAccount {
@@ -373,6 +402,7 @@ func ensureStatefulSet(kc kubernetes.Interface, vs *api.VaultServer, sts *appsv1
 		in.Spec.Template.Spec.Priority = sts.Spec.Template.Spec.Priority
 		in.Spec.Template.Spec.SecurityContext = sts.Spec.Template.Spec.SecurityContext
 		in.Spec.Template.Spec.Volumes = core_util.UpsertVolume(in.Spec.Template.Spec.Volumes, sts.Spec.Template.Spec.Volumes...)
+		in.Spec.VolumeClaimTemplates = sts.Spec.VolumeClaimTemplates
 
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
@@ -441,18 +471,6 @@ func ensureRoleAndRoleBinding(kc kubernetes.Interface, vs *api.VaultServer, role
 		}
 	}
 	return nil
-}
-
-// ensureSecret creates/patches secret
-func ensureSecret(kc kubernetes.Interface, vs *api.VaultServer, s *core.Secret) error {
-	_, _, err := core_util.CreateOrPatchSecret(context.TODO(), kc, s.ObjectMeta, func(in *core.Secret) *core.Secret {
-		in.Labels = core_util.UpsertMap(in.Labels, s.Labels)
-		in.Annotations = core_util.UpsertMap(in.Annotations, s.Annotations)
-		in.Data = s.Data
-		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
-		return in
-	}, metav1.PatchOptions{})
-	return err
 }
 
 // ensureConfigSecret creates/patches Secret

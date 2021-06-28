@@ -17,8 +17,11 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"errors"
 	"fmt"
+	"path/filepath"
 
+	"kubevault.dev/apimachinery/apis"
 	"kubevault.dev/apimachinery/apis/kubevault"
 	"kubevault.dev/apimachinery/crds"
 
@@ -154,4 +157,50 @@ func (e vaultServerStatsService) Path() string {
 
 func (e vaultServerStatsService) Scheme() string {
 	return ""
+}
+
+func (vs *VaultServer) GetCertificateCN(alias VaultCertificateAlias) string {
+	return fmt.Sprintf("%s-%s", vs.Name, string(alias))
+}
+
+func (vs *VaultServer) Scheme() string {
+	if vs.Spec.TLS != nil {
+		return "https"
+	}
+	return "http"
+}
+
+func (vsb *BackendStorageSpec) GetBackendType() (VaultServerBackend, error) {
+	switch {
+	case vsb.Inmem != nil:
+		return VaultServerInmem, nil
+	case vsb.Etcd != nil:
+		return VaultServerEtcd, nil
+	case vsb.Gcs != nil:
+		return VaultServerGcs, nil
+	case vsb.S3 != nil:
+		return VaultServerS3, nil
+	case vsb.Azure != nil:
+		return VaultServerAzure, nil
+	case vsb.PostgreSQL != nil:
+		return VaultServerPostgreSQL, nil
+	case vsb.MySQL != nil:
+		return VaultServerMySQL, nil
+	case vsb.File != nil:
+		return VaultServerFile, nil
+	case vsb.DynamoDB != nil:
+		return VaultServerDynamoDB, nil
+	case vsb.Swift != nil:
+		return VaultServerSwift, nil
+	case vsb.Consul != nil:
+		return VaultServerConsul, nil
+	case vsb.Raft != nil:
+		return VaultServerRaft, nil
+	default:
+		return "", errors.New("unknown backened type")
+	}
+}
+
+func (v *VaultServer) CertificateMountPath(alias VaultCertificateAlias) string {
+	return filepath.Join(apis.CertificatePath, string(alias))
 }

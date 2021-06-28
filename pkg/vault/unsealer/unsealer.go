@@ -143,8 +143,8 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 	}
 
 	if u.vs.Spec.TLS != nil && u.vs.Spec.TLS.Certificates != nil {
-		// Get k8s secret
-		secretName := u.vs.GetCertSecretName(string(api.VaultServerServiceVault))
+		// Get k8s secret of vault server
+		secretName := u.vs.GetCertSecretName(string(api.VaultServerCert))
 		secret, err := u.kc.CoreV1().Secrets(u.vs.Namespace).Get(context.TODO(), secretName, metav1.GetOptions{})
 		if err != nil {
 			return errors.Wrap(err, "failed to get secret")
@@ -158,8 +158,11 @@ func (u *unsealerSrv) Apply(pt *core.PodTemplateSpec) error {
 		}
 
 		// export ca.crt as tls-cacert
-		args = append(args, fmt.Sprintf("--vault.tls-cacert=%s", string(byt)))
+		args = append(args, fmt.Sprintf("--vault.ca-cert=%s", string(byt)))
 	}
+
+	// add vault address
+	args = append(args, fmt.Sprintf(`--vault.address=%s://127.0.0.1:8200`, u.vs.Scheme()))
 
 	// Add kubernetes auth flags
 	args = append(args, fmt.Sprintf("--auth.k8s-host=%s", u.restConfig.Host))

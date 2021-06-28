@@ -42,7 +42,7 @@ type Options struct {
 
 func NewOptions(s api.GoogleKmsGcsSpec) (*Options, error) {
 	return &Options{
-		s,
+		GoogleKmsGcsSpec: s,
 	}, nil
 }
 

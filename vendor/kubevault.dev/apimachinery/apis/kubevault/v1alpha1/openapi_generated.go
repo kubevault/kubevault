@@ -19613,21 +19613,62 @@ func schema_apimachinery_apis_kubevault_v1alpha1_RaftSpec(ref common.ReferenceCa
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
-				Description: "RaftSpec defines the configuration for the Raft integrated storage.\n\nhttps://www.vaultproject.io/docs/configuration/storage/raft",
+				Description: "RaftSpec defines the configuration for the Raft integrated storage. https://www.vaultproject.io/docs/configuration/storage/raft",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"path": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Path specifies the filesystem path where the vault data gets stored.\n\nThis value can be overriden by setting the VAULT_RAFT_PATH environment variable.",
-							Default:     "",
+							Description: "Path (string: \"\") specifies the filesystem path where the vault data gets stored. This value can be overridden by setting the VAULT_RAFT_PATH environment variable. default: \"\"",
 							Type:        []string{"string"},
 							Format:      "",
 						},
 					},
+					"performanceMultiplier": {
+						SchemaProps: spec.SchemaProps{
+							Description: "An integer multiplier used by servers to scale key Raft timing parameters. Tuning this affects the time it takes Vault to detect leader failures and to perform leader elections, at the expense of requiring more network and CPU resources for better performance. default: 0",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"trailingLogs": {
+						SchemaProps: spec.SchemaProps{
+							Description: "This controls how many log entries are left in the log store on disk after a snapshot is made. default: 10000",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"snapshotThreshold": {
+						SchemaProps: spec.SchemaProps{
+							Description: "This controls the minimum number of raft commit entries between snapshots that are saved to disk. default: 8192",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"maxEntrySize": {
+						SchemaProps: spec.SchemaProps{
+							Description: "This configures the maximum number of bytes for a raft entry. It applies to both Put operations and transactions. default: 1048576",
+							Type:        []string{"integer"},
+							Format:      "int64",
+						},
+					},
+					"autopilotReconcileInterval": {
+						SchemaProps: spec.SchemaProps{
+							Description: "This is the interval after which autopilot will pick up any state changes. default: \"\"",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"storage": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Storage to specify how storage shall be used.",
+							Ref:         ref("k8s.io/api/core/v1.PersistentVolumeClaimSpec"),
+						},
+					},
 				},
-				Required: []string{"path"},
 			},
 		},
+		Dependencies: []string{
+			"k8s.io/api/core/v1.PersistentVolumeClaimSpec"},
 	}
 }
 

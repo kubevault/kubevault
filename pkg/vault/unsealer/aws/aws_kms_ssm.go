@@ -38,7 +38,7 @@ type Options struct {
 
 func NewOptions(s api.AwsKmsSsmSpec) (*Options, error) {
 	return &Options{
-		s,
+		AwsKmsSsmSpec: s,
 	}, nil
 }
 

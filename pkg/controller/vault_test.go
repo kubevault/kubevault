@@ -17,13 +17,11 @@ limitations under the License.
 package controller
 
 import (
-	"context"
 	"fmt"
 	"path/filepath"
 	"strconv"
 	"testing"
 
-	conapi "kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 	"kubevault.dev/operator/pkg/vault/exporter"
 	"kubevault.dev/operator/pkg/vault/storage"
@@ -33,9 +31,7 @@ import (
 	core "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 	kfake "k8s.io/client-go/kubernetes/fake"
-	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
 const (
@@ -97,26 +93,13 @@ func getVaultObjectMeta(i int) metav1.ObjectMeta {
 }
 
 func getConfigData(extraConfig string, storageCfg string, exptrCfg string) string {
-	cfg := util.GetListenerConfig()
+	cfg := util.GetListenerConfig("/etc/vault/tls/server/", false)
 	if len(extraConfig) != 0 {
 		cfg = fmt.Sprintf("%s\n%s", cfg, extraConfig)
 	}
-	cfg = fmt.Sprintf("%s\n%s\n%s", cfg, storageCfg, exptrCfg)
+	uiCfg := "ui = true"
+	cfg = fmt.Sprintf("%s\n%s\n%s\n%s", cfg, uiCfg, storageCfg, exptrCfg)
 	return cfg
-}
-
-func createSecret(t *testing.T, client kubernetes.Interface, s *core.Secret) {
-	_, err := client.CoreV1().Secrets(s.Namespace).Create(context.TODO(), s, metav1.CreateOptions{})
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func deleteSecret(t *testing.T, client kubernetes.Interface, s *core.Secret) {
-	err := client.CoreV1().Secrets(s.Namespace).Delete(context.TODO(), s.Name, metav1.DeleteOptions{})
-	if err != nil {
-		t.Fatal(err)
-	}
 }
 
 func TestGetConfig(t *testing.T) {
@@ -182,115 +165,6 @@ storage "test"{
 					assert.Equal(t, test.vs.ConfigSecretName(), cm.Name)
 					assert.Equal(t, test.exptConfigMData, cm.StringData)
 				}
-			}
-		})
-	}
-}
-
-func TestGetServerTLS(t *testing.T) {
-	testData := []struct {
-		name        string
-		vs          *api.VaultServer
-		extraSecret *core.Secret
-		expectErr   bool
-	}{
-		{
-			name: "no error, secret already exists",
-			vs: &api.VaultServer{
-				ObjectMeta: getVaultObjectMeta(1),
-			},
-			extraSecret: &core.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: api.VaultServer{
-						ObjectMeta: getVaultObjectMeta(1),
-					}.TLSSecretName(),
-					Namespace: getVaultObjectMeta(1).Namespace,
-				},
-			},
-			expectErr: false,
-		},
-		{
-			name: "no error, user provided secret",
-			vs: &api.VaultServer{
-				ObjectMeta: getVaultObjectMeta(1),
-				Spec: api.VaultServerSpec{
-					TLS: &kmapi.TLSConfig{
-						Certificates: []kmapi.CertificateSpec{
-							{
-								Alias:      string(api.VaultServerCert),
-								SecretName: "vault-tls-cred",
-							},
-						},
-					},
-				},
-			},
-			extraSecret: &core.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "vault-tls-cred",
-					Namespace: getVaultObjectMeta(1).Namespace,
-				},
-				Data: map[string][]byte{
-					core.TLSCertKey:       []byte(""),
-					core.TLSPrivateKeyKey: []byte(""),
-					conapi.TLSCACertKey:   []byte(""),
-				},
-			},
-			expectErr: false,
-		},
-		{
-			name: "expect error, user provided secret",
-			vs: &api.VaultServer{
-				ObjectMeta: getVaultObjectMeta(1),
-				Spec: api.VaultServerSpec{
-					TLS: &kmapi.TLSConfig{
-						Certificates: []kmapi.CertificateSpec{
-							{
-								Alias:      string(api.VaultServerCert),
-								SecretName: "vault-tls-cred",
-							},
-						},
-					},
-				},
-			},
-			extraSecret: &core.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "vault-tls-cred",
-					Namespace: getVaultObjectMeta(1).Namespace,
-				},
-				Data: map[string][]byte{
-					core.TLSCertKey: []byte(""),
-				},
-			},
-			expectErr: true,
-		},
-		{
-			name: "no error, create secret successfully",
-			vs: &api.VaultServer{
-				ObjectMeta: getVaultObjectMeta(2),
-			},
-			extraSecret: nil,
-			expectErr:   false,
-		},
-	}
-
-	for idx := range testData {
-		test := testData[idx]
-		t.Run(test.name, func(t *testing.T) {
-			v := vaultSrv{
-				kubeClient: kfake.NewSimpleClientset(),
-				vs:         test.vs,
-			}
-
-			if test.extraSecret != nil {
-				createSecret(t, v.kubeClient, test.extraSecret)
-				defer deleteSecret(t, v.kubeClient, test.extraSecret)
-			}
-
-			_, _, err := v.GetServerTLS()
-			if test.expectErr {
-				assert.NotNil(t, err)
-			} else {
-				assert.Nil(t, err)
 			}
 		})
 	}
