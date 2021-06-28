@@ -602,7 +602,7 @@ func (v *vaultSrv) EnsureStorageTLS() error {
 // - user provided extra config
 func (v *vaultSrv) GetConfig() (*core.Secret, error) {
 	configSecretName := v.vs.ConfigSecretName()
-	cfgData := util.GetListenerConfig(v.vs.CertificateMountPath(string(api.VaultServerCert)), v.vs.Spec.TLS != nil)
+	cfgData := util.GetListenerConfig(v.vs.CertificateMountPath(api.VaultServerCert), v.vs.Spec.TLS != nil)
 
 	storageCfg := ""
 	var err error
@@ -725,7 +725,7 @@ func (v *vaultSrv) Apply(pt *core.PodTemplateSpec) error {
 	if v.vs.Spec.TLS != nil {
 		cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{
 			Name:      vaultTLSAssetVolumeName,
-			MountPath: v.vs.CertificateMountPath(string(api.VaultServerCert)),
+			MountPath: v.vs.CertificateMountPath(api.VaultServerCert),
 		})
 	}
 	cont.VolumeMounts = core_util.UpsertVolumeMount(cont.VolumeMounts, core.VolumeMount{

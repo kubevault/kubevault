@@ -121,7 +121,7 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 			if pt.Spec.Containers[idx].Name == string(api.VaultServerServiceVault) {
 				pt.Spec.Containers[idx].VolumeMounts = append(pt.Spec.Containers[idx].VolumeMounts, core.VolumeMount{
 					Name:      VaultServerVolumeMountStorageCert,
-					MountPath: o.vs.CertificateMountPath(string(api.VaultStorageCert)),
+					MountPath: o.vs.CertificateMountPath(api.VaultStorageCert),
 				})
 			}
 		}
@@ -159,7 +159,7 @@ func (o *Options) GetStorageConfig() (string, error) {
 		var retryJoin []string
 		retryJoin = append(retryJoin, fmt.Sprintf(` leader_api_addr = "%s://%s-%d.%s.%s.svc:8200"`, o.vs.Scheme(), o.vs.Name, id, o.vs.ServiceName(api.VaultServerServiceInternal), o.vs.Namespace))
 		if o.vs.Spec.TLS != nil {
-			mountPath := o.vs.CertificateMountPath(string(api.VaultStorageCert))
+			mountPath := o.vs.CertificateMountPath(api.VaultStorageCert)
 			retryJoin = append(retryJoin, fmt.Sprintf(` leader_ca_cert_file = "%s"`, filepath.Join(mountPath, conapi.TLSCACertKey)))
 			retryJoin = append(retryJoin, fmt.Sprintf(` leader_client_cert_file = "%s"`, filepath.Join(mountPath, core.TLSCertKey)))
 			retryJoin = append(retryJoin, fmt.Sprintf(` leader_client_key_file = "%s"`, filepath.Join(mountPath, core.TLSPrivateKeyKey)))
