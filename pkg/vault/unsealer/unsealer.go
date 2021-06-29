@@ -63,15 +63,15 @@ type unsealerSrv struct {
 	config     capi.VaultServerVersionUnsealer
 }
 
-func newUnsealer(s *api.UnsealerSpec, backend api.VaultServerBackend) (Unsealer, error) {
+func newUnsealer(s *api.UnsealerSpec) (Unsealer, error) {
 	if s.Mode.KubernetesSecret != nil {
-		return k8s.NewOptions(*s.Mode.KubernetesSecret, backend)
+		return k8s.NewOptions(*s.Mode.KubernetesSecret)
 	} else if s.Mode.GoogleKmsGcs != nil {
-		return google.NewOptions(*s.Mode.GoogleKmsGcs, backend)
+		return google.NewOptions(*s.Mode.GoogleKmsGcs)
 	} else if s.Mode.AwsKmsSsm != nil {
-		return aws.NewOptions(*s.Mode.AwsKmsSsm, backend)
+		return aws.NewOptions(*s.Mode.AwsKmsSsm)
 	} else if s.Mode.AzureKeyVault != nil {
-		return azure.NewOptions(*s.Mode.AzureKeyVault, backend)
+		return azure.NewOptions(*s.Mode.AzureKeyVault)
 	} else {
 		return nil, errors.New("unsealer mode is not valid/defined")
 	}
@@ -87,12 +87,7 @@ func NewUnsealerService(restConfig *rest.Config, vs *api.VaultServer, version *c
 		return nil, nil
 	}
 
-	backend, err := vs.Spec.Backend.GetBackendType()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get the storage backend name")
-	}
-
-	unslr, err := newUnsealer(vs.Spec.Unsealer, backend)
+	unslr, err := newUnsealer(vs.Spec.Unsealer)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create unsealer service")
 	}

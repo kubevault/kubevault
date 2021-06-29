@@ -52,7 +52,7 @@ func TestOptions_Apply(t *testing.T) {
 		UseManagedIdentity: true,
 		ClientCertSecret:   "s1",
 		AADClientSecret:    "s2",
-	}, "backend")
+	})
 	assert.Nil(t, err)
 
 	err = opts.Apply(&pt)
