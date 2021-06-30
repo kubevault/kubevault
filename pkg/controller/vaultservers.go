@@ -162,11 +162,11 @@ func (c *VaultController) wipeOut(vs *api.VaultServer) error {
 	// Todo: wipeOut will delete everything (vault-keys will not be deleted, must be deleted by the user)
 	//  - Ensure OwnerReference to PVCs, Secrets
 
-	if err := c.EnsureOwnerReferencePVC(vs); err != nil {
+	if err := c.ensureOwnerReferencePVC(vs); err != nil {
 		return err
 	}
 
-	if err := c.EnsureOwnerReferenceSecrets(vs); err != nil {
+	if err := c.ensureOwnerReferenceSecrets(vs); err != nil {
 		return err
 	}
 
@@ -177,7 +177,7 @@ func (c *VaultController) halt(vs *api.VaultServer) error {
 	// Todo: Halt will delete all but keep the PVCs & Secrets
 	//  - Remove OwnerReference from Secrets (PVCs does not have Owner Reference)
 
-	if err := c.RemoveOwnerReferenceSecrets(vs); err != nil {
+	if err := c.removeOwnerReferenceSecrets(vs); err != nil {
 		return err
 	}
 
@@ -189,18 +189,18 @@ func (c *VaultController) delete(vs *api.VaultServer) error {
 	//  - Ensure Owner Reference to PVCs
 	//  - Remove Owner Reference from Secrets
 
-	if err := c.EnsureOwnerReferencePVC(vs); err != nil {
+	if err := c.ensureOwnerReferencePVC(vs); err != nil {
 		return err
 	}
 
-	if err := c.RemoveOwnerReferenceSecrets(vs); err != nil {
+	if err := c.removeOwnerReferenceSecrets(vs); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (c *VaultController) EnsureOwnerReferencePVC(vs *api.VaultServer) error {
+func (c *VaultController) ensureOwnerReferencePVC(vs *api.VaultServer) error {
 	// get the list options using the LabelSelector
 	listOptions := metav1.ListOptions{
 		LabelSelector: labels.Set(vs.OffshootLabels()).String(),
@@ -229,7 +229,7 @@ func (c *VaultController) EnsureOwnerReferencePVC(vs *api.VaultServer) error {
 	return nil
 }
 
-func (c *VaultController) EnsureOwnerReferenceSecrets(vs *api.VaultServer) error {
+func (c *VaultController) ensureOwnerReferenceSecrets(vs *api.VaultServer) error {
 	// get the list options using the LabelSelector
 	listOptions := metav1.ListOptions{
 		LabelSelector: labels.Set(vs.OffshootLabels()).String(),
@@ -258,7 +258,7 @@ func (c *VaultController) EnsureOwnerReferenceSecrets(vs *api.VaultServer) error
 	return nil
 }
 
-func (c *VaultController) RemoveOwnerReferenceSecrets(vs *api.VaultServer) error {
+func (c *VaultController) removeOwnerReferenceSecrets(vs *api.VaultServer) error {
 	// get the list options using the LabelSelector
 	listOptions := metav1.ListOptions{
 		LabelSelector: labels.Set(vs.OffshootLabels()).String(),
@@ -281,7 +281,7 @@ func (c *VaultController) RemoveOwnerReferenceSecrets(vs *api.VaultServer) error
 				return in
 			}, metav1.PatchOptions{})
 		if err != nil {
-			return errors.Wrap(err, "failed to remove owner reference to the secrets")
+			return errors.Wrap(err, "failed to remove owner reference from the secrets")
 		}
 	}
 
