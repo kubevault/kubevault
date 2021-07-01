@@ -755,13 +755,6 @@ k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset
 k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/scheme
 k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1
 k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1
-k8s.io/apiextensions-apiserver/pkg/client/informers/externalversions
-k8s.io/apiextensions-apiserver/pkg/client/informers/externalversions/apiextensions
-k8s.io/apiextensions-apiserver/pkg/client/informers/externalversions/apiextensions/v1
-k8s.io/apiextensions-apiserver/pkg/client/informers/externalversions/apiextensions/v1beta1
-k8s.io/apiextensions-apiserver/pkg/client/informers/externalversions/internalinterfaces
-k8s.io/apiextensions-apiserver/pkg/client/listers/apiextensions/v1
-k8s.io/apiextensions-apiserver/pkg/client/listers/apiextensions/v1beta1
 # k8s.io/apimachinery v0.21.1 => github.com/kmodules/apimachinery v0.21.2-rc.0.0.20210617231004-332981b97d2d
 ## explicit
 k8s.io/apimachinery/pkg/api/equality
