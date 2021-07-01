@@ -18,6 +18,7 @@ package controller
 
 import (
 	"fmt"
+	api "kubevault.dev/apimachinery/apis/engine/v1alpha1"
 
 	"kubevault.dev/apimachinery/apis"
 	"kubevault.dev/apimachinery/apis/kubevault"
@@ -70,6 +71,9 @@ func (c *VaultController) initStatefulSetWatcher() {
 			}
 		},
 	})
+	if c.auditor != nil {
+		c.StsInformer.AddEventHandler(c.auditor.ForGVK(api.SchemeGroupVersion.WithKind(apis.ResourceKindStatefulSet)))
+	}
 }
 
 func (c *VaultController) enqueueOnlyKubeVaultSts(sts *apps.StatefulSet) {
