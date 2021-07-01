@@ -69,7 +69,6 @@ type CtxWithCancel struct {
 	Cancel context.CancelFunc
 }
 
-// Todo: StatefulSet Watcher for VaultServer
 type vaultserverInfo struct {
 	opts          dmcond.DynamicOptions
 	replicasReady bool

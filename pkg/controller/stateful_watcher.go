@@ -33,8 +33,6 @@ import (
 )
 
 func (c *VaultController) initStatefulSetWatcher() {
-	klog.Infoln("Initializing StatefulSet watcher.....")
-	// Initialize RestoreSession Watcher
 	c.StsInformer = c.kubeInformerFactory.Apps().V1().StatefulSets().Informer()
 	c.StsQueue = queue.New(apis.ResourceKindStatefulSet, c.MaxNumRequeues, c.NumThreads, c.processStatefulSet)
 	c.StsLister = c.kubeInformerFactory.Apps().V1().StatefulSets().Lister()
@@ -59,13 +57,13 @@ func (c *VaultController) initStatefulSetWatcher() {
 				vsInfo, err := c.extractVaultserverInfo(sts)
 				if err != nil {
 					if !kerr.IsNotFound(err) {
-						klog.Warningf("failed to extract vaultserver info from StatefulSet: %s/%s. Reason: %v", sts.Namespace, sts.Name, err)
+						klog.Warningf("failed to extract vaultserver info from StatefulSet: %s/%s. with: %v", sts.Namespace, sts.Name, err)
 					}
 					return
 				}
 				err = c.ensureReadyReplicasCond(vsInfo)
 				if err != nil {
-					klog.Warningf("failed to update ReadyReplicas condition. Reason: %v", err)
+					klog.Warningf("failed to update ReadyReplicas condition. with: %v", err)
 					return
 				}
 			}
@@ -80,7 +78,7 @@ func (c *VaultController) enqueueOnlyKubeVaultSts(sts *apps.StatefulSet) {
 	// only enqueue if the controlling owner is a KubeVault resource
 	ok, _, err := core_util.IsOwnerOfGroup(metav1.GetControllerOf(sts), kubevault.GroupName)
 	if err != nil {
-		klog.Warningf("failed to enqueue StatefulSet: %s/%s. Reason: %v", sts.Namespace, sts.Name, err)
+		klog.Warningf("failed to enqueue StatefulSet: %s/%s. with: %v", sts.Namespace, sts.Name, err)
 		return
 	}
 	if ok {
@@ -89,7 +87,6 @@ func (c *VaultController) enqueueOnlyKubeVaultSts(sts *apps.StatefulSet) {
 }
 
 func (c *VaultController) processStatefulSet(key string) error {
-	klog.Infof("Started processing, key: %v", key)
 	obj, exists, err := c.StsInformer.GetIndexer().GetByKey(key)
 	if err != nil {
 		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)
@@ -102,7 +99,7 @@ func (c *VaultController) processStatefulSet(key string) error {
 		sts := obj.(*apps.StatefulSet).DeepCopy()
 		vsInfo, err := c.extractVaultserverInfo(sts)
 		if err != nil {
-			return fmt.Errorf("failed to extract vaultserver info from StatefulSet: %s/%s. Reason: %v", sts.Namespace, sts.Name, err)
+			return fmt.Errorf("failed to extract vaultserver info from StatefulSet: %s/%s. with: %v", sts.Namespace, sts.Name, err)
 		}
 		return c.ensureReadyReplicasCond(vsInfo)
 	}
