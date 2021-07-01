@@ -18,9 +18,9 @@ package controller
 
 import (
 	"fmt"
-	api "kubevault.dev/apimachinery/apis/engine/v1alpha1"
 
 	"kubevault.dev/apimachinery/apis"
+	api "kubevault.dev/apimachinery/apis/engine/v1alpha1"
 	"kubevault.dev/apimachinery/apis/kubevault"
 
 	apps "k8s.io/api/apps/v1"
