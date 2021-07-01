@@ -124,6 +124,8 @@ func (c *Config) New() (*VaultController, error) {
 
 	// For VaultServer
 	ctrl.initVaultServerWatcher()
+	// Todo: For StatefulSet
+	ctrl.initStatefulSetWatcher()
 	// For VaultPolicy
 	ctrl.initVaultPolicyWatcher()
 	// For VaultPolicyBinding
