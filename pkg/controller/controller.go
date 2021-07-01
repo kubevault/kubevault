@@ -24,6 +24,7 @@ import (
 	vaultapi "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 	policyapi "kubevault.dev/apimachinery/apis/policy/v1alpha1"
 	cs "kubevault.dev/apimachinery/client/clientset/versioned"
+	kubevaultinformers "kubevault.dev/apimachinery/client/informers/externalversions"
 	vaultinformers "kubevault.dev/apimachinery/client/informers/externalversions"
 	engine_listers "kubevault.dev/apimachinery/client/listers/engine/v1alpha1"
 	vault_listers "kubevault.dev/apimachinery/client/listers/kubevault/v1alpha1"
@@ -32,9 +33,12 @@ import (
 	pcm "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	auditlib "go.bytebuilders.dev/audit/lib"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	externalInformers "k8s.io/apiextensions-apiserver/pkg/client/informers/externalversions"
 	"k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	appslister "k8s.io/client-go/listers/apps/v1"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
@@ -44,15 +48,25 @@ import (
 	"kmodules.xyz/client-go/tools/queue"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
+	appcat_in "kmodules.xyz/custom-resources/client/informers/externalversions"
 )
 
 type VaultController struct {
 	config
 	clientConfig *rest.Config
 
+	// Todo: Informer factory
+	KubeInformerFactory      informers.SharedInformerFactory
+	KubevaultInformerFactory kubevaultinformers.SharedInformerFactory
+	AppCatInformerFactory    appcat_in.SharedInformerFactory
+	ExternalInformerFactory  externalInformers.SharedInformerFactory
+
 	// ctxCancels stores vault clusters' contexts that are used to
 	// cancel their goroutines when they are deleted
 	ctxCancels map[string]CtxWithCancel
+
+	// Todo: Dynamic client
+	DynamicClient dynamic.Interface
 
 	kubeClient       kubernetes.Interface
 	extClient        cs.Interface
@@ -69,6 +83,11 @@ type VaultController struct {
 	vsQueue    *queue.Worker
 	vsInformer cache.SharedIndexInformer
 	vsLister   vault_listers.VaultServerLister
+
+	// Todo: StatefulSet Watcher
+	StsQueue    *queue.Worker
+	StsInformer cache.SharedIndexInformer
+	StsLister   appslister.StatefulSetLister
 
 	// for VaultPolicy
 	vplcyQueue    *queue.Worker
@@ -198,6 +217,9 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 			return
 		}
 	}
+
+	// Todo: For StatefulSet
+	go c.StsQueue.Run(stopCh)
 
 	// For VaultServer
 	go c.vsQueue.Run(stopCh)
