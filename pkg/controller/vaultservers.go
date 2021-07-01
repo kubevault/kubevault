@@ -142,9 +142,6 @@ func (c *VaultController) runVaultServerFinalizer(vs *api.VaultServer) error {
 	//  - DoNotTerminate
 	//    - Stop terminating using the webhook if kubectl delete is applied
 
-	owner := metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer))
-	klog.Infof("In runVaultServerFinalizer() => Owner Name: %s, TPolicy: %s", owner.Name, vs.Spec.TerminationPolicy)
-
 	switch {
 	case vs.Spec.TerminationPolicy == api.TerminationPolicyHalt:
 		return c.halt(vs)
@@ -204,7 +201,6 @@ func (c *VaultController) ensureOwnerReferencePVC(vs *api.VaultServer) error {
 	// get the list options using the LabelSelector
 	listOptions := metav1.ListOptions{
 		LabelSelector: labels.Set(vs.OffshootLabels()).String(),
-		Limit:         100,
 	}
 
 	// Get the PVCs list using the List options, RBAC permission must be enabled to List, Get etc.
@@ -233,7 +229,6 @@ func (c *VaultController) ensureOwnerReferenceSecrets(vs *api.VaultServer) error
 	// get the list options using the LabelSelector
 	listOptions := metav1.ListOptions{
 		LabelSelector: labels.Set(vs.OffshootLabels()).String(),
-		Limit:         100,
 	}
 
 	// Get the Secrets list using the List options, RBAC permission must be enabled to List, Get etc.
@@ -262,7 +257,6 @@ func (c *VaultController) removeOwnerReferenceSecrets(vs *api.VaultServer) error
 	// get the list options using the LabelSelector
 	listOptions := metav1.ListOptions{
 		LabelSelector: labels.Set(vs.OffshootLabels()).String(),
-		Limit:         100,
 	}
 
 	// Get the Secrets list using the List options, RBAC permission must be enabled to List, Get etc.

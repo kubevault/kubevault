@@ -120,10 +120,10 @@ func (v *VaultServerValidator) Admit(req *admission.AdmissionRequest) *admission
 				return hookapi.StatusBadRequest(err)
 			}
 
-			vaultserver := obj.(*api.VaultServer).DeepCopy()
-			oldVaultserver := oldObject.(*api.VaultServer).DeepCopy()
+			vs := obj.(*api.VaultServer).DeepCopy()
+			oldVs := oldObject.(*api.VaultServer).DeepCopy()
 
-			if err := validateUpdate(vaultserver, oldVaultserver); err != nil {
+			if err := validateUpdate(vs, oldVs); err != nil {
 				return hookapi.StatusBadRequest(fmt.Errorf("%v", err))
 			}
 		}
