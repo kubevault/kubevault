@@ -33,7 +33,6 @@ import (
 	pcm "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	auditlib "go.bytebuilders.dev/audit/lib"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	externalInformers "k8s.io/apiextensions-apiserver/pkg/client/informers/externalversions"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/informers"
@@ -56,10 +55,8 @@ type VaultController struct {
 	clientConfig *rest.Config
 
 	// Todo: Informer factory
-	KubeInformerFactory      informers.SharedInformerFactory
 	KubevaultInformerFactory kubevaultinformers.SharedInformerFactory
 	AppCatInformerFactory    appcat_in.SharedInformerFactory
-	ExternalInformerFactory  externalInformers.SharedInformerFactory
 
 	// ctxCancels stores vault clusters' contexts that are used to
 	// cancel their goroutines when they are deleted

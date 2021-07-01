@@ -34,9 +34,9 @@ import (
 func (c *VaultController) initStatefulSetWatcher() {
 	klog.Infoln("Initializing StatefulSet watcher.....")
 	// Initialize RestoreSession Watcher
-	c.StsInformer = c.KubeInformerFactory.Apps().V1().StatefulSets().Informer()
+	c.StsInformer = c.kubeInformerFactory.Apps().V1().StatefulSets().Informer()
 	c.StsQueue = queue.New(apis.ResourceKindStatefulSet, c.MaxNumRequeues, c.NumThreads, c.processStatefulSet)
-	c.StsLister = c.KubeInformerFactory.Apps().V1().StatefulSets().Lister()
+	c.StsLister = c.kubeInformerFactory.Apps().V1().StatefulSets().Lister()
 	c.StsInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			if sts, ok := obj.(*apps.StatefulSet); ok {
