@@ -27,6 +27,7 @@ import (
 
 	"github.com/pkg/errors"
 	admission "k8s.io/api/admission/v1beta1"
+	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -93,7 +94,21 @@ func (v *VaultServerValidator) Admit(req *admission.AdmissionRequest) *admission
 		return hookapi.StatusUninitialized()
 	}
 
-	if req.Operation == admission.Create || req.Operation == admission.Update {
+	switch req.Operation {
+	case admission.Delete:
+		if req.Name != "" {
+			// req.Object.Raw is nil, so read from kubernetes
+			obj, err := v.extClient.KubevaultV1alpha1().VaultServers(req.Namespace).Get(context.TODO(), req.Name, metav1.GetOptions{})
+			if err != nil {
+				if kerr.IsNotFound(err) {
+					break
+				}
+				return hookapi.StatusInternalServerError(err)
+			} else if obj.Spec.TerminationPolicy == api.TerminationPolicyDoNotTerminate {
+				return hookapi.StatusBadRequest(fmt.Errorf(`vaultserver "%v/%v" can't be terminated. To delete, change spec.terminationPolicy`, req.Namespace, req.Name))
+			}
+		}
+	default:
 		obj, err := meta_util.UnmarshalFromJSON(req.Object.Raw, api.SchemeGroupVersion)
 		if err != nil {
 			return hookapi.StatusBadRequest(err)
@@ -109,7 +124,7 @@ func (v *VaultServerValidator) Admit(req *admission.AdmissionRequest) *admission
 			oldVs := oldObject.(*api.VaultServer).DeepCopy()
 
 			if err := validateUpdate(vs, oldVs); err != nil {
-				return hookapi.StatusBadRequest(err)
+				return hookapi.StatusBadRequest(fmt.Errorf("%v", err))
 			}
 		}
 		// validate vaultserver specs
@@ -117,6 +132,7 @@ func (v *VaultServerValidator) Admit(req *admission.AdmissionRequest) *admission
 			return hookapi.StatusForbidden(err)
 		}
 	}
+
 	status.Allowed = true
 	return status
 }
