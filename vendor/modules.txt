@@ -1317,14 +1317,6 @@ kmodules.xyz/custom-resources/client/clientset/versioned/typed/auditor/v1alpha1
 kmodules.xyz/custom-resources/client/clientset/versioned/typed/auditor/v1alpha1/fake
 kmodules.xyz/custom-resources/client/clientset/versioned/typed/metrics/v1alpha1
 kmodules.xyz/custom-resources/client/clientset/versioned/typed/metrics/v1alpha1/fake
-kmodules.xyz/custom-resources/client/informers/externalversions
-kmodules.xyz/custom-resources/client/informers/externalversions/appcatalog
-kmodules.xyz/custom-resources/client/informers/externalversions/appcatalog/v1alpha1
-kmodules.xyz/custom-resources/client/informers/externalversions/internalinterfaces
-kmodules.xyz/custom-resources/client/informers/externalversions/metrics
-kmodules.xyz/custom-resources/client/informers/externalversions/metrics/v1alpha1
-kmodules.xyz/custom-resources/client/listers/appcatalog/v1alpha1
-kmodules.xyz/custom-resources/client/listers/metrics/v1alpha1
 kmodules.xyz/custom-resources/crds
 # kmodules.xyz/monitoring-agent-api v0.0.0-20210618110729-9cd872c66513
 ## explicit

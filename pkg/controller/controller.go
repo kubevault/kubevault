@@ -24,7 +24,6 @@ import (
 	vaultapi "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 	policyapi "kubevault.dev/apimachinery/apis/policy/v1alpha1"
 	cs "kubevault.dev/apimachinery/client/clientset/versioned"
-	kubevaultinformers "kubevault.dev/apimachinery/client/informers/externalversions"
 	vaultinformers "kubevault.dev/apimachinery/client/informers/externalversions"
 	engine_listers "kubevault.dev/apimachinery/client/listers/engine/v1alpha1"
 	vault_listers "kubevault.dev/apimachinery/client/listers/kubevault/v1alpha1"
@@ -47,16 +46,11 @@ import (
 	"kmodules.xyz/client-go/tools/queue"
 	appcat "kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
-	appcat_in "kmodules.xyz/custom-resources/client/informers/externalversions"
 )
 
 type VaultController struct {
 	config
 	clientConfig *rest.Config
-
-	// Todo: Informer factory
-	KubevaultInformerFactory kubevaultinformers.SharedInformerFactory
-	AppCatInformerFactory    appcat_in.SharedInformerFactory
 
 	// ctxCancels stores vault clusters' contexts that are used to
 	// cancel their goroutines when they are deleted
