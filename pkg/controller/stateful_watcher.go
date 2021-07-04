@@ -18,6 +18,7 @@ package controller
 
 import (
 	"fmt"
+
 	"kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/engine/v1alpha1"
 	"kubevault.dev/apimachinery/apis/kubevault"
@@ -107,7 +108,6 @@ func (c *VaultController) processStatefulSet(key string) error {
 		return err
 	}
 	klog.Infoln("=============================== Fetching object not failed ==========================")
-
 
 	if !exists {
 		klog.Infoln("=============================== sts doesn't exist anymore ==========================")

@@ -19,7 +19,6 @@ package controller
 import (
 	"context"
 	"fmt"
-	"k8s.io/klog/v2"
 	"sync"
 
 	"kubevault.dev/apimachinery/apis"
@@ -28,6 +27,7 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	dmcond "kmodules.xyz/client-go/dynamic/conditions"
 )
