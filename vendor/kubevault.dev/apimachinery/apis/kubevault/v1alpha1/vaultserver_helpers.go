@@ -28,6 +28,7 @@ import (
 	"gomodules.xyz/pointer"
 	"k8s.io/apimachinery/pkg/labels"
 	appslister "k8s.io/client-go/listers/apps/v1"
+	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/client-go/apiextensions"
 	apps_util "kmodules.xyz/client-go/apps/v1"
@@ -210,9 +211,11 @@ func (v *VaultServer) CertificateMountPath(alias VaultCertificateAlias) string {
 }
 
 func (v *VaultServer) ReplicasAreReady(lister appslister.StatefulSetLister) (bool, string, error) {
+	klog.Infoln("====================== ReplicasAreReady ========================")
 	// Desire number of statefulSets
 	expectedItems := 1
 	if v.Spec.Replicas != nil {
+		klog.Infoln("================ v.Spec.Replicas ==================", v.Spec.Replicas)
 		expectedItems = int(pointer.Int32(v.Spec.Replicas))
 	}
 	return checkReplicas(lister.StatefulSets(v.Namespace), labels.SelectorFromSet(v.OffshootLabels()), expectedItems)
@@ -220,6 +223,10 @@ func (v *VaultServer) ReplicasAreReady(lister appslister.StatefulSetLister) (boo
 
 func checkReplicas(lister appslister.StatefulSetNamespaceLister, selector labels.Selector, expectedItems int) (bool, string, error) {
 	items, err := lister.List(selector)
+	klog.Infoln("================ checkReplicas ==============", len(items))
+	for item := range items {
+		klog.Infoln("================= Item =============", item)
+	}
 	if err != nil {
 		return false, "", err
 	}

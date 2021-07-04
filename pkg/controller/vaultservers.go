@@ -46,6 +46,7 @@ const (
 )
 
 func (c *VaultController) initVaultServerWatcher() {
+	klog.Info("*********************** initVaultServerWatcher *************************")
 	c.vsInformer = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New(api.ResourceKindVaultServer, c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
 	c.vsInformer.AddEventHandler(queue.NewReconcilableHandler(c.vsQueue.GetQueue()))
@@ -58,6 +59,7 @@ func (c *VaultController) initVaultServerWatcher() {
 // runVaultSeverInjector gets the vault server object indexed by the key from cache
 // and initializes, reconciles or garbage collects the vault cluster as needed.
 func (c *VaultController) runVaultServerInjector(key string) error {
+	klog.Info("*********************** runVaultServerInjector *************************")
 	obj, exists, err := c.vsInformer.GetIndexer().GetByKey(key)
 	if err != nil {
 		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)

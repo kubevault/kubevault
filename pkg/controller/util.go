@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"k8s.io/klog/v2"
 	"sync"
 
 	"kubevault.dev/apimachinery/apis"
@@ -76,11 +77,14 @@ type vaultserverInfo struct {
 }
 
 func (c *VaultController) extractVaultserverInfo(sts *apps.StatefulSet) (*vaultserverInfo, error) {
+	klog.Infoln("=============================== extraceVaultserverInfo ==========================")
 	// read the controlling owner
 	owner := metav1.GetControllerOf(sts)
 	if owner == nil {
 		return nil, fmt.Errorf("StatefulSet %s/%s has no controlling owner", sts.Namespace, sts.Name)
 	}
+	klog.Infoln("=============================== Owner ========================== ", owner)
+
 	gv, err := schema.ParseGroupVersion(owner.APIVersion)
 	if err != nil {
 		return nil, err
@@ -99,16 +103,19 @@ func (c *VaultController) extractVaultserverInfo(sts *apps.StatefulSet) (*vaults
 	}
 	switch owner.Kind {
 	case apis.ResourceKindStatefulSet:
+		klog.Infoln("=============================== switch case in ==========================")
 		vsInfo.opts.GVR.Resource = apis.ResourceKindStatefulSet
 		vs, err := c.extClient.KubevaultV1alpha1().VaultServers(vsInfo.opts.Namespace).Get(context.TODO(), vsInfo.opts.Name, metav1.GetOptions{})
 		if err != nil {
 			return nil, err
 		}
+		klog.Infoln("=============================== switch in, vs ok ==========================")
+
 		vsInfo.replicasReady, vsInfo.msg, err = vs.ReplicasAreReady(c.StsLister)
 		if err != nil {
 			return nil, err
 		}
-
+		klog.Infoln("=============================== vsInfo ==========================", vsInfo.replicasReady, vsInfo.msg)
 	default:
 		return nil, fmt.Errorf("unknown resource kind: %s", owner.Kind)
 	}
@@ -116,6 +123,7 @@ func (c *VaultController) extractVaultserverInfo(sts *apps.StatefulSet) (*vaults
 }
 
 func (c *VaultController) ensureReadyReplicasCond(vsInfo *vaultserverInfo) error {
+	klog.Infoln("=============================== ensureReadyReplicasCond ==========================")
 	vsCond := kmapi.Condition{
 		Type:    apis.VaultserverReplicaReady,
 		Message: vsInfo.msg,
@@ -128,7 +136,7 @@ func (c *VaultController) ensureReadyReplicasCond(vsInfo *vaultserverInfo) error
 		vsCond.Status = core.ConditionFalse
 		vsCond.Reason = apis.SomeReplicasAreNotReady
 	}
-
+	klog.Infoln("=============================== ensureReadyReplicasCond ==========================", vsCond.Status, vsCond.Reason)
 	// Add "ReplicasReady" condition to the respective vaultserver CR
 	return vsInfo.opts.SetCondition(vsCond)
 }
