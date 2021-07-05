@@ -163,6 +163,10 @@ func (c *VaultController) CheckVaultserverHealthOnce() {
 						},
 						metav1.UpdateOptions{},
 					)
+					if err != nil {
+						klog.Errorf("Failed to update status for Vaultserver: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+						return
+					}
 				}
 			}
 			if !failed {
