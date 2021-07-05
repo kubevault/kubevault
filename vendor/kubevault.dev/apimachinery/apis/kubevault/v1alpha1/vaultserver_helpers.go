@@ -215,7 +215,7 @@ func (v *VaultServer) ReplicasAreReady(lister appslister.StatefulSetLister) (boo
 	// Desire number of statefulSets
 	expectedItems := 1
 	if v.Spec.Replicas != nil {
-		klog.Infoln("================ v.Spec.Replicas ==================", v.Spec.Replicas)
+		klog.Infoln("================ v.Spec.Replicas ==================", int(pointer.Int32(v.Spec.Replicas)))
 		expectedItems = int(pointer.Int32(v.Spec.Replicas))
 	}
 	return checkReplicas(lister.StatefulSets(v.Namespace), labels.SelectorFromSet(v.OffshootLabels()), expectedItems)
@@ -223,13 +223,16 @@ func (v *VaultServer) ReplicasAreReady(lister appslister.StatefulSetLister) (boo
 
 func checkReplicas(lister appslister.StatefulSetNamespaceLister, selector labels.Selector, expectedItems int) (bool, string, error) {
 	items, err := lister.List(selector)
-	klog.Infoln("================ checkReplicas ==============", len(items))
-	for item := range items {
-		klog.Infoln("================= Item =============", item)
-	}
 	if err != nil {
 		return false, "", err
 	}
+
+	klog.Infoln("================ checkReplicas ==============", len(items))
+
+	for item := range items {
+		klog.Infoln("================= Item =============", item)
+	}
+
 	if len(items) < expectedItems {
 		return false, fmt.Sprintf("All StatefulSets are not available. Desire number of StatefulSet: %d, Available: %d", expectedItems, len(items)), nil
 	}

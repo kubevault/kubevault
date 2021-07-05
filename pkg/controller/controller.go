@@ -204,6 +204,8 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	c.extInformerFactory.Start(stopCh)
 	// Todo: StatefulSet Informer
 	c.kubeInformerFactory.Start(stopCh)
+	// Todo: Health Checker
+	c.RunHealthChecker(stopCh)
 	for _, v := range c.extInformerFactory.WaitForCacheSync(stopCh) {
 		if !v {
 			runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))

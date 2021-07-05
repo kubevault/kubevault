@@ -289,6 +289,7 @@ func (c *VaultController) removeOwnerReferenceSecrets(vs *api.VaultServer) error
 // and finally updating the vault deployment if needed.
 // It also creates AppBinding containing vault connection configuration
 func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
+	// Todo: Get Phase from status, call from here..
 	err := c.CreateVaultTLSSecret(vs, v)
 	if err != nil {
 		_, err2 := patchutil.UpdateVaultServerStatus(
@@ -397,7 +398,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			Ctx:    ctx,
 			Cancel: cancel,
 		}
-		go c.monitorAndUpdateStatus(ctx, vs)
+		go c.monitorAndUpdateStatus(ctx, vs) // Todo: Replace with HealthChecker? Call health checker from controller! keep it as it is for now!
 	}
 
 	// Run auth method reconcile

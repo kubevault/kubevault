@@ -102,9 +102,9 @@ func (c *VaultController) extractVaultserverInfo(sts *apps.StatefulSet) (*vaults
 		Version: gv.Version,
 	}
 	switch owner.Kind {
-	case apis.ResourceKindStatefulSet:
-		klog.Infoln("=============================== switch case in ==========================")
-		vsInfo.opts.GVR.Resource = apis.ResourceKindStatefulSet
+	case apis.ResourceKindVaultServer:
+		klog.Infoln("=============================== switch case in ResourceKind ==========================")
+		vsInfo.opts.GVR.Resource = apis.ResourceKindVaultServer
 		vs, err := c.extClient.KubevaultV1alpha1().VaultServers(vsInfo.opts.Namespace).Get(context.TODO(), vsInfo.opts.Name, metav1.GetOptions{})
 		if err != nil {
 			return nil, err
@@ -117,13 +117,13 @@ func (c *VaultController) extractVaultserverInfo(sts *apps.StatefulSet) (*vaults
 		}
 		klog.Infoln("=============================== vsInfo ==========================", vsInfo.replicasReady, vsInfo.msg)
 	default:
-		return nil, fmt.Errorf("unknown resource kind: %s", owner.Kind)
+		return nil, fmt.Errorf("======================= unknown resource kind: ======================== %s", owner.Kind)
 	}
 	return vsInfo, nil
 }
 
 func (c *VaultController) ensureReadyReplicasCond(vsInfo *vaultserverInfo) error {
-	klog.Infoln("=============================== ensureReadyReplicasCond ==========================")
+	klog.Infoln("=============================== inside ensureReadyReplicasCond ==========================")
 	vsCond := kmapi.Condition{
 		Type:    apis.VaultserverReplicaReady,
 		Message: vsInfo.msg,
@@ -138,5 +138,7 @@ func (c *VaultController) ensureReadyReplicasCond(vsInfo *vaultserverInfo) error
 	}
 	klog.Infoln("=============================== ensureReadyReplicasCond ==========================", vsCond.Status, vsCond.Reason)
 	// Add "ReplicasReady" condition to the respective vaultserver CR
-	return vsInfo.opts.SetCondition(vsCond)
+	// RE from this part
+	// return vsInfo.opts.SetCondition(vsCond)
+	return nil
 }
