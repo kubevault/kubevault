@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -77,78 +78,27 @@ func (c *VaultController) CheckVaultserverHealthOnce() {
 				wg.Done()
 			}()
 
-			// Todo: Algorithm:
-			//- make a context with timeout (30 sec)
-			//- make a list a pods, using the vs label selectors
-			//
-			//- for each pod:
-			//	- make a vaultserver client (pod specific client)
-			//	- health check call using the client
-			//		- fail:
-			//			- warning print log & continue
-			//			- check error:
-			//				- status code (network error):
-			//					- do nothing
-			//				- status code (anything else)
-			//					- condition update (accepting connection - false)
-			//
-			//		- pass:
-			//			- continue
-			//
-			//- if all health passed:
-			//	- update condition to accepting connection true
-			//- else:
-			//	- failed
-
-			// Todo: make a context with timeout (30 sec)
-			// ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-			// defer cancel()
-
-			// Todo: make a list a pods, using the vs label selectors
-			name, namespace := vs.Name, vs.Namespace
-			sel := vs.OffshootSelectors()
-
-			opt := metav1.ListOptions{LabelSelector: labels.SelectorFromSet(sel).String()}
-
-			pods, err := c.kubeClient.CoreV1().Pods(namespace).List(context.TODO(), opt)
+			vaultClient, err := c.getVaultServiceSpecificClient(vs)
 			if err != nil {
-				klog.Errorf("=== failed listing pods for the vault server (%s.%s): %v ===", namespace, name, err)
+				klog.Errorf("failed generating Client for Vault Service with %s", err.Error())
 				return
 			}
 
-			if len(pods.Items) == 0 {
-				klog.Errorf("=== for the vault server (%s.%s): no pods found ===", namespace, name)
-				return
-			}
+			// Todo:  make the health check call using the vaultClient
+			hr, err := vaultClient.Sys().Health()
+			if err != nil {
+				klog.Warningf(" =================== failed requesting health info =================", err.Error())
+			} else {
+				klog.Info("========================= success in requesting health info =======================")
+				//i. 200 if initialized, unsealed, and active
+				//ii. 429 if unsealed and standby
+				//iii. 472 if disaster recovery mode replication secondary and active
+				//iv. 473 if performance standby
+				//v. 501 if not initialized
+				//vi. 503 if sealed
 
-			failed := false
-			// Todo: iterate over each pod
-			for _, pod := range pods.Items {
-				// Todo: make a pod specific vaultserver client
-				vaultClient, err := c.getVaultClient(&pod)
-				if err != nil {
-					klog.Errorf("=== failed creating client for the vault pod (%s/%s). ===", pod.Namespace, pod.Name)
-					continue
-				}
-
-				// Todo:  make the health check call using the vaultClient
-				hr, err := vaultClient.Sys().Health()
-				if err != nil {
-					failed = true
-					klog.Warningf(" === failed requesting health info for the vault pod (%s/%s). ===", pod.Namespace, pod.Name)
-
-					//200 if initialized, unsealed, and active
-					//429 if unsealed and standby
-					//472 if disaster recovery mode replication secondary and active
-					//473 if performance standby
-					//501 if not initialized
-					//503 if sealed
-
-					// if hr is nil, it will not check the other conditions
-					if hr == nil || !hr.Initialized || hr.Sealed {
-						continue
-					}
-					klog.Infoln("=========== HR status ==============", hr.Sealed, hr.Initialized)
+				if hr == nil {
+					klog.Info("========================= HR is nil =============================")
 					_, err = cs_util.UpdateVaultServerStatus(
 						context.TODO(),
 						c.extClient.KubevaultV1alpha1(),
@@ -156,8 +106,52 @@ func (c *VaultController) CheckVaultserverHealthOnce() {
 						func(in *api.VaultServerStatus) *api.VaultServerStatus {
 							in.Conditions = kmapi.SetCondition(in.Conditions,
 								kmapi.Condition{
-									Type:   conapi.VaultserverAcceptingConnection,
-									Status: core.ConditionFalse,
+									Type:    conapi.VaultserverAcceptingConnection,
+									Status:  core.ConditionFalse,
+									Message: "Got Nil Health Response",
+									Reason:  "Health Response is nil",
+								})
+							return in
+						},
+						metav1.UpdateOptions{},
+					)
+					if err != nil {
+						klog.Errorf("Failed to update status for Vaultserver: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+						return
+					}
+				} else if hr.Initialized && !hr.Sealed {
+					_, err = cs_util.UpdateVaultServerStatus(
+						context.TODO(),
+						c.extClient.KubevaultV1alpha1(),
+						vs.ObjectMeta,
+						func(in *api.VaultServerStatus) *api.VaultServerStatus {
+							in.Conditions = kmapi.SetCondition(in.Conditions,
+								kmapi.Condition{
+									Type:    conapi.VaultserverAcceptingConnection,
+									Status:  core.ConditionTrue,
+									Message: "Initialized & unsealed",
+									Reason:  "Initialized & unsealed",
+								})
+							return in
+						},
+						metav1.UpdateOptions{},
+					)
+					if err != nil {
+						klog.Errorf("Failed to update status for Vaultserver: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+						return
+					}
+				} else {
+					_, err = cs_util.UpdateVaultServerStatus(
+						context.TODO(),
+						c.extClient.KubevaultV1alpha1(),
+						vs.ObjectMeta,
+						func(in *api.VaultServerStatus) *api.VaultServerStatus {
+							in.Conditions = kmapi.SetCondition(in.Conditions,
+								kmapi.Condition{
+									Type:    conapi.VaultserverAcceptingConnection,
+									Status:  core.ConditionFalse,
+									Message: "Not Initialized or not unsealed",
+									Reason:  "Not Initialized or not unsealed",
 								})
 							return in
 						},
@@ -169,47 +163,39 @@ func (c *VaultController) CheckVaultserverHealthOnce() {
 					}
 				}
 			}
-			if !failed {
-				klog.Infoln("========================= NOT Failed =========================")
-				_, err = cs_util.UpdateVaultServerStatus(
-					context.TODO(),
-					c.extClient.KubevaultV1alpha1(),
-					vs.ObjectMeta,
-					func(in *api.VaultServerStatus) *api.VaultServerStatus {
-						in.Conditions = kmapi.SetCondition(in.Conditions,
-							kmapi.Condition{
-								Type:   conapi.VaultserverAcceptingConnection,
-								Status: core.ConditionTrue,
-							})
-						return in
-					},
-					metav1.UpdateOptions{},
-				)
-				if err != nil {
-					klog.Errorf("Failed to update status for Vaultserver: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
-					return
-				}
-			} else {
-				klog.Infoln("========================= Some POD Failed =========================")
-			}
 		}(vs)
 	}
-
 	// Wait until all go-routine complete executions
 	wg.Wait()
 }
 
-func (c *VaultController) getVaultClient(p *core.Pod) (*vaultapi.Client, error) {
-	// No need to use tunnel for StatefulSet
-	podAddr := util.PodDNSName(*p)
-	podPort := "8200"
+//func (c *VaultController) getVaultClient(p *core.Pod) (*vaultapi.Client, error) {
+//	// No need to use tunnel for StatefulSet
+//	podAddr := util.PodDNSName(*p)
+//	podPort := "8200"
+//	tlsConfig := &vaultapi.TLSConfig{
+//		Insecure: true,
+//	}
+//
+//	vaultClient, err := util.NewVaultClient(podAddr, podPort, tlsConfig)
+//	if err != nil {
+//		return nil, errors.Wrapf(err, "failed creating client for the vault pod (%s/%s).", p.Namespace, p.Name)
+//	}
+//
+//	return vaultClient, nil
+//}
+
+func (c *VaultController) getVaultServiceSpecificClient(vs *api.VaultServer) (*vaultapi.Client, error) {
+	podPort := 8200
 	tlsConfig := &vaultapi.TLSConfig{
 		Insecure: true,
 	}
 
-	vaultClient, err := util.NewVaultClient(podAddr, podPort, tlsConfig)
+	url := fmt.Sprintf("%s://%s.%s.svc:%d", vs.Scheme(), vs.ServiceName(api.VaultServerServiceVault), vs.Namespace, podPort)
+	klog.Infof("=========================== URL ========================== %s ", url)
+	vaultClient, err := util.NewVaultClient(url, tlsConfig)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed creating client for the vault pod (%s/%s).", p.Namespace, p.Name)
+		return nil, errors.Wrapf(err, "failed creating client for the vault service (%s/%s).", vs.Namespace, vs.ServiceName(api.VaultServerServiceVault))
 	}
 
 	return vaultClient, nil

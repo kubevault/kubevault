@@ -25,7 +25,6 @@ import (
 	"kubevault.dev/apimachinery/apis/kubevault"
 	"kubevault.dev/apimachinery/crds"
 
-	"gomodules.xyz/pointer"
 	"k8s.io/apimachinery/pkg/labels"
 	appslister "k8s.io/client-go/listers/apps/v1"
 	"k8s.io/klog/v2"
@@ -214,10 +213,6 @@ func (v *VaultServer) ReplicasAreReady(lister appslister.StatefulSetLister) (boo
 	klog.Infoln("====================== ReplicasAreReady ========================")
 	// Desire number of statefulSets
 	expectedItems := 1
-	if v.Spec.Replicas != nil {
-		klog.Infoln("================ v.Spec.Replicas ==================", int(pointer.Int32(v.Spec.Replicas)))
-		expectedItems = int(pointer.Int32(v.Spec.Replicas))
-	}
 	return checkReplicas(lister.StatefulSets(v.Namespace), labels.SelectorFromSet(v.OffshootLabels()), expectedItems)
 }
 
@@ -227,12 +222,7 @@ func checkReplicas(lister appslister.StatefulSetNamespaceLister, selector labels
 		return false, "", err
 	}
 
-	klog.Infoln("================ checkReplicas ==============", len(items))
-
-	for item := range items {
-		klog.Infoln("================= Item =============", item)
-	}
-
+	klog.Infof("====================== expected, actual ======================== ", expectedItems, len(items))
 	if len(items) < expectedItems {
 		return false, fmt.Sprintf("All StatefulSets are not available. Desire number of StatefulSet: %d, Available: %d", expectedItems, len(items)), nil
 	}

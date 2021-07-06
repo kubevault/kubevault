@@ -57,7 +57,7 @@ type VaultController struct {
 	ctxCancels map[string]CtxWithCancel
 
 	// Todo: Dynamic client
-	DynamicClient dynamic.Interface
+	dynamicClient dynamic.Interface
 
 	kubeClient       kubernetes.Interface
 	extClient        cs.Interface

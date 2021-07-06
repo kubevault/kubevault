@@ -77,7 +77,7 @@ type vaultserverInfo struct {
 }
 
 func (c *VaultController) extractVaultserverInfo(sts *apps.StatefulSet) (*vaultserverInfo, error) {
-	klog.Infoln("=============================== extraceVaultserverInfo ==========================")
+	klog.Infoln("=============================== extractVaultserverInfo ==========================")
 	// read the controlling owner
 	owner := metav1.GetControllerOf(sts)
 	if owner == nil {
@@ -91,7 +91,7 @@ func (c *VaultController) extractVaultserverInfo(sts *apps.StatefulSet) (*vaults
 	}
 	vsInfo := &vaultserverInfo{
 		opts: dmcond.DynamicOptions{
-			Client:    c.DynamicClient,
+			Client:    c.dynamicClient,
 			Kind:      owner.Kind,
 			Name:      owner.Name,
 			Namespace: sts.Namespace,
@@ -136,9 +136,7 @@ func (c *VaultController) ensureReadyReplicasCond(vsInfo *vaultserverInfo) error
 		vsCond.Status = core.ConditionFalse
 		vsCond.Reason = apis.SomeReplicasAreNotReady
 	}
-	klog.Infoln("=============================== ensureReadyReplicasCond ==========================", vsCond.Status, vsCond.Reason)
-	// Add "ReplicasReady" condition to the respective vaultserver CR
-	// RE from this part
-	// return vsInfo.opts.SetCondition(vsCond)
-	return nil
+	klog.Infoln("=============================== ensureReadyReplicasCond ========================== ", vsCond.Status, vsCond.Reason)
+
+	return vsInfo.opts.SetCondition(vsCond)
 }

@@ -18,12 +18,10 @@ package controller
 
 import (
 	"context"
-	"strconv"
 	"time"
 
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 	cs_util "kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/util"
-	"kubevault.dev/operator/pkg/vault/util"
 
 	vaultapi "github.com/hashicorp/vault/api"
 	"github.com/pkg/errors"
@@ -202,9 +200,9 @@ func (c *VaultController) updateVaultCRStatus(name, namespace string, status *ap
 func (c *VaultController) getVaultStatus(p *core.Pod, tlsConfig *vaultapi.TLSConfig) (*vaultapi.HealthResponse, error) {
 	// podAddr contains pod access url
 	// PodDNSName is reachable if operator running in cluster mode
-	podAddr := util.PodDNSName(*p)
+	//podAddr := util.PodDNSName(*p)
 	// vault server pod use port 8200
-	podPort := "8200"
+	//podPort := "8200"
 
 	if !meta_util.PossiblyInCluster() {
 		// if not incluster mode, use port forwarding to access pod
@@ -224,18 +222,19 @@ func (c *VaultController) getVaultStatus(p *core.Pod, tlsConfig *vaultapi.TLSCon
 			return nil, errors.Wrapf(err, "failed to get vault pod status: port forward failed for pod (%s/%s).", p.Namespace, p.Name)
 		}
 
-		podAddr = "localhost"
-		podPort = strconv.Itoa(tunnel.Local)
+		//podAddr = "localhost"
+		//podPort = strconv.Itoa(tunnel.Local)
 	}
 
-	vaultClient, err := util.NewVaultClient(podAddr, podPort, tlsConfig)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get vault pod status: failed creating client for the vault pod (%s/%s).", p.Namespace, p.Name)
-	}
-
-	hr, err := vaultClient.Sys().Health()
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get vault pod status: failed requesting health info for the vault pod (%s/%s).", p.Namespace, p.Name)
-	}
-	return hr, nil
+	//vaultClient, err := util.NewVaultClient(podAddr, podPort, tlsConfig)
+	//if err != nil {
+	//	return nil, errors.Wrapf(err, "failed to get vault pod status: failed creating client for the vault pod (%s/%s).", p.Namespace, p.Name)
+	//}
+	//
+	//hr, err := vaultClient.Sys().Health()
+	//if err != nil {
+	//	return nil, errors.Wrapf(err, "failed to get vault pod status: failed requesting health info for the vault pod (%s/%s).", p.Namespace, p.Name)
+	//}
+	//return hr, nil
+	return nil, nil
 }

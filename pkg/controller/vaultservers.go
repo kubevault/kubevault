@@ -398,7 +398,7 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			Ctx:    ctx,
 			Cancel: cancel,
 		}
-		go c.monitorAndUpdateStatus(ctx, vs) // Todo: Replace with HealthChecker? Call health checker from controller! keep it as it is for now!
+		// go c.monitorAndUpdateStatus(ctx, vs) // Todo: Replace with HealthChecker? Call health checker from controller! keep it as it is for now!
 	}
 
 	// Run auth method reconcile
