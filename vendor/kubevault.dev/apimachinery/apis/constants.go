@@ -89,3 +89,7 @@ const (
 	AllReplicasAreReady     = "AllReplicasReady"
 	SomeReplicasAreNotReady = "SomeReplicasNotReady"
 )
+
+const (
+	VaultAPIPort = 8200
+)
