@@ -26,7 +26,7 @@ const (
 	VaultExporterContainerName = "exporter"
 )
 
-// +kubebuilder:validation:Enum=Provisioning;DataRestoring;Ready;Critical;NotReady;Halted;Sealed;Unsealed;Initializing;Initialized
+// +kubebuilder:validation:Enum=Sealed;Unsealed;Initializing;Initialized
 type VaultServerPhase string
 
 const (

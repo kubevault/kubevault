@@ -78,16 +78,16 @@ const (
 	ResourceKindVaultServer = "VaultServer"
 )
 
-// List of possible condition types for a KubeVault object
+// Todo: List of possible condition types for a KubeVault object
+//   - Add Reasons
 const (
-	// used for Vaultserver whose pods are ready
-	VaultserverReplicaReady = "ReplicaReady"
-	// used for Vaultserver that are currently accepting connection
-	VaultserverAcceptingConnection = "AcceptingConnection"
-
-	// Condition reasons
-	AllReplicasAreReady     = "AllReplicasReady"
-	SomeReplicasAreNotReady = "SomeReplicasNotReady"
+	VaultServerInitializing        = "Initializing"
+	VaultServerInitialized         = "Initialized"
+	VaultServerUnsealing           = "Unsealing"
+	VaultServerUnsealed            = "Unsealed"
+	VaultServerAcceptingConnection = "AcceptingConnection"
+	AllReplicasAreReady            = "AllReplicasReady"
+	SomeReplicasAreNotReady        = "SomeReplicasNotReady"
 )
 
 const (

@@ -345,7 +345,7 @@ func waitUntilVaultServerIsReady(c vaultcs.KubevaultV1alpha1Interface, vs *api.V
 			return false, err2
 		}
 
-		if vs.Status.Phase == api.ClusterPhaseRunning {
+		if vs.Status.Phase == api.ClusterPhaseReady {
 			return true, nil
 		}
 

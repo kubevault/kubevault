@@ -21,6 +21,7 @@ import (
 
 	"kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
+	cs_util "kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"kubevault.dev/operator/pkg/eventer"
 
@@ -49,7 +50,7 @@ func (c *VaultController) initVaultServerWatcher() {
 	klog.Info("*********************** initVaultServerWatcher *************************")
 	c.vsInformer = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New(api.ResourceKindVaultServer, c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
-	c.vsInformer.AddEventHandler(queue.NewReconcilableHandler(c.vsQueue.GetQueue()))
+	c.vsInformer.AddEventHandler(queue.NewChangeHandler(c.vsQueue.GetQueue()))
 	if c.auditor != nil {
 		c.vsInformer.AddEventHandler(c.auditor.ForGVK(api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 	}
@@ -290,6 +291,30 @@ func (c *VaultController) removeOwnerReferenceSecrets(vs *api.VaultServer) error
 // It also creates AppBinding containing vault connection configuration
 func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 	// Todo: Get Phase from status, call from here..
+	klog.Infoln("========================== reconcileVault =============================")
+	phase := c.UpdatePhase(vs.Status.Conditions)
+	if vs.Status.Phase != phase {
+		// Todo: Update Phase
+		klog.Infof("======================== phase not equal, try to update ======================== %v", phase)
+		_, err := cs_util.UpdateVaultServerStatus(
+			context.TODO(),
+			c.extClient.KubevaultV1alpha1(),
+			vs.ObjectMeta,
+			func(in *api.VaultServerStatus) *api.VaultServerStatus {
+				in.Phase = phase
+				return in
+			},
+			metav1.UpdateOptions{},
+		)
+		if err != nil {
+			klog.Infof("======================= error in updating Phase ========================== %s", err.Error())
+		}
+	} else {
+		klog.Infof("======================== phase Equal ======================== %v", phase)
+	}
+
+	// ========================================================================================================================
+
 	err := c.CreateVaultTLSSecret(vs, v)
 	if err != nil {
 		_, err2 := patchutil.UpdateVaultServerStatus(

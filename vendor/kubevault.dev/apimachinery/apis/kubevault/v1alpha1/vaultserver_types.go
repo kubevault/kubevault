@@ -116,14 +116,22 @@ type VaultServerList struct {
 	Items           []VaultServer `json:"items,omitempty" protobuf:"bytes,2,rep,name=items"`
 }
 
-// +kubebuilder:validation:Enum=Processing;Uninitialized;Running;Sealed
+// +kubebuilder:validation:Enum=Initializing;Unsealing;Sealed;Ready;NotReady;Critical
 type ClusterPhase string
 
 const (
-	ClusterPhaseProcessing    ClusterPhase = "Processing"
-	ClusterPhaseUnInitialized ClusterPhase = "Uninitialized"
-	ClusterPhaseRunning       ClusterPhase = "Running"
-	ClusterPhaseSealed        ClusterPhase = "Sealed"
+	// used for VaultServer that are Initializing
+	ClusterPhaseInitializing ClusterPhase = "Initializing"
+	// used for VaultServer that are Unsealing
+	ClusterPhaseUnsealing ClusterPhase = "Unsealing"
+	// used for VaultServer that are sealed
+	ClusterPhaseSealed ClusterPhase = "Sealed"
+	// used for VaultServer that are Ready
+	ClusterPhaseReady ClusterPhase = "Ready"
+	// used for VaultServer that are NotReady
+	ClusterPhaseNotReady ClusterPhase = "NotReady"
+	// used for VaultServer that are Critical
+	ClusterPhaseCritical ClusterPhase = "Critical"
 )
 
 type VaultServerStatus struct {

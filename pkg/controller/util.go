@@ -22,6 +22,7 @@ import (
 	"sync"
 
 	"kubevault.dev/apimachinery/apis"
+	vaultapi "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 
 	apps "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
@@ -104,9 +105,10 @@ func (c *VaultController) extractVaultserverInfo(sts *apps.StatefulSet) (*vaults
 	switch owner.Kind {
 	case apis.ResourceKindVaultServer:
 		klog.Infoln("=============================== switch case in ResourceKind ==========================")
-		vsInfo.opts.GVR.Resource = apis.ResourceKindVaultServer
+		vsInfo.opts.GVR.Resource = vaultapi.ResourceVaultServers
 		vs, err := c.extClient.KubevaultV1alpha1().VaultServers(vsInfo.opts.Namespace).Get(context.TODO(), vsInfo.opts.Name, metav1.GetOptions{})
 		if err != nil {
+			klog.Errorf("=========== error in getting vaultserver %s ==============", err.Error())
 			return nil, err
 		}
 		klog.Infoln("=============================== switch in, vs ok ==========================")
@@ -125,7 +127,7 @@ func (c *VaultController) extractVaultserverInfo(sts *apps.StatefulSet) (*vaults
 func (c *VaultController) ensureReadyReplicasCond(vsInfo *vaultserverInfo) error {
 	klog.Infoln("=============================== inside ensureReadyReplicasCond ==========================")
 	vsCond := kmapi.Condition{
-		Type:    apis.VaultserverReplicaReady,
+		Type:    apis.AllReplicasAreReady,
 		Message: vsInfo.msg,
 	}
 
@@ -137,6 +139,10 @@ func (c *VaultController) ensureReadyReplicasCond(vsInfo *vaultserverInfo) error
 		vsCond.Reason = apis.SomeReplicasAreNotReady
 	}
 	klog.Infoln("=============================== ensureReadyReplicasCond ========================== ", vsCond.Status, vsCond.Reason)
+	err := vsInfo.opts.SetCondition(vsCond)
+	if err != nil {
+		klog.Errorf("failed in setting condition: %s", err.Error())
+	}
 
-	return vsInfo.opts.SetCondition(vsCond)
+	return err
 }
