@@ -90,6 +90,7 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 
 			// Todo:  make the health check call using the vaultClient
 			hr, err := vaultClient.Sys().Health()
+
 			if err != nil || hr == nil {
 				klog.Warningf(" =================== error or hr nil ================= %s", err)
 				_, err = cs_util.UpdateVaultServerStatus(
@@ -164,6 +165,27 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 					)
 					if err != nil {
 						klog.Errorf("Failed to update Initialized to True for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+						return
+					}
+
+					_, err = cs_util.UpdateVaultServerStatus(
+						context.TODO(),
+						c.extClient.KubevaultV1alpha1(),
+						vs.ObjectMeta,
+						func(in *api.VaultServerStatus) *api.VaultServerStatus {
+							in.Conditions = kmapi.SetCondition(in.Conditions,
+								kmapi.Condition{
+									Type:    conapi.VaultServerUnsealing,
+									Status:  core.ConditionTrue,
+									Message: "",
+									Reason:  "",
+								})
+							return in
+						},
+						metav1.UpdateOptions{},
+					)
+					if err != nil {
+						klog.Errorf("Failed to update Unsealing to True for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
 						return
 					}
 

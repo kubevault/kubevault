@@ -17,7 +17,7 @@ limitations under the License.
 package controller
 
 import (
-	apis "kubevault.dev/apimachinery/apis"
+	"kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 
 	kmapi "kmodules.xyz/client-go/api/v1"
@@ -33,29 +33,25 @@ func (c *VaultController) UpdatePhase(conditions []kmapi.Condition) api.ClusterP
 	//	-Critical -> replica ready false, but accepting connection true
 
 	var phase api.ClusterPhase
+
 	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitializing) {
 		phase = api.ClusterPhaseInitializing
 	}
 
-	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitializing) && kmapi.IsConditionFalse(conditions, apis.VaultServerUnsealing) {
+	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) {
 		phase = api.ClusterPhaseUnsealing
 	}
 
-	if kmapi.IsConditionFalse(conditions, apis.VaultServerUnsealed) && kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) {
-		phase = api.ClusterPhaseSealed
-	}
-
-	if kmapi.IsConditionTrue(conditions, apis.VaultServerAcceptingConnection) && kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealed) &&
-		kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) && kmapi.IsConditionTrue(conditions, apis.AllReplicasAreReady) {
-		phase = api.ClusterPhaseReady
-	}
-
 	if kmapi.IsConditionFalse(conditions, apis.VaultServerAcceptingConnection) && kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealed) {
-		phase = api.ClusterPhaseNotReady
+		return api.ClusterPhaseNotReady
 	}
 
-	if kmapi.IsConditionTrue(conditions, apis.VaultServerAcceptingConnection) && kmapi.IsConditionFalse(conditions, apis.SomeReplicasAreNotReady) {
-		phase = api.ClusterPhaseCritical
+	if kmapi.IsConditionFalse(conditions, apis.AllReplicasAreReady) && kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealed) {
+		return api.ClusterPhaseCritical
+	}
+
+	if kmapi.IsConditionTrue(conditions, apis.AllReplicasAreReady) && kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealed) {
+		return api.ClusterPhaseReady
 	}
 
 	return phase
