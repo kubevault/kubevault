@@ -28,7 +28,6 @@ import (
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	dmcond "kmodules.xyz/client-go/dynamic/conditions"
 )
@@ -78,13 +77,11 @@ type vaultserverInfo struct {
 }
 
 func (c *VaultController) extractVaultserverInfo(sts *apps.StatefulSet) (*vaultserverInfo, error) {
-	klog.Infoln("=============================== extractVaultserverInfo ==========================")
 	// read the controlling owner
 	owner := metav1.GetControllerOf(sts)
 	if owner == nil {
 		return nil, fmt.Errorf("StatefulSet %s/%s has no controlling owner", sts.Namespace, sts.Name)
 	}
-	klog.Infoln("=============================== Owner ========================== ", owner)
 
 	gv, err := schema.ParseGroupVersion(owner.APIVersion)
 	if err != nil {
@@ -104,28 +101,23 @@ func (c *VaultController) extractVaultserverInfo(sts *apps.StatefulSet) (*vaults
 	}
 	switch owner.Kind {
 	case apis.ResourceKindVaultServer:
-		klog.Infoln("=============================== switch case in ResourceKind ==========================")
 		vsInfo.opts.GVR.Resource = vaultapi.ResourceVaultServers
 		vs, err := c.extClient.KubevaultV1alpha1().VaultServers(vsInfo.opts.Namespace).Get(context.TODO(), vsInfo.opts.Name, metav1.GetOptions{})
 		if err != nil {
-			klog.Errorf("=========== error in getting vaultserver %s ==============", err.Error())
 			return nil, err
 		}
-		klog.Infoln("=============================== switch in, vs ok ==========================")
 
 		vsInfo.replicasReady, vsInfo.msg, err = vs.ReplicasAreReady(c.StsLister)
 		if err != nil {
 			return nil, err
 		}
-		klog.Infoln("=============================== vsInfo ==========================", vsInfo.replicasReady, vsInfo.msg)
 	default:
-		return nil, fmt.Errorf("======================= unknown resource kind: ======================== %s", owner.Kind)
+		return nil, fmt.Errorf("unknown resource kind: %s", owner.Kind)
 	}
 	return vsInfo, nil
 }
 
 func (c *VaultController) ensureReadyReplicasCond(vsInfo *vaultserverInfo) error {
-	klog.Infoln("=============================== inside ensureReadyReplicasCond ==========================")
 	vsCond := kmapi.Condition{
 		Type:    apis.AllReplicasAreReady,
 		Message: vsInfo.msg,
@@ -138,11 +130,5 @@ func (c *VaultController) ensureReadyReplicasCond(vsInfo *vaultserverInfo) error
 		vsCond.Status = core.ConditionFalse
 		vsCond.Reason = apis.SomeReplicasAreNotReady
 	}
-	klog.Infoln("=============================== ensureReadyReplicasCond ========================== ", vsCond.Status, vsCond.Reason)
-	err := vsInfo.opts.SetCondition(vsCond)
-	if err != nil {
-		klog.Errorf("failed in setting condition: %s", err.Error())
-	}
-
-	return err
+	return vsInfo.opts.SetCondition(vsCond)
 }

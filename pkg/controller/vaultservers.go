@@ -290,12 +290,9 @@ func (c *VaultController) removeOwnerReferenceSecrets(vs *api.VaultServer) error
 // and finally updating the vault deployment if needed.
 // It also creates AppBinding containing vault connection configuration
 func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
-	// Todo: Get Phase from status, call from here..
-	klog.Infoln("========================== reconcileVault =============================")
+	// Update Phase
 	phase := c.UpdatePhase(vs.Status.Conditions)
 	if vs.Status.Phase != phase {
-		// Todo: Update Phase
-		klog.Infof("======================== phase not equal, try to update ======================== %v", phase)
 		_, err := cs_util.UpdateVaultServerStatus(
 			context.TODO(),
 			c.extClient.KubevaultV1alpha1(),
@@ -307,13 +304,9 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			metav1.UpdateOptions{},
 		)
 		if err != nil {
-			klog.Infof("======================= error in updating Phase ========================== %s", err.Error())
+			klog.Infof("failed to update phase with: %s", err.Error())
 		}
-	} else {
-		klog.Infof("======================== phase Equal ======================== %v", phase)
 	}
-
-	// ========================================================================================================================
 
 	err := c.CreateVaultTLSSecret(vs, v)
 	if err != nil {
@@ -423,7 +416,8 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			Ctx:    ctx,
 			Cancel: cancel,
 		}
-		// go c.monitorAndUpdateStatus(ctx, vs) // Todo: Replace with HealthChecker? Call health checker from controller! keep it as it is for now!
+		// Todo: will remove it, when removing vault_status.go
+		// go c.monitorAndUpdateStatus(ctx, vs)
 	}
 
 	// Run auth method reconcile

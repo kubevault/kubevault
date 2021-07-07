@@ -56,7 +56,7 @@ type VaultController struct {
 	// cancel their goroutines when they are deleted
 	ctxCancels map[string]CtxWithCancel
 
-	// Todo: Dynamic client
+	// Dynamic client
 	dynamicClient dynamic.Interface
 
 	kubeClient       kubernetes.Interface
@@ -75,7 +75,7 @@ type VaultController struct {
 	vsInformer cache.SharedIndexInformer
 	vsLister   vault_listers.VaultServerLister
 
-	// Todo: StatefulSet Watcher
+	// for StatefulSet Watcher
 	StsQueue    *queue.Worker
 	StsInformer cache.SharedIndexInformer
 	StsLister   appslister.StatefulSetLister
@@ -202,9 +202,9 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	klog.Info("Starting Vault controller")
 
 	c.extInformerFactory.Start(stopCh)
-	// Todo: StatefulSet Informer
+	// For StatefulSet Informer
 	c.kubeInformerFactory.Start(stopCh)
-	// Todo: Health Checker
+	// Run Health Checker
 	c.RunHealthChecker(stopCh)
 	for _, v := range c.extInformerFactory.WaitForCacheSync(stopCh) {
 		if !v {

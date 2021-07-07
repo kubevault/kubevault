@@ -20,7 +20,6 @@ import (
 	apis "kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 
-	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
@@ -32,8 +31,6 @@ func (c *VaultController) UpdatePhase(conditions []kmapi.Condition) api.ClusterP
 	//	-Ready -> accepting connection true, unsealed true, initialzed true, replicas ready true
 	//	-NotReady -> accepting connection false, unsealed true
 	//	-Critical -> replica ready false, but accepting connection true
-
-	klog.Infoln("=============================== UpdatePhase ===================================")
 
 	var phase api.ClusterPhase
 	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitializing) {
