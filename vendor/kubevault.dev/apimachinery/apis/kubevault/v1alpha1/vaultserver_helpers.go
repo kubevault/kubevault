@@ -27,7 +27,6 @@ import (
 
 	"k8s.io/apimachinery/pkg/labels"
 	appslister "k8s.io/client-go/listers/apps/v1"
-	"k8s.io/klog/v2"
 	kmapi "kmodules.xyz/client-go/api/v1"
 	"kmodules.xyz/client-go/apiextensions"
 	apps_util "kmodules.xyz/client-go/apps/v1"
@@ -210,8 +209,7 @@ func (v *VaultServer) CertificateMountPath(alias VaultCertificateAlias) string {
 }
 
 func (v *VaultServer) ReplicasAreReady(lister appslister.StatefulSetLister) (bool, string, error) {
-	klog.Infoln("====================== ReplicasAreReady ========================")
-	// Desire number of statefulSets
+	// Desired number of statefulSets
 	expectedItems := 1
 	return checkReplicas(lister.StatefulSets(v.Namespace), labels.SelectorFromSet(v.OffshootLabels()), expectedItems)
 }
@@ -222,7 +220,6 @@ func checkReplicas(lister appslister.StatefulSetNamespaceLister, selector labels
 		return false, "", err
 	}
 
-	klog.Infof("====================== expected, actual ======================== ", expectedItems, len(items))
 	if len(items) < expectedItems {
 		return false, fmt.Sprintf("All StatefulSets are not available. Desire number of StatefulSet: %d, Available: %d", expectedItems, len(items)), nil
 	}

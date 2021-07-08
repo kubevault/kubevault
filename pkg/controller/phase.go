@@ -23,7 +23,7 @@ import (
 	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
-func (c *VaultController) UpdatePhase(conditions []kmapi.Condition) api.ClusterPhase {
+func GetPhase(conditions []kmapi.Condition) api.ClusterPhase {
 	//Todo: Phases from condition array[]:
 	//	-Initializing -> at the beginning (till condition initialized is true)
 	//	-Unsealing -> unsealing has started but has not completed yet
@@ -34,24 +34,34 @@ func (c *VaultController) UpdatePhase(conditions []kmapi.Condition) api.ClusterP
 
 	var phase api.ClusterPhase
 
-	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitializing) {
+	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitializing) && !kmapi.HasCondition(conditions, apis.VaultServerInitialized) {
+		//klog.Infoln("========================== Phase: Initializing ==========================")
 		phase = api.ClusterPhaseInitializing
 	}
 
-	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) {
+	if kmapi.IsConditionFalse(conditions, apis.VaultServerUnsealed) && kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) {
+		//klog.Infoln("========================== Phase: Sealed ==========================")
+		phase = api.ClusterPhaseSealed
+	}
+
+	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) && kmapi.IsConditionFalse(conditions, apis.VaultServerUnsealed) {
+		//klog.Infoln("========================== Phase: Unsealing ==========================")
 		phase = api.ClusterPhaseUnsealing
 	}
 
 	if kmapi.IsConditionFalse(conditions, apis.VaultServerAcceptingConnection) && kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealed) {
-		return api.ClusterPhaseNotReady
+		//klog.Infoln("========================== Phase: NotReady ==========================")
+		phase = api.ClusterPhaseNotReady
 	}
 
 	if kmapi.IsConditionFalse(conditions, apis.AllReplicasAreReady) && kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealed) {
-		return api.ClusterPhaseCritical
+		//klog.Infoln("========================== Phase: Critical ==========================")
+		phase = api.ClusterPhaseCritical
 	}
 
 	if kmapi.IsConditionTrue(conditions, apis.AllReplicasAreReady) && kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealed) {
-		return api.ClusterPhaseReady
+		//klog.Infoln("========================== Phase: Ready ==========================")
+		phase = api.ClusterPhaseReady
 	}
 
 	return phase

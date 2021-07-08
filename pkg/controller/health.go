@@ -113,6 +113,27 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 					klog.Errorf("Failed to update Initializing to True for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
 					return
 				}
+
+				_, err = cs_util.UpdateVaultServerStatus(
+					context.TODO(),
+					c.extClient.KubevaultV1alpha1(),
+					vs.ObjectMeta,
+					func(in *api.VaultServerStatus) *api.VaultServerStatus {
+						in.Conditions = kmapi.SetCondition(in.Conditions,
+							kmapi.Condition{
+								Type:    conapi.VaultServerUnsealed,
+								Status:  core.ConditionFalse,
+								Message: "",
+								Reason:  "",
+							})
+						return in
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					klog.Errorf("Failed to update Unsealed to False for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+					return
+				}
 			} else {
 				klog.Info("========================= success in requesting health info =======================")
 				//i. 200 if initialized, unsealed, and active
@@ -371,7 +392,7 @@ func (c *VaultController) getVaultServiceSpecificClient(vs *api.VaultServer) (*v
 	}
 
 	svcURL := fmt.Sprintf("%s://%s.%s.svc:%d", vs.Scheme(), vs.ServiceName(api.VaultServerServiceVault), vs.Namespace, conapi.VaultAPIPort)
-	klog.Infof("=========================== URL ========================== %s ", svcURL)
+
 	vaultClient, err := util.NewVaultClient(svcURL, tlsConfig)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed creating client for the vault service (%s/%s).", vs.Namespace, vs.ServiceName(api.VaultServerServiceVault))

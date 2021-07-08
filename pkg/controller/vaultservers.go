@@ -47,7 +47,6 @@ const (
 )
 
 func (c *VaultController) initVaultServerWatcher() {
-	klog.Info("*********************** initVaultServerWatcher *************************")
 	c.vsInformer = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New(api.ResourceKindVaultServer, c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
 	c.vsInformer.AddEventHandler(queue.NewChangeHandler(c.vsQueue.GetQueue()))
@@ -60,7 +59,6 @@ func (c *VaultController) initVaultServerWatcher() {
 // runVaultSeverInjector gets the vault server object indexed by the key from cache
 // and initializes, reconciles or garbage collects the vault cluster as needed.
 func (c *VaultController) runVaultServerInjector(key string) error {
-	klog.Info("*********************** runVaultServerInjector *************************")
 	obj, exists, err := c.vsInformer.GetIndexer().GetByKey(key)
 	if err != nil {
 		klog.Errorf("Fetching object with key %s from store failed with %v", key, err)
@@ -290,8 +288,8 @@ func (c *VaultController) removeOwnerReferenceSecrets(vs *api.VaultServer) error
 // and finally updating the vault deployment if needed.
 // It also creates AppBinding containing vault connection configuration
 func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
-	// Update Phase
-	phase := c.UpdatePhase(vs.Status.Conditions)
+	// Get Phase from Conditions
+	phase := GetPhase(vs.Status.Conditions)
 	if vs.Status.Phase != phase {
 		_, err := cs_util.UpdateVaultServerStatus(
 			context.TODO(),
