@@ -91,6 +91,10 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 			// Todo:  make the health check call using the vaultClient
 			hr, err := vaultClient.Sys().Health()
 
+			if hr != nil {
+				klog.Infof("=========== initialized: %v, sealed: %v ============", hr.Initialized, hr.Sealed)
+			}
+
 			if err != nil || hr == nil {
 				klog.Warningf(" =================== error or hr nil ================= %s", err)
 				_, err = cs_util.UpdateVaultServerStatus(

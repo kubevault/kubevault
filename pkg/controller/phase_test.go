@@ -19,8 +19,10 @@ package controller
 import (
 	"testing"
 
+	"kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 
+	core "k8s.io/api/core/v1"
 	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
@@ -30,8 +32,77 @@ func TestGetPhase(t *testing.T) {
 		conditions    []kmapi.Condition
 		expectedPhase api.ClusterPhase
 	}{
-		{},
-		{},
+		{
+			name:          "No condition present yet",
+			conditions:    nil,
+			expectedPhase: "",
+		},
+		{
+			name: "Initializing for the very first time",
+			conditions: []kmapi.Condition{
+				{
+					Type:   apis.VaultServerInitializing,
+					Status: core.ConditionTrue,
+				},
+			},
+			expectedPhase: api.ClusterPhaseInitializing,
+		},
+		{
+			name: "Initialized & Unsealing now",
+			conditions: []kmapi.Condition{
+				{
+					Type:   apis.VaultServerInitialized,
+					Status: core.ConditionTrue,
+				},
+				{
+					Type:   apis.VaultServerUnsealed,
+					Status: core.ConditionFalse,
+				},
+			},
+			expectedPhase: api.ClusterPhaseUnsealing,
+		},
+		{
+			name: "Initialized & Accepting Connection",
+			conditions: []kmapi.Condition{
+				{
+					Type:   apis.VaultServerInitialized,
+					Status: core.ConditionTrue,
+				},
+				{
+					Type:   apis.VaultServerAcceptingConnection,
+					Status: core.ConditionTrue,
+				},
+			},
+			expectedPhase: api.ClusterPhaseNotReady,
+		},
+		{
+			name: "Unsealed but all replicas are not ready",
+			conditions: []kmapi.Condition{
+				{
+					Type:   apis.VaultServerUnsealed,
+					Status: core.ConditionTrue,
+				},
+				{
+					Type:   apis.AllReplicasAreReady,
+					Status: core.ConditionFalse,
+				},
+			},
+			expectedPhase: api.ClusterPhaseCritical,
+		},
+		{
+			name: "Unsealed and all replicas are ready",
+			conditions: []kmapi.Condition{
+				{
+					Type:   apis.VaultServerUnsealed,
+					Status: core.ConditionTrue,
+				},
+				{
+					Type:   apis.AllReplicasAreReady,
+					Status: core.ConditionTrue,
+				},
+			},
+			expectedPhase: api.ClusterPhaseReady,
+		},
 	}
 
 	for _, tc := range testCases {

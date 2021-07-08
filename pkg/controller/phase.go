@@ -39,17 +39,12 @@ func GetPhase(conditions []kmapi.Condition) api.ClusterPhase {
 		phase = api.ClusterPhaseInitializing
 	}
 
-	if kmapi.IsConditionFalse(conditions, apis.VaultServerUnsealed) && kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) {
-		//klog.Infoln("========================== Phase: Sealed ==========================")
-		phase = api.ClusterPhaseSealed
-	}
-
 	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) && kmapi.IsConditionFalse(conditions, apis.VaultServerUnsealed) {
 		//klog.Infoln("========================== Phase: Unsealing ==========================")
 		phase = api.ClusterPhaseUnsealing
 	}
 
-	if kmapi.IsConditionFalse(conditions, apis.VaultServerAcceptingConnection) && kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealed) {
+	if kmapi.IsConditionTrue(conditions, apis.VaultServerAcceptingConnection) && kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) {
 		//klog.Infoln("========================== Phase: NotReady ==========================")
 		phase = api.ClusterPhaseNotReady
 	}
