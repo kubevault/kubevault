@@ -22,7 +22,7 @@ import (
 	"sync"
 	"time"
 
-	conapi "kubevault.dev/apimachinery/apis"
+	"kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
 	cs_util "kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"kubevault.dev/operator/pkg/vault/util"
@@ -104,10 +104,10 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 					func(in *api.VaultServerStatus) *api.VaultServerStatus {
 						in.Conditions = kmapi.SetCondition(in.Conditions,
 							kmapi.Condition{
-								Type:    conapi.VaultServerInitializing,
+								Type:    apis.VaultServerInitializing,
 								Status:  core.ConditionTrue,
-								Message: "",
-								Reason:  "",
+								Message: "No Health Response Received Yet",
+								Reason:  "Health Response Nil",
 							})
 						return in
 					},
@@ -125,10 +125,10 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 					func(in *api.VaultServerStatus) *api.VaultServerStatus {
 						in.Conditions = kmapi.SetCondition(in.Conditions,
 							kmapi.Condition{
-								Type:    conapi.VaultServerUnsealed,
+								Type:    apis.VaultServerUnsealed,
 								Status:  core.ConditionFalse,
-								Message: "",
-								Reason:  "",
+								Message: "No Health Response Received Yet",
+								Reason:  "Still Initializing",
 							})
 						return in
 					},
@@ -154,10 +154,10 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 					func(in *api.VaultServerStatus) *api.VaultServerStatus {
 						in.Conditions = kmapi.SetCondition(in.Conditions,
 							kmapi.Condition{
-								Type:    conapi.VaultServerInitializing,
+								Type:    apis.VaultServerInitializing,
 								Status:  core.ConditionFalse,
-								Message: "",
-								Reason:  "",
+								Message: "Initializing Completed",
+								Reason:  "Got Health Response",
 							})
 						return in
 					},
@@ -179,10 +179,10 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 						func(in *api.VaultServerStatus) *api.VaultServerStatus {
 							in.Conditions = kmapi.SetCondition(in.Conditions,
 								kmapi.Condition{
-									Type:    conapi.VaultServerInitialized,
+									Type:    apis.VaultServerInitialized,
 									Status:  core.ConditionTrue,
-									Message: "",
-									Reason:  "",
+									Message: "Got Health Response and HR is Initialized",
+									Reason:  "HR Initialized True",
 								})
 							return in
 						},
@@ -200,10 +200,10 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 						func(in *api.VaultServerStatus) *api.VaultServerStatus {
 							in.Conditions = kmapi.SetCondition(in.Conditions,
 								kmapi.Condition{
-									Type:    conapi.VaultServerUnsealing,
+									Type:    apis.VaultServerUnsealing,
 									Status:  core.ConditionTrue,
-									Message: "",
-									Reason:  "",
+									Message: "HR is Initialized and Unsealing",
+									Reason:  "Already Initialized",
 								})
 							return in
 						},
@@ -222,17 +222,17 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 							func(in *api.VaultServerStatus) *api.VaultServerStatus {
 								in.Conditions = kmapi.SetCondition(in.Conditions,
 									kmapi.Condition{
-										Type:    conapi.VaultServerUnsealing,
+										Type:    apis.VaultServerUnsealing,
 										Status:  core.ConditionTrue,
-										Message: "",
-										Reason:  "",
+										Message: "HR is Initialized and Unsealing",
+										Reason:  "HR Unsealed",
 									})
 								return in
 							},
 							metav1.UpdateOptions{},
 						)
 						if err != nil {
-							klog.Errorf("Failed to update Initialized to False for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+							klog.Errorf("Failed to update Initialized to True for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
 							return
 						}
 					}
@@ -244,10 +244,10 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 						func(in *api.VaultServerStatus) *api.VaultServerStatus {
 							in.Conditions = kmapi.SetCondition(in.Conditions,
 								kmapi.Condition{
-									Type:    conapi.VaultServerInitialized,
+									Type:    apis.VaultServerInitialized,
 									Status:  core.ConditionFalse,
-									Message: "",
-									Reason:  "",
+									Message: "Health Response is Nil",
+									Reason:  "HR Not Initialized",
 								})
 							return in
 						},
@@ -268,10 +268,10 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 						func(in *api.VaultServerStatus) *api.VaultServerStatus {
 							in.Conditions = kmapi.SetCondition(in.Conditions,
 								kmapi.Condition{
-									Type:    conapi.VaultServerUnsealed,
+									Type:    apis.VaultServerUnsealed,
 									Status:  core.ConditionFalse,
-									Message: "",
-									Reason:  "",
+									Message: "Initialized but Not Unsealed Yet",
+									Reason:  "HR Sealed True",
 								})
 							return in
 						},
@@ -289,10 +289,10 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 						func(in *api.VaultServerStatus) *api.VaultServerStatus {
 							in.Conditions = kmapi.SetCondition(in.Conditions,
 								kmapi.Condition{
-									Type:    conapi.VaultServerUnsealed,
+									Type:    apis.VaultServerUnsealed,
 									Status:  core.ConditionTrue,
-									Message: "",
-									Reason:  "",
+									Message: "Initialized and Unsealed",
+									Reason:  "Sealed False",
 								})
 							return in
 						},
@@ -309,10 +309,10 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 						func(in *api.VaultServerStatus) *api.VaultServerStatus {
 							in.Conditions = kmapi.SetCondition(in.Conditions,
 								kmapi.Condition{
-									Type:    conapi.VaultServerUnsealing,
+									Type:    apis.VaultServerUnsealing,
 									Status:  core.ConditionFalse,
-									Message: "",
-									Reason:  "",
+									Message: "Unsealing is Completed",
+									Reason:  "Sealed False",
 								})
 							return in
 						},
@@ -332,10 +332,10 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 						func(in *api.VaultServerStatus) *api.VaultServerStatus {
 							in.Conditions = kmapi.SetCondition(in.Conditions,
 								kmapi.Condition{
-									Type:    conapi.VaultServerAcceptingConnection,
+									Type:    apis.VaultServerAcceptingConnection,
 									Status:  core.ConditionTrue,
-									Message: "",
-									Reason:  "",
+									Message: "HR Initialized and Unsealed",
+									Reason:  "Initialized and Unsealed",
 								})
 							return in
 						},
@@ -353,10 +353,10 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 						func(in *api.VaultServerStatus) *api.VaultServerStatus {
 							in.Conditions = kmapi.SetCondition(in.Conditions,
 								kmapi.Condition{
-									Type:    conapi.VaultServerAcceptingConnection,
+									Type:    apis.VaultServerAcceptingConnection,
 									Status:  core.ConditionFalse,
-									Message: "",
-									Reason:  "",
+									Message: "HR Not Initialized or Not Unsealed",
+									Reason:  "Not Initialized or Not Unsealed",
 								})
 							return in
 						},
@@ -374,28 +374,12 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 	wg.Wait()
 }
 
-//func (c *VaultController) getVaultClient(p *core.Pod) (*vaultapi.Client, error) {
-//	// No need to use tunnel for StatefulSet
-//	podAddr := util.PodDNSName(*p)
-//	podPort := "8200"
-//	tlsConfig := &vaultapi.TLSConfig{
-//		Insecure: true,
-//	}
-//
-//	vaultClient, err := util.NewVaultClient(podAddr, podPort, tlsConfig)
-//	if err != nil {
-//		return nil, errors.Wrapf(err, "failed creating client for the vault pod (%s/%s).", p.Namespace, p.Name)
-//	}
-//
-//	return vaultClient, nil
-//}
-
 func (c *VaultController) getVaultServiceSpecificClient(vs *api.VaultServer) (*vaultapi.Client, error) {
 	tlsConfig := &vaultapi.TLSConfig{
 		Insecure: true,
 	}
 
-	svcURL := fmt.Sprintf("%s://%s.%s.svc:%d", vs.Scheme(), vs.ServiceName(api.VaultServerServiceVault), vs.Namespace, conapi.VaultAPIPort)
+	svcURL := fmt.Sprintf("%s://%s.%s.svc:%d", vs.Scheme(), vs.ServiceName(api.VaultServerServiceVault), vs.Namespace, apis.VaultAPIPort)
 
 	vaultClient, err := util.NewVaultClient(svcURL, tlsConfig)
 	if err != nil {
