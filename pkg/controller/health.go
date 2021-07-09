@@ -84,288 +84,228 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 
 			vaultClient, err := c.getVaultServiceSpecificClient(vs)
 			if err != nil {
-				klog.Errorf("====== failed generating Client for Vault Service with %s ======", err.Error())
+				klog.Errorf("failed generating Client for Vault Service with %s", err.Error())
 				return
 			}
 
 			// Todo:  make the health check call using the vaultClient
 			hr, err := vaultClient.Sys().Health()
 
-			if hr != nil {
-				klog.Infof("=========== initialized: %v, sealed: %v ============", hr.Initialized, hr.Sealed)
-			}
-
+			// Todo: Update conditions when Health Response is Nil or Error
 			if err != nil || hr == nil {
-				klog.Warningf(" =================== error or hr nil ================= %s", err)
-				_, err = cs_util.UpdateVaultServerStatus(
-					context.TODO(),
-					c.extClient.KubevaultV1alpha1(),
-					vs.ObjectMeta,
+				_, err = cs_util.UpdateVaultServerStatus(context.TODO(), c.extClient.KubevaultV1alpha1(), vs.ObjectMeta,
 					func(in *api.VaultServerStatus) *api.VaultServerStatus {
 						in.Conditions = kmapi.SetCondition(in.Conditions,
 							kmapi.Condition{
 								Type:    apis.VaultServerInitializing,
 								Status:  core.ConditionTrue,
-								Message: "No Health Response Received Yet",
-								Reason:  "Health Response Nil",
+								Message: "",
+								Reason:  "",
 							})
 						return in
 					},
 					metav1.UpdateOptions{},
 				)
 				if err != nil {
-					klog.Errorf("Failed to update Initializing to True for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+					klog.Errorf("Failed to update status for %s/%s with %s", vs.Namespace, vs.Name, err.Error())
 					return
 				}
 
-				_, err = cs_util.UpdateVaultServerStatus(
-					context.TODO(),
-					c.extClient.KubevaultV1alpha1(),
-					vs.ObjectMeta,
+				// If we delete all the pods, then initializing will be true, but initialized was set to True earlier
+				// so, make initialized & accepting connection to false again if not already (in case of first time initialization)
+				_, err = cs_util.UpdateVaultServerStatus(context.TODO(), c.extClient.KubevaultV1alpha1(), vs.ObjectMeta,
 					func(in *api.VaultServerStatus) *api.VaultServerStatus {
 						in.Conditions = kmapi.SetCondition(in.Conditions,
 							kmapi.Condition{
-								Type:    apis.VaultServerUnsealed,
+								Type:    apis.VaultServerInitialized,
 								Status:  core.ConditionFalse,
-								Message: "No Health Response Received Yet",
-								Reason:  "Still Initializing",
+								Message: "",
+								Reason:  "",
 							})
 						return in
 					},
 					metav1.UpdateOptions{},
 				)
 				if err != nil {
-					klog.Errorf("Failed to update Unsealed to False for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+					klog.Errorf("Failed to update status for %s/%s with %s", vs.Namespace, vs.Name, err.Error())
 					return
 				}
-			} else {
-				klog.Info("========================= success in requesting health info =======================")
-				//i. 200 if initialized, unsealed, and active
-				//ii. 429 if unsealed and standby
-				//iii. 472 if disaster recovery mode replication secondary and active
-				//iv. 473 if performance standby
-				//v. 501 if not initialized
-				//vi. 503 if sealed
-				// Todo: Initializing is False
-				_, err = cs_util.UpdateVaultServerStatus(
-					context.TODO(),
-					c.extClient.KubevaultV1alpha1(),
-					vs.ObjectMeta,
+
+				_, err = cs_util.UpdateVaultServerStatus(context.TODO(), c.extClient.KubevaultV1alpha1(), vs.ObjectMeta,
+					func(in *api.VaultServerStatus) *api.VaultServerStatus {
+						in.Conditions = kmapi.SetCondition(in.Conditions,
+							kmapi.Condition{
+								Type:    apis.VaultServerAcceptingConnection,
+								Status:  core.ConditionFalse,
+								Message: "",
+								Reason:  "",
+							})
+						return in
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					klog.Errorf("Failed to update status for %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+					return
+				}
+
+				return
+			}
+
+			// Todo: Update conditions as Health Response is Not Nil
+
+			// Todo: Update conditions If Initialized
+			if hr.Initialized {
+				// Todo:
+				//  - Initializing must be False
+				//  - Initialized must be True
+				//  - AcceptingConnection must be True
+
+				// Todo: Make Initializing False
+				_, err = cs_util.UpdateVaultServerStatus(context.TODO(), c.extClient.KubevaultV1alpha1(), vs.ObjectMeta,
 					func(in *api.VaultServerStatus) *api.VaultServerStatus {
 						in.Conditions = kmapi.SetCondition(in.Conditions,
 							kmapi.Condition{
 								Type:    apis.VaultServerInitializing,
 								Status:  core.ConditionFalse,
-								Message: "Initializing Completed",
-								Reason:  "Got Health Response",
+								Message: "",
+								Reason:  "",
 							})
 						return in
 					},
 					metav1.UpdateOptions{},
 				)
 				if err != nil {
-					klog.Errorf("Failed to update Initializing to False for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+					klog.Errorf("Failed to update status for %s/%s with %s", vs.Namespace, vs.Name, err.Error())
 					return
 				}
 
-				// Todo: Check Health Response and Update conditions array properly
-
-				// Todo: ======================= Check for Initialized condition ==============================
-				if hr.Initialized {
-					_, err = cs_util.UpdateVaultServerStatus(
-						context.TODO(),
-						c.extClient.KubevaultV1alpha1(),
-						vs.ObjectMeta,
-						func(in *api.VaultServerStatus) *api.VaultServerStatus {
-							in.Conditions = kmapi.SetCondition(in.Conditions,
-								kmapi.Condition{
-									Type:    apis.VaultServerInitialized,
-									Status:  core.ConditionTrue,
-									Message: "Got Health Response and HR is Initialized",
-									Reason:  "HR Initialized True",
-								})
-							return in
-						},
-						metav1.UpdateOptions{},
-					)
-					if err != nil {
-						klog.Errorf("Failed to update Initialized to True for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
-						return
-					}
-
-					_, err = cs_util.UpdateVaultServerStatus(
-						context.TODO(),
-						c.extClient.KubevaultV1alpha1(),
-						vs.ObjectMeta,
-						func(in *api.VaultServerStatus) *api.VaultServerStatus {
-							in.Conditions = kmapi.SetCondition(in.Conditions,
-								kmapi.Condition{
-									Type:    apis.VaultServerUnsealing,
-									Status:  core.ConditionTrue,
-									Message: "HR is Initialized and Unsealing",
-									Reason:  "Already Initialized",
-								})
-							return in
-						},
-						metav1.UpdateOptions{},
-					)
-					if err != nil {
-						klog.Errorf("Failed to update Unsealing to True for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
-						return
-					}
-
-					if hr.Sealed {
-						_, err = cs_util.UpdateVaultServerStatus(
-							context.TODO(),
-							c.extClient.KubevaultV1alpha1(),
-							vs.ObjectMeta,
-							func(in *api.VaultServerStatus) *api.VaultServerStatus {
-								in.Conditions = kmapi.SetCondition(in.Conditions,
-									kmapi.Condition{
-										Type:    apis.VaultServerUnsealing,
-										Status:  core.ConditionTrue,
-										Message: "HR is Initialized and Unsealing",
-										Reason:  "HR Unsealed",
-									})
-								return in
-							},
-							metav1.UpdateOptions{},
-						)
-						if err != nil {
-							klog.Errorf("Failed to update Initialized to True for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
-							return
-						}
-					}
-				} else {
-					_, err = cs_util.UpdateVaultServerStatus(
-						context.TODO(),
-						c.extClient.KubevaultV1alpha1(),
-						vs.ObjectMeta,
-						func(in *api.VaultServerStatus) *api.VaultServerStatus {
-							in.Conditions = kmapi.SetCondition(in.Conditions,
-								kmapi.Condition{
-									Type:    apis.VaultServerInitialized,
-									Status:  core.ConditionFalse,
-									Message: "Health Response is Nil",
-									Reason:  "HR Not Initialized",
-								})
-							return in
-						},
-						metav1.UpdateOptions{},
-					)
-					if err != nil {
-						klog.Errorf("Failed to update Initialized to False for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
-						return
-					}
+				// Todo: Make Initialized True
+				_, err = cs_util.UpdateVaultServerStatus(context.TODO(), c.extClient.KubevaultV1alpha1(), vs.ObjectMeta,
+					func(in *api.VaultServerStatus) *api.VaultServerStatus {
+						in.Conditions = kmapi.SetCondition(in.Conditions,
+							kmapi.Condition{
+								Type:    apis.VaultServerInitialized,
+								Status:  core.ConditionTrue,
+								Message: "",
+								Reason:  "",
+							})
+						return in
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					klog.Errorf("Failed to update status for %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+					return
 				}
 
-				// Todo: =========================== Check for Sealed status ==================================
-				if hr.Sealed {
-					_, err = cs_util.UpdateVaultServerStatus(
-						context.TODO(),
-						c.extClient.KubevaultV1alpha1(),
-						vs.ObjectMeta,
-						func(in *api.VaultServerStatus) *api.VaultServerStatus {
-							in.Conditions = kmapi.SetCondition(in.Conditions,
-								kmapi.Condition{
-									Type:    apis.VaultServerUnsealed,
-									Status:  core.ConditionFalse,
-									Message: "Initialized but Not Unsealed Yet",
-									Reason:  "HR Sealed True",
-								})
-							return in
-						},
-						metav1.UpdateOptions{},
-					)
-					if err != nil {
-						klog.Errorf("Failed to update Unsealed to False for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
-						return
-					}
-				} else {
-					_, err = cs_util.UpdateVaultServerStatus(
-						context.TODO(),
-						c.extClient.KubevaultV1alpha1(),
-						vs.ObjectMeta,
-						func(in *api.VaultServerStatus) *api.VaultServerStatus {
-							in.Conditions = kmapi.SetCondition(in.Conditions,
-								kmapi.Condition{
-									Type:    apis.VaultServerUnsealed,
-									Status:  core.ConditionTrue,
-									Message: "Initialized and Unsealed",
-									Reason:  "Sealed False",
-								})
-							return in
-						},
-						metav1.UpdateOptions{},
-					)
-					if err != nil {
-						klog.Errorf("Failed to update Unsealed to True for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
-						return
-					}
-					_, err = cs_util.UpdateVaultServerStatus(
-						context.TODO(),
-						c.extClient.KubevaultV1alpha1(),
-						vs.ObjectMeta,
-						func(in *api.VaultServerStatus) *api.VaultServerStatus {
-							in.Conditions = kmapi.SetCondition(in.Conditions,
-								kmapi.Condition{
-									Type:    apis.VaultServerUnsealing,
-									Status:  core.ConditionFalse,
-									Message: "Unsealing is Completed",
-									Reason:  "Sealed False",
-								})
-							return in
-						},
-						metav1.UpdateOptions{},
-					)
-					if err != nil {
-						klog.Errorf("Failed to update Unsealing to False for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
-						return
-					}
+				// Todo: Make AcceptingConnection True
+				_, err = cs_util.UpdateVaultServerStatus(context.TODO(), c.extClient.KubevaultV1alpha1(), vs.ObjectMeta,
+					func(in *api.VaultServerStatus) *api.VaultServerStatus {
+						in.Conditions = kmapi.SetCondition(in.Conditions,
+							kmapi.Condition{
+								Type:    apis.VaultServerAcceptingConnection,
+								Status:  core.ConditionTrue,
+								Message: "",
+								Reason:  "",
+							})
+						return in
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					klog.Errorf("Failed to update status for %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+					return
+				}
+			}
+
+			// Todo: Update conditions for Initialized but Sealed
+			if hr.Initialized && hr.Sealed {
+				// Todo:
+				//  - Unsealing Must be True
+				//  - Unsealed Must be False
+
+				// Todo: Make Unsealing True
+				_, err = cs_util.UpdateVaultServerStatus(context.TODO(), c.extClient.KubevaultV1alpha1(), vs.ObjectMeta,
+					func(in *api.VaultServerStatus) *api.VaultServerStatus {
+						in.Conditions = kmapi.SetCondition(in.Conditions,
+							kmapi.Condition{
+								Type:    apis.VaultServerUnsealing,
+								Status:  core.ConditionTrue,
+								Message: "",
+								Reason:  "",
+							})
+						return in
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					klog.Errorf("Failed to update status for %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+					return
 				}
 
-				if hr.Initialized && !hr.Sealed {
-					_, err = cs_util.UpdateVaultServerStatus(
-						context.TODO(),
-						c.extClient.KubevaultV1alpha1(),
-						vs.ObjectMeta,
-						func(in *api.VaultServerStatus) *api.VaultServerStatus {
-							in.Conditions = kmapi.SetCondition(in.Conditions,
-								kmapi.Condition{
-									Type:    apis.VaultServerAcceptingConnection,
-									Status:  core.ConditionTrue,
-									Message: "HR Initialized and Unsealed",
-									Reason:  "Initialized and Unsealed",
-								})
-							return in
-						},
-						metav1.UpdateOptions{},
-					)
-					if err != nil {
-						klog.Errorf("Failed to update Accepting Conn. to True for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
-						return
-					}
-				} else {
-					_, err = cs_util.UpdateVaultServerStatus(
-						context.TODO(),
-						c.extClient.KubevaultV1alpha1(),
-						vs.ObjectMeta,
-						func(in *api.VaultServerStatus) *api.VaultServerStatus {
-							in.Conditions = kmapi.SetCondition(in.Conditions,
-								kmapi.Condition{
-									Type:    apis.VaultServerAcceptingConnection,
-									Status:  core.ConditionFalse,
-									Message: "HR Not Initialized or Not Unsealed",
-									Reason:  "Not Initialized or Not Unsealed",
-								})
-							return in
-						},
-						metav1.UpdateOptions{},
-					)
-					if err != nil {
-						klog.Errorf("Failed to update Accepting Conn. to False for Vault Server: %s/%s with %s", vs.Namespace, vs.Name, err.Error())
-						return
-					}
+				// Todo: Make Unsealed False
+				_, err = cs_util.UpdateVaultServerStatus(context.TODO(), c.extClient.KubevaultV1alpha1(), vs.ObjectMeta,
+					func(in *api.VaultServerStatus) *api.VaultServerStatus {
+						in.Conditions = kmapi.SetCondition(in.Conditions,
+							kmapi.Condition{
+								Type:    apis.VaultServerUnsealed,
+								Status:  core.ConditionFalse,
+								Message: "",
+								Reason:  "",
+							})
+						return in
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					klog.Errorf("Failed to update status for %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+					return
+				}
+			}
+
+			// Todo: Update conditions for Initialized and Unsealed
+			if hr.Initialized && !hr.Sealed {
+				// Todo:
+				//  - Unsealing Must be False
+				//  - Unsealed Must be True
+
+				// Todo: Make Unsealing False
+				_, err = cs_util.UpdateVaultServerStatus(context.TODO(), c.extClient.KubevaultV1alpha1(), vs.ObjectMeta,
+					func(in *api.VaultServerStatus) *api.VaultServerStatus {
+						in.Conditions = kmapi.SetCondition(in.Conditions,
+							kmapi.Condition{
+								Type:    apis.VaultServerUnsealing,
+								Status:  core.ConditionFalse,
+								Message: "",
+								Reason:  "",
+							})
+						return in
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					klog.Errorf("Failed to update status for %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+					return
+				}
+
+				// Todo: Make Unsealed True
+				_, err = cs_util.UpdateVaultServerStatus(context.TODO(), c.extClient.KubevaultV1alpha1(), vs.ObjectMeta,
+					func(in *api.VaultServerStatus) *api.VaultServerStatus {
+						in.Conditions = kmapi.SetCondition(in.Conditions,
+							kmapi.Condition{
+								Type:    apis.VaultServerUnsealed,
+								Status:  core.ConditionTrue,
+								Message: "",
+								Reason:  "",
+							})
+						return in
+					},
+					metav1.UpdateOptions{},
+				)
+				if err != nil {
+					klog.Errorf("Failed to update status for %s/%s with %s", vs.Namespace, vs.Name, err.Error())
+					return
 				}
 			}
 		}(vs)

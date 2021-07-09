@@ -54,7 +54,7 @@ func (c *VaultController) initStatefulSetWatcher() {
 					klog.Warningln(err)
 					return
 				}
-				vsInfo, err := c.extractVaultserverInfo(sts)
+				vsInfo, err := c.extractVaultServerInfo(sts)
 				if err != nil {
 					if !kerr.IsNotFound(err) {
 						klog.Warningf("failed to extract vault server info from StatefulSet: %s/%s. with: %v", sts.Namespace, sts.Name, err)
@@ -97,7 +97,7 @@ func (c *VaultController) processStatefulSet(key string) error {
 		klog.V(5).Infof("StatefulSet %s does not exist anymore", key)
 	} else {
 		sts := obj.(*apps.StatefulSet).DeepCopy()
-		vsInfo, err := c.extractVaultserverInfo(sts)
+		vsInfo, err := c.extractVaultServerInfo(sts)
 		if err != nil {
 			return fmt.Errorf("failed to extract vault server info from StatefulSet: %s/%s. with: %v", sts.Namespace, sts.Name, err)
 		}

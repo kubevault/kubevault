@@ -59,18 +59,18 @@ func TestGetPhase(t *testing.T) {
 					Status: core.ConditionFalse,
 				},
 			},
-			expectedPhase: api.ClusterPhaseUnsealing,
+			expectedPhase: api.ClusterPhaseSealed,
 		},
 		{
 			name: "Initialized & Accepting Connection",
 			conditions: []kmapi.Condition{
 				{
-					Type:   apis.VaultServerInitialized,
+					Type:   apis.VaultServerUnsealed,
 					Status: core.ConditionTrue,
 				},
 				{
 					Type:   apis.VaultServerAcceptingConnection,
-					Status: core.ConditionTrue,
+					Status: core.ConditionFalse,
 				},
 			},
 			expectedPhase: api.ClusterPhaseNotReady,
@@ -79,7 +79,7 @@ func TestGetPhase(t *testing.T) {
 			name: "Unsealed but all replicas are not ready",
 			conditions: []kmapi.Condition{
 				{
-					Type:   apis.VaultServerUnsealed,
+					Type:   apis.VaultServerAcceptingConnection,
 					Status: core.ConditionTrue,
 				},
 				{
@@ -93,11 +93,19 @@ func TestGetPhase(t *testing.T) {
 			name: "Unsealed and all replicas are ready",
 			conditions: []kmapi.Condition{
 				{
+					Type:   apis.VaultServerInitialized,
+					Status: core.ConditionTrue,
+				},
+				{
 					Type:   apis.VaultServerUnsealed,
 					Status: core.ConditionTrue,
 				},
 				{
 					Type:   apis.AllReplicasAreReady,
+					Status: core.ConditionTrue,
+				},
+				{
+					Type:   apis.VaultServerAcceptingConnection,
 					Status: core.ConditionTrue,
 				},
 			},

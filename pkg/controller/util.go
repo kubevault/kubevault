@@ -76,7 +76,7 @@ type vaultserverInfo struct {
 	msg           string
 }
 
-func (c *VaultController) extractVaultserverInfo(sts *apps.StatefulSet) (*vaultserverInfo, error) {
+func (c *VaultController) extractVaultServerInfo(sts *apps.StatefulSet) (*vaultserverInfo, error) {
 	// read the controlling owner
 	owner := metav1.GetControllerOf(sts)
 	if owner == nil {
