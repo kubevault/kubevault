@@ -104,8 +104,8 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 							kmapi.Condition{
 								Type:    apis.VaultServerAcceptingConnection,
 								Status:  core.ConditionFalse,
-								Message: "HealthResponse Nil",
-								Reason:  "NotAcceptingConnection",
+								Message: "VaultServer not initialized yet",
+								Reason:  "VaultServerNotInitialized",
 							})
 						return in
 					},
@@ -136,8 +136,8 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 								kmapi.Condition{
 									Type:    apis.VaultServerInitializing,
 									Status:  core.ConditionFalse,
-									Message: "Found Initializing not False",
-									Reason:  "Initializing",
+									Message: "VaultServer Initializing process is completed",
+									Reason:  "VaultServerInitializingCompleted",
 								})
 							return in
 						},
@@ -157,8 +157,8 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 								kmapi.Condition{
 									Type:    apis.VaultServerInitialized,
 									Status:  core.ConditionTrue,
-									Message: "Found Initialized not True",
-									Reason:  "Initialized",
+									Message: "VaultServer is already Initialized",
+									Reason:  "VaultServerInitialized",
 								})
 							return in
 						},
@@ -178,8 +178,8 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 								kmapi.Condition{
 									Type:    apis.VaultServerAcceptingConnection,
 									Status:  core.ConditionTrue,
-									Message: "Found AcceptingConnection not True",
-									Reason:  "AcceptingConnection",
+									Message: "VaultServer is initialized and accepting connection",
+									Reason:  "VaultServerAcceptingConnection",
 								})
 							return in
 						},
@@ -206,8 +206,8 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 								kmapi.Condition{
 									Type:    apis.VaultServerUnsealing,
 									Status:  core.ConditionTrue,
-									Message: "Found Unsealing not True",
-									Reason:  "Unsealing",
+									Message: "VaultServer is initialized and started unsealing",
+									Reason:  "VaultServerUnsealing",
 								})
 							return in
 						},
@@ -227,8 +227,8 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 								kmapi.Condition{
 									Type:    apis.VaultServerUnsealed,
 									Status:  core.ConditionFalse,
-									Message: "Found Unsealed not False",
-									Reason:  "Unsealed",
+									Message: "VaultServer unsealing is not completed",
+									Reason:  "VaultServerUnsealed",
 								})
 							return in
 						},
@@ -255,8 +255,8 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 								kmapi.Condition{
 									Type:    apis.VaultServerUnsealing,
 									Status:  core.ConditionFalse,
-									Message: "Found Unsealing not False",
-									Reason:  "Unsealing",
+									Message: "VaultServer unsealing is completed",
+									Reason:  "VaultServerUnsealingCompleted",
 								})
 							return in
 						},
@@ -276,8 +276,8 @@ func (c *VaultController) CheckVaultServerHealthOnce() {
 								kmapi.Condition{
 									Type:    apis.VaultServerUnsealed,
 									Status:  core.ConditionTrue,
-									Message: "Found Unsealed not True",
-									Reason:  "Unsealed",
+									Message: "VaultServer is initialized and unsealed",
+									Reason:  "VaultServerUnsealed",
 								})
 							return in
 						},

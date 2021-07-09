@@ -316,8 +316,8 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 					kmapi.Condition{
 						Type:    apis.VaultServerInitializing,
 						Status:  core.ConditionTrue,
-						Message: "Initializing condition not found",
-						Reason:  "Initializing",
+						Message: "VaultServer is initializing for the first time",
+						Reason:  "VaultServerInitializing",
 					})
 				return in
 			},
