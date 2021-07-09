@@ -116,25 +116,15 @@ type VaultServerList struct {
 	Items           []VaultServer `json:"items,omitempty" protobuf:"bytes,2,rep,name=items"`
 }
 
-// +kubebuilder:validation:Enum=Processing;Uninitialized;Running;Sealed
-type ClusterPhase string
-
-const (
-	ClusterPhaseProcessing    ClusterPhase = "Processing"
-	ClusterPhaseUnInitialized ClusterPhase = "Uninitialized"
-	ClusterPhaseRunning       ClusterPhase = "Running"
-	ClusterPhaseSealed        ClusterPhase = "Sealed"
-)
-
 type VaultServerStatus struct {
 	// ObservedGeneration is the most recent generation observed for this resource. It corresponds to the
 	// resource's generation, which is updated on mutation by the API Server.
 	// +optional
 	ObservedGeneration int64 `json:"observedGeneration,omitempty" protobuf:"varint,1,opt,name=observedGeneration"`
 
-	// Phase indicates the state this Vault cluster jumps in.
+	// Phase indicates the state this Vault server jumps in.
 	// +optional
-	Phase ClusterPhase `json:"phase,omitempty" protobuf:"bytes,2,opt,name=phase,casttype=ClusterPhase"`
+	Phase VaultServerPhase `json:"phase,omitempty" protobuf:"bytes,2,opt,name=phase,casttype=vaultServerPhase"`
 
 	// Initialized indicates if the Vault service is initialized.
 	// +optional

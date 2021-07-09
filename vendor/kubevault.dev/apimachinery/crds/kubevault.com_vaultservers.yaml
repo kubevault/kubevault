@@ -6489,12 +6489,14 @@ spec:
               format: int64
               type: integer
             phase:
-              description: Phase indicates the state this Vault cluster jumps in.
+              description: Phase indicates the state this Vault server jumps in.
               enum:
-              - Processing
-              - Uninitialized
-              - Running
+              - Initializing
+              - Unsealing
               - Sealed
+              - Ready
+              - NotReady
+              - Critical
               type: string
             serviceName:
               description: ServiceName is the LB service for accessing vault nodes.

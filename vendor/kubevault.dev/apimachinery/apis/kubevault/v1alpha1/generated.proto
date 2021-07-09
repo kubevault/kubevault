@@ -827,7 +827,7 @@ message VaultServerStatus {
   // +optional
   optional int64 observedGeneration = 1;
 
-  // Phase indicates the state this Vault cluster jumps in.
+  // Phase indicates the state this Vault server jumps in.
   // +optional
   optional string phase = 2;
 

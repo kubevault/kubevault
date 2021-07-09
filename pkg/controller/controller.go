@@ -33,8 +33,10 @@ import (
 	auditlib "go.bytebuilders.dev/audit/lib"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	appslister "k8s.io/client-go/listers/apps/v1"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
@@ -54,6 +56,9 @@ type VaultController struct {
 	// cancel their goroutines when they are deleted
 	ctxCancels map[string]CtxWithCancel
 
+	// Dynamic client
+	dynamicClient dynamic.Interface
+
 	kubeClient       kubernetes.Interface
 	extClient        cs.Interface
 	appCatalogClient appcat_cs.AppcatalogV1alpha1Interface
@@ -69,6 +74,11 @@ type VaultController struct {
 	vsQueue    *queue.Worker
 	vsInformer cache.SharedIndexInformer
 	vsLister   vault_listers.VaultServerLister
+
+	// for StatefulSet Watcher
+	StsQueue    *queue.Worker
+	StsInformer cache.SharedIndexInformer
+	StsLister   appslister.StatefulSetLister
 
 	// for VaultPolicy
 	vplcyQueue    *queue.Worker
@@ -192,12 +202,19 @@ func (c *VaultController) RunInformers(stopCh <-chan struct{}) {
 	klog.Info("Starting Vault controller")
 
 	c.extInformerFactory.Start(stopCh)
+	// For StatefulSet Informer
+	c.kubeInformerFactory.Start(stopCh)
+	// Run Health Checker
+	c.RunHealthChecker(stopCh)
 	for _, v := range c.extInformerFactory.WaitForCacheSync(stopCh) {
 		if !v {
 			runtime.HandleError(fmt.Errorf("timed out waiting for caches to sync"))
 			return
 		}
 	}
+
+	// Todo: For StatefulSet
+	go c.StsQueue.Run(stopCh)
 
 	// For VaultServer
 	go c.vsQueue.Run(stopCh)

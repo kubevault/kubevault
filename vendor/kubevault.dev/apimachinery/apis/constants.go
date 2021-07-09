@@ -71,3 +71,23 @@ const (
 const (
 	CertificatePath = "/etc/vault/tls"
 )
+
+// List of possible condition types for a KubeVault object
+
+const (
+	VaultServerInitializing        = "Initializing"
+	VaultServerInitialized         = "Initialized"
+	VaultServerUnsealing           = "Unsealing"
+	VaultServerUnsealed            = "Unsealed"
+	VaultServerAcceptingConnection = "AcceptingConnection"
+	AllReplicasAreReady            = "AllReplicasReady"
+	SomeReplicasAreNotReady        = "SomeReplicasNotReady"
+)
+
+const (
+	ResourceKindStatefulSet = "StatefulSet"
+)
+
+const (
+	VaultAPIPort = 8200
+)

@@ -1282,6 +1282,7 @@ kmodules.xyz/client-go/apps/v1
 kmodules.xyz/client-go/core/v1
 kmodules.xyz/client-go/discovery
 kmodules.xyz/client-go/dynamic
+kmodules.xyz/client-go/dynamic/conditions
 kmodules.xyz/client-go/dynamic/factory
 kmodules.xyz/client-go/meta
 kmodules.xyz/client-go/openapi
@@ -1340,7 +1341,7 @@ kmodules.xyz/resource-metadata/pkg/graph
 ## explicit
 kmodules.xyz/webhook-runtime/admission/v1beta1
 kmodules.xyz/webhook-runtime/registry/admissionreview/v1beta1
-# kubevault.dev/apimachinery v0.0.0-20210628124552-b6457308ba0e
+# kubevault.dev/apimachinery v0.0.0-20210709051845-ccd40ffcf0d2
 ## explicit
 kubevault.dev/apimachinery/apis
 kubevault.dev/apimachinery/apis/catalog

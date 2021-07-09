@@ -21,6 +21,7 @@ import (
 
 	"kubevault.dev/apimachinery/apis"
 	api "kubevault.dev/apimachinery/apis/kubevault/v1alpha1"
+	cs_util "kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	patchutil "kubevault.dev/apimachinery/client/clientset/versioned/typed/kubevault/v1alpha1/util"
 	"kubevault.dev/operator/pkg/eventer"
 
@@ -48,7 +49,7 @@ const (
 func (c *VaultController) initVaultServerWatcher() {
 	c.vsInformer = c.extInformerFactory.Kubevault().V1alpha1().VaultServers().Informer()
 	c.vsQueue = queue.New(api.ResourceKindVaultServer, c.MaxNumRequeues, c.NumThreads, c.runVaultServerInjector)
-	c.vsInformer.AddEventHandler(queue.NewReconcilableHandler(c.vsQueue.GetQueue()))
+	c.vsInformer.AddEventHandler(queue.NewChangeHandler(c.vsQueue.GetQueue()))
 	if c.auditor != nil {
 		c.vsInformer.AddEventHandler(c.auditor.ForGVK(api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 	}
@@ -287,6 +288,46 @@ func (c *VaultController) removeOwnerReferenceSecrets(vs *api.VaultServer) error
 // and finally updating the vault deployment if needed.
 // It also creates AppBinding containing vault connection configuration
 func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
+	// Get Phase from Conditions
+	phase := GetPhase(vs.Status.Conditions)
+	if vs.Status.Phase != phase {
+		_, err := cs_util.UpdateVaultServerStatus(
+			context.TODO(),
+			c.extClient.KubevaultV1alpha1(),
+			vs.ObjectMeta,
+			func(in *api.VaultServerStatus) *api.VaultServerStatus {
+				in.Phase = phase
+				return in
+			},
+			metav1.UpdateOptions{},
+		)
+		if err != nil {
+			klog.Infof("failed to update phase with: %s", err.Error())
+		}
+	}
+
+	if !kmapi.HasCondition(vs.Status.Conditions, apis.VaultServerInitializing) {
+		_, err := cs_util.UpdateVaultServerStatus(
+			context.TODO(),
+			c.extClient.KubevaultV1alpha1(),
+			vs.ObjectMeta,
+			func(in *api.VaultServerStatus) *api.VaultServerStatus {
+				in.Conditions = kmapi.SetCondition(in.Conditions,
+					kmapi.Condition{
+						Type:    apis.VaultServerInitializing,
+						Status:  core.ConditionTrue,
+						Message: "VaultServer is initializing for the first time",
+						Reason:  "VaultServerInitializing",
+					})
+				return in
+			},
+			metav1.UpdateOptions{},
+		)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to update status for %s/%s", vs.Namespace, vs.Name)
+		}
+	}
+
 	err := c.CreateVaultTLSSecret(vs, v)
 	if err != nil {
 		_, err2 := patchutil.UpdateVaultServerStatus(
@@ -365,37 +406,6 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			metav1.UpdateOptions{},
 		)
 		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to deploy vault")})
-	}
-
-	_, err = patchutil.UpdateVaultServerStatus(
-		context.TODO(),
-		c.extClient.KubevaultV1alpha1(),
-		vs.ObjectMeta,
-		func(status *api.VaultServerStatus) *api.VaultServerStatus {
-			status.ObservedGeneration = vs.Generation
-			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-				Type:    kmapi.ConditionReady,
-				Status:  core.ConditionTrue,
-				Reason:  "Provisioned",
-				Message: "vault server is ready to use",
-			})
-			return status
-		},
-		metav1.UpdateOptions{},
-	)
-	if err != nil {
-		return errors.Wrap(err, "failed to update status")
-	}
-
-	// Add vault monitor to watch vault seal or unseal status
-	key := vs.GetKey()
-	if _, ok := c.ctxCancels[key]; !ok {
-		ctx, cancel := context.WithCancel(context.Background())
-		c.ctxCancels[key] = CtxWithCancel{
-			Ctx:    ctx,
-			Cancel: cancel,
-		}
-		go c.monitorAndUpdateStatus(ctx, vs)
 	}
 
 	// Run auth method reconcile

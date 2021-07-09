@@ -27,6 +27,7 @@ import (
 	prom "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	"github.com/spf13/pflag"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"kmodules.xyz/client-go/tools/clusterid"
 	appcat_cs "kmodules.xyz/custom-resources/client/clientset/versioned/typed/appcatalog/v1alpha1"
@@ -102,6 +103,9 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 		return err
 	}
 	if cfg.AppCatalogClient, err = appcat_cs.NewForConfig(cfg.ClientConfig); err != nil {
+		return err
+	}
+	if cfg.DynamicClient, err = dynamic.NewForConfig(cfg.ClientConfig); err != nil {
 		return err
 	}
 	return nil

@@ -27,6 +27,7 @@ import (
 	pcm "github.com/prometheus-operator/prometheus-operator/pkg/client/versioned/typed/monitoring/v1"
 	auditlib "go.bytebuilders.dev/audit/lib"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -62,6 +63,7 @@ type Config struct {
 	AppCatalogClient appcat_cs.AppcatalogV1alpha1Interface
 	PromClient       pcm.MonitoringV1Interface
 	DbClient         db_cs.Interface
+	DynamicClient    dynamic.Interface
 }
 
 func NewConfig(clientConfig *rest.Config) *Config {
@@ -106,6 +108,7 @@ func (c *Config) New() (*VaultController, error) {
 		extInformerFactory:  vaultinformers.NewSharedInformerFactory(c.ExtClient, c.ResyncPeriod),
 		recorder:            eventer.NewEventRecorder(c.KubeClient, "vault-operator"),
 		auditor:             auditor,
+		dynamicClient:       c.DynamicClient,
 	}
 
 	if err := ctrl.ensureCustomResourceDefinitions(); err != nil {
@@ -124,6 +127,8 @@ func (c *Config) New() (*VaultController, error) {
 
 	// For VaultServer
 	ctrl.initVaultServerWatcher()
+	// Todo: For StatefulSet
+	ctrl.initStatefulSetWatcher()
 	// For VaultPolicy
 	ctrl.initVaultPolicyWatcher()
 	// For VaultPolicyBinding
