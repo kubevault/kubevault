@@ -72,14 +72,8 @@ const (
 	CertificatePath = "/etc/vault/tls"
 )
 
-// Resource kind related constants
-const (
-	ResourceKindStatefulSet = "StatefulSet"
-	ResourceKindVaultServer = "VaultServer"
-)
+// List of possible condition types for a KubeVault object
 
-// Todo: List of possible condition types for a KubeVault object
-//   - Add Reasons
 const (
 	VaultServerInitializing        = "Initializing"
 	VaultServerInitialized         = "Initialized"
@@ -88,6 +82,10 @@ const (
 	VaultServerAcceptingConnection = "AcceptingConnection"
 	AllReplicasAreReady            = "AllReplicasReady"
 	SomeReplicasAreNotReady        = "SomeReplicasNotReady"
+)
+
+const (
+	ResourceKindStatefulSet = "StatefulSet"
 )
 
 const (

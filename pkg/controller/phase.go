@@ -23,7 +23,7 @@ import (
 	kmapi "kmodules.xyz/client-go/api/v1"
 )
 
-func GetPhase(conditions []kmapi.Condition) api.ClusterPhase {
+func GetPhase(conditions []kmapi.Condition) api.VaultServerPhase {
 	//Todo: Phases from condition array[]:
 	//	-Initializing -> at the beginning (till condition initialized is true)
 	//	-Unsealing -> unsealing has started but has not completed yet
@@ -32,31 +32,31 @@ func GetPhase(conditions []kmapi.Condition) api.ClusterPhase {
 	//	-NotReady -> accepting connection false, unsealed true
 	//	-Critical -> replica ready false, but accepting connection true
 
-	var phase api.ClusterPhase
+	var phase api.VaultServerPhase
 
 	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitializing) {
-		phase = api.ClusterPhaseInitializing
+		phase = api.VaultServerPhaseInitializing
 	}
 
 	if kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealing) {
-		phase = api.ClusterPhaseUnsealing
+		phase = api.VaultServerPhaseUnsealing
 	}
 
 	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) && kmapi.IsConditionFalse(conditions, apis.VaultServerUnsealed) {
-		phase = api.ClusterPhaseSealed
+		phase = api.VaultServerPhaseSealed
 	}
 
 	if kmapi.IsConditionFalse(conditions, apis.VaultServerAcceptingConnection) && kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealed) {
-		phase = api.ClusterPhaseNotReady
+		phase = api.VaultServerPhaseNotReady
 	}
 
 	if kmapi.IsConditionTrue(conditions, apis.VaultServerAcceptingConnection) && kmapi.IsConditionFalse(conditions, apis.AllReplicasAreReady) {
-		phase = api.ClusterPhaseCritical
+		phase = api.VaultServerPhaseCritical
 	}
 
 	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) && kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealed) &&
 		kmapi.IsConditionTrue(conditions, apis.VaultServerAcceptingConnection) && kmapi.IsConditionTrue(conditions, apis.AllReplicasAreReady) {
-		phase = api.ClusterPhaseReady
+		phase = api.VaultServerPhaseReady
 	}
 
 	return phase

@@ -100,7 +100,7 @@ func (c *VaultController) extractVaultServerInfo(sts *apps.StatefulSet) (*vaults
 		Version: gv.Version,
 	}
 	switch owner.Kind {
-	case apis.ResourceKindVaultServer:
+	case vaultapi.ResourceKindVaultServer:
 		vsInfo.opts.GVR.Resource = vaultapi.ResourceVaultServers
 		vs, err := c.extClient.KubevaultV1alpha1().VaultServers(vsInfo.opts.Namespace).Get(context.TODO(), vsInfo.opts.Name, metav1.GetOptions{})
 		if err != nil {

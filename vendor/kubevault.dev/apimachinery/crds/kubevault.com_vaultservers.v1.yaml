@@ -6596,7 +6596,7 @@ spec:
                 format: int64
                 type: integer
               phase:
-                description: Phase indicates the state this Vault cluster jumps in.
+                description: Phase indicates the state this Vault server jumps in.
                 enum:
                 - Initializing
                 - Unsealing

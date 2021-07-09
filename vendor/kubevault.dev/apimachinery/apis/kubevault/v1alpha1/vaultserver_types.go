@@ -116,33 +116,15 @@ type VaultServerList struct {
 	Items           []VaultServer `json:"items,omitempty" protobuf:"bytes,2,rep,name=items"`
 }
 
-// +kubebuilder:validation:Enum=Initializing;Unsealing;Sealed;Ready;NotReady;Critical
-type ClusterPhase string
-
-const (
-	// used for VaultServer that are Initializing
-	ClusterPhaseInitializing ClusterPhase = "Initializing"
-	// used for VaultServer that are Unsealing
-	ClusterPhaseUnsealing ClusterPhase = "Unsealing"
-	// used for VaultServer that are sealed
-	ClusterPhaseSealed ClusterPhase = "Sealed"
-	// used for VaultServer that are Ready
-	ClusterPhaseReady ClusterPhase = "Ready"
-	// used for VaultServer that are NotReady
-	ClusterPhaseNotReady ClusterPhase = "NotReady"
-	// used for VaultServer that are Critical
-	ClusterPhaseCritical ClusterPhase = "Critical"
-)
-
 type VaultServerStatus struct {
 	// ObservedGeneration is the most recent generation observed for this resource. It corresponds to the
 	// resource's generation, which is updated on mutation by the API Server.
 	// +optional
 	ObservedGeneration int64 `json:"observedGeneration,omitempty" protobuf:"varint,1,opt,name=observedGeneration"`
 
-	// Phase indicates the state this Vault cluster jumps in.
+	// Phase indicates the state this Vault server jumps in.
 	// +optional
-	Phase ClusterPhase `json:"phase,omitempty" protobuf:"bytes,2,opt,name=phase,casttype=ClusterPhase"`
+	Phase VaultServerPhase `json:"phase,omitempty" protobuf:"bytes,2,opt,name=phase,casttype=vaultServerPhase"`
 
 	// Initialized indicates if the Vault service is initialized.
 	// +optional

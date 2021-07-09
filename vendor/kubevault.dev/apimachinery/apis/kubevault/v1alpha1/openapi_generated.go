@@ -20162,7 +20162,7 @@ func schema_apimachinery_apis_kubevault_v1alpha1_VaultServerStatus(ref common.Re
 					},
 					"phase": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Phase indicates the state this Vault cluster jumps in.",
+							Description: "Phase indicates the state this Vault server jumps in.",
 							Type:        []string{"string"},
 							Format:      "",
 						},

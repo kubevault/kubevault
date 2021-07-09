@@ -30,7 +30,7 @@ func TestGetPhase(t *testing.T) {
 	testCases := []struct {
 		name          string
 		conditions    []kmapi.Condition
-		expectedPhase api.ClusterPhase
+		expectedPhase api.VaultServerPhase
 	}{
 		{
 			name:          "No condition present yet",
@@ -45,10 +45,10 @@ func TestGetPhase(t *testing.T) {
 					Status: core.ConditionTrue,
 				},
 			},
-			expectedPhase: api.ClusterPhaseInitializing,
+			expectedPhase: api.VaultServerPhaseInitializing,
 		},
 		{
-			name: "Initialized & Unsealing now",
+			name: "Initialized but Sealed",
 			conditions: []kmapi.Condition{
 				{
 					Type:   apis.VaultServerInitialized,
@@ -59,10 +59,10 @@ func TestGetPhase(t *testing.T) {
 					Status: core.ConditionFalse,
 				},
 			},
-			expectedPhase: api.ClusterPhaseSealed,
+			expectedPhase: api.VaultServerPhaseSealed,
 		},
 		{
-			name: "Initialized & Accepting Connection",
+			name: "Unsealed & Accepting Connection",
 			conditions: []kmapi.Condition{
 				{
 					Type:   apis.VaultServerUnsealed,
@@ -73,10 +73,10 @@ func TestGetPhase(t *testing.T) {
 					Status: core.ConditionFalse,
 				},
 			},
-			expectedPhase: api.ClusterPhaseNotReady,
+			expectedPhase: api.VaultServerPhaseNotReady,
 		},
 		{
-			name: "Unsealed but all replicas are not ready",
+			name: "Accepting Connection but All Replicas are not ready",
 			conditions: []kmapi.Condition{
 				{
 					Type:   apis.VaultServerAcceptingConnection,
@@ -87,10 +87,10 @@ func TestGetPhase(t *testing.T) {
 					Status: core.ConditionFalse,
 				},
 			},
-			expectedPhase: api.ClusterPhaseCritical,
+			expectedPhase: api.VaultServerPhaseCritical,
 		},
 		{
-			name: "Unsealed and all replicas are ready",
+			name: "Initialized, Unsealed, AcceptingConnection and All Replicas are ready",
 			conditions: []kmapi.Condition{
 				{
 					Type:   apis.VaultServerInitialized,
@@ -109,7 +109,7 @@ func TestGetPhase(t *testing.T) {
 					Status: core.ConditionTrue,
 				},
 			},
-			expectedPhase: api.ClusterPhaseReady,
+			expectedPhase: api.VaultServerPhaseReady,
 		},
 	}
 
