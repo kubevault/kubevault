@@ -414,8 +414,6 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			Ctx:    ctx,
 			Cancel: cancel,
 		}
-		// Todo: will remove it, when removing vault_status.go
-		// go c.monitorAndUpdateStatus(ctx, vs)
 	}
 
 	// Run auth method reconcile
