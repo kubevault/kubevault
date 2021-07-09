@@ -35,7 +35,7 @@ func TestGetPhase(t *testing.T) {
 		{
 			name:          "No condition present yet",
 			conditions:    nil,
-			expectedPhase: "",
+			expectedPhase: api.VaultServerPhaseNotReady,
 		},
 		{
 			name: "Initializing for the very first time",

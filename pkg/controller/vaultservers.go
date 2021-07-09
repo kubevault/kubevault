@@ -306,6 +306,28 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 		}
 	}
 
+	if !kmapi.HasCondition(vs.Status.Conditions, apis.VaultServerInitializing) {
+		_, err := cs_util.UpdateVaultServerStatus(
+			context.TODO(),
+			c.extClient.KubevaultV1alpha1(),
+			vs.ObjectMeta,
+			func(in *api.VaultServerStatus) *api.VaultServerStatus {
+				in.Conditions = kmapi.SetCondition(in.Conditions,
+					kmapi.Condition{
+						Type:    apis.VaultServerInitializing,
+						Status:  core.ConditionTrue,
+						Message: "Initializing condition not found",
+						Reason:  "Initializing",
+					})
+				return in
+			},
+			metav1.UpdateOptions{},
+		)
+		if err != nil {
+			return errors.Wrapf(err, "Failed to update status for %s/%s", vs.Namespace, vs.Name)
+		}
+	}
+
 	err := c.CreateVaultTLSSecret(vs, v)
 	if err != nil {
 		_, err2 := patchutil.UpdateVaultServerStatus(
@@ -384,36 +406,6 @@ func (c *VaultController) reconcileVault(vs *api.VaultServer, v Vault) error {
 			metav1.UpdateOptions{},
 		)
 		return utilerrors.NewAggregate([]error{err2, errors.Wrap(err, "failed to deploy vault")})
-	}
-
-	_, err = patchutil.UpdateVaultServerStatus(
-		context.TODO(),
-		c.extClient.KubevaultV1alpha1(),
-		vs.ObjectMeta,
-		func(status *api.VaultServerStatus) *api.VaultServerStatus {
-			status.ObservedGeneration = vs.Generation
-			status.Conditions = kmapi.SetCondition(status.Conditions, kmapi.Condition{
-				Type:    kmapi.ConditionReady,
-				Status:  core.ConditionTrue,
-				Reason:  "Provisioned",
-				Message: "vault server is ready to use",
-			})
-			return status
-		},
-		metav1.UpdateOptions{},
-	)
-	if err != nil {
-		return errors.Wrap(err, "failed to update status")
-	}
-
-	// Add vault monitor to watch vault seal or unseal status
-	key := vs.GetKey()
-	if _, ok := c.ctxCancels[key]; !ok {
-		ctx, cancel := context.WithCancel(context.Background())
-		c.ctxCancels[key] = CtxWithCancel{
-			Ctx:    ctx,
-			Cancel: cancel,
-		}
 	}
 
 	// Run auth method reconcile

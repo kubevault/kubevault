@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"time"
 
 	conapi "kubevault.dev/apimachinery/apis"
 
@@ -66,6 +67,8 @@ func GetListenerConfig(mountPath string, isTLSEnabled bool) string {
 func NewVaultClient(url string, tlsConfig *vaultapi.TLSConfig) (*vaultapi.Client, error) {
 	cfg := vaultapi.DefaultConfig()
 	cfg.Address = url
+	cfg.Timeout = 30 * time.Second
+
 	err := cfg.ConfigureTLS(tlsConfig)
 	if err != nil {
 		return nil, err

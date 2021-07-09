@@ -32,28 +32,35 @@ func GetPhase(conditions []kmapi.Condition) api.VaultServerPhase {
 	//	-NotReady -> accepting connection false, unsealed true
 	//	-Critical -> replica ready false, but accepting connection true
 
-	var phase api.VaultServerPhase
+	// default phase: NotReady
+	var phase = api.VaultServerPhaseNotReady
 
-	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitializing) {
+	// If Initializing and Initialized not found, then it's the first time VaultServer is Initializing
+	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitializing) && !kmapi.HasCondition(conditions, apis.VaultServerInitialized) {
 		phase = api.VaultServerPhaseInitializing
 	}
 
-	if kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealing) {
+	// If Unsealing and Initialized then VaultServer is Unsealing
+	if kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealing) && kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) {
 		phase = api.VaultServerPhaseUnsealing
 	}
 
+	// If Initialized and Unsealed if False, then VaultServer is Sealed
 	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) && kmapi.IsConditionFalse(conditions, apis.VaultServerUnsealed) {
 		phase = api.VaultServerPhaseSealed
 	}
 
-	if kmapi.IsConditionFalse(conditions, apis.VaultServerAcceptingConnection) && kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealed) {
+	// If not AcceptingConnection but Unsealed then VaultServer phase is NotReady
+	if !kmapi.IsConditionTrue(conditions, apis.VaultServerAcceptingConnection) && kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealed) {
 		phase = api.VaultServerPhaseNotReady
 	}
 
-	if kmapi.IsConditionTrue(conditions, apis.VaultServerAcceptingConnection) && kmapi.IsConditionFalse(conditions, apis.AllReplicasAreReady) {
+	// If AcceptingConnection and AllReplicas are not ready, then VaultServer phase is Critical
+	if kmapi.IsConditionTrue(conditions, apis.VaultServerAcceptingConnection) && !kmapi.IsConditionTrue(conditions, apis.AllReplicasAreReady) {
 		phase = api.VaultServerPhaseCritical
 	}
 
+	// If Initialized, Unsealed, AcceptingConnection and AllReplicasReady, then VaultServer is Ready
 	if kmapi.IsConditionTrue(conditions, apis.VaultServerInitialized) && kmapi.IsConditionTrue(conditions, apis.VaultServerUnsealed) &&
 		kmapi.IsConditionTrue(conditions, apis.VaultServerAcceptingConnection) && kmapi.IsConditionTrue(conditions, apis.AllReplicasAreReady) {
 		phase = api.VaultServerPhaseReady
