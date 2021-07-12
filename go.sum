@@ -1151,6 +1151,8 @@ gomodules.xyz/kglog v0.0.1/go.mod h1:+zsiQO9SrbeUeqI5fYEIl/96o5dNoWUM0J69BUMEmDc
 gomodules.xyz/kglog v0.0.4/go.mod h1:yjAPb3e0axQl6itwq8EgCYIGOcnMe4FfHPihUM7fRsc=
 gomodules.xyz/logs v0.0.1 h1:in9286fzHDuW1sBer9knlXOS/DGr72302eC9YKX0LCk=
 gomodules.xyz/logs v0.0.1/go.mod h1:tiZ6IumZCKtQtzjFkbZ+iuKk6PBG/cvQs/wGEzffqic=
+gomodules.xyz/mergo v0.3.13-0.20210702100041-9d62ff8ece4d h1:i6r7bk2jF965W3xmORgz+KYhlH608oRvrAPpcNHorlo=
+gomodules.xyz/mergo v0.3.13-0.20210702100041-9d62ff8ece4d/go.mod h1:i2WNHvGpzLKI+/qWRhscddeashtzrtxCAucS2H7hrtM=
 gomodules.xyz/password-generator v0.2.6 h1:+If/SrycIBvZYBnUZU2F9v1vKt8KlitMctJiAeqjybA=
 gomodules.xyz/password-generator v0.2.6/go.mod h1:TvwYYTx9+P1pPwKQKfZgB/wr2Id9MqAQ3B5auY7reNg=
 gomodules.xyz/pointer v0.0.0-20201105040656-991dd254b680/go.mod h1:sPLsC0+yLTRecUiC5yVlyvXhZ6LAGojNCRWNNqoplvo=
@@ -1297,8 +1299,9 @@ k8s.io/utils v0.0.0-20201110183641-67b214c5f920/go.mod h1:jPW/WVKK9YHAvNhRxK0md/
 kmodules.xyz/apiversion v0.2.0 h1:vAQYqZFm4xu4pbB1cAdHbFEPES6EQkcR4wc06xdTOWk=
 kmodules.xyz/apiversion v0.2.0/go.mod h1:oPX8g8LvlPdPX3Yc5YvCzJHQnw3YF/X4/jdW0b1am80=
 kmodules.xyz/client-go v0.0.0-20210514054158-27e164b43474/go.mod h1:R+xaDwIcqjPygQcVd3+0K2WBEwMB+wSZJAK18WdSr0A=
-kmodules.xyz/client-go v0.0.0-20210617233340-13d22e91512b h1:nHfHypeO69oqJgT/5k1E/OesIFD6yMT8whATXM9CmrY=
 kmodules.xyz/client-go v0.0.0-20210617233340-13d22e91512b/go.mod h1:A6GAK6xP5zBuWK6A/vUkkjKzcuywkms7fIxRf5wblO4=
+kmodules.xyz/client-go v0.0.0-20210702123511-a25836cf4332 h1:uRal+7tPqwIYWkWn18XrI3pg09L85YOvYPL6IN6fRX0=
+kmodules.xyz/client-go v0.0.0-20210702123511-a25836cf4332/go.mod h1:E/vGngai00UtVwP8R4PWpPUBF/EZa6Ub9WS5+tVcs4M=
 kmodules.xyz/constants v0.0.0-20210218100002-2c304bfda278 h1:sFmqh4EaiZ4K2FkkGvrDFddstq8GSf6ogH24IAsuKew=
 kmodules.xyz/constants v0.0.0-20210218100002-2c304bfda278/go.mod h1:DbiFk1bJ1KEO94t1SlAn7tzc+Zz95rSXgyUKa2nzPmY=
 kmodules.xyz/crd-schema-fuzz v0.0.0-20210618002152-fae23aef5fb4 h1:vg6VZCnkHu3kJKdUe/oswi7MhjUVcZpyP/aXYhKFZ7M=
@@ -1315,8 +1318,8 @@ kmodules.xyz/resource-metadata v0.5.7 h1:5xjq5pEp5hZK+jdkY/4wGk/FMtTyvQ9LlErh7lQ
 kmodules.xyz/resource-metadata v0.5.7/go.mod h1:Jdi7zBXRwwFTOR0CxwKxqJhsDVIilhrgNipPjnKLyrs=
 kmodules.xyz/webhook-runtime v0.0.0-20210618013329-0accb929102b h1:aUZw6p8qeZN23DdjpzvseY/oXYwhXCzgvFjIc9ufuQc=
 kmodules.xyz/webhook-runtime v0.0.0-20210618013329-0accb929102b/go.mod h1:MFZFmJk9IXNHwq8JlF/mukwBDbopFQj4swaB2MWHc/U=
-kubevault.dev/apimachinery v0.0.0-20210709051845-ccd40ffcf0d2 h1:dqNYmwvcbpAiWeoOWVQkxJ7uRofz92SmElqDXsV8dXM=
-kubevault.dev/apimachinery v0.0.0-20210709051845-ccd40ffcf0d2/go.mod h1:2ML9Ozq8jmBR6+n5edp34SX0CmvK0hUubIYg3WkMlPU=
+kubevault.dev/apimachinery v0.0.0-20210712100328-d0fec76370e5 h1:54MqOQGSz6Duzdv1DdLdaquNPYjf7HY5x56z/A4+XIY=
+kubevault.dev/apimachinery v0.0.0-20210712100328-d0fec76370e5/go.mod h1:2ML9Ozq8jmBR6+n5edp34SX0CmvK0hUubIYg3WkMlPU=
 modernc.org/cc v1.0.0/go.mod h1:1Sk4//wdnYJiUIxnW8ddKpaOJCF37yAdqYnkxUpaYxw=
 modernc.org/golex v1.0.0/go.mod h1:b/QX9oBD/LhixY6NDh+IdGv17hgB+51fET1i2kPSmvk=
 modernc.org/mathutil v1.0.0/go.mod h1:wU0vUrJsVWBZ4P6e7xtFJEhFSNsfRLJ8H458uRjg03k=

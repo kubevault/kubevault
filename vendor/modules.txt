@@ -564,6 +564,8 @@ gomodules.xyz/jsonpath/third_party/forked/golang/template
 # gomodules.xyz/logs v0.0.1
 ## explicit
 gomodules.xyz/logs
+# gomodules.xyz/mergo v0.3.13-0.20210702100041-9d62ff8ece4d
+gomodules.xyz/mergo
 # gomodules.xyz/password-generator v0.2.6
 gomodules.xyz/password-generator
 # gomodules.xyz/pointer v0.0.0-20201105071923-daf60fa55209
@@ -1269,7 +1271,7 @@ k8s.io/utils/pointer
 k8s.io/utils/trace
 # kmodules.xyz/apiversion v0.2.0
 kmodules.xyz/apiversion
-# kmodules.xyz/client-go v0.0.0-20210617233340-13d22e91512b
+# kmodules.xyz/client-go v0.0.0-20210702123511-a25836cf4332
 ## explicit
 kmodules.xyz/client-go
 kmodules.xyz/client-go/admissionregistration/v1beta1
@@ -1341,7 +1343,7 @@ kmodules.xyz/resource-metadata/pkg/graph
 ## explicit
 kmodules.xyz/webhook-runtime/admission/v1beta1
 kmodules.xyz/webhook-runtime/registry/admissionreview/v1beta1
-# kubevault.dev/apimachinery v0.0.0-20210709051845-ccd40ffcf0d2
+# kubevault.dev/apimachinery v0.0.0-20210712100328-d0fec76370e5
 ## explicit
 kubevault.dev/apimachinery/apis
 kubevault.dev/apimachinery/apis/catalog

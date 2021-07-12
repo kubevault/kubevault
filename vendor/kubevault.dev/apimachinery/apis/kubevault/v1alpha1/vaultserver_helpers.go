@@ -33,6 +33,7 @@ import (
 	"kmodules.xyz/client-go/meta"
 	meta_util "kmodules.xyz/client-go/meta"
 	mona "kmodules.xyz/monitoring-agent-api/api/v1"
+	ofst "kmodules.xyz/offshoot-api/api/v1"
 )
 
 func (_ VaultServer) CustomResourceDefinition() *apiextensions.CustomResourceDefinition {
@@ -227,4 +228,15 @@ func checkReplicas(lister appslister.StatefulSetNamespaceLister, selector labels
 	// return isReplicasReady, message, error
 	ready, msg := apps_util.StatefulSetsAreReady(items)
 	return ready, msg, nil
+}
+
+// GetServiceTemplate returns a pointer to the desired serviceTemplate referred by "alias". Otherwise, it returns nil.
+func GetServiceTemplate(templates []NamedServiceTemplateSpec, alias ServiceAlias) ofst.ServiceTemplateSpec {
+	for i := range templates {
+		c := templates[i]
+		if c.Alias == alias {
+			return c.ServiceTemplateSpec
+		}
+	}
+	return ofst.ServiceTemplateSpec{}
 }
