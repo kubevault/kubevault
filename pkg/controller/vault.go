@@ -629,6 +629,9 @@ func (v *vaultSrv) GetConfig() (*core.Secret, error) {
 			Namespace: v.vs.Namespace,
 			Labels:    v.vs.OffshootLabels(),
 		},
+		Data: map[string][]byte{
+			"vault.hcl": []byte(cfgData),
+		},
 		StringData: map[string]string{
 			filepath.Base(util.VaultConfigFile): cfgData,
 		},
@@ -776,13 +779,7 @@ func (v *vaultSrv) GetService() *core.Service {
 		return nil
 	}
 
-	var vsTemplate api.NamedServiceTemplateSpec
-	for i := range v.vs.Spec.ServiceTemplates {
-		namedSpec := v.vs.Spec.ServiceTemplates[i]
-		if namedSpec.Alias == api.VaultServerServiceVault {
-			vsTemplate = namedSpec
-		}
-	}
+	vsTemplate := api.GetServiceTemplate(v.vs.Spec.ServiceTemplates, api.VaultServerServiceVault)
 
 	return &core.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -795,14 +792,16 @@ func (v *vaultSrv) GetService() *core.Service {
 			Selector: v.vs.OffshootSelectors(),
 			Ports: []core.ServicePort{
 				{
-					Name:     "client",
-					Protocol: core.ProtocolTCP,
-					Port:     VaultClientPort,
+					Name:       "client",
+					Protocol:   core.ProtocolTCP,
+					Port:       VaultClientPort,
+					TargetPort: intstr.FromInt(VaultClientPort),
 				},
 				{
-					Name:     "cluster",
-					Protocol: core.ProtocolTCP,
-					Port:     VaultClusterPort,
+					Name:       "cluster",
+					Protocol:   core.ProtocolTCP,
+					Port:       VaultClusterPort,
+					TargetPort: intstr.FromInt(VaultClientPort),
 				},
 			},
 			ClusterIP:                vsTemplate.Spec.ClusterIP,
@@ -818,13 +817,8 @@ func (v *vaultSrv) GetService() *core.Service {
 }
 
 func (v *vaultSrv) GetGoverningService() *core.Service {
-	var inSvc api.NamedServiceTemplateSpec
-	for i := range v.vs.Spec.ServiceTemplates {
-		temp := v.vs.Spec.ServiceTemplates[i]
-		if temp.Alias == api.VaultServerServiceInternal {
-			inSvc = temp
-		}
-	}
+
+	inSvc := api.GetServiceTemplate(v.vs.Spec.ServiceTemplates, api.VaultServerServiceInternal)
 
 	return &core.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -837,14 +831,16 @@ func (v *vaultSrv) GetGoverningService() *core.Service {
 			Selector: v.vs.OffshootSelectors(),
 			Ports: []core.ServicePort{
 				{
-					Name:     "client-internal",
-					Protocol: core.ProtocolTCP,
-					Port:     VaultClientPort,
+					Name:       "client-internal",
+					Protocol:   core.ProtocolTCP,
+					Port:       VaultClientPort,
+					TargetPort: intstr.FromInt(VaultClientPort),
 				},
 				{
-					Name:     "cluster-internal",
-					Protocol: core.ProtocolTCP,
-					Port:     VaultClusterPort,
+					Name:       "cluster-internal",
+					Protocol:   core.ProtocolTCP,
+					Port:       VaultClusterPort,
+					TargetPort: intstr.FromInt(VaultClientPort),
 				},
 			},
 			ClusterIP:                "None",
@@ -1039,9 +1035,11 @@ func (v *vaultSrv) GetContainer() core.Container {
 		Ports: []core.ContainerPort{{
 			Name:          "vault-port",
 			ContainerPort: int32(VaultClientPort),
+			Protocol:      core.ProtocolTCP,
 		}, {
 			Name:          "cluster-port",
 			ContainerPort: int32(VaultClusterPort),
+			Protocol:      core.ProtocolTCP,
 		}},
 		ReadinessProbe: func() *core.Probe {
 			if v.vs.Spec.PodTemplate.Spec.ReadinessProbe != nil {

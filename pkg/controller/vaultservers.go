@@ -595,7 +595,9 @@ func ensureStatefulSet(kc kubernetes.Interface, vs *api.VaultServer, sts *appsv1
 		in.Spec.Template.Spec.Priority = sts.Spec.Template.Spec.Priority
 		in.Spec.Template.Spec.SecurityContext = sts.Spec.Template.Spec.SecurityContext
 		in.Spec.Template.Spec.Volumes = core_util.UpsertVolume(in.Spec.Template.Spec.Volumes, sts.Spec.Template.Spec.Volumes...)
-		in.Spec.VolumeClaimTemplates = sts.Spec.VolumeClaimTemplates
+		if sts.Spec.VolumeClaimTemplates != nil {
+			in.Spec.VolumeClaimTemplates = core_util.UpsertVolumeClaim(in.Spec.VolumeClaimTemplates, sts.Spec.VolumeClaimTemplates[0])
+		}
 
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
@@ -623,7 +625,10 @@ func ensureService(kc kubernetes.Interface, vs *api.VaultServer, svc *core.Servi
 		}
 		in.Spec.ExternalIPs = svc.Spec.ExternalIPs
 		in.Spec.LoadBalancerSourceRanges = svc.Spec.LoadBalancerSourceRanges
-		in.Spec.ExternalTrafficPolicy = svc.Spec.ExternalTrafficPolicy
+		if svc.Spec.ExternalTrafficPolicy != "" {
+			in.Spec.ExternalTrafficPolicy = svc.Spec.ExternalTrafficPolicy
+		}
+
 		if svc.Spec.HealthCheckNodePort > 0 {
 			in.Spec.HealthCheckNodePort = svc.Spec.HealthCheckNodePort
 		}
@@ -672,7 +677,6 @@ func ensureConfigSecret(kc kubernetes.Interface, vs *api.VaultServer, secret *co
 		in.Labels = core_util.UpsertMap(in.Labels, secret.Labels)
 		in.Annotations = core_util.UpsertMap(in.Annotations, secret.Annotations)
 		in.Data = secret.Data
-		in.StringData = secret.StringData
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
 		return in
 	}, metav1.PatchOptions{})

@@ -1343,7 +1343,7 @@ kmodules.xyz/resource-metadata/pkg/graph
 ## explicit
 kmodules.xyz/webhook-runtime/admission/v1beta1
 kmodules.xyz/webhook-runtime/registry/admissionreview/v1beta1
-# kubevault.dev/apimachinery v0.0.0-20210712100328-d0fec76370e5
+# kubevault.dev/apimachinery v0.0.0-20210712145811-d3c97b39a68e
 ## explicit
 kubevault.dev/apimachinery/apis
 kubevault.dev/apimachinery/apis/catalog

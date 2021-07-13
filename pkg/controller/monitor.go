@@ -35,15 +35,6 @@ import (
 )
 
 func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service, kutil.VerbType, error) {
-	var statsSvc api.NamedServiceTemplateSpec
-
-	for i := range vs.Spec.ServiceTemplates {
-		temp := vs.Spec.ServiceTemplates[i]
-		if temp.Alias == api.VaultServerServiceStats {
-			statsSvc = temp
-		}
-	}
-
 	meta := metav1.ObjectMeta{
 		Name:      vs.StatsServiceName(),
 		Namespace: vs.Namespace,
@@ -69,14 +60,16 @@ func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service
 			},
 		}
 		in.Spec.Ports = core_util.MergeServicePorts(in.Spec.Ports, desired)
-		in.Spec.ClusterIP = statsSvc.Spec.ClusterIP
-		in.Spec.Type = statsSvc.Spec.Type
-		in.Spec.ExternalIPs = statsSvc.Spec.ExternalIPs
-		in.Spec.LoadBalancerIP = statsSvc.Spec.LoadBalancerIP
-		in.Spec.LoadBalancerSourceRanges = statsSvc.Spec.LoadBalancerSourceRanges
-		in.Spec.ExternalTrafficPolicy = statsSvc.Spec.ExternalTrafficPolicy
-		in.Spec.HealthCheckNodePort = statsSvc.Spec.HealthCheckNodePort
-		in.Spec.SessionAffinityConfig = statsSvc.Spec.SessionAffinityConfig
+		if svcTemplate.Spec.ClusterIP != "" {
+			in.Spec.ClusterIP = svcTemplate.Spec.ClusterIP
+		}
+		in.Spec.Type = svcTemplate.Spec.Type
+		in.Spec.ExternalIPs = svcTemplate.Spec.ExternalIPs
+		in.Spec.LoadBalancerIP = svcTemplate.Spec.LoadBalancerIP
+		in.Spec.LoadBalancerSourceRanges = svcTemplate.Spec.LoadBalancerSourceRanges
+		in.Spec.ExternalTrafficPolicy = svcTemplate.Spec.ExternalTrafficPolicy
+		in.Spec.HealthCheckNodePort = svcTemplate.Spec.HealthCheckNodePort
+		in.Spec.SessionAffinityConfig = svcTemplate.Spec.SessionAffinityConfig
 		return in
 	}, metav1.PatchOptions{})
 }

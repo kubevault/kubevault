@@ -1318,8 +1318,8 @@ kmodules.xyz/resource-metadata v0.5.7 h1:5xjq5pEp5hZK+jdkY/4wGk/FMtTyvQ9LlErh7lQ
 kmodules.xyz/resource-metadata v0.5.7/go.mod h1:Jdi7zBXRwwFTOR0CxwKxqJhsDVIilhrgNipPjnKLyrs=
 kmodules.xyz/webhook-runtime v0.0.0-20210618013329-0accb929102b h1:aUZw6p8qeZN23DdjpzvseY/oXYwhXCzgvFjIc9ufuQc=
 kmodules.xyz/webhook-runtime v0.0.0-20210618013329-0accb929102b/go.mod h1:MFZFmJk9IXNHwq8JlF/mukwBDbopFQj4swaB2MWHc/U=
-kubevault.dev/apimachinery v0.0.0-20210712100328-d0fec76370e5 h1:54MqOQGSz6Duzdv1DdLdaquNPYjf7HY5x56z/A4+XIY=
-kubevault.dev/apimachinery v0.0.0-20210712100328-d0fec76370e5/go.mod h1:2ML9Ozq8jmBR6+n5edp34SX0CmvK0hUubIYg3WkMlPU=
+kubevault.dev/apimachinery v0.0.0-20210712145811-d3c97b39a68e h1:iJfvwLCrsuQc7agTBra7MEEbklNCxrvmngQ412nXB1M=
+kubevault.dev/apimachinery v0.0.0-20210712145811-d3c97b39a68e/go.mod h1:gxBp4hXTaizHcIZ/+fWjHjAfaDDPEc4h4sUv7XyM6Qo=
 modernc.org/cc v1.0.0/go.mod h1:1Sk4//wdnYJiUIxnW8ddKpaOJCF37yAdqYnkxUpaYxw=
 modernc.org/golex v1.0.0/go.mod h1:b/QX9oBD/LhixY6NDh+IdGv17hgB+51fET1i2kPSmvk=
 modernc.org/mathutil v1.0.0/go.mod h1:wU0vUrJsVWBZ4P6e7xtFJEhFSNsfRLJ8H458uRjg03k=

@@ -28,7 +28,6 @@ import (
 	"gomodules.xyz/pointer"
 	core "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/klog/v2"
 	core_util "kmodules.xyz/client-go/core/v1"
 )
 
@@ -134,8 +133,6 @@ func (o *Options) Apply(pt *core.PodTemplateSpec) error {
 // https://www.vaultproject.io/docs/configuration/storage/raft
 func (o *Options) GetStorageConfig() (string, error) {
 	var params []string
-
-	klog.Infoln("Generating storage config for raft backend")
 
 	if o.Path != "" {
 		params = append(params, fmt.Sprintf(`path = "%s"`, o.Path))

@@ -108,6 +108,7 @@ func TestGetConfig(t *testing.T) {
 storage "test"{
 	hi = "hello"
 	one = "two"
+
 }
 `
 	)
