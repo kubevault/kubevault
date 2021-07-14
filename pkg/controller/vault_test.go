@@ -164,7 +164,11 @@ storage "test"{
 			} else {
 				if assert.Nil(t, err) {
 					assert.Equal(t, test.vs.ConfigSecretName(), cm.Name)
-					assert.Equal(t, test.exptConfigMData, cm.StringData)
+					mss := make(map[string]string, len(cm.Data))
+					for k, v := range cm.Data {
+						mss[k] = string(v)
+					}
+					assert.Equal(t, test.exptConfigMData, mss)
 				}
 			}
 		})

@@ -630,10 +630,7 @@ func (v *vaultSrv) GetConfig() (*core.Secret, error) {
 			Labels:    v.vs.OffshootLabels(),
 		},
 		Data: map[string][]byte{
-			"vault.hcl": []byte(cfgData),
-		},
-		StringData: map[string]string{
-			filepath.Base(util.VaultConfigFile): cfgData,
+			filepath.Base(util.VaultConfigFile): []byte(cfgData),
 		},
 	}
 	return secret, nil
