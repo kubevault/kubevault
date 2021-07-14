@@ -779,7 +779,7 @@ func (v *vaultSrv) GetService() *core.Service {
 		return nil
 	}
 
-	vsTemplate := api.GetServiceTemplate(v.vs.Spec.ServiceTemplates, api.VaultServerServiceVault)
+	vsTemplate := v.vs.GetServiceTemplate(api.VaultServerServiceVault)
 
 	return &core.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -818,7 +818,7 @@ func (v *vaultSrv) GetService() *core.Service {
 
 func (v *vaultSrv) GetGoverningService() *core.Service {
 
-	inSvc := api.GetServiceTemplate(v.vs.Spec.ServiceTemplates, api.VaultServerServiceInternal)
+	inSvc := v.vs.GetServiceTemplate(api.VaultServerServiceInternal)
 
 	return &core.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1071,7 +1071,7 @@ func (v *vaultSrv) GetContainer() core.Container {
 		container.Env = core_util.UpsertEnvVars(container.Env,
 			core.EnvVar{
 				Name:  EnvVaultCACert,
-				Value: v.vs.CertificateMountPath(conapi.TLSCACertKey),
+				Value: filepath.Join(v.vs.CertificateMountPath(api.VaultServerCert), conapi.TLSCACertKey),
 			})
 	}
 

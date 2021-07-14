@@ -43,7 +43,7 @@ func (c *VaultController) ensureStatsService(vs *api.VaultServer) (*core.Service
 	return core_util.CreateOrPatchService(context.TODO(), c.kubeClient, meta, func(in *core.Service) *core.Service {
 		in.Labels = vs.StatsLabels()
 		core_util.EnsureOwnerReference(in, metav1.NewControllerRef(vs, api.SchemeGroupVersion.WithKind(api.ResourceKindVaultServer)))
-		svcTemplate := api.GetServiceTemplate(vs.Spec.ServiceTemplates, api.VaultServerServiceStats)
+		svcTemplate := vs.GetServiceTemplate(api.VaultServerServiceStats)
 		in.Annotations = meta_util.OverwriteKeys(in.Annotations, svcTemplate.Annotations)
 		in.Spec.Selector = vs.OffshootSelectors()
 		monSpec := vs.Spec.Monitor

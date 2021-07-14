@@ -231,7 +231,8 @@ func checkReplicas(lister appslister.StatefulSetNamespaceLister, selector labels
 }
 
 // GetServiceTemplate returns a pointer to the desired serviceTemplate referred by "alias". Otherwise, it returns nil.
-func GetServiceTemplate(templates []NamedServiceTemplateSpec, alias ServiceAlias) ofst.ServiceTemplateSpec {
+func (vs *VaultServer) GetServiceTemplate(alias ServiceAlias) ofst.ServiceTemplateSpec {
+	templates := vs.Spec.ServiceTemplates
 	for i := range templates {
 		c := templates[i]
 		if c.Alias == alias {
