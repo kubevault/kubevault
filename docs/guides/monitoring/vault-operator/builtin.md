@@ -205,7 +205,7 @@ In `relabel_configs` section we added `<operator_name>.<namespace>.svc:443` as t
 Let's create the ConfigMap we have shown above,
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-operator/prom-server-conf.yaml
+$ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-operator/prom-server-conf.yaml
 configmap/prometheus-config created
 ```
 
@@ -270,7 +270,7 @@ Notice that, we have mounted vault-operator-apiserver-cert secret as a volume at
 Now, let's create the deployment,
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-operator/prom-builtin-deployment.yaml
+$ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-operator/prom-builtin-deployment.yaml
 deployment.apps "prometheus" deleted
 ```
 
@@ -300,7 +300,7 @@ Now, we can access the dashboard at localhost:9090. Open [http://localhost:9090]
 
 To uninstall Prometheus server follow [this](https://github.com/appscode/third-party-tools/blob/master/monitoring/prometheus/builtin/README.md#cleanup)
 
-To uninstall KubeVault operator follow [this](https://github.com/kubevault/docs/blob/master/docs/setup/operator/uninstall.md#uninstall-vault-operator)
+To uninstall KubeVault operator follow [this](https://github.com/kubevault/kubevault/blob/master/docs/setup/operator/uninstall.md#uninstall-vault-operator)
 
 To cleanup the Kubernetes resources created by this tutorial, run:
 

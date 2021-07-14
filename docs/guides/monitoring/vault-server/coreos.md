@@ -62,7 +62,7 @@ Here,
 Now create Vault server with the monitoring spec
 
 ```console
-$ kubectl create -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/vault-server-coreos.yaml
+$ kubectl create -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/vault-server-coreos.yaml
 
 ```
 

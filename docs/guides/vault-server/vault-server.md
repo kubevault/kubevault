@@ -70,7 +70,7 @@ spec:
 Deploy VaultServerVersion `1.2.1`:
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/guides/vault-server/vaultserverversion.yaml
+$ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/guides/vault-server/vaultserverversion.yaml
 vaultserverversion.catalog.kubevault.com/1.2.1 created
 ```
 
@@ -105,7 +105,7 @@ Here we are using `inmem` backend which will lose data when Vault server pods ar
 Deploy `VaultServer`:
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/guides/vault-server/vaultserver.yaml
+$ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/guides/vault-server/vaultserver.yaml
 vaultserver.kubevault.com/vault created
 ```
 

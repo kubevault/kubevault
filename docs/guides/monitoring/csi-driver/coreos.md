@@ -142,7 +142,7 @@ Here, `spec.serviceMonitorSelector` is used to select the ServiceMonitor crd tha
 Let's create the Prometheus object we have shown above,
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/csi-driver/prom-coreos-crd.yaml
+$ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/csi-driver/prom-coreos-crd.yaml
 prometheus.monitoring.coreos.com/prometheus created
 ```
 
@@ -186,7 +186,7 @@ Now, we can access the dashboard at localhost:9090. Open [http://localhost:9090]
 
 ## Cleaning up
 
-To uninstall Vault CSI driver follow [this](https://github.com/kubevault/docs/blob/master/docs/setup/csi-driver/uninstall.md#uninstall-vault-csi-driver).
+To uninstall Vault CSI driver follow [this](https://github.com/kubevault/kubevault/blob/master/docs/setup/csi-driver/uninstall.md#uninstall-vault-csi-driver).
 
 To cleanup the Kubernetes resources created by this tutorial, run:
 

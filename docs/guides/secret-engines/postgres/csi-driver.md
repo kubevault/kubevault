@@ -34,7 +34,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engines/postgres) folder in GitHub repository [KubeVault/docs](https://github.com/kubevault/docs)
+> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engines/postgres) folder in GitHub repository [KubeVault/docs](https://github.com/kubevault/kubevault)
 
 ## Vault Server
 

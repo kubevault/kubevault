@@ -337,7 +337,7 @@ Look at the `tls_config` field of `vault-apiservers` job. We have provided certi
 Let's create the ConfigMap we have shown above,
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/csi-driver/prom-builtin-conf.yaml
+$ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/csi-driver/prom-builtin-conf.yaml
 configmap/prometheus-config created
 
 ```
@@ -403,7 +403,7 @@ Notice that, we have mounted csi-vault-apiserver-cert secret as a volume at `/et
 Now, let's create the deployment,
 
 ```console
-$ kubectl apply -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/csi-driver/prom-builtin-deployment.yaml
+$ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/csi-driver/prom-builtin-deployment.yaml
 deployment.apps "prometheus" deleted
 ```
 
@@ -433,7 +433,7 @@ Now, we can access the dashboard at localhost:9090. Open [http://localhost:9090]
 
 To uninstall Prometheus server follow [this](https://github.com/appscode/third-party-tools/blob/master/monitoring/prometheus/builtin/README.md#cleanup)
 
-To uninstall Vault CSI driver follow [this](https://github.com/kubevault/docs/blob/master/docs/setup/csi-driver/uninstall.md#uninstall-vault-csi-driver)
+To uninstall Vault CSI driver follow [this](https://github.com/kubevault/kubevault/blob/master/docs/setup/csi-driver/uninstall.md#uninstall-vault-csi-driver)
 
 To cleanup the Kubernetes resources created by this tutorial, run:
 

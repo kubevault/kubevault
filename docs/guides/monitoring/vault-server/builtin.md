@@ -72,7 +72,7 @@ data:
 You can create above ConfigMap by running
 
 ```console
-$ kubectl create -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/prom-server-conf.yaml
+$ kubectl create -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/prom-server-conf.yaml
 configmap/prometheus-server-conf created
 ```
 
@@ -120,7 +120,7 @@ Here,
 Run the following command to create it.
 
 ```console
-$ kubectl create -f https://github.com/kubevault/docs/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/vault-server-builtin.yaml
+$ kubectl create -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/vault-server-builtin.yaml
 vaultserver.kubevault.com/example created
 ```
 
