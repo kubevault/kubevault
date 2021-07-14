@@ -39,6 +39,9 @@ spec:
   version: "1.2.0"
   backend:
     inmem: {}
+  tls:
+    certificates:
+      - alias: ca
   unsealer:
     secretShares: 4
     secretThreshold: 2

@@ -35,7 +35,7 @@ jobs:
         id: kind
         uses: engineerd/setup-kind@v0.5.0
         with:
-          version: v0.10.0
+          version: v0.11.1
 
       - name: Prepare cluster for testing
         id: local-path
@@ -45,11 +45,12 @@ jobs:
           kubectl get nodes
           echo
           echo "install helm 3"
-          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash -s -- -v v3.6.2
           echo "install kubevault-crds chart"
           helm repo add appscode https://charts.appscode.com/stable/
           helm repo update
-          helm install kubevault-crds appscode/kubevault-crds
+          # helm install kubevault-crds appscode/kubevault-crds
+          kubectl create -f https://github.com/kubevault/installer/raw/master/crds/kubevault-crds.yaml
           helm install kmodules-crds appscode/kmodules-crds
 
       - name: Check codespan schema
