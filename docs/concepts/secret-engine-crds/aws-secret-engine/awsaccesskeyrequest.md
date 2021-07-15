@@ -50,10 +50,11 @@ spec:
       namespace: demo
 status:
   conditions:
-  - lastUpdateTime: "2019-11-13T12:18:07Z"
+  - lastTransitionTime: "2019-11-13T12:18:07Z"
     message: This was approved by kubectl vault approve awsaccesskeyrequest
     reason: KubectlApprove
     type: Approved
+    status: True
   lease:
     duration: 1h0m0s
     id: aws/creds/k8s.-.demo.aws-role/X9dCjtiQCykbuJ7UmzM64xfh
