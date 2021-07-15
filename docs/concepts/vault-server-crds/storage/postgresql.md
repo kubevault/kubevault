@@ -20,7 +20,7 @@ In PostgreSQL storage backend, Vault data will be stored in [PostgreSQL](https:/
 apiVersion: kubevault.com/v1alpha1
 kind: VaultServer
 metadata:
-  name: vault-with-postgreSQL
+  name: vault-with-postgresql
   namespace: demo
 spec:
   replicas: 1
