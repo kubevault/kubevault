@@ -4,7 +4,7 @@ metadata:
   name: demo-policy
   namespace: demo
 spec:
-  ref:
+  vaultRef:
     name: vault-app
     namespace: demo
   policyDocument: |
