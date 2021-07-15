@@ -33,8 +33,8 @@ A sample `PostgresRole` object is shown below:
 apiVersion: engine.kubevault.com/v1alpha1
 kind: PostgresRole
 metadata:
-  name: <name>
-  namespace: <namespace>
+  name: pg-role
+  namespace: demo
 spec:
   vaultRef:
     name: vault-app
