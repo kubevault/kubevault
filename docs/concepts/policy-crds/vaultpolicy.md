@@ -33,6 +33,7 @@ apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
 metadata:
   name: secret-admin
+  namespace: default
 spec:
   vaultRef:
     name: vault
