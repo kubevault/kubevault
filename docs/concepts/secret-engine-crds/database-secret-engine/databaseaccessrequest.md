@@ -50,10 +50,11 @@ spec:
       namespace: demo
 status:
   conditions:
-  - lastUpdateTime: "2019-11-18T06:41:57Z"
+  - lastTransitionTime: "2019-11-18T06:41:57Z"
     message: This was approved by kubectl vault approve databaseaccessrequest
     reason: KubectlApprove
     type: Approved
+    status: True
   lease:
     duration: 1h0m0s
     id: database/creds/k8s.-.demo.mdb-role/ni3TCo2HkSwCUb8kmQuvIDdx
