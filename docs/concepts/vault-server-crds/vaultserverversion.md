@@ -45,7 +45,7 @@ spec:
     image: kubevault/vault-unsealer:v0.2.0
   vault:
     image: vault:1.7.2
-  version: 1.7.2
+  version: "1.7.2"
 
 ```
 
@@ -76,7 +76,7 @@ spec:
 ```yaml
 spec:
   unsealer:
-    image: kubevault/vault-unsealer: 0.2.0
+    image: kubevault/vault-unsealer:0.2.0
 ```
 
 #### spec.exporter.image
@@ -86,5 +86,5 @@ spec:
 ```yaml
 spec:
   exporter:
-    image: kubevault/vault-exporter: 0.1.0
+    image: kubevault/vault-exporter:0.1.0
 ```
