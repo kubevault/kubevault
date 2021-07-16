@@ -24,7 +24,7 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: "1.0.1"
+  version: "1.2.0"
   serviceTemplates:
   - alias: vault
     metadata:
