@@ -37,15 +37,15 @@ VaultServerVersion `.spec` contains image information.
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: 0.11.1
+  name: 1.2.0
 spec:
   vault:
-    image: vault:0.11.1
+    image: vault:1.2.0
   exporter:
     image: kubevault/vault-exporter:0.1.0
   unsealer:
     image: kubevault/vault-unsealer:0.2.0
-  version: 0.11.1
+  version: 1.2.0
 ```
 
 `.spec` contains following fields:
