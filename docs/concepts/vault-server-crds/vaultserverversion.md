@@ -33,7 +33,6 @@ spec:
   vault:
     image: vault:1.2.0
   version: 1.2.0
-  deprecated: false
 ```
 
 ### VaultServerVersion Spec
@@ -53,7 +52,6 @@ spec:
   vault:
     image: vault:1.2.0
   version: 1.2.0
-  deprecated: false
 ```
 
 `.spec` contains following fields:
