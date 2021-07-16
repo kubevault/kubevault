@@ -32,7 +32,7 @@ spec:
     image: kubevault/vault-unsealer:v0.3.0
   vault:
     image: vault:1.2.0
-  version: 1.2.0
+  version: "1.2.0"
 ```
 
 ### VaultServerVersion Spec
@@ -51,7 +51,7 @@ spec:
     image: kubevault/vault-unsealer:v0.3.0
   vault:
     image: vault:1.2.0
-  version: 1.2.0
+  version: "1.2.0"
 
 ```
 
