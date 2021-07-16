@@ -26,10 +26,13 @@ kind: VaultServerVersion
 metadata:
   name: <name>
 spec:
-  version: ...
-  exportter: ...
-  vault: ...
-  unsealer: ...
+  exporter:
+    image: kubevault/vault-exporter:v0.1.0
+  unsealer:
+    image: kubevault/vault-unsealer:v0.2.0
+  vault:
+    image: vault:1.7.2
+  version: "1.7.2"
 ```
 
 ### VaultServerVersion Spec
