@@ -26,7 +26,7 @@ kind: VaultServerVersion
 metadata:
   name: <name>
 spec:
-  ...
+  version: ...
 ```
 
 ### VaultServerVersion Spec
