@@ -45,7 +45,7 @@ jobs:
           kubectl get nodes
           echo
           echo "install helm 3"
-          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash -s -- -v v3.6.2
+          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
           echo "install kubevault-crds chart"
           helm repo add appscode https://charts.appscode.com/stable/
           helm repo update
