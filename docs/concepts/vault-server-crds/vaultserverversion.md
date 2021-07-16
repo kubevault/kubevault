@@ -24,7 +24,7 @@ Using a separate CRD for specifying respective docker images allows us to modify
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: <name>
+  name: 1.7.2
 spec:
   exporter:
     image: kubevault/vault-exporter:v0.1.0
@@ -32,7 +32,7 @@ spec:
     image: kubevault/vault-unsealer:v0.2.0
   vault:
     image: vault:1.7.2
-  version: "1.7.2"
+  version: 1.7.2
 ```
 
 ### VaultServerVersion Spec
@@ -51,7 +51,7 @@ spec:
     image: kubevault/vault-unsealer:v0.2.0
   vault:
     image: vault:1.7.2
-  version: "1.7.2"
+  version: 1.7.2
 
 ```
 
