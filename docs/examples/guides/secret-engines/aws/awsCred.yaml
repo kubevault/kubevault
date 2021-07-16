@@ -4,5 +4,5 @@ metadata:
   name: aws-cred
   namespace: demo
 data:
-  access_key: QUtJQVM...=
-  secret_key: bHFvRV....==
+  access_key: ZXlKMGVYQWlPaUcFpDSTZJa2hDQ0o5LmV5SmhkV1FpT2lKpPaTh2YzNSekxuZHBibVJ2ZDNNdWJtVjBM
+  secret_key: ZXlKMGVYQWlPaUcFpDSTZJa2hDQ0o5LmV5SmhkV1FpT2lKpPaTh2YzNSekxuZHBibVJ2ZDNNdWJtVjBM
