@@ -42,9 +42,9 @@ spec:
   vault:
     image: vault:0.11.1
   exporter:
-    image: kubevault/vault-exporter: 0.1.0
+    image: kubevault/vault-exporter:0.1.0
   unsealer:
-    image: kubevault/vault-unsealer: 0.2.0
+    image: kubevault/vault-unsealer:0.2.0
   version: 0.11.1
 ```
 
