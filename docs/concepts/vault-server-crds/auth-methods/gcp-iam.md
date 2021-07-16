@@ -71,5 +71,5 @@ metadata:
   namespace: demo
 type: kubevault.com/gcp
 data:
-  sa.json: ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb..........
+  sa.json: ZXlKMGVYQWlPaUcFpDSTZJa2hDQ0o5LmV5SmhkV1FpT2lKpPaTh2YzNSekxuZHBibVJ2ZDNNdWJtVjBM
 ```
