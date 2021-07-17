@@ -22,7 +22,7 @@ Using a separate CRD for specifying respective docker images allows us to modify
 
 ```yaml
 apiVersion: catalog.kubevault.com/v1alpha1
-kind: VaultServer
+kind: VaultServerVersion
 metadata:
   name: '1.2.0'
 spec:
@@ -41,7 +41,7 @@ VaultServerVersion `.spec` contains image information.
 
 ```yaml
 apiVersion: catalog.kubevault.com/v1alpha1
-kind: VaultServer
+kind: VaultServerVersion
 metadata:
   name: '1.7.2'
 spec:
