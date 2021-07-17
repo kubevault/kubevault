@@ -26,13 +26,13 @@ kind: VaultServerVersion
 metadata:
   name: '1.2.0'
 spec:
+  version: 1.2.0
   exporter:
     image: kubevault/vault-exporter:v0.1.0
   unsealer:
     image: kubevault/vault-unsealer:v0.3.0
   vault:
     image: vault:1.2.0
-  version: 1.2.0
 ```
 
 ### VaultServerVersion Spec
@@ -45,14 +45,13 @@ kind: VaultServerVersion
 metadata:
   name: '1.7.2'
 spec:
+  version: 1.7.2
   exporter:
     image: kubevault/vault-exporter:v0.1.0
   unsealer:
     image: kubevault/vault-unsealer:v0.3.0
   vault:
     image: vault:1.7.2
-  version: 1.7.2
-
 ```
 
 `.spec` contains following fields:
