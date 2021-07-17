@@ -26,7 +26,6 @@ kind: VaultServerVersion
 metadata:
   name: '1.2.0'
 spec:
-  version: v1.2.0
   exporter:
     image: kubevault/vault-exporter:v0.1.0
   unsealer:
@@ -45,7 +44,6 @@ kind: VaultServerVersion
 metadata:
   name: '1.7.2'
 spec:
-  version: v1.7.2
   exporter:
     image: kubevault/vault-exporter:v0.1.0
   unsealer:
