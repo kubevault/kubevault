@@ -288,9 +288,9 @@ metadata:
   name: tls
   namespace: demo
 data:
-  ca.crt: <tls_ca_file>
-  client.crt: <tls_cert_file>
-  client.key: <tls_key_file>
+  ca.crt: eyJtc2ciOiJleGFtcGxlIn0=
+  client.crt: eyJtc2ciOiJleGFtcGxlIn0=
+  client.key: eyJtc2ciOiJleGFtcGxlIn0=
 ```
 
 ### consul.tlsMinVersion

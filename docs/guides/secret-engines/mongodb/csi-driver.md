@@ -151,8 +151,8 @@ spec:
 ---
 apiVersion: v1
 data:
-  username: cm9vdA== # base64 encoded database username
-  password: cm9vdA== # base64 encoded database password
+  username: eyJtc2ciOiJleGFtcGxlIn0= # base64 encoded database username
+  password: eyJtc2ciOiJleGFtcGxlIn0= # base64 encoded database password
 kind: Secret
 metadata:
   name: mongo-user-cred
