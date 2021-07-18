@@ -264,21 +264,20 @@ Deploy `secret-policy.yaml`:
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
 metadata:
-  name: secret-admin
+  name: custom-policy
   namespace: demo
 spec:
   vaultRef:
     name: vault
-  vaultPolicyName: secret-admin
-  policy:
-    path:
-      secret/*:
-        capabilities:
-        - create
-        - read
-        - update
-        - delete
-        - list
+  policyDocument: |
+    path "sys/policy" {
+      capabilities = ["read", "list", "create", "update"]
+    }
+
+    path "sys/policy/*" {
+      capabilities = ["read"]
+    }
+
 ```
 
 ```console
