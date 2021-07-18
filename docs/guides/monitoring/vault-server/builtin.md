@@ -86,14 +86,21 @@ To enable monitoring, configure `spec.monitor` field in a `VaultServer` custom r
 apiVersion: kubevault.com/v1alpha1
 kind: VaultServer
 metadata:
-  name: example
+  name: vault
   namespace: demo
 spec:
   replicas: 1
-  version: "1.2.0"
-  serviceTemplate:
+  version: 1.2.0
+  serviceTemplates:
+  - alias: vault
+    metadata:
+      annotations:
+        name: vault  
     spec:
       type: NodePort
+  - alias: stats
+    spec:
+      type: ClusterIP
   backend:
     inmem: {}
   unsealer:
@@ -103,11 +110,11 @@ spec:
       kubernetesSecret:
         secretName: vault-keys
   monitor:
-    agent: prometheus.io/builtin
-    prometheus:
-      port: 9102
-      interval: 10s
-
+      agent: prometheus.io
+      prometheus:
+        exporter:
+          resources: {}
+  terminationPolicy: "WipeOut"
 ```
 
 Here,
