@@ -20,7 +20,7 @@ In DynamoDB storage backend, Vault data will be stored in [DynamoDB](https://aws
 apiVersion: kubevault.com/v1alpha1
 kind: VaultServer
 metadata:
-  name: vault-with-dynamoDB
+  name: vault-with-dynamodb
   namespace: demo
 spec:
   replicas: 1

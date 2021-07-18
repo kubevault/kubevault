@@ -130,7 +130,7 @@ metadata:
   name: gcp-cred
   namespace: demo
 data:
-  sa.json: ewogICJ0e...== ## base64 encoded google service account credential
+  sa.json: eyJtc2ciOiJleGFtcGxlIn0= ## base64 encoded google service account credential
 ```
 
 Let's deploy SecretEngine:

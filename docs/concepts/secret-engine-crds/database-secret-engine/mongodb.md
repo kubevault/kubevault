@@ -41,6 +41,9 @@ spec:
   databaseRef:
     name: mongodb-app
     namespace: demo
+  creationStatements:
+    - "statement-0"
+    - "statement-1"
 status:
   observedGeneration: 1
   phase: Success

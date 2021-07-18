@@ -52,10 +52,11 @@ spec:
       namespace: demo
 status:
   conditions:
-  - lastUpdateTime: "2019-11-14T09:21:49Z"
+  - lastTransitionTime: "2019-11-14T09:21:49Z"
     message: This was approved by kubectl vault approve gcpaccesskeyrequest
     reason: KubectlApprove
     type: Approved
+    status: True
   lease:
     duration: 0s
   secret:

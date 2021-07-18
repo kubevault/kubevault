@@ -3,11 +3,10 @@ kind: VaultServerVersion
 metadata:
   name: 1.2.0
 spec:
-  version: 1.2.0
-  deprecated: false
-  vault:
-    image: vault:1.2.0
+  exporter:
+    image: kubevault/vault-exporter:v0.1.0
   unsealer:
     image: kubevault/vault-unsealer:v0.3.0
-  exporter:
-    image: kubevault/vault-exporter:0.1.0
+  vault:
+    image: vault:1.2.0
+  version: 1.2.0

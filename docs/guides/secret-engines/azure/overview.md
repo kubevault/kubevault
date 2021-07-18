@@ -107,10 +107,10 @@ metadata:
   name: azure-cred
   namespace: demo
 data:
-  client-secret: TU1hRjdRZWVzTG...=
-  subscription-id: MWJmYzlmNjYt....
-  client-id: MmI4NzFkNGEtNzU3......
-  tenant-id: NzcyMjY4ZTUtZDk0MC....
+  client-secret: eyJtc2ciOiJleGFtcGxlIn0=
+  subscription-id: eyJtc2ciOiJleGFtcGxlIn0=
+  client-id: eyJtc2ciOiJleGFtcGxlIn0=
+  tenant-id: eyJtc2ciOiJleGFtcGxlIn0=
 ```
 
 Let's deploy SecretEngine:

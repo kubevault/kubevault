@@ -56,15 +56,15 @@ Now you can use them or deploy your own version by yourself:
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: 1.2.1
+  name: 1.2.2
 spec:
-  vault:
-    image: vault:1.2.1
   exporter:
-    image: kubevault/vault-exporter:0.1.0
+    image: kubevault/vault-exporter:v0.1.0
   unsealer:
     image: kubevault/vault-unsealer:v0.3.0
-  version: 1.2.1
+  vault:
+    image: vault:1.2.2
+  version: 1.2.2
 ```
 
 Deploy VaultServerVersion `1.2.1`:
@@ -87,7 +87,11 @@ metadata:
 spec:
   replicas: 1
   version: "1.2.3"
-  serviceTemplate:
+  serviceTemplates:
+  - alias: vault
+    metadata:
+      annotations:
+        name: vault
     spec:
       type: NodePort
   backend:

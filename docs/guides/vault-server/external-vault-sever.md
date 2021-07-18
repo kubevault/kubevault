@@ -130,7 +130,7 @@ metadata:
 spec:
   clientConfig:
     url: https://demo-vault-server.com ## remote vault server url
-    caBundle: LS0tLS1CRU... ## base64 encoded vault server ca.crt
+    caBundle: eyJtc2ciOiJleGFtcGxlIn0= ## base64 encoded vault server ca.crt
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
     kind: VaultServerConfiguration
@@ -150,7 +150,7 @@ spec:
       name: vault
       port: 8200
       scheme: HTTPS
-    caBundle: LS0tLS1CRUd... ## base64 encoded vault server ca.crt
+    caBundle: eyJtc2ciOiJleGFtcGxlIn0= ## base64 encoded vault server ca.crt
 ```
 
 Create AppBinding:
@@ -264,21 +264,20 @@ Deploy `secret-policy.yaml`:
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
 metadata:
-  name: secret-admin
+  name: custom-policy
   namespace: demo
 spec:
   vaultRef:
     name: vault
-  vaultPolicyName: secret-admin
-  policy:
-    path:
-      secret/*:
-        capabilities:
-        - create
-        - read
-        - update
-        - delete
-        - list
+  policyDocument: |
+    path "sys/policy" {
+      capabilities = ["read", "list", "create", "update"]
+    }
+
+    path "sys/policy/*" {
+      capabilities = ["read"]
+    }
+
 ```
 
 ```console

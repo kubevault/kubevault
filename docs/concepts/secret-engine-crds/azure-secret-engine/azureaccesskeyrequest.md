@@ -52,10 +52,11 @@ spec:
       namespace: demo
 status:
   conditions:
-  - lastUpdateTime: "2019-11-14T09:21:49Z"
+  - lastTransitionTime: "2019-11-14T09:21:49Z"
     message: This was approved by kubectl vault approve azureaccesskeyrequest
     reason: KubectlApprove
     type: Approved
+    status: True
   lease:
     duration: 1h0m0s
     id: azure/creds/k8s.-.demo.azure-role/FJVEWUW9NpGlFOdIIMd900Zr

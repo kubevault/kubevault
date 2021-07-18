@@ -24,17 +24,18 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: "1.0.1"
-  serviceTemplate:
+  version: "1.2.0"
+  serviceTemplates:
+  - alias: vault
+    metadata:
+      annotations:
+        name: vault
     spec:
       type: NodePort
   backend:
     consul:
       address: "http://my-service.demo.svc:8500"
       path: "vault"
-  configSource:
-    configMap:
-      name: extra-config
   unsealer:
     secretShares: 4
     secretThreshold: 2
@@ -287,9 +288,9 @@ metadata:
   name: tls
   namespace: demo
 data:
-  ca.crt: <tls_ca_file>
-  client.crt: <tls_cert_file>
-  client.key: <tls_key_file>
+  ca.crt: eyJtc2ciOiJleGFtcGxlIn0=
+  client.crt: eyJtc2ciOiJleGFtcGxlIn0=
+  client.key: eyJtc2ciOiJleGFtcGxlIn0=
 ```
 
 ### consul.tlsMinVersion

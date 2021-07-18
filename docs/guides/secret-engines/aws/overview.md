@@ -111,8 +111,8 @@ metadata:
   name: aws-cred
   namespace: demo
 data:
-  access_key: QUtJQVdT...= # base64 encoded aws access key id
-  secret_key: bHFvRVlv...== # base64 encoded aws secret access key
+  access_key: eyJtc2ciOiJleGFtcGxlIn0= # base64 encoded aws access key id
+  secret_key: eyJtc2ciOiJleGFtcGxlIn0= # base64 encoded aws secret access key
 ```
 
 Let's deploy SecretEngine:
