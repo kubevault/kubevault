@@ -87,7 +87,11 @@ metadata:
 spec:
   replicas: 1
   version: "1.2.3"
-  serviceTemplate:
+  serviceTemplates:
+  - alias: vault
+    metadata:
+      annotations:
+        name: vault
     spec:
       type: NodePort
   backend:
