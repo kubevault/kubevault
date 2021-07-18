@@ -10,7 +10,7 @@ spec:
     spec:
       type: NodePort
   backend:
-    inmem: true
+    inmem: {}
   unsealer:
     secretShares: 4
     secretThreshold: 2
