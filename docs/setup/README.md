@@ -20,9 +20,6 @@ Setup contains instructions for installing the Vault operator and Vault CSI driv
 - Vault operator
   - [Install Vault operator](/docs/setup/operator/install.md). Installation instructions for Vault operator.
   - [Uninstall Vault operator](/docs/setup/operator/uninstall.md). Instructions for uninstallating Vault operator.
-- Vault CSI driver
-  - [Install Vault CSI driver](/docs/setup/csi-driver/install.md). Installation instructions for Vault CSI driver.
-  - [Uninstall Vault CSI driver](/docs/setup/csi-driver/uninstall.md). Instructions for uninstallating Vault CSI driver.
 - Kubectl Plugin
   - [Install Kubectl Plugin](/docs/setup/cli/install.md). Installation instructions for KubeVault `kubectl` plugin.
 - Developer Guide
