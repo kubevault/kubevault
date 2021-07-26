@@ -13,6 +13,7 @@ url: /docs/{{ .version }}/setup/
 aliases:
   - /docs/{{ .version }}/setup/README/
 ---
+
 # Setup
 
 Setup contains instructions for installing the Vault operator and Vault CSI driver in Kubernetes.
@@ -22,6 +23,3 @@ Setup contains instructions for installing the Vault operator and Vault CSI driv
   - [Uninstall Vault operator](/docs/setup/operator/uninstall.md). Instructions for uninstallating Vault operator.
 - Kubectl Plugin
   - [Install Kubectl Plugin](/docs/setup/cli/install.md). Installation instructions for KubeVault `kubectl` plugin.
-- Developer Guide
-  - [Overview](/docs/setup/developer-guide/overview.md). Outlines everything you need to know from setting up your dev environment to how to build and test Vault operator.
-  - [Release process](/docs/setup/developer-guide/release.md). Steps for releasing a new version of Vault operator.
