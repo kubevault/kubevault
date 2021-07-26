@@ -78,5 +78,3 @@ You can enable monitoring for the KubeVault operator while installing or upgradi
 - Learn how to use Grafana dashboard to visualize monitoring data from [here](/docs/guides/monitoring/vault-server/grafana.md).
 - Learn how to monitor KubeVault operator using built-in Prometheus from [here](/docs/guides/monitoring/vault-operator/builtin.md).
 - Learn how to monitor KubeVault operator using CoreOS Prometheus operator from [here](/docs/guides/monitoring/vault-operator/coreos.md).
-- Learn how to monitor Vault CSI driver using built-in Prometheus from [here](/docs/guides/monitoring/csi-driver/builtin.md).
-- Learn how to monitor Vault CSI driver using CoreOS Prometheus operator from [here](/docs/guides/monitoring/csi-driver/coreos.md).

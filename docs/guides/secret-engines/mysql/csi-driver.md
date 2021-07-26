@@ -10,7 +10,7 @@ menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
-> New to KubeVault? Please start [here](/docs/concepts/README.md).
+{{< notice type="warning" message="KubeVault's built-in CSI driver has been removed in favor of [Secrets Store CSI driver for Kubernetes secrets](https://github.com/kubernetes-sigs/secrets-store-csi-driver)." >}}
 
 # Mount MySQL/MariaDB credentials using CSI Driver
 
@@ -25,7 +25,7 @@ Server Version: v1.14.0
 Before you begin:
 
 - Install KubeVault operator in your cluster from [here](/docs/setup/operator/install.md).
-- Install KubeVault CSI driver in your cluster from [here](/docs/setup/csi-driver/install.md).
+- Install Secrets Store CSI driver for Kubernetes secrets in your cluster from [here](https://secrets-store-csi-driver.sigs.k8s.io/getting-started/installation.html).
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
