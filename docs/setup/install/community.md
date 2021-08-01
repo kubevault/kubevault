@@ -122,8 +122,9 @@ To check if KubeVault operator pods have started, run the following command:
 
 ```bash
 $ watch kubectl get pods --all-namespaces -l "app.kubernetes.io/instance=kubevault"
-NAMESPACE     NAME                                        READY   STATUS    RESTARTS   AGE
-kubevault   kubevault-kubevault-community-7f4dc7c49c-l6ddf    1/1     Running   0          48s
+
+NAMESPACE   NAME                                            READY   STATUS    RESTARTS   AGE
+kubevault   kubevault-kubevault-operator-5d5cc4c7c9-mj5d5   1/1     Running   0          2m18s
 ```
 
 Once the operator pod is running, you can cancel the above command by typing `Ctrl+C`.

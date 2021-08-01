@@ -26,23 +26,20 @@ In addition, if your GKE cluster is a [private cluster](https://cloud.google.com
 
 ## Detect KubeVault version
 
-To detect KubeVault version, exec into the operator pod and run `kubevault version` command.
+To detect KubeVault version, exec into the operator pod and run `vault-operator version` command.
 
 ```bash
 $ POD_NAMESPACE=kubevault
-$ POD_NAME=$(kubectl get pods -n $POD_NAMESPACE -l app.kubernetes.io/name=kubevault -o jsonpath={.items[0].metadata.name})
-$ kubectl exec $POD_NAME -c operator -n $POD_NAMESPACE -- /kubevault version
+$ POD_NAME=$(kubectl get pods -n $POD_NAMESPACE -l app.kubernetes.io/instance=kubevault -o jsonpath={.items[0].metadata.name})
+$ kubectl exec $POD_NAME -c operator -n $POD_NAMESPACE -- /vault-operator version
 
 Version = {{< param "info.version" >}}
 VersionStrategy = tag
-Os = alpine
-Arch = amd64
-CommitHash = 85b0f16ab1b915633e968aac0ee23f877808ef49
-GitBranch = release-0.5
 GitTag = {{< param "info.version" >}}
-CommitTimestamp = 2020-08-10T05:24:23
-
-$ kubectl exec -it $POD_NAME -c operator -n $POD_NAMESPACE restic version
-restic 0.9.6
-compiled with go1.9 on linux/amd64
+GitBranch = HEAD
+CommitHash = ad15b48a5ace19e0ec79934f7ebce709fb6dba59
+CommitTimestamp = 2021-07-31T05:39:40
+GoVersion = go1.16.6
+Compiler = gcc
+Platform = linux/amd64
 ```

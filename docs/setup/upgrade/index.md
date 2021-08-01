@@ -150,7 +150,7 @@ helm upgrade kubevault -n kubevault appscode/kubevault \
 ```bash
 helm template kubevault -n kubevault appscode/kubevault \
   --set global.skipCleaner=true \
-  --show-only appscode/kubevault-community/templates/license.yaml \
+  --show-only appscode/kubevault-operator/templates/license.yaml \
   --set-file global.license=/path/to/new/license.txt | kubectl apply -f -
 ```
 
@@ -159,7 +159,7 @@ helm template kubevault -n kubevault appscode/kubevault \
 ```bash
 helm template kubevault appscode/kubevault -n kubevault \
   --set global.skipCleaner=true \
-  --show-only appscode/kubevault-enterprise/templates/license.yaml \
+  --show-only appscode/kubevault-operator/templates/license.yaml \
   --set-file global.license=/path/to/new/license.txt | kubectl apply -f -
 ```
 

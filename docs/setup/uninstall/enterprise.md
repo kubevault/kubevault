@@ -43,7 +43,7 @@ $ helm uninstall kubevault-enterprise --namespace kubevault
 If you prefer to not use Helm, you can generate YAMLs from KubeVault chart and uninstall using `kubectl`.
 
 ```bash
-$ helm template kubevault-enterprise appscode/kubevault-enterprise --namespace kubevault | kubectl delete -f -
+$ helm template kubevault-enterprise appscode/kubevault-operator --namespace kubevault | kubectl delete -f -
 ```
 
 </div>
