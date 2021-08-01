@@ -20,7 +20,7 @@ Here, we are going to deploy Vault in AKS using KubeVault operator. We are going
 
 At first, you need to have an AKS cluster. If you don't already have a cluster, create one from [here](https://azure.microsoft.com/en-us/services/kubernetes-service/).
 
-- Install KubeVault operator in your cluster following the steps [here](/docs/setup/operator/install.md).
+- Install KubeVault operator in your cluster following the steps [here](/docs/setup/README.md).
 
 - You should be familiar with the following CRD:
   - [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md)
@@ -66,7 +66,7 @@ We are going to create a `web app/api` type Azure Active Directory Application `
 
 ### Install KubeVault operator
 
-See [here](/docs/setup/operator/install.md).
+See [here](/docs/setup/README.md).
 
 ```console
 $ kubectl get pods -n kube-system

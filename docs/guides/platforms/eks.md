@@ -20,7 +20,7 @@ Here, we are going to deploy Vault in Amazon EKS using KubeVault operator. We ar
 
 At first, you need to have an EKS cluster. If you don't already have a cluster, create one from [here](https://aws.amazon.com/eks/). You can use [eksctl](https://github.com/weaveworks/eksctl) command line tool to create EKS cluster easily.
 
-- Install KubeVault operator in your cluster following the steps [here](/docs/setup/operator/install.md).
+- Install KubeVault operator in your cluster following the steps [here](/docs/setup/README.md).
 
 - You should be familiar with the following CRD:
   - [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md)
@@ -50,7 +50,7 @@ eksctl create cluster --name demo-cluster --nodes 1 --region us-east-1 --version
 
 ### Install KubeVault operator
 
-See [here](/docs/setup/operator/install.md).
+See [here](/docs/setup/README.md).
 
 ```console
 $ kubectl get pods -n kube-system

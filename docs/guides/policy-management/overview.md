@@ -31,7 +31,7 @@ namespace/demo created
 
 ## Before you begin
 
-- Install KubeVault operator in your cluster following the steps [here](/docs/setup/operator/install.md).
+- Install KubeVault operator in your cluster following the steps [here](/docs/setup/README.md).
 
 - Deploy the Vault server or configure an existing one.
   - [Setup Vault Server](/docs/guides/vault-server/overview.md#setup-vault-server)

@@ -22,7 +22,7 @@ aliases:
 KubeVault by AppsCode is a collection of tools for running HashiCorp [Vault](https://www.vaultproject.io/) on Kubernetes. 
 
 ## Operator
-You can deploy and manage Vault on Kubernetes clusters using [KubeVault operator](https://github.com/kubevault/operator). Using Vault operator, you can deploy Vault for following storage backends:
+You can deploy and manage Vault on Kubernetes clusters using KubeVault operator. Using KubeVault operator, you can deploy Vault for following storage backends:
 
 - [Azure Storage](/docs/concepts/vault-server-crds/storage/azure.md)
 - [DynamoDB](/docs/concepts/vault-server-crds/storage/dynamodb.md)
@@ -59,13 +59,7 @@ command-line options, configuration options, API definitions, and procedures.
 
 ## CSI Driver
 
-[CSI Driver](https://github.com/kubevault/csi-driver) project implements a Kubernetes CSI driver for HashiCorp Vault servers.
+KubeVault works seamlessly with [Secrets Store CSI driver for Kubernetes secrets](https://github.com/kubernetes-sigs/secrets-store-csi-driver).
 
-We're always looking for help improving our documentation, so please don't hesitate to [file an issue](https://github.com/kubevault/project/issues/new) if you see some problem. Or better yet, submit your own [contributions](/docs/CONTRIBUTING.md) to help
+We're always looking for help improving our documentation, so please don't hesitate to [file an issue](https://github.com/kubevault/kubevault/issues/new) if you see some problem. Or better yet, submit your own [contributions](/docs/CONTRIBUTING.md) to help
 make our docs better.
-
----
-
-**KubeVault binaries collect anonymous usage statistics to help us learn how the software is being used and how we can improve it. To disable stats collection, run the operator with the flag** `--enable-analytics=false`.
-
----

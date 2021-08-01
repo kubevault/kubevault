@@ -26,7 +26,7 @@ You should be familiar with the following CRD:
 
 ## Before you begin
 
-- Install KubeVault operator in your cluster from [here](/docs/setup/operator/install.md).
+- Install KubeVault operator in your cluster from [here](/docs/setup/README.md).
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
