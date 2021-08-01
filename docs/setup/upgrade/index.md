@@ -16,16 +16,16 @@ section_menu_id: setup
 
 This guide will show you how to upgrade various KubeVault components. Here, we are going to show how to upgrade from an old KubeVault version to the new version, how to migrate between the enterprise edition and community edition, and how to update the license, etc.
 
-## Upgrading KubeVault from `v2021.xx.xx` to `v2021.06.23`
+## Upgrading KubeVault to `{{< param "info.version" >}}`
 
-In order to upgrade from KubeVault `v2021.xx.xx` to `v2021.06.23`, please follow the following steps.
+In order to upgrade from KubeVault to `{{< param "info.version" >}}`, please follow the following steps.
 
 #### 1. Update KubeVault Catalog CRDs
 
-KubeVault `v2021.06.23` has added some new fields in the `***Version` CRDs. Unfortunatley, Helm [does not upgrade the CRDs](https://github.com/helm/helm/issues/6581) bundled in a Helm chart if the CRDs already exist. So, to upgrde the KubeVault catalog CRD, please run the command below:
+Helm [does not upgrade the CRDs](https://github.com/helm/helm/issues/6581) bundled in a Helm chart if the CRDs already exist. So, to upgrde the KubeVault catalog CRD, please run the command below:
 
 ```bash
-kubectl apply -f https://github.com/kubevault/installer/raw/v2021.06.23/kubevault-catalog-crds.yaml
+kubectl apply -f https://github.com/kubevault/installer/blob/{{< param "info.version" >}}/crds/kubevault-catalog-crds.yaml
 ```
 
 #### 2. Upgrade KubeVault Operator
@@ -33,58 +33,15 @@ kubectl apply -f https://github.com/kubevault/installer/raw/v2021.06.23/kubevaul
 Now, upgrade the KubeVault helm chart using the following command. You can find the latest installation guide [here](/docs/setup/README.md). We recommend that you do **not** follow the legacy installation guide, as the new process is much more simpler.
 
 ```bash
-# Upgrade KubeVault Community operator chart
 $ helm upgrade kubevault appscode/kubevault \
   --version {{< param "info.version" >}} \
   --namespace kubevault \
   --set-file global.license=/path/to/the/license.txt
-
-# Upgrade KubeVault Enterprise operator chart
-$ helm upgrade kubevault appscode/kubevault \
-    --version {{< param "info.version" >}} \
-    --namespace kubevault \
-    --set-file global.license=/path/to/the/license.txt \
-    --set kubevault-enterprise.enabled=true \
-    --set kubevault-autoscaler.enabled=true
 ```
-
-#### 3. Install/Upgrade Stash Operator
-
-Now, upgrade Stash if had previously installed Stash following the instructions [here](https://stash.run/docs/v2021.06.23/setup/upgrade/). If you had not installed Stash before, please install Stash Enterprise Edition following the instructions [here](https://stash.run/docs/v2021.06.23/setup/).
-
-
-## Upgrading KubeVault from `v2021.01.26`(`v0.16.x`) and older to `v2021.03.17`(`v0.17.x`)
-
-In KubeVault `v2021.01.26`(`v0.16.x`) and prior versions, KubeVault used separate charts for KubeVault community edition, KubeVault enterprise edition, and KubeVault catalogs. In KubeVault `v2021.03.17`(`v0.17.x`), we have moved to a single combined chart for all the components for a better user experience. This enables seamless migration between the KubeVault community edition and KubeVault enterprise edition. It also removes the burden of installing individual helm charts manually. KubeVault still depends on [Stash](https://stash.run) as the backup/recovery operator and Stash must be [installed](https://stash.run/docs/latest/setup/) separately. 
-
-In order to upgrade from KubeVault `v2021.01.26`(`v0.16.x`) to `v2021.03.17`(`v0.17.x`), please follow the following steps.
-
-#### 1. Uninstall KubeVault Operator
-
-Uninstall the old KubeVault operator by following the appropriate uninstallation guide of the KubeVault version that you are currently running.
-
->Make sure you are using the appropriate version of the uninstallation guide. The uninstallation guide for `v2021.03.17`(`v0.17.x`) will not work for `v2021.01.26`(`v0.16.x`) Use the dropdown at the sidebar of the documentation site to navigate to the appropriate version that you are currently running.
-
-#### 2. Update KubeVault Catalog CRDs
-
-KubeVault `v2021.03.17`(`v0.17.x`) has added some new fields in the `***Version` CRDs. Unfortunatley, Helm [does not upgrade the CRDs](https://github.com/helm/helm/issues/6581) bundled in a Helm chart if the CRDs already exist. So, to upgrde the KubeVault catalog CRD, please run the command below:
-
-```bash
-kubectl apply -f https://github.com/kubevault/installer/raw/v0.17.1/kubevault-catalog-crds.yaml
-```
-
-#### 3. Reinstall new KubeVault Operator
-
-Now, follow the latest installation guide to install the new version of the KubeVault operator. You can find the latest installation guide [here](/docs/setup/README.md). We recommend that you do **not** follow the legacy installation guide, as the new process is much more simpler.
-
-#### 4. Install/Upgrade Stash Operator
-
-Now, upgrade Stash if had previously installed Stash following the instructions [here](https://stash.run/docs/v2021.03.17/setup/upgrade/). If you had not installed Stash before, please install Stash Enterprise Edition following the instructions [here](https://stash.run/docs/v2021.03.17/setup/).
-
 
 ## Migration Between Community Edition and Enterprise Edition
 
-KubeVault `v2021.06.23` supports seamless migration between community edition and enterprise edition. You can run the following commands to migrate between them.
+KubeVault supports seamless migration between community edition and enterprise edition. You can run the following commands to migrate between them.
 
 <ul class="nav nav-tabs" id="migrationTab" role="tablist">
   <li class="nav-item">
@@ -106,8 +63,6 @@ In order to migrate from KubeVault community edition to KubeVault enterprise edi
 ```bash
 helm upgrade kubevault -n kubevault appscode/kubevault \
   --reuse-values \
-  --set kubevault-enterprise.enabled=true \
-  --set kubevault-autoscaler.enabled=true \
   --set kubevault-catalog.skipDeprecated=false \
   --set-file global.license=/path/to/kubevault-enterprise-license.txt
 ```
@@ -119,8 +74,6 @@ In order to migrate from KubeVault enterprise edition to KubeVault community edi
 ```bash
 helm upgrade kubevault -n kubevault appscode/kubevault \
   --reuse-values \
-  --set kubevault-enterprise.enabled=false \
-  --set kubevault-autoscaler.enabled=false \
   --set kubevault-catalog.skipDeprecated=false \
   --set-file global.license=/path/to/kubevault-community-license.txt
 ```
@@ -138,8 +91,6 @@ In order to migrate from KubeVault community edition to KubeVault enterprise edi
 # Install KubeVault enterprise edition
 helm template kubevault -n kubevault appscode/kubevault \
   --version {{< param "info.version" >}} \
-  --set kubevault-enterprise.enabled=true \
-  --set kubevault-autoscaler.enabled=true \
   --set kubevault-catalog.skipDeprecated=false \
   --set global.skipCleaner=true \
   --set-file global.license=/path/to/kubevault-enterprise-license.txt | kubectl apply -f -
@@ -153,8 +104,6 @@ In order to migrate from KubeVault enterprise edition to KubeVault community edi
 # Install KubeVault community edition
 helm template kubevault -n kubevault appscode/kubevault \
   --version {{< param "info.version" >}} \
-  --set kubevault-enterprise.enabled=false \
-  --set kubevault-autoscaler.enabled=false \
   --set kubevault-catalog.skipDeprecated=false \
   --set global.skipCleaner=true \
   --set-file global.license=/path/to/kubevault-community-license.txt | kubectl apply -f -
@@ -200,8 +149,6 @@ helm upgrade kubevault -n kubevault appscode/kubevault \
 
 ```bash
 helm template kubevault -n kubevault appscode/kubevault \
-  --set kubevault-enterprise.enabled=false \
-  --set kubevault-autoscaler.enabled=false \
   --set global.skipCleaner=true \
   --show-only appscode/kubevault-community/templates/license.yaml \
   --set-file global.license=/path/to/new/license.txt | kubectl apply -f -
@@ -211,8 +158,6 @@ helm template kubevault -n kubevault appscode/kubevault \
 
 ```bash
 helm template kubevault appscode/kubevault -n kubevault \
-  --set kubevault-enterprise.enabled=true \
-  --set kubevault-autoscaler.enabled=true \
   --set global.skipCleaner=true \
   --show-only appscode/kubevault-enterprise/templates/license.yaml \
   --set-file global.license=/path/to/new/license.txt | kubectl apply -f -

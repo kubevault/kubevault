@@ -19,5 +19,5 @@ section_menu_id: setup
 To uninstall KubeVault `kubectl` plugin, run the following command:
 
 ```bash
-kubectl krew uninstall dba
+kubectl krew uninstall vault
 ```
