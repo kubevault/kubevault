@@ -20,7 +20,7 @@ Here, we are going to deploy Vault in GKE using KubeVault operator. We are going
 
 At first, you need to have a GKE cluster. If you don't already have a cluster, create one from [here](https://cloud.google.com/kubernetes-engine/).
 
-- Install KubeVault operator in your cluster following the steps [here](/docs/setup/operator/install.md).
+- Install KubeVault operator in your cluster following the steps [here](/docs/setup/README.md).
 
 - You should be familiar with the following CRD:
   - [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md)
@@ -85,7 +85,7 @@ $ gcloud kms keys add-iam-policy-binding \
 
 ### Install KubeVault operator
 
-See [here](/docs/setup/operator/install.md).
+See [here](/docs/setup/README.md).
 
 ```console
 $ kubectl get pods -n kube-system

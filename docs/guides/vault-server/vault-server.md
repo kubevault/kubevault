@@ -20,7 +20,7 @@ You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/)
 
 ## Before you begin
 
-- Install KubeVault operator in your cluster following the steps [here](/docs/setup/operator/install.md).
+- Install KubeVault operator in your cluster following the steps [here](/docs/setup/README.md).
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
