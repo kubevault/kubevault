@@ -14,16 +14,7 @@ section_menu_id: setup
 
 # Install KubeVault Enterprise Edition
 
-KubeVault Enterprise edition is the open core version of [KubeVault](https://github.com/kubevault/operator). It includes all the features (clustering, etc.) of KubeVault Community Edition and extends it by automating Day 2 operations, improving security and productivity.
-
-- Back and recovery - KubeVault will provide backup & recovery of databases using Stash.
-- Upgrade and Scaling - KubeVault will provide operator managed human-in-the-loop patch and minor upgrade, downgrade and scaling operations
-- SSL Support - KubeVault Enterprise operator supports SSL certificate management for supported database types via Jetstack’s [cert-manager](https://cert-manager.io/) project.
-- User Management with HashiCorp Vault - KubeVault supports user management using HashiCorp Vault via [KubeVault](https://kubevault.com/) project.
-- Web Dashboard - KubeVault Enterprise offers a web based management console with Prometheus and Grafana integration for monitoring.
-- Connection Pooling - KubeVault Enterprise edition offers PgBouncer support for PostgreSQL and ProxySQL support for MySQL and Percona XtraDB.
-
-A full features comparison between KubeVault Enterprise Edition and community version can be found [here](/docs/overview/README.md).
+KubeVault comes in 2 editions: `Community Edition` and `Enterprise Edition`. `Community Edition` only manages KubeVault custom resources in the `default` Kubernetes namespace. `Enterprise Edition` can be used to manage KubeVault custom resources in any Kubernetes namespace. A full features comparison between the KubeVault Community edition and Enterprise edition can be found [here](https://kubevault.com/pricing/).
 
 If you are willing to try KubeVault Enterprise Edition, you can grab a **30 days trial** license from [here](https://license-issuer.appscode.com/?p=kubevault-enterprise).
 
@@ -31,7 +22,7 @@ If you are willing to try KubeVault Enterprise Edition, you can grab a **30 days
 
 In this section, we are going to show you how you can get a **30 days trial** license for KubeVault Enterprise edition. You can get a license for your Kubernetes cluster by going through the following steps:
 
-- At first, go to [AppsCode License Server](https://license-issuer.appscode.com/?p=kubevault-enterprise) and fill up the form. It will ask for your Name, Email, the product you want to install, and your cluster ID (UID of the `kubevault` namespace).
+- At first, go to [AppsCode License Server](https://license-issuer.appscode.com/?p=kubevault-enterprise) and fill up the form. It will ask for your Name, Email, the product you want to install, and your cluster ID (UID of the `kube-system` namespace).
 - Provide your name and email address. **You must provide your work email address**.
 - Then, select `KubeVault Enterprise Edition` in the product field.
 - Now, provide your cluster ID. You can get your cluster ID easily by running the following command:

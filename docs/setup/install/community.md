@@ -14,7 +14,7 @@ section_menu_id: setup
 
 # Install KubeVault Community Edition
 
-KubeVault Community edition is available under [AppsCode-Community-1.0.0](https://github.com/appscode/licenses/raw/1.0.0/AppsCode-Community-1.0.0.md) license and free to use for both commercial and non-commercial purposes. It comes with the cluster provisioning functionalities. However, it lacks some advanced features such as database backup/recovery, upgrading version, horizontal and vertical scaling, TLS/SSL support via [cert-manager](https://cert-manager.io/), updating configuration post provisioning, connection pooling, etc. compared to the Enterprise edition. A full features comparison between the KubeVault Community edition and Enterprise edition can be found [here](/docs/overview/README.md).
+KubeVault comes in 2 editions: `Community Edition` and `Enterprise Edition`. `Community Edition` only manages KubeVault custom resources in the `default` Kubernetes namespace. `Enterprise Edition` can be used to manage KubeVault custom resources in any Kubernetes namespace. A full features comparison between the KubeVault Community edition and Enterprise edition can be found [here](https://kubevault.com/pricing/).
 
 To use the KubeVault Community edition, you can grab **1 year** free license from [here](https://license-issuer.appscode.com/?p=kubevault-community). After that, you can issue another license for one more year. Typically we release a new version of the operator at least quarterly. So, you can just grab a new license every time you upgrade the operator.
 
@@ -22,7 +22,7 @@ To use the KubeVault Community edition, you can grab **1 year** free license fro
 
 In this section, we are going to show you how you can get a **1 year** free license for the KubeVault Community edition. You can get a license for your Kubernetes cluster by going through the following steps:
 
-- At first, go to [AppsCode License Server](https://license-issuer.appscode.com/?p=kubevault-community) and fill-up the form. It will ask for your Name, Email, the product you want to install, and your cluster ID (UID of the `kubevault` namespace).
+- At first, go to [AppsCode License Server](https://license-issuer.appscode.com/?p=kubevault-community) and fill-up the form. It will ask for your Name, Email, the product you want to install, and your cluster ID (UID of the `kube-system` namespace).
 - Provide your name and email address. You can provide your personal or work email address.
 - Then, select `KubeVault Community Edition` in the product field.
 - Now, provide your cluster-ID. You can get your cluster ID easily by running the following command:
