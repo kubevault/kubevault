@@ -97,7 +97,7 @@ spec:
 
 #### spec.tls
 
-`spec.tls` is an optional field that specifies the TLS policy of Vault nodes. If this is not specified, the KubeVault operator will run in `insecure` mode.
+`spec.tls` is an optional field that specifies the TLS policy of Vault nodes. If this is not specified, the KubeVault operator will run in `insecure` mode. `spec.tls.certificates` provides `server`, `client`, `storage` certificate options used by application pods, where the `alias` represents the identifier of the certificate.  
 
 ```yaml
 spec:
@@ -109,30 +109,25 @@ spec:
       - alias: storage
 ```
 
-- **`tls.tlsSecret`**: Specifies the name of the secret containing TLS assets. The secret must contain following keys:
-  - `tls.crt`
-  - `tls.key`
 
-  The server certificate must allow the following wildcard domains:
-  - `localhost`
-  - `*.<namespace>.pod`
-  - `<vaultServer-name>.<namespace>.svc`
+The server certificate must allow the following wildcard domains:
+- `localhost`
+- `*.<namespace>.pod`
+- `<vaultServer-name>.<namespace>.svc`
 
   The server certificate must allow the following IP:
-  - `127.0.0.1`
+- `127.0.0.1`
 
-- **`tls.caBundle`**: Specifies the PEM encoded CA bundle which will be used to validate the serving certificate.
+#### spec.configSecret
 
-#### spec.configSource
-
-`spec.configSource` is an optional field that allows the user to provide extra configuration for Vault. This field accepts a [VolumeSource](https://github.com/kubernetes/api/blob/release-1.11/core/v1/types.go#L47). You can use any Kubernetes supported volume source such as configMap, secret, azureDisk, etc.
+`spec.configSecret` is an optional field that allows the user to provide extra configuration for Vault. This field accepts a [VolumeSource](https://github.com/kubernetes/api/blob/release-1.11/core/v1/types.go#L47). You can use any Kubernetes supported volume source such as configMap, secret, azureDisk, etc.
 
 > Please note that the config file name must be `vault.hcl` to work.
 
 ```yaml
 spec:
-  configSource:
-    <type of volume>: # for example `configMap`
+  configSecret:
+    <type of volume>: # for example `configSecret`
       name: <name of volume>
 ```
 
@@ -188,18 +183,19 @@ spec:
       ...
 ```
 
-#### spec.serviceTemplate
+#### spec.serviceTemplates
 
-You can also provide a template for the services created by KubeVault operator for VaultServer through `spec.serviceTemplate`. This will allow you to set the type and other properties of the services. `spec.serviceTemplate` is an optional field.
+You can also provide a list of templates for the services created by KubeVault operator for VaultServer through `spec.serviceTemplates`. This will allow you to set the type and other properties of the services. `spec.serviceTemplates` is an optional field.
 
 ```yaml
 spec:
-  serviceTemplate:
-    spec:
-      type: NodePort
+  serviceTemplates:
+    - alias: stats
+      spec:
+        type: ClusterIP
 ```
 
-VaultServer allows following fields to be set in `spec.serviceTemplate`:
+VaultServer allows following fields to be set in `spec.serviceTemplates`:
 
 - metadata:
   - annotations (set as annotations on Vault service)
