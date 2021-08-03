@@ -36,34 +36,37 @@ metadata:
   namespace: default
 spec:
   replicas: 1
-  version: "1.2.0"
+  version: "1.7.2"
   backend:
     inmem: {}
   tls:
     certificates:
       - alias: ca
+      - alias: server
+      - alias: client
+      - alias: storage
+  serviceTemplates:
+    - alias: vault
+      metadata:
+        annotations:
+          name: vault
+      spec:
+        type: NodePort
+    - alias: stats
+      spec:
+        type: ClusterIP
   unsealer:
     secretShares: 4
     secretThreshold: 2
     mode:
       kubernetesSecret:
         secretName: vault-keys
-status:
-  authMethodStatus:
-  - path: kubernetes
-    status: EnableSucceeded
-    type: kubernetes
-  clientPort: 8200
-  initialized: true
-  observedGeneration: 2
-  phase: Running
-  serviceName: vault
-  updatedNodes:
-  - vault-745564bddb-4pt98
-  vaultStatus:
-    active: vault-745564bddb-4pt98
-    unsealed:
-    - vault-745564bddb-4pt98
+  monitor:
+    agent: prometheus.io
+    prometheus:
+      exporter:
+        resources: {}
+  terminationPolicy: WipeOut
 ```
 
 Here, we are going to describe the various sections of the `VaultServer` crd.
@@ -89,18 +92,21 @@ Specifies the name of the `VaultServerVersion` CRD. This CRD holds the image nam
 
 ```yaml
 spec:
-  version: "1.2.0"
+  version: "1.7.2"
 ```
 
 #### spec.tls
 
-`spec.tls` is an optional field that specifies the TLS policy of Vault nodes. If this is not specified, the KubeVault operator will auto-generate TLS assets and secrets.
+`spec.tls` is an optional field that specifies the TLS policy of Vault nodes. If this is not specified, the KubeVault operator will run in `insecure` mode.
 
 ```yaml
 spec:
   tls:
-    tlsSecret: <tls_assets_secret_name> # name of the secret containing TLS assets
-    caBundle: <pem_coded_ca>
+    certificates:
+      - alias: ca
+      - alias: server
+      - alias: client
+      - alias: storage
 ```
 
 - **`tls.tlsSecret`**: Specifies the name of the secret containing TLS assets. The secret must contain following keys:
