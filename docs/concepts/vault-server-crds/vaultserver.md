@@ -143,16 +143,6 @@ spec:
       name: special-config
 ```
 
-### spec.backend
-
-`spec.backend` is a required field that specifies the Vault backend storage configuration. KubeVault operator generates storage configuration according to this `spec.backend`.
-
-```yaml
-spec:
-  backend:
-    ...
-```
-
 ### spec.monitor
 `spec.monitor` is an optional field that is used to monitor the `vaultserver` instances.
 ```yaml
@@ -163,7 +153,7 @@ monitor:
         resources: {}
 ```
 
-###spec.terminationPolicy
+### spec.terminationPolicy
 `spec.terminationPolicy` is an optional field that gives flexibility whether to nullify(reject) the delete operation of VaultServer crd or which resources KubeVault operator should keep or delete when you delete VaultServer crd. KubeVault provides following four termination policies:
 - DoNotTerminate
 - Halt
@@ -172,7 +162,15 @@ monitor:
 
 When, `terminationPolicy` is `DoNotTerminate`, KubeVault takes advantage of ValidationWebhook feature in Kubernetes 1.9.0 or later clusters to provide safety from accidental deletion of VaultServer. If admission webhook is enabled, KubeVault prevents users from deleting the VaultServer as long as the spec.terminationPolicy is set to DoNotTerminate.
 
+### spec.backend
 
+`spec.backend` is a required field that specifies the Vault backend storage configuration. KubeVault operator generates storage configuration according to this `spec.backend`.
+
+```yaml
+spec:
+  backend:
+    ...
+```
 List of supported backends:
 
 - [Azure](/docs/concepts/vault-server-crds/storage/azure.md)
