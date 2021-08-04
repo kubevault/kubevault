@@ -109,7 +109,6 @@ spec:
       - alias: storage
 ```
 
-
 The server certificate must allow the following wildcard domains:
 - `localhost`
 - `*.<namespace>.pod`
@@ -153,6 +152,26 @@ spec:
   backend:
     ...
 ```
+
+### spec.monitor
+`spec.monitor` is an optional field that is used to monitor the `vaultserver` instances.
+```yaml
+monitor:
+    agent: prometheus.io
+    prometheus:
+      exporter:
+        resources: {}
+```
+
+###spec.terminationPolicy
+`spec.terminationPolicy` is an optional field that gives flexibility whether to nullify(reject) the delete operation of VaultServer crd or which resources KubeVault operator should keep or delete when you delete VaultServer crd. KubeVault provides following four termination policies:
+- DoNotTerminate
+- Halt
+- Delete (Default)
+- WipeOut
+
+When, `terminationPolicy` is `DoNotTerminate`, KubeVault takes advantage of ValidationWebhook feature in Kubernetes 1.9.0 or later clusters to provide safety from accidental deletion of VaultServer. If admission webhook is enabled, KubeVault prevents users from deleting the VaultServer as long as the spec.terminationPolicy is set to DoNotTerminate.
+
 
 List of supported backends:
 
