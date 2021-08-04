@@ -339,33 +339,15 @@ VaultServer Status shows the status of a Vault deployment. The status of the Vau
 ```yaml
 status:
   phase: <phase>
-  initialized: <true/false>
-  serviceName: <service_name>
-  clientPort: <client_port>
-  vaultStatus:
-    active: <active_vault_pod_name>
-    standby: <names_of_the_standby_vault_pod>
-    sealed: <names_of_the_sealed_vault_pod>
-    unsealed: <names_of_the_unsealed_vault_pod>
 ```
 
-- `phase`: Indicates the phase Vault is currently in.
-
-- `initialized`: Indicates whether Vault is initialized or not.
-
-- `serviceName`: Name of the service by which Vault can be accessed.
-
-- `clientPort`: Indicates the port client will use to communicate with Vault.
-
-- `vaultStatus`: Indicates the status of Vault pods. It has the following fields:
-
-  - `active`: Name of the active vault pod.
-
-  - `standby`: Names of the standby vault pods.
-
-  - `sealed`: Names of the sealed vault pods.
-
-  - `unsealed`: Names of the unsealed vault pods.
+- `phase`: Indicates the phase Vault is currently in. Possible values of `status.phase`:
+  - Initializing
+  - Sealed
+  - Unsealing
+  - Critical
+  - NotReady
+  - Ready
 
 - `authMethodStatus` : Indicates the status of the auth methods specified in `spec.authMethods`. It has the following fields:
 
