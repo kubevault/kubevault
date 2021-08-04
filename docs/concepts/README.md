@@ -70,6 +70,7 @@ Introduces the concept of `VaultServer` for configuring a HashiCorp Vault server
     - [AWS S3](/docs/concepts/vault-server-crds/storage/s3.md)
     - [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
     - [Consul](/docs/concepts/vault-server-crds/storage/consul.md)
+    - [Raft](/docs/concepts/vault-server-crds/storage/raft.md)
 
   - Authentication Methods for Vault Server
     - [AWS IAM Auth Method](/docs/concepts/vault-server-crds/auth-methods/aws-iam.md)
