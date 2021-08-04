@@ -184,6 +184,7 @@ List of supported backends:
 - [AWS S3](/docs/concepts/vault-server-crds/storage/s3.md)
 - [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
 - [Filesystem](/docs/concepts/vault-server-crds/storage/filesystem.md)
+- [Raft](/docs/concepts/vault-server-crds/storage/raft.md)
 
 #### spec.unsealer
 
