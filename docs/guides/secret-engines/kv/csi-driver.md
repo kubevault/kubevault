@@ -186,10 +186,10 @@ spec:
 Let's create VaultPolicy and VaultPolicyBinding:
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/kv/vaultPolicy.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/kv/policy.yaml
 vaultpolicy.policy.kubevault.com/kv-se-policy created
 
-$ kubectl apply -f docs/examples/guides/secret-engines/kv/vaultPolicyBinding.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/kv/policybinding.yaml
 vaultpolicybinding.policy.kubevault.com/kv-se-role created
 ```
 
@@ -231,12 +231,12 @@ spec:
 ```
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/kv/SecretProviderClass.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/kv/secretproviderclass.yaml
 secretproviderclass.secrets-store.csi.x-k8s.io/vault-database created
 ```
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/kv/podServiceAccount.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/kv/serviceaccount.yaml
 serviceaccount/pod-sa created
 ```
 
