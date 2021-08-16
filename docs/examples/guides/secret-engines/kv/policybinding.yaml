@@ -1,19 +1,16 @@
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicyBinding
 metadata:
-  name: kv-admin-role
+  name: kv-se-role
   namespace: demo
 spec:
   vaultRef:
     name: vault
   policies:
-  - ref: kv-policy
+    - ref: kv-se-policy
   subjectRef:
     kubernetes:
       serviceAccountNames:
-        - "kv-admin"
+        - "pod-sa"
       serviceAccountNamespaces:
-        - "demo"
-      ttl: "1000"
-      maxTTL: "2000"
-      period: "1000"
+        - "test"
