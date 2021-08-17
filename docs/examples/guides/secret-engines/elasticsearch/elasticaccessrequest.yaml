@@ -1,0 +1,14 @@
+apiVersion: engine.kubevault.com/v1alpha1
+kind: DatabaseAccessRequest
+metadata:
+  name: es-cred-rqst
+  namespace: demo
+spec:
+  roleRef:
+    kind: ElasticsearchRole
+    name: es-superuser-role
+    namespace: demo
+  subjects:
+    - kind: ServiceAccount
+      name: demo-sa
+      namespace: demo

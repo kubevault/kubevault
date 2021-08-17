@@ -1,0 +1,297 @@
+---
+title: Mount Elasticsearch Secrets using CSI Driver
+menu:
+docs_{{ .version }}:
+identifier: csi-driver-elasticsearch
+name: CSI Driver
+parent: elasticsearch-secret-engines
+weight: 15
+menu_name: docs_{{ .version }}
+section_menu_id: guides
+---
+
+{{< notice type="warning" message="KubeVault's built-in CSI driver has been removed in favor of [Secrets Store CSI driver for Kubernetes secrets](https://github.com/kubernetes-sigs/secrets-store-csi-driver)." >}}
+
+# Mount Elasticsearch Secrets using CSI Driver
+
+At first, you need to have a Kubernetes 1.16 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
+
+```console
+$ kubectl version --short
+Client Version: v1.21.2
+Server Version: v1.21.1
+```
+
+Before you begin:
+
+- Install KubeVault operator in your cluster from [here](/docs/setup/README.md).
+- Install Secrets Store CSI driver for Kubernetes secrets in your cluster from [here](https://secrets-store-csi-driver.sigs.k8s.io/getting-started/installation.html).
+- Install Vault Specific CSI provider from [here](https://github.com/hashicorp/vault-csi-provider)
+
+To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
+
+```console
+$ kubectl create ns demo
+namespace/demo created
+```
+
+> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engines/elasticsearch) folder in GitHub repository [KubeVault/docs](https://github.com/kubevault/kubevault)
+
+## Vault Server
+
+If you don't have a Vault Server, you can deploy it by using the KubeVault operator.
+
+- [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
+
+The KubeVault operator can manage policies and secret engines of Vault servers which are not provisioned by the KubeVault operator. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
+
+- [Configure cluster and Vault server](/docs/guides/vault-server/external-vault-sever.md#configuration)
+
+Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server. And we also have the service account that the Vault server can authenticate.
+
+```console
+$ kubectl get appbinding -n demo
+NAME    AGE
+vault   50m
+
+$ kubectl get appbinding -n demo vault -o yaml
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
+metadata:
+  creationTimestamp: "2021-08-16T08:23:38Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: vault
+    app.kubernetes.io/managed-by: kubevault.com
+    app.kubernetes.io/name: vaultservers.kubevault.com
+  name: vault
+  namespace: demo
+  ownerReferences:
+  - apiVersion: kubevault.com/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: VaultServer
+    name: vault
+    uid: 6b405147-93da-41ff-aad3-29ae9f415d0a
+  resourceVersion: "602898"
+  uid: b54873fd-0f34-42f7-bdf3-4e667edb4659
+spec:
+  clientConfig:
+    service:
+      name: vault
+      port: 8200
+      scheme: http
+  parameters:
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    kubernetes:
+      serviceAccountName: vault
+      tokenReviewerServiceAccountName: vault-k8s-token-reviewer
+      usePodServiceAccountForCSIDriver: true
+    path: kubernetes
+    vaultRole: vault-policy-controller
+```
+
+Let's create a separate namespace called `test` for testing purpose.
+
+```console
+$ kubectl create ns test
+namespace/test created
+```
+
+## Enable & Configure Elasticsearch SecretEngine
+
+### Enable Elasticsearch SecretEngine
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/elasticsearch/secretengine.yaml
+secretengine.engine.kubevault.com/es-engine created
+```
+
+### Create ElasticsearchRole
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/elasticsearch/secretenginerole.yaml
+elasticsearchrole.engine.kubevault.com/es-superuser-role created
+```
+
+Let's say pod's service account name is `test-user-account` located in `test` namespace. We need to create a [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) and a [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md) so that the pod has access to read secrets from the Vault server.
+
+### Create Service Account for Pod
+
+Let's create the service account `test-user-account` which will be used in VaultPolicyBinding.
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: test-user-account
+  namespace: test
+```
+
+### Create VaultPolicy and VaultPolicyBinding for Pod's Service Account
+When a VaultPolicyBinding object is created, the KubeVault operator create an auth role in the Vault server. The role name is generated by the following naming format: `k8s.(clusterName or -).namespace.name`. Here, it is `k8s.-.demo.kv-se-role`. We need to provide the auth role name as service account `annotations` while creating the service account. If the annotation `secrets.csi.kubevault.com/vault-role` is not provided, the CSI driver will not be able to perform authentication to the Vault.
+
+```yaml
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicy
+metadata:
+  name: es-reader-policy
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  policyDocument: |
+    path "your-database-path/creds/k8s.-.demo.es-superuser-role" {
+      capabilities = ["read"]
+    }
+---
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicyBinding
+metadata:
+  name: es-reader-role
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  policies:
+    - ref: es-reader-policy
+  subjectRef:
+    kubernetes:
+      serviceAccountNames:
+        - "test-user-account"
+      serviceAccountNamespaces:
+        - "test"
+```
+
+Let's create VaultPolicy and VaultPolicyBinding:
+
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/kv/policy.yaml
+vaultpolicy.policy.kubevault.com/es-reader-policy created
+
+$ kubectl apply -f docs/examples/guides/secret-engines/kv/policybinding.yaml
+vaultpolicybinding.policy.kubevault.com/es-reader-role created
+```
+
+Check if the VaultPolicy and the VaultPolicyBinding are successfully registered to the Vault server:
+
+```console
+$ kubectl get vaultpolicy -n demo
+NAME                              STATUS    AGE
+es-reader-policy                  Success   8s
+
+$ kubectl get vaultpolicybinding -n demo
+NAME                              STATUS    AGE
+es-reader-role                    Success   10s
+```
+
+## Mount secrets into a Kubernetes pod
+
+So, we can create `SecretProviderClass` now.
+
+### Create SecretProviderClass
+
+Create `SecretProviderClass` object with the following content:
+
+```yaml
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: vault-db-provider
+  namespace: test
+spec:
+  provider: vault
+  parameters:
+    vaultAddress: "http://vault.demo:8200"
+    roleName: "k8s.-.demo.es-reader-role"
+    objects: |
+      - objectName: "es-creds-username"
+        secretPath: "your-database-path/creds/k8s.-.demo.es-superuser-role"
+        secretKey: "username"
+      - objectName: "es-creds-password"
+        secretPath: "your-database-path/creds/k8s.-.demo.es-superuser-role"
+        secretKey: "password"
+```
+
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/kv/secretproviderclass.yaml
+secretproviderclass.secrets-store.csi.x-k8s.io/vault-db-provider created
+```
+
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/kv/serviceaccount.yaml
+serviceaccount/test-user-account created
+```
+
+### Create Pod
+
+Now we can create a Pod which refers to this volume. When the Pod is created, the volume will be attached, formatted and mounted to the specific container.
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-app
+  namespace: test
+spec:
+  serviceAccountName: test-user-account
+  containers:
+    - image: jweissig/app:0.0.1
+      name: demo-app
+      imagePullPolicy: Always
+      volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/secrets-store/es-creds"
+          readOnly: true
+  volumes:
+    - name: secrets-store-inline
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: "vault-db-provider"
+```
+
+```console
+$ kubectl apply -f docs/examples/guides/secret-engines/kv/pod.yaml
+pod/demo-app created
+```
+## Test & Verify
+
+Check if the Pod is running successfully, by running:
+
+```console
+$ kubectl get pods -n test
+NAME                       READY   STATUS    RESTARTS   AGE
+demo-app                   1/1     Running   0          11s
+```
+
+### Verify Secret
+
+If the Pod is running successfully, then check inside the app container by running
+
+```console
+$ kubectl exec -it -n test pod/demo-app -- /bin/sh
+/ # ls /secrets-store/es-creds
+es-creds-password  es-creds-username
+
+/ # cat /secrets-store/es-creds/es-creds-password
+TAu2Zvg1WYE07W8Uf-nW
+
+/ # cat /secrets-store/es-creds/es-creds-username
+v-kubernetes-test-k8s.-.demo.es-s-iPkxiH80Ollq2QgF82Ab-1629178048
+
+/ # exit
+```
+
+So, we can see that the secret `db-password` is mounted into the pod, where the secret key is mounted as file and value is the content of that file.
+
+## Cleaning up
+
+To clean up the Kubernetes resources created by this tutorial, run:
+
+```console
+$ kubectl delete ns demo
+namespace "demo" deleted
+
+$ kubectl delete ns test
+namespace "test" deleted
+```
