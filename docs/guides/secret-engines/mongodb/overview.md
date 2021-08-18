@@ -1,11 +1,11 @@
 ---
 title: Manage MongoDB credentials using the KubeVault operator
 menu:
-  docs_{{ .version }}:
-    identifier: overview-mongodb
-    name: Overview
-    parent: mongodb-secret-engines
-    weight: 10
+docs_{{ .version }}:
+identifier: overview-mongodb
+name: Overview
+parent: mongodb-secret-engines
+weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
@@ -16,7 +16,7 @@ section_menu_id: guides
 
 MongoDB is one of the supported plugins for the database secrets engine. This plugin generates database credentials dynamically based on configured roles for the MongoDB database. You can easily manage [MongoDB secret engine](https://www.vaultproject.io/docs/secrets/databases/mongodb.html) using the KubeVault operator.
 
-![MongoDB secret engine](/docs/images/guides/secret-engines/mongodb/mongodb_secret_engine_guide.svg)
+![Elasticsearch secret engine](/docs/images/guides/secret-engines/mongodb/mongodb_secret_engine_guide.svg)
 
 You need to be familiar with the following CRDs:
 
@@ -36,7 +36,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-In this tutorial, we are going to create a [role](https://www.vaultproject.io/docs/secrets/databases/mongodb#setup) using MongoDBRole and issue credential using DatabaseAccessRequest.
+In this tutorial, we are going to create a [role](https://www.vaultproject.io/docs/secrets/databases/mongodb#setup) using MongoDB and issue credential using DatabaseAccessRequest.
 
 ## Vault Server
 
@@ -59,103 +59,79 @@ $ kubectl get appbinding -n demo vault -o yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
+  creationTimestamp: "2021-08-16T08:23:38Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: vault
+    app.kubernetes.io/managed-by: kubevault.com
+    app.kubernetes.io/name: vaultservers.kubevault.com
   name: vault
   namespace: demo
+  ownerReferences:
+  - apiVersion: kubevault.com/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: VaultServer
+    name: vault
+    uid: 6b405147-93da-41ff-aad3-29ae9f415d0a
+  resourceVersion: "602898"
+  uid: b54873fd-0f34-42f7-bdf3-4e667edb4659
 spec:
   clientConfig:
-    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
     service:
       name: vault
       port: 8200
-      scheme: HTTPS
+      scheme: http
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
     kind: VaultServerConfiguration
-    path: kubernetes
-    vaultRole: vault-policy-controller
     kubernetes:
       serviceAccountName: vault
       tokenReviewerServiceAccountName: vault-k8s-token-reviewer
       usePodServiceAccountForCSIDriver: true
+    path: kubernetes
+    vaultRole: vault-policy-controller
 ```
 
-## Enable and Configure MongoDB Secret Engine
+## Enable and Configure Elasticsearch Secret Engine
 
 When a [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md) crd object is created, the KubeVault operator will enable a secret engine on specified path and configure the secret engine with given configurations.
 
-A sample SecretEngine object for the MongoDB  secret engine:
+A sample SecretEngine object for the Elasticsearch secret engine:
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
 kind: SecretEngine
 metadata:
-  name: mongodb-engine
+  name: mongo-engine
   namespace: demo
 spec:
   vaultRef:
     name: vault
   mongodb:
     databaseRef:
-      name: mongo-app
-      namespace: demo
-```
-
-To configure the MongoDB secret engine, you need to provide the MongoDB connection information through an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md).
-
-```console
-$ kubectl get services -n demo
-NAME    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)           AGE
-mongo   ClusterIP   10.98.184.214   <none>        27017/TCP         7h7m
-```
-
-Let's consider `mongo` is the Kubernetes service name that communicate with MongoDB servers. You can also connect to the database server using `URL`. Visit [AppBinding documentation](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) for more details. A sample AppBinding example with necessary k8s secret is given below:
-
-```yaml
-apiVersion: appcatalog.appscode.com/v1alpha1
-kind: AppBinding
-metadata:
-  name: mongo-app
-  namespace: demo
-spec:
-  secret:
-    name: mongo-user-cred # k8s secret name
-  clientConfig:
-    service:
-      name: mongo
-      scheme: mongodb
-      port: 27017
-    insecureSkipTLSVerify: true
----
-apiVersion: v1
-data:
-  username: cm9vdA== # base64 encoded database username
-  password: cm9vdA== # base64 encoded database password
-kind: Secret
-metadata:
-  name: mongo-user-cred
-  namespace: demo
+      name: mongodb
+      namespace: db
+    pluginName: "mongodb-database-plugin"
+  path: "your-database-path"
 ```
 
 Let's deploy SecretEngine:
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/mongodb/mongodbApp.yaml
-appbinding.appcatalog.appscode.com/mongo-app created
-secret/mongo-user-cred created
-
-$ kubectl apply -f docs/examples/guides/secret-engines/mongodb/mongoSecretEngine.yaml
-secretengine.engine.kubevault.com/mongodb-engine created
+$ kubectl apply -f docs/examples/guides/secret-engines/mongodb/secretengine.yaml
+secretengine.engine.kubevault.com/mongo-engine created
 ```
 
 Wait till the status become `Success`:
 
 ```console
 $ kubectl get secretengines -n demo
-NAME             STATUS
-mongodb-engine   Success
+NAME        STATUS    AGE
+mongo-engine   Success   10s
 ```
 
-Since the status is `Success`, the MongoDB secret engine is enabled and successfully configured. You can use `kubectl describe secretengine -n <namepsace> <name>` to check for error events, if any.
+Since the status is `Success`, the Elasticsearch secret engine is enabled and successfully configured. You can use `kubectl describe secretengine -n <namepsace> <name>` to check for error events, if any.
 
 ## Create MongoDB Role
 
@@ -167,14 +143,15 @@ A sample MongoDBRole object is given below:
 apiVersion: engine.kubevault.com/v1alpha1
 kind: MongoDBRole
 metadata:
-  name: mdb-role
+  name: mongo-superuser-role
   namespace: demo
 spec:
   vaultRef:
     name: vault
   databaseRef:
-    name: mongo-app
-    namespace: demo
+    name: mongodb
+    namespace: db
+  path: "your-database-path"
   creationStatements:
     - "{ \"db\": \"admin\", \"roles\": [{ \"role\": \"readWrite\" }, {\"role\": \"read\", \"db\": \"foo\"}] }"
   defaultTTL: 1h
@@ -184,12 +161,12 @@ spec:
 Let's deploy MongoDBRole:
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/mongodb/mongoRole.yaml
-mongodbrole.engine.kubevault.com/mdb-role created
+$ kubectl apply -f docs/examples/guides/secret-engines/mongodb/secretenginerole.yaml
+mongodbrole.engine.kubevault.com/mongo-superuser-role created
 
 $ kubectl get mongodbrole -n demo
-NAME       AGE
-mdb-role   16s
+NAME                STATUS    AGE
+mongo-superuser-role   Success   34m
 ```
 
 You can also check from Vault that the role is created.
@@ -198,16 +175,16 @@ To resolve the naming conflict, name of the role in Vault will follow this forma
 > Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
 ```console
-$ vault list database/roles
+$ vault list your-database-path/roles
 Keys
 ----
-k8s.-.demo.mdb-role
+k8s.-.demo.mongo-superuser-role
 
-$ vault read database/roles/k8s.-.demo.mdb-role
+$ vault read your-database-path/roles/k8s.-.demo.mongo-superuser-role
 Key                      Value
 ---                      -----
 creation_statements      [{ "db": "admin", "roles": [{ "role": "readWrite" }, {"role": "read", "db": "foo"}] }]
-db_name                  k8s.-.demo.mongo-app
+db_name                  k8s.-.db.mongodb
 default_ttl              1h
 max_ttl                  24h
 renew_statements         []
@@ -218,36 +195,36 @@ rollback_statements      []
 If we delete the MongoDBRole, then the respective role will be deleted from the Vault.
 
 ```console
-$ kubectl delete mongodbrole -n demo mdb-role
-mongodbrole.engine.kubevault.com "mdb-role" deleted
+$ kubectl delete mongodbrole -n demo mongo-superuser-role
+mongodbrole.engine.kubevault.com "mongo-superuser-role" deleted
 ```
 
 Check from Vault whether the role exists:
 
 ```console
-$ vault read database/roles/k8s.-.demo.mdb-role
-No value found at database/roles/k8s.-.demo.mdb-role
+$ vault read your-database-path/roles/k8s.-.demo.mongo-superuser-role
+No value found at your-database-path/roles/k8s.-.demo.mongo-superuser-role
 
-$ vault list database/roles
-No value found at database/roles/
+$ vault list your-database-path/roles
+No value found at your-database-path/roles/
 ```
 
 ## Generate MongoDB credentials
 
 By using [DatabaseAccessRequest](/docs/concepts/secret-engine-crds/database-secret-engine/databaseaccessrequest.md), you can generate database access credentials from Vault.
 
-Here, we are going to make a request to Vault for MongoDB credentials by creating `mdb-cred-rqst` DatabaseAccessRequest in `demo` namespace.
+Here, we are going to make a request to Vault for Elasticsearch credentials by creating `mongo-cred-rqst` DatabaseAccessRequest in `demo` namespace.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
 kind: DatabaseAccessRequest
 metadata:
-  name: mdb-cred-rqst
+  name: mongo-cred-rqst
   namespace: demo
 spec:
   roleRef:
     kind: MongoDBRole
-    name: mdb-role
+    name: mongo-superuser-role
     namespace: demo
   subjects:
     - kind: ServiceAccount
@@ -255,36 +232,36 @@ spec:
       namespace: demo
 ```
 
-Here, `spec.roleRef` is the reference of MongoDBRole against which credentials will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret.
+Here, `spec.roleRef` is the reference of MongoDB against which credentials will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to it will have read access of the credential secret.
 
 Now, we are going to create DatabaseAccessRequest.
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/mongodb/mongoAccessRequest.yaml
-databaseaccessrequest.engine.kubevault.com/mdb-cred-rqst created
+$ kubectl apply -f docs/examples/guides/secret-engines/mongodb/mongodbaccessrequest.yaml
+databaseaccessrequest.engine.kubevault.com/mongo-cred-rqst created
 
 $ kubectl get databaseaccessrequest -n demo
-NAME            AGE
-mdb-cred-rqst   72m
+NAME              AGE
+mongo-cred-rqst   72m
 ```
 
 Database credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny DatabaseAccessRequest.
 
 ```console
 # using KubeVault CLI as kubectl plugin to approve request
-$ kubectl vault approve databaseaccessrequest mdb-cred-rqst -n demo
+$ kubectl vault approve databaseaccessrequest mongo-cred-rqst -n demo
 approved
 
-$ kubectl get databaseaccessrequest -n demo mdb-cred-rqst -o yaml
+$ kubectl get databaseaccessrequest -n demo mongo-cred-rqst -o yaml
 apiVersion: engine.kubevault.com/v1alpha1
 kind: DatabaseAccessRequest
 metadata:
-  name: mdb-cred-rqst
+  name: mongo-cred-rqst
   namespace: demo
 spec:
   roleRef:
     kind: MongoDBRole
-    name: mdb-role
+    name: mongo-superuser-role
     namespace: demo
   subjects:
   - kind: ServiceAccount
@@ -292,22 +269,22 @@ spec:
     namespace: demo
 status:
   conditions:
-  - lastUpdateTime: "2019-11-18T06:41:57Z"
+  - lastUpdateTime: "2020-11-18T06:41:57Z"
     message: This was approved by kubectl vault approve databaseaccessrequest
     reason: KubectlApprove
     type: Approved
   lease:
     duration: 1h0m0s
-    id: database/creds/k8s.-.demo.mdb-role/ni3TCo2HkSwCUb8kmQuvIDdx
+    id: your-database-path/creds/k8s.-.demo.mongo-superuser-role/ni3TCo2HkSwCUb8kmQuvIDdx
     renewable: true
   secret:
-    name: mdb-cred-rqst-gy66wq
+    name: mongo-cred-rqst-gy66wq
 ```
 
 Once DatabaseAccessRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
 
 ```console
-$ kubectl get databaseaccessrequest mdb-cred-rqst -n demo -o json | jq '.status'
+$ kubectl get databaseaccessrequest mongo-cred-rqst -n demo -o json | jq '.status'
 {
   "conditions": [
     {
@@ -319,28 +296,28 @@ $ kubectl get databaseaccessrequest mdb-cred-rqst -n demo -o json | jq '.status'
   ],
   "lease": {
     "duration": "1h0m0s",
-    "id": "database/creds/k8s.-.demo.mdb-role/ni3TCo2HkSwCUb8kmQuvIDdx",
+    "id": "your-database-path/creds/k8s.-.demo.mongo-superuser-role/ni3TCo2HkSwCUb8kmQuvIDdx",
     "renewable": true
   },
   "secret": {
-    "name": "mdb-cred-rqst-gy66wq"
+    "name": "mongo-cred-rqst-gy66wq"
   }
 }
 
-$ kubectl get secret -n demo mdb-cred-rqst-gy66wq -o yaml
+$ kubectl get secret -n demo mongo-cred-rqst-gy66wq -o yaml
 apiVersion: v1
 data:
   password: QTFhLVBkZGlsZFFxa0o1cnlvR20=
   username: di1rdWJlcm5ldGVzLWRlbW8TE1NzQwNTkzMTc=
 kind: Secret
 metadata:
-  name: mdb-cred-rqst-gy66wq
+  name: mongo-cred-rqst-gy66wq
   namespace: demo
   ownerReferences:
   - apiVersion: engine.kubevault.com/v1alpha1
     controller: true
     kind: DatabaseAccessRequest
-    name: mdb-cred-rqst
+    name: mongo-cred-rqst
     uid: 54ce63ca-d0e7-4b97-9085-b52eb3cb334f
 type: Opaque
 ```
@@ -348,14 +325,14 @@ type: Opaque
 If DatabaseAccessRequest is deleted, then credential lease (if any) will be revoked.
 
 ```console
-$ kubectl delete databaseaccessrequest -n demo mdb-cred-rqst
-databaseaccessrequest.engine.kubevault.com "mdb-cred-rqst" deleted
+$ kubectl delete databaseaccessrequest -n demo mongo-cred-rqst
+databaseaccessrequest.engine.kubevault.com "mongo-cred-rqst" deleted
 ```
 
 If DatabaseAccessRequest is `Denied`, then the KubeVault operator will not issue any credential.
 
 ```console
-$ kubectl vault deny databaseaccessrequest mdb-cred-rqst -n demo
+$ kubectl vault deny databaseaccessrequest mongo-cred-rqst -n demo
   Denied
 ```
 

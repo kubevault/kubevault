@@ -232,7 +232,7 @@ spec:
       namespace: demo
 ```
 
-Here, `spec.roleRef` is the reference of Elasticsearch against which credentials will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret.
+Here, `spec.roleRef` is the reference of Elasticsearch against which credentials will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to it will have read access of the credential secret.
 
 Now, we are going to create DatabaseAccessRequest.
 

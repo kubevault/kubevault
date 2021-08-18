@@ -1,12 +1,12 @@
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
 metadata:
-  name: mdb-se-policy
+  name: mongo-reader-policy
   namespace: demo
 spec:
   vaultRef:
     name: vault
   policyDocument: |
-    path "database/*" {
-      capabilities = ["create", "read"]
+    path "your-database-path/creds/k8s.-.demo.mongo-superuser-role" {
+      capabilities = ["read"]
     }

@@ -1,12 +1,12 @@
 apiVersion: engine.kubevault.com/v1alpha1
 kind: DatabaseAccessRequest
 metadata:
-  name: mdb-cred-rqst
+  name: mongo-cred-rqst
   namespace: demo
 spec:
   roleRef:
     kind: MongoDBRole
-    name: mdb-role
+    name: mongo-superuser-role
     namespace: demo
   subjects:
     - kind: ServiceAccount

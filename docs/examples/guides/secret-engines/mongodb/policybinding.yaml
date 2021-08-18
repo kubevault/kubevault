@@ -1,16 +1,16 @@
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicyBinding
 metadata:
-  name: mdb-se-role
+  name: mongo-reader-role
   namespace: demo
 spec:
   vaultRef:
     name: vault
   policies:
-  - ref: mdb-se-policy
+    - ref: mongo-reader-policy
   subjectRef:
     kubernetes:
       serviceAccountNames:
-        - "pod-sa"
+        - "test-user-account"
       serviceAccountNamespaces:
-        - "trial"
+        - "test"
