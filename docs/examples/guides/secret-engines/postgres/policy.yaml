@@ -1,12 +1,12 @@
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
 metadata:
-  name: psql-se-policy
+  name: postgres-reader-policy
   namespace: demo
 spec:
   vaultRef:
     name: vault
   policyDocument: |
-    path "my-postgres-se/*" {
-      capabilities = ["create", "read"]
+    path "your-database-path/creds/k8s.-.demo.postgres-superuser-role" {
+      capabilities = ["read"]
     }
