@@ -7,6 +7,6 @@ spec:
   vaultRef:
     name: vault
   policyDocument: |
-    path "secret/db-pass" {
+    path "secret/*" {
       capabilities = ["read"]
     }

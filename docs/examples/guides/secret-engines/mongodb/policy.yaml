@@ -7,6 +7,6 @@ spec:
   vaultRef:
     name: vault
   policyDocument: |
-    path "your-database-path/creds/k8s.-.demo.mongo-superuser-role" {
+    path "your-database-path/creds/*" {
       capabilities = ["read"]
     }
