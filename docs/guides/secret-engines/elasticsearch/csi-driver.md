@@ -164,10 +164,10 @@ spec:
 Let's create VaultPolicy and VaultPolicyBinding:
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/kv/policy.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/elasticsearch/policy.yaml
 vaultpolicy.policy.kubevault.com/es-reader-policy created
 
-$ kubectl apply -f docs/examples/guides/secret-engines/kv/policybinding.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/elasticsearch/policybinding.yaml
 vaultpolicybinding.policy.kubevault.com/es-reader-role created
 ```
 
@@ -282,7 +282,7 @@ v-kubernetes-test-k8s.-.demo.es-s-iPkxiH80Ollq2QgF82Ab-1629178048
 / # exit
 ```
 
-So, we can see that the secret `db-password` is mounted into the pod, where the secret key is mounted as file and value is the content of that file.
+So, we can see that the secret `db-username` and `db-password` is mounted into the pod, where the secret key is mounted as file and value is the content of that file.
 
 ## Cleaning up
 

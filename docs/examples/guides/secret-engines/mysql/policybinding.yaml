@@ -1,16 +1,16 @@
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicyBinding
 metadata:
-  name: mysql-se-role
+  name: mysql-reader-role
   namespace: demo
 spec:
   vaultRef:
     name: vault
   policies:
-  - ref: mysql-se-policy
+    - ref: mysql-reader-policy
   subjectRef:
     kubernetes:
       serviceAccountNames:
-        - "pod-sa"
+        - "test-user-account"
       serviceAccountNamespaces:
-        - "trial"
+        - "test"

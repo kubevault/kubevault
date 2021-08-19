@@ -1,12 +1,12 @@
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
 metadata:
-  name: mysql-engine-policy
+  name: mysql-reader-policy
   namespace: demo
 spec:
   vaultRef:
     name: vault
   policyDocument: |
-    path "mysql-se/*" {
-      capabilities = ["read","create"]
+    path "your-database-path/creds/k8s.-.demo.mysql-superuser-role" {
+      capabilities = ["read"]
     }
