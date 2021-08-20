@@ -59,24 +59,38 @@ $ kubectl get appbinding -n demo vault -o yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
+  creationTimestamp: "2021-08-16T08:23:38Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: vault
+    app.kubernetes.io/managed-by: kubevault.com
+    app.kubernetes.io/name: vaultservers.kubevault.com
   name: vault
   namespace: demo
+  ownerReferences:
+  - apiVersion: kubevault.com/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: VaultServer
+    name: vault
+    uid: 6b405147-93da-41ff-aad3-29ae9f415d0a
+  resourceVersion: "602898"
+  uid: b54873fd-0f34-42f7-bdf3-4e667edb4659
 spec:
   clientConfig:
-    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
     service:
       name: vault
       port: 8200
-      scheme: HTTPS
+      scheme: http
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
     kind: VaultServerConfiguration
-    path: kubernetes
-    vaultRole: vault-policy-controller
     kubernetes:
       serviceAccountName: vault
       tokenReviewerServiceAccountName: vault-k8s-token-reviewer
       usePodServiceAccountForCSIDriver: true
+    path: kubernetes
+    vaultRole: vault-policy-controller
 ```
 
 ## Enable and Configure GCP Secret Engine
@@ -96,6 +110,7 @@ spec:
     name: vault
   gcp:
     credentialSecret: gcp-cred
+  path: "your-gcp-path"
 ```
 
 To configure the GCP secret engine, you need to provide google service account credentials through a Kubernetes secret.
@@ -113,10 +128,10 @@ data:
 Let's deploy SecretEngine:
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/gcp/gcpCred.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/secret.yaml
 secret/gcp-cred created
 
-$ kubectl apply -f docs/examples/guides/secret-engines/gcp/gcpSecretEngine.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/secretengine.yaml
 secretengine.engine.kubevault.com/gcp-engine created
 ```
 
@@ -145,11 +160,13 @@ metadata:
 spec:
   vaultRef:
     name: vault
-  secretType: access_token
-  project: ackube
-  bindings: 'resource "//cloudresourcemanager.googleapis.com/projects/ackube" {
-    roles = ["roles/viewer"]
-    }'
+  path: "your-gcp-path"
+  secretType: "access_token"
+  project: appscode-testing
+  bindings: |
+    resource "//cloudresourcemanager.googleapis.com/projects/appscode-testing" {
+      roles = ["roles/viewer"]
+    }
   tokenScopes:
     - https://www.googleapis.com/auth/cloud-platform
 ```
@@ -157,7 +174,7 @@ spec:
 Let's deploy GCPRole:
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/gcp/gcpRole.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/secretenginerole.yaml
 gcprole.engine.kubevault.com/gcp-role created
 
 $ kubectl get gcprole -n demo
@@ -171,36 +188,36 @@ To resolve the naming conflict, name of the roleset in Vault will follow this fo
 > Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
 ```console
-$ vault list gcp/roleset
+$ vault list your-gcp-path/roleset
 Keys
 ----
 k8s.-.demo.gcp-role
 
-$ vault read gcp/roleset/k8s.-.demo.gcp-role
+$ vault read your-gcp-path/roleset/k8s.-.demo.gcp-role
 Key                      Value
 ---                      -----
-bindings                 map[//cloudresourcemanager.googleapis.com/projects/ackube:[roles/viewer]]
-project                  ackube
+bindings                 map[//cloudresourcemanager.googleapis.com/projects/appscode-testing:[roles/viewer]]
+project                  appscode-testing
 secret_type              access_token
-service_account_email    vaultk8s---demo-gcp-424523423@ackube.iam.gserviceaccount.com
+service_account_email    vaultk8s---demo-gcp-1629380381@appscode-testing.iam.gserviceaccount.com
 token_scopes             [https://www.googleapis.com/auth/cloud-platform]
 ```
 
 If we delete the GCPRole, then the respective role will be deleted from the Vault.
 
 ```console
-$ kubectl delete -f docs/examples/guides/secret-engines/gcp/gcpRole.yaml
+$ kubectl delete -f docs/examples/guides/secret-engines/gcp/secretenginerole.yaml
   gcprole.engine.kubevault.com "gcp-role" deleted
 ```
 
 Check from Vault whether the roleset exists:
 
 ```console
-$ vault read gcp/roleset/k8s.-.demo.gcp-role
-  No value found at gcp/roleset/k8s.-.demo.gcp-role
+$ vault read your-gcp-path/roleset/k8s.-.demo.gcp-role
+  No value found at your-gcp-path/roleset/k8s.-.demo.gcp-role
 
-$ vault list gcp/roleset
-  No value found at gcp/roleset/
+$ vault list your-gcp-path/roleset
+  No value found at your-gcp-path/roleset/
 ```
 
 ## Generate GCP credentials
@@ -230,11 +247,11 @@ Here, `spec.roleRef` is the reference of GCPRole against which credentials will 
 Now, we are going to create GCPAccessKeyRequest.
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/gcp/gcpAccessKeyRequest.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/gcpaccesskeyrequest.yaml
 gcpaccesskeyrequest.engine.kubevault.com/gcp-cred-req created
 
 $ kubectl get gcpaccesskeyrequests -n demo
-NAME        AGE
+NAME          AGE
 gcp-cred-req  3s
 ```
 
