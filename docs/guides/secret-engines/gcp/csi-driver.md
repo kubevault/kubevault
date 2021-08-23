@@ -35,7 +35,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engines/mysql) folder in GitHub repository [KubeVault/docs](https://github.com/kubevault/kubevault)
+> Note: YAML files used in this tutorial stored in [examples](/docs/examples/guides/secret-engines/gcp) folder in GitHub repository [KubeVault/docs](https://github.com/kubevault/kubevault)
 
 ## Vault Server
 
@@ -109,7 +109,7 @@ secretengine.engine.kubevault.com/gcp-engine created
 
 ### Create GCPRole
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/mysql/secretenginerole.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/secretenginerole.yaml
 gcprole.engine.kubevault.com/gcp-role created
 ```
 

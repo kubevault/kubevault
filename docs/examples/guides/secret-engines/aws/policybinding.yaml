@@ -1,16 +1,16 @@
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicyBinding
 metadata:
-  name: gcp-se-role
+  name: aws-reader-role
   namespace: demo
 spec:
   vaultRef:
     name: vault
   policies:
-  - ref: gcp-se-policy
+    - ref: aws-reader-policy
   subjectRef:
     kubernetes:
       serviceAccountNames:
-        - "pod-sa"
+        - "test-user-account"
       serviceAccountNamespaces:
-        - "trial"
+        - "test"
