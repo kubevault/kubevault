@@ -8,6 +8,6 @@ spec:
     name: azure-role
     namespace: demo
   subjects:
-  - kind: ServiceAccount
-    name: demo-sa
-    namespace: demo
+    - kind: ServiceAccount
+      name: demo-sa
+      namespace: demo

@@ -1,12 +1,12 @@
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
 metadata:
-  name: azure-se-policy
+  name: azure-reader-policy
   namespace: demo
 spec:
   vaultRef:
     name: vault
   policyDocument: |
-    path "azure/*" {
-      capabilities = ["create", "read"]
+    path "your-azure-path/creds/*" {
+      capabilities = ["read", "create"]
     }

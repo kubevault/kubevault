@@ -1,11 +1,11 @@
 ---
 title: Mount MongoDB Secrets using CSI Driver
 menu:
-docs_{{ .version }}:
-identifier: csi-driver-mongodb
-name: CSI Driver
-parent: mongodb-secret-engines
-weight: 15
+  docs_{{ .version }}:
+    identifier: csi-driver-mongodb
+    name: CSI Driver
+    parent: mongodb-secret-engines
+    weight: 15
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---

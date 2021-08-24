@@ -1,11 +1,11 @@
 ---
 title: Manage Elasticsearch credentials using the KubeVault operator
 menu:
-docs_{{ .version }}:
-identifier: overview-elasticsearch
-name: Overview
-parent: elasticsearch-secret-engines
-weight: 10
+  docs_{{ .version }}:
+    identifier: overview-elasticsearch
+    name: Overview
+    parent: elasticsearch-secret-engines
+    weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---

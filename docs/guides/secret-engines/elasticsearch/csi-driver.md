@@ -1,11 +1,11 @@
 ---
 title: Mount Elasticsearch Secrets using CSI Driver
 menu:
-docs_{{ .version }}:
-identifier: csi-driver-elasticsearch
-name: CSI Driver
-parent: elasticsearch-secret-engines
-weight: 15
+  docs_{{ .version }}:
+    identifier: csi-driver-elasticsearch
+    name: CSI Driver
+    parent: elasticsearch-secret-engines
+    weight: 15
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---

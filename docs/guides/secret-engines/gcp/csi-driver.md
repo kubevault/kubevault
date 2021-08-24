@@ -1,11 +1,11 @@
 ---
 title: Mount GCP Secrets using CSI Driver
 menu:
-docs_{{ .version }}:
-identifier: csi-driver-gcp
-name: CSI Driver
-parent: gcp-secret-engines
-weight: 15
+  docs_{{ .version }}:
+    identifier: csi-driver-gcp
+    name: CSI Driver
+    parent: gcp-secret-engines
+    weight: 15
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---

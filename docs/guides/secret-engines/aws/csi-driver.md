@@ -1,11 +1,11 @@
 ---
 title: Mount AWS IAM Secrets using CSI Driver
 menu:
-docs_{{ .version }}:
-identifier: csi-driver-aws
-name: CSI Driver
-parent: aws-secret-engines
-weight: 15
+  docs_{{ .version }}:
+    identifier: csi-driver-aws
+    name: CSI Driver
+    parent: aws-secret-engines
+    weight: 15
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---

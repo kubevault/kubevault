@@ -1,11 +1,11 @@
 ---
 title: Manage MongoDB credentials using the KubeVault operator
 menu:
-docs_{{ .version }}:
-identifier: overview-mongodb
-name: Overview
-parent: mongodb-secret-engines
-weight: 10
+  docs_{{ .version }}:
+    identifier: overview-mongodb
+    name: Overview
+    parent: mongodb-secret-engines
+    weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
