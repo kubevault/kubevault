@@ -111,7 +111,7 @@ spec:
   mongodb:
     databaseRef:
       name: mongodb
-      namespace: db
+      namespace: demo
     pluginName: "mongodb-database-plugin"
   path: "your-database-path"
 ```
@@ -150,7 +150,7 @@ spec:
     name: vault
   databaseRef:
     name: mongodb
-    namespace: db
+    namespace: demo
   path: "your-database-path"
   creationStatements:
     - "{ \"db\": \"admin\", \"roles\": [{ \"role\": \"readWrite\" }, {\"role\": \"read\", \"db\": \"foo\"}] }"

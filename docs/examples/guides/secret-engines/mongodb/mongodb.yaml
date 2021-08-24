@@ -2,7 +2,7 @@ apiVersion: kubedb.com/v1alpha2
 kind: MongoDB
 metadata:
   name: mongodb
-  namespace: db
+  namespace: demo
 spec:
   version: "4.2.3"
   storageType: Durable
