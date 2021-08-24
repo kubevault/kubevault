@@ -1,11 +1,11 @@
 ---
 title: ElasticsearchRole | Vault Secret Engine
 menu:
-docs_{{ .version }}:
-identifier: elasticsearch-database-crds
-name: ElasticsearchRole
-parent: database-crds-concepts
-weight: 10
+  docs_{{ .version }}:
+    identifier: elasticsearch-database-crds
+    name: ElasticsearchRole
+    parent: database-crds-concepts
+    weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
