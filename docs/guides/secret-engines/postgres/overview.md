@@ -111,7 +111,7 @@ spec:
   mysql:
     databaseRef:
       name: postgres
-      namespace: db
+      namespace: demo
     pluginName: "postgresql-database-plugin"
   path: "your-database-path"
 ```
@@ -150,7 +150,7 @@ spec:
     name: vault
   databaseRef:
     name: postgres
-    namespace: db
+    namespace: demo
   path: "your-database-path"
   creationStatements:
     - "CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';"
