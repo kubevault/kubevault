@@ -2,7 +2,7 @@ apiVersion: kubedb.com/v1alpha2
 kind: Elasticsearch
 metadata:
   name: elasticsearch
-  namespace: db
+  namespace: demo
 spec:
   version: xpack-7.9.1-v1
   enableSSL: false
