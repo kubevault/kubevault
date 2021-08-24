@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: demo-app
-  namespace: test
+  namespace: demo
 spec:
   serviceAccountName: test-user-account
   containers:
