@@ -13,4 +13,4 @@ spec:
       serviceAccountNames:
         - "test-user-account"
       serviceAccountNamespaces:
-        - "test"
+        - "demo"
