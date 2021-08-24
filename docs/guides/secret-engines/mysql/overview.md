@@ -16,7 +16,7 @@ section_menu_id: guides
 
 MySQL is one of the supported plugins for the database secrets engine. This plugin generates database credentials dynamically based on configured roles for the MySQL database. You can easily manage [MySQL secret engine](https://www.vaultproject.io/docs/secrets/databases/mysql-maria.html) using the KubeVault operator.
 
-![Elasticsearch secret engine](/docs/images/guides/secret-engines/mongodb/mongodb_secret_engine_guide.svg)
+![MySQL secret engine](/docs/images/guides/secret-engines/mysql/mysql_secret_engine_guide.svg)
 
 You need to be familiar with the following CRDs:
 
