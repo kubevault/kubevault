@@ -128,14 +128,7 @@ Key         Value
 password    db-secret-password
 ```
 
-Let's create a separate namespace called `test` for testing purpose.
-
-```console
-$ kubectl create ns test
-namespace/test created
-```
-
-Let's say pod's service account name is `pod-sa` located in `test` namespace. We need to create a [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) and a [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md) so that the pod has access to read secrets from the Vault server.
+Let's say pod's service account name is `pod-sa` located in `demo` namespace. We need to create a [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) and a [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md) so that the pod has access to read secrets from the Vault server.
 
 ### Create Service Account for Pod
 
@@ -145,7 +138,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: pod-sa
-  namespace: test
+  namespace: demo
 ```
 
 ### Create VaultPolicy and VaultPolicyBinding for Pod's Service Account
@@ -218,7 +211,7 @@ apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
 metadata:
   name: vault-database
-  namespace: test
+  namespace: demo
 spec:
   provider: vault
   parameters:
@@ -249,7 +242,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: mypod
-  namespace: test
+  namespace: demo
 spec:
   serviceAccountName: pod-sa
   containers:
@@ -277,7 +270,7 @@ pod/mypod created
 Check if the Pod is running successfully, by running:
 
 ```console
-$ kubectl get pods -n test
+$ kubectl get pods -n demo
 NAME                    READY   STATUS    RESTARTS   AGE
 mypod                   1/1     Running   0          11s
 ```
@@ -287,7 +280,7 @@ mypod                   1/1     Running   0          11s
 If the Pod is running successfully, then check inside the app container by running
 
 ```console
-$ kubectl exec -it -n test  mypod sh
+$ kubectl exec -it -n demo  mypod sh
 / # ls /secrets-store/test
 db-password
 
@@ -306,7 +299,4 @@ To clean up the Kubernetes resources created by this tutorial, run:
 ```console
 $ kubectl delete ns demo
 namespace "demo" deleted
-
-$ kubectl delete ns test
-namespace "test" deleted
 ```
