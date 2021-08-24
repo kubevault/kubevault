@@ -16,7 +16,7 @@ section_menu_id: guides
 
 Elasticsearch is one of the supported plugins for the database secrets engine. This plugin generates database credentials dynamically based on configured roles for the Elasticsearch database. You can easily manage [Elasticsearch secret engine](https://www.vaultproject.io/docs/secrets/databases/elasticdb.html) using the KubeVault operator.
 
-![Elasticsearch secret engine](/docs/images/guides/secret-engines/mongodb/mongodb_secret_engine_guide.svg)
+![Elasticsearch secret engine](/docs/images/guides/secret-engines/elasticsearch/elasticsearch_secret_engine_guide.svg)
 
 You need to be familiar with the following CRDs:
 
@@ -111,7 +111,7 @@ spec:
   elasticsearch:
     databaseRef:
       name: elasticsearch
-      namespace: db
+      namespace: demo
     pluginName: "elasticsearch-database-plugin"
   path: "your-database-path"
 ```
@@ -150,7 +150,7 @@ spec:
     name: vault
   databaseRef:
     name: elasticsearch
-    namespace: db
+    namespace: demo
   path: "your-database-path"
   creationStatements:
     - '{"elasticsearch_roles": ["superuser"]}'
@@ -184,7 +184,7 @@ $ vault read your-database-path/roles/k8s.-.demo.es-superuser-role
 Key                      Value
 ---                      -----
 creation_statements      [{"elasticsearch_roles": ["superuser"]}]
-db_name                  k8s.-.db.elasticsearch
+db_name                  k8s.-.demo.elasticsearch
 default_ttl              1h
 max_ttl                  24h
 renew_statements         []
