@@ -338,6 +338,8 @@ $ kubectl apply -f docs/examples/guides/secret-engines/pki/pod.yaml
 pod/demo-app created
 ```
 
+## Test & Verify
+
 Check if the Pod is running successfully, by running:
 
 ```console
