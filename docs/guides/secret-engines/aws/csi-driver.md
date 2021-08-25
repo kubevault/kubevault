@@ -181,7 +181,7 @@ aws-reader-role                    Success   10s
 
 ## Mount secrets into a Kubernetes pod
 
-So, we can create `SecretProviderClass` now.
+So, we can create `SecretProviderClass` now. You can read more about `SecretProviderClass` [here](https://secrets-store-csi-driver.sigs.k8s.io/concepts.html#secretproviderclass).
 
 ### Create SecretProviderClass
 

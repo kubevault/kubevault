@@ -226,7 +226,7 @@ pki-se-role                   Success   10s
 
 ## Mount Certificates into a Kubernetes Pod
 
-So, we can create `SecretProviderClass` now.
+So, we can create `SecretProviderClass` now. You can read more about `SecretProviderClass` [here](https://secrets-store-csi-driver.sigs.k8s.io/concepts.html#secretproviderclass).
 
 ### Create SecretProviderClass
 
