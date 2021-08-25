@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # Raft
 
-In the Raft storage backend, vault data will be stored in provided file system path. Vault documentation for Consul storage backend can be found in [here](https://www.vaultproject.io/docs/configuration/storage/raft.html).
+In the `Raft` storage backend, vault data will be stored in provided file system path. Vault documentation for `Raft` storage backend can be found in [here](https://www.vaultproject.io/docs/configuration/storage/raft.html).
 
 ```yaml
 apiVersion: kubevault.com/v1alpha1
@@ -60,8 +60,8 @@ spec:
 
 ## spec.backend.raft
 
-To use Raft as backend storage in Vault, we need to specify `spec.backend.raft` in [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md) CRD.
-More information about the Raft backend storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/raft.html)
+To use `Raft` as backend storage in Vault, we need to specify `spec.backend.raft` in [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md) CRD.
+More information about the `Raft` backend storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/raft.html)
 
 ```yaml
 spec:
@@ -79,7 +79,7 @@ Here, we are going to describe the various attributes of the `spec.backend.raft`
 
 ### raft.path
 
-Path specifies the filesystem path where the vault data gets stored. This value can be overridden by setting the `VAULT_RAFT_PATH` environment variable. `default: ""`
+`Path` specifies the filesystem path where the vault data gets stored. This value can be overridden by setting the `VAULT_RAFT_PATH` environment variable. `default: ""`
 
 ```yaml
 spec:
