@@ -1,11 +1,11 @@
 ---
 title: Raft | Vault Server Storage
 menu:
-docs_{{ .version }}:
-identifier: raft-storage
-name: Raft
-parent: storage-vault-server-crds
-weight: 10
+  docs_{{ .version }}:
+    identifier: raft-storage
+    name: Raft
+    parent: storage-vault-server-crds
+    weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
