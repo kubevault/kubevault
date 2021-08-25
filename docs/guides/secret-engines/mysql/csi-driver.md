@@ -217,6 +217,7 @@ $ kubectl apply -f docs/examples/guides/secret-engines/mysql/secretproviderclass
 secretproviderclass.secrets-store.csi.x-k8s.io/vault-db-provider created
 ```
 
+NOTE: The `SecretProviderClass` needs to be created in the same namespace as the pod.
 
 ### Create Pod
 
