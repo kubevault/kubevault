@@ -10,8 +10,6 @@ menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
-{{< notice type="warning" message="KubeVault's built-in CSI driver has been removed in favor of [Secrets Store CSI driver for Kubernetes secrets](https://github.com/kubernetes-sigs/secrets-store-csi-driver)." >}}
-
 # Mount Key/Value Secrets using CSI Driver
 
 At first, you need to have a Kubernetes 1.16 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
