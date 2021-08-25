@@ -8,5 +8,5 @@ spec:
     name: vault
   policyDocument: |
     path "pki/issue/*" {
-      capabilities = ["create", "read", "update"]
+      capabilities = ["update"]
     }

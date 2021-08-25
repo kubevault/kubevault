@@ -183,7 +183,7 @@ spec:
     name: vault
   policyDocument: |
     path "pki/issue/*" {
-      capabilities = ["create", "read", "update"]
+      capabilities = ["update"]
     }
 ---
 apiVersion: policy.kubevault.com/v1alpha1
