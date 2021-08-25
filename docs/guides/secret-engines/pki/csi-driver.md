@@ -304,7 +304,7 @@ Here, you can also pass the following parameters optionally to issue the certifi
 
 ### Create Pod
 
-Now we can create a Pod which refers to this volume. When the Pod is created, the volume will be attached, formatted and mounted to the specific container.
+Now we can create a `Pod` to consume the `PKI` secrets. When the `Pod` is created, the `Provider` fetches the secret and write them to `Pod` volume as files. At this point, the volume is successfully mounted and the `Pod` starts running.
 
 ```yaml
 apiVersion: v1
