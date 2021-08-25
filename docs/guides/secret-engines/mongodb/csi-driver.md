@@ -94,13 +94,13 @@ spec:
 
 ### Enable MongoDB SecretEngine
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/elasticsearch/secretengine.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/mongodb/secretengine.yaml
 secretengine.engine.kubevault.com/mongo-engine created
 ```
 
 ### Create MongoDBRole
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/elasticsearch/secretenginerole.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/mongodb/secretenginerole.yaml
 elasticsearchrole.engine.kubevault.com/mongo-superuser-role created
 ```
 
