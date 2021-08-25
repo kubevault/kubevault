@@ -142,6 +142,10 @@ metadata:
 ```console
 $ kubectl apply -f docs/examples/guides/secret-engines/kv/serviceaccount.yaml
 serviceaccount/pod-sa created
+
+$ kubectl get serviceaccount -n demo
+NAME                SECRETS   AGE
+pod-sa              1         4h10m
 ```
 
 ### Create VaultPolicy and VaultPolicyBinding for Pod's Service Account
