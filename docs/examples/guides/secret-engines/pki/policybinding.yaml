@@ -7,10 +7,10 @@ spec:
   vaultRef:
     name: vault
   policies:
-  - ref: pki-se-policy
+    - ref: pki-se-policy
   subjectRef:
     kubernetes:
       serviceAccountNames:
-        - "pod-sa"
+        - "test-user-account"
       serviceAccountNamespaces:
-        - "trial"
+        - "demo"
