@@ -21,7 +21,7 @@ A `ElasticsearchRole` is a Kubernetes `CustomResourceDefinition` (CRD) which all
 When a `ElasticsearchRole` is created, the KubeVault operator creates a Vault [role](https://www.vaultproject.io/api/secret/databases/index.html#create-role) according to the specification.
 If the user deletes the `ElasticsearchRole` CRD, then the respective role will also be deleted from Vault.
 
-![ElasticsearchRole CRD](/docs/images/concepts/mongodb_role.svg)
+![ElasticsearchRole CRD](/docs/images/concepts/elasticsearch_role.svg)
 
 ## ElasticsearchRole CRD Specification
 
@@ -120,7 +120,7 @@ spec:
 #### spec.creationStatements
 
 `spec.creationStatements` is a `required` field that specifies a list of database statements executed to create and configure a user.
-See in [here](https://www.vaultproject.io/api/secret/databases/mongodb.html#creation_statements) for Vault documentation.
+See in [here](https://www.vaultproject.io/api/secret/databases/elasticdb.html#creation_statements) for Vault documentation.
 
 ```yaml
 spec:
