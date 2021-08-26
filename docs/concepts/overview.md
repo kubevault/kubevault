@@ -30,6 +30,7 @@ KubeVault operator makes it easy to deploy, maintain and manage Vault servers in
 - Manage Vault [MongoDB Database secret engine](https://www.vaultproject.io/api/secret/databases/mongodb.html)
 - Manage Vault [MySQL Database secret engine](https://www.vaultproject.io/api/secret/databases/mysql-maria.html)
 - Manage Vault [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html)
+- Manage Vault [Elasticsearch Database secret engine](https://www.vaultproject.io/api/secret/databases/elasticdb)
 - Monitor Vault using Prometheus
 
 ## Core features
@@ -65,6 +66,10 @@ MySQL database secret engine in Vault generates MySQL database credentials dynam
 ### Manage Vault Postgres Database Secret Engine
 
 Postgres database secret engine in Vault generates Postgres database credentials dynamically based on configured roles. Using KubeVault operator, you can configure secret engine, create role and issue credential from Vault. A User can request credentials and after it's been approved KubeVault operator will create a Kubernetes Secret containing the credential and also creates RBAC Role and RoleBinding so that the user can access the Secret.
+
+### Manage Vault Elasticsearch Database Secret Engine
+
+Elasticsearch database secret engine in Vault generates Elasticsearch database credentials dynamically based on configured roles. Using KubeVault operator, you can configure secret engine, create role and issue credential from Vault. A User can request credentials and after it's been approved KubeVault operator will create a Kubernetes Secret containing the credential and also creates RBAC Role and RoleBinding so that the user can access the Secret.
 
 ### Monitor Vault using Prometheus
 
