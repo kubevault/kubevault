@@ -121,6 +121,9 @@ Secret engines are enabled at a "path" in Vault. When a request comes to Vault, 
 
 - `spec.mysql`: Specifies database(mysql) secret engine configuration
 
+- `spec.elasticsearch`: Specifies database(elasticsearch) secret engine configuration
+
+
 #### spec.aws
 
 `spec.aws` specifies the configuration required to configure
@@ -442,6 +445,55 @@ spec:
   mysql:
     maxConnectionLifetime: 5s
   ```
+
+#### spec.elasticsearch
+
+`spec.elasticsearch` specifies the configuration required to configure Elasticsearch database secret engine. [See more](https://www.vaultproject.io/api/secret/databases/elasticdb.html#configure-connection)
+
+```yaml
+spec:
+  elasticsearch:
+    databaseRef:
+      name: <appbinding-name>
+      namespace: <appbinding-namespace>
+    pluginName: <plugin-name>
+    allowedRoles:
+      - "role1"
+      - "role2"
+      - ... ...
+```
+
+- `databaseRef` : `Required`. Specifies an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference that is required to connect to an Elasticsearch database. It is also used to generate `db_name` (i.e. `/v1/path/config/db_name`) where the database secret engine will be configured at. The naming of `db_name` follows: `k8s.{clusterName}.{namespace}.{name}`.
+
+  - `name` : `Required`. Specifies the AppBinding name.
+
+  - `namespace` : `Required`. Specifies the AppBinding namespace.
+
+  ```yaml
+  elasticsearch:
+    databaseRef:
+      name: db-app
+      namespace: demo
+  ```
+
+  The generated `db_name` for the above example will be: `k8s.-.demo.db-app`. If the cluster name is empty, it is replaced by "`-`".
+
+- `pluginName` : `Optional`. Specifies the name of the plugin to use for this connection.
+  The default plugin name is `elasticsearch-database-plugin`.
+
+    ```yaml
+    elasticsearch:
+      pluginName: elasticsearch-database-plugin
+    ```
+
+- `allowedRoles` : `Optional`. Specifies a list of roles allowed to use this connection.
+  Default to `"*"` (i.e. any role can use this connection).
+
+    ```yaml
+    elasticsearch:
+      allowedRoles:
+        - "readonly"
+    ```
 
 ### SecretEngine Status
 
