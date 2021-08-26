@@ -30,6 +30,7 @@ Guides show you how to perform tasks with KubeVault operator and Vault CSI drive
 - To manage Vault MongoDB Database secret engine] see [here](/docs/guides/secret-engines/mongodb/overview.md).
 - To manage Vault MySQL Database secret engine see [here](/docs/guides/secret-engines/mysql/overview.md).
 - To manage Vault PostgreSQL Database secret engine see [here](/docs/guides/secret-engines/postgres/overview.md).
+- To manage Vault Elasticsearch Database secret engine see [here](/docs/guides/secret-engines/elasticsearch/overview.md).
 - To set up monitoring see [here](/docs/guides/monitoring/overview.md).
 - To use KubeVault operator for external Vault see [here](/docs/guides/platforms/external-vault.md).
 - To use KubeVault operator in multiple cluster for same Vault see [here](/docs/guides/platforms/multi-cluster-vault.md).
@@ -43,5 +44,6 @@ Guides show you how to perform tasks with KubeVault operator and Vault CSI drive
 - To mount MongoDB Database secret engine secret in pod see [here](/docs/guides/secret-engines/mongodb/csi-driver.md).
 - To mount MySQL Database secret engine secret in pod see [here](/docs/guides/secret-engines/mysql/csi-driver.md).
 - To mount PostgreSQL Database secret engine secret in pod see [here](/docs/guides/secret-engines/postgres/csi-driver.md).
+- To mount Elasticsearch Database secret engine secret in pod see [here](/docs/guides/secret-engines/elasticsearch/csi-driver.md).
 - To mount PKI secret engine secret in pod see [here](/docs/guides/secret-engines/pki/csi-driver.md).
 - To set up monitoring see [here](/docs/guides/monitoring/overview.md).
