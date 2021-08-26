@@ -12,7 +12,7 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Manage MongoDB credentials using the KubeVault operator
+# Manage Elasticsearch credentials using the KubeVault operator
 
 Elasticsearch is one of the supported plugins for the database secrets engine. This plugin generates database credentials dynamically based on configured roles for the Elasticsearch database. You can easily manage [Elasticsearch secret engine](https://www.vaultproject.io/docs/secrets/databases/elasticdb.html) using the KubeVault operator.
 
