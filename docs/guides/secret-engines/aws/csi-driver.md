@@ -12,6 +12,10 @@ section_menu_id: guides
 
 # Mount AWS IAM Secrets using CSI Driver
 
+![Secrets-store CSI architecture](/docs/guides/secret-engines/csi_architecture.svg)
+
+When the Pod is created through the K8s API, it’s scheduled on to a node. The kubelet process on the node looks at the pod spec & see if there's any volumeMount request. The kubelet issues an RPC to the csi driver to mount the volume. The csi driver creates & mounts tmpfs into the pod. Then the csi driver issues a request to the provider. The provider talks to the external secrets store to fetch the secrets & write them to the pod volume as files. At this point, volume is successfully mounted & the pod starts running.
+
 At first, you need to have a Kubernetes 1.16 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
 ```console
