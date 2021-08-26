@@ -106,6 +106,7 @@ Introduces the concept of `VaultServer` for configuring a HashiCorp Vault server
     - [MongoDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mongodb.md)
     - [MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md)
     - [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md)
+    - [ElasticsearchRole](/docs/concepts/secret-engine-crds/database-secret-engine/elasticsearch.md)
     - [DatabaseAccessRequest](/docs/concepts/secret-engine-crds/database-secret-engine/databaseaccessrequest.md)
 
 </div>
