@@ -59,24 +59,38 @@ $ kubectl get appbinding -n demo vault -o yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
+  creationTimestamp: "2021-08-16T08:23:38Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: vault
+    app.kubernetes.io/managed-by: kubevault.com
+    app.kubernetes.io/name: vaultservers.kubevault.com
   name: vault
   namespace: demo
+  ownerReferences:
+  - apiVersion: kubevault.com/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: VaultServer
+    name: vault
+    uid: 6b405147-93da-41ff-aad3-29ae9f415d0a
+  resourceVersion: "602898"
+  uid: b54873fd-0f34-42f7-bdf3-4e667edb4659
 spec:
   clientConfig:
-    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
     service:
       name: vault
       port: 8200
-      scheme: HTTPS
+      scheme: http
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
     kind: VaultServerConfiguration
-    path: kubernetes
-    vaultRole: vault-policy-controller
     kubernetes:
       serviceAccountName: vault
       tokenReviewerServiceAccountName: vault-k8s-token-reviewer
       usePodServiceAccountForCSIDriver: true
+    path: kubernetes
+    vaultRole: vault-policy-controller
 ```
 
 ## Enable and Configure Azure Secret Engine
@@ -96,6 +110,7 @@ spec:
     name: vault
   azure:
     credentialSecret: azure-cred
+  path: "your-azure-path"
 ```
 
 To configure the Azure secret engine, you need to provide azure credentials through a Kubernetes secret.
@@ -116,10 +131,10 @@ data:
 Let's deploy SecretEngine:
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/azure/azureCred.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/secret.yaml
 secret/azure-cred created
 
-$ kubectl apply -f docs/examples/guides/secret-engines/azure/azureSecretEngine.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/secretengine.yaml
 secretengine.engine.kubevault.com/azure-engine created
 ```
 
@@ -148,14 +163,15 @@ metadata:
 spec:
   vaultRef:
     name: vault
-  applicationObjectID: c1cb042d-96d7-423a-8dba-243c2e5010d3
+  applicationObjectID: e211afbc-cc4a-462f-ad6f-59e26eb5406f
   ttl: 1h
+  path: "your-azure-path"
 ```
 
 Let's deploy AzureRole:
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/azure/azureRole.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/secretenginerole.yaml
 azurerole.engine.kubevault.com/azure-role created
 
 $ kubectl get azureroles -n demo
@@ -186,7 +202,7 @@ ttl                      1h
 If we delete the AzureRole, then the respective role will be deleted from the Vault.
 
 ```console
-$ kubectl delete -f docs/examples/guides/secret-engines/azure/azureRole.yaml
+$ kubectl delete -f docs/examples/guides/secret-engines/azure/secretenginerole.yaml
   azurerole.engine.kubevault.com "azure-role" deleted
 ```
 
@@ -227,7 +243,7 @@ Here, `spec.roleRef` is the reference of AzureRole against which credentials wil
 Now, we are going to create AzureAccessKeyRequest.
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/azure/azureAccessKeyRequest.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/azureaccessrequest.yaml
 azureaccesskeyrequest.engine.kubevault.com/azure-cred-rqst created
 
 $ kubectl get azureaccesskeyrequests -n demo

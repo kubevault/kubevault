@@ -1,0 +1,12 @@
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicy
+metadata:
+  name: gcp-reader-policy
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  policyDocument: |
+    path "your-gcp-path/token/*" {
+      capabilities = ["read"]
+    }

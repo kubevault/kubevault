@@ -1,0 +1,12 @@
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicy
+metadata:
+  name: postgres-reader-policy
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  policyDocument: |
+    path "your-database-path/creds/*" {
+      capabilities = ["read"]
+    }

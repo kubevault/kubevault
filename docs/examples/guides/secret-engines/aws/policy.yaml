@@ -1,0 +1,12 @@
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicy
+metadata:
+  name: aws-reader-policy
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  policyDocument: |
+    path "your-aws-path/creds/*" {
+      capabilities = ["read", "create"]
+    }

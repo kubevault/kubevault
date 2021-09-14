@@ -1,59 +1,16 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: mysql
-  name: mysql
-  namespace: demo
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mysql
-  template:
-    metadata:
-      labels:
-        app: mysql
-    spec:
-      containers:
-      - name: mysql
-        image: mysql:5.7
-        imagePullPolicy: IfNotPresent
-        env:
-        - name: MYSQL_ROOT_PASSWORD
-          value: root
-        - name: POD_IP
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: status.podIP
-        ports:
-        - containerPort: 3306
-          name: mysql
-          protocol: TCP
-        volumeMounts:
-        - mountPath: /var/lib/mysql
-          name: data
-        - mountPath: /etc/mysql
-          name: config
-      volumes:
-      - name: data
-        emptyDir: {}
-      - name: config
-        emptyDir: {}
----
-apiVersion: v1
-kind: Service
+apiVersion: kubedb.com/v1alpha2
+kind: MySQL
 metadata:
   name: mysql
   namespace: demo
-  labels:
-    app: mysql
 spec:
-  type: ClusterIP
-  ports:
-  - name: mysqlsvc
-    port: 3306
-    targetPort: mysql
-  selector:
-    app: mysql
+  version: "8.0.3-v3"
+  storageType: Durable
+  storage:
+    storageClassName: "standard"
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+  terminationPolicy: DoNotTerminate

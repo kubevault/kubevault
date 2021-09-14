@@ -1,51 +1,16 @@
-apiVersion: apps/v1
-kind: StatefulSet
+apiVersion: kubedb.com/v1alpha2
+kind: MongoDB
 metadata:
-  name: mongo
+  name: mongodb
   namespace: demo
 spec:
-  serviceName: "mongo"
-  replicas: 1
-  selector:
-    matchLabels:
-      role: mongo
-      environment: test
-  template:
-    metadata:
-      labels:
-        role: mongo
-        environment: test
-    spec:
-      terminationGracePeriodSeconds: 10
-      containers:
-        - name: mongo
-          image: mongo
-          env:
-            - name: MONGO_INITDB_ROOT_USERNAME
-              value: root
-            - name: MONGO_INITDB_ROOT_PASSWORD
-              value: root
-          ports:
-            - containerPort: 27017
-          volumeMounts:
-            - name: data
-              mountPath: /data/db
-      volumes:
-        - name: data
-          emptyDir: {}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongo
-  namespace: demo
-  labels:
-    app: mongo
-spec:
-  type: ClusterIP
-  ports:
-  - name: mongo
-    port: 27017
-    targetPort: 27017
-  selector:
-    role: mongo
+  version: "4.2.3"
+  storageType: Durable
+  storage:
+    storageClassName: "standard"
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+  terminationPolicy: DoNotTerminate

@@ -36,34 +36,37 @@ metadata:
   namespace: default
 spec:
   replicas: 1
-  version: "1.2.0"
+  version: "1.7.2"
   backend:
     inmem: {}
   tls:
     certificates:
       - alias: ca
+      - alias: server
+      - alias: client
+      - alias: storage
+  serviceTemplates:
+    - alias: vault
+      metadata:
+        annotations:
+          name: vault
+      spec:
+        type: NodePort
+    - alias: stats
+      spec:
+        type: ClusterIP
   unsealer:
     secretShares: 4
     secretThreshold: 2
     mode:
       kubernetesSecret:
         secretName: vault-keys
-status:
-  authMethodStatus:
-  - path: kubernetes
-    status: EnableSucceeded
-    type: kubernetes
-  clientPort: 8200
-  initialized: true
-  observedGeneration: 2
-  phase: Running
-  serviceName: vault
-  updatedNodes:
-  - vault-745564bddb-4pt98
-  vaultStatus:
-    active: vault-745564bddb-4pt98
-    unsealed:
-    - vault-745564bddb-4pt98
+  monitor:
+    agent: prometheus.io
+    prometheus:
+      exporter:
+        resources: {}
+  terminationPolicy: WipeOut
 ```
 
 Here, we are going to describe the various sections of the `VaultServer` crd.
@@ -89,44 +92,41 @@ Specifies the name of the `VaultServerVersion` CRD. This CRD holds the image nam
 
 ```yaml
 spec:
-  version: "1.2.0"
+  version: "1.7.2"
 ```
 
 #### spec.tls
 
-`spec.tls` is an optional field that specifies the TLS policy of Vault nodes. If this is not specified, the KubeVault operator will auto-generate TLS assets and secrets.
+`spec.tls` is an optional field that specifies the TLS policy of Vault nodes. If this is not specified, the KubeVault operator will run in `insecure` mode. `spec.tls.certificates` provides `server`, `client`, `storage` certificate options used by application pods, where the `alias` represents the identifier of the certificate.  
 
 ```yaml
 spec:
   tls:
-    tlsSecret: <tls_assets_secret_name> # name of the secret containing TLS assets
-    caBundle: <pem_coded_ca>
+    certificates:
+      - alias: ca
+      - alias: server
+      - alias: client
+      - alias: storage
 ```
 
-- **`tls.tlsSecret`**: Specifies the name of the secret containing TLS assets. The secret must contain following keys:
-  - `tls.crt`
-  - `tls.key`
-
-  The server certificate must allow the following wildcard domains:
-  - `localhost`
-  - `*.<namespace>.pod`
-  - `<vaultServer-name>.<namespace>.svc`
+The server certificate must allow the following wildcard domains:
+- `localhost`
+- `*.<namespace>.pod`
+- `<vaultServer-name>.<namespace>.svc`
 
   The server certificate must allow the following IP:
-  - `127.0.0.1`
+- `127.0.0.1`
 
-- **`tls.caBundle`**: Specifies the PEM encoded CA bundle which will be used to validate the serving certificate.
+#### spec.configSecret
 
-#### spec.configSource
-
-`spec.configSource` is an optional field that allows the user to provide extra configuration for Vault. This field accepts a [VolumeSource](https://github.com/kubernetes/api/blob/release-1.11/core/v1/types.go#L47). You can use any Kubernetes supported volume source such as configMap, secret, azureDisk, etc.
+`spec.configSecret` is an optional field that allows the user to provide extra configuration for Vault. This field accepts a [VolumeSource](https://github.com/kubernetes/api/blob/release-1.11/core/v1/types.go#L47). You can use any Kubernetes supported volume source such as configMap, secret, azureDisk, etc.
 
 > Please note that the config file name must be `vault.hcl` to work.
 
 ```yaml
 spec:
-  configSource:
-    <type of volume>: # for example `configMap`
+  configSecret:
+    <type of volume>: # for example `configSecret`
       name: <name of volume>
 ```
 
@@ -143,6 +143,25 @@ spec:
       name: special-config
 ```
 
+### spec.monitor
+`spec.monitor` is an optional field that is used to monitor the `vaultserver` instances.
+```yaml
+monitor:
+    agent: prometheus.io
+    prometheus:
+      exporter:
+        resources: {}
+```
+
+### spec.terminationPolicy
+`spec.terminationPolicy` is an optional field that gives flexibility whether to nullify(reject) the delete operation of VaultServer crd or which resources KubeVault operator should keep or delete when you delete VaultServer crd. KubeVault provides following four termination policies:
+- DoNotTerminate
+- Halt
+- Delete (Default)
+- WipeOut
+
+When, `terminationPolicy` is `DoNotTerminate`, KubeVault takes advantage of ValidationWebhook feature in Kubernetes 1.9.0 or later clusters to provide safety from accidental deletion of VaultServer. If admission webhook is enabled, KubeVault prevents users from deleting the VaultServer as long as the spec.terminationPolicy is set to DoNotTerminate.
+
 ### spec.backend
 
 `spec.backend` is a required field that specifies the Vault backend storage configuration. KubeVault operator generates storage configuration according to this `spec.backend`.
@@ -152,7 +171,6 @@ spec:
   backend:
     ...
 ```
-
 List of supported backends:
 
 - [Azure](/docs/concepts/vault-server-crds/storage/azure.md)
@@ -166,6 +184,7 @@ List of supported backends:
 - [AWS S3](/docs/concepts/vault-server-crds/storage/s3.md)
 - [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
 - [Filesystem](/docs/concepts/vault-server-crds/storage/filesystem.md)
+- [Raft](/docs/concepts/vault-server-crds/storage/raft.md)
 
 #### spec.unsealer
 
@@ -182,18 +201,19 @@ spec:
       ...
 ```
 
-#### spec.serviceTemplate
+#### spec.serviceTemplates
 
-You can also provide a template for the services created by KubeVault operator for VaultServer through `spec.serviceTemplate`. This will allow you to set the type and other properties of the services. `spec.serviceTemplate` is an optional field.
+You can also provide a list of templates for the services created by KubeVault operator for VaultServer through `spec.serviceTemplates`. This will allow you to set the type and other properties of the services. `spec.serviceTemplates` is an optional field.
 
 ```yaml
 spec:
-  serviceTemplate:
-    spec:
-      type: NodePort
+  serviceTemplates:
+    - alias: stats
+      spec:
+        type: ClusterIP
 ```
 
-VaultServer allows following fields to be set in `spec.serviceTemplate`:
+VaultServer allows following fields to be set in `spec.serviceTemplates`:
 
 - metadata:
   - annotations (set as annotations on Vault service)
@@ -318,33 +338,15 @@ VaultServer Status shows the status of a Vault deployment. The status of the Vau
 ```yaml
 status:
   phase: <phase>
-  initialized: <true/false>
-  serviceName: <service_name>
-  clientPort: <client_port>
-  vaultStatus:
-    active: <active_vault_pod_name>
-    standby: <names_of_the_standby_vault_pod>
-    sealed: <names_of_the_sealed_vault_pod>
-    unsealed: <names_of_the_unsealed_vault_pod>
 ```
 
-- `phase`: Indicates the phase Vault is currently in.
-
-- `initialized`: Indicates whether Vault is initialized or not.
-
-- `serviceName`: Name of the service by which Vault can be accessed.
-
-- `clientPort`: Indicates the port client will use to communicate with Vault.
-
-- `vaultStatus`: Indicates the status of Vault pods. It has the following fields:
-
-  - `active`: Name of the active vault pod.
-
-  - `standby`: Names of the standby vault pods.
-
-  - `sealed`: Names of the sealed vault pods.
-
-  - `unsealed`: Names of the unsealed vault pods.
+- `phase`: Indicates the phase Vault is currently in. Possible values of `status.phase`:
+  - Initializing
+  - Sealed
+  - Unsealing
+  - Critical
+  - NotReady
+  - Ready
 
 - `authMethodStatus` : Indicates the status of the auth methods specified in `spec.authMethods`. It has the following fields:
 

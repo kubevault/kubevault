@@ -1,5 +1,5 @@
 ---
-title: Mount Azure Secrets into Kubernetes a Pod using CSI Driver
+title: Mount Azure Secrets using CSI Driver
 menu:
   docs_{{ .version }}:
     identifier: csi-driver-azure
@@ -10,22 +10,32 @@ menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
-{{< notice type="warning" message="KubeVault's built-in CSI driver has been removed in favor of [Secrets Store CSI driver for Kubernetes secrets](https://github.com/kubernetes-sigs/secrets-store-csi-driver)." >}}
-
 # Mount Azure Secrets using CSI Driver
+## Kubernetes Secrets Store CSI Driver
+Secrets Store CSI driver for Kubernetes secrets - Integrates secrets stores with Kubernetes via a [Container Storage Interface (CSI)](https://kubernetes-csi.github.io/docs/) volume.
 
-At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
+The Secrets Store CSI driver `secrets-store.csi.k8s.io` allows Kubernetes to mount multiple secrets, keys, and certs stored in enterprise-grade external secrets stores into their pods as a volume. Once the Volume is attached, the data in it is mounted into the container’s file system.
+
+![Secrets-store CSI architecture](/docs/guides/secret-engines/csi_architecture.svg)
+
+When the `Pod` is created through the K8s API, it’s scheduled on to a node. The `kubelet` process on the node looks at the pod spec & see if there's any `volumeMount` request. The `kubelet` issues an `RPC` to the `CSI driver` to mount the volume. The `CSI driver` creates & mounts `tmpfs` into the pod. Then the `CSI driver` issues a request to the `Provider`. The provider talks to the external secrets store to fetch the secrets & write them to the pod volume as files. At this point, volume is successfully mounted & the pod starts running.
+
+You can read more about the Kubernetes Secrets Store CSI Driver [here](https://secrets-store-csi-driver.sigs.k8s.io/).
+
+## Consuming Secrets
+At first, you need to have a Kubernetes 1.16 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
 ```console
 $ kubectl version --short
-Client Version: v1.16.2
-Server Version: v1.14.0
+Client Version: v1.21.2
+Server Version: v1.21.1
 ```
 
 Before you begin:
 
 - Install KubeVault operator in your cluster from [here](/docs/setup/README.md).
 - Install Secrets Store CSI driver for Kubernetes secrets in your cluster from [here](https://secrets-store-csi-driver.sigs.k8s.io/getting-started/installation.html).
+- Install Vault Specific CSI provider from [here](https://github.com/hashicorp/vault-csi-provider)
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -49,10 +59,6 @@ The KubeVault operator can manage policies and secret engines of Vault servers w
 Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server. And we also have the service account that the Vault server can authenticate.
 
 ```console
-$ kubectl get serviceaccounts -n demo
-NAME                       SECRETS   AGE
-vault                      1         20h
-
 $ kubectl get appbinding -n demo
 NAME    AGE
 vault   50m
@@ -61,402 +67,208 @@ $ kubectl get appbinding -n demo vault -o yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
+  creationTimestamp: "2021-08-16T08:23:38Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: vault
+    app.kubernetes.io/managed-by: kubevault.com
+    app.kubernetes.io/name: vaultservers.kubevault.com
   name: vault
   namespace: demo
+  ownerReferences:
+  - apiVersion: kubevault.com/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: VaultServer
+    name: vault
+    uid: 6b405147-93da-41ff-aad3-29ae9f415d0a
+  resourceVersion: "602898"
+  uid: b54873fd-0f34-42f7-bdf3-4e667edb4659
 spec:
   clientConfig:
-    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
     service:
       name: vault
       port: 8200
-      scheme: HTTPS
+      scheme: http
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
     kind: VaultServerConfiguration
-    path: kubernetes
-    vaultRole: vault-policy-controller
     kubernetes:
       serviceAccountName: vault
       tokenReviewerServiceAccountName: vault-k8s-token-reviewer
       usePodServiceAccountForCSIDriver: true
+    path: kubernetes
+    vaultRole: vault-policy-controller
 ```
 
-## Enable and Configure Azure Secret Engine
+## Enable & Configure Azure SecretEngine
 
-The following steps are required to enable and configure the Azure secrets engine in the Vault server.
-
-There are two ways to configure the Vault server. You can either use the `KubeVault operator` or the  `Vault CLI` to manually configure a Vault server.
-
-<ul class="nav nav-tabs" id="conceptsTab" role="tablist">
-  <li class="nav-item">
-    <a class="nav-link active" id="operator-tab" data-toggle="tab" href="#operator" role="tab" aria-controls="operator" aria-selected="true">Using KubeVault operator</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" id="csi-driver-tab" data-toggle="tab" href="#csi-driver" role="tab" aria-controls="csi-driver" aria-selected="false">Using Vault CLI</a>
-  </li>
-</ul>
-<div class="tab-content" id="conceptsTabContent">
-  <div open class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
-
-### Using KubeVault operator
-
-You need to be familiar with the following CRDs:
-
-- [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
-- [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [AzureRole](/docs/concepts/secret-engine-crds/azure-secret-engine/azurerole.md)
-
-Let's enable and configure Azure secret engine by deploying the following `SecretEngine` yaml:
-
-```yaml
-apiVersion: engine.kubevault.com/v1alpha1
-kind: SecretEngine
-metadata:
-  name: azure-engine
-  namespace: demo
-spec:
-  vaultRef:
-    name: vault
-  azure:
-    credentialSecret: azure-cred
-```
-
-To configure the Azure secret engine, you need to provide azure credentials through a Kubernetes secret.
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: azure-cred
-  namespace: demo
-data:
-  client-secret: eyJtc2ciOiJleGFtcGxlIn0=
-  subscription-id: eyJtc2ciOiJleGFtcGxlIn0=
-  client-id: eyJtc2ciOiJleGFtcGxlIn0=
-  tenant-id: eyJtc2ciOiJleGFtcGxlIn0=
-```
-
-Let's deploy SecretEngine:
-
+### Enable Azure SecretEngine
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/azure/azureCred.yaml
-secret/azure-cred created
-
-$ kubectl apply -f docs/examples/guides/secret-engines/azure/azureSecretEngine.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/secretengine.yaml
 secretengine.engine.kubevault.com/azure-engine created
 ```
 
-Wait till the status become `Success`:
-
+### Create AzureRole
 ```console
-$ kubectl get secretengines -n demo
-NAME           STATUS
-azure-engine   Success
-```
-
-A sample AzureRole object is given below:
-
-```yaml
-apiVersion: engine.kubevault.com/v1alpha1
-kind: AzureRole
-metadata:
-  name: azure-role
-  namespace: demo
-spec:
-  vaultRef:
-    name: vault
-  applicationObjectID: c1cb042d-96d7-423a-8dba-243c2e5010d3
-  ttl: 1h
-```
-
-Let's deploy AzureRole:
-
-```console
-$ kubectl apply -f docs/examples/guides/secret-engines/azure/azureRole.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/secretenginerole.yaml
 azurerole.engine.kubevault.com/azure-role created
-
-$ kubectl get azureroles -n demo
-NAME         STATUS
-azure-role   Success
 ```
 
-You can also check from Vault that the role is created.
-To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`.
+Let's say pod's service account name is `test-user-account` located in `demo` namespace. We need to create a [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) and a [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md) so that the pod has access to read secrets from the Vault server.
 
-> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
+### Create Service Account for Pod
 
-```console
-$ vault list azure/roles
-Keys
-----
-k8s.-.demo.azure-role
-
-$ vault read azure/roles/k8s.-.demo.azure-role
-Key                      Value
----                      -----
-application_object_id    c1cb042d-96d7-423a-8dba-243c2e5010d3
-azure_roles              <nil>
-max_ttl                  0s
-ttl                      1h
-```
-
-For more detailed explanation visit [Vault official website](https://www.vaultproject.io/docs/secrets/azure/index.html#setup)
-
-</div>
-<div class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
-
-### Using Vault CLI
-
-You can also use [Vault CLI](https://www.vaultproject.io/docs/commands/) to [enable and configure](https://www.vaultproject.io/docs/secrets/azure/index.html#setup) the Azure secret engine.
-
-> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
-
-To generate secret from the Azure secret engine, you need to perform the following steps.
-
-- **Enable Azure Secret Engine:** To enable Azure secret engine run the following command.
-
-```console
-$ vault secrets enable azure
-Success! Enabled the azure secrets engine at: azure/
-```
-
-- **Configure the secrets engine:** Configure the secrets engine with account credentials
-
-```console
-$ vault write azure/config \
-  subscription_id=$AZURE_SUBSCRIPTION_ID \
-  tenant_id=$AZURE_TENANT_ID \
-  client_id=$AZURE_CLIENT_ID \
-  client_secret=$AZURE_CLIENT_SECRET
-
-Success! Data written to: azure/config
-```
-
-- **Configure a role:** Configure a role called "my-role" with an existing service principal:
-
-```console
-$ vault write azure/roles/k8s.-.demo.azure-role \
-                  application_object_id=c1cb042d-96d7-423a-8dba-243c2e5010d3 \
-                  ttl=1h
-Success! Data written to: azure/roles/k8s.-.demo.azure-role
-```
-
-- **Read the role:**
-
-```console
-$ vault list azure/roles
-Keys
-----
-k8s.-.demo.azure-role
-
-$ vault read azure/roles/k8s.-.demo.azure-role
-Key                      Value
----                      -----
-application_object_id    c1cb042d-96d7-423a-8dba-243c2e5010d3
-azure_roles              <nil>
-max_ttl                  0s
-ttl                      1h
-```
-
-If you use Vault CLI to enable and configure the Azure secret engine then you need to **update the vault policy** for the service account 'vault' created during vault server configuration and add the permission to read at "azure/roles/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
-
-Find how to update the policy for service account in [here](/docs/guides/secret-engines/kv/csi-driver.md#update-vault-policy).
-
-For more detailed explanation visit [Vault official website](https://www.vaultproject.io/docs/secrets/azure/index.html#setup)
-
-## Mount secrets into a Kubernetes pod
-
-Since Kubernetes 1.14, `storage.k8s.io/v1beta1` `CSINode` and `CSIDriver` objects were introduced. Let's check [CSIDriver](https://kubernetes-csi.github.io/docs/csi-driver-object.html) and [CSINode](https://kubernetes-csi.github.io/docs/csi-node-object.html) are available or not.
-
-```console
-$ kubectl get csidrivers
-NAME                        CREATED AT
-secrets.csi.kubevault.com   2019-12-09T04:32:50Z
-
-$ kubectl get csinodes
-NAME             CREATED AT
-2gb-pool-57jj7   2019-12-09T04:32:52Z
-2gb-pool-jrvtj   2019-12-09T04:32:58Z
-```
-
-So, we can create `StorageClass` now.
-
-### Create StorageClass
-
-Create `StorageClass` object with the following content:
-
-```yaml
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: vault-azure-storage
-  annotations:
-    storageclass.kubernetes.io/is-default-class: "false"
-provisioner: secrets.csi.kubevault.com
-parameters:
-  ref: demo/vault # namespace/AppBinding, we created vault server configuration
-  engine: Azure # vault engine name
-  role: k8s.-.demo.azure-role # role name on vault which you want get access
-  path: azure # specify the secret engine path, default is azure
-```
-
-```console
-$ kubectl apply -f docs/examples/guides/secret-engines/azure/storageClass.yaml
-storageclass.storage.k8s.io/vault-azure-storage created
-```
-
-## Test & Verify
-
-Let's create a separate namespace called `trial` for testing purpose.
-
-```console
-$ kubectl create ns trial
-namespace/trail created
-```
-
-### Create PVC
-
-Create a `PersistentVolumeClaim` with the following data. This makes sure a volume will be created and provisioned on your behalf.
-
+Let's create the service account `test-user-account` which will be used in VaultPolicyBinding.
 ```yaml
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: ServiceAccount
 metadata:
-  name: csi-pvc-azure
-  namespace: trial
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Mi
-  storageClassName: vault-azure-storage
+  name: test-user-account
+  namespace: demo
 ```
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/azure/pvc.yaml
-persistentvolumeclaim/csi-pvc-azure created
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/serviceaccount.yaml
+serviceaccount/test-user-account created
+
+$ kubectl get serviceaccount -n demo
+NAME                SECRETS   AGE
+test-user-account   1         4h10m
 ```
 
 ### Create VaultPolicy and VaultPolicyBinding for Pod's Service Account
-
-Let's say pod's service account name is `pod-sa` located in `trial` namespace. We need to create a [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) and a [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md) so that the pod has access to read secrets from the Vault server.
+When a VaultPolicyBinding object is created, the KubeVault operator create an auth role in the Vault server. The role name is generated by the following naming format: `k8s.(clusterName or -).namespace.name`. Here, it is `k8s.-.demo.azure-reader-role`.
 
 ```yaml
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
 metadata:
-  name: azure-se-policy
+  name: azure-reader-policy
   namespace: demo
 spec:
   vaultRef:
     name: vault
-  # Here, azure secret engine is enabled at "azure".
-  # If the path was "demo-se", policy should be like
-  # path "demo-se/*" {}.
   policyDocument: |
-    path "azure/*" {
-      capabilities = ["create", "read"]
+    path "your-azure-path/creds/*" {
+      capabilities = ["read", "create"]
     }
 ---
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicyBinding
 metadata:
-  name: azure-se-role
+  name: azure-reader-role
   namespace: demo
 spec:
   vaultRef:
     name: vault
   policies:
-  - ref: azure-se-policy
+    - ref: azure-reader-policy
   subjectRef:
     kubernetes:
       serviceAccountNames:
-      - "pod-sa"
+        - "test-user-account"
       serviceAccountNamespaces:
-      - "trial"
+        - "demo"
 ```
 
 Let's create VaultPolicy and VaultPolicyBinding:
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/azure/vaultPolicy.yaml
-vaultpolicy.policy.kubevault.com/azure-se-policy created
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/policy.yaml
+vaultpolicy.policy.kubevault.com/azure-reader-policy created
 
-$ kubectl apply -f docs/examples/guides/secret-engines/azure/vaultPolicyBinding.yaml
-vaultpolicybinding.policy.kubevault.com/azure-se-role created
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/policybinding.yaml
+vaultpolicybinding.policy.kubevault.com/azure-reader-role created
 ```
 
 Check if the VaultPolicy and the VaultPolicyBinding are successfully registered to the Vault server:
 
 ```console
 $ kubectl get vaultpolicy -n demo
-NAME                           STATUS    AGE
-azure-se-policy                Success   8s
+NAME                                 STATUS    AGE
+azure-reader-policy                  Success   8s
 
 $ kubectl get vaultpolicybinding -n demo
-NAME                           STATUS    AGE
-azure-se-role                  Success   10s
+NAME                                 STATUS    AGE
+azure-reader-role                    Success   10s
 ```
 
-### Create Service Account for Pod
+## Mount secrets into a Kubernetes pod
 
-Let's create the service account `pod-sa` which was used in VaultPolicyBinding. When a VaultPolicyBinding object is created, the KubeVault operator create an auth role in the Vault server. The role name is generated by the following naming format: `k8s.(clusterName or -).namespace.name`. Here, it is `k8s.-.demo.azure-se-role`. We need to provide the auth role name as service account `annotations` while creating the service account. If the annotation `secrets.csi.kubevault.com/vault-role` is not provided, the CSI driver will not be able to perform authentication to the Vault.
+So, we can create `SecretProviderClass` now. You can read more about `SecretProviderClass` [here](https://secrets-store-csi-driver.sigs.k8s.io/concepts.html#secretproviderclass).
+
+### Create SecretProviderClass
+
+Create `SecretProviderClass` object with the following content:
 
 ```yaml
-apiVersion: v1
-kind: ServiceAccount
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
 metadata:
-  name: pod-sa
-  namespace: trial
-  annotations:
-    secrets.csi.kubevault.com/vault-role: k8s.-.demo.azure-se-role
+  name: vault-db-provider
+  namespace: demo
+spec:
+  provider: vault
+  parameters:
+    vaultAddress: "http://vault.demo:8200"
+    roleName: "k8s.-.demo.azure-reader-role"
+    objects: |
+      - objectName: "client_id"
+        secretPath: "your-azure-path/creds/k8s.-.demo.azure-role"
+        secretKey: "client_id"
+      - objectName: "client_secret"
+        secretPath: "your-azure-path/creds/k8s.-.demo.azure-role"
+        secretKey: "client_secret"
 ```
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/azure/podServiceAccount.yaml
-serviceaccount/pod-sa created
+$ kubectl apply -f docs/examples/guides/secret-engines/azure/secretproviderclass.yaml
+secretproviderclass.secrets-store.csi.x-k8s.io/vault-db-provider created
 ```
+NOTE: The `SecretProviderClass` needs to be created in the same namespace as the pod.
 
 ### Create Pod
 
-Now we can create a Pod which refers to this volume. When the Pod is created, the volume will be attached, formatted and mounted to the specific container.
+Now we can create a `Pod` to consume the `Azure` secrets. When the `Pod` is created, the `Provider` fetches the secret and writes them to Pod's volume as files. At this point, the volume is successfully mounted and the `Pod` starts running.
 
 ```yaml
 apiVersion: v1
 kind: Pod
 metadata:
-  name: mypod
-  namespace: trial
+  name: demo-app
+  namespace: demo
 spec:
+  serviceAccountName: test-user-account
   containers:
-  - name: mypod
-    image: busybox
-    command:
-    - sleep
-    - "3600"
-    volumeMounts:
-    - name: my-vault-volume
-      mountPath: "/etc/azure"
-      readOnly: true
-  serviceAccountName: pod-sa # service account that was created
+    - image: jweissig/app:0.0.1
+      name: demo-app
+      imagePullPolicy: Always
+      volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/secrets-store/azure-creds"
+          readOnly: true
   volumes:
-  - name: my-vault-volume
-    persistentVolumeClaim:
-      claimName: csi-pvc-azure
+    - name: secrets-store-inline
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: "vault-db-provider"
 ```
 
 ```console
 $ kubectl apply -f docs/examples/guides/secret-engines/azure/pod.yaml
-pod/mypod created
+pod/demo-app created
 ```
+## Test & Verify
 
 Check if the Pod is running successfully, by running:
 
 ```console
-$ kubectl get pods -n trial
-NAME                    READY   STATUS    RESTARTS   AGE
-mypod                   1/1     Running   0          27s
+$ kubectl get pods -n demo
+NAME                       READY   STATUS    RESTARTS   AGE
+demo-app                   1/1     Running   0          11s
 ```
 
 ### Verify Secret
@@ -464,20 +276,19 @@ mypod                   1/1     Running   0          27s
 If the Pod is running successfully, then check inside the app container by running
 
 ```console
-$ kubectl exec -it -n trial  mypod sh
-/ # ls /etc/azure/
-client_id      client_secret
+$ kubectl exec -it -n demo pod/demo-app -- /bin/sh
+/ # ls /secrets-store/azure-creds
+client_id client_secret
 
-/ # cat /etc/azure/client_id
-2b871d4a-757e-4b2f-bc78*************/ #
+/ # cat /secrets-store/azure-creds/client_id
+ya29.c.Kl20BwwWtb6DoTjY4-eSVgQQq.......
 
-/ # cat /etc/azure/client_secret
-9d7ce30a-4fa5-a*********************/ #
-
+/ # cat /secrets-store/azure-creds/client_secret
+ya29.c.Kl20BwwWtb6DoTjY4-eSVgQQq.......
 / # exit
 ```
 
-So, we can see that the secret `client_id` and `client_secret` are mounted into the pod, where the secret key is mounted as file and the value is the content of that file.
+So, we can see that the secret `client_id` and `client_secret` is mounted into the pod, where the secret key is mounted as file and value is the content of that file.
 
 ## Cleaning up
 
@@ -486,7 +297,4 @@ To clean up the Kubernetes resources created by this tutorial, run:
 ```console
 $ kubectl delete ns demo
 namespace "demo" deleted
-
-$ $ kubectl delete ns trial
-namespace "trial" deleted
 ```

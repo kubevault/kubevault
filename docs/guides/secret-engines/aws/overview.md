@@ -59,24 +59,38 @@ $ kubectl get appbinding -n demo vault -o yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
+  creationTimestamp: "2021-08-16T08:23:38Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: vault
+    app.kubernetes.io/managed-by: kubevault.com
+    app.kubernetes.io/name: vaultservers.kubevault.com
   name: vault
   namespace: demo
+  ownerReferences:
+  - apiVersion: kubevault.com/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: VaultServer
+    name: vault
+    uid: 6b405147-93da-41ff-aad3-29ae9f415d0a
+  resourceVersion: "602898"
+  uid: b54873fd-0f34-42f7-bdf3-4e667edb4659
 spec:
   clientConfig:
-    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
     service:
       name: vault
       port: 8200
-      scheme: HTTPS
+      scheme: http
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
     kind: VaultServerConfiguration
-    path: kubernetes
-    vaultRole: vault-policy-controller
     kubernetes:
       serviceAccountName: vault
       tokenReviewerServiceAccountName: vault-k8s-token-reviewer
       usePodServiceAccountForCSIDriver: true
+    path: kubernetes
+    vaultRole: vault-policy-controller
 ```
 
 ## Enable and Configure AWS Secret Engine
@@ -100,6 +114,7 @@ spec:
     leaseConfig:
       lease: 1h
       leaseMax: 1h
+  path: "your-aws-path"
 ```
 
 To configure the AWS secret engine, you need to provide `aws_access_key_id` and `aws_secret_access_key` through a Kubernetes secret.
@@ -118,10 +133,10 @@ data:
 Let's deploy SecretEngine:
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/aws/awsCred.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/aws/secret.yaml
 secret/aws-cred created
 
-$ kubectl apply -f docs/examples/guides/secret-engines/aws/awsSecretEngine.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/aws/secretengine.yaml
 secretengine.engine.kubevault.com/aws-secret-engine created
 ```
 
@@ -162,12 +177,13 @@ spec:
         }
       ]
     }
+  path: "your-aws-path"
 ```
 
 Let's deploy AWSRole:
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/aws/awsRole.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/aws/secretenginerole.yaml
 awsrole.engine.kubevault.com/aws-role created
 
 $ kubectl get awsrole -n demo
@@ -181,21 +197,24 @@ To resolve the naming conflict, name of the role in Vault will follow this forma
 > Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
 ```console
-$ vault list aws/roles
+$ vault list your-aws-path/roles
 Keys
 ----
 k8s.-.demo.aws-role
 
-$ vault read aws/roles/k8s.-.demo.aws-role
-Key                Value
----                -----
-credential_type    iam_user
-default_sts_ttl    0s
-max_sts_ttl        0s
-policy_arns        <nil>
-policy_document    {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"ec2:*","Resource":"*"}]}
-role_arns          <nil>
-user_path          n/a
+$ vault read your-aws-path/roles/k8s.-.demo.aws-role
+Key                         Value
+---                         -----
+credential_type             iam_user
+default_sts_ttl             0s
+iam_groups                  <nil>
+iam_tags                    <nil>
+max_sts_ttl                 0s
+permissions_boundary_arn    n/a
+policy_arns                 <nil>
+policy_document             {"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"ec2:*","Resource":"*"}]}
+role_arns                   <nil>
+user_path                   n/a
 ```
 
 If we delete the AWSRole, then the respective role will be deleted from the Vault.
@@ -208,8 +227,8 @@ awsrole.engine.kubevault.com "aws-role" deleted
 Check from Vault whether the role exists:
 
 ```console
-$ vault read aws/roles/k8s.-.demo.aws-role
-No value found at aws/roles/k8s.-.demo.aws-role
+$ vault read your-aws-path/roles/k8s.-.demo.aws-role
+No value found at your-aws-path/roles/k8s.-.demo.aws-role
 
 $ vault list aws/roles
 No value found at aws/roles/
@@ -242,7 +261,7 @@ Here, `spec.roleRef` is the reference of AWSRole against which credentials will 
 Now, we are going to create an AWSAccessKeyRequest.
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/aws/awsAccessKeyRequest.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/aws/awsaccesskeyrequest.yaml
 awsaccesskeyrequest.engine.kubevault.com/aws-cred-rqst created
 
 $ kubectl get awsaccesskeyrequest -n demo
@@ -279,7 +298,7 @@ status:
     type: Approved
   lease:
     duration: 1h0m0s
-    id: aws/creds/k8s.-.demo.aws-role/X9dCjtiQCykbuJ7UmzM64xfh
+    id: your-aws-path/creds/k8s.-.demo.aws-role/X9dCjtiQCykbuJ7UmzM64xfh
     renewable: true
   secret:
     name: aws-cred-rqst-ryym7w
@@ -300,7 +319,7 @@ $ kubectl get awsaccesskeyrequest aws-cred-rqst -n demo -o json | jq '.status'
   ],
   "lease": {
     "duration": "1h0m0s",
-    "id": "aws/creds/k8s.-.demo.aws-role/X9dCjtiQCykbuJ7UmzM64xfh",
+    "id": "your-aws-path/creds/k8s.-.demo.aws-role/X9dCjtiQCykbuJ7UmzM64xfh",
     "renewable": true
   },
   "secret": {

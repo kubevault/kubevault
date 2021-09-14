@@ -1,5 +1,5 @@
 ---
-title: Mount MySQL/MariaDB credentials using CSI Driver
+title: Mount MySQL Secrets using CSI Driver
 menu:
   docs_{{ .version }}:
     identifier: csi-driver-mysql
@@ -10,22 +10,32 @@ menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
-{{< notice type="warning" message="KubeVault's built-in CSI driver has been removed in favor of [Secrets Store CSI driver for Kubernetes secrets](https://github.com/kubernetes-sigs/secrets-store-csi-driver)." >}}
+# Mount MySQL Secrets using CSI Driver
+## Kubernetes Secrets Store CSI Driver
+Secrets Store CSI driver for Kubernetes secrets - Integrates secrets stores with Kubernetes via a [Container Storage Interface (CSI)](https://kubernetes-csi.github.io/docs/) volume.
 
-# Mount MySQL/MariaDB credentials using CSI Driver
+The Secrets Store CSI driver `secrets-store.csi.k8s.io` allows Kubernetes to mount multiple secrets, keys, and certs stored in enterprise-grade external secrets stores into their pods as a volume. Once the Volume is attached, the data in it is mounted into the container’s file system.
 
-At first, you need to have a Kubernetes 1.14 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
+![Secrets-store CSI architecture](/docs/guides/secret-engines/csi_architecture.svg)
+
+When the `Pod` is created through the K8s API, it’s scheduled on to a node. The `kubelet` process on the node looks at the pod spec & see if there's any `volumeMount` request. The `kubelet` issues an `RPC` to the `CSI driver` to mount the volume. The `CSI driver` creates & mounts `tmpfs` into the pod. Then the `CSI driver` issues a request to the `Provider`. The provider talks to the external secrets store to fetch the secrets & write them to the pod volume as files. At this point, volume is successfully mounted & the pod starts running.
+
+You can read more about the Kubernetes Secrets Store CSI Driver [here](https://secrets-store-csi-driver.sigs.k8s.io/).
+
+## Consuming Secrets
+At first, you need to have a Kubernetes 1.16 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
 ```console
 $ kubectl version --short
-Client Version: v1.16.2
-Server Version: v1.14.0
+Client Version: v1.21.2
+Server Version: v1.21.1
 ```
 
 Before you begin:
 
 - Install KubeVault operator in your cluster from [here](/docs/setup/README.md).
 - Install Secrets Store CSI driver for Kubernetes secrets in your cluster from [here](https://secrets-store-csi-driver.sigs.k8s.io/getting-started/installation.html).
+- Install Vault Specific CSI provider from [here](https://github.com/hashicorp/vault-csi-provider)
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -49,10 +59,6 @@ The KubeVault operator can manage policies and secret engines of Vault servers w
 Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server. And we also have the service account that the Vault server can authenticate.
 
 ```console
-$ kubectl get serviceaccounts -n demo
-NAME                       SECRETS   AGE
-vault                      1         20h
-
 $ kubectl get appbinding -n demo
 NAME    AGE
 vault   50m
@@ -61,441 +67,210 @@ $ kubectl get appbinding -n demo vault -o yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
+  creationTimestamp: "2021-08-16T08:23:38Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: vault
+    app.kubernetes.io/managed-by: kubevault.com
+    app.kubernetes.io/name: vaultservers.kubevault.com
   name: vault
   namespace: demo
+  ownerReferences:
+  - apiVersion: kubevault.com/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: VaultServer
+    name: vault
+    uid: 6b405147-93da-41ff-aad3-29ae9f415d0a
+  resourceVersion: "602898"
+  uid: b54873fd-0f34-42f7-bdf3-4e667edb4659
 spec:
   clientConfig:
-    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN1RENDQWFDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFOTVFzd0NRWURWUVFERXdKallUQWUKRncweE9URXhNVEl3T1RFMU5EQmFGdzB5T1RFeE1Ea3dPVEUxTkRCYU1BMHhDekFKQmdOVkJBTVRBbU5oTUlJQgpJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdFZFZmtic2c2T085dnM2d1Z6bTlPQ1FYClBtYzBYTjlCWjNMbXZRTG0zdzZGaWF2aUlSS3VDVk1hN1NRSGo2L2YvOHZPeWhqNEpMcHhCM0hCYVFPZ3RrM2QKeEFDbHppU1lEd3dDbGEwSThxdklGVENLWndreXQzdHVQb0xybkppRFdTS2xJait6aFZDTHZ0enB4MDE3SEZadApmZEdhUUtlSXREUVdyNUV1QWlCMjhhSVF4WXREaVN6Y0h3OUdEMnkrblRMUEd4UXlxUlhua0d1UlIvR1B3R3lLClJ5cTQ5NmpFTmFjOE8wVERYRkIydWJQSFNza2xOU1VwSUN3S1IvR3BobnhGak1rWm4yRGJFZW9GWDE5UnhzUmcKSW94TFBhWDkrRVZxZU5jMlczN2MwQlhBSGwyMHVJUWQrVytIWDhnOVBVVXRVZW9uYnlHMDMvampvNERJRHdJRApBUUFCb3lNd0lUQU9CZ05WSFE4QkFmOEVCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHCjl3MEJBUXNGQUFPQ0FRRUFabHRFN0M3a3ZCeTNzeldHY0J0SkpBTHZXY3ZFeUdxYUdCYmFUbGlVbWJHTW9QWXoKbnVqMUVrY1I1Qlg2YnkxZk15M0ZtZkJXL2E0NU9HcDU3U0RMWTVuc2w0S1RlUDdGZkFYZFBNZGxrV0lQZGpnNAptOVlyOUxnTThkOGVrWUJmN0paUkNzcEorYkpDU1A2a2p1V3l6MUtlYzBOdCtIU0psaTF3dXIrMWVyMUprRUdWClBQMzFoeTQ2RTJKeFlvbnRQc0d5akxlQ1NhTlk0UWdWK3ZneWJmSlFEMVYxbDZ4UlVlMzk2YkJ3aS94VGkzN0oKNWxTVklmb1kxcUlBaGJPbjBUWHp2YzBRRXBKUExaRDM2VDBZcEtJSVhjZUVGYXNxZzVWb1pINGx1Uk50SStBUAp0blg4S1JZU0xGOWlCNEJXd0N0aGFhZzZFZVFqYWpQNWlxZnZoUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
     service:
       name: vault
       port: 8200
-      scheme: HTTPS
+      scheme: http
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
     kind: VaultServerConfiguration
-    path: kubernetes
-    vaultRole: vault-policy-controller
     kubernetes:
       serviceAccountName: vault
       tokenReviewerServiceAccountName: vault-k8s-token-reviewer
       usePodServiceAccountForCSIDriver: true
+    path: kubernetes
+    vaultRole: vault-policy-controller
 ```
 
-## Enable and Configure MySQL Database Secret Engine
+## Enable & Configure MySQL SecretEngine
 
-The following steps are required to enable and configure the MySQL database secrets engine in the Vault server.
-
-There are two ways to configure the Vault server. You can either use the `KubeVault operator` or the  `Vault CLI` to manually configure a Vault server.
-
-<ul class="nav nav-tabs" id="conceptsTab" role="tablist">
-  <li class="nav-item">
-    <a class="nav-link active" id="operator-tab" data-toggle="tab" href="#operator" role="tab" aria-controls="operator" aria-selected="true">Using KubeVault operator</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" id="csi-driver-tab" data-toggle="tab" href="#csi-driver" role="tab" aria-controls="csi-driver" aria-selected="false">Using Vault CLI</a>
-  </li>
-</ul>
-<div class="tab-content" id="conceptsTabContent">
-  <div open class="tab-pane fade show active" id="operator" role="tabpanel" aria-labelledby="operator-tab">
-
-### Using KubeVault operator
-
-You need to be familiar with the following CRDs:
-
-- [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
-- [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md)
-
-Let's enable and configure the MySQL database secret engine by deploying the following `SecretEngine` yaml:
-
-```yaml
-apiVersion: engine.kubevault.com/v1alpha1
-kind: SecretEngine
-metadata:
-  name: mysql-engine
-  namespace: demo
-spec:
-  vaultRef:
-    name: vault
-  path: mysql-se
-  mysql:
-    databaseRef:
-      name: mysql-app
-      namespace: demo
-    pluginName: "mysql-rds-database-plugin"
-    allowedRoles:
-      - "*"
-```
-
-To configure the MySQL secret engine, you need to provide the MySQL database connection and authentication information through an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md).
-
+### Enable MySQL SecretEngine
 ```console
-$ kubectl get services -n demo
-NAME    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)       AGE
-mysql   ClusterIP   10.96.33.240    <none>        3306/TCP      3h41
-```
-
-Let's consider `mysql` is the Kubernetes service name that communicate with MySQL servers. The connection `URL` generated using the service will be `mysql.demo.svc:3306`. Visit [AppBinding documentation](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) for more details. A sample AppBinding example with necessary k8s secret is given below:
-
-```yaml
-apiVersion: appcatalog.appscode.com/v1alpha1
-kind: AppBinding
-metadata:
-  name: mysql-app
-  namespace: demo
-spec:
-  secret:
-    name: mysql-cred # secret name
-  clientConfig:
-    url: tcp(mysql.demo.svc:3306)/
-    insecureSkipTLSVerify: true
----
-apiVersion: v1
-data:
-  username: cm9vdA== # mysql username
-  password: cm9vdA== # mysql password
-kind: Secret
-metadata:
-  name: mysql-cred
-  namespace: demo
-```
-
-Let's deploy SecretEngine:
-
-```console
-$ kubectl apply -f docs/examples/guides/secret-engines/mysql/mysql-app.yaml
-appbinding.appcatalog.appscode.com/mysql-app created
-secret/mysql-cred created
-
-$ kubectl apply -f docs/examples/guides/secret-engines/mysql/mysqlSecretEngine.yaml
+$ kubectl apply -f docs/examples/guides/secret-engines/mysql/secretengine.yaml
 secretengine.engine.kubevault.com/mysql-engine created
 ```
 
-Wait till the status become `Success`:
-
+### Create MySQLRole
 ```console
-$ kubectl get secretengines -n demo
-NAME           STATUS
-mysql-engine   Success
+$ kubectl apply -f docs/examples/guides/secret-engines/mysql/secretenginerole.yaml
+elasticsearchrole.engine.kubevault.com/mysql-superuser-role created
 ```
 
-Create database role using the following `MySQLRole` yaml:
+Let's say pod's service account name is `test-user-account` located in `demo` namespace. We need to create a [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) and a [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md) so that the pod has access to read secrets from the Vault server.
 
-```yaml
-apiVersion: engine.kubevault.com/v1alpha1
-kind: MySQLRole
-metadata:
-  name: mysql-role
-  namespace: demo
-spec:
-  vaultRef:
-    name: vault
-  path: mysql-se
-  databaseRef:
-    name: mysql-app
-    namespace: demo
-  creationStatements:
-    - "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';"
-    - "GRANT SELECT ON *.* TO '{{name}}'@'%';"
-  defaultTTL: 1h
-  maxTTL: 24h
-```
+### Create Service Account for Pod
 
-Let's deploy MySQLRole:
-
-```console
-$ kubectl apply -f docs/examples/guides/secret-engines/mysql/mysqlRole.yaml
-mysqlrole.engine.kubevault.com/mysql-role created
-
-$ kubectl get mysqlrole -n demo mysql-role
-NAME         AGE
-mysql-role   83m
-```
-
-You can also check from Vault that the role is created.
-To resolve the naming conflict, name of the role in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`.
-
-> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
-
-```console
-$ vault list mysql-se/roles
-Keys
-----
-k8s.-.demo.mysql-role
-
-$ vault read mysql-se/roles/k8s.-.demo.mysql-role
-Key                      Value
----                      -----
-creation_statements      [CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT SELECT ON *.* TO '{{name}}'@'%';]
-db_name                  k8s.-.demo.mysql-app
-default_ttl              1h
-max_ttl                  24h
-renew_statements         []
-revocation_statements    []
-rollback_statements      []
-```
-
-</div>
-<div class="tab-pane fade" id="csi-driver" role="tabpanel" aria-labelledby="csi-driver-tab">
-
-### Using Vault CLI
-
-You can also use [Vault CLI](https://www.vaultproject.io/docs/commands/) to [enable and configure](https://www.vaultproject.io/docs/secrets/databases/mysql-maria.html#setup) the MySQL secret engine.
-
-> Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
-
-To generate secret from the database secret engine, you have to perform the following steps.
-
-- **Enable `database` Engine:** To enable `database` secret engine run the following command.
-
-```console
-$ vault secrets enable -path=mysql-se database
-Success! Enabled the database secrets engine at: mysql-se/
-```
-
-- **Configure Secret Engine:** Configure Vault with the proper plugin and connection information by running:
-
-```console
-$ vault write mysql-se/config/k8s.-.demo.mysql-app \
-    plugin_name=mysql-rds-database-plugin \
-    allowed_roles="*" \
-    connection_url="{{username}}:{{password}}@tcp(127.0.0.1:3306)/" \
-    username="root" \
-    password="password"
-Success! Data written to: mysql-se/config/k8s.-.demo.mysql-app
-```
-
-- **Configure a Role:** We need to configure a role that maps a name in Vault to an SQL statement to execute to create the database credential:
-
-```console
-$ vault write mysql-se/roles/k8s.-.demo.mysql-role \
-    db_name=my-mysql-database \
-    creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';" \
-    default_ttl="1h" \
-    max_ttl="24h"
-Success! Data written to: mysql-se/roles/k8s.-.demo.mysql-role
-```
-
-- **Read the Role:**
-
-```console
-$ vault list mysql-se/roles
-Keys
-----
-k8s.-.demo.mysql-role
-
-$ vault read mysql-se/roles/k8s.-.demo.mysql-role
-Key                      Value
----                      -----
-creation_statements      [CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT SELECT ON *.* TO '{{name}}'@'%';]
-db_name                  k8s.-.demo.mysql-app
-default_ttl              1h
-max_ttl                  24h
-renew_statements         []
-revocation_statements    []
-rollback_statements      []
-```
-
-If you use Vault CLI to enable and configure the MySQL secret engine then you need to **update the vault policy** for the service account 'vault' created during vault server configuration and add the permission to read at "mysql-se/roles/*" with previous permissions. That is why it is recommended to use the KubeVault operator because the operator updates the policies automatically when needed.
-
-Find how to update the policy for service account in [here](/docs/guides/secret-engines/kv/csi-driver.md#update-vault-policy).
-
-  </div>
-</div>
-
-## Mount secrets into a Kubernetes pod
-
-Since Kubernetes 1.14, `storage.k8s.io/v1beta1` `CSINode` and `CSIDriver` objects were introduced. Let's check [CSIDriver](https://kubernetes-csi.github.io/docs/csi-driver-object.html) and [CSINode](https://kubernetes-csi.github.io/docs/csi-node-object.html) are available or not.
-
-```console
-$ kubectl get csidrivers
-NAME                        CREATED AT
-secrets.csi.kubevault.com   2019-12-09T04:32:50Z
-
-$ kubectl get csinodes
-NAME             CREATED AT
-2gb-pool-57jj7   2019-12-09T04:32:52Z
-2gb-pool-jrvtj   2019-12-09T04:32:58Z
-```
-
-After configuring the `Vault server`, now we have AppBinding `vault` in `demo` namespace.
-
-### Create StorageClass
-
-Create `StorageClass` object with the following content:
-
-```yaml
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: vault-mysql-storage
-  annotations:
-    storageclass.kubernetes.io/is-default-class: "false"
-provisioner: secrets.csi.kubevault.com
-parameters:
-  ref: demo/vault # namespace/AppBinding, we created during vault server configuration
-  engine: DATABASE # vault engine name
-  role: k8s.-.demo.mysql-role # role name on vault which you want get access
-  path: mysql-se # specify the secret engine path, default is database
-```
-
-```console
-$ kubectl apply -f docs/examples/guides/secret-engines/mysql/storageClass.yaml
-storageclass.storage.k8s.io/vault-mysql-storage created
-```
-
-## Test & Verify
-
-Let's create a separate namespace called `trial` for testing purpose.
-
-```console
-$ kubectl create ns trial
-namespace/trail created
-```
-
-### Create PVC
-
-Create a `PersistentVolumeClaim` with the following data. This makes sure a volume will be created and provisioned on your behalf.
-
+Let's create the service account `test-user-account` which will be used in VaultPolicyBinding.
 ```yaml
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: ServiceAccount
 metadata:
-  name: csi-pvc-mysql
-  namespace: trial
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Mi
-  storageClassName: vault-mysql-storage
+  name: test-user-account
+  namespace: demo
 ```
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/mysql/pvc.yaml
-persistentvolumeclaim/csi-pvc-mysql created
+$ kubectl apply -f docs/examples/guides/secret-engines/mysql/serviceaccount.yaml
+serviceaccount/test-user-account created
+
+$ kubectl get serviceaccount -n demo
+NAME                SECRETS   AGE
+test-user-account   1         4h10m
 ```
 
 ### Create VaultPolicy and VaultPolicyBinding for Pod's Service Account
-
-Let's say pod's service account name is `pod-sa` located in `trial` namespace. We need to create a [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) and a [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md) so that the pod has access to read secrets from the Vault server.
+When a VaultPolicyBinding object is created, the KubeVault operator create an auth role in the Vault server. The role name is generated by the following naming format: `k8s.(clusterName or -).namespace.name`. Here, it is `k8s.-.demo.mysql-reader-role`.
 
 ```yaml
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
 metadata:
-  name: mysql-se-policy
+  name: mysql-reader-policy
   namespace: demo
 spec:
   vaultRef:
     name: vault
-  # Here, mysql secret engine is enabled at "mysql-se".
-  # If the path was "demo-se", policy should be like
-  # path "demo-se/*" {}.
   policyDocument: |
-    path "mysql-se/*" {
-      capabilities = ["create", "read"]
+    path "your-database-path/creds/k8s.-.demo.mysql-superuser-role" {
+      capabilities = ["read"]
     }
 ---
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicyBinding
 metadata:
-  name: mysql-se-role
+  name: mysql-reader-role
   namespace: demo
 spec:
   vaultRef:
     name: vault
   policies:
-  - ref: mysql-se-policy
+    - ref: mysql-reader-policy
   subjectRef:
     kubernetes:
       serviceAccountNames:
-      - "pod-sa"
+        - "test-user-account"
       serviceAccountNamespaces:
-      - "trial"
+        - "demo"
 ```
 
 Let's create VaultPolicy and VaultPolicyBinding:
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/mysql/vaultPolicy.yaml
-vaultpolicy.policy.kubevault.com/mysql-se-policy created
+$ kubectl apply -f docs/examples/guides/secret-engines/mysql/policy.yaml
+vaultpolicy.policy.kubevault.com/mysql-reader-policy created
 
-$ kubectl apply -f docs/examples/guides/secret-engines/mysql/vaultPolicyBinding.yaml
-vaultpolicybinding.policy.kubevault.com/mysql-se-role created
+$ kubectl apply -f docs/examples/guides/secret-engines/mysql/policybinding.yaml
+vaultpolicybinding.policy.kubevault.com/mysql-reader-role created
 ```
 
 Check if the VaultPolicy and the VaultPolicyBinding are successfully registered to the Vault server:
 
 ```console
 $ kubectl get vaultpolicy -n demo
-NAME                           STATUS    AGE
-mysql-se-policy                Success   8s
+NAME                                 STATUS    AGE
+mysql-reader-policy                  Success   8s
 
 $ kubectl get vaultpolicybinding -n demo
-NAME                           STATUS    AGE
-mysql-se-role                  Success   10s
+NAME                                 STATUS    AGE
+mysql-reader-role                    Success   10s
 ```
 
-### Create Service Account for Pod
+## Mount secrets into a Kubernetes pod
 
-Let's create the service account `pod-sa` which was used in VaultPolicyBinding. When a VaultPolicyBinding object is created, the KubeVault operator create an auth role in the Vault server. The role name is generated by the following naming format: `k8s.(clusterName or -).namespace.name`. Here, it is `k8s.-.demo.mysql-se-role`. We need to provide the auth role name as service account `annotations` while creating the service account. If the annotation `secrets.csi.kubevault.com/vault-role` is not provided, the CSI driver will not be able to perform authentication to the Vault.
+So, we can create `SecretProviderClass` now. You can read more about `SecretProviderClass` [here](https://secrets-store-csi-driver.sigs.k8s.io/concepts.html#secretproviderclass).
+
+### Create SecretProviderClass
+
+Create `SecretProviderClass` object with the following content:
 
 ```yaml
-apiVersion: v1
-kind: ServiceAccount
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
 metadata:
-  name: pod-sa
-  namespace: trial
-  annotations:
-    secrets.csi.kubevault.com/vault-role: k8s.-.demo.mysql-se-role
+  name: vault-db-provider
+  namespace: demo
+spec:
+  provider: vault
+  parameters:
+    vaultAddress: "http://vault.demo:8200"
+    roleName: "k8s.-.demo.mysql-reader-role"
+    objects: |
+      - objectName: "mysql-creds-username"
+        secretPath: "your-database-path/creds/k8s.-.demo.mysql-superuser-role"
+        secretKey: "username"
+      - objectName: "mysql-creds-password"
+        secretPath: "your-database-path/creds/k8s.-.demo.mysql-superuser-role"
+        secretKey: "password"
+
 ```
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/mysql/podServiceAccount.yaml
-serviceaccount/pod-sa created
+$ kubectl apply -f docs/examples/guides/secret-engines/mysql/secretproviderclass.yaml
+secretproviderclass.secrets-store.csi.x-k8s.io/vault-db-provider created
 ```
+
+NOTE: The `SecretProviderClass` needs to be created in the same namespace as the pod.
 
 ### Create Pod
 
-Now we can create a Pod which refers to this volume. When the Pod is created, the volume will be attached, formatted and mounted to the specific container.
+Now we can create a `Pod` to consume the `MySQL` secrets. When the `Pod` is created, the `Provider` fetches the secret and writes them to Pod's volume as files. At this point, the volume is successfully mounted and the `Pod` starts running.
 
 ```yaml
 apiVersion: v1
 kind: Pod
 metadata:
-  name: mypod
-  namespace: trial
+  name: demo-app
+  namespace: demo
 spec:
+  serviceAccountName: test-user-account
   containers:
-  - name: mypod
-    image: busybox
-    command:
-    - sleep
-    - "3600"
-    volumeMounts:
-    - name: my-vault-volume
-      mountPath: "/etc/mysql"
-      readOnly: true
-  serviceAccountName: pod-sa # service account that was created
+    - image: jweissig/app:0.0.1
+      name: demo-app
+      imagePullPolicy: Always
+      volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/secrets-store/mysql-creds"
+          readOnly: true
   volumes:
-  - name: my-vault-volume
-    persistentVolumeClaim:
-      claimName: csi-pvc-mysql
+    - name: secrets-store-inline
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: "vault-db-provider"
 ```
 
 ```console
 $ kubectl apply -f docs/examples/guides/secret-engines/mysql/pod.yaml
-pod/mypod created
+pod/demo-app created
 ```
+## Test & Verify
 
 Check if the Pod is running successfully, by running:
 
 ```console
-$ kubectl get pods -n trial
-NAME                    READY   STATUS    RESTARTS   AGE
-mypod                   1/1     Running   0          11s
+$ kubectl get pods -n demo
+NAME                       READY   STATUS    RESTARTS   AGE
+demo-app                   1/1     Running   0          11s
 ```
 
 ### Verify Secret
@@ -503,18 +278,20 @@ mypod                   1/1     Running   0          11s
 If the Pod is running successfully, then check inside the app container by running
 
 ```console
-$ kubectl exec -it -n trial  mypod sh
-/ # ls /etc/mysql/
-password  username
+$ kubectl exec -it -n demo pod/demo-app -- /bin/sh
+/ # ls /secrets-store/mysql-creds
+mysql-creds-password  mysql-creds-username
 
-/ # cat /etc/mysql/username
-v-k8s.-k0gFzzJyf
+/ # cat /secrets-store/mysql-creds/mysql-creds-password
+TAu2Zvg1WYE07W8Uf-nW
 
-/ # cat /etc/mysql/password
-A1a-7Q0RtEmH0Gj8lO4N
+/ # cat /secrets-store/mysql-creds/mysql-creds-username
+v-kubernetes-test-k8s.-.demo.mysql-s-iPkxiH80Ollq2QgF82Ab-1629178048
+
+/ # exit
 ```
 
- So, we can see that database credentials (username, password) are mounted to the specified path.
+So, we can see that the secret `db-username` and `db-password` is mounted into the pod, where the secret key is mounted as file and value is the content of that file.
 
 ## Cleaning up
 
@@ -524,6 +301,4 @@ To clean up the Kubernetes resources created by this tutorial, run:
 $ kubectl delete ns demo
 namespace "demo" deleted
 
-$ kubectl delete ns trial
-namespace "trial" deleted
 ```

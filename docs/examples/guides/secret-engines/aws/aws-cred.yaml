@@ -1,9 +1,0 @@
-apiVersion: v1
-data:
-  access_key: AKIAIBLYXHSAM22A3Q7A
-  secret_key: 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
-kind: Secret
-metadata:
-  name: aws-cred
-  namespace: demo
-type: Opaque

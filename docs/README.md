@@ -34,6 +34,7 @@ You can deploy and manage Vault on Kubernetes clusters using KubeVault operator.
 - [AWS S3](/docs/concepts/vault-server-crds/storage/s3.md)
 - [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
 - [Consul](/docs/concepts/vault-server-crds/storage/consul.md)
+- [Raft](/docs/concepts/vault-server-crds/storage/raft.md)
 
 From here you can learn all about Vault operator's architecture and how to deploy and use Vault operator.
 

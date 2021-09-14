@@ -1,0 +1,16 @@
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicyBinding
+metadata:
+  name: pki-se-role
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  policies:
+    - ref: pki-se-policy
+  subjectRef:
+    kubernetes:
+      serviceAccountNames:
+        - "test-user-account"
+      serviceAccountNamespaces:
+        - "demo"

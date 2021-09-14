@@ -1,24 +1,12 @@
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
 metadata:
-  name: kv-policy
+  name: kv-se-policy
   namespace: demo
 spec:
   vaultRef:
     name: vault
   policyDocument: |
-    path "sys/mounts" {
-      capabilities = ["read", "list"]
-    }
-
-    path "sys/mounts/*" {
-      capabilities = ["create", "read", "update", "delete"]
-    }
-
-    path "kv/*" {
-        capabilities = ["create","list", "read", "update", "delete"]
-    }
-
-    path "sys/leases/revoke/*" {
-        capabilities = ["update"]
+    path "secret/*" {
+      capabilities = ["read"]
     }

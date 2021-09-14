@@ -70,6 +70,7 @@ Introduces the concept of `VaultServer` for configuring a HashiCorp Vault server
     - [AWS S3](/docs/concepts/vault-server-crds/storage/s3.md)
     - [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
     - [Consul](/docs/concepts/vault-server-crds/storage/consul.md)
+    - [Raft](/docs/concepts/vault-server-crds/storage/raft.md)
 
   - Authentication Methods for Vault Server
     - [AWS IAM Auth Method](/docs/concepts/vault-server-crds/auth-methods/aws-iam.md)
@@ -105,6 +106,7 @@ Introduces the concept of `VaultServer` for configuring a HashiCorp Vault server
     - [MongoDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mongodb.md)
     - [MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md)
     - [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md)
+    - [ElasticsearchRole](/docs/concepts/secret-engine-crds/database-secret-engine/elasticsearch.md)
     - [DatabaseAccessRequest](/docs/concepts/secret-engine-crds/database-secret-engine/databaseaccessrequest.md)
 
 </div>

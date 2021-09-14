@@ -1,0 +1,38 @@
+apiVersion: kubevault.com/v1alpha1
+kind: VaultServer
+metadata:
+  name: vault
+  namespace: demo
+spec:
+  version: 1.7.3
+  replicas: 3
+  backend:
+    raft:
+      path: "/vault/data"
+      storage:
+        storageClassName: "standard"
+        resources:
+          requests:
+            storage: 1Gi
+  unsealer:
+    secretShares: 5
+    secretThreshold: 3
+    mode:
+      kubernetesSecret:
+        secretName: vault-keys
+  serviceTemplates:
+    - alias: vault
+      metadata:
+        annotations:
+          name: vault
+      spec:
+        type: NodePort
+    - alias: stats
+      spec:
+        type: ClusterIP
+  monitor:
+    agent: prometheus.io
+    prometheus:
+      exporter:
+        resources: {}
+  terminationPolicy: DoNotTerminate

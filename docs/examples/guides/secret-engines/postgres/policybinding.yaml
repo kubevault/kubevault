@@ -1,0 +1,16 @@
+apiVersion: policy.kubevault.com/v1alpha1
+kind: VaultPolicyBinding
+metadata:
+  name: postgres-reader-role
+  namespace: demo
+spec:
+  vaultRef:
+    name: vault
+  policies:
+    - ref: postgres-reader-policy
+  subjectRef:
+    kubernetes:
+      serviceAccountNames:
+        - "test-user-account"
+      serviceAccountNamespaces:
+        - "demo"
