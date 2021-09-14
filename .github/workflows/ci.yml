@@ -52,7 +52,7 @@ jobs:
           # helm install kubevault-crds appscode/kubevault-crds
           kubectl create -f https://github.com/kubevault/installer/raw/master/crds/kubevault-crds.yaml
           # register secrets-store-csi-driver crd
-          kubectl create -f https://github.com/kubernetes-sigs/secrets-store-csi-driver/raw/master/charts/secrets-store-csi-driver/crds/secrets-store.csi.x-k8s.io_secretproviderclasses.yaml
+          kubectl create -f https://github.com/kubernetes-sigs/secrets-store-csi-driver/raw/main/charts/secrets-store-csi-driver/crds/secrets-store.csi.x-k8s.io_secretproviderclasses.yaml
           helm install kmodules-crds appscode/kmodules-crds
 
       - name: Check codespan schema
