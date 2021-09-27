@@ -92,22 +92,18 @@ Introduces the concept of `VaultServer` for configuring a HashiCorp Vault server
 
   - AWS IAM Secret Engine
     - [AWSRole](/docs/concepts/secret-engine-crds/aws-secret-engine/awsrole.md)
-    - [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/aws-secret-engine/awsaccesskeyrequest.md)
 
   - GCP Secret Engine
     - [GCPRole](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md)
-    - [GCPAccessKeyRequest](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcpaccesskeyrequest.md)
 
   - Azure Secret Engine
     - [AzureRole](/docs/concepts/secret-engine-crds/azure-secret-engine/azurerole.md)
-    - [AzureAccessKeyRequest](/docs/concepts/secret-engine-crds/azure-secret-engine/azureaccesskeyrequest.md)
 
   - Database Secret Engines
     - [MongoDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mongodb.md)
     - [MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md)
     - [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md)
     - [ElasticsearchRole](/docs/concepts/secret-engine-crds/database-secret-engine/elasticsearch.md)
-    - [DatabaseAccessRequest](/docs/concepts/secret-engine-crds/database-secret-engine/databaseaccessrequest.md)
 
 </div>
 <div class="tab-pane fade" id="vault-policy" role="tabpanel" aria-labelledby="vault-policy-tab">
