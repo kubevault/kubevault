@@ -23,7 +23,6 @@ You need to be familiar with the following CRDs:
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
 - [AWSRole](/docs/concepts/secret-engine-crds/aws-secret-engine/awsrole.md)
-- [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/aws-secret-engine/awsaccesskeyrequest.md)
 
 ## Before you begin
 
@@ -233,8 +232,6 @@ No value found at aws/roles/
 ```
 
 ## Generate AWS credentials
-
-By using [AWSAccessKeyRequest](/docs/concepts/secret-engine-crds/aws-secret-engine/awsaccesskeyrequest.md), you can generate AWS credentials from Vault.
 
 Here, we are going to make a request to Vault for AWS credential by creating `aws-cred-rqst` AWSAccessKeyRequest in `demo` namespace.
 

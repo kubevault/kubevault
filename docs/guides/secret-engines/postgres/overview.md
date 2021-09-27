@@ -23,7 +23,6 @@ You need to be familiar with the following CRDs:
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
 - [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md)
-- [DatabaseAccessRequest](/docs/concepts/secret-engine-crds/database-secret-engine/databaseaccessrequest.md)
 
 ## Before you begin
 
@@ -207,8 +206,6 @@ No value found at your-database-path/roles/
 ```
 
 ## Generate PostgreSQL credentials
-
-By using [DatabaseAccessRequest](/docs/concepts/secret-engine-crds/database-secret-engine/databaseaccessrequest.md), you can generate database access credentials from Vault.
 
 Here, we are going to make a request to Vault for PostgreSQL credentials by creating `postgres-cred-rqst` DatabaseAccessRequest in `demo` namespace.
 
