@@ -110,7 +110,6 @@ spec:
     name: vault
   azure:
     credentialSecret: azure-cred
-  path: "your-azure-path"
 ```
 
 To configure the Azure secret engine, you need to provide azure credentials through a Kubernetes secret.
@@ -161,11 +160,10 @@ metadata:
   name: azure-role
   namespace: demo
 spec:
-  vaultRef:
+  secretEngineRef:
     name: vault
   applicationObjectID: e211afbc-cc4a-462f-ad6f-59e26eb5406f
   ttl: 1h
-  path: "your-azure-path"
 ```
 
 Let's deploy AzureRole:
@@ -224,14 +222,14 @@ Here, we are going to make a request to Vault for Azure credentials by creating 
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: AzureAccessKeyRequest
+kind: SecretAccessRequest
 metadata:
   name: azure-cred-rqst
   namespace: demo
 spec:
   roleRef:
-    name: azure-role
-    namespace: demo
+    kind: AzureRole
+    name: azure-role 
   subjects:
   - kind: ServiceAccount
     name: demo-sa

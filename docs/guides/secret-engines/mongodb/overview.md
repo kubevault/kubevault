@@ -113,7 +113,6 @@ spec:
       name: mongodb
       namespace: demo
     pluginName: "mongodb-database-plugin"
-  path: "your-database-path"
 ```
 
 Let's deploy SecretEngine:
@@ -146,12 +145,8 @@ metadata:
   name: mongo-superuser-role
   namespace: demo
 spec:
-  vaultRef:
-    name: vault
-  databaseRef:
-    name: mongodb
-    namespace: demo
-  path: "your-database-path"
+  secretEngineRef:
+    name: mongo-secret-engine
   creationStatements:
     - "{ \"db\": \"admin\", \"roles\": [{ \"role\": \"readWrite\" }, {\"role\": \"read\", \"db\": \"foo\"}] }"
   defaultTTL: 1h
@@ -217,7 +212,7 @@ Here, we are going to make a request to Vault for Elasticsearch credentials by c
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: DatabaseAccessRequest
+kind: SecretAccessRequest
 metadata:
   name: mongo-cred-rqst
   namespace: demo
@@ -225,7 +220,6 @@ spec:
   roleRef:
     kind: MongoDBRole
     name: mongo-superuser-role
-    namespace: demo
   subjects:
     - kind: ServiceAccount
       name: demo-sa

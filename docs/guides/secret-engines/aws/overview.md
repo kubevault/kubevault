@@ -114,7 +114,6 @@ spec:
     leaseConfig:
       lease: 1h
       leaseMax: 1h
-  path: "your-aws-path"
 ```
 
 To configure the AWS secret engine, you need to provide `aws_access_key_id` and `aws_secret_access_key` through a Kubernetes secret.
@@ -163,8 +162,8 @@ metadata:
   name: aws-role
   namespace: demo
 spec:
-  vaultRef:
-    name: vault
+  secretEngineRef:
+    name: aws-secret-engine
   credentialType: iam_user
   policyDocument: |
     {
@@ -177,7 +176,6 @@ spec:
         }
       ]
     }
-  path: "your-aws-path"
 ```
 
 Let's deploy AWSRole:
@@ -242,14 +240,14 @@ Here, we are going to make a request to Vault for AWS credential by creating `aw
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: AWSAccessKeyRequest
+kind: SecretAccessRequest
 metadata:
   name: aws-cred-rqst
   namespace: demo
 spec:
   roleRef:
+    kind: AWSRole
     name: aws-role
-    namespace: demo
   subjects:
     - kind: ServiceAccount
       name: demo-sa

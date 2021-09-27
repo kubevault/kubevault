@@ -113,7 +113,6 @@ spec:
       name: postgres
       namespace: demo
     pluginName: "postgresql-database-plugin"
-  path: "your-database-path"
 ```
 
 Let's deploy SecretEngine:
@@ -146,12 +145,8 @@ metadata:
   name: postgres-superuser-role
   namespace: demo
 spec:
-  vaultRef:
+  secretEngineRef:
     name: vault
-  databaseRef:
-    name: postgres
-    namespace: demo
-  path: "your-database-path"
   creationStatements:
     - "CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';"
     - "GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";"
@@ -219,7 +214,7 @@ Here, we are going to make a request to Vault for PostgreSQL credentials by crea
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: DatabaseAccessRequest
+kind: SecretAccessRequest
 metadata:
   name: postgres-cred-rqst
   namespace: demo
@@ -227,7 +222,6 @@ spec:
   roleRef:
     kind: PostgresRole
     name: postgres-superuser-role
-    namespace: demo
   subjects:
     - kind: ServiceAccount
       name: demo-sa

@@ -37,8 +37,8 @@ metadata:
   name: azure-role
   namespace: demo
 spec:
-  vaultRef:
-    name: vault-app
+  secretEngineRef:
+    name: azure-secret-engine
   azureRoles: `[
               {
                 "role_name": "Contributor",
@@ -61,8 +61,8 @@ AzureRole `spec` contains either new service principal configuration or existing
 
 ```yaml
 spec:
-  vaultRef:
-    name: <appbinding-name>
+  secretEngineRef:
+    name: <azure-secret-engine>
   path: <azure-secret-engine-path>
   applicationObjectID: <existing-application-object-id>
   azureRoles: <list-of-azure-roles>
@@ -72,14 +72,14 @@ spec:
 
 `AzureRole` spec has the following fields:
 
-#### spec.vaultRef
+#### spec.secretEngineRef
 
-`spec.vaultRef` is a `required` field that specifies the name of an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be in the same namespace with the AzureRole object.
+`spec.secretEngineRef` is a `required` field that specifies the name of an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be in the same namespace with the AzureRole object.
 
 ```yaml
 spec:
-  vaultRef:
-    name: vault-app
+  secretEngineRef:
+    name: azure-secret-engine
 ```
 
 #### spec.path

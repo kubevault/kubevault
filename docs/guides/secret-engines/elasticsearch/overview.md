@@ -113,7 +113,6 @@ spec:
       name: elasticsearch
       namespace: demo
     pluginName: "elasticsearch-database-plugin"
-  path: "your-database-path"
 ```
 
 Let's deploy SecretEngine:
@@ -146,12 +145,8 @@ metadata:
   name: es-superuser-role
   namespace: demo
 spec:
-  vaultRef:
-    name: vault
-  databaseRef:
-    name: elasticsearch
-    namespace: demo
-  path: "your-database-path"
+  secretEngineRef:
+    name: es-secret-engine
   creationStatements:
     - '{"elasticsearch_roles": ["superuser"]}'
   defaultTTL: 1h
@@ -217,7 +212,7 @@ Here, we are going to make a request to Vault for Elasticsearch credentials by c
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: DatabaseAccessRequest
+kind: SecretAccessRequest
 metadata:
   name: es-cred-rqst
   namespace: demo
@@ -225,7 +220,6 @@ spec:
   roleRef:
     kind: ElasticsearchRole
     name: es-superuser-role
-    namespace: demo
   subjects:
     - kind: ServiceAccount
       name: demo-sa

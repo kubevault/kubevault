@@ -36,11 +36,8 @@ metadata:
   name: es-role
   namespace: demo
 spec:
-  vaultRef:
-    name: vault-app
-  databaseRef:
-    name: es-app
-    namespace: demo
+  secretEngineRef:
+    name: es-secret-engine
   creationStatements:
     - "statement-0"
     - "statement-1"
@@ -59,12 +56,8 @@ ElasticsearchRole `spec` contains information that necessary for creating a data
 
 ```yaml
 spec:
-  vaultRef:
-    name: <vault-appbinding-name>
-  databaseRef:
-    name: <database-appbinding-name>
-    namespace: <database-appbinding-namespace>
-  databaseName: <database-name>
+  secretEngineRef:
+    name: <secret-engine-name>
   path: <secret-engine-path>
   defaultTTL: <default-ttl>
   maxTTL: <max-ttl>
@@ -77,35 +70,14 @@ spec:
 
 ElasticsearchRole spec has the following fields:
 
-#### spec.vaultRef
+#### spec.secretEngineRef
 
-`spec.vaultRef` is a `required` field that specifies the name of an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be in the same namespace with the ElasticsearchRole object.
+`spec.secretEngineRef` is a `required` field that specifies the name of an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be in the same namespace with the ElasticsearchRole object.
 
 ```yaml
 spec:
-  vaultRef:
+  secretEngineRef:
     name: vault-app
-```
-
-#### spec.databaseRef
-
-`spec.databaseRef` is an `optional` field that specifies the reference to an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains elasticsearch database connection information. It is used to generate the `db_name`. The naming format for `db_name` is: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`.
-
-```yaml
-spec:
-  databaseRef:
-    name: es-app
-    namespace: demo
-```
-
-#### spec.databaseName
-
-`spec.databaseName` is an `optional` field that specifies the `db_name`. It is used when `spec.databaseRef` is empty otherwise ignored.
-Both `spec.databaseRef` and `spec.databaseName` cannot be empty at the same time.
-
-```yaml
-spec:
-  databaseName: k8s.-.demo.es-app
 ```
 
 #### spec.path
