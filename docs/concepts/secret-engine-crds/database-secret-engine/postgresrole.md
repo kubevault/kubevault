@@ -36,11 +36,8 @@ metadata:
   name: pg-role
   namespace: demo
 spec:
-  vaultRef:
+  secretEngineRef:
     name: vault-app
-  databaseRef:
-    name: postgres-app
-    namespace: demo
   creationStatements:
     - "CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';"
     - "GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";"
@@ -59,12 +56,8 @@ PostgresRole `spec` contains information that necessary for creating a database 
 
 ```yaml
 spec:
-  vaultRef:
+  secretEngineRef:
     name: <vault-appbinding-name>
-  databaseRef:
-    name: <database-appbinding-name>
-    namespace: <database-appbinding-namespace>
-  databaseName: <database-name>
   path: <database-secret-engine-path>
   defaultTTL: <default-ttl>
   maxTTL: <max-ttl>
@@ -81,35 +74,14 @@ spec:
 
 PostgresRole spec has the following fields:
 
-#### spec.vaultRef
+#### spec.secretEngineRef
 
-`spec.vaultRef` is a `required` field that specifies the name of an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be on the same namespace with the PostgresRole object.
-
-```yaml
-spec:
-  vaultRef:
-    name: vault-app
-```
-
-#### spec.databaseRef
-
-`spec.databaseRef` is an `optional` field that specifies the reference to an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains PostgreSQL database connection information. It is used to generate the `db_name`. The naming format for `db_name` is: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`.
+`spec.secretEngineRef` is a `required` field that specifies the name of an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be on the same namespace with the PostgresRole object.
 
 ```yaml
 spec:
-  databaseRef:
-    name: postgres-app
-    namespace: demo
-```
-
-#### spec.databaseName
-
-`spec.databaseName` is an `optional` field that specifies the `db_name`. It is used when `spec.databaseRef` is empty otherwise ignored.
-Both `spec.databaseRef` and `spec.databaseName` cannot be empty at the same time.
-
-```yaml
-spec:
-  databaseName: k8s.-.demo.postgres-app
+  secretEngineRef:
+    name: pg-secret-engine
 ```
 
 #### spec.path

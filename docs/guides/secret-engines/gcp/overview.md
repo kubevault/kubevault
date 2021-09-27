@@ -23,7 +23,6 @@ You need to be familiar with the following CRDs:
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
 - [GCPRole](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md)
-- [GCPAccessKeyRequest](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcpaccesskeyrequest.md)
 
 ## Before you begin
 
@@ -110,7 +109,6 @@ spec:
     name: vault
   gcp:
     credentialSecret: gcp-cred
-  path: "your-gcp-path"
 ```
 
 To configure the GCP secret engine, you need to provide google service account credentials through a Kubernetes secret.
@@ -158,9 +156,8 @@ metadata:
   name: gcp-role
   namespace: demo
 spec:
-  vaultRef:
-    name: vault
-  path: "your-gcp-path"
+  secretEngineRef:
+    name: gcp-secret-engine
   secretType: "access_token"
   project: appscode-testing
   bindings: |
@@ -222,20 +219,19 @@ $ vault list your-gcp-path/roleset
 
 ## Generate GCP credentials
 
-By using [GCPAccessKeyRequest](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcpaccesskeyrequest.md), you can generate GCP credential from Vault.
 
 Here, we are going to make a request to Vault for GCP credential by creating `gcp-cred-req` GCPAccessKeyRequest in `demo` namespace.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: GCPAccessKeyRequest
+kind: SecretAccessRequest
 metadata:
   name: gcp-cred-req
   namespace: demo
 spec:
   roleRef:
+    kind: GCPRole
     name: gcp-role
-    namespace: demo
   subjects:
     - kind: ServiceAccount
       name: demo-sa

@@ -23,7 +23,6 @@ You need to be familiar with the following CRDs:
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
 - [ElasticsearchRole](/docs/concepts/secret-engine-crds/database-secret-engine/elasticsearch.md)
-- [DatabaseAccessRequest](/docs/concepts/secret-engine-crds/database-secret-engine/databaseaccessrequest.md)
 
 ## Before you begin
 
@@ -113,7 +112,6 @@ spec:
       name: elasticsearch
       namespace: demo
     pluginName: "elasticsearch-database-plugin"
-  path: "your-database-path"
 ```
 
 Let's deploy SecretEngine:
@@ -146,12 +144,8 @@ metadata:
   name: es-superuser-role
   namespace: demo
 spec:
-  vaultRef:
-    name: vault
-  databaseRef:
-    name: elasticsearch
-    namespace: demo
-  path: "your-database-path"
+  secretEngineRef:
+    name: es-secret-engine
   creationStatements:
     - '{"elasticsearch_roles": ["superuser"]}'
   defaultTTL: 1h
@@ -211,13 +205,12 @@ No value found at your-database-path/roles/
 
 ## Generate Elasticsearch credentials
 
-By using [DatabaseAccessRequest](/docs/concepts/secret-engine-crds/database-secret-engine/databaseaccessrequest.md), you can generate database access credentials from Vault.
 
 Here, we are going to make a request to Vault for Elasticsearch credentials by creating `es-cred-rqst` DatabaseAccessRequest in `demo` namespace.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: DatabaseAccessRequest
+kind: SecretAccessRequest
 metadata:
   name: es-cred-rqst
   namespace: demo
@@ -225,7 +218,6 @@ spec:
   roleRef:
     kind: ElasticsearchRole
     name: es-superuser-role
-    namespace: demo
   subjects:
     - kind: ServiceAccount
       name: demo-sa

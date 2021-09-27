@@ -23,7 +23,6 @@ You need to be familiar with the following CRDs:
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
 - [AzureRole](/docs/concepts/secret-engine-crds/azure-secret-engine/azurerole.md)
-- [AzureAccessKeyRequest](/docs/concepts/secret-engine-crds/azure-secret-engine/azureaccesskeyrequest.md)
 
 ## Before you begin
 
@@ -110,7 +109,6 @@ spec:
     name: vault
   azure:
     credentialSecret: azure-cred
-  path: "your-azure-path"
 ```
 
 To configure the Azure secret engine, you need to provide azure credentials through a Kubernetes secret.
@@ -161,11 +159,10 @@ metadata:
   name: azure-role
   namespace: demo
 spec:
-  vaultRef:
+  secretEngineRef:
     name: vault
   applicationObjectID: e211afbc-cc4a-462f-ad6f-59e26eb5406f
   ttl: 1h
-  path: "your-azure-path"
 ```
 
 Let's deploy AzureRole:
@@ -218,20 +215,19 @@ $ vault list azure/roles
 
 ## Generate Azure credentials
 
-By using [AzureAccessKeyRequest](/docs/concepts/secret-engine-crds/azure-secret-engine/azureaccesskeyrequest.md), you can generate Azure credential from Vault.
 
 Here, we are going to make a request to Vault for Azure credentials by creating `azure-cred-rqst` AzureAccessKeyRequest in `demo` namespace.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: AzureAccessKeyRequest
+kind: SecretAccessRequest
 metadata:
   name: azure-cred-rqst
   namespace: demo
 spec:
   roleRef:
-    name: azure-role
-    namespace: demo
+    kind: AzureRole
+    name: azure-role 
   subjects:
   - kind: ServiceAccount
     name: demo-sa

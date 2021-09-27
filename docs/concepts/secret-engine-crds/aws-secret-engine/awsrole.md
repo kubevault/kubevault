@@ -36,8 +36,8 @@ metadata:
   name: aws-cred
   namespace: demo
 spec:
-  vaultRef:
-    name: vault-app
+  secretEngineRef:
+    name: aws-secret-engine
   credentialType: iam_user
   policyDocument: |
     {
@@ -65,8 +65,8 @@ AWSRole `spec` contains root IAM credentials configuration and role information.
 
 ```yaml
 spec:
-  vaultRef:
-    name: <appbinding-name>
+  secretEngineRef:
+    name: <secret-engine-name>
   path: <aws-secret-engine-path>
   credentialType: <credential-type>
   roleARNs:
@@ -83,14 +83,14 @@ spec:
 
 `AWSRole` spec has the following fields:
 
-#### spec.vaultRef
+#### spec.secretEngineRef
 
-`spec.vaultRef` is a `required` field that specifies the name of an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be in the same namespace with the AWSRole object.
+`spec.secretEngineRef` is a `required` field that specifies the name of an [SecretEngine](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be in the same namespace with the AWSRole object.
 
 ```yaml
 spec:
-  vaultRef:
-    name: vault-app
+  secretEngineRef:
+    name: aws-secret-engine
 ```
 
 #### spec.path

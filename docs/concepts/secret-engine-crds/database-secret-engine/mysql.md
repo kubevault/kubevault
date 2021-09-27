@@ -37,11 +37,8 @@ metadata:
   name: mysql-role
   namespace: demo
 spec:
-  vaultRef:
-    name: vault-app
-  databaseRef:
-    name: mysql-app
-    namespace: demo
+  secretEngineRef:
+    name: sql-secret-engine
   creationStatements:
     - "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';"
     - "GRANT SELECT ON *.* TO '{{name}}'@'%';"
@@ -60,12 +57,8 @@ MySQLRole `spec` contains information that necessary for creating a database rol
 
 ```yaml
 spec:
-  vaultRef:
-    name: <vault-appbinding-name>
-  databaseRef:
-    name: <database-appbinding-name>
-    namespace: <database-appbinding-namespace>
-  databaseName: <database-name>
+  secretEngineRef:
+    name: <secret-engine-name>
   path: <database-secret-engine-path>
   defaultTTL: <default-ttl>
   maxTTL: <max-ttl>
@@ -78,35 +71,14 @@ spec:
 
 MySQLRole spec has the following fields:
 
-#### spec.vaultRef
+#### spec.secretEngineRef
 
-`spec.vaultRef` is a `required` field that specifies the name of an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be on the same namespace with the MySQLRole object.
-
-```yaml
-spec:
-  vaultRef:
-    name: vault-app
-```
-
-#### spec.databaseRef
-
-`spec.databaseRef` is an `optional` field that specifies the reference to an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains MySQL database connection information. It is used to generate the `db_name`. The naming format for `db_name` is: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`.
+`spec.secretEngineRef` is a `required` field that specifies the name of an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be on the same namespace with the MySQLRole object.
 
 ```yaml
 spec:
-  databaseRef:
-    name: mysql-app
-    namespace: demo
-```
-
-#### spec.databaseName
-
-`spec.databaseName` is an `optional` field that specifies the `db_name`. It is used when `spec.databaseRef` is empty otherwise ignored.
-Both `spec.databaseRef` and `spec.databaseName` cannot be empty at the same time.
-
-```yaml
-spec:
-  databaseName: k8s.-.demo.mysql-app
+  secretEngineRef:
+    name: sql-secret-engine
 ```
 
 #### spec.path

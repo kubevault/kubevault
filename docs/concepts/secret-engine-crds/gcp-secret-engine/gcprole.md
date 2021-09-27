@@ -38,8 +38,8 @@ metadata:
   name: gcp-role
   namespace: demo
 spec:
-  vaultRef:
-    name: vault-app
+  secretEngineRef:
+    name: gcp-secret-engine
   secretType: access_token
   project: ackube
   bindings: 'resource "//cloudresourcemanager.googleapis.com/projects/ackube" {
@@ -61,8 +61,8 @@ GCPRole `spec` contains the necessary information required to create a GCP secre
 
 ```yaml
 spec:
-  vaultRef:
-    name: <appbinding-name>
+  secretEngineRef:
+    name: <gcp-secret-engine>
   path: <gcp-secret-engine-path>
   secretType: <generated-secret-type>
   project: <svc-ac-owner-project>
@@ -72,14 +72,14 @@ spec:
 
 GCPRole spec has the following fields:
 
-#### spec.vaultRef
+#### spec.secretEngineRef
 
-`spec.vaultRef` is a `required` field that specifies the name of an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be on the same namespace with the GCPRole object.
+`spec.secretEngineRef` is a `required` field that specifies the name of an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be on the same namespace with the GCPRole object.
 
 ```yaml
 spec:
-  vaultRef:
-    name: vault-app
+  secretEngineRef:
+    name: gcp-secret-engine
 ```
 
 #### spec.path
