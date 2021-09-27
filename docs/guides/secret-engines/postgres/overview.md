@@ -4,7 +4,7 @@ menu:
   docs_{{ .version }}:
     identifier: overview-postgresql
     name: Overview
-    parent: postgresql-secret-engines
+    parent: postgres-secret-engines
     weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: guides
