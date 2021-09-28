@@ -212,7 +212,29 @@ status:
     type: Available
   observedGeneration: 1
   phase: Success
+
 ```
+
+#### VaultPolicy spec
+
+- `spec.policyDocument`: contains the document of permissions that are given to the users by `SecretRoleBinding`. 
+- `spec.vaultRef`: contains the Vault reference.
+
+```yaml
+spec:
+  policyDocument: |
+
+    path "/k8s.-.aws.dev.aws-secret-engine/creds/k8s.-.dev.aws-role" {
+      capabilities = ["read"]
+    }
+
+    path "/k8s.-.aws.dev.aws-secret-engine/sts/k8s.-.dev.aws-role" {
+      capabilities = ["create", "update"]
+    }
+  vaultRef:
+    name: vault
+```
+
 
 #### SecretRoleBinding status.policyBindingRef
 
@@ -266,4 +288,32 @@ status:
       type: Available
   observedGeneration: 1
   phase: Success
+
 ```
+
+####  VaultPolicyBinding spec
+
+- `spec.policies`: contains the `VaultPolicy` references.
+- `spec.subjectRef`: contains the Kubernetes subject reference and the `ServiceAccount` list.
+- `spec.vaultRef`: contains the Vault reference.
+- `spec.vaultRoleName`: contains the Role Name created by the operator.
+
+```yaml
+spec:
+  policies:
+    - ref: srb-dev-secret-r-binding
+  subjectRef:
+    kubernetes:
+      name: k8s.-.demo.srb-dev-secret-r-binding
+      path: kubernetes
+      serviceAccountNames:
+        - test-user-account
+      serviceAccountNamespaces:
+        - test
+  vaultRef:
+    name: vault
+  vaultRoleName: k8s.-.demo.srb-dev-secret-r-binding
+
+```
+
+> Note: Here, the `VaultPolicy` and the `VaultPolicyBinding` both have the same name with prefix `srb` added to them to indicate that they're created by the `SecretRoleBinding` creation.
