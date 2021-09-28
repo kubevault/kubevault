@@ -25,10 +25,11 @@ A `SecretAccessRequest` can be created under various `roleRef` e.g: `AWSRole`, `
 
 KubeVault operator performs the following operations when a `SecretAccessRequest` CRD is created:
 
-- Checks whether `status.conditions[].type` is `Approved` or not
+- Checks whether `status.phase` is `Approved` or not
 - If Approved, requests the Vault server for credentials
 - Creates a Kubernetes Secret which contains the credentials
 - Sets the name of the k8s secret to SecretAccessRequest's `status.secret.name`
+- Sets the namespace of the k8s secret to SecretAccessRequest's `status.secret.namespace`
 - Assigns read permissions on that Kubernetes secret to specified subjects or user identities
 
 ## SecretAccessRequest CRD Specification
