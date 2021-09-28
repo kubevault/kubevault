@@ -3,7 +3,7 @@ title: Concepts | Secret Access Request
 menu:
   docs_{{ .version }}:
     identifier: secret-access-request-crds-concepts
-    name: SecretAccessRequest
+    name: Secret Access Request
     parent: secret-engine-crds-concepts
     weight: 20
 menu_name: docs_{{ .version }}
