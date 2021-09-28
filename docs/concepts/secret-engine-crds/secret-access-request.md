@@ -56,11 +56,11 @@ spec:
       namespace: test
 ```
 
-Here, we are going to describe the various sections of the `SecretAccessRequest` crd.
+Here, we are going to describe the various sections of the `SecretAccessRequest` CRD.
 
 ### SecretAccessRequest Spec
 
-SecretAccessRequest `spec` contains information about database role and subject.
+SecretAccessRequest `spec` contains information about the role and the subjects.
 
 ```yaml
 spec:
