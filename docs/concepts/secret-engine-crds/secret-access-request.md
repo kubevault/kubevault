@@ -147,7 +147,7 @@ spec:
   - `conditions[].message` : Specifies human-readable message with details about the request state.
   - `conditions[].observerGeneration`: Specifies ObserverGeneration for the request state.
 
-- `phase` : Represent the phase of the `SecretAccessRequest`.
+- `phase` : Represent the phase of the `SecretAccessRequest`. Supported type: `Approved` and `Denied`, `WaitingForApproval`.
 
 ```yaml
 status:
