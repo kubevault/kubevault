@@ -101,9 +101,9 @@ spec:
 
 It has the following fields:
 
-- `kind` : `Required`. Specifies the kind of object being referenced. Values   defined by
+- `kind` : `Required`. Specifies the kind of object being referenced. Values defined by
   these API groups are "User", "Group", and "ServiceAccount". If the Authorizer does not
-  recognized the kind value, the Authorizer will report an error.
+  recognize the kind value, the Authorizer will report an error.
 
 - `apiGroup` : `Optional`. Specifies the APIGroup that holds the API group of the referenced subject.
   Defaults to `""` for ServiceAccount subjects.
@@ -140,7 +140,13 @@ spec:
 
 - `lease`: Contains lease information of the issued credential.
 
-- `conditions` : Represent observations of a `SecretAccessRequest`.
+- `conditions` : Represent observations of a `SecretAccessRequest`. It has the following fields:
+  - `conditions[].type` : Specifies request approval state. Supported type: `Approved` and `Denied`, `Available`.
+  - `conditions[].status` : Specifies request approval status. Supported type: `True`, `False`.
+  - `conditions[].reason` : Specifies brief reason for the request state.
+  - `conditions[].message` : Specifies human-readable message with details about the request state.
+  - `conditions[].observerGeneration`: Specifies ObserverGeneration for the request state.
+
 - `phase` : Represent the phase of the `SecretAccessRequest`.
 
 ```yaml
@@ -170,10 +176,4 @@ status:
 
 ```
 
-  It has following field:
-  - `conditions[].type` : Specifies request approval state. Supported type: `Approved` and `Denied`.
-  - `conditions[].reason` : Specifies brief reason for the request state.
-  - `conditions[].message` : Specifies human-readable message with details about the request state.
-  - `conditions[].observerGeneration`: Specifies ObserverGeneration for the request state.
-
-> Note: AWS credential will be issued if `conditions[].type` is `Approved`. Otherwise, the KubeVault operator will not issue any credentials.
+> Note: Credential will be issued only if the `status.phase` is `Approved`. Otherwise, the KubeVault operator will not issue any credentials.
