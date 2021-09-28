@@ -20,6 +20,8 @@ A `SecretAccessRequest` is a Kubernetes `CustomResourceDefinition` (CRD) which a
 A `SecretAccessRequest` can be created under various `roleRef` e.g: `AWSRole`, `GCPRole`, `ElasticsearchRole`, `MongoDBRole`, etc. A `SecretAccessRequest` has three different phases e.g: 
 `WaitingForApproval`, `Approved`, `Denied`.  If `SecretAccessRequest` is approved, then the KubeVault operator will issue credentials and create Kubernetes secret containing credentials. The secret name will be specified in `status.secret.name` field.
 
+Once a `SecretAccessRequest` phase is `Approved`, it can't be `Denied`. A `Denied` phase will automatically change to `WaitingForApproval` phase if any changes in `SecretAccessRequest.spec` is made by the user.
+
 
 ![SecretAccessRequest CRD](/docs/images/concepts/database_accesskey_request.svg)
 
@@ -149,6 +151,8 @@ spec:
   - `conditions[].observerGeneration`: Specifies ObserverGeneration for the request state.
 
 - `phase` : Represent the phase of the `SecretAccessRequest`. Supported type: `Approved` and `Denied`, `WaitingForApproval`.
+
+`Approved` `SecretAccessRequest.status` may look like this:
 
 ```yaml
 status:
