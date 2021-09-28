@@ -20,11 +20,11 @@ The KubeVault operator can perform the following operations for externally provi
 
 - Manage Vault [policy](https://www.vaultproject.io/docs/concepts/policies.html) using [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) and [VaultPolicyBinding](/docs/concepts/policy-crds/vaultpolicybinding.md). Guides can be found [here](/docs/guides/policy-management/overview.md).
 
-- Manage [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html#aws-secrets-engine) using [AWSRole](/docs/concepts/secret-engine-crds/aws-secret-engine/awsrole.md) and [SecretAccessRequest](/docs/concepts/secret-engine-crds/secret-access-request/secret-access-request.md). Guides can be found [here](/docs/guides/secret-engines/aws/overview.md).
+- Manage [AWS secret engine](https://www.vaultproject.io/docs/secrets/aws/index.html#aws-secrets-engine) using [AWSRole](/docs/concepts/secret-engine-crds/aws-secret-engine/awsrole.md) and [SecretAccessRequest](/docs/concepts/secret-engine-crds/secret-access-request.md). Guides can be found [here](/docs/guides/secret-engines/aws/overview.md).
 
-- Manage [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html) using [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md) and [SecretAccessRequest](/docs/concepts/secret-engine-crds/secret-access-request/secret-access-request.md). Guides can be found [here](/docs/guides/secret-engines/postgres/overview.md).
+- Manage [PostgreSQL Database secret engine](https://www.vaultproject.io/api/secret/databases/postgresql.html) using [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md) and [SecretAccessRequest](/docs/concepts/secret-engine-crds/secret-access-request.md). Guides can be found [here](/docs/guides/secret-engines/postgres/overview.md).
 
-- Manage [MongoDB Database secret engine](https://www.vaultproject.io/api/secret/databases/mongodb.html) using [MongoDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mongodb.md) and [SecretAccessRequest](/docs/concepts/secret-engine-crds/secret-access-request/secret-access-request.md). Guides can be found [here](/docs/guides/secret-engines/mongodb/overview.md).
+- Manage [MongoDB Database secret engine](https://www.vaultproject.io/api/secret/databases/mongodb.html) using [MongoDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mongodb.md) and [SecretAccessRequest](/docs/concepts/secret-engine-crds/secret-access-request.md). Guides can be found [here](/docs/guides/secret-engines/mongodb/overview.md).
 
 In this tutorial, we are going to show how we can use KubeVault operator for Vault which is not provisioned by KubeVault operator.
 
