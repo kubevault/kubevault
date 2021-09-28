@@ -104,6 +104,9 @@ Introduces the concept of `VaultServer` for configuring a HashiCorp Vault server
     - [MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md)
     - [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md)
     - [ElasticsearchRole](/docs/concepts/secret-engine-crds/database-secret-engine/elasticsearch.md)
+  
+  - Secret Access Request
+    - [SecretAccessRequest](/docs/concepts/secret-engine-crds/secret-access-request/secret-access-request.md)
 
 </div>
 <div class="tab-pane fade" id="vault-policy" role="tabpanel" aria-labelledby="vault-policy-tab">

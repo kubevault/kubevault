@@ -2,9 +2,9 @@
 title: SecretAccessRequest | Vault Secret Engine
 menu:
   docs_{{ .version }}:
-    identifier: secretaccessrequest-crds
+    identifier: secretaccessrequest-secret-engine-crds
     name: SecretAccessRequest
-    parent: database-crds-concepts
+    parent: secretaccessrequest-crds-concepts
     weight: 100
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
