@@ -23,7 +23,7 @@ A `SecretAccessRequest` can be created under various `roleRef` e.g: `AWSRole`, `
 Once a `SecretAccessRequest` phase is `Approved`, it can't be `Denied`. A `Denied` phase will automatically change to `WaitingForApproval` phase if any changes in `SecretAccessRequest.spec` is made by the user.
 
 
-![SecretAccessRequest CRD](/docs/images/concepts/database_accesskey_request.svg)
+![SecretAccessRequest CRD](/docs/images/concepts/secret_access_request.svg)
 
 KubeVault operator performs the following operations when a `SecretAccessRequest` CRD is created:
 
