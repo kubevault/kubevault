@@ -316,4 +316,7 @@ spec:
 
 ```
 
+`VaultPolicyBinding.spec.vaultRoleName` is the role name which will be bound of the policies. 
+This role may be used during the creation of [SecretProviderClass](https://secrets-store-csi-driver.sigs.k8s.io/concepts.html#secretproviderclass) for using the [Secrets-store CSI Driver](https://secrets-store-csi-driver.sigs.k8s.io/introduction.html). This defaults to following format: `k8s.${cluster or -}.${metadata.namespace}.${metadata.name}`
+
 > Note: Here, the `VaultPolicy` and the `VaultPolicyBinding` both have the same name with prefix `srb` added to them to indicate that they're created by the `SecretRoleBinding` creation.
