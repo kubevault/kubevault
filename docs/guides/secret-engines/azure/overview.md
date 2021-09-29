@@ -35,7 +35,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-In this tutorial, we are going to create a [role](https://www.vaultproject.io/api/secret/azure/index.html#create-update-role) using AzureRole and issue credential using AzureAccessKeyRequest.
+In this tutorial, we are going to create a [role](https://www.vaultproject.io/api/secret/azure/index.html#create-update-role) using AzureRole and issue credential using SecretAccessRequest.
 
 ## Vault Server
 
@@ -216,7 +216,7 @@ $ vault list azure/roles
 ## Generate Azure credentials
 
 
-Here, we are going to make a request to Vault for Azure credentials by creating `azure-cred-rqst` AzureAccessKeyRequest in `demo` namespace.
+Here, we are going to make a request to Vault for Azure credentials by creating `azure-cred-rqst` SecretAccessRequest in `demo` namespace.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
@@ -236,27 +236,27 @@ spec:
 
 Here, `spec.roleRef` is the reference of AzureRole against which credentials will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret.
 
-Now, we are going to create AzureAccessKeyRequest.
+Now, we are going to create SecretAccessRequest.
 
 ```console
 $ kubectl apply -f docs/examples/guides/secret-engines/azure/azureaccessrequest.yaml
-azureaccesskeyrequest.engine.kubevault.com/azure-cred-rqst created
+secretaccessrequest.engine.kubevault.com/azure-cred-rqst created
 
-$ kubectl get azureaccesskeyrequests -n demo
+$ kubectl get secretaccessrequests -n demo
 NAME        AGE
 azure-cred-rqst  3s
 ```
 
-Azure credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny AzureAccessKeyRequest.
+Azure credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny SecretAccessRequest.
 
 ```console
 # using KubeVault CLI as kubectl plugin to approve request
-$ kubectl vault approve azureaccesskeyrequest azure-cred-rqst -n demo
+$ kubectl vault approve secretaccessrequest azure-cred-rqst -n demo
   approved
 
-$ kubectl get azureaccesskeyrequests -n demo azure-cred-rqst -o yaml
+$ kubectl get secretaccessrequests -n demo azure-cred-rqst -o yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: AzureAccessKeyRequest
+kind: SecretAccessRequest
 metadata:
   name: azure-cred-rqst
   namespace: demo
@@ -271,7 +271,7 @@ spec:
 status:
   conditions:
   - lastUpdateTime: "2019-11-14T09:21:49Z"
-    message: This was approved by kubectl vault approve azureaccesskeyrequest
+    message: This was approved by kubectl vault approve secretaccessrequest
     reason: KubectlApprove
     type: Approved
   lease:
@@ -284,15 +284,15 @@ status:
 
 ```
 
-Once AzureAccessKeyRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
+Once SecretAccessRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
 
 ```console
-$ kubectl get azureaccesskeyrequest azure-cred-rqst -n demo -o json | jq '.status'
+$ kubectl get secretaccessrequest azure-cred-rqst -n demo -o json | jq '.status'
 {
   "conditions": [
     {
       "lastUpdateTime": "2019-11-14T09:21:49Z",
-      "message": "This was approved by kubectl vault approve azureaccesskeyrequest",
+      "message": "This was approved by kubectl vault approve secretaccessrequest",
       "reason": "KubectlApprove",
       "type": "Approved"
     }
@@ -319,32 +319,32 @@ metadata:
   ownerReferences:
   - apiVersion: engine.kubevault.com/v1alpha1
     controller: true
-    kind: AzureAccessKeyRequest
+    kind: SecretAccessRequest
     name: azure-cred-rqst
     uid: d944491b-a22c-4777-bc8f-2e2c94b47b7b
 type: Opaque
 
 ```
 
-If AzureAccessKeyRequest is deleted, then credential lease (if any) will be revoked.
+If SecretAccessRequest is deleted, then credential lease (if any) will be revoked.
 
 ```console
-$ kubectl delete azureaccesskeyrequest -n demo azure-cred-rqst
-azureaccesskeyrequest.engine.kubevault.com "azure-cred-rqst" deleted
+$ kubectl delete secretaccessrequest -n demo azure-cred-rqst
+secretaccessrequest.engine.kubevault.com "azure-cred-rqst" deleted
 ```
 
-If AzureAccessKeyRequest is `Denied`, then the KubeVault operator will not issue any credentials.
+If SecretAccessRequest is `Denied`, then the KubeVault operator will not issue any credentials.
 
 ```console
-$ kubectl vault deny azureaccesskeyrequest azure-cred-rqst -n demo
+$ kubectl vault deny secretaccessrequest azure-cred-rqst -n demo
   Denied
 
-$ kubectl get azureaccesskeyrequest  azure-cred-rqst -n demo -o json | jq '.status'
+$ kubectl get secretaccessrequest  azure-cred-rqst -n demo -o json | jq '.status'
   {
     "conditions": [
       {
         "lastUpdateTime": "2019-11-14T09:21:49Z",
-        "message": "This was denied by kubectl vault deny azureaccesskeyrequest",
+        "message": "This was denied by kubectl vault deny secretaccessrequest",
         "reason": "KubectlDeny",
         "type": "Denied"
       }
@@ -352,4 +352,4 @@ $ kubectl get azureaccesskeyrequest  azure-cred-rqst -n demo -o json | jq '.stat
   }
 ```
 
-> Note: Once AzureAccessKeyRequest is `Approved` or `Denied`, you cannot change `spec.roleRef` and `spec.subjects` field.
+> Note: Once SecretAccessRequest is `Approved` or `Denied`, you cannot change `spec.roleRef` and `spec.subjects` field.
