@@ -5,7 +5,7 @@ menu:
     identifier: secret-role-binding-secret-engine-crds
     name: SecretRoleBinding
     parent: secret-engine-crds-concepts
-    weight: 10
+    weight: 12
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
