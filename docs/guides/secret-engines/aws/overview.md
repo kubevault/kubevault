@@ -35,7 +35,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-In this tutorial, we are going to create a [role](https://www.vaultproject.io/api/secret/aws/index.html#create-update-role) using AWSRole and issue credential using AWSAccessKeyRequest.
+In this tutorial, we are going to create a [role](https://www.vaultproject.io/api/secret/aws/index.html#create-update-role) using AWSRole and issue credential using SecretAccessRequest.
 
 ## Vault Server
 
@@ -233,7 +233,7 @@ No value found at aws/roles/
 
 ## Generate AWS credentials
 
-Here, we are going to make a request to Vault for AWS credential by creating `aws-cred-rqst` AWSAccessKeyRequest in `demo` namespace.
+Here, we are going to make a request to Vault for AWS credential by creating `aws-cred-rqst` SecretAccessRequest in `demo` namespace.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
@@ -253,27 +253,27 @@ spec:
 
 Here, `spec.roleRef` is the reference of AWSRole against which credentials will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret.
 
-Now, we are going to create an AWSAccessKeyRequest.
+Now, we are going to create an SecretAccessRequest.
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/aws/awsaccesskeyrequest.yaml
-awsaccesskeyrequest.engine.kubevault.com/aws-cred-rqst created
+$ kubectl apply -f docs/examples/guides/secret-engines/aws/secretaccessrequest.yaml
+secretaccessrequest.engine.kubevault.com/aws-cred-rqst created
 
-$ kubectl get awsaccesskeyrequest -n demo
+$ kubectl get secretaccessrequest -n demo
 NAME            AGE
 aws-cred-rqst   35s
 ```
 
-AWS credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny AWSAccessKeyRequest.
+AWS credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny SecretAccessRequest.
 
 ```console
 # using KubeVault CLI as kubectl plugin to approve request
-$ kubectl vault approve awsaccesskeyrequest aws-cred-rqst -n demo
+$ kubectl vault approve secretaccessrequest aws-cred-rqst -n demo
   approved
 
-$ kubectl get awsaccesskeyrequest -n demo aws-cred-rqst -o yaml
+$ kubectl get secretaccessrequest -n demo aws-cred-rqst -o yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: AWSAccessKeyRequest
+kind: SecretAccessRequest
 metadata:
   name: aws-cred-rqst
   namespace: demo
@@ -288,7 +288,7 @@ spec:
 status:
   conditions:
   - lastUpdateTime: "2019-11-13T12:18:07Z"
-    message: This was approved by kubectl vault approve awsaccesskeyrequest
+    message: This was approved by kubectl vault approve secretaccessrequest
     reason: KubectlApprove
     type: Approved
   lease:
@@ -299,15 +299,15 @@ status:
     name: aws-cred-rqst-ryym7w
 ```
 
-Once AWSAccessKeyRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
+Once SecretAccessRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
 
 ```console
-$ kubectl get awsaccesskeyrequest aws-cred-rqst -n demo -o json | jq '.status'
+$ kubectl get secretaccessrequest aws-cred-rqst -n demo -o json | jq '.status'
 {
   "conditions": [
     {
       "lastUpdateTime": "2019-11-13T12:18:07Z",
-      "message": "This was approved by kubectl vault approve awsaccesskeyrequest",
+      "message": "This was approved by kubectl vault approve secretaccessrequest",
       "reason": "KubectlApprove",
       "type": "Approved"
     }
@@ -335,23 +335,23 @@ metadata:
   ownerReferences:
   - apiVersion: engine.kubevault.com/v1alpha1
     controller: true
-    kind: AWSAccessKeyRequest
+    kind: SecretAccessRequest
     name: aws-cred-rqst
 type: Opaque
 ```
 
-If AWSAccessKeyRequest is deleted, then credential lease (if any) will be revoked.
+If SecretAccessRequest is deleted, then credential lease (if any) will be revoked.
 
 ```console
-$ kubectl delete awsaccesskeyrequest -n demo aws-cred-rqst
-awsaccesskeyrequest.engine.kubevault.com "aws-cred-rqst" deleted
+$ kubectl delete secretaccessrequest -n demo aws-cred-rqst
+secretaccessrequest.engine.kubevault.com "aws-cred-rqst" deleted
 ```
 
-If AWSAccessKeyRequest is `Denied`, then the KubeVault operator will not issue any credential.
+If SecretAccessRequest is `Denied`, then the KubeVault operator will not issue any credential.
 
 ```console
-$ kubectl vault deny awsaccesskeyrequest aws-cred-rqst -n demo
+$ kubectl vault deny secretaccessrequest aws-cred-rqst -n demo
   Denied
 ```
 
-> Note: Once AWSAccessKeyRequest is `Approved` or `Denied`, you can not change `spec.roleRef` and `spec.subjects` field.
+> Note: Once SecretAccessRequest is `Approved`, you can not change `spec.roleRef` and `spec.subjects` field.

@@ -35,7 +35,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-In this tutorial, we are going to create a [role](https://www.vaultproject.io/api/secret/gcp/index.html#create-update-roleset) using GCPRole and issue credential using GCPAccessKeyRequest.
+In this tutorial, we are going to create a [role](https://www.vaultproject.io/api/secret/gcp/index.html#create-update-roleset) using GCPRole and issue credential using SecretAccessRequest.
 
 ## Vault Server
 
@@ -220,7 +220,7 @@ $ vault list your-gcp-path/roleset
 ## Generate GCP credentials
 
 
-Here, we are going to make a request to Vault for GCP credential by creating `gcp-cred-req` GCPAccessKeyRequest in `demo` namespace.
+Here, we are going to make a request to Vault for GCP credential by creating `gcp-cred-req` SecretAccessRequest in `demo` namespace.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
@@ -240,27 +240,27 @@ spec:
 
 Here, `spec.roleRef` is the reference of GCPRole against which credentials will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to and it will have read access of the credential secret.
 
-Now, we are going to create GCPAccessKeyRequest.
+Now, we are going to create SecretAccessRequest.
 
 ```console
-$ kubectl apply -f docs/examples/guides/secret-engines/gcp/gcpaccesskeyrequest.yaml
-gcpaccesskeyrequest.engine.kubevault.com/gcp-cred-req created
+$ kubectl apply -f docs/examples/guides/secret-engines/gcp/secretaccessrequest.yaml
+secretaccessrequest.engine.kubevault.com/gcp-cred-req created
 
-$ kubectl get gcpaccesskeyrequests -n demo
+$ kubectl get secretaccessrequests -n demo
 NAME          AGE
 gcp-cred-req  3s
 ```
 
-GCP credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny GCPAccessKeyRequest.
+GCP credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny SecretAccessRequest.
 
 ```console
 # using KubeVault CLI as kubectl plugin to approve request
-$ kubectl vault approve gcpaccesskeyrequest gcp-cred-req -n demo
+$ kubectl vault approve secretaccessrequest gcp-cred-req -n demo
   approved
 
-$ kubectl get gcpaccesskeyrequest -n demo gcp-cred-req -o yaml
+$ kubectl get secretaccessrequest -n demo gcp-cred-req -o yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: GCPAccessKeyRequest
+kind: SecretAccessRequest
 metadata:
   name: gcp-cred-req
   namespace: demo
@@ -275,7 +275,7 @@ spec:
 status:
   conditions:
   - lastUpdateTime: "2019-11-12T10:40:30Z"
-    message: This was approved by kubectl vault approve gcpaccesskeyrequest
+    message: This was approved by kubectl vault approve secretaccessrequest
     reason: KubectlApprove
     type: Approved
   lease:
@@ -285,15 +285,15 @@ status:
 
 ```
 
-Once GCPAccessKeyRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
+Once SecretAccessRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
 
 ```console
-$ kubectl get gcpaccesskeyrequest gcp-cred-req -n demo -o json | jq '.status'
+$ kubectl get secretaccessrequest gcp-cred-req -n demo -o json | jq '.status'
 {
   "conditions": [
     {
       "lastUpdateTime": "2019-11-12T10:40:30Z",
-      "message": "This was approved by kubectl vault approve gcpaccesskeyrequest",
+      "message": "This was approved by kubectl vault approve secretaccessrequest",
       "reason": "KubectlApprove",
       "type": "Approved"
     }
@@ -320,18 +320,18 @@ type: Opaque
 
 ```
 
-If GCPAccessKeyRequest is deleted, then credential lease (if any) will be revoked.
+If SecretAccessRequest is deleted, then credential lease (if any) will be revoked.
 
 ```console
-$ kubectl delete gcpaccesskeyrequest -n demo gcp-cred-req
-  gcpaccesskeyrequest.engine.kubevault.com "gcp-cred-req" deleted
+$ kubectl delete secretaccessrequest -n demo gcp-cred-req
+  secretaccessrequest.engine.kubevault.com "gcp-cred-req" deleted
 ```
 
-If GCPAccessKeyRequest is `Denied`, then the KubeVault operator will not issue any credential.
+If SecretAccessRequest is `Denied`, then the KubeVault operator will not issue any credential.
 
 ```console
-$ kubectl vault deny gcpaccesskeyrequest gcp-cred-req -n demo
+$ kubectl vault deny secretaccessrequest gcp-cred-req -n demo
   Denied
 ```
 
-> Note: Once GCPAccessKeyRequest is `Approved` or `Denied`, you cannot change `spec.roleRef` and `spec.subjects` field.
+> Note: Once SecretAccessRequest is `Approved` or `Denied`, you cannot change `spec.roleRef` and `spec.subjects` field.

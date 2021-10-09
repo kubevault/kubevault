@@ -35,7 +35,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-In this tutorial, we are going to create a [role](https://www.vaultproject.io/docs/secrets/databases/mysql-maria#setup) using MySQL and issue credential using DatabaseAccessRequest.
+In this tutorial, we are going to create a [role](https://www.vaultproject.io/docs/secrets/databases/mysql-maria#setup) using MySQL and issue credential using SecretAccessRequest.
 
 ## Vault Server
 
@@ -206,7 +206,7 @@ No value found at your-database-path/roles/
 
 ## Generate MySQL credentials
 
-Here, we are going to make a request to Vault for MySQL credentials by creating `mysql-cred-rqst` DatabaseAccessRequest in `demo` namespace.
+Here, we are going to make a request to Vault for MySQL credentials by creating `mysql-cred-rqst` SecretAccessRequest in `demo` namespace.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
@@ -226,27 +226,27 @@ spec:
 
 Here, `spec.roleRef` is the reference of MySQL against which credentials will be issued. `spec.subjects` is the reference to the object or user identities a role binding applies to it will have read access of the credential secret.
 
-Now, we are going to create DatabaseAccessRequest.
+Now, we are going to create SecretAccessRequest.
 
 ```console
 $ kubectl apply -f docs/examples/guides/secret-engines/mysql/mysqlaccessrequest.yaml
-databaseaccessrequest.engine.kubevault.com/mysql-cred-rqst created
+secretaccessrequest.engine.kubevault.com/mysql-cred-rqst created
 
-$ kubectl get databaseaccessrequest -n demo
+$ kubectl get secretaccessrequest -n demo
 NAME              AGE
 mysql-cred-rqst   72m
 ```
 
-Database credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny DatabaseAccessRequest.
+Database credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny SecretAccessRequest.
 
 ```console
 # using KubeVault CLI as kubectl plugin to approve request
-$ kubectl vault approve databaseaccessrequest mysql-cred-rqst -n demo
+$ kubectl vault approve secretaccessrequest mysql-cred-rqst -n demo
 approved
 
-$ kubectl get databaseaccessrequest -n demo mysql-cred-rqst -o yaml
+$ kubectl get secretaccessrequest -n demo mysql-cred-rqst -o yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: DatabaseAccessRequest
+kind: SecretAccessRequest
 metadata:
   name: mysql-cred-rqst
   namespace: demo
@@ -262,7 +262,7 @@ spec:
 status:
   conditions:
   - lastUpdateTime: "2020-11-18T06:41:57Z"
-    message: This was approved by kubectl vault approve databaseaccessrequest
+    message: This was approved by kubectl vault approve secretaccessrequest
     reason: KubectlApprove
     type: Approved
   lease:
@@ -273,15 +273,15 @@ status:
     name: mysql-cred-rqst-gy66wq
 ```
 
-Once DatabaseAccessRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
+Once SecretAccessRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
 
 ```console
-$ kubectl get databaseaccessrequest mysql-cred-rqst -n demo -o json | jq '.status'
+$ kubectl get secretaccessrequest mysql-cred-rqst -n demo -o json | jq '.status'
 {
   "conditions": [
     {
       "lastUpdateTime": "2019-11-18T06:41:57Z",
-      "message": "This was approved by kubectl vault approve databaseaccessrequest",
+      "message": "This was approved by kubectl vault approve secretaccessrequest",
       "reason": "KubectlApprove",
       "type": "Approved"
     }
@@ -308,24 +308,24 @@ metadata:
   ownerReferences:
   - apiVersion: engine.kubevault.com/v1alpha1
     controller: true
-    kind: DatabaseAccessRequest
+    kind: SecretAccessRequest
     name: mysql-cred-rqst
     uid: 54ce63ca-d0e7-4b97-9085-b52eb3cb334f
 type: Opaque
 ```
 
-If DatabaseAccessRequest is deleted, then credential lease (if any) will be revoked.
+If SecretAccessRequest is deleted, then credential lease (if any) will be revoked.
 
 ```console
-$ kubectl delete databaseaccessrequest -n demo mysql-cred-rqst
-databaseaccessrequest.engine.kubevault.com "mysql-cred-rqst" deleted
+$ kubectl delete secretaccessrequest -n demo mysql-cred-rqst
+secretaccessrequest.engine.kubevault.com "mysql-cred-rqst" deleted
 ```
 
-If DatabaseAccessRequest is `Denied`, then the KubeVault operator will not issue any credential.
+If SecretAccessRequest is `Denied`, then the KubeVault operator will not issue any credential.
 
 ```console
-$ kubectl vault deny databaseaccessrequest mysql-cred-rqst -n demo
+$ kubectl vault deny secretaccessrequest mysql-cred-rqst -n demo
   Denied
 ```
 
-> Note: Once DatabaseAccessRequest is `Approved` or `Denied`, you cannot change `spec.roleRef` and `spec.subjects` field.
+> Note: Once SecretAccessRequest is `Approved`, you cannot change `spec.roleRef` and `spec.subjects` field.

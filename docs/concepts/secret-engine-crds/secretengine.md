@@ -94,20 +94,9 @@ spec:
 
 #### spec.path
 
-`spec.path` is an `optional` field that specifies the path where the secret engine will be enabled. The default path values are:
+`spec.path` will be set by the KubeVault operator.
 
-- GCP secret engine: `gcp`
-- AWS secret engine: `aws`
-- Azure secret engine: `azure`
-- Database secret engine: `database`
-
-```yaml
-spec:
-  path: my-path
-```
-
----
-Secret engines are enabled at a "path" in Vault. When a request comes to Vault, the router automatically routes anything with the route prefix to the secrets engine. Since operator configures a secret engine to a specified path with SecretEngine resource, you can provide **only one secret engine configuration** out of the following ones:
+Secret engines are enabled at a "path" in Vault. When a request comes to Vault, the router automatically routes anything with the route prefix to the secret engine. Since operator configures a secret engine to a specified path with SecretEngine resource, you can provide **only one secret engine configuration** out of the following ones:
 
 - `spec.aws` : Specifies aws secret engine configuration
 
