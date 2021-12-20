@@ -10,52 +10,24 @@ section_menu_id: reference
 ---
 ## vault generate
 
-Generate secretproviderclass
+`KubeVault` works seamlessly with the [Secrets Store CSI Driver](https://secrets-store-csi-driver.sigs.k8s.io/). To generate the [SecretProviderClass](https://secrets-store-csi-driver.sigs.k8s.io/concepts.html#secretproviderclass) in a simpler way from the [SecretRoleBinding](/docs/concepts/secret-engine-crds/secret-role-binding.md), you can use the `generate` command by `KubeVault CLI`.
+Example command is shown below:
 
-### Synopsis
-
-Generate secretproviderclass from secretrolebinding. Provide flags secretrolebinding, role and keys to mount.
-
-See more about Secrets-Store-CSI-Driver and the usage of SecretProviderClass:
- Link: https://secrets-store-csi-driver.sigs.k8s.io/concepts.html#secretproviderclass 
-
-secretrolebinding needs to be created and successful beforehand.
-Provided roles must be in the seretrolebinding and provided keys must be available for the RoleKind.
-Output format can be yaml or json, defaults to yaml
-
-Examples:
- # Generate secretproviderclass with name <name1> and namespace <ns1>
- # secretrolebinding with namespace <ns2> and name <name2>
- # vaultrole kind MongoDBRole and name <name3>
- # keys to mount <secretKey> and it's mapping name <objectName> 
-
- $ kubectl vault generate secretproviderclass <name1> -n <ns1> \
-  --secretrolebinding=<ns2>/<name2> \
-  --vaultrole=MongoDBRole/<name3> \
-  --keys <secretKey>=<objectName> -o yaml
-
- # Generate secretproviderclass for the MongoDB username and password
- $ kubectl vault generate secretproviderclass mongo-secret-provider -n test      \
-  --secretrolebinding=dev/secret-r-binding \
-  --vaultrole=MongoDBRole/mongo-role \
-  --keys username=mongo-user --keys password=mongo-pass -o yaml
-
-
-```
-vault generate [flags]
+```bash
+$ kubectl vault generate secretproviderclass <name1> -n <ns1>     \
+  --secretrolebinding=<ns2>/<name2>                               \
+  --vault-role=MongoDBRole/<name3>                                \
+  --keys <objectname>=<secretKey> -o yaml | kubectl apply -f -
+  
 ```
 
 ### Options
 
 ```
-  -f, --filename strings           Filename, directory, or URL to files identifying the resource to update
-  -h, --help                       help for generate
-      --keys stringToString        Key/Value map used to store the keys to read and their mapping keys. secretKey=objectName (default [])
-  -k, --kustomize string           Process the kustomization directory. This flag can't be used together with -f or -R.
-  -o, --output string              output format yaml/json. default to yaml
-  -R, --recursive                  Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
-  -b, --secretrolebinding string   secret role binding. namespace/name
-  -r, --vaultrole string           vault role. RoleKind/name
+  -f, --filename strings   Filename, directory, or URL to files identifying the resource to update
+  -h, --help               help for approve
+  -k, --kustomize string   Process the kustomization directory. This flag can't be used together with -f or -R.
+  -R, --recursive          Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
 ```
 
 ### Options inherited from parent commands
