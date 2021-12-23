@@ -34,6 +34,7 @@ vault-unsealer run [flags]
       --azure.tenant-id string                            The AAD Tenant ID
       --azure.use-managed-identity                        Use managed service identity for the virtual machine
       --azure.vault-base-url string                       Azure key vault url, for example https://myvault.vault.azure.net
+      --cluster-name string                               cluster name
       --google.kms-crypto-key string                      The name of the Google Cloud KMS crypto key to use
       --google.kms-key-ring string                        The name of the Google Cloud KMS key ring to use
       --google.kms-location string                        The Google Cloud KMS location to use (eg. 'global', 'europe-west1')
@@ -42,6 +43,7 @@ vault-unsealer run [flags]
       --google.storage-prefix string                      The prefix to use for values store in Google Cloud Storage
   -h, --help                                              help for run
       --k8s.secret-name string                            Secret name to use when creating secret containing root token and shared keys
+      --key-prefix string                                 root token and unseal key prefix (default "vault")
       --mode string                                       Select the mode to use 'google-cloud-kms-gcs' => Google Cloud Storage with encryption using Google KMS; 'aws-kms-ssm' => AWS SSM parameter store using AWS KMS; 'azure-key-vault' => Azure Key Vault Secret store; 'kubernetes-secret' => Kubernetes secret to store unseal keys
       --overwrite-existing                                overwrite existing unseal keys and root tokens, possibly dangerous!
       --policy-manager.name string                        Name of the policy. A policy and a  vault kubernetes auth role will be created using this name
