@@ -14,10 +14,14 @@ You don't need to install separate tools for each of the cloud providers. You ca
 Example command is shown below:
 
 ```bash
-$ kubectl vault get-root-token vaultserver -n <namespace> <name>
+ # Get the decrypted root-token for resource vaultserver with name vault and namespace demo.
+ # Prints the root-token name and the value.
+ $ kubectl vault get-root-token vaultserver -n demo vault
+   k8s.kubevault.com.demo.vault-root-token: s.OiObHyEa42i2DE7E6nFNZNIQ
 
-$ kubectl vault get-root-token vaultservers -n demo vault
-s.5DumEgvhoWOmldXMV4gZMkAD
+ # Provide flag --value-only if you want to print only the root-token value.
+ $ kubectl vault get-root-token vaultserver -n demo vault --value-only
+   s.OiObHyEa42i2DE7E6nFNZNIQ
 ```
 
 ### Options
