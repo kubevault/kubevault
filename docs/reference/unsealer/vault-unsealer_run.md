@@ -34,6 +34,7 @@ vault-unsealer run [flags]
       --azure.tenant-id string                            The AAD Tenant ID
       --azure.use-managed-identity                        Use managed service identity for the virtual machine
       --azure.vault-base-url string                       Azure key vault url, for example https://myvault.vault.azure.net
+      --cluster-name string                               cluster name
       --google.kms-crypto-key string                      The name of the Google Cloud KMS crypto key to use
       --google.kms-key-ring string                        The name of the Google Cloud KMS key ring to use
       --google.kms-location string                        The Google Cloud KMS location to use (eg. 'global', 'europe-west1')
