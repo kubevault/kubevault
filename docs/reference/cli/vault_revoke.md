@@ -1,23 +1,31 @@
 ---
-title: Vault
+title: Vault Revoke
 menu:
   docs_{{ .version }}:
-    identifier: vault
-    name: Vault
+    identifier: vault-revoke
+    name: Vault Revoke
     parent: reference-cli
-    weight: 0
-
 menu_name: docs_{{ .version }}
 section_menu_id: reference
-url: /docs/{{ .version }}/reference/cli/
-aliases:
-- /docs/{{ .version }}/reference/cli/vault/
 ---
-## vault
+## vault revoke
 
-KubeVault cli by AppsCode
+Revoke request
+
+```
+vault revoke [flags]
+```
 
 ### Options
+
+```
+  -f, --filename strings   Filename, directory, or URL to files identifying the resource to update
+  -h, --help               help for revoke
+  -k, --kustomize string   Process the kustomization directory. This flag can't be used together with -f or -R.
+  -R, --recursive          Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
+```
+
+### Options inherited from parent commands
 
 ```
       --alsologtostderr                  log to standard error as well as files
@@ -30,7 +38,6 @@ KubeVault cli by AppsCode
       --client-key string                Path to a client key file for TLS
       --cluster string                   The name of the kubeconfig cluster to use
       --context string                   The name of the kubeconfig context to use
-  -h, --help                             help for vault
       --insecure-skip-tls-verify         If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string                Path to the kubeconfig file to use for CLI requests.
       --log-backtrace-at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
@@ -51,11 +58,5 @@ KubeVault cli by AppsCode
 
 ### SEE ALSO
 
-* [vault approve](/docs/reference/cli/vault_approve.md)	 - Approve request
-* [vault completion](/docs/reference/cli/vault_completion.md)	 - Generate completion script
-* [vault deny](/docs/reference/cli/vault_deny.md)	 - Deny request
-* [vault generate](/docs/reference/cli/vault_generate.md)	 - Generate secretproviderclass
-* [vault get-root-token](/docs/reference/cli/vault_get-root-token.md)	 - Get root token for vault server
-* [vault revoke](/docs/reference/cli/vault_revoke.md)	 - Revoke request
-* [vault version](/docs/reference/cli/vault_version.md)	 - Prints binary version number.
+* [vault](/docs/reference/cli/vault.md)	 - KubeVault cli by AppsCode
 
