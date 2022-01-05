@@ -1,23 +1,64 @@
 ---
-title: Vault
+title: Vault Generate
 menu:
   docs_{{ .version }}:
-    identifier: vault
-    name: Vault
+    identifier: vault-generate
+    name: Vault Generate
     parent: reference-cli
-    weight: 0
-
 menu_name: docs_{{ .version }}
 section_menu_id: reference
-url: /docs/{{ .version }}/reference/cli/
-aliases:
-- /docs/{{ .version }}/reference/cli/vault/
 ---
-## vault
+## vault generate
 
-KubeVault cli by AppsCode
+Generate secretproviderclass
+
+### Synopsis
+
+Generate secretproviderclass from secretrolebinding. Provide flags secretrolebinding, role and keys to mount.
+
+See more about Secrets-Store-CSI-Driver and the usage of SecretProviderClass:
+ Link: https://secrets-store-csi-driver.sigs.k8s.io/concepts.html#secretproviderclass 
+
+secretrolebinding needs to be created and successful beforehand.
+Provided roles must be in the seretrolebinding and provided keys must be available for the RoleKind.
+Output format can be yaml or json, defaults to yaml
+
+Examples:
+ # Generate secretproviderclass with name <name1> and namespace <ns1>
+ # secretrolebinding with namespace <ns2> and name <name2>
+ # vaultrole kind MongoDBRole and name <name3>
+ # keys to mount <secretKey> and it's mapping name <objectName> 
+
+ $ kubectl vault generate secretproviderclass <name1> -n <ns1> \
+  --secretrolebinding=<ns2>/<name2> \
+  --vaultrole=MongoDBRole/<name3> \
+  --keys <secretKey>=<objectName> -o yaml
+
+ # Generate secretproviderclass for the MongoDB username and password
+ $ kubectl vault generate secretproviderclass mongo-secret-provider -n test      \
+  --secretrolebinding=dev/secret-r-binding \
+  --vaultrole=MongoDBRole/mongo-role \
+  --keys username=mongo-user --keys password=mongo-pass -o yaml
+
+
+```
+vault generate [flags]
+```
 
 ### Options
+
+```
+  -f, --filename strings           Filename, directory, or URL to files identifying the resource to update
+  -h, --help                       help for generate
+      --keys stringToString        Key/Value map used to store the keys to read and their mapping keys. secretKey=objectName (default [])
+  -k, --kustomize string           Process the kustomization directory. This flag can't be used together with -f or -R.
+  -o, --output string              output format yaml/json. default to yaml
+  -R, --recursive                  Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
+  -b, --secretrolebinding string   secret role binding. namespace/name
+  -r, --vaultrole string           vault role. RoleKind/name
+```
+
+### Options inherited from parent commands
 
 ```
       --alsologtostderr                  log to standard error as well as files
@@ -30,7 +71,6 @@ KubeVault cli by AppsCode
       --client-key string                Path to a client key file for TLS
       --cluster string                   The name of the kubeconfig cluster to use
       --context string                   The name of the kubeconfig context to use
-  -h, --help                             help for vault
       --insecure-skip-tls-verify         If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string                Path to the kubeconfig file to use for CLI requests.
       --log-backtrace-at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
@@ -51,11 +91,5 @@ KubeVault cli by AppsCode
 
 ### SEE ALSO
 
-* [vault approve](/docs/reference/cli/vault_approve.md)	 - Approve request
-* [vault completion](/docs/reference/cli/vault_completion.md)	 - Generate completion script
-* [vault deny](/docs/reference/cli/vault_deny.md)	 - Deny request
-* [vault generate](/docs/reference/cli/vault_generate.md)	 - Generate secretproviderclass
-* [vault get-root-token](/docs/reference/cli/vault_get-root-token.md)	 - Get root token for vault server
-* [vault revoke](/docs/reference/cli/vault_revoke.md)	 - Revoke request
-* [vault version](/docs/reference/cli/vault_version.md)	 - Prints binary version number.
+* [vault](/docs/reference/cli/vault.md)	 - KubeVault cli by AppsCode
 
