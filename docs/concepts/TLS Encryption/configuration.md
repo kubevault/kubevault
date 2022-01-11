@@ -12,4 +12,4 @@ section_menu_id: concepts
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# VaultServer TLS Encryption
+# Configure TLS/SSL for VaultServer
