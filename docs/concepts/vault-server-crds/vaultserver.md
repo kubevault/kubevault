@@ -32,32 +32,32 @@ A sample `VaultServer` object is shown below:
 apiVersion: kubevault.com/v1alpha1
 kind: VaultServer
 metadata:
-  name: example
-  namespace: default
+  name: vault
+  namespace: demo
 spec:
-  replicas: 1
-  version: "1.7.2"
-  backend:
-    inmem: {}
   tls:
-    certificates:
-      - alias: ca
-      - alias: server
-      - alias: client
-      - alias: storage
-  serviceTemplates:
-    - alias: vault
-      metadata:
-        annotations:
-          name: vault
-      spec:
-        type: NodePort
-    - alias: stats
-      spec:
-        type: ClusterIP
+    issuerRef:
+      apiGroup: "cert-manager.io"
+      kind: Issuer
+      name: vault-issuer
+  allowedSecretEngines:
+    namespaces:
+      from: All
+    secretEngines:
+      - mysql
+  version: 1.8.2
+  replicas: 3
+  backend:
+    raft:
+      path: "/vault/data"
+      storage:
+        storageClassName: "standard"
+        resources:
+          requests:
+            storage: 1Gi
   unsealer:
-    secretShares: 4
-    secretThreshold: 2
+    secretShares: 5
+    secretThreshold: 3
     mode:
       kubernetesSecret:
         secretName: vault-keys
@@ -66,7 +66,7 @@ spec:
     prometheus:
       exporter:
         resources: {}
-  terminationPolicy: WipeOut
+  terminationPolicy: DoNotTerminate
 ```
 
 Here, we are going to describe the various sections of the `VaultServer` crd.
@@ -97,16 +97,15 @@ spec:
 
 #### spec.tls
 
-`spec.tls` is an optional field that specifies the TLS policy of Vault nodes. If this is not specified, the KubeVault operator will run in `insecure` mode. `spec.tls.certificates` provides `server`, `client`, `storage` certificate options used by application pods, where the `alias` represents the identifier of the certificate.  
+`spec.tls` is an optional field that specifies the TLS policy of Vault nodes. If this is not specified, the KubeVault operator will run in `insecure` mode. 
 
 ```yaml
 spec:
   tls:
-    certificates:
-      - alias: ca
-      - alias: server
-      - alias: client
-      - alias: storage
+    issuerRef:
+      apiGroup: "cert-manager.io"
+      kind: Issuer
+      name: vault-issuer
 ```
 
 The server certificate must allow the following wildcard domains:

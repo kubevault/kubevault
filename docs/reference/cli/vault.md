@@ -17,6 +17,16 @@ aliases:
 
 KubeVault cli by AppsCode
 
+### Available Commands
+
+* [vault version](/docs/reference/cli/vault_version.md)	 - Prints binary version number.
+* [vault completion](/docs/reference/cli/vault_completion.md)	 - Generate completion script
+* [vault approve](/docs/reference/cli/vault_approve.md)	 - Approve request
+* [vault deny](/docs/reference/cli/vault_deny.md)	 - Deny request
+* [vault revoke](/docs/reference/cli/vault_revoke.md) - Revoke request
+* [vault get-root-token](/docs/reference/cli/vault_get-root-token.md) - Get root token for vault server
+* [vault generate](/docs/reference/cli/vault_generate.md) - Generate [SecretProviderClass](https://secrets-store-csi-driver.sigs.k8s.io/concepts.html#secretproviderclass)
+
 ### Options
 
 ```
@@ -48,14 +58,3 @@ KubeVault cli by AppsCode
   -v, --v Level                          log level for V logs
       --vmodule moduleSpec               comma-separated list of pattern=N settings for file-filtered logging
 ```
-
-### SEE ALSO
-
-* [vault approve](/docs/reference/cli/vault_approve.md)	 - Approve request
-* [vault completion](/docs/reference/cli/vault_completion.md)	 - Generate completion script
-* [vault deny](/docs/reference/cli/vault_deny.md)	 - Deny request
-* [vault generate](/docs/reference/cli/vault_generate.md)	 - Generate secretproviderclass
-* [vault get-root-token](/docs/reference/cli/vault_get-root-token.md)	 - Get root token for vault server
-* [vault revoke](/docs/reference/cli/vault_revoke.md)	 - Revoke request
-* [vault version](/docs/reference/cli/vault_version.md)	 - Prints binary version number.
-

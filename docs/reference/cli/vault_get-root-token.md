@@ -1,41 +1,36 @@
 ---
-title: Vault Get-Root-Token
+title: Vault Get Root Token
 menu:
   docs_{{ .version }}:
     identifier: vault-get-root-token
-    name: Vault Get-Root-Token
+    name: Vault Get Root Token
     parent: reference-cli
 menu_name: docs_{{ .version }}
 section_menu_id: reference
 ---
 ## vault get-root-token
 
-Get root token for vault server
+You don't need to install separate tools for each of the cloud providers. You can get the decrypted `root-token` for `VaultServer` for various vault auto unsealing options e.g: `GCS`, `AWS`, `Azure`, or even `K8s secret` using the `KubeVault CLI`. All you need, is to provide the `VaultServer` reference, `name` and `namespace` in the command.
+Example command is shown below:
 
-### Synopsis
-
-Get the decrypted root token for a vault server. You can provide flags vaultserver name and namespace.
-
-Examples: 
+```bash
  # Get the decrypted root-token for resource vaultserver with name vault and namespace demo.
  # Prints the root-token name and the value.
  $ kubectl vault get-root-token vaultserver -n demo vault
+   k8s.kubevault.com.demo.vault-root-token: s.OiObHyEa42i2DE7E6nFNZNIQ
 
  # Provide flag --value-only if you want to print only the root-token value.
  $ kubectl vault get-root-token vaultserver -n demo vault --value-only
-
-```
-vault get-root-token [flags]
+   s.OiObHyEa42i2DE7E6nFNZNIQ
 ```
 
 ### Options
 
 ```
   -f, --filename strings   Filename, directory, or URL to files identifying the resource to update
-  -h, --help               help for get-root-token
+  -h, --help               help for approve
   -k, --kustomize string   Process the kustomization directory. This flag can't be used together with -f or -R.
   -R, --recursive          Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
-      --value-only         prints only the value if flag value-only is true.
 ```
 
 ### Options inherited from parent commands
