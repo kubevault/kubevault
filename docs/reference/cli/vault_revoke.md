@@ -9,19 +9,18 @@ menu_name: docs_{{ .version }}
 section_menu_id: reference
 ---
 ## vault revoke
-You can revoke or expire an already `Approved` `SecretAccessRequest` using the `revoke` by `KubeVault CLI`. SecretAccessRequest `.spec.status.phase` will be updated to `Expired` and the associated secrets will no longer be valid.
 
-```bash
-$ kubectl vault revoke secretaccessrequest <name> -n <namespace>
+Revoke request
 
-$ kubectl vault revoke secretaccessrequest mongodb-cred-req -n demo
+```
+vault revoke [flags]
 ```
 
 ### Options
 
 ```
   -f, --filename strings   Filename, directory, or URL to files identifying the resource to update
-  -h, --help               help for approve
+  -h, --help               help for revoke
   -k, --kustomize string   Process the kustomization directory. This flag can't be used together with -f or -R.
   -R, --recursive          Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
 ```
