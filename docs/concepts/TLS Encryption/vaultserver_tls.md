@@ -1,9 +1,9 @@
 ---
-title: VaultServer TLS | KubeVault Concepts
+title: Configure TLS/SSL for VaultServer | KubeVault Concepts
 menu:
   docs_{{ .version }}:
     identifier: vault-tls-concepts
-    name: VaultServer TLS
+    name: TLS/SSL Configuration
     parent: vault-server-tls
     weight: 10
 menu_name: docs_{{ .version }}
