@@ -48,14 +48,15 @@ vault generate [flags]
 ### Options
 
 ```
-  -f, --filename strings           Filename, directory, or URL to files identifying the resource to update
-  -h, --help                       help for generate
-      --keys stringToString        Key/Value map used to store the keys to read and their mapping keys. secretKey=objectName (default [])
-  -k, --kustomize string           Process the kustomization directory. This flag can't be used together with -f or -R.
-  -o, --output string              output format yaml/json. default to yaml
-  -R, --recursive                  Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
-  -b, --secretrolebinding string   secret role binding. namespace/name
-  -r, --vaultrole string           vault role. RoleKind/name
+  -f, --filename strings            Filename, directory, or URL to files identifying the resource to update
+  -h, --help                        help for generate
+      --keys stringToString         Key/Value map used to store the keys to read and their mapping keys. secretKey=objectName (default [])
+  -k, --kustomize string            Process the kustomization directory. This flag can't be used together with -f or -R.
+  -o, --output string               output format yaml/json. default to yaml
+  -R, --recursive                   Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
+  -b, --secretrolebinding string    secret role binding. namespace/name
+  -p, --vault-ca-cert-path string   vault CA cert path in secret provider, default to Insecure mode.
+  -r, --vaultrole string            vault role. RoleKind/name
 ```
 
 ### Options inherited from parent commands
