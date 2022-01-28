@@ -1,23 +1,40 @@
 ---
-title: Vault
+title: Vault Unseal-Key Sync
 menu:
   docs_{{ .version }}:
-    identifier: vault
-    name: Vault
+    identifier: vault-unseal-key-sync
+    name: Vault Unseal-Key Sync
     parent: reference-cli
-    weight: 0
-
 menu_name: docs_{{ .version }}
 section_menu_id: reference
-url: /docs/{{ .version }}/reference/cli/
-aliases:
-- /docs/{{ .version }}/reference/cli/vault/
 ---
-## vault
+## vault unseal-key sync
 
-KubeVault cli by AppsCode
+sync vault unseal-key
+
+### Synopsis
+
+
+$ kubectl vault unseal-key get vaultserver <name> -n <namespace> [flags]
+
+Examples:
+ # sync the vaultserver unseal-keys
+ # old naming conventions: vault-unseal-key-0, vault-unseal-key-1, etc.
+ # new naming convention for unseal-key: k8s.{cluster-name or UID}.{vault-namespace}.{vault-name}-unseal-key-{id}
+ $ kubectl vault unseal-key sync vaultserver vault -n demo
+
+
+```
+vault unseal-key sync [flags]
+```
 
 ### Options
+
+```
+  -h, --help   help for sync
+```
+
+### Options inherited from parent commands
 
 ```
       --alsologtostderr                  log to standard error as well as files
@@ -30,7 +47,6 @@ KubeVault cli by AppsCode
       --client-key string                Path to a client key file for TLS
       --cluster string                   The name of the kubeconfig cluster to use
       --context string                   The name of the kubeconfig context to use
-  -h, --help                             help for vault
       --insecure-skip-tls-verify         If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string                Path to the kubeconfig file to use for CLI requests.
       --log-backtrace-at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
@@ -51,12 +67,5 @@ KubeVault cli by AppsCode
 
 ### SEE ALSO
 
-* [vault approve](/docs/reference/cli/vault_approve.md)	 - Approve request
-* [vault completion](/docs/reference/cli/vault_completion.md)	 - Generate completion script
-* [vault deny](/docs/reference/cli/vault_deny.md)	 - Deny request
-* [vault generate](/docs/reference/cli/vault_generate.md)	 - Generate secretproviderclass
-* [vault revoke](/docs/reference/cli/vault_revoke.md)	 - Revoke request
-* [vault root-token](/docs/reference/cli/vault_root-token.md)	 - get, set, delete and sync root-token
 * [vault unseal-key](/docs/reference/cli/vault_unseal-key.md)	 - get, set, delete, list and sync unseal-key
-* [vault version](/docs/reference/cli/vault_version.md)	 - Prints binary version number.
 

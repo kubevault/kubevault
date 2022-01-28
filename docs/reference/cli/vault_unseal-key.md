@@ -1,23 +1,41 @@
 ---
-title: Vault
+title: Vault Unseal-Key
 menu:
   docs_{{ .version }}:
-    identifier: vault
-    name: Vault
+    identifier: vault-unseal-key
+    name: Vault Unseal-Key
     parent: reference-cli
-    weight: 0
-
 menu_name: docs_{{ .version }}
 section_menu_id: reference
-url: /docs/{{ .version }}/reference/cli/
-aliases:
-- /docs/{{ .version }}/reference/cli/vault/
 ---
-## vault
+## vault unseal-key
 
-KubeVault cli by AppsCode
+get, set, delete, list and sync unseal-key
+
+### Synopsis
+
+
+$ kubectl vault unseal-key [command] [flags] to get, set, delete, list or sync vault unseal-keys
+
+Examples:
+ $ kubectl vault unseal-key get [flags]
+ $ kubectl vault unseal-key set [flags]
+ $ kubectl vault unseal-key delete [flags]
+ $ kubectl vault unseal-key list [flags]
+ $ kubectl vault unseal-key sync [flags]
+
+
+```
+vault unseal-key [flags]
+```
 
 ### Options
+
+```
+  -h, --help   help for unseal-key
+```
+
+### Options inherited from parent commands
 
 ```
       --alsologtostderr                  log to standard error as well as files
@@ -30,7 +48,6 @@ KubeVault cli by AppsCode
       --client-key string                Path to a client key file for TLS
       --cluster string                   The name of the kubeconfig cluster to use
       --context string                   The name of the kubeconfig context to use
-  -h, --help                             help for vault
       --insecure-skip-tls-verify         If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string                Path to the kubeconfig file to use for CLI requests.
       --log-backtrace-at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
@@ -51,12 +68,10 @@ KubeVault cli by AppsCode
 
 ### SEE ALSO
 
-* [vault approve](/docs/reference/cli/vault_approve.md)	 - Approve request
-* [vault completion](/docs/reference/cli/vault_completion.md)	 - Generate completion script
-* [vault deny](/docs/reference/cli/vault_deny.md)	 - Deny request
-* [vault generate](/docs/reference/cli/vault_generate.md)	 - Generate secretproviderclass
-* [vault revoke](/docs/reference/cli/vault_revoke.md)	 - Revoke request
-* [vault root-token](/docs/reference/cli/vault_root-token.md)	 - get, set, delete and sync root-token
-* [vault unseal-key](/docs/reference/cli/vault_unseal-key.md)	 - get, set, delete, list and sync unseal-key
-* [vault version](/docs/reference/cli/vault_version.md)	 - Prints binary version number.
+* [vault](/docs/reference/cli/vault.md)	 - KubeVault cli by AppsCode
+* [vault unseal-key delete](/docs/reference/cli/vault_unseal-key_delete.md)	 - delete vault unseal-key
+* [vault unseal-key get](/docs/reference/cli/vault_unseal-key_get.md)	 - get vault unseal-key
+* [vault unseal-key list](/docs/reference/cli/vault_unseal-key_list.md)	 - list vault unseal-key
+* [vault unseal-key set](/docs/reference/cli/vault_unseal-key_set.md)	 - set vault unseal-key
+* [vault unseal-key sync](/docs/reference/cli/vault_unseal-key_sync.md)	 - sync vault unseal-key
 

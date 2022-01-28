@@ -1,41 +1,35 @@
 ---
-title: Vault Get-Root-Token
+title: Vault Unseal-Key List
 menu:
   docs_{{ .version }}:
-    identifier: vault-get-root-token
-    name: Vault Get-Root-Token
+    identifier: vault-unseal-key-list
+    name: Vault Unseal-Key List
     parent: reference-cli
 menu_name: docs_{{ .version }}
 section_menu_id: reference
 ---
-## vault get-root-token
+## vault unseal-key list
 
-Get root token for vault server
+list vault unseal-key
 
 ### Synopsis
 
-Get the decrypted root token for a vault server. You can provide flags vaultserver name and namespace.
 
-Examples: 
- # Get the decrypted root-token for resource vaultserver with name vault and namespace demo.
- # Prints the root-token name and the value.
- $ kubectl vault get-root-token vaultserver -n demo vault
+$ kubectl vault unseal-key list vaultserver <name> -n <namespace>
 
- # Provide flag --value-only if you want to print only the root-token value.
- $ kubectl vault get-root-token vaultserver -n demo vault --value-only
+Examples:
+ # list the vault unseal-keys
+ $ kubectl vault unseal-key list vaultserver vault -n demo
+
 
 ```
-vault get-root-token [flags]
+vault unseal-key list [flags]
 ```
 
 ### Options
 
 ```
-  -f, --filename strings   Filename, directory, or URL to files identifying the resource to update
-  -h, --help               help for get-root-token
-  -k, --kustomize string   Process the kustomization directory. This flag can't be used together with -f or -R.
-  -R, --recursive          Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
-      --value-only         prints only the value if flag value-only is true.
+  -h, --help   help for list
 ```
 
 ### Options inherited from parent commands
@@ -71,5 +65,5 @@ vault get-root-token [flags]
 
 ### SEE ALSO
 
-* [vault](/docs/reference/cli/vault.md)	 - KubeVault cli by AppsCode
+* [vault unseal-key](/docs/reference/cli/vault_unseal-key.md)	 - get, set, delete, list and sync unseal-key
 

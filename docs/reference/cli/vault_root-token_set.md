@@ -1,23 +1,44 @@
 ---
-title: Vault
+title: Vault Root-Token Set
 menu:
   docs_{{ .version }}:
-    identifier: vault
-    name: Vault
+    identifier: vault-root-token-set
+    name: Vault Root-Token Set
     parent: reference-cli
-    weight: 0
-
 menu_name: docs_{{ .version }}
 section_menu_id: reference
-url: /docs/{{ .version }}/reference/cli/
-aliases:
-- /docs/{{ .version }}/reference/cli/vault/
 ---
-## vault
+## vault root-token set
 
-KubeVault cli by AppsCode
+set vault root-token
+
+### Synopsis
+
+
+$ kubectl vault root-token set vaultserver <name> -n <namespace> [flags]
+
+Examples:
+ # set the root-token with name --token-name flag & value --token-value flag
+ $ kubectl vault root-token set vaultserver vault -n demo --token-name <name> --token-value <value>
+
+ # default name for root-token will be used if --token-name flag is not provided
+ # default root-token naming format: k8s.{cluster-name or UID}.{vault-namespace}.{vault-name}-root-token
+ $ kubectl vault root-token set vaultserver vault -n demo --token-value <value>
+
+
+```
+vault root-token set [flags]
+```
 
 ### Options
+
+```
+  -h, --help                 help for set
+      --token-name string    set token value root-token with token-name.
+      --token-value string   set latest token-name with token-value
+```
+
+### Options inherited from parent commands
 
 ```
       --alsologtostderr                  log to standard error as well as files
@@ -30,7 +51,6 @@ KubeVault cli by AppsCode
       --client-key string                Path to a client key file for TLS
       --cluster string                   The name of the kubeconfig cluster to use
       --context string                   The name of the kubeconfig context to use
-  -h, --help                             help for vault
       --insecure-skip-tls-verify         If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string                Path to the kubeconfig file to use for CLI requests.
       --log-backtrace-at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
@@ -51,12 +71,5 @@ KubeVault cli by AppsCode
 
 ### SEE ALSO
 
-* [vault approve](/docs/reference/cli/vault_approve.md)	 - Approve request
-* [vault completion](/docs/reference/cli/vault_completion.md)	 - Generate completion script
-* [vault deny](/docs/reference/cli/vault_deny.md)	 - Deny request
-* [vault generate](/docs/reference/cli/vault_generate.md)	 - Generate secretproviderclass
-* [vault revoke](/docs/reference/cli/vault_revoke.md)	 - Revoke request
 * [vault root-token](/docs/reference/cli/vault_root-token.md)	 - get, set, delete and sync root-token
-* [vault unseal-key](/docs/reference/cli/vault_unseal-key.md)	 - get, set, delete, list and sync unseal-key
-* [vault version](/docs/reference/cli/vault_version.md)	 - Prints binary version number.
 

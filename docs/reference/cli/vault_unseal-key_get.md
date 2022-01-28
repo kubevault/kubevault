@@ -1,23 +1,44 @@
 ---
-title: Vault
+title: Vault Unseal-Key Get
 menu:
   docs_{{ .version }}:
-    identifier: vault
-    name: Vault
+    identifier: vault-unseal-key-get
+    name: Vault Unseal-Key Get
     parent: reference-cli
-    weight: 0
-
 menu_name: docs_{{ .version }}
 section_menu_id: reference
-url: /docs/{{ .version }}/reference/cli/
-aliases:
-- /docs/{{ .version }}/reference/cli/vault/
 ---
-## vault
+## vault unseal-key get
 
-KubeVault cli by AppsCode
+get vault unseal-key
+
+### Synopsis
+
+
+$ kubectl vault unseal-key get vaultserver <name> -n <namespace> [flags]
+
+Examples:
+ # get the decrypted unseal-key of a vaultserver with name vault in demo namespace with --key-id flag
+ # default unseal-key format: k8s.{cluster-name or UID}.{vault-namespace}.{vault-name}-unseal-key-{id}
+ $ kubectl vault unseal-key get vaultserver vault -n demo --key-id <id>
+
+ # pass the --key-name flag to get only the decrypted unseal-key value with a specific key name
+ $ kubectl vault unseal-key get vaultserver vault -n demo --key-name <name>
+
+
+```
+vault unseal-key get [flags]
+```
 
 ### Options
+
+```
+  -h, --help              help for get
+      --key-id int        get the latest unseal key with id
+      --key-name string   get unseal key with key-name
+```
+
+### Options inherited from parent commands
 
 ```
       --alsologtostderr                  log to standard error as well as files
@@ -30,7 +51,6 @@ KubeVault cli by AppsCode
       --client-key string                Path to a client key file for TLS
       --cluster string                   The name of the kubeconfig cluster to use
       --context string                   The name of the kubeconfig context to use
-  -h, --help                             help for vault
       --insecure-skip-tls-verify         If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string                Path to the kubeconfig file to use for CLI requests.
       --log-backtrace-at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
@@ -51,12 +71,5 @@ KubeVault cli by AppsCode
 
 ### SEE ALSO
 
-* [vault approve](/docs/reference/cli/vault_approve.md)	 - Approve request
-* [vault completion](/docs/reference/cli/vault_completion.md)	 - Generate completion script
-* [vault deny](/docs/reference/cli/vault_deny.md)	 - Deny request
-* [vault generate](/docs/reference/cli/vault_generate.md)	 - Generate secretproviderclass
-* [vault revoke](/docs/reference/cli/vault_revoke.md)	 - Revoke request
-* [vault root-token](/docs/reference/cli/vault_root-token.md)	 - get, set, delete and sync root-token
 * [vault unseal-key](/docs/reference/cli/vault_unseal-key.md)	 - get, set, delete, list and sync unseal-key
-* [vault version](/docs/reference/cli/vault_version.md)	 - Prints binary version number.
 
