@@ -21,13 +21,13 @@ Vault Operator by AppsCode - HashiCorp Vault Operator for Kubernetes
 
 ```
       --bypass-validating-webhook-xray   if true, bypasses validating webhook xray checks
-      --enable-analytics                 Send analytical events to Google Analytics (default true)
   -h, --help                             help for vault-operator
       --use-kubeapiserver-fqdn-for-aks   if true, uses kube-apiserver FQDN for AKS cluster to workaround https://github.com/Azure/AKS/issues/522 (default true)
 ```
 
 ### SEE ALSO
 
-* [vault-operator run](/docs/reference/operator/vault-operator_run.md)	 - Launch Vault operator
+* [vault-operator operator](/docs/reference/operator/vault-operator_operator.md)	 - Launch Vault operator
+* [vault-operator run](/docs/reference/operator/vault-operator_run.md)	 - Launch KubeVault Webhook Server
 * [vault-operator version](/docs/reference/operator/vault-operator_version.md)	 - Prints binary version number.
 
