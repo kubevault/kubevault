@@ -10,7 +10,7 @@ section_menu_id: reference
 ---
 ## vault-operator run
 
-Launch Vault operator
+Launch KubeVault Webhook Server
 
 ```
 vault-operator run [flags]
@@ -59,29 +59,27 @@ vault-operator run [flags]
       --authorization-webhook-cache-authorized-ttl duration     The duration to cache 'authorized' responses from the webhook authorizer. (default 10s)
       --authorization-webhook-cache-unauthorized-ttl duration   The duration to cache 'unauthorized' responses from the webhook authorizer. (default 10s)
       --bind-address ip                                         The IP address on which to listen for the --secure-port port. The associated interface(s) must be reachable by the rest of the cluster, and by CLI/web clients. If blank or an unspecified address (0.0.0.0 or ::), all interfaces will be used. (default 0.0.0.0)
-      --burst int                                               The maximum burst for throttle (default 100)
+      --burst int                                               The maximum burst for throttle (default 1000000)
       --cert-dir string                                         The directory where the TLS certs are located. If --tls-cert-file and --tls-private-key-file are provided, this flag will be ignored. (default "apiserver.local.config/certificates")
       --client-ca-file string                                   If set, any request presenting a client certificate signed by one of the authorities in the client-ca-file is authenticated with an identity corresponding to the CommonName of the client certificate.
-      --cluster-name string                                     Name of cluster used in a multi-cluster setup
       --contention-profiling                                    Enable lock contention profiling, if profiling is enabled
-      --docker-registry string                                  Docker image registry for sidecar, init-container, check-job, recovery-job and kubectl-job (default "kubevault")
       --egress-selector-config-file string                      File with apiserver egress selector configuration.
-      --enable-mutating-webhook                                 If true, enables mutating webhooks for KubeVault CRDs.
-      --enable-validating-webhook                               If true, enables validating webhooks for KubeVault CRDs.
+      --enable-mutating-webhook                                 If true, enables mutating webhooks for KubeDB CRDs. (default true)
+      --enable-validating-webhook                               If true, enables validating webhooks for KubeDB CRDs. (default true)
   -h, --help                                                    help for run
       --http2-max-streams-per-connection int                    The limit that the server gives to clients for the maximum number of streams in an HTTP/2 connection. Zero means to use golang's default. (default 1000)
       --kubeconfig string                                       kubeconfig file pointing at the 'core' kubernetes server.
+      --label-key-blacklist strings                             list of keys that are not propagated from a CRD object to its offshoots (default [app.kubernetes.io/name,app.kubernetes.io/version,app.kubernetes.io/instance,app.kubernetes.io/managed-by])
       --license-file string                                     Path to license file
       --permit-address-sharing                                  If true, SO_REUSEADDR will be used when binding the port. This allows binding to wildcard IPs like 0.0.0.0 and specific IPs in parallel, and it avoids waiting for the kernel to release sockets in TIME_WAIT state. [default=false]
       --permit-port-sharing                                     If true, SO_REUSEPORT will be used when binding the port, which allows more than one instance to bind on the same address and port. [default=false]
       --profiling                                               Enable profiling via web interface host:port/debug/pprof/ (default true)
-      --qps float                                               The maximum QPS to the master from this client (default 100)
+      --qps float                                               The maximum QPS to the master from this client (default 1e+06)
       --requestheader-allowed-names strings                     List of client certificate common names to allow to provide usernames in headers specified by --requestheader-username-headers. If empty, any client certificate validated by the authorities in --requestheader-client-ca-file is allowed.
       --requestheader-client-ca-file string                     Root certificate bundle to use to verify client certificates on incoming requests before trusting usernames in headers specified by --requestheader-username-headers. WARNING: generally do not depend on authorization being already done for incoming requests.
       --requestheader-extra-headers-prefix strings              List of request header prefixes to inspect. X-Remote-Extra- is suggested. (default [x-remote-extra-])
       --requestheader-group-headers strings                     List of request headers to inspect for groups. X-Remote-Group is suggested. (default [x-remote-group])
       --requestheader-username-headers strings                  List of request headers to inspect for usernames. X-Remote-User is common. (default [x-remote-user])
-      --resync-period duration                                  If non-zero, will re-list this often. Otherwise, re-list will be delayed aslong as possible (until the upstream source closes the watch or times out. (default 10m0s)
       --secure-port int                                         The port on which to serve HTTPS with authentication and authorization. If 0, don't serve HTTPS at all. (default 443)
       --tls-cert-file string                                    File containing the default x509 Certificate for HTTPS. (CA cert, if any, concatenated after server cert). If HTTPS serving is enabled, and --tls-cert-file and --tls-private-key-file are not provided, a self-signed certificate and key are generated for the public address and saved to the directory specified by --cert-dir.
       --tls-cipher-suites strings                               Comma-separated list of cipher suites for the server. If omitted, the default Go cipher suites will be used. 
@@ -96,7 +94,6 @@ vault-operator run [flags]
 
 ```
       --bypass-validating-webhook-xray   if true, bypasses validating webhook xray checks
-      --enable-analytics                 Send analytical events to Google Analytics (default true)
       --use-kubeapiserver-fqdn-for-aks   if true, uses kube-apiserver FQDN for AKS cluster to workaround https://github.com/Azure/AKS/issues/522 (default true)
 ```
 
