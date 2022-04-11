@@ -10,11 +10,11 @@ section_menu_id: reference
 ---
 ## vault root-token set
 
-set vault root-token
+`set` vault root-token
 
 ### Synopsis
 
-
+```bash
 $ kubectl vault root-token set vaultserver <name> -n <namespace> [flags]
 
 Examples:
@@ -24,7 +24,7 @@ Examples:
  # default name for root-token will be used if --token-name flag is not provided
  # default root-token naming format: k8s.{cluster-name or UID}.{vault-namespace}.{vault-name}-root-token
  $ kubectl vault root-token set vaultserver vault -n demo --token-value <value>
-
+```
 
 ```
 vault root-token set [flags]
