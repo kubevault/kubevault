@@ -62,6 +62,7 @@ vault-operator run [flags]
       --burst int                                               The maximum burst for throttle (default 1000000)
       --cert-dir string                                         The directory where the TLS certs are located. If --tls-cert-file and --tls-private-key-file are provided, this flag will be ignored. (default "apiserver.local.config/certificates")
       --client-ca-file string                                   If set, any request presenting a client certificate signed by one of the authorities in the client-ca-file is authenticated with an identity corresponding to the CommonName of the client certificate.
+      --cluster-name string                                     Name of cluster used in a multi-cluster setup
       --contention-profiling                                    Enable lock contention profiling, if profiling is enabled
       --egress-selector-config-file string                      File with apiserver egress selector configuration.
       --enable-mutating-webhook                                 If true, enables mutating webhooks for KubeDB CRDs. (default true)
