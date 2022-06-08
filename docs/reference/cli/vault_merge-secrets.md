@@ -1,23 +1,43 @@
 ---
-title: Vault
+title: Vault Merge-Secrets
 menu:
   docs_{{ .version }}:
-    identifier: vault
-    name: Vault
+    identifier: vault-merge-secrets
+    name: Vault Merge-Secrets
     parent: reference-cli
-    weight: 0
-
 menu_name: docs_{{ .version }}
 section_menu_id: reference
-url: /docs/{{ .version }}/reference/cli/
-aliases:
-- /docs/{{ .version }}/reference/cli/vault/
 ---
-## vault
+## vault merge-secrets
 
-KubeVault cli by AppsCode
+merge-secrets merges secrets
+
+### Synopsis
+
+merge-secrets command merges two given secrets. Both the src & dst secrets must exist for successful merge operation.
+
+Example: 
+ # merge two secret name1 & name2 from ns1 & ns2 namespaces respectively
+ $ kubectl vault merge-secrets --src=<ns1>/<name1> --dst=<ns2>/<name2>
+
+ # --overwrite-keys flag will overwrite keys in destination if set to true.
+ $ kubectl vault merge-secrets --src=<ns1>/<name1> --dst=<ns2>/<name2> --overwrite-keys=true
+
+
+```
+vault merge-secrets [flags]
+```
 
 ### Options
+
+```
+      --dst string       destination secret.
+  -h, --help             help for merge-secrets
+      --overwrite-keys   will overwrite keys in destination if set to true.
+      --src string       source secret.
+```
+
+### Options inherited from parent commands
 
 ```
       --alsologtostderr                  log to standard error as well as files
@@ -30,7 +50,6 @@ KubeVault cli by AppsCode
       --client-key string                Path to a client key file for TLS
       --cluster string                   The name of the kubeconfig cluster to use
       --context string                   The name of the kubeconfig context to use
-  -h, --help                             help for vault
       --insecure-skip-tls-verify         If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string                Path to the kubeconfig file to use for CLI requests.
       --log-backtrace-at traceLocation   when logging hits line file:N, emit a stack trace (default :0)
@@ -51,13 +70,5 @@ KubeVault cli by AppsCode
 
 ### SEE ALSO
 
-* [vault approve](/docs/reference/cli/vault_approve.md)	 - Approve request
-* [vault completion](/docs/reference/cli/vault_completion.md)	 - Generate completion script
-* [vault deny](/docs/reference/cli/vault_deny.md)	 - Deny request
-* [vault generate](/docs/reference/cli/vault_generate.md)	 - Generate secretproviderclass
-* [vault merge-secrets](/docs/reference/cli/vault_merge-secrets.md)	 - merge-secrets merges secrets
-* [vault revoke](/docs/reference/cli/vault_revoke.md)	 - Revoke request
-* [vault root-token](/docs/reference/cli/vault_root-token.md)	 - get, set, delete and sync root-token
-* [vault unseal-key](/docs/reference/cli/vault_unseal-key.md)	 - get, set, delete, list and sync unseal-key
-* [vault version](/docs/reference/cli/vault_version.md)	 - Prints binary version number.
+* [vault](/docs/reference/cli/vault.md)	 - KubeVault cli by AppsCode
 
