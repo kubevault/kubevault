@@ -26,7 +26,7 @@ Example:
 ```
 
 ```
-vault generate [flags]
+vault merge-secrets [flags]
 ```
 
 ### Options
