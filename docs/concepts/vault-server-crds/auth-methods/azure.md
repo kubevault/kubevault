@@ -28,17 +28,17 @@ The KubeVault operator uses an [AppBinding](/docs/concepts/vault-server-crds/aut
 - The additional information required for the Azure authentication method can be provided as AppBinding's `spec.parameters`.
   
   ```yaml
-  spec:
-    parameters:
-      apiVersion: config.kubevault.com/v1alpha1
-      kind: VaultServerConfiguration
-      path: my-azure
-      vaultRole: demo-role
-      azure:
-        subscriptionID: 1bfc9f66-316d-433e-b13d-c55589f642ca
-        resourceGroupName: vault-test
-        vmName: test
-        vmssName: test-set
+    spec:
+      parameters:
+        apiVersion: config.kubevault.com/v1alpha1
+        kind: VaultServerConfiguration
+        path: my-azure
+        vaultRole: demo-role
+        azure:
+          subscriptionID: 1bfc9f66-316d-433e-b13d-c55589f642ca
+          resourceGroupName: vault-test
+          vmName: test
+          vmssName: test-set
   ```
 
   - `path` : `optional`. Specifies the path where Azure auth is enabled in Vault. If this path is not provided, the path will be set by default path `azure`.

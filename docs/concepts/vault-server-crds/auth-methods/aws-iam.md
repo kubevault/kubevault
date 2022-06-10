@@ -30,14 +30,14 @@ The KubeVault operator uses an [AppBinding](/docs/concepts/vault-server-crds/aut
 - The additional information required for AWS IAM authentication can be provided as AppBinding's `spec.parameters`.
 
   ```yaml
-  spec:
-    parameters:
-      apiVersion: config.kubevault.com/v1alpha1
-      kind: VaultServerConfiguration
-      path: my-aws
-      vaultRole: demo
-      aws:
-        headerValue: vault.example.com
+    spec:
+      parameters:
+        apiVersion: config.kubevault.com/v1alpha1
+        kind: VaultServerConfiguration
+        path: my-aws
+        vaultRole: demo
+        aws:
+          headerValue: vault.example.com
   ```
   
   - `parameters.path` : `optional`. Specifies the path where AWS auth is enabled in Vault. Default to `aws`.

@@ -22,7 +22,7 @@ At first, you need to have a Kubernetes cluster, and the kubectl command-line to
 
 To keep Prometheus resources isolated, we are going to use a separate namespace to deploy Prometheus server.
 
-```console
+```bash
 $ kubectl create ns monitoring
 namespace/monitoring created
 ```
@@ -35,7 +35,7 @@ Here, we are going to enable monitoring for `operator` metrics.
 
 **Using Helm 3:**
 
-```console
+```bash
 $ helm install vault-operator appscode/vault-operator --version {{< param "info.version" >}} \
   --namespace kube-system \
   --set monitoring.agent=prometheus.io/builtin \
@@ -45,7 +45,7 @@ $ helm install vault-operator appscode/vault-operator --version {{< param "info.
 
 **Using Helm 2:**
 
-```console
+```bash
 $ helm install appscode/vault-operator --name vault-operator --version {{< param "info.version" >}} \
   --namespace kube-system \
   --set monitoring.agent=prometheus.io/builtin \
@@ -55,7 +55,7 @@ $ helm install appscode/vault-operator --name vault-operator --version {{< param
 
 **Using YAML (with Helm 3):**
 
-```console
+```bash
 $ helm template vault-operator appscode/vault-operator --version {{< param "info.version" >}} \
   --namespace kube-system \
   --no-hooks \
@@ -107,7 +107,7 @@ Here, `prometheus.io/scrape: "true"` annotation indicates that Prometheus should
 
 The following three annotations point to api endpoints which provides operator specific metrics.
 
-```console
+```bash
 prometheus.io/path: /metrics
 prometheus.io/port: "8443"
 prometheus.io/scheme: https
@@ -121,7 +121,7 @@ We have deployed KubeVault operator in `kube-system` namespace. KubeVault operat
 
 Let's check `vault-operator-apiserver-cert` secret has been created in `monitoring` namespace.
 
-```console
+```bash
 $ kubectl get  secrets -n monitoring -l=app.kubernetes.io/name=vault-operator
 NAME                            TYPE                DATA   AGE
 vault-operator-apiserver-cert   kubernetes.io/tls   2      107m
@@ -131,7 +131,7 @@ vault-operator-apiserver-cert   kubernetes.io/tls   2      107m
 
 If you are using a `RBAC` enabled cluster, you have to provide necessary `RBAC` permissions for Prometheus. Following [this](https://github.com/appscode/third-party-tools/blob/master/monitoring/prometheus/builtin/README.md#deploy-prometheus-server), let's create `RBAC` stuffs for Prometheus by running:
 
-```console
+```bash
 $ kubectl apply -f https://github.com/appscode/third-party-tools/raw/master/monitoring/prometheus/builtin/artifacts/rbac.yaml
 clusterrole.rbac.authorization.k8s.io/prometheus created
 serviceaccount/prometheus created
@@ -204,7 +204,7 @@ In `relabel_configs` section we added `<operator_name>.<namespace>.svc:443` as t
 
 Let's create the ConfigMap we have shown above,
 
-```console
+```bash
 $ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-operator/prom-server-conf.yaml
 configmap/prometheus-config created
 ```
@@ -269,7 +269,7 @@ Notice that, we have mounted vault-operator-apiserver-cert secret as a volume at
 
 Now, let's create the deployment,
 
-```console
+```bash
 $ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-operator/prom-builtin-deployment.yaml
 deployment.apps "prometheus" deleted
 ```
@@ -278,7 +278,7 @@ deployment.apps "prometheus" deleted
 
 Prometheus server is running on port 9090. We are going to use [port forwarding](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/) to access Prometheus dashboard. Run following commands on a separate terminal,
 
-```console
+```bash
 $ kubectl get pod -n monitoring -l=app=prometheus
 NAME                          READY   STATUS    RESTARTS   AGE
 prometheus-8568c86d86-vpzx5   1/1     Running   0          102s
@@ -304,7 +304,7 @@ To uninstall KubeVault operator follow [this](https://github.com/kubevault/kubev
 
 To cleanup the Kubernetes resources created by this tutorial, run:
 
-```console
+```bash
 $ kubectl delete ns monitoring
 ```
 

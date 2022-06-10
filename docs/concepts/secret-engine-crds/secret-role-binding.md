@@ -166,7 +166,7 @@ status:
 
 We can get the `VaultPolicy` if the `SecretRoleBinding` phase is `Success`:
 
-```console
+```bash
 $ kubectl get vaultpolicy -n demo srb-dev-secret-r-binding -oyaml
 ```
 ```yaml
@@ -240,7 +240,7 @@ spec:
 
 We can get the `VaultPolicyBinding` if the `SecretRoleBinding` phase is `Success`:
 
-```console
+```bash
 $ kubectl get vaultpolicybinding -n demo srb-dev-secret-r-binding -oyaml
 ```
 ```yaml

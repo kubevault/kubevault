@@ -27,23 +27,23 @@ When a `SecretEngine` CRD is created, the KubeVault operator will perform the fo
 
 - **Creates** vault policy for the secret engine. The vault policy name follows the naming format:`k8s.{clusterName}.{metadata.namespace}.{metadata.name}`. For example, the policy for GCP secret engine is below:
 
-    ```yaml
-    path "<path>/config" {
-          capabilities = ["create", "update", "read", "delete"]
-    }
-
-    path "<path>/roleset/*" {
+```hcl
+  path "<path>/config" {
         capabilities = ["create", "update", "read", "delete"]
-    }
-
-    path "<path>/token/*" {
-        capabilities = ["create", "update", "read"]
-    }
-
-    path "<path>/key/*" {
-        capabilities = ["create", "update", "read"]
-    }
-    ```
+  }
+  
+  path "<path>/roleset/*" {
+      capabilities = ["create", "update", "read", "delete"]
+  }
+  
+  path "<path>/token/*" {
+      capabilities = ["create", "update", "read"]
+  }
+  
+  path "<path>/key/*" {
+      capabilities = ["create", "update", "read"]
+  }
+```
 
 - **Updates** the Kubernetes auth role of the default k8s service account created with `VaultServer` with a new policy. The new policy will be merged with previous policies.
 
@@ -130,19 +130,19 @@ spec:
 
 - `aws.credentialSecret` : `Required`. Specifies the k8s secret name that contains AWS access key ID and secret access key
   
-    ```yaml
+  ```yaml
     spec:
       aws:
         credentialSecret: <secret-name>
-    ```
+  ```
 
-    The `data` field of the secret must contain the following key-value pairs:
-
-    ```yaml
+  The `data` field of the secret must contain the following key-value pairs:
+  
+  ```yaml
     data:
       access_kay: <access key>
       secret_key: <secret key>
-    ```
+  ```
 
 - `aws.region` : `Required`. Specifies the AWS region.
 
@@ -154,14 +154,14 @@ spec:
 
 - `aws.leaseConfig` : `Optional`. Specifies the lease configuration.
 
-    ```yaml
+  ```yaml
     config:
       leaseConfig:
         lease: 1h
         leaseMax: 1h
-    ```
+  ```
 
-    It has the following fields:
+It has the following fields:
 
   - `leaseConfig.lease` : `Optional`. Specifies the lease value. Accepts time suffixed strings (eg, "1h").
 
@@ -190,11 +190,11 @@ spec:
   - `client-secret` : `Optional`. Specifies the OAuth2 client secret to connect to Azure.
 
   ```yaml
-  data:
-    subscription-id: <value>
-    tenant-id: <value>
-    client-id: <value>
-    client-secret: <value>
+    data:
+      subscription-id: <value>
+      tenant-id: <value>
+      client-id: <value>
+      client-secret: <value>
   ```
 
 - `environment` : `Optional`. Specifies the Azure environment. If not specified, Vault will use Azure Public Cloud.
@@ -205,26 +205,26 @@ spec:
 secret engine. [See more](https://www.vaultproject.io/api/secret/gcp/index.html#write-config)
 
 ```yaml
-spec:
-  gcp:
-    credentialSecret: gcp-cred
-    ttl: 0s
-    maxTTL: 0s
+  spec:
+    gcp:
+      credentialSecret: gcp-cred
+      ttl: 0s
+      maxTTL: 0s
 ```
 
 - `credentialSecret` : `Required`. Specifies the k8s secret name that contains google application credentials.
 
   ```yaml
-  spec:
-    gcp:
-      credentialSecret: <secret-name>  
+    spec:
+      gcp:
+        credentialSecret: <secret-name>  
   ```
 
   The `data` field of the mentioned k8s secret must contain the following key-value pair:
   
   ```yaml
-  data:
-    sa.json: <google-application-credential>
+    data:
+      sa.json: <google-application-credential>
   ```
 
 - `ttl` : `Optional`. Specifies default config TTL for long-lived credentials (i.e. service account keys). Default value is 0s.
@@ -235,20 +235,20 @@ spec:
 
 `spec.postgres` specifies the configuration required to configure PostgreSQL database secret engine. [See more](https://www.vaultproject.io/api/secret/databases/postgresql.html#configure-connection)
 
- ```yaml
-  spec:
-    postgres:
-      databaseRef:
-        name: <appbinding-name>
-        namespace: <appbinding-namespace>
-      pluginName: <plugin-name>
-      allowedRoles:
-        - "rule1"
-        - "rule2"
-      maxOpenConnections: <max-open-connection>
-      maxIdleConnections: <max-idle-connection>
-      maxConnectionLifetime: <max-connection-lifetime>
- ```
+  ```yaml
+    spec:
+      postgres:
+        databaseRef:
+          name: <appbinding-name>
+          namespace: <appbinding-namespace>
+        pluginName: <plugin-name>
+        allowedRoles:
+          - "rule1"
+          - "rule2"
+        maxOpenConnections: <max-open-connection>
+        maxIdleConnections: <max-idle-connection>
+        maxConnectionLifetime: <max-connection-lifetime>
+  ```
 
 - `databaseRef` : `Required`. Specifies an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference that is required to connect to a PostgreSQL database. It is also used to generate `db_name` (i.e. `/v1/path/config/db_name`) where the database secret engine will be configured at. The name of the `db_name` follows this pattern: `k8s.{clusterName}.{namespace}.{name}`.
   
@@ -257,10 +257,10 @@ spec:
   - `namespace` : `Required`. Specifies the AppBinding namespace.
 
   ```yaml
-  postgres:
-    databaseRef:
-      name: db-app
-      namespace: demo
+    postgres:
+      databaseRef:
+        name: db-app
+        namespace: demo
   ```
 
   The generated `db_name` for the above example will be: `k8s.-.demo.db-app`. If the cluster name is empty, it is replaced by "`-`".
@@ -268,41 +268,41 @@ spec:
 - `pluginName` : `Optional`. Specifies the name of the plugin to use for this connection.
     Default plugin name is `postgres-database-plugin`.
 
-    ```yaml
+  ```yaml
     postgres:
       pluginName: postgres-database-plugin
-    ```
+  ```
 
 - `allowedRoles` : `Optional`. Specifies a list of roles allowed to use this connection.
     Default to `"*"` (i.e. any role can use this connection).
 
-    ```yaml
+  ```yaml
     postgres:
       allowedRoles:
         - "readonly"
-    ```
+  ```
 
 - `maxOpenConnections` : `Optional`. Specifies the maximum number of open connections to
     the database. Default value 2.
 
-    ```yaml
+  ```yaml
     postgres:
       maxOpenConnections: 3
-    ```
+  ```
 
 - `maxIdleConnections` : `Optional`.  Specifies the maximum number of idle connections to the database. Zero uses the value of max_open_connections and a negative value disables idle connections. If larger than max_open_connections it will be reduced to be equal. Default value 0.
 
-    ```yaml
+  ```yaml
     postgres:
       maxIdleConnections: 1
-    ```
+  ```
 
 - `maxConnectionLifetime` : `Optional`. Specifies the maximum amount of time a connection may be reused. If <= 0s connections are reused forever. Default value 0s.
 
-    ```yaml
+  ```yaml
     postgres:
       maxConnectionLifetime: 5s
-    ```
+  ```
 
 #### spec.mongodb
 
@@ -328,10 +328,10 @@ spec:
   - `namespace` : `Required`. Specifies the AppBinding namespace.
 
   ```yaml
-  mongodb:
-    databaseRef:
-      name: db-app
-      namespace: demo
+    mongodb:
+      databaseRef:
+        name: db-app
+        namespace: demo
   ```
 
   The generated `db_name` for the above example will be: `k8s.-.demo.db-app`. If the cluster name is empty, it is replaced by "`-`".
@@ -339,48 +339,48 @@ spec:
 - `pluginName` : `Optional`. Specifies the name of the plugin to use for this connection.
 Default plugin name is `mongodb-database-plugin`.
 
-    ```yaml
+  ```yaml
     mongodb:
       pluginName: mongodb-database-plugin
-    ```
+  ```
 
 - `allowedRoles` : `Optional`. Specifies a list of roles allowed to use this connection.
     Default to `"*"` (i.e. any role can use this connection).
 
-    ```yaml
+  ```yaml
     mongodb:
       allowedRoles:
         - "readonly"
-    ```
+  ```
 
 - `writeConcern` : `Optional`. Specifies the MongoDB write concern.
   This is set for the entirety of the session, maintained for the life cycle of the plugin process. Must be a serialized JSON object,
   or a base64-encoded serialized JSON object. The JSON payload values map to the values in the Safe struct from the mongo driver.
 
-    ```yaml
+  ```yaml
     mongodb:
       writeConcern: `{ \"wmode\": \"majority\", \"wtimeout\": 5000 }`
-    ```
+  ```
 
 #### spec.mysql
 
 `spec.mysql` specifies the configuration required to configure MySQL database secret engine. [See more](https://www.vaultproject.io/api/secret/databases/mysql-maria.html#configure-connection)
 
-```yaml
-spec:
-  mysql:
-    databaseRef:
-      name: <appbinding-name>
-      namespace: <appbinding-namespace>
-    pluginName: <plugin-name>
-    allowedRoles:
-      - "role1"
-      - "role2"
-      - ... ...
-    maxOpenConnections: <max-open-connections>
-    maxIdleConnections: <max-idle-connections>
-    maxConnectionLifetime: <max-connection-lifetime>
-```
+  ```yaml
+    spec:
+      mysql:
+        databaseRef:
+          name: <appbinding-name>
+          namespace: <appbinding-namespace>
+        pluginName: <plugin-name>
+        allowedRoles:
+          - "role1"
+          - "role2"
+          - ... ...
+        maxOpenConnections: <max-open-connections>
+        maxIdleConnections: <max-idle-connections>
+        maxConnectionLifetime: <max-connection-lifetime>
+  ```
 
 - `databaseRef` : `Required`. Specifies an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference that is required to connect to a MySQL database. It is also used to generate `db_name` (i.e. `/v1/path/config/db_name`) where the database secret engine will be configured at. The naming of `db_name` follows: `k8s.{clusterName}.{namespace}.{name}`.
 
@@ -389,10 +389,10 @@ spec:
   - `namespace` : `Required`. Specifies the AppBinding namespace.
 
   ```yaml
-  mysql:
-    databaseRef:
-      name: db-app
-      namespace: demo
+    mysql:
+      databaseRef:
+        name: db-app
+        namespace: demo
   ```
 
   The generated `db_name` for the above example will be: `k8s.-.demo.db-app`. If the cluster name is empty, it is replaced by "`-`".
@@ -400,57 +400,57 @@ spec:
 - `pluginName` : `Optional`. Specifies the name of the plugin to use for this connection.
     The default plugin name is `mysql-database-plugin`.
 
-    ```yaml
+  ```yaml
     mysql:
       pluginName: mysql-database-plugin
-    ```
+  ```
 
 - `allowedRoles` : `Optional`. Specifies a list of roles allowed to use this connection.
     Default to `"*"` (i.e. any role can use this connection).
 
-    ```yaml
+  ```yaml
     mysql:
       allowedRoles:
         - "readonly"
-    ```
+  ```
 
 - `maxOpenConnections` : `Optional`. Specifies the maximum number of open connections to the database. Default value 2.
 
-    ```yaml
+  ```yaml
     mysql:
       maxOpenConnections: 3
-    ```
+  ```
 
 - `maxIdleConnections` : `Optional`.  Specifies the maximum number of idle connections to the database. Zero uses the value of max_open_connections and a negative value disables idle connections. If larger than max_open_connections it will be reduced to be equal. Default value 0.
 
-    ```yaml
+  ```yaml
     mysql:
       maxIdleConnections: 1
-    ```
+  ```
 
 - `maxConnectionLifetime` : `Optional`. Specifies the maximum amount of time a connection may be reused. If <= 0s connections are reused forever. Default value 0s.
 
   ```yaml
-  mysql:
-    maxConnectionLifetime: 5s
+    mysql:
+      maxConnectionLifetime: 5s
   ```
 
 #### spec.elasticsearch
 
 `spec.elasticsearch` specifies the configuration required to configure Elasticsearch database secret engine. [See more](https://www.vaultproject.io/api/secret/databases/elasticdb.html#configure-connection)
 
-```yaml
-spec:
-  elasticsearch:
-    databaseRef:
-      name: <appbinding-name>
-      namespace: <appbinding-namespace>
-    pluginName: <plugin-name>
-    allowedRoles:
-      - "role1"
-      - "role2"
-      - ... ...
-```
+  ```yaml
+    spec:
+      elasticsearch:
+        databaseRef:
+          name: <appbinding-name>
+          namespace: <appbinding-namespace>
+        pluginName: <plugin-name>
+        allowedRoles:
+          - "role1"
+          - "role2"
+          - ... ...
+  ```
 
 - `databaseRef` : `Required`. Specifies an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference that is required to connect to an Elasticsearch database. It is also used to generate `db_name` (i.e. `/v1/path/config/db_name`) where the database secret engine will be configured at. The naming of `db_name` follows: `k8s.{clusterName}.{namespace}.{name}`.
 
@@ -459,10 +459,10 @@ spec:
   - `namespace` : `Required`. Specifies the AppBinding namespace.
 
   ```yaml
-  elasticsearch:
-    databaseRef:
-      name: db-app
-      namespace: demo
+    elasticsearch:
+      databaseRef:
+        name: db-app
+        namespace: demo
   ```
 
   The generated `db_name` for the above example will be: `k8s.-.demo.db-app`. If the cluster name is empty, it is replaced by "`-`".
@@ -470,19 +470,19 @@ spec:
 - `pluginName` : `Optional`. Specifies the name of the plugin to use for this connection.
   The default plugin name is `elasticsearch-database-plugin`.
 
-    ```yaml
+  ```yaml
     elasticsearch:
       pluginName: elasticsearch-database-plugin
-    ```
+  ```
 
 - `allowedRoles` : `Optional`. Specifies a list of roles allowed to use this connection.
   Default to `"*"` (i.e. any role can use this connection).
 
-    ```yaml
+  ```yaml
     elasticsearch:
       allowedRoles:
         - "readonly"
-    ```
+  ```
 
 ### SecretEngine Status
 

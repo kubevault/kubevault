@@ -24,7 +24,7 @@ You should be familiar with the following CRD:
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
-```console
+```bash
 $ kubectl create ns demo
 namespace/demo created
 ```
@@ -38,7 +38,7 @@ namespace/demo created
 
 Now, you have the AppBinding that holds the connection information of the Vault server.
 
-```console
+```bash
 $ kubectl get appbinding -n demo vault -o yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
@@ -93,7 +93,7 @@ spec:
 
 Now, we are going to create VaultPolicy.
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/policy-management/read-only-policy.yaml
 vaultpolicy.policy.kubevault.com/read-only-policy created
 ```
@@ -110,7 +110,7 @@ Check whether the policy is created in the Vault server. To resolve the naming c
 
 > Don't have Vault CLI? Enable Vault CLI from [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli).
 
-```console
+```bash
 $ vault list sys/policy
 Keys
 ----
@@ -139,7 +139,7 @@ vaultpolicy.policy.kubevault.com "read-only-policy" deleted
 
 Check whether the policy is deleted in Vault.
 
-```console
+```bash
 $ vault read sys/policy/k8s.-.demo.read-only-policy
 No value found at sys/policy/k8s.-.demo.read-only-policy
 
@@ -166,14 +166,14 @@ In this tutorial, we are going to create a `policy-reader-role` VaultPolicyBindi
 
 Create a service account in the demo namespace:
 
-```console
+```bash
 $ kubectl create serviceaccount -n demo  demo-sa
 serviceaccount/demo-sa created
 ```
 
 Get JWT token of the `demo-sa` service account:
 
-```console
+```bash
 $ kubectl get secret -n demo demo-sa-token-jz7x5 -o jsonpath="{.data.token}" | base64 -d
 eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZW1vIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImRlbW8tc2EtdG9rZW4tano3eDUiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZGVtby1zYSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjQxMGE4M2ViLWJhMDMtNDY1OS1iOTVjLTlmM2Y3ODdmZTM0OCIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZW1vOmRlbW8tc2EifQ.w2H7cUXxAjeY4ZGJYVuTK8XrhpCXZeqUPQhFAyTndWhcevXOJFnK7jtyceYWaN0zy6TkBxHeAzVQdyLaFrNgecUKTzCZGaWHAoXlJOMY4Q49mHzEf3iGOBM7m1ckTTP9ABcOsVjD7OvlKslse_NnMDxVtuiughtMcrIhK5pbngQbJRpGkHaiOjgzIpHR3ybLmak7a24CXif0ZAqZd_y5l7bKi8eLr2Sidgq1R1sOMtOpnrj7qQCownw_KRrSPqhSCVSmaNDEYeqA9Jbw-JWVb3SW-FodjTPJsKj_qv791dZZE910CMBcsuJMPuAvNlX0cpOqO-7cdJzNG5y7IoYiSA
 ```
@@ -201,14 +201,14 @@ Here, a Kubernetes auth method role will be created that binds the `read-only-po
 
 Let's create `read-only-policy` by using VaultPolicy:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/policy-management/demo-policy.yaml
 vaultpolicy.policy.kubevault.com/read-only-policy created
 ```
 
 Check status:
 
-```console
+```bash
 $ kubectl get vaultpolicy -n demo
 NAME                           PHASE     AGE
 read-only-policy               Success   15s
@@ -223,7 +223,7 @@ vaultpolicybinding.policy.kubevault.com/policy-reader-role created
 
 Check whether the `policy-reader-role` is successful.
 
-```console
+```bash
 $ kubectl get vaultpolicybinding -n demo
 NAME                           PHASE     AGE
 policy-reader-role             Success   11s
@@ -233,7 +233,7 @@ policy-reader-role             Success   11s
 
 Check whether the Kubernetes auth role is created in Vault. To resolve the naming conflict,name of the role in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`. In this case, it is `k8s.-.demo.policy-reader-role`.
 
-```console
+```bash
 $ vault list auth/kubernetes/role
 Keys
 ----
@@ -261,7 +261,7 @@ token_type                          default
 
 Now, we are going to perform authentication to the Vault using `demo-sa`'s JWT token. In response to successful authentication, the Vault will provide us a token that will have permissions of the `read-only-policy` policy.
 
-```console
+```bash
 $ vault write auth/kubernetes/login \
     role=k8s.-.demo.policy-reader-role \
     jwt=eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZW1vIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImRlbW8tc2EtdG9rZW4tano3eDUiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZGVtby1zYSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjQxMGE4M2ViLWJhMDMtNDY1OS1iOTVjLTlmM2Y3ODdmZTM0OCIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZW1vOmRlbW8tc2EifQ.w2H7cUXxAjeY4ZGJYVuTK8XrhpCXZeqUPQhFAyTndWhcevXOJFnK7jtyceYWaN0zy6TkBxHeAzVQdyLaFrNgecUKTzCZGaWHAoXlJOMY4Q49mHzEf3iGOBM7m1ckTTP9ABcOsVjD7OvlKslse_NnMDxVtuiughtMcrIhK5pbngQbJRpGkHaiOjgzIpHR3ybLmak7a24CXif0ZAqZd_y5l7bKi8eLr2Sidgq1R1sOMtOpnrj7qQCownw_KRrSPqhSCVSmaNDEYeqA9Jbw-JWVb3SW-FodjTPJsKj_qv791dZZE910CMBcsuJMPuAvNlX0cpOqO-7cdJzNG5y7IoYiSA
@@ -283,7 +283,7 @@ token_meta_service_account_uid            410a83eb-ba03-4659-b95c-9f3f787fe348
 
 Grab the token and export it as env  to check its behavior:
 
-```console
+```bash
 $ export VAULT_TOKEN=s.0of6p1q8SrcN3OscDaBlmWuI
 
 $ vault list sys/policy
@@ -331,14 +331,14 @@ Here, we can see that we don't have the permission to do anything but list and r
 
 If we delete VaultPolicyBinding, then the respective role will be deleted from Vault.
 
-```console
+```bash
 $ kubectl delete vaultpolicybinding policy-reader-role -n demo
 vaultpolicybinding.policy.kubevault.com "policy-reader-role" deleted
 ```
 
 Check whether the role is deleted from Vault.
 
-```console
+```bash
 $ vault read auth/kubernetes/role/k8s.-.demo.policy-reader-role
 No value found at auth/kubernetes/role/k8s.-.demo.policy-reader-role
 

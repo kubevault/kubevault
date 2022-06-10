@@ -26,14 +26,14 @@ To perform Kubernetes Authentication using ServiceAccount Name,
 - You have to specify serviceaccount name and [role](https://www.vaultproject.io/api/auth/kubernetes/index.html#create-role) name in `spec.parameters` of the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md). If Kubernetes auth method is enabled in different path (not `kubernetes`), then you also have to specify it in `spec.parameters` of AppBinding.
 
   ```yaml
-  spec:
-    parameters:
-      apiVersion: config.kubevault.com/v1alpha1
-      kind: VaultServerConfiguration
-      path: k8s # Kubernetes auth is enabled in this path
-      vaultRole: demo  # role name against which login will be done
-      kubernetes:
-        serviceAccountName: vault-sa # service account name
+    spec:
+      parameters:
+        apiVersion: config.kubevault.com/v1alpha1
+        kind: VaultServerConfiguration
+        path: k8s # Kubernetes auth is enabled in this path
+        vaultRole: demo  # role name against which login will be done
+        kubernetes:
+          serviceAccountName: vault-sa # service account name
   ```
 
 - The specified ServiceAccount must be in AppBinding's namespace.
@@ -68,10 +68,10 @@ To perform Kubernetes Authentication using ServiceAccount Token Secret,
 
 - You have to specify serviceaccount token secret in `spec.secret` of the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md). Kubernetes create a token secret for every serviceaccount. You can use that in `spec.secret`.
 
-    ```console
+  ```bash
     $ kubectl create serviceaccount sa
     serviceaccount/sa created
-
+    
     $ kubectl get serviceaccount/sa -o yaml
     apiVersion: v1
     kind: ServiceAccount
@@ -80,7 +80,7 @@ To perform Kubernetes Authentication using ServiceAccount Token Secret,
       namespace: default
     secrets:
     - name: sa-token-6n9pv
-
+    
     $ kubectl get secrets/sa-token-6n9pv -o yaml
     apiVersion: v1
     data:
@@ -95,7 +95,7 @@ To perform Kubernetes Authentication using ServiceAccount Token Secret,
       name: sa-token-6n9pv
       namespace: default
     type: kubernetes.io/service-account-token
-    ```
+  ```
 
 - The specified secret must be in AppBinding's namespace.
 
@@ -107,12 +107,12 @@ To perform Kubernetes Authentication using ServiceAccount Token Secret,
 - The additional information required for the Kubernetes authentication method can be provided as AppBinding's `spec.parameters`.
   
   ```yaml
-  spec:
-    parameters:
-      apiVersion: config.kubevault.com/v1alpha1
-      kind: VaultServerConfiguration
-      path: k8s
-      vaultRole: demo-role
+    spec:
+      parameters:
+        apiVersion: config.kubevault.com/v1alpha1
+        kind: VaultServerConfiguration
+        path: k8s
+        vaultRole: demo-role
   ```
 
   - `path` : `optional`. Specifies the path where Kubernetes auth is enabled in Vault. If this path is not provided, the path will be set by default path `kubernetes`.

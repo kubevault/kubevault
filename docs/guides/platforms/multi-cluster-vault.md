@@ -22,7 +22,7 @@ To being with, we have created two GKE clusters.
 
 We are going to install KubeVault operator in `demo-cluster-1` using Helm 3. We are going to set `--cluster-name` flag. This flag value will be used by KubeVault operator when creating resources in Vault.
 
-```console
+```bash
 $ kubectl config current-context
 gke_ackube_us-central1-a_demo-cluster-1
 
@@ -38,7 +38,7 @@ vault-operator-5fc7666575-8v6ft                            1/1     Running   0  
 
 We are going to deploy Vault in `demo-cluster-1` using KubeVault operator. Guides to deploy Vault in GKE can be found [here](/docs/guides/platforms/gke.md).
 
-```console
+```bash
 $ kubectl get vaultserverversions/1.2.0 -o yaml
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
@@ -101,7 +101,7 @@ my-vault   LoadBalancer   10.3.251.241   104.155.177.205   8200:31542/TCP,8201:3
 
 Now we are going to create `demo-policy-secret-admin` [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) in `demo-cluster-1`. Guides to manage policy in Vault can be found [here](/docs/guides/policy-management/overview.md).
 
-```console
+```bash
 $ cat examples/guides/provider/multi-cluster/demo-policy-secret-admin.yaml
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
@@ -126,7 +126,7 @@ demo-policy-secret-admin          Success   1m
 
 Check the created `demo-policy-secret-admin` [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) in Vault. To resolve the naming conflict, name of policy in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`. For this case, it is `k8s.demo-cluster-1.demo.demo-policy-secret-admin`.
 
-```console
+```bash
 $ export VAULT_ADDR='https://104.155.177.205:31542'
 
 $ export VAULT_CACERT="cert/ca.crt"
@@ -143,7 +143,7 @@ root
 
 We are going to install KubeVault operator in `demo-cluster-2` using Helm 3.  We are going to set `--cluster-name`, this flag value will be used by KubeVault operator when creating resource in Vault.
 
-```console
+```bash
 $ kubectl config current-context
 gke_ackube_us-central1-a_demo-cluster-2
 
@@ -159,7 +159,7 @@ vault-operator-5fc7666575-8v6ft                            1/1     Running   0  
 
 Now we are going to create an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and credential information of the Vault that is deployed in `demo-cluster-1`. In this AppBinding, we are going to use [token auth](https://www.vaultproject.io/docs/auth/token.html#token-auth-method). Guides to Vault authentication using AppBinding can be found [here](/docs/concepts/vault-server-crds/auth-methods/overview.md).
 
-```console
+```bash
 $ cat examples/guides/provider/multi-cluster/vault-app.yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
@@ -179,7 +179,7 @@ appbinding.appcatalog.appscode.com/vault-app created
 
 Now we are going to create `demo-policy-secret-reader` [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) in `demo-cluster-2`.
 
-```console
+```bash
 $ cat examples/guides/provider/multi-cluster/demo-policy-secret-reader.yaml
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
@@ -205,7 +205,7 @@ demo-policy-secret-reader   Success   1m
 
 Check the created `demo-policy-secret-reader` [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) in Vault. To resolve the naming conflict, name of policy in Vault will follow this format: `k8s.{clusterName}.{metadata.namespace}.{metadata.name}`. For this case, it is `k8s.demo-cluster-2.demo.demo-policy-secret-reader`.
 
-```console
+```bash
 $ vault policy list
 default
 k8s.demo-cluster-1.demo.demo-policy-secret-admin

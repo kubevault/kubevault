@@ -25,7 +25,7 @@ You can read more about the Kubernetes Secrets Store CSI Driver [here](https://s
 ## Consuming Secrets
 At first, you need to have a Kubernetes 1.16 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
-```console
+```bash
 $ kubectl version --short
 Client Version: v1.21.2
 Server Version: v1.21.1
@@ -39,7 +39,7 @@ Before you begin:
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
-```console
+```bash
 $ kubectl create ns demo
 namespace/demo created
 ```
@@ -58,7 +58,7 @@ The KubeVault operator can manage policies and secret engines of Vault servers w
 
 Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server. And we also have the service account that the Vault server can authenticate.
 
-```console
+```bash
 $ kubectl get appbinding -n demo
 NAME    AGE
 vault   50m
@@ -104,13 +104,13 @@ spec:
 ## Enable & Configure PostgreSQL SecretEngine
 
 ### Enable PostgreSQL SecretEngine
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/postgres/secretengine.yaml
 secretengine.engine.kubevault.com/postgres-engine created
 ```
 
 ### Create PostgreSQLRole
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/postgres/secretenginerole.yaml
 postgresrole.engine.kubevault.com/postgres-superuser-role created
 ```
@@ -128,7 +128,7 @@ metadata:
   namespace: demo
 ```
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/postgres/serviceaccount.yaml
 serviceaccount/test-user-account created
 
@@ -174,7 +174,7 @@ spec:
 
 Let's create VaultPolicy and VaultPolicyBinding:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/postgres/policy.yaml
 vaultpolicy.policy.kubevault.com/postgres-reader-policy created
 
@@ -184,7 +184,7 @@ vaultpolicybinding.policy.kubevault.com/postgres-reader-role created
 
 Check if the VaultPolicy and the VaultPolicyBinding are successfully registered to the Vault server:
 
-```console
+```bash
 $ kubectl get vaultpolicy -n demo
 NAME                                    STATUS    AGE
 postgres-reader-policy                  Success   8s
@@ -223,7 +223,7 @@ spec:
 
 ```
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/postgres/secretproviderclass.yaml
 secretproviderclass.secrets-store.csi.x-k8s.io/vault-db-provider created
 ```
@@ -259,7 +259,7 @@ spec:
 
 ```
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/postgres/pod.yaml
 pod/demo-app created
 ```
@@ -267,7 +267,7 @@ pod/demo-app created
 
 Check if the Pod is running successfully, by running:
 
-```console
+```bash
 $ kubectl get pods -n demo
 NAME                       READY   STATUS    RESTARTS   AGE
 demo-app                   1/1     Running   0          11s
@@ -277,7 +277,7 @@ demo-app                   1/1     Running   0          11s
 
 If the Pod is running successfully, then check inside the app container by running
 
-```console
+```bash
 $ kubectl exec -it -n demo pod/demo-app -- /bin/sh
 / # ls /secrets-store/postgres-creds
 postgres-creds-password  postgres-creds-username
@@ -297,7 +297,7 @@ So, we can see that the secret `db-username` and `db-password` is mounted into t
 
 To clean up the Kubernetes resources created by this tutorial, run:
 
-```console
+```bash
 $ kubectl delete ns demo
 namespace "demo" deleted
 

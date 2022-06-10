@@ -22,7 +22,7 @@ CoreOS [prometheus-operator](https://github.com/coreos/prometheus-operator) prov
 
 - To keep Prometheus resources isolated, we are going to use a separate namespace to deploy Prometheus operator and respective resources.
 
-```console
+```bash
 $ kubectl create ns monitoring
 namespace/monitoring created
 ```
@@ -37,7 +37,7 @@ Here, we are going to enable monitoring for `operator` metrics.
 
 **Using Helm 3:**
 
-```console
+```bash
 $ helm install vault-operator appscode/vault-operator --version {{< param "info.version" >}} \
   --namespace kube-system \
   --set monitoring.agent=prometheus.io/coreos-operator \
@@ -48,7 +48,7 @@ $ helm install vault-operator appscode/vault-operator --version {{< param "info.
 
 **Using Helm 2:**
 
-```console
+```bash
 $ helm install appscode/vault-operator --name vault-operator --version {{< param "info.version" >}} \
   --namespace kube-system \
   --set monitoring.agent=prometheus.io/coreos-operator \
@@ -59,7 +59,7 @@ $ helm install appscode/vault-operator --name vault-operator --version {{< param
 
 **Using YAML (with Helm 3):**
 
-```console
+```bash
 $ helm template vault-operator appscode/vault-operator --version {{< param "info.version" >}} \
   --namespace kube-system \
   --no-hooks \
@@ -110,7 +110,7 @@ KubeVault operator exports operator metrics via TLS secured `api` endpoint. So, 
 
 Let's check secret vault-operator-apiserver-cert has been created in monitoring namespace.
 
-```console
+```bash
 $ kubectl get secret -n monitoring -l=app.kubernetes.io/name=vault-operator
 NAME                            TYPE                DATA   AGE
 vault-operator-apiserver-cert   kubernetes.io/tls   2      8m27s
@@ -155,7 +155,7 @@ Here, `spec.serviceMonitorSelector` is used to select the ServiceMonitor crd tha
 
 Let's create the Prometheus object we have shown above,
 
-```console
+```bash
 $ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-operator/prom-coreos-crd.yaml
 prometheus.monitoring.coreos.com/prometheus created
 ```
@@ -164,7 +164,7 @@ Prometheus operator watches for Prometheus `crd`. Once a Prometheus crd is creat
 
 Let's check `StatefulSet` has been created,
 
-```console
+```bash
 $ kubectl get statefulset -n monitoring
 NAME                    READY   AGE
 prometheus-prometheus   1/1     31m
@@ -172,7 +172,7 @@ prometheus-prometheus   1/1     31m
 
 Check StatefulSet's pod is running,
 
-```console
+```bash
 $ kubectl get pod prometheus-prometheus-0 -n monitoring
 NAME                      READY   STATUS    RESTARTS   AGE
 prometheus-prometheus-0   3/3     Running   1          31m
@@ -184,7 +184,7 @@ Now, we are ready to access Prometheus dashboard.
 
 Prometheus server is running on port 9090. We are going to use [port forwarding](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/) to access Prometheus dashboard. Run following commands on a separate terminal,
 
-```console
+```bash
 $ kubectl port-forward -n monitoringprometheus-prometheus-0 9090
 Forwarding from 127.0.0.1:9090 -> 9090
 Forwarding from [::1]:9090 -> 9090
@@ -204,7 +204,7 @@ To uninstall KubeVault operator follow [this](https://github.com/kubevault/kubev
 
 To cleanup the Kubernetes resources created by this tutorial, run:
 
-```console
+```bash
 # cleanup Prometheus resources
 kubectl delete -n monitoring prometheus prometheus
 kubectl delete -n monitoring secret vault-operator-apiserver-cert

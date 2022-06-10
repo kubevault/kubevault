@@ -24,7 +24,7 @@ At first, you need to have an EKS cluster. If you don't already have a cluster, 
 
 - You should be familiar with the following CRD:
   - [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md)
-  - [Unsealer](/docs/concepts/vault-server-crds/unsealer/unsealer.md)
+  - [Unsealer](/docs/concepts/vault-server-crds/unsealer/overview.md)
   - [awsKmsSsm](/docs/concepts/vault-server-crds/unsealer/aws_kms_ssm.md)
 
 - You will need a [AWS S3 Bucket](https://aws.amazon.com/s3/) to use it as Vault backend storage. In this tutorial, we are going to use `demo-vault-3` S3 bucket.
@@ -33,7 +33,7 @@ At first, you need to have an EKS cluster. If you don't already have a cluster, 
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
-```console
+```bash
 $ kubectl create ns demo
 namespace/demo created
 ```
@@ -42,8 +42,8 @@ namespace/demo created
 
 We are going to use [eksctl](https://github.com/weaveworks/eksctl) to provision a cluster.
 
-```console
-eksctl create cluster --name demo-cluster --nodes 1 --region us-east-1 --version 1.11
+```bash
+$ eksctl create cluster --name demo-cluster --nodes 1 --region us-east-1 --version 1.11
 ```
 
 ![aws ec2 instance](/docs/images/guides/provider/eks/aws-instance.png)
@@ -52,7 +52,7 @@ eksctl create cluster --name demo-cluster --nodes 1 --region us-east-1 --version
 
 See [here](/docs/setup/README.md).
 
-```console
+```bash
 $ kubectl get pods -n kube-system
 NAME                             READY     STATUS    RESTARTS   AGE
 vault-operator-798b75d78-qw74f   1/1       Running   1          2h
@@ -87,7 +87,7 @@ spec:
 
 Here, `spec.version` specifies the name of the [VaultServerVersion](/docs/concepts/vault-server-crds/vaultserverversion.md) CRD. If that does not exist, then create one.
 
-```console
+```bash
 $ kubectl get vaultserverversions
 NAME      VERSION   VAULT_IMAGE    DEPRECATED   AGE
 0.11.1    0.11.1    vault:0.11.1   false        12m
@@ -112,7 +112,7 @@ spec:
 
 Now, we are going to create `my-vault`
 
-```console
+```bash
 $ cat examples/guides/provider/eks/my-vault.yaml
   apiVersion: kubevault.com/v1alpha1
   kind: VaultServer
@@ -143,7 +143,7 @@ vaultserver.kubevault.com/my-vault created
 
 Check the `my-vault` status. It may take some time to reach `Running` stage.
 
-```console
+```bash
 $ kubectl get vaultserver/my-vault -n demo
 NAME       NODES     VERSION   STATUS    AGE
 my-vault   1         0.11.1    Running   3m
@@ -151,7 +151,7 @@ my-vault   1         0.11.1    Running   3m
 
 `status` field in `my-vault` will show more detail information.
 
-```console
+```bash
 $ kubectl get vaultserver/my-vault -n demo -o json | jq '.status'
 {
   "initialized": true,
@@ -172,7 +172,7 @@ $ kubectl get vaultserver/my-vault -n demo -o json | jq '.status'
 
 KubeVault operator will create a service `{metadata.name}` for `my-vault` in the same namespace. For this case, service name is `my-vault`. You can specify service configuration in [spec.serviceTemplate](/docs/concepts/vault-server-crds/vaultserver.md#specservicetemplate). KubeVault operator will use that configuration to create service.
 
-```console
+```bash
 $ kubectl get services -n demo
 NAME       TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
 my-vault   ClusterIP   10.100.237.152   <none>        8200/TCP,8201/TCP,9102/TCP   46m
@@ -180,7 +180,7 @@ my-vault   ClusterIP   10.100.237.152   <none>        8200/TCP,8201/TCP,9102/TCP
 
 The configuration used to run Vault can be found in `{metadata.name}-vault-config` configMap. For this case, it is `my-vault-vault-config`. Confidential data are omitted in this configMap.
 
-```console
+```bash
 $ kubectl get configmaps -n demo
 NAME                    DATA      AGE
 my-vault-vault-config   1         49m
@@ -218,7 +218,7 @@ metadata:
 
 In this `my-vault`, KubeVault operator will use self-signed certificates for Vault and also will create `{metadata.name}-vault-tls` secret containing certificates. You can optionally specify certificates in [spec.tls](/docs/concepts/vault-server-crds/vaultserver.md#spectls).
 
-```console
+```bash
 $ kubectl get secrets -n demo
 NAME                                      TYPE                                  DATA      AGE
 my-vault-vault-tls                        Opaque                                3         1h
@@ -231,7 +231,7 @@ We can see unseal keys and root token in AWS System Manager Parameter Store in t
 ### Using Vault
 
 Download and decrypt the root token:
-```console
+```bash
 $ aws ssm get-parameter --name vault-root-token --region us-east-1 --output json | jq -r '.Parameter.Value' | base64 -d - > root.enc
 
 $ tree .
@@ -246,7 +246,7 @@ $ aws kms decrypt --ciphertext-blob fileb://root.enc --output text --query Plain
 
 For testing purpose, we are going to port forward the active vault pod, since the service we exposed for Vault is ClusterIP type. Make sure Vault cli is installed.
 
-```console
+```bash
 $ kubectl port-forward my-vault-6f48b4d96f-mzvgm -n demo 8200:8200
 Forwarding from 127.0.0.1:8200 -> 8200
 
@@ -271,7 +271,7 @@ HA Enabled      false
 
 Set Vault token for further use. In this case, we are going to use root token(not recommended).
 
-```console
+```bash
 $ export VAULT_TOKEN='9116f849-2085-9c28-015f-aec3e184e90f'
 
 $ vault secrets list
@@ -286,7 +286,7 @@ sys/          system       system_51cd4d05       system endpoints used for contr
 
 We are going to write,read and delete a secret in Vault
 
-```console
+```bash
 $ vault kv put secret/foo A=B
 Success! Data written to: secret/foo
 

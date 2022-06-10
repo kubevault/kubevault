@@ -28,7 +28,7 @@ You should be familiar with the following CRD:
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
-```console
+```bash
 $ kubectl create ns demo
 namespace/demo created
 ```
@@ -47,7 +47,7 @@ The KubeVault operator can manage policies and secret engines of Vault servers w
 
 Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server.
 
-```console
+```bash
 $ kubectl get appbinding -n demo
 NAME    AGE
 vault   50m
@@ -84,7 +84,7 @@ Here, we are going to use the Vault root token to perform authentication to the 
 
 Export the root token as environment variable:
 
-```console
+```bash
 export VAULT_TOKEN=s.lbSCc2GGit1QmqghBgYgjbOG
 ```
 
@@ -92,7 +92,7 @@ export VAULT_TOKEN=s.lbSCc2GGit1QmqghBgYgjbOG
 
 Enable the KV secret engine:
 
-```console
+```bash
 $ vault secrets enable -version=1 kv
 Success! Enabled the kv secrets engine at: kv/
 ```
@@ -101,7 +101,7 @@ Success! Enabled the kv secrets engine at: kv/
 
 Write arbitrary key-value pairs:
 
-```console
+```bash
 $ vault kv put kv/my-secret my-value=s3cr3t
 Success! Data written to: kv/my-secret
 
@@ -116,7 +116,7 @@ Success! Data written to: kv/key
 
 List key-value pairs:
 
-```console
+```bash
 $ vault kv list kv/
 Keys
 ----
@@ -129,7 +129,7 @@ secret-name
 
 Read a specific key-value pair:
 
-```console
+```bash
 $ vault kv get kv/my-secret
 ====== Data ======
 Key         Value
@@ -141,7 +141,7 @@ my-value    s3cr3t
 
 Delete a specific key-value pair:
 
-```console
+```bash
 $ vault kv delete kv/my-secret
 Success! Data deleted (if it existed) at: kv/my-secret
 ```
@@ -154,7 +154,7 @@ Here, we are going to create a Kubernetes service account and give it limited ac
 
 Create a service account `kv-admin` to the `demo` namespace:
 
-```console
+```bash
 $ kubectl create serviceaccount -n demo kv-admin
 serviceaccount/kv-admin created
 
@@ -197,7 +197,7 @@ spec:
 
 Create VaultPolicy and check status:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/kv/policy.yaml
 vaultpolicy.policy.kubevault.com/kv-policy created
 
@@ -232,7 +232,7 @@ spec:
 
 Create VaultPolicyBinding and check status:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/kv/policyBinding.yaml
 vaultpolicybinding.policy.kubevault.com/kv-admin-role created
 
@@ -249,7 +249,7 @@ To resolve the naming conflict, name of the policy and role in Vault will follow
 
 List Vault policies and Kubernetes auth roles:
 
-```console
+```bash
 $ vault list sys/policy
 Keys
 ----
@@ -288,7 +288,7 @@ So, we can see that the `kv-policy` is added to the `kv-admin-role`.
 
 Now, login to the Vault using `kv-admin`'s JWT token under `kv-admin-role` role.
 
-```console
+```bash
 $ vault write auth/kubernetes/login \
         role=k8s.-.demo.kv-admin-role \
         jwt=eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZW1vIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6Imt2LWFkbWluLXRva2VuLThjZ3IyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6Imt2LWFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiMjhiNDdlMWQtMzQyZC00MjYyLWI0NDItMzRjYzViOTFhYThlIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmRlbW86a3YtYWRtaW4ifQ.NkAbcuOsziZCtDtUYuxzuCKcAVuywnIbdEHylB1un6yc5K_Qfl_AtsnuKjWbJDZtp1kjc6bwy6dftMPSoPwd6U9FO5kbGbLqoA6vsa3Y_gJ74dhYqZnGHZZg9KpCxLHxvl8phcjIrRMvKW_dn95p334GWSI_AqU1zvGTQnFhjlrb-NRKpeTA7N7Y1JP2x1wB8KdtHha-qqGmLsUMJbc8VebgKnG8zjhc1KfgtO0lMLt4uLthBS4ca10r4fOsz259n66FOkVPfbPnXlUYzeObz-Ng4cFwdZ6xLgdF2wz9e8pTKXhe8NifzTFMk_44TPpE5pBqsog80lfMuq7Tk4O3TQ
@@ -310,13 +310,13 @@ token_meta_service_account_uid            28b47e1d-342d-4262-b442-34cc5b91aa8e
 
 Export the new Vault token as an environment variable:
 
-```console
+```bash
 export VAULT_TOKEN=s.HJ8owGJLrqzlnA8tKuYdrElh
 ```
 
 Now perform read, write, list and delete operation on KV secret engine:
 
-```console
+```bash
 # Enable KV secret engine
 $ vault secrets enable -version=1 kv
 Success! Enabled the kv secrets engine at: kv/

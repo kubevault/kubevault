@@ -27,8 +27,8 @@ section_menu_id: concepts
 - To keep things isolated, this tutorial uses a separate namespace called `demo` throughout this tutorial.
 
   ```bash
-  $ kubectl create ns demo
-  namespace/demo created
+    $ kubectl create ns demo
+    namespace/demo created
   ```
 
 ### Deploy VaultServer with TLS/SSL configuration
@@ -42,7 +42,7 @@ Now, we are going to create an example `Issuer` that will be used throughout the
 - Start off by generating our ca-certificates using openssl,
 
 ```bash
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./ca.key -out ./ca.crt -subj "/CN=vault/O=kubevault"
+$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./ca.key -out ./ca.crt -subj "/CN=vault/O=kubevault"
 ```
 
 - create a secret using the certificate files we have just generated,
@@ -68,7 +68,7 @@ spec:
 Let’s create the `Issuer` cr we have shown above,
 
 ```bash
-kubectl apply -f issuer.yaml
+$ kubectl apply -f issuer.yaml
 issuer.cert-manager.io/vault-issuer created
 ```
 

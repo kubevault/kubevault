@@ -30,7 +30,7 @@ You need to be familiar with the following CRDs:
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
-```console
+```bash
 $ kubectl create ns demo
 namespace/demo created
 ```
@@ -49,7 +49,7 @@ The KubeVault operator can manage policies and secret engines of Vault servers w
 
 Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server.
 
-```console
+```bash
 $ kubectl get appbinding -n demo
 NAME    AGE
 vault   50m
@@ -125,7 +125,7 @@ data:
 
 Let's deploy SecretEngine:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/gcp/secret.yaml
 secret/gcp-cred created
 
@@ -135,7 +135,7 @@ secretengine.engine.kubevault.com/gcp-engine created
 
 Wait till the status become `Success`:
 
-```console
+```bash
 $ kubectl get secretengines -n demo
 NAME         STATUS
 gcp-engine   Success
@@ -170,7 +170,7 @@ spec:
 
 Let's deploy GCPRole:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/gcp/secretenginerole.yaml
 gcprole.engine.kubevault.com/gcp-role created
 
@@ -184,7 +184,7 @@ To resolve the naming conflict, name of the roleset in Vault will follow this fo
 
 > Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
-```console
+```bash
 $ vault list your-gcp-path/roleset
 Keys
 ----
@@ -202,14 +202,14 @@ token_scopes             [https://www.googleapis.com/auth/cloud-platform]
 
 If we delete the GCPRole, then the respective role will be deleted from the Vault.
 
-```console
+```bash
 $ kubectl delete -f docs/examples/guides/secret-engines/gcp/secretenginerole.yaml
   gcprole.engine.kubevault.com "gcp-role" deleted
 ```
 
 Check from Vault whether the roleset exists:
 
-```console
+```bash
 $ vault read your-gcp-path/roleset/k8s.-.demo.gcp-role
   No value found at your-gcp-path/roleset/k8s.-.demo.gcp-role
 
@@ -242,7 +242,7 @@ Here, `spec.roleRef` is the reference of GCPRole against which credentials will 
 
 Now, we are going to create SecretAccessRequest.
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/gcp/secretaccessrequest.yaml
 secretaccessrequest.engine.kubevault.com/gcp-cred-req created
 
@@ -253,7 +253,7 @@ gcp-cred-req  3s
 
 GCP credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny SecretAccessRequest.
 
-```console
+```bash
 # using KubeVault CLI as kubectl plugin to approve request
 $ kubectl vault approve secretaccessrequest gcp-cred-req -n demo
   approved
@@ -287,7 +287,7 @@ status:
 
 Once SecretAccessRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
 
-```console
+```bash
 $ kubectl get secretaccessrequest gcp-cred-req -n demo -o json | jq '.status'
 {
   "conditions": [
@@ -322,14 +322,14 @@ type: Opaque
 
 If SecretAccessRequest is deleted, then credential lease (if any) will be revoked.
 
-```console
+```bash
 $ kubectl delete secretaccessrequest -n demo gcp-cred-req
   secretaccessrequest.engine.kubevault.com "gcp-cred-req" deleted
 ```
 
 If SecretAccessRequest is `Denied`, then the KubeVault operator will not issue any credential.
 
-```console
+```bash
 $ kubectl vault deny secretaccessrequest gcp-cred-req -n demo
   Denied
 ```

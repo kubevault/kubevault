@@ -66,14 +66,14 @@ Here,
 
 Now create Vault server with the monitoring spec
 
-```console
+```bash
 $ kubectl create -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/vault-server-coreos.yaml
 
 ```
 
 KubeVault operator will create a ServiceMonitor object once the Vault server is successfully running.
 
-```console
+```bash
 $ kubectl get servicemonitor -n demo
 NAME                   AGE
 vault-demo-exampleco   23s
@@ -91,7 +91,7 @@ Now, if you go the Prometheus Dashboard, you should see that this Vault endpoint
 
 To cleanup the Kubernetes resources created by this tutorial, run:
 
-```console
+```bash
 $ kubectl delete -n demo vs/coreos-prom-postgres
 
 $ kubectl delete ns demo

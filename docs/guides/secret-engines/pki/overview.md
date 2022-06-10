@@ -30,7 +30,7 @@ You should be familiar with the following CRD:
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
-```console
+```bash
 $ kubectl create ns demo
 namespace/demo created
 ```
@@ -49,7 +49,7 @@ The KubeVault operator can manage policies and secret engines of Vault servers w
 
 Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server.
 
-```console
+```bash
 $ kubectl get appbinding -n demo
 NAME    AGE
 vault   50m
@@ -100,27 +100,27 @@ Here, we are going to use the Vault root token to perform authentication to the 
 
 Export the root token as environment variable:
 
-```console
+```bash
 $ export VAULT_TOKEN=s.diWLjSzmfSmF0qUNYV3qOIeX
 ```
 
 Enable the PKI secrets engine:
 
-```console
+```bash
 $ vault secrets enable pki
 Success! Enabled the pki secrets engine at: pki/
 ```
 
 Increase the TTL by tuning the secrets engine. The default value of 30 days may be too short, so increase it to 1 year:
 
-```console
+```bash
 $ vault secrets tune -max-lease-ttl=8760h pki
 Success! Tuned the secrets engine at: pki/
 ```
 
 Configure a CA certificate and private key:
 
-```console
+```bash
 $ vault write pki/root/generate/internal \
                           common_name=my-website.com \
                           ttl=8760h
@@ -144,7 +144,7 @@ serial_number    10:39:a7:02:60:b4:b2:22:12:96:b7:b3:0f:7f:c2:79:45:d3:49:fb
 
 Configure a role that maps a name in Vault to a procedure for generating a certificate. When users or machines generate credentials, they are generated against this role:
 
-```console
+```bash
 $ vault write pki/roles/example-dot-com \
                           allowed_domains=my-website.com \
                           allow_subdomains=true \
@@ -154,7 +154,7 @@ Success! Data written to: pki/roles/example-dot-com
 
 Generate a new credential by writing to the /issue endpoint with the name of the role:
 
-```console
+```bash
 $ vault write pki/issue/example-dot-com \
                         common_name=www.my-website.com
 Key                 Value
@@ -192,7 +192,7 @@ Here, we are going to create a Kubernetes service account and give it limited ac
 
 Create a service account `pki-admin` to the `demo` namespace:
 
-```console
+```bash
 $  kubectl create serviceaccount -n demo pki-admin
 serviceaccount/pki-admin created
 
@@ -235,7 +235,7 @@ spec:
 
 Create VaultPolicy and check status:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/pki/policy.yaml
 vaultpolicy.policy.kubevault.com/pki-policy created
 
@@ -270,7 +270,7 @@ spec:
 
 Create VaultPolicyBinding and check status:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/pki/policyBinding.yaml
 vaultpolicybinding.policy.kubevault.com/pki-admin-role created
 
@@ -287,7 +287,7 @@ To resolve the naming conflict, name of the policy and role in Vault will follow
 
 List Vault policies and Kubernetes auth roles:
 
-```console
+```bash
 $ vault list sys/policy
 Keys
 ----
@@ -342,7 +342,7 @@ So, we can see that the `pki-policy` is added to the `pki-admin-role`.
 
 Now, login to the Vault using `pki-admin`'s JWT token under `pki-admin-role` role.
 
-```console
+```bash
 $ vault write auth/kubernetes/login \
                        role=k8s.-.demo.pki-admin-role \
                        jwt=eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZW1vIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6InBraS1hZG1pbi10b2tlbi0yNmt3YiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJwa2ktYWRtaW4iLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiJkYmVkZDQ2Ni0yYzc0LTQ0OGItOTBlZS01MDlkNGI4MTJjOTEiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6ZGVtbzpwa2ktYWRtaW4ifQ.ce7OqA05nsfBMRsEOiG1Lje_mOBdUZRKALB9Sc9LVqjKIJZHdxvZ7NT4ZKrIyPEe02aItzxlXLAP4Fa8dUMshZuNyuxBYN7p2qHRCwVKHqOuz8LdRQWypKiLozL9v0DHk-vbFWFcm0eye57vJBFtriYyYRUA84WZhxRb9wz-f8z7PSmO2mpjkrICt7wi48j-4FObdhFWk6HAKXFD7bCzL4j3CWUcx2wTIsnOEz9SifjYZuGaog6tpWhnj-guEKpXJzBLAoMBU0Vr3U7Zv_z1qvKFF4ZherUBxSOMo27lL2xbhkpbW2wf_DCAjLx8pScoh9mxv7AK2WJCHeA0JRzrug
@@ -365,7 +365,7 @@ token_meta_service_account_uid            dbedd466-2c74-448b-90ee-509d4b812c91
 
 Export the new Vault token as an environment variable:
 
-```console
+```bash
 export VAULT_TOKEN=s.ZPu4zcyaajjpxtS1t8fnh2LV
 ```
 
@@ -373,21 +373,21 @@ Now generate a new certificate using the PKI secret engine:
 
 Enable the PKI secrets engine:
 
-```console
+```bash
 $ vault secrets enable pki
 Success! Enabled the pki secrets engine at: pki/
 ```
 
 Increase the TTL by tuning the secrets engine. The default value of 30 days may be too short, so increase it to 1 year:
 
-```console
+```bash
 $ vault secrets tune -max-lease-ttl=8760h pki
 Success! Tuned the secrets engine at: pki/
 ```
 
 Configure a CA certificate and private key:
 
-```console
+```bash
 $ vault write pki/root/generate/internal \
                           common_name=my-website.com \
                           ttl=8760h
@@ -411,7 +411,7 @@ serial_number    10:39:a7:02:60:b4:b2:22:12:96:b7:b3:0f:7f:c2:79:45:d3:49:fb
 
 Configure a role that maps a name in Vault to a procedure for generating a certificate. When users or machines generate credentials, they are generated against this role:
 
-```console
+```bash
 $ vault write pki/roles/example-dot-com \
                           allowed_domains=my-website.com \
                           allow_subdomains=true \
@@ -421,7 +421,7 @@ Success! Data written to: pki/roles/example-dot-com
 
 Generate a new credential by writing to the /issue endpoint with the name of the role:
 
-```console
+```bash
 $ vault write pki/issue/example-dot-com \
                         common_name=www.my-website.com
 Key                 Value

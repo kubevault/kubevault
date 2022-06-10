@@ -25,7 +25,7 @@ You can read more about the Kubernetes Secrets Store CSI Driver [here](https://s
 ## Consuming Secrets
 At first, you need to have a Kubernetes 1.16 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
-```console
+```bash
 $ kubectl version --short
 Client Version: v1.21.2
 Server Version: v1.21.1
@@ -39,7 +39,7 @@ Before you begin:
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
-```console
+```bash
 $ kubectl create ns demo
 namespace/demo created
 ```
@@ -58,7 +58,7 @@ The KubeVault operator can manage policies and secret engines of Vault servers w
 
 Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server. And we also have the service account that the Vault server can authenticate.
 
-```console
+```bash
 $ kubectl get appbinding -n demo
 NAME    AGE
 vault   50m
@@ -111,7 +111,7 @@ We will use the [Vault CLI](https://www.vaultproject.io/docs/commands/#vault-com
 
 Enable the KV secret engine:
 
-```console
+```bash
 $ vault secrets enable -path=secret kv
 Success! Enabled the kv secrets engine at: secret/
 ```
@@ -120,7 +120,7 @@ Success! Enabled the kv secrets engine at: secret/
 
 Write arbitrary key-value pairs:
 
-```console
+```bash
 $ vault kv put secret/db-pass password="db-secret-password"
 Success! Data written to: secret/db-pass
 ```
@@ -129,7 +129,7 @@ Success! Data written to: secret/db-pass
 
 Read a specific key-value pair:
 
-```console
+```bash
 $ vault kv get secret/db-pass
 ====== Data ======
 Key         Value
@@ -150,7 +150,7 @@ metadata:
   namespace: demo
 ```
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/kv/serviceaccount.yaml
 serviceaccount/pod-sa created
 
@@ -196,7 +196,7 @@ spec:
 
 Let's create VaultPolicy and VaultPolicyBinding:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/kv/policy.yaml
 vaultpolicy.policy.kubevault.com/kv-se-policy created
 
@@ -206,7 +206,7 @@ vaultpolicybinding.policy.kubevault.com/kv-se-role created
 
 Check if the VaultPolicy and the VaultPolicyBinding are successfully registered to the Vault server:
 
-```console
+```bash
 $ kubectl get vaultpolicy -n demo
 NAME                           STATUS    AGE
 kv-se-policy                  Success   8s
@@ -241,7 +241,7 @@ spec:
         secretKey: "password"
 ```
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/kv/secretproviderclass.yaml
 secretproviderclass.secrets-store.csi.x-k8s.io/vault-database created
 ```
@@ -275,7 +275,7 @@ spec:
           secretProviderClass: "vault-database"
 ```
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/kv/pod.yaml
 pod/mypod created
 ```
@@ -283,7 +283,7 @@ pod/mypod created
 
 Check if the Pod is running successfully, by running:
 
-```console
+```bash
 $ kubectl get pods -n demo
 NAME                    READY   STATUS    RESTARTS   AGE
 mypod                   1/1     Running   0          11s
@@ -293,7 +293,7 @@ mypod                   1/1     Running   0          11s
 
 If the Pod is running successfully, then check inside the app container by running
 
-```console
+```bash
 $ kubectl exec -it -n demo  mypod sh
 / # ls /secrets-store/test
 db-password
@@ -310,7 +310,7 @@ So, we can see that the secret `db-password` is mounted into the pod, where the 
 
 To clean up the Kubernetes resources created by this tutorial, run:
 
-```console
+```bash
 $ kubectl delete ns demo
 namespace "demo" deleted
 ```

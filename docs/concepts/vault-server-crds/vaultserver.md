@@ -29,7 +29,7 @@ Like any official Kubernetes resource, a `VaultServer` object has `TypeMeta`, `O
 A sample `VaultServer` object is shown below:
 
 ```yaml
-apiVersion: kubevault.com/v1alpha1
+apiVersion: kubevault.com/v1alpha2
 kind: VaultServer
 metadata:
   name: vault
@@ -45,11 +45,10 @@ spec:
       from: All
     secretEngines:
       - mysql
-  version: 1.8.2
+  version: 1.10.3
   replicas: 3
   backend:
     raft:
-      path: "/vault/data"
       storage:
         storageClassName: "standard"
         resources:
@@ -92,7 +91,7 @@ Specifies the name of the `VaultServerVersion` CRD. This CRD holds the image nam
 
 ```yaml
 spec:
-  version: "1.7.2"
+  version: "1.10.3"
 ```
 
 #### spec.tls
@@ -187,7 +186,7 @@ List of supported backends:
 
 #### spec.unsealer
 
-`spec.unsealer` is an optional field that specifies [Unsealer](https://github.com/kubevault/unsealer) configuration. Unsealer handles automatic initializing and unsealing of Vault. See [here](/docs/concepts/vault-server-crds/unsealer/unsealer.md) for Unsealer documentation.
+`spec.unsealer` is an optional field that specifies [Unsealer](https://github.com/kubevault/unsealer) configuration. Unsealer handles automatic initializing and unsealing of Vault. See [here](/docs/concepts/vault-server-crds/unsealer/overview.md) for Unsealer documentation.
 
 ```yaml
 spec:

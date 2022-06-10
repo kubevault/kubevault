@@ -28,12 +28,12 @@ The KubeVault operator uses an [AppBinding](/docs/concepts/vault-server-crds/aut
 - The additional information required for the GCP IAM authentication method can be provided as AppBinding's `spec.parameters`.
   
   ```yaml
-  spec:
-    parameters:
-      apiVersion: config.kubevault.com/v1alpha1
-      kind: VaultServerConfiguration
-      path: my-gcp
-      vaultRole: demo-role
+    spec:
+      parameters:
+        apiVersion: config.kubevault.com/v1alpha1
+        kind: VaultServerConfiguration
+        path: my-gcp
+        vaultRole: demo-role
   ```
 
   - `path` : `optional`. Specifies the path where GCP auth is enabled in Vault. If this path is not provided, the path will be set by default path `gcp`.

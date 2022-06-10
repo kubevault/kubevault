@@ -25,7 +25,7 @@ You can read more about the Kubernetes Secrets Store CSI Driver [here](https://s
 ## Consuming Secrets
 At first, you need to have a Kubernetes 1.16 or later cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/). To check the version of your cluster, run:
 
-```console
+```bash
 $ kubectl version --short
 Client Version: v1.21.2
 Server Version: v1.21.1
@@ -38,7 +38,7 @@ Before you begin:
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
-```console
+```bash
 $ kubectl create ns demo
 namespace/demo created
 ```
@@ -57,7 +57,7 @@ The KubeVault operator can manage policies and secret engines of Vault servers w
 
 Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server. And we also have the service account that the Vault server can authenticate.
 
-```console
+```bash
 $ kubectl get appbinding -n demo
 NAME    AGE
 vault   50m
@@ -112,14 +112,14 @@ To use secret from `PKI` secret engine, you have to perform the following steps.
 
 To enable `PKI` secret engine run the following command.
 
-```console
+```bash
 $ vault secrets enable pki
 Success! Enabled the pki secrets engine at: pki/
 ```
 
 Increase the TTL by tuning the secrets engine. The default value of 30 days may be too short, so increase it to 1 year:
 
-```console
+```bash
 $ vault secrets tune -max-lease-ttl=8760h pki
 Success! Tuned the secrets engine at: pki/
 ```
@@ -128,7 +128,7 @@ Success! Tuned the secrets engine at: pki/
 
 Configure a CA certificate and private key. Vault can accept an existing key pair, or it can generate its own self-signed root.
 
-```console
+```bash
 $ vault write pki/root/generate/internal \
                           common_name=my-website.com \
                           ttl=8760h
@@ -154,7 +154,7 @@ serial_number    10:39:a7:02:60:b4:b2:22:12:96:b7:b3:0f:7f:c2:79:45:d3:49:fb
 
 We need to configure a role that maps a name in vault to a procedure for generating certificate. When users of machines generate credentials, they are generated agains this role:
 
-```console
+```bash
 $ vault write pki/roles/example-dot-com \
                           allowed_domains=my-website.com \
                           allow_subdomains=true \
@@ -173,7 +173,7 @@ metadata:
   namespace: demo
 ```
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/pki/serviceaccount.yaml
 serviceaccount/test-user-account created
 
@@ -219,7 +219,7 @@ spec:
 
 Let's create VaultPolicy and VaultPolicyBinding:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/pki/policy.yaml
 vaultpolicy.policy.kubevault.com/pki-se-policy created
 
@@ -229,7 +229,7 @@ vaultpolicybinding.policy.kubevault.com/pki-se-role created
 
 Check if the VaultPolicy and the VaultPolicyBinding are successfully registered to the Vault server:
 
-```console
+```bash
 $ kubectl get vaultpolicy -n demo
 NAME                           STATUS    AGE
 pki-se-policy                  Success   8s
@@ -292,7 +292,7 @@ spec:
         method: "POST"
 ```
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/pki/secretproviderclass.yaml
 secretproviderclass.secrets-store.csi.x-k8s.io/vault-db-provider created
 ```
@@ -348,7 +348,7 @@ spec:
           secretProviderClass: "vault-db-provider"
 ```
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/pki/pod.yaml
 pod/demo-app created
 ```
@@ -357,7 +357,7 @@ pod/demo-app created
 
 Check if the Pod is running successfully, by running:
 
-```console
+```bash
 $ kubectl get pods -n demo
 NAME                       READY   STATUS    RESTARTS   AGE
 demo-app                   1/1     Running   0          11s
@@ -367,7 +367,7 @@ demo-app                   1/1     Running   0          11s
 
 If the Pod is running successfully, then check inside the app container by running
 
-```console
+```bash
 $ kubectl exec -it -n test pod/demo-app -- /bin/sh
 
 / # ls /secrets-store/pki-assets
@@ -389,7 +389,7 @@ aZ5wuSTYEpqOuP6G1tOdhiE7iptFu9Wg9dKtmXkZnc0iTBL60xMUUapH
 
 To clean up the Kubernetes resources created by this tutorial, run:
 
-```console
+```bash
 $ kubectl delete ns demo
 namespace "demo" deleted
 
