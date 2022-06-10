@@ -29,7 +29,7 @@ Like any official Kubernetes resource, a `VaultServer` object has `TypeMeta`, `O
 A sample `VaultServer` object is shown below:
 
 ```yaml
-apiVersion: kubevault.com/v1alpha2
+apiVersion: kubevault.com/v1alpha1
 kind: VaultServer
 metadata:
   name: vault
@@ -45,10 +45,11 @@ spec:
       from: All
     secretEngines:
       - mysql
-  version: 1.10.3
+  version: 1.8.2
   replicas: 3
   backend:
     raft:
+      path: "/vault/data"
       storage:
         storageClassName: "standard"
         resources:
