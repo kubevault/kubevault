@@ -4,7 +4,7 @@ menu:
   docs_{{ .version }}:
     identifier: auth-method
     name: Auth Method
-    parent: auth-method-guides
+    parent: vault-server-guides
     weight: 20
 menu_name: docs_{{ .version }}
 section_menu_id: guides
