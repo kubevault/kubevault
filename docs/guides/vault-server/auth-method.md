@@ -14,7 +14,7 @@ section_menu_id: guides
 
 In this tutorial, we'll see how we can enable, configure `JWT/OIDC` auth method & use it to authenticate to `VaultServer` using `KubeVault`.  
 
-> Before jumping in, an `OIDC Provider` must be configured. An `Auth0` has already been configured application for this tutorial purpose. Application `Domain`, `Client ID`, `Client Secret`, `Allowed Callback URLs` must be properly set from the provider side.
+> Before jumping in, an `OIDC Provider` must be configured. An `Auth0` application has already been configured for this tutorial purpose. Application `Domain`, `Client ID`, `Client Secret`, `Allowed Callback URLs`, etc. must be properly set from the provider side.
 
 ## Deploy VaultServer, Enable & Configure Auth Methods
 
@@ -214,6 +214,6 @@ vaultpolicybinding.policy.kubevault.com/reader-role created
 
 When a `VaultPolicyBinding` is created, `KubeVault` will create a role which can be used to Login to the `Vault`. A Vault role `vaultRoleName: k8s.kubevault.com.demo.reader-role` will be created in our case.
 
-Now, we can port-forward from `Vault` & Login using the `Vault UI` using this role & the authentication method.
+Now, we can port-forward from `Vault` & Login using the `Vault UI` with this role & the authentication method.
 
-![Login](/docs/images/guides/vault-server/vault-log-in.jpg)
+![Login](/docs/images/guides/vault-server/vault-login.jpg)
