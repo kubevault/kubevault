@@ -25,3 +25,4 @@ The KubeVault operator uses an [AppBinding](/docs/concepts/vault-server-crds/aut
 - [Userpass Auth Method](/docs/concepts/vault-server-crds/auth-methods/userpass.md)
 - [GCP IAM Auth Method](/docs/concepts/vault-server-crds/auth-methods/gcp-iam.md)
 - [Azure Auth Method](/docs/concepts/vault-server-crds/auth-methods/azure.md)
+- [JWT/OIDC Auth Method](/docs/concepts/vault-server-crds/auth-methods/jwt-oidc.md)
