@@ -77,7 +77,7 @@ issuer.cert-manager.io/vault-issuer created
 Here, our issuer `vault-issuer`  is ready to deploy a `VaultServer` Cluster with TLS/SSL configuration. Below is the YAML for VaultServer that we are going to create,
 
 ```yaml
-apiVersion: kubevault.com/v1alpha1
+apiVersion: kubevault.com/v1alpha2
 kind: VaultServer
 metadata:
   name: vault
@@ -93,11 +93,10 @@ spec:
       from: All
     secretEngines:
       - mysql
-  version: 1.8.2
+  version: 1.10.3
   replicas: 3
   backend:
     raft:
-      path: "/vault/data"
       storage:
         storageClassName: "standard"
         resources:
