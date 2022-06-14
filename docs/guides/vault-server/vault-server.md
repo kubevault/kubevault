@@ -44,10 +44,18 @@ the Vault image tag its using. You can list them by using the following command:
 
 ```bash
 $ kubectl get vaultserverversions
-NAME    VERSION   VAULT_IMAGE   DEPRECATED   AGE
-1.2.0   1.2.0     vault:1.2.0   false        38s
-1.2.2   1.2.2     vault:1.2.2   false        38s
-1.2.3   1.2.3     vault:1.2.3   false        38s
+NAME    VERSION   VAULT_IMAGE     DEPRECATED     AGE
+0.11.5   0.11.5    vault:0.11.5   false          3h26m
+1.10.3   1.10.3    vault:1.10.3   false          3h26m
+1.2.0    1.2.0     vault:1.2.0    false          3h26m
+1.2.2    1.2.2     vault:1.2.2    false          3h26m
+1.2.3    1.2.3     vault:1.2.3    false          3h26m
+1.5.9    1.5.9     vault:1.5.9    false          3h26m
+1.6.5    1.6.5     vault:1.6.5    false          3h26m
+1.7.2    1.7.2     vault:1.7.2    false          3h26m
+1.7.3    1.7.3     vault:1.7.3    false          3h26m
+1.8.2    1.8.2     vault:1.8.2    false          3h26m
+1.9.2    1.9.2     vault:1.9.2    false          3h26m
 ```
 
 Now you can use them or deploy your own version by yourself:
@@ -56,22 +64,22 @@ Now you can use them or deploy your own version by yourself:
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: 1.2.2
+  name: 1.10.3
 spec:
   exporter:
-    image: kubevault/vault-exporter:v0.1.0
+    image: kubevault/vault-exporter:v0.1.1
   unsealer:
-    image: kubevault/vault-unsealer:v0.3.0
+    image: kubevault/vault-unsealer:v0.8.0
   vault:
-    image: vault:1.2.2
-  version: 1.2.2
+    image: vault:1.10.3
+  version: 1.10.3
 ```
 
-Deploy VaultServerVersion `1.2.1`:
+Deploy VaultServerVersion `1.10.3`:
 
 ```bash
 $ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/guides/vault-server/vaultserverversion.yaml
-vaultserverversion.catalog.kubevault.com/1.2.1 created
+vaultserverversion.catalog.kubevault.com/1.10.3 created
 ```
 
 ### Deploy VaultServer
@@ -79,14 +87,14 @@ vaultserverversion.catalog.kubevault.com/1.2.1 created
 Once you have deployed VaultServerVersion, you are ready to deploy VaultServer.
 
 ```yaml
-apiVersion: kubevault.com/v1alpha1
+apiVersion: kubevault.com/v1alpha2
 kind: VaultServer
 metadata:
   name: vault
   namespace: demo
 spec:
   replicas: 1
-  version: "1.2.3"
+  version: 1.10.3
   serviceTemplates:
   - alias: vault
     metadata:
@@ -118,13 +126,13 @@ Check VaultServer status:
 ```bash
 $ kubectl get vaultserver -n demo
 NAME    NODES   VERSION   STATUS       AGE
-vault   1       1.2.3     Processing   47s
+vault   1       1.10.3     Processing   47s
 $ kubectl get vaultserver -n demo
 NAME    NODES   VERSION   STATUS   AGE
-vault   1       1.2.3     Sealed   54s
+vault   1       1.10.3     Sealed   54s
 $ kubectl get vaultserver -n demo
 NAME    NODES   VERSION   STATUS    AGE
-vault   1       1.2.3     Running   68s
+vault   1       1.10.3     Running   68s
 ```
 
 Since the status is `Running` that means you have deployed the Vault server successfully. Now, you are ready to use with this Vault server.
