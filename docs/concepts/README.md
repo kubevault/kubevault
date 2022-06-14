@@ -80,7 +80,6 @@ The `storage backend` represents the location for the durable storage of Vault's
 - [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
 - [Consul](/docs/concepts/vault-server-crds/storage/consul.md)
 - [Raft](/docs/concepts/vault-server-crds/storage/raft.md)
-- [File - TODO]()
 
 ### Authentication Methods for Vault Server
 `Auth methods` are the components in Vault that perform authentication and are responsible for assigning identity and a set of policies to a user. In all cases, Vault will enforce authentication as part of the request processing. In most cases, Vault will delegate the authentication administration and decision to the relevant configured external auth method (e.g., Amazon Web Services, GitHub, Google Cloud Platform, Kubernetes, Microsoft Azure, Okta ...).
@@ -96,7 +95,7 @@ Introduces to various `Authentication methods` supported by `KubeVault`.
 - [Userpass Auth Method](/docs/concepts/vault-server-crds/auth-methods/userpass.md)
 - [GCP IAM Auth Method](/docs/concepts/vault-server-crds/auth-methods/gcp-iam.md)
 - [Azure Auth Method](/docs/concepts/vault-server-crds/auth-methods/azure.md)
-- [Service Account - TODO]()
+- [JWT/OIDC Auth Method](/docs/concepts/vault-server-crds/auth-methods/jwt-oidc.md)
 
 </div>
 <div class="tab-pane fade" id="secret-engine" role="tabpanel" aria-labelledby="secret-engine-tab">
