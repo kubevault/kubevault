@@ -55,4 +55,18 @@ status:
 
 ```
 
-So, this is how `JWT/OIDC` authentication method could be enabled & configured with `KubeVault`. For a step-by-step guide see [this](/docs/guides/vault-server/auth-method.md).
+We can verify it using the `Vault CLI`:
+
+```bash
+$ vault auth list
+
+Path           Type          Accessor                    Description
+----           ----          --------                    -----------
+jwt/           jwt           auth_jwt_ba23cc30           n/a
+kubernetes/    kubernetes    auth_kubernetes_40fd86fd    n/a
+token/         token         auth_token_950c8b80         token based credentials
+```
+
+So, this is how `JWT/OIDC` authentication method could be enabled & configured with `KubeVault`. 
+
+> For a step-by-step guide on JWT/OIDC authentication method, see [this](/docs/guides/vault-server/auth-method.md).
