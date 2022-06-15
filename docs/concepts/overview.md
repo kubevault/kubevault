@@ -29,7 +29,7 @@ KubeVault operator makes it easy to deploy, maintain and manage Vault servers in
 - Enable & Configure [Secret Engines](https://kubevault.com/docs/v2022.02.22/concepts/secret-engine-crds/secretengine/)
 - Create & Configure [Vault Roles](https://kubevault.com/docs/v2022.02.22/concepts/secret-engine-crds/gcp-secret-engine/gcprole/)
 - Manage [Vault Policy](https://kubevault.com/docs/v2022.02.22/concepts/policy-crds/vaultpolicy/) & [Vault Policy Binding](https://kubevault.com/docs/v2022.02.22/concepts/policy-crds/vaultpolicybinding/)
-- Manage user privileges using [SecretAccessRequest](https://kubevault.com/docs/v2022.02.22/concepts/secret-engine-crds/secret-access-request/)
+- Manage user privileges using [SecretAccessRequest](/docs/concepts/secret-engine-crds/secret-access-request.md)
 - Manage user privileges using [SecretRoleBinding](https://kubevault.com/docs/v2022.02.22/concepts/secret-engine-crds/secret-role-binding/)
 - Inject Vault secrets into K8s resources
 - Automate tedious operations using [KubeVault CLI](https://kubevault.com/docs/v2022.02.22/reference/cli/)
