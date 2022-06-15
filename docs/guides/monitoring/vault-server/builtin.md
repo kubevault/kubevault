@@ -71,7 +71,7 @@ data:
 
 You can create above ConfigMap by running
 
-```console
+```bash
 $ kubectl create -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/prom-server-conf.yaml
 configmap/prometheus-server-conf created
 ```
@@ -126,14 +126,14 @@ Here,
 
 Run the following command to create it.
 
-```console
+```bash
 $ kubectl create -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/vault-server-builtin.yaml
 vaultserver.kubevault.com/example created
 ```
 
 KubeVault operator will configure its service once the Vault server is successfully running.
 
-```console
+```bash
 $ kubectl get vs -n demo
 NAME      NODES     VERSION   STATUS    AGE
 example   1         0.11.1    Running   3h
@@ -141,7 +141,7 @@ example   1         0.11.1    Running   3h
 
 Let's describe Service `example-stats`
 
-```console
+```bash
 $ kubectl get svc -n demo example -o yaml
 apiVersion: v1
 kind: Service
@@ -197,7 +197,7 @@ status:
 
 You can see that the service contains following annotations.
 
-```console
+```bash
 monitoring.appscode.com/agent: prometheus.io/builtin
 prometheus.io/path: /metrics
 prometheus.io/port: "9102"
@@ -216,7 +216,7 @@ The Prometheus server will discover the Vault service endpoint and will scrape m
 
 To cleanup the Kubernetes resources created by this tutorial, run:
 
-```console
+```bash
 $ kubectl delete -n demo vs/example
 $ kubectl delete ns demo
 ```

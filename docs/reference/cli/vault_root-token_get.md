@@ -10,11 +10,11 @@ section_menu_id: reference
 ---
 ## vault root-token get
 
-get vault root-token
+`get` vault root-token
 
 ### Synopsis
 
-
+```bash
 $ kubectl vault root-token get vaultserver <name> -n <namespace> [flags]
 
 Examples:
@@ -26,7 +26,7 @@ Examples:
 
  # pass the --token-name flag to get only the decrypted root-token value with a specific token name
  $ kubectl vault root-token get vaultserver vault -n demo --token-name <token-name> --value-only
-
+```
 
 ```
 vault root-token get [flags]

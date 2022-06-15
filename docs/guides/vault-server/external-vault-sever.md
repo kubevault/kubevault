@@ -24,7 +24,7 @@ using [VaultPolicy CRD](/docs/concepts/policy-crds/vaultpolicy.md) in Vault to c
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
-```console
+```bash
 $ kubectl create ns demo
 namespace/demo created
 ```
@@ -66,7 +66,7 @@ The [Kubernetes auth method](https://www.vaultproject.io/docs/auth/kubernetes.ht
 
 Let's name token reviewer service account as `token-reviewer` and create it:
 
-```console
+```bash
 $ kubectl create serviceaccount -n demo token-reviewer
 serviceaccount/token-reviewer created
 ```
@@ -90,14 +90,14 @@ subjects:
 
 Create `ClusterRoleBinding`:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/vault-server/clusterRoleBinding.yaml
 clusterrolebinding.rbac.authorization.k8s.io/role-tokenreview-binding created
 ```
 
 Get the service account JWT token which will be used while configuring Vault:
 
-```console
+```bash
 $ kubectl get secrets -n demo token-reviewer-token-s9hrs -o=jsonpath='{.data.token}' | base64 -d
 eyJhbGciOiJSUzI1NiIsImtp...
 ```
@@ -109,7 +109,7 @@ perform authentication.
 
 Let's name the service account `vault` and create it:
 
-```console
+```bash
 $ kubectl create serviceaccount -n demo vault
 serviceaccount/vault created
 ```
@@ -155,7 +155,7 @@ spec:
 
 Create AppBinding:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/vault-server/appBinding.yaml
 appbinding.appcatalog.appscode.com/vault created
 ```
@@ -169,7 +169,7 @@ We will use Vault CLI to configure Vault.
 
     Create `vault.hcl` file:
 
-    ```hcl
+```hcl
     path "sys/mounts" {
       capabilities = ["read", "list"]
     }
@@ -197,45 +197,45 @@ We will use Vault CLI to configure Vault.
     path "auth/kubernetes/role/*" {
         capabilities = ["create", "update", "read", "delete", "list"]
     }
-    ```
+```
 
     Create vault policy:
 
-    ```console
-    $ vault policy write vault-policy examples/guides/vault-server/vault.hcl
-    Success! Uploaded policy: vault-policy
-    ```
+```bash
+$ vault policy write vault-policy examples/guides/vault-server/vault.hcl
+Success! Uploaded policy: vault-policy
+```
 
     List policies to check:
 
-    ```console
-    $ vault list sys/policy
-    Keys
-    ----
-    default
-    root
-    vault-policy
-    ```
+```bash
+$ vault list sys/policy
+Keys
+----
+default
+root
+vault-policy
+```
 
 2. Enable and configure the Kubernetes auth method (if not already enabled). For more details visit Vault
     [official doc](https://www.vaultproject.io/docs/auth/kubernetes.html#configuration).
 
     Enable Kubernetes auth:
 
-    ```console
-    $ vault auth enable kubernetes
-    Success! Enabled kubernetes auth method at: kubernetes/
-    ```
+```bash
+$ vault auth enable kubernetes
+Success! Enabled kubernetes auth method at: kubernetes/
+```
 
     Configure Kubernetes auth with `token-reviewer` service account JWT token:
 
-    ```console
-    $ vault write auth/kubernetes/config \
-         token_reviewer_jwt="eyJhbGciOiJSUzI1N..." \
-         kubernetes_host=https://127.0.0.1:40969\
-         kubernetes_ca_cert=@examples/guides/vault-server/ca.crt
-    Success! Data written to: auth/kubernetes/config
-    ```
+```bash
+$ vault write auth/kubernetes/config \
+     token_reviewer_jwt="eyJhbGciOiJSUzI1N..." \
+     kubernetes_host=https://127.0.0.1:40969\
+     kubernetes_ca_cert=@examples/guides/vault-server/ca.crt
+Success! Data written to: auth/kubernetes/config
+```
 
     You can find `kubernetes_host` and `kubernetes_ca_cert` in your cluster's `kubeconfig` file.
 
@@ -245,14 +245,14 @@ We will use Vault CLI to configure Vault.
 
    Create Kubernetes auth method role:
 
-   ```console
-   $ vault write auth/kubernetes/role/vault-role \
-           bound_service_account_names=vault \
-           bound_service_account_namespaces=demo \
-           policies=vault-policy \
-           ttl=1h
-    Success! Data written to: auth/kubernetes/role/vault-role
-    ```
+```bash
+$ vault write auth/kubernetes/role/vault-role \
+       bound_service_account_names=vault \
+       bound_service_account_namespaces=demo \
+       policies=vault-policy \
+       ttl=1h
+Success! Data written to: auth/kubernetes/role/vault-role
+```
 
 ## Testing
 
@@ -280,14 +280,14 @@ spec:
 
 ```
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/vault-server/secret-policy.yaml
 vaultpolicy.policy.kubevault.com/secret-admin created
 ```
 
 Now you can check from Vault:
 
-```console
+```bash
 $ vault list sys/policy
 Keys
 ----
@@ -301,7 +301,7 @@ So, we can see, `secret-admin` policy is already on the list.
 
 Now delete the VaultPolicy crd:
 
-```console
+```bash
 $ kubectl delete vaultpolicy secret-admin -n demo
 vaultpolicy.policy.kubevault.com "secret-admin" deleted
 ````
@@ -310,7 +310,7 @@ Deleting VaultPolicy crd will also delete the policy from Vault.
 
 Updated list:
 
-```console
+```bash
 $ vault list sys/policy
 Keys
 ----

@@ -76,21 +76,12 @@ PostgresRole spec has the following fields:
 
 #### spec.secretEngineRef
 
-`spec.secretEngineRef` is a `required` field that specifies the name of an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be on the same namespace with the PostgresRole object.
+`spec.secretEngineRef` is a `required` field that specifies the name of a `SecretEngine`.
 
 ```yaml
 spec:
   secretEngineRef:
     name: pg-secret-engine
-```
-
-#### spec.path
-
-`spec.path` is an `optional` field that specifies the path where the secret engine is enabled. The default value is `database`.
-
-```yaml
-spec:
-  path: my-postgres-path
 ```
 
 #### spec.creationStatements

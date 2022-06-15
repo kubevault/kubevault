@@ -30,7 +30,7 @@ You need to be familiar with the following CRDs:
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
-```console
+```bash
 $ kubectl create ns demo
 namespace/demo created
 ```
@@ -49,7 +49,7 @@ The KubeVault operator can manage policies and secret engines of Vault servers w
 
 Now, we have the [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) that contains connection and authentication information about the Vault server.
 
-```console
+```bash
 $ kubectl get appbinding -n demo
 NAME    AGE
 vault   50m
@@ -130,7 +130,7 @@ data:
 
 Let's deploy SecretEngine:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/aws/secret.yaml
 secret/aws-cred created
 
@@ -140,7 +140,7 @@ secretengine.engine.kubevault.com/aws-secret-engine created
 
 Wait till the status become `Success`:
 
-```console
+```bash
 $ kubectl get secretengines -n demo
 NAME                STATUS
 aws-secret-engine   Success
@@ -179,7 +179,7 @@ spec:
 
 Let's deploy AWSRole:
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/aws/secretenginerole.yaml
 awsrole.engine.kubevault.com/aws-role created
 
@@ -193,7 +193,7 @@ To resolve the naming conflict, name of the role in Vault will follow this forma
 
 > Don't have Vault CLI? Download and configure it as described [here](/docs/guides/vault-server/vault-server.md#enable-vault-cli)
 
-```console
+```bash
 $ vault list your-aws-path/roles
 Keys
 ----
@@ -216,14 +216,14 @@ user_path                   n/a
 
 If we delete the AWSRole, then the respective role will be deleted from the Vault.
 
-```console
+```bash
 $ kubectl delete awsrole -n demo aws-role
 awsrole.engine.kubevault.com "aws-role" deleted
 ```
 
 Check from Vault whether the role exists:
 
-```console
+```bash
 $ vault read your-aws-path/roles/k8s.-.demo.aws-role
 No value found at your-aws-path/roles/k8s.-.demo.aws-role
 
@@ -255,7 +255,7 @@ Here, `spec.roleRef` is the reference of AWSRole against which credentials will 
 
 Now, we are going to create an SecretAccessRequest.
 
-```console
+```bash
 $ kubectl apply -f docs/examples/guides/secret-engines/aws/secretaccessrequest.yaml
 secretaccessrequest.engine.kubevault.com/aws-cred-rqst created
 
@@ -266,7 +266,7 @@ aws-cred-rqst   35s
 
 AWS credentials will not be issued until it is approved. The KubeVault operator will watch for the approval in the `status.conditions[].type` field of the request object. You can use [KubeVault CLI](https://github.com/kubevault/cli), a [kubectl plugin](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/), to approve or deny SecretAccessRequest.
 
-```console
+```bash
 # using KubeVault CLI as kubectl plugin to approve request
 $ kubectl vault approve secretaccessrequest aws-cred-rqst -n demo
   approved
@@ -301,7 +301,7 @@ status:
 
 Once SecretAccessRequest is approved, the KubeVault operator will issue credentials from Vault and create a secret containing the credential. It will also create a role and rolebinding so that `spec.subjects` can access secret. You can view the information in the `status` field.
 
-```console
+```bash
 $ kubectl get secretaccessrequest aws-cred-rqst -n demo -o json | jq '.status'
 {
   "conditions": [
@@ -342,14 +342,14 @@ type: Opaque
 
 If SecretAccessRequest is deleted, then credential lease (if any) will be revoked.
 
-```console
+```bash
 $ kubectl delete secretaccessrequest -n demo aws-cred-rqst
 secretaccessrequest.engine.kubevault.com "aws-cred-rqst" deleted
 ```
 
 If SecretAccessRequest is `Denied`, then the KubeVault operator will not issue any credential.
 
-```console
+```bash
 $ kubectl vault deny secretaccessrequest aws-cred-rqst -n demo
   Denied
 ```

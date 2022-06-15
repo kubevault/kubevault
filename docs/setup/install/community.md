@@ -28,7 +28,7 @@ In this section, we are going to show you how you can get a **1 year** free lice
 - Now, provide your cluster-ID. You can get your cluster ID easily by running the following command:
 
   ```bash
-  $ kubectl get ns kube-system -o=jsonpath='{.metadata.uid}'
+    $ kubectl get ns kube-system -o=jsonpath='{.metadata.uid}'
   ```
 
 - Then, you have to agree with the terms and conditions. We recommend reading it before checking the box.

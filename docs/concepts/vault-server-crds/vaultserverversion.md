@@ -24,15 +24,15 @@ Using a separate CRD for specifying respective docker images allows us to modify
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: '1.2.0'
+  name: '1.10.3'
 spec:
-  version: 1.2.0
+  version: 1.10.3
   exporter:
-    image: kubevault/vault-exporter:v0.1.0
+    image: kubevault/vault-exporter:v0.1.1
   unsealer:
-    image: kubevault/vault-unsealer:v0.3.0
+    image: kubevault/vault-unsealer:v0.8.0
   vault:
-    image: vault:1.2.0
+    image: vault:1.10.3
 ```
 
 ### VaultServerVersion Spec
@@ -43,15 +43,15 @@ VaultServerVersion `.spec` contains image information.
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: '1.7.2'
+  name: '1.10.3'
 spec:
-  version: 1.7.2
+  version: 1.10.3
   exporter:
-    image: kubevault/vault-exporter:v0.1.0
+    image: kubevault/vault-exporter:v0.1.1
   unsealer:
-    image: kubevault/vault-unsealer:v0.3.0
+    image: kubevault/vault-unsealer:v0.8.0
   vault:
-    image: vault:1.7.2
+    image: vault:1.10.3
 ```
 
 `.spec` contains following fields:
@@ -71,7 +71,7 @@ spec:
 ```yaml
 spec:
   vault:
-    image: vault:1.2.0
+    image: vault:1.10.3
 ```
 
 #### spec.unsealer.image
@@ -81,7 +81,7 @@ spec:
 ```yaml
 spec:
   unsealer:
-    image: kubevault/vault-unsealer:0.2.0
+    image: kubevault/vault-unsealer:0.8.0
 ```
 
 #### spec.exporter.image
@@ -91,5 +91,5 @@ spec:
 ```yaml
 spec:
   exporter:
-    image: kubevault/vault-exporter:0.1.0
+    image: kubevault/vault-exporter:0.1.1
 ```

@@ -24,7 +24,7 @@ You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/)
 
 To keep things isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
-```console
+```bash
 $ kubectl create ns demo
 namespace/demo created
 ```
@@ -42,12 +42,20 @@ To start with this tutorial, you need to be familiar with the following CRDs:
 By installing KubeVault operator, you have already deployed some VaultServerVersion crds named after
 the Vault image tag its using. You can list them by using the following command:
 
-```console
+```bash
 $ kubectl get vaultserverversions
-NAME    VERSION   VAULT_IMAGE   DEPRECATED   AGE
-1.2.0   1.2.0     vault:1.2.0   false        38s
-1.2.2   1.2.2     vault:1.2.2   false        38s
-1.2.3   1.2.3     vault:1.2.3   false        38s
+NAME    VERSION   VAULT_IMAGE     DEPRECATED     AGE
+0.11.5   0.11.5    vault:0.11.5   false          3h26m
+1.10.3   1.10.3    vault:1.10.3   false          3h26m
+1.2.0    1.2.0     vault:1.2.0    false          3h26m
+1.2.2    1.2.2     vault:1.2.2    false          3h26m
+1.2.3    1.2.3     vault:1.2.3    false          3h26m
+1.5.9    1.5.9     vault:1.5.9    false          3h26m
+1.6.5    1.6.5     vault:1.6.5    false          3h26m
+1.7.2    1.7.2     vault:1.7.2    false          3h26m
+1.7.3    1.7.3     vault:1.7.3    false          3h26m
+1.8.2    1.8.2     vault:1.8.2    false          3h26m
+1.9.2    1.9.2     vault:1.9.2    false          3h26m
 ```
 
 Now you can use them or deploy your own version by yourself:
@@ -56,22 +64,22 @@ Now you can use them or deploy your own version by yourself:
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: 1.2.2
+  name: 1.10.3
 spec:
   exporter:
-    image: kubevault/vault-exporter:v0.1.0
+    image: kubevault/vault-exporter:v0.1.1
   unsealer:
-    image: kubevault/vault-unsealer:v0.3.0
+    image: kubevault/vault-unsealer:v0.8.0
   vault:
-    image: vault:1.2.2
-  version: 1.2.2
+    image: vault:1.10.3
+  version: 1.10.3
 ```
 
-Deploy VaultServerVersion `1.2.1`:
+Deploy VaultServerVersion `1.10.3`:
 
-```console
+```bash
 $ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/guides/vault-server/vaultserverversion.yaml
-vaultserverversion.catalog.kubevault.com/1.2.1 created
+vaultserverversion.catalog.kubevault.com/1.10.3 created
 ```
 
 ### Deploy VaultServer
@@ -79,14 +87,14 @@ vaultserverversion.catalog.kubevault.com/1.2.1 created
 Once you have deployed VaultServerVersion, you are ready to deploy VaultServer.
 
 ```yaml
-apiVersion: kubevault.com/v1alpha1
+apiVersion: kubevault.com/v1alpha2
 kind: VaultServer
 metadata:
   name: vault
   namespace: demo
 spec:
   replicas: 1
-  version: "1.2.3"
+  version: 1.10.3
   serviceTemplates:
   - alias: vault
     metadata:
@@ -108,23 +116,23 @@ Here we are using `inmem` backend which will lose data when Vault server pods ar
 
 Deploy `VaultServer`:
 
-```console
+```bash
 $ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/guides/vault-server/vaultserver.yaml
 vaultserver.kubevault.com/vault created
 ```
 
 Check VaultServer status:
 
-```console
+```bash
 $ kubectl get vaultserver -n demo
 NAME    NODES   VERSION   STATUS       AGE
-vault   1       1.2.3     Processing   47s
+vault   1       1.10.3     Processing   47s
 $ kubectl get vaultserver -n demo
 NAME    NODES   VERSION   STATUS   AGE
-vault   1       1.2.3     Sealed   54s
+vault   1       1.10.3     Sealed   54s
 $ kubectl get vaultserver -n demo
 NAME    NODES   VERSION   STATUS    AGE
-vault   1       1.2.3     Running   68s
+vault   1       1.10.3     Running   68s
 ```
 
 Since the status is `Running` that means you have deployed the Vault server successfully. Now, you are ready to use with this Vault server.
@@ -133,43 +141,43 @@ On creation of `VaultServer` object, the KubeVault operator performs the followi
 
 - Creates a `deployment` for Vault named after VaultServer crd
 
-    ```console
+  ```bash
     $ kubectl get deployment -n demo
     NAME    READY   UP-TO-DATE   AVAILABLE   AGE
     vault   1/1     1            1           25m
-    ```
+  ```
 
 - Creates a `service` to communicate with vault pod/pods
 
-    ```console
+  ```bash
     $ kubectl get services -n demo
     NAME    TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)                         AGE
     vault   NodePort   10.110.35.39   <none>        8200:32580/TCP,8201:30062/TCP   20m
-    ```
+  ```
 
 - Creates an `AppBinding` that holds connection information for this Vault server.
 
-    ```console
+  ```bash
     $ kubectl get appbindings -n demo
     NAME    AGE
     vault   30m
-    ```
+  ```
 
 - Creates a `ServiceAccount` which will be used by the AppBinding for performing authentication.
 
-    ```console
+  ```bash
     $ kubectl get sa -n demo
     NAME                       SECRETS   AGE
     vault                      1         36m
-    ```
+  ```
 
 - Unseals Vault and stores the Vault root token. For `kubernetesSecret` mode, the operator creates a k8s secret containing root token.
 
-    ```console
+  ```bash
     $ kubectl get secrets -n demo
     NAME                                   TYPE                                  DATA   AGE
     vault-keys                             Opaque                                5      42m
-    ```
+  ```
 
 - Enables `Kubernetes auth method` and creates k8s auth role with Vault policies for the `service account`(here 'vault') on Vault.
 
@@ -181,7 +189,7 @@ If you want to communicate with the Vault servers using [Vault (CLI)](https://ww
 
 Get your desire Vault server pod name:
 
-```console
+```bash
 $ kubectl get pods -n demo -l=app.kubernetes.io/name=vault-operator
 NAME                    READY   STATUS    RESTARTS   AGE
 vault-8679f4cbf-v78cs   3/3     Running   0          93m
@@ -189,7 +197,7 @@ vault-8679f4cbf-v78cs   3/3     Running   0          93m
 
 Perform port-forwarding:
 
-```console
+```bash
 $ kubectl port-forward -n demo pod/vault-8679f4cbf-v78cs 8200
 Forwarding from 127.0.0.1:8200 -> 8200
 Forwarding from [::1]:8200 -> 8200
@@ -200,7 +208,7 @@ Now, you can access the Vault server at `https://localhost:8200`.
 
 Retrieve the Vault server CA certificate from the pod `spec` and save the value from `--vault.ca-cert` to a file named `ca.crt`.
 
-```console
+```bash
 $ kubectl get pods vault-8679f4cbf-v78cs -n demo -o jsonpath='{.spec.containers[?(@.name=="vault-unsealer")].args}'
 [run --v=3 --secret-shares=4 --secret-threshold=2 --vault.ca-cert=-----BEGIN CERTIFICATE-----
 MIICuDCCAaCgAwIBAgIBADANBgkqhkiG9w0BAQsFADANMQswCQYDVQQDEwJjYTAe
@@ -232,7 +240,7 @@ $ kubectl get secrets -n demo vault-vault-tls -o jsonpath="{.data.tls\.key}" | b
 
 List files to check:
 
-```console
+```bash
 $ ls
 ca.crt  tls.crt  tls.key
 ```
@@ -254,7 +262,7 @@ $ export VAULT_CLIENT_KEY=tls.key # put tls.key file directory
 
 Now check whether Vault server can be accessed:
 
-```console
+```bash
 $ vault status
 Key             Value
 ---             -----
@@ -269,7 +277,7 @@ Cluster ID      94fcaedb-0e10-8600-21f5-97339509c60b
 HA Enabled      false
 ```
 
-```console
+```bash
 $ vault list sys/policy
 Keys
 ----

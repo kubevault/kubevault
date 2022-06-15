@@ -23,7 +23,7 @@ If there is no grafana instance running on your cluster, then you can [read this
 
 We have to add our Prometheus server `prometheus-prometheus-0` as data source of grafana. We are going to use a `ClusterIP` service to connect Prometheus server with grafana. Let's create a service to select Prometheus server `prometheus-prometheus-0`,
 
-```console
+```bash
 $ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/monitoring/vault-server/prometheus-service.yaml
 service/prometheus created
 ```
@@ -107,6 +107,6 @@ Once you have imported the dashboard successfully, you will be greeted with dash
 ## Cleanup
 To cleanup the Kubernetes resources created by this tutorial, run:
 
-```console
+```bash
 kubectl delete -n demo service prometheus
 ```

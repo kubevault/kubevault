@@ -74,21 +74,12 @@ GCPRole spec has the following fields:
 
 #### spec.secretEngineRef
 
-`spec.secretEngineRef` is a `required` field that specifies the name of an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference which is used to connect with a Vault server. AppBinding must be on the same namespace with the GCPRole object.
+`spec.secretEngineRef` is a `required` field that specifies the name of a `SecretEngine`.
 
 ```yaml
 spec:
   secretEngineRef:
     name: gcp-secret-engine
-```
-
-#### spec.path
-
-`spec.path` is an `optional` field that specifies the path where the secret engine is enabled. The default path value is `gcp`.
-
-```yaml
-spec:
-  path: my-gcp-path
 ```
 
 #### spec.secretType

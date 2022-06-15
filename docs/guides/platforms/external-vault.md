@@ -46,62 +46,62 @@ Now, we are going to enable and configure [Kubenetes auth](https://www.vaultproj
 
 - Create a service account and cluster role bindings that allow that service account to authenticate with the review token API.
 
-  ```console
-  $ cat docs/examples/guides/provider/external-vault/token-reviewer-sa.yaml
-  apiVersion: v1
-  kind: ServiceAccount
-  metadata:
-    name: token-reviewer
-    namespace: demo
-
-  $ cat docs/examples/guides/provider/external-vault/token-review-binding.yaml
-  apiVersion: rbac.authorization.k8s.io/v1beta1
-  kind: ClusterRoleBinding
-  metadata:
-    name: role-tokenreview-binding
-  roleRef:
-    apiGroup: rbac.authorization.k8s.io
-    kind: ClusterRole
-    name: system:auth-delegator
-  subjects:
-  - kind: ServiceAccount
-    name: token-reviewer
-    namespace: demo⏎
-
-  $ kubectl apply -f docs/examples/guides/provider/external-vault/token-reviewer-sa.yaml
-  serviceaccount/token-reviewer created
-
-  $ kubectl apply -f docs/examples/guides/provider/external-vault/token-review-binding.yaml
-  clusterrolebinding.rbac.authorization.k8s.io/role-tokenreview-binding created
+  ```bash
+    $ cat docs/examples/guides/provider/external-vault/token-reviewer-sa.yaml
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: token-reviewer
+      namespace: demo
+  
+    $ cat docs/examples/guides/provider/external-vault/token-review-binding.yaml
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    kind: ClusterRoleBinding
+    metadata:
+      name: role-tokenreview-binding
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: system:auth-delegator
+    subjects:
+    - kind: ServiceAccount
+      name: token-reviewer
+      namespace: demo
+  
+    $ kubectl apply -f docs/examples/guides/provider/external-vault/token-reviewer-sa.yaml
+    serviceaccount/token-reviewer created
+  
+    $ kubectl apply -f docs/examples/guides/provider/external-vault/token-review-binding.yaml
+    clusterrolebinding.rbac.authorization.k8s.io/role-tokenreview-binding created
   ```
 
 - Enable Kubernetes auth in Vault.
 
-  ```console
-  $ vault auth enable kubernetes
-  Success! Enabled Kubernetes auth method at: kubernetes/
+  ```bash
+    $ vault auth enable kubernetes
+    Success! Enabled Kubernetes auth method at: kubernetes/
   ```
 
 - Configure Kubernetes auth in Vault.
 
-  ```console
-  $ kubectl get sa token-reviewer -n demo -o jsonpath="{.secrets[*]['name']}"
-  token-reviewer-token-fvqsv
-
-  $ export SA_JWT_TOKEN=$(kubectl get secret token-reviewer-token-fvqsv -n demo -o jsonpath="{.data.token}" | base64 --decode; echo)
-
-  $ export SA_CA_CRT=$(kubectl get secret token-reviewer-token-fvqsv -n demo -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
-
-  $ vault write auth/kubernetes/config \
-      token_reviewer_jwt="$SA_JWT_TOKEN" \
-      kubernetes_host="https://192.168.99.100:8443" \
-      kubernetes_ca_cert="$SA_CA_CRT"
-  Success! Data written to: auth/kubernetes/config
+  ```bash
+    $ kubectl get sa token-reviewer -n demo -o jsonpath="{.secrets[*]['name']}"
+    token-reviewer-token-fvqsv
+  
+    $ export SA_JWT_TOKEN=$(kubectl get secret token-reviewer-token-fvqsv -n demo -o jsonpath="{.data.token}" | base64 --decode; echo)
+  
+    $ export SA_CA_CRT=$(kubectl get secret token-reviewer-token-fvqsv -n demo -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
+  
+    $ vault write auth/kubernetes/config \
+        token_reviewer_jwt="$SA_JWT_TOKEN" \
+        kubernetes_host="https://192.168.99.100:8443" \
+        kubernetes_ca_cert="$SA_CA_CRT"
+    Success! Data written to: auth/kubernetes/config
   ```
 
 We are going to create a Vault [policy](https://www.vaultproject.io/docs/concepts/policies.html). It has permission to manage policy and Kubernetes role in Vault.
 
-```console
+```bash
 $ cat docs/examples/guides/provider/external-vault/policy-admin.hcl
 path "sys/policy/*" {
   capabilities = ["create", "update", "read", "delete", "list"]
@@ -125,7 +125,7 @@ Success! Uploaded policy: policy-admin
 
 We are going to assign the above policy to a service account `policy-admin` so that we can use that service account to manage policy and Kubernetes role.
 
-```console
+```bash
 $ cat docs/examples/guides/provider/external-vault/policy-admin-sa.yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -146,7 +146,7 @@ Success! Data written to: auth/kubernetes/role/policy-admin-role
 
 Now, we are going create AppBinding that will contain Vault information. For authentication, service account `policy-admin` and Kubernetes role `policy-admin-role` will be used.
 
-```console
+```bash
 $ cat docs/examples/guides/provider/external-vault/vault-app.yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
@@ -171,7 +171,7 @@ appbinding.appcatalog.appscode.com/vault-app created
 
 If KubeVault operator uses the above AppBinding `vault-app`, then it will have the permission that is given to service account `policy-admin` by `policy-admin-role` role. Now, we are going to create [VaultPolicy](/docs/concepts/policy-crds/vaultpolicy.md) using `vault-app` AppBinding.
 
-```console
+```bash
 $ cat docs/examples/guides/provider/external-vault/demo-policy.yaml
 apiVersion: policy.kubevault.com/v1alpha1
 kind: VaultPolicy
