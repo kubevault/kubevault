@@ -26,13 +26,13 @@ KubeVault operator makes it easy to deploy, maintain and manage Vault servers in
 - Manage Vault Server [TLS using Cert-manager](https://kubevault.com/docs/v2022.02.22/concepts/tls-encryption/overview/)
 - Automate [Initialization & Unseal process of Vault Servers](https://kubevault.com/docs/v2022.02.22/concepts/vault-server-crds/unsealer/unsealer/)
 - Add Durability to Vault's Data using [Storage Backend]()
-- Enable & Configure [Secret Engines](https://kubevault.com/docs/v2022.02.22/concepts/secret-engine-crds/secretengine/)
-- Create & Configure [Vault Roles](https://kubevault.com/docs/v2022.02.22/concepts/secret-engine-crds/gcp-secret-engine/gcprole/)
-- Manage [Vault Policy](https://kubevault.com/docs/v2022.02.22/concepts/policy-crds/vaultpolicy/) & [Vault Policy Binding](https://kubevault.com/docs/v2022.02.22/concepts/policy-crds/vaultpolicybinding/)
+- Enable & Configure [Secret Engines](/docs/concepts/secret-engine-crds/secretengine.md)
+- Create & Configure [Vault Roles](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md)
+- Manage [Vault Policy](/docs/concepts/policy-crds/vaultpolicy.md) & [Vault Policy Binding](/docs/concepts/policy-crds/vaultpolicybinding.md)
 - Manage user privileges using [SecretAccessRequest](/docs/concepts/secret-engine-crds/secret-access-request.md)
-- Manage user privileges using [SecretRoleBinding](https://kubevault.com/docs/v2022.02.22/concepts/secret-engine-crds/secret-role-binding/)
+- Manage user privileges using [SecretRoleBinding](/docs/concepts/secret-engine-crds/secret-role-binding.md)
 - Inject Vault secrets into K8s resources
-- Automate tedious operations using [KubeVault CLI](https://kubevault.com/docs/v2022.02.22/reference/cli/)
+- Automate tedious operations using [KubeVault CLI](/docs/reference/cli)
 - Monitor Vault using Prometheus & Grafana Dashboard
 
 ## Core features
