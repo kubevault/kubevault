@@ -38,7 +38,26 @@ spec:
 
 * `.spec.authMethods.type` is a required field, the type of authentication method we want to enable.
 * `.spec.authMethods.path` is a required field, the path where we want to enable this authentication method.
-* `.spec.authMethods.jwtConfig / .spec.authMethods.oidcConfig` contains various configuration for this authentication method. Details about configuration `parameters` can be found here: [JWT/OIDC Configuration](https://www.vaultproject.io/api-docs/auth/jwt#configure).
+* `.spec.authMethods.jwtConfig / .spec.authMethods.oidcConfig` contains various configuration for this authentication method. Some of the `paramerters` are listed here: 
+  * `defaultLeaseTTL` - The default lease duration, specified as a string duration like "5s" or "30m".
+  * `maxLeaseTTL` - The maximum lease duration, specified as a string duration like "5s" or "30m".
+  * `pluginName` - The name of the plugin in the plugin catalog to use.
+  * `auditNonHMACRequestKeys` - List of keys that will not be HMAC'd by audit devices in the request data object.
+  * `auditNonHMACResponseKeys` - List of keys that will not be HMAC'd by audit devices in the response data object.
+  * `listingVisibility` - Specifies whether to show this mount in the UI-specific listing endpoint.
+  * `passthroughRequestHeaders` - List of headers to whitelist and pass from the request to the backend.
+  * `credentialSecretRef` - K8s Secret reference containing credential related secrets.
+  * `tlsSecretRef` - K8s Secret reference containing tls related secrets.
+  * `oidcDiscoveryURL` - The OIDC Discovery URL, without any .well-known component (base path). Cannot be used with "jwks_url" or "jwt_validation_pubkeys".
+  * `oidcClientID` - The OAuth Client ID from the provider for OIDC roles.
+  * `oidcResponseMode` - The response mode to be used in the OAuth2 request. Allowed values are "query" and "form_post". Defaults to "query". If using Vault namespaces, and oidc_response_mode is "form_post", then "namespace_in_state" should be set to false.
+  * `oidcResponseTypes` - (comma-separated string, or array of strings: <optional>) - The response types to request. Allowed values are "code" and "id_token". Defaults to "code". Note: "id_token" may only be used if "oidc_response_mode" is set to "form_post".
+  * `defaultRole` - The default role to use if none is provided during login.
+  * `providerConfig` - Configuration options for provider-specific handling. Providers with specific handling include: Azure, Google. The options are described in each provider's section in OIDC Provider Setup.
+  * `jwksURL` - JWKS URL to use to authenticate signatures. Cannot be used with "oidc_discovery_url" or "jwt_validation_pubkeys".
+  * `jwtValidationPubkeys` - (comma-separated string, or array of strings: <optional>). A list of PEM-encoded public keys to use to authenticate signatures locally. Cannot be used with "jwks_url" or "oidc_discovery_url".
+  * `jwtSupportedAlgs` - (comma-separated string, or array of strings: <optional>) A list of supported signing algorithms. Defaults to [RS256] for OIDC roles. Defaults to all available algorithms for JWT roles.
+  * `boundIssuer` - The value against which to match the iss claim in a JWT.
 
 After an authentication method is successfully enabled, `KubeVault` operator will configure it with the provided configuration.
 
