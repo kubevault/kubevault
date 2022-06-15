@@ -22,7 +22,7 @@ When a `MariaDBRole` is created, the KubeVault operator creates a
 [role](https://www.vaultproject.io/api/secret/databases/index.html#create-role) according to the specification.
 If the user deletes the `MariaDBRole` CRD, then the respective role will also be deleted from Vault.
 
-![MariaDBRole CRD](/docs/images/concepts/mysql_role.svg)
+![MariaDBRole CRD](/docs/images/concepts/mariadb_role.svg)
 
 ## MariaDBRole CRD Specification
 
@@ -32,7 +32,7 @@ A sample `MariaDBRole` object is shown below:
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
-kind: MySQLRole
+kind: MariaDBRole
 metadata:
   name: mariadb-role
   namespace: demo
