@@ -22,9 +22,9 @@ KubeVault operator is a Kubernetes controller for [HashiCorp Vault](https://www.
 
 KubeVault operator makes it easy to deploy, maintain and manage Vault servers in Kubernetes. It covers automatic initialization and unsealing, and securely stores unseal keys and root tokens in a cloud KMS (Key Management Service) service. It provides the following features:
 
-- Deploy TLS Secured [Vault Server](https://kubevault.com/docs/latest/concepts/vault-server-crds/vaultserver/)
-- Manage Vault Server [TLS using Cert-manager](https://kubevault.com/docs/latest/concepts/tls-encryption/overview/)
-- Automate [Initialization & Unseal process of Vault Servers](https://kubevault.com/docs/latest/concepts/vault-server-crds/unsealer/unsealer/)
+- Deploy TLS Secured [Vault Server](/docs/concepts/vault-server-crds/vaultserver.md)
+- Manage Vault Server [TLS using Cert-manager](/docs/concepts/tls-encryption/overview.md)
+- Automate [Initialization & Unseal process of Vault Servers](/docs/concepts/vault-server-crds/unsealer/overview.md)
 - Add Durability to Vault's Data using [Storage Backend](/docs/concepts/vault-server-crds/storage)
 - Enable & Configure [Secret Engines](/docs/concepts/secret-engine-crds/secretengine.md)
 - Create & Configure [Vault Roles](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md)
