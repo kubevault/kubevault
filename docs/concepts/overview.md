@@ -24,8 +24,8 @@ KubeVault operator makes it easy to deploy, maintain and manage Vault servers in
 
 - Deploy TLS Secured [Vault Server](https://kubevault.com/docs/latest/concepts/vault-server-crds/vaultserver/)
 - Manage Vault Server [TLS using Cert-manager](https://kubevault.com/docs/latest/concepts/tls-encryption/overview/)
-- Automate [Initialization & Unseal process of Vault Servers](https://kubevault.com/docs/v2022.02.22/concepts/vault-server-crds/unsealer/unsealer/)
-- Add Durability to Vault's Data using [Storage Backend]()
+- Automate [Initialization & Unseal process of Vault Servers](https://kubevault.com/docs/v2022.06.16/concepts/vault-server-crds/unsealer/unsealer/)
+- Add Durability to Vault's Data using [Storage Backend](/docs/concepts/vault-server-crds/storage)
 - Enable & Configure [Secret Engines](/docs/concepts/secret-engine-crds/secretengine.md)
 - Create & Configure [Vault Roles](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md)
 - Manage [Vault Policy](/docs/concepts/policy-crds/vaultpolicy.md) & [Vault Policy Binding](/docs/concepts/policy-crds/vaultpolicybinding.md)
