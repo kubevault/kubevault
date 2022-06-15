@@ -82,7 +82,7 @@ The `storage backend` represents the location for the durable storage of Vault's
 - [Raft](/docs/concepts/vault-server-crds/storage/raft.md)
 
 ### Authentication Methods for Vault Server
-`Auth methods` are the components in Vault that perform authentication and are responsible for assigning identity and a set of policies to a user. In all cases, Vault will enforce authentication as part of the request processing. In most cases, Vault will delegate the authentication administration and decision to the relevant configured external auth method (e.g., Amazon Web Services, GitHub, Google Cloud Platform, Kubernetes, Microsoft Azure, Okta ...).
+`Auth methods` are the components in Vault that perform authentication and are responsible for assigning identity and a set of policies to a user. In all cases, Vault will enforce authentication as part of the request processing. In most cases, Vault will delegate the authentication administration and decision to the relevant configured external auth method (e.g., Amazon Web Services, GitHub, Google Cloud Platform, Kubernetes, Microsoft Azure, Okta, JWT/OIDC).
 
 Having multiple auth methods enables you to use an auth method that makes the most sense for your use case of `Vault` and your organization.
 Introduces to various `Authentication methods` supported by `KubeVault`.
