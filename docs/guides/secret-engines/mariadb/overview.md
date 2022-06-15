@@ -35,7 +35,7 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-In this tutorial, we are going to create a [role](https://www.vaultproject.io/docs/secrets/databases/mariadb-maria#setup) using MariaDB and issue credential using SecretAccessRequest.
+In this tutorial, we are going to create a [role](https://www.vaultproject.io/docs/secrets/databases/mysql-maria#setup) using MariaDB and issue credential using SecretAccessRequest.
 
 ## Vault Server
 
