@@ -32,7 +32,7 @@ To uninstall KubeVault Enterprise edition, run the following command:
 In Helm 3, release names are [scoped to a namespace](https://v3.helm.sh/docs/faq/#release-names-are-now-scoped-to-the-namespace). So, provide the namespace you used to install the operator when installing.
 
 ```bash
-$ helm uninstall kubevault-enterprise --namespace kubevault
+$ helm uninstall kubevault --namespace kubevault
 ```
 
 </div>
@@ -43,7 +43,7 @@ $ helm uninstall kubevault-enterprise --namespace kubevault
 If you prefer to not use Helm, you can generate YAMLs from KubeVault chart and uninstall using `kubectl`.
 
 ```bash
-$ helm template kubevault-enterprise appscode/kubevault-operator --namespace kubevault | kubectl delete -f -
+$ helm template kubevault appscode/kubevault-operator --namespace kubevault | kubectl delete -f -
 ```
 
 </div>
