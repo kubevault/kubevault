@@ -10,19 +10,21 @@ section_menu_id: reference
 ---
 ## vault root-token
 
-`get`, `set`, `delete` and `sync` root-token
+get, set, delete, sync, generate, and rotate root-token
 
 ### Synopsis
 
-```bash
-$ kubectl vault root-token [command] [flags] to get, set, delete or sync vault root-token
+
+$ kubectl vault root-token [command] [flags] to get, set, delete, sync, generate, and rotate vault root-token
 
 Examples:
  $ kubectl vault root-token get [flags]
  $ kubectl vault root-token set [flags]
  $ kubectl vault root-token delete [flags]
  $ kubectl vault root-token sync [flags]
-```
+ $ kubectl vault root-token generate [flags]
+ $ kubectl vault root-token rotate [flags]
+
 
 ```
 vault root-token [flags]
@@ -61,7 +63,9 @@ vault root-token [flags]
 
 * [vault](/docs/reference/cli/vault.md)	 - KubeVault cli by AppsCode
 * [vault root-token delete](/docs/reference/cli/vault_root-token_delete.md)	 - delete vault root-token
+* [vault root-token generate](/docs/reference/cli/vault_root-token_generate.md)	 - generate vault root-token
 * [vault root-token get](/docs/reference/cli/vault_root-token_get.md)	 - get vault root-token
+* [vault root-token rotate](/docs/reference/cli/vault_root-token_rotate.md)	 - rotate vault root-token
 * [vault root-token set](/docs/reference/cli/vault_root-token_set.md)	 - set vault root-token
 * [vault root-token sync](/docs/reference/cli/vault_root-token_sync.md)	 - sync vault root-token
 

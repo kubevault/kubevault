@@ -49,8 +49,7 @@ KubeVault cli by AppsCode
 * [vault generate](/docs/reference/cli/vault_generate.md)	 - Generate secretproviderclass
 * [vault merge-secrets](/docs/reference/cli/vault_merge-secrets.md)	 - merge-secrets merges secrets
 * [vault revoke](/docs/reference/cli/vault_revoke.md)	 - Revoke request
-* [vault root-token](/docs/reference/cli/vault_root-token.md)	 - get, set, delete and sync root-token
+* [vault root-token](/docs/reference/cli/vault_root-token.md)	 - get, set, delete, sync, generate, and rotate root-token
 * [vault unseal-key](/docs/reference/cli/vault_unseal-key.md)	 - get, set, delete, list and sync unseal-key
-* [vault merge-secrets](/docs/reference/cli/vault_merge-secrets.md) - merge two secrets
 * [vault version](/docs/reference/cli/vault_version.md)	 - Prints binary version number.
 

@@ -10,11 +10,11 @@ section_menu_id: reference
 ---
 ## vault root-token delete
 
-`delete` vault root-token
+delete vault root-token
 
 ### Synopsis
 
-```bash
+
 $ kubectl vault root-token delete vaultserver <name> -n <namespace> [flags]
 
 Examples:
@@ -24,7 +24,7 @@ Examples:
  # default name for root-token will be used if --token-name flag is not provided
  # default root-token naming format: k8s.{cluster-name or UID}.{vault-namespace}.{vault-name}-root-token
  $ kubectl vault root-token delete vaultserver vault -n demo
-```
+
 
 ```
 vault root-token delete [flags]
@@ -62,5 +62,5 @@ vault root-token delete [flags]
 
 ### SEE ALSO
 
-* [vault root-token](/docs/reference/cli/vault_root-token.md)	 - get, set, delete and sync root-token
+* [vault root-token](/docs/reference/cli/vault_root-token.md)	 - get, set, delete, sync, generate, and rotate root-token
 

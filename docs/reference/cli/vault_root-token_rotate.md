@@ -1,41 +1,36 @@
 ---
-title: Vault Root-Token Set
+title: Vault Root-Token Rotate
 menu:
   docs_{{ .version }}:
-    identifier: vault-root-token-set
-    name: Vault Root-Token Set
+    identifier: vault-root-token-rotate
+    name: Vault Root-Token Rotate
     parent: reference-cli
 menu_name: docs_{{ .version }}
 section_menu_id: reference
 ---
-## vault root-token set
+## vault root-token rotate
 
-set vault root-token
+rotate vault root-token
 
 ### Synopsis
 
 
-$ kubectl vault root-token set vaultserver <name> -n <namespace> [flags]
+# rotate vault root token using the unseal keys
+$ kubectl vault root-token rotate vaultserver <name> -n <namespace> [flags]
 
 Examples:
- # set the root-token with name --token-name flag & value --token-value flag
- $ kubectl vault root-token set vaultserver vault -n demo --token-name <name> --token-value <value>
-
- # default name for root-token will be used if --token-name flag is not provided
- # default root-token naming format: k8s.{cluster-name or UID}.{vault-namespace}.{vault-name}-root-token
- $ kubectl vault root-token set vaultserver vault -n demo --token-value <value>
+ # rotate the vaultserver root-token
+ $ kubectl vault root-token rotate vaultserver vault -n demo
 
 
 ```
-vault root-token set [flags]
+vault root-token rotate [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help                 help for set
-      --token-name string    set token value root-token with token-name.
-      --token-value string   set latest token-name with token-value
+  -h, --help   help for rotate
 ```
 
 ### Options inherited from parent commands
