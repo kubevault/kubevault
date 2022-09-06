@@ -15,10 +15,10 @@ Generate completion script
 ### Synopsis
 
 To load completions:
-```bash
+
 Bash:
 
-  $ source <(kubectl-vault completion bash)
+$ source <(kubectl-vault completion bash)
 
 # To load completions for each session, execute once:
 Linux:
@@ -28,23 +28,23 @@ MacOS:
 
 Zsh:
 
-  # If shell completion is not already enabled in your environment you will need
-  # to enable it.  You can execute the following once:
-  
-  $ echo "autoload -U compinit; compinit" >> ~/.zshrc
-  
-  # To load completions for each session, execute once:
-  $ kubectl-vault completion zsh > "${fpath[1]}/_kubectl-vault"
-  
-  # You will need to start a new shell for this setup to take effect.
+# If shell completion is not already enabled in your environment you will need
+# to enable it.  You can execute the following once:
+
+$ echo "autoload -U compinit; compinit" >> ~/.zshrc
+
+# To load completions for each session, execute once:
+$ kubectl-vault completion zsh > "${fpath[1]}/_kubectl-vault"
+
+# You will need to start a new shell for this setup to take effect.
 
 Fish:
 
-  $ kubectl-vault completion fish | source
-  
-  # To load completions for each session, execute once:
-  $ kubectl-vault completion fish > ~/.config/fish/completions/kubectl-vault.fish
-```
+$ kubectl-vault completion fish | source
+
+# To load completions for each session, execute once:
+$ kubectl-vault completion fish > ~/.config/fish/completions/kubectl-vault.fish
+
 
 ```
 vault completion [bash|zsh|fish|powershell]
