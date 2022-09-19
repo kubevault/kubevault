@@ -1,5 +1,4 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/kubevault/vault-operator.svg)](https://hub.docker.com/r/kubevault/vault-operator/)
-[![Slack](https://shields.io/badge/Join_Slack-salck?color=4A154B&logo=slack)](https://slack.appscode.com)
 [![Twitter](https://img.shields.io/twitter/follow/kubevault.svg?style=social&logo=twitter&label=Follow)](https://twitter.com/intent/follow?screen_name=KubeVault)
 
 # KubeVault
@@ -22,6 +21,6 @@ Want to help improve KubeVault? Please start [here](https://kubevault.com/docs/l
 
 ## Support
 
-We use Slack for public discussions. To chit chat with us or the rest of the community, join us in the [AppsCode Slack team](https://appscode.slack.com/messages/kubevault/) channel `#kubevault`. To sign up, use our [Slack inviter](https://slack.appscode.com/).
+To speak with us, please leave a message on [our website](https://appscode.com/contact/). To receive product announcements, follow us on [Twitter](https://twitter.com/KubeVault).
 
-If you have found a bug with KubeVault or want to request for new features, please [file an issue](https://github.com/kubevault/kubevault/issues/new).
+If you have found a bug with KubeVault or want to request for new features, please [file an issue](https://github.com/kubevault/project/issues/new).
