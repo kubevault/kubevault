@@ -56,5 +56,5 @@ KubeVault works seamlessly with [Secrets Store CSI driver for Kubernetes secrets
 - [Reference](https://secrets-store-csi-driver.sigs.k8s.io/) Kubernetes Secrets Store CSI Driver.
 
 
-> We're always looking for help improving our documentation, so please don't hesitate to [file an issue](https://github.com/kubevault/kubevault/issues/new) if you see some problem. Or better yet, submit your own [contributions](/docs/CONTRIBUTING.md) to help
+> We're always looking for help improving our documentation, so please don't hesitate to [file an issue](https://github.com/kubevault/project/issues/new) if you see some problem. Or better yet, submit your own [contributions](/docs/CONTRIBUTING.md) to help
 make our docs better.
