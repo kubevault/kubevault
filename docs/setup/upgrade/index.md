@@ -135,7 +135,11 @@ Follow the below instructions to update the license:
 #### Using Helm 3
 
 ```bash
-helm upgrade kubevault -n kubevault appscode/kubevault \
+# detect current version
+helm ls -A | grep kubedb
+
+# update license key keeping the current version
+helm upgrade kubevault -n kubevault appscode/kubevault --version=<cur_version> \
   --reuse-values \
   --set-file global.license=/path/to/new/license.txt
 ```
@@ -148,7 +152,11 @@ helm upgrade kubevault -n kubevault appscode/kubevault \
 **Update License of Community Edition:**
 
 ```bash
-helm template kubevault -n kubevault appscode/kubevault \
+# detect current version
+helm ls -A | grep kubedb
+
+# update license key keeping the current version
+helm template kubevault -n kubevault appscode/kubevault --version=<cur_version> \
   --set global.skipCleaner=true \
   --show-only appscode/kubevault-operator/templates/license.yaml \
   --set-file global.license=/path/to/new/license.txt | kubectl apply -f -
@@ -157,7 +165,11 @@ helm template kubevault -n kubevault appscode/kubevault \
 **Update License of Enterprise Edition:**
 
 ```bash
-helm template kubevault appscode/kubevault -n kubevault \
+# detect current version
+helm ls -A | grep kubedb
+
+# update license key keeping the current version
+helm template kubevault appscode/kubevault -n kubevault --version=<cur_version> \
   --set global.skipCleaner=true \
   --show-only appscode/kubevault-operator/templates/license.yaml \
   --set-file global.license=/path/to/new/license.txt | kubectl apply -f -
