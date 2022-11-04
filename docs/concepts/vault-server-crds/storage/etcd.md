@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # Etcd
 
-In Etcd storage backend, Vault data will be stored in [Etcd](https://coreos.com/etcd/). Vault documentation for Etcd storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html).
+In Etcd storage backend, Vault data will be stored in [Etcd](https://etcd.io/). Vault documentation for Etcd storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html).
 
 ```yaml
 apiVersion: kubevault.com/v1alpha1
