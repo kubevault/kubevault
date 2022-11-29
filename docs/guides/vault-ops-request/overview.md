@@ -4,7 +4,7 @@ menu:
   docs_{{ .version }}:
     identifier: overview-vault-ops-request
     name: Overview
-    parent: guides
+    parent: vault-ops-request-guides
     weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: guides
