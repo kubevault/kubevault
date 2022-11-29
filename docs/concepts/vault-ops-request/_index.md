@@ -1,5 +1,5 @@
 ---
-title: Vault Server | Concepts | KubeVault
+title: Vault Ops Request | Concepts | KubeVault
 menu:
   docs_{{ .version }}:
     identifier: vault-ops-request-concepts
