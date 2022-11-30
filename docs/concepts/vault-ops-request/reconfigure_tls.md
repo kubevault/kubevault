@@ -2,7 +2,7 @@
 title: Vault Ops Request Reconfigure TLS | KubeVault Concepts
 menu:
   docs_{{ .version }}:
-    identifier: reconfigure-tls-ops-request
+    identifier: reconfigure-tls-ops-request-concepts
     name: Reconfigure TLS
     parent: ops-request-concepts
     weight: 10
