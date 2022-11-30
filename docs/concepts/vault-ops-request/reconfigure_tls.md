@@ -1,0 +1,13 @@
+---
+title: Vault Ops Request Reconfigure TLS | KubeVault Concepts
+menu:
+  docs_{{ .version }}:
+    identifier: reconfigure-tls-ops-request-concepts
+    name: Reconfigure TLS
+    parent: ops-request-concepts
+    weight: 10
+menu_name: docs_{{ .version }}
+section_menu_id: concepts
+---
+
+# Vault Ops Request Reconfigure TLS concepts

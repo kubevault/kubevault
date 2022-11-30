@@ -1,10 +1,10 @@
 ---
 title: Vault Generate
 menu:
-  docs_{{ .version }}:
-    identifier: vault-generate
-    name: Vault Generate
-    parent: reference-cli
+docs_{{ .version }}:
+identifier: vault-generate
+name: Vault Generate
+parent: reference-cli
 menu_name: docs_{{ .version }}
 section_menu_id: reference
 ---
@@ -14,33 +14,33 @@ Generate secretproviderclass
 
 ### Synopsis
 
-Generate secretproviderclass from secretrolebinding. Provide flags secretrolebinding, role and keys to mount.
+Generate `SecretProviderClass` from `SecretRoleBinding`. Provide flags `SecretRoleBinding`, `role` and `keys` to mount.
 
-See more about Secrets-Store-CSI-Driver and the usage of SecretProviderClass:
-	Link: https://secrets-store-csi-driver.sigs.k8s.io/concepts.html#secretproviderclass
+See more about `Secrets-Store-CSI-Driver` and the usage of `SecretProviderClass` [here](https://secrets-store-csi-driver.sigs.k8s.io/concepts.html#secretproviderclass).
 
-SecretRoleBinding needs to be created and successful beforehand. Provided roles must be in the SecretRoleBinding and provided keys must be available for the RoleKind.
+`SecretRoleBinding` needs to be created and successful beforehand.
+Provided roles must be in the `SecretRoleBinding` and provided keys must be available for the `RoleKind`.
+Output format can be `yaml` or `json`, defaults to `yaml`.
 
-Output format can be yaml or json, defaults to yaml.
-
+```bash
 Examples:
  # Generate secretproviderclass with name <name1> and namespace <ns1>
  # secretrolebinding with namespace <ns2> and name <name2>
  # vaultrole kind MongoDBRole and name <name3>
- # keys to mount <secretKey> and it's mapping name <objectName>
+ # keys to mount <secretKey> and it's mapping name <objectName> 
 
  $ kubectl vault generate secretproviderclass <name1> -n <ns1> \
- --secretrolebinding=<ns2>/<name2> \
- --vaultrole=MongoDBRole/<name3> \
- --keys <secretKey>=<objectName> -o yaml
+  --secretrolebinding=<ns2>/<name2> \
+  --vaultrole=MongoDBRole/<name3> \
+  --keys <secretKey>=<objectName> -o yaml
 
  # Generate secretproviderclass for the MongoDB username and password
+ $ kubectl vault generate secretproviderclass mongo-secret-provider -n test      \
+  --secretrolebinding=dev/secret-r-binding \
+  --vaultrole=MongoDBRole/mongo-role \
+  --keys username=mongo-user --keys password=mongo-pass -o yaml
 
- $ kubectl vault generate secretproviderclass mongo-secret-provider -n test 
- --secretrolebinding=dev/secret-r-binding \
- --vaultrole=MongoDBRole/mongo-role \
- --keys username=mongo-user --keys password=mongo-pass -o yaml
-
+```
 
 ```
 vault generate [flags]
