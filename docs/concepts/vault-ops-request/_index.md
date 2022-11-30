@@ -2,7 +2,7 @@
 title: Vault Ops Request | Concepts | KubeVault
 menu:
   docs_{{ .version }}:
-    identifier: vault-ops-request-concepts
+    identifier: ops-request-concepts
     name: Vault Ops Request
     parent: concepts
     weight: 30
