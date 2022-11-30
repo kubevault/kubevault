@@ -1,10 +1,10 @@
 ---
-title: Vault Server | KubeVault Concepts
+title: Vault Backup Restore Overview | KubeVault Concepts
 menu:
   docs_{{ .version }}:
-    identifier: overview-vault-backup-restore
+    identifier: overview-backup-restore-concepts
     name: Overview
-    parent: vault-backup-restore-concepts
+    parent: backup-restore-concepts
     weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: concepts

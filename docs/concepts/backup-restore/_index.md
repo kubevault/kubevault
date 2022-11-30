@@ -1,8 +1,8 @@
 ---
-title: Vault Server | Concepts | KubeVault
+title: Vault Backup Restore | Concepts | KubeVault
 menu:
   docs_{{ .version }}:
-    identifier: vault-backup-restore-concepts
+    identifier: backup-restore-concepts
     name: Backup & Restore (Stash)
     parent: concepts
     weight: 30
