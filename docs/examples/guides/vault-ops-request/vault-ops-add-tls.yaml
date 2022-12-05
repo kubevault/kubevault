@@ -1,0 +1,21 @@
+apiVersion: ops.kubevault.com/v1alpha1
+kind: VaultOpsRequest
+metadata:
+  name: vault-ops-add-tls
+  namespace: demo
+spec:
+  type: ReconfigureTLS
+  vaultRef:
+    name: vault
+  tls:
+    issuerRef:
+      name: issuer
+      kind: Issuer
+      apiGroup: "cert-manager.io"
+    certificates:
+      - alias: client
+        subject:
+          organizations:
+            - appscode
+          organizationalUnits:
+            - client

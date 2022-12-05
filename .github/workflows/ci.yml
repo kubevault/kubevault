@@ -59,6 +59,12 @@ jobs:
           # register secrets-store-csi-driver crd
           kubectl create -f https://github.com/kubernetes-sigs/secrets-store-csi-driver/raw/main/charts/secrets-store-csi-driver/crds/secrets-store.csi.x-k8s.io_secretproviderclasses.yaml
           helm install kmodules-crds appscode/kmodules-crds
+          # register cert-manager crds
+          kubectl create -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.crds.yaml
+          # register kubedb crds
+          kubectl create -f https://github.com/kubedb/installer/raw/master/crds/kubedb-crds.yaml
+          # register prometheus crds
+          kubectl create -f https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.60.1/stripped-down-crds.yaml
 
       - name: Check codespan schema
         run: |

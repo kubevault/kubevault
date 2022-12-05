@@ -74,7 +74,7 @@ serviceaccount/token-reviewer created
 `ClusterRoleBinding` for the token reviewer service account:
 
 ```yaml
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: role-tokenreview-binding
