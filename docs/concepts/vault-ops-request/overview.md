@@ -10,6 +10,8 @@ menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
 
+> New to KubeVault? Please start [here](/docs/README.md).
+
 # VaultOpsRequest
 
 ## What is VaultOpsRequest
