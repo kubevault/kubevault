@@ -65,6 +65,8 @@ jobs:
           kubectl create -f https://github.com/kubedb/installer/raw/master/crds/kubedb-crds.yaml
           # register prometheus crds
           kubectl create -f https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.60.1/stripped-down-crds.yaml
+          # register stash crds
+          helm install stash-crds appscode/stash-crds
 
       - name: Check codespan schema
         run: |

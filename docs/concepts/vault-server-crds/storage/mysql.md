@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # MySQL
 
-In MySQL storage backend, Vault data will be stored in [MySQL](https://www.mysql.com/). Vault documentation for MySQL storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/mysql.html).
+In MySQL storage backend, Vault data will be stored in MySQL. Vault documentation for MySQL storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/mysql.html).
 
 ```yaml
 apiVersion: kubevault.com/v1alpha1
