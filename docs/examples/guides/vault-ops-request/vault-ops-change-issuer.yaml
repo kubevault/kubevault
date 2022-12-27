@@ -1,0 +1,14 @@
+apiVersion: ops.kubevault.com/v1alpha1
+kind: VaultOpsRequest
+metadata:
+  name: vault-ops-change-issuer
+  namespace: demo
+spec:
+  type: ReconfigureTLS
+  vaultRef:
+    name: vault
+  tls:
+    issuerRef:
+      name: new-issuer
+      kind: Issuer
+      apiGroup: "cert-manager.io"

@@ -1,0 +1,26 @@
+apiVersion: stash.appscode.com/v1beta1
+kind: BackupConfiguration
+metadata:
+  name: demo-backup
+  namespace: demo
+spec:
+  driver: Restic
+  repository:
+    name: gcp-demo-repo
+    namespace: demo
+  schedule: "*/5 * * * *"
+  timeOut: 2h
+  target:
+    ref:
+      apiVersion: appcatalog.appscode.com/v1alpha1
+      kind: AppBinding
+      name: vault
+  runtimeSettings:
+    container:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+  retentionPolicy:
+    name: 'keep-last-5'
+    keepLast: 5
+    prune: true

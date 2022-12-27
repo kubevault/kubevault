@@ -1,0 +1,15 @@
+apiVersion: stash.appscode.com/v1alpha1
+kind: Repository
+metadata:
+  name: gcp-demo-repo
+  namespace: demo
+spec:
+  backend:
+    gcs:
+      bucket: stash-testing
+      prefix: demo-vault
+    storageSecretName: gcs-secret
+  usagePolicy:
+    allowedNamespaces:
+      from: Same
+  wipeOut: false
