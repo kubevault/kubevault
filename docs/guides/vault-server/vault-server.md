@@ -45,17 +45,19 @@ the Vault image tag its using. You can list them by using the following command:
 ```bash
 $ kubectl get vaultserverversions
 NAME    VERSION   VAULT_IMAGE     DEPRECATED     AGE
-0.11.5   0.11.5    vault:0.11.5   false          3h26m
-1.10.3   1.10.3    vault:1.10.3   false          3h26m
-1.2.0    1.2.0     vault:1.2.0    false          3h26m
-1.2.2    1.2.2     vault:1.2.2    false          3h26m
-1.2.3    1.2.3     vault:1.2.3    false          3h26m
-1.5.9    1.5.9     vault:1.5.9    false          3h26m
-1.6.5    1.6.5     vault:1.6.5    false          3h26m
-1.7.2    1.7.2     vault:1.7.2    false          3h26m
-1.7.3    1.7.3     vault:1.7.3    false          3h26m
-1.8.2    1.8.2     vault:1.8.2    false          3h26m
-1.9.2    1.9.2     vault:1.9.2    false          3h26m
+0.11.5   0.11.5    vault:0.11.5                20h
+1.10.3   1.10.3    vault:1.10.3                20h
+1.11.5   1.11.5    vault:1.11.5                20h
+1.12.1   1.12.1    vault:1.12.1                20h
+1.2.0    1.2.0     vault:1.2.0                 20h
+1.2.2    1.2.2     vault:1.2.2                 20h
+1.2.3    1.2.3     vault:1.2.3                 20h
+1.5.9    1.5.9     vault:1.5.9                 20h
+1.6.5    1.6.5     vault:1.6.5                 20h
+1.7.2    1.7.2     vault:1.7.2                 20h
+1.7.3    1.7.3     vault:1.7.3                 20h
+1.8.2    1.8.2     vault:1.8.2                 20h
+1.9.2    1.9.2     vault:1.9.2                 20h
 ```
 
 Now you can use them or deploy your own version by yourself:

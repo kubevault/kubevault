@@ -112,6 +112,7 @@ Secret engines are enabled at a "path" in Vault. When a request comes to Vault, 
 
 - `spec.elasticsearch`: Specifies database(elasticsearch) secret engine configuration
 
+- `spec.redis`: Specifies database(redis) secret engine configuration
 
 #### spec.aws
 
@@ -483,6 +484,55 @@ Default plugin name is `mongodb-database-plugin`.
       allowedRoles:
         - "readonly"
   ```
+
+#### spec.redis
+`spec.redis` specifies the configuration required to configure Redis database secret engine. [See more](https://developer.hashicorp.com/vault/api-docs/secret/databases/redis#configure-connection)
+
+  ```yaml
+    spec:
+      redis:
+        databaseRef:
+          name: <appbinding-name>
+          namespace: <appbinding-namespace>
+        pluginName: <plugin-name>
+        allowedRoles:
+          - "role1"
+          - "role2"
+          - ... ...
+  ```
+
+- `databaseRef` : `Required`. Specifies an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) reference that is required to connect to an Redis database. It is also used to generate `db_name` (i.e. `/v1/path/config/db_name`) where the database secret engine will be configured at. The naming of `db_name` follows: `k8s.{clusterName}.{namespace}.{name}`.
+
+  - `name` : `Required`. Specifies the AppBinding name.
+
+  - `namespace` : `Required`. Specifies the AppBinding namespace.
+
+  ```yaml
+    redis:
+      databaseRef:
+        name: db-app
+        namespace: demo
+  ```
+
+  The generated `db_name` for the above example will be: `k8s.-.demo.db-app`. If the cluster name is empty, it is replaced by "`-`".
+
+- `pluginName` : `Optional`. Specifies the name of the plugin to use for this connection.
+  The default plugin name is `redis-database-plugin`.
+
+  ```yaml
+    redis:
+      pluginName: redis-database-plugin
+  ```
+
+- `allowedRoles` : `Optional`. Specifies a list of roles allowed to use this connection.
+  Default to `"*"` (i.e. any role can use this connection).
+
+  ```yaml
+    redis:
+      allowedRoles:
+        - "readonly"
+  ```
+
 
 ### SecretEngine Status
 

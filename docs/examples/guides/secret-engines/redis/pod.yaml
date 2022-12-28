@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-app
+  namespace: demo
+spec:
+  serviceAccountName: test-user-account
+  containers:
+    - image: jweissig/app:0.0.1
+      name: demo-app
+      imagePullPolicy: Always
+      volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/secrets-store/redis-creds"
+          readOnly: true
+  volumes:
+    - name: secrets-store-inline
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: "vault-db-provider"
