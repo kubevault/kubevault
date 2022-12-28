@@ -1,0 +1,27 @@
+apiVersion: kubevault.com/v1alpha2
+kind: VaultServer
+metadata:
+  name: vault
+  namespace: demo
+spec:
+  replicas: 3
+  version: 1.10.3
+  allowedSecretEngines:
+    namespaces:
+      from: All
+    secretEngines:
+      - redis
+  backend:
+    raft:
+      storage:
+        storageClassName: "standard"
+        resources:
+          requests:
+            storage: 1Gi
+  unsealer:
+    secretShares: 5
+    secretThreshold: 3
+    mode:
+      kubernetesSecret:
+        secretName: vault-keys
+  terminationPolicy: WipeOut

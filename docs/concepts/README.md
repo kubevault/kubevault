@@ -117,6 +117,7 @@ In a `Secret Engine`, a `role` describes an identity with a set of `permissions`
 - [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md)
 - [ElasticsearchRole](/docs/concepts/secret-engine-crds/database-secret-engine/elasticsearch.md)
 - [MariaDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mariadb.md)
+- [RedisRole](/docs/concepts/secret-engine-crds/database-secret-engine/redis.md)
   
 ### Secret Access Request
 A `SecretAccessRequest` is a `Kubernetes CustomResourceDefinition (CRD)` which allows a user to request a Vault server for `credentials` in a Kubernetes native way. A `SecretAccessRequest` can be created under various roleRef e.g: `AWSRole`, `GCPRole`, `ElasticsearchRole`, `MongoDBRole`, etc. Introduces to `SecretAccessRequest` CRD, fields & it's various use cases.
