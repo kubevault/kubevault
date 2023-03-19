@@ -32,6 +32,9 @@ jobs:
           chmod +x codespan-schema-checker
           sudo mv codespan-schema-checker /usr/local/bin/codespan-schema-checker
 
+      - name: Check Spelling
+        uses: check-spelling/check-spelling@v0.0.21
+
       - name: Check links
         run: |
           liche -r docs -d $(pwd) -c 10 -p -h -l -x '^(.*github.com.*|.*api.slack.com.*|.*twitter.com.*|.*k8s.io.*)$'
@@ -71,3 +74,6 @@ jobs:
       - name: Check codespan schema
         run: |
           codespan-schema-checker --content=./docs
+
+      - name: Check Spelling
+        uses: check-spelling/check-spelling@v0.0.21
