@@ -272,7 +272,7 @@ You can find the full list of fields [here](https://github.com/kmodules/offshoot
 
 ##### spec.podTemplate.spec.resources
 
-`spec.podTemplate.spec.resources` is an optional field. This can be used to request compute resources required by Vault pods. To learn more, visit [here](http://kubernetes.io/docs/user-guide/compute-resources/).
+`spec.podTemplate.spec.resources` is an optional field. This can be used to request compute resources required by Vault pods. To learn more, visit [here](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
 
 #### spec.authMethods
 
