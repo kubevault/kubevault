@@ -107,7 +107,7 @@ metadata:
 spec:
   vaultRef:
     name: vault
-  mysql:
+  postgres:
     databaseRef:
       name: postgres
       namespace: demo

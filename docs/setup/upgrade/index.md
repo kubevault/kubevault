@@ -25,7 +25,7 @@ In order to upgrade from KubeVault to `{{< param "info.version" >}}`, please fol
 Helm [does not upgrade the CRDs](https://github.com/helm/helm/issues/6581) bundled in a Helm chart if the CRDs already exist. So, to upgrde the KubeVault catalog CRD, please run the command below:
 
 ```bash
-kubectl apply -f https://github.com/kubevault/installer/blob/{{< param "info.version" >}}/crds/kubevault-catalog-crds.yaml
+kubectl apply -f https://github.com/kubevault/installer/raw/{{< param "info.version" >}}/crds/kubevault-catalog-crds.yaml
 ```
 
 #### 2. Upgrade KubeVault Operator
