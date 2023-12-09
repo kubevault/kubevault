@@ -26,9 +26,9 @@ We are going to install KubeVault operator in `demo-cluster-1` using Helm 3. We 
 $ kubectl config current-context
 gke_ackube_us-central1-a_demo-cluster-1
 
-$ helm install vault-operator appscode/vault-operator \
+$ helm install kubevault oci://ghcr.io/appscode-charts/kubevault \
   --version {{< param "info.version" >}} \
-  --namespace kube-system \
+  --namespace kubevault --create-namespace \
   --set clusterName=demo-cluster-1
 
 $ kubectl get pods -n kube-system
@@ -147,9 +147,9 @@ We are going to install KubeVault operator in `demo-cluster-2` using Helm 3.  We
 $ kubectl config current-context
 gke_ackube_us-central1-a_demo-cluster-2
 
-$ helm install vault-operator appscode/vault-operator \
+$ helm install kubevault oci://ghcr.io/appscode-charts/kubevault \
   --version {{< param "info.version" >}} \
-  --namespace kube-system \
+  --namespace kubevault --create-namespace \
   --set clusterName=demo-cluster-2
 
 $ kubectl get pods -n kube-system

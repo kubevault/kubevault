@@ -14,7 +14,7 @@ section_menu_id: setup
 
 # Upgrading KubeVault
 
-This guide will show you how to upgrade various KubeVault components. Here, we are going to show how to upgrade from an old KubeVault version to the new version, how to migrate between the enterprise edition and community edition, and how to update the license, etc.
+This guide will show you how to upgrade various KubeVault components. Here, we are going to show how to upgrade from an old KubeVault version to the new version, and how to update the license, etc.
 
 ## Upgrading KubeVault to `{{< param "info.version" >}}`
 
@@ -30,87 +30,15 @@ kubectl apply -f https://github.com/kubevault/installer/raw/{{< param "info.vers
 
 #### 2. Upgrade KubeVault Operator
 
-Now, upgrade the KubeVault helm chart using the following command. You can find the latest installation guide [here](/docs/setup/README.md). We recommend that you do **not** follow the legacy installation guide, as the new process is much more simpler.
+Now, upgrade the KubeVault helm chart using the following command. You can find the latest installation guide [here](/docs/setup/README.md). We recommend that you do **not** follow the legacy installation guide, as the new process is much more simple.
 
 ```bash
-$ helm upgrade kubevault appscode/kubevault \
+$ helm upgrade kubevault oci://ghcr.io/appscode-charts/kubevault \
   --version {{< param "info.version" >}} \
   --namespace kubevault \
-  --set-file global.license=/path/to/the/license.txt
+  --set-file global.license=/path/to/the/license.txt \
+  --wait --burst-limit=10000 --debug
 ```
-
-## Migration Between Community Edition and Enterprise Edition
-
-KubeVault supports seamless migration between community edition and enterprise edition. You can run the following commands to migrate between them.
-
-<ul class="nav nav-tabs" id="migrationTab" role="tablist">
-  <li class="nav-item">
-    <a class="nav-link active" id="mgr-helm3-tab" data-toggle="tab" href="#mgr-helm3" role="tab" aria-controls="mgr-helm3" aria-selected="true">Helm 3</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" id="mgr-yaml-tab" data-toggle="tab" href="#mgr-yaml" role="tab" aria-controls="mgr-yaml" aria-selected="false">YAML</a>
-  </li>
-</ul>
-<div class="tab-content" id="migrationTabContent">
-  <div class="tab-pane fade show active" id="mgr-helm3" role="tabpanel" aria-labelledby="mgr-helm3">
-
-#### Using Helm 3
-
-**From Community Edition to Enterprise Edition:**
-
-In order to migrate from KubeVault community edition to KubeVault enterprise edition, please run the following command,
-
-```bash
-helm upgrade kubevault -n kubevault appscode/kubevault \
-  --reuse-values \
-  --set kubevault-catalog.skipDeprecated=false \
-  --set-file global.license=/path/to/kubevault-enterprise-license.txt
-```
-
-**From Enterprise Edition to Community Edition:**
-
-In order to migrate from KubeVault enterprise edition to KubeVault community edition, please run the following command,
-
-```bash
-helm upgrade kubevault -n kubevault appscode/kubevault \
-  --reuse-values \
-  --set kubevault-catalog.skipDeprecated=false \
-  --set-file global.license=/path/to/kubevault-community-license.txt
-```
-
-</div>
-<div class="tab-pane fade" id="mgr-yaml" role="tabpanel" aria-labelledby="mgr-yaml">
-
-**Using YAML (with helm 3)**
-
-**From Community Edition to Enterprise Edition:**
-
-In order to migrate from KubeVault community edition to KubeVault enterprise edition, please run the following command,
-
-```bash
-# Install KubeVault enterprise edition
-helm template kubevault -n kubevault appscode/kubevault \
-  --version {{< param "info.version" >}} \
-  --set kubevault-catalog.skipDeprecated=false \
-  --set global.skipCleaner=true \
-  --set-file global.license=/path/to/kubevault-enterprise-license.txt | kubectl apply -f -
-```
-
-**From Enterprise Edition to Community Edition:**
-
-In order to migrate from KubeVault enterprise edition to KubeVault community edition, please run the following command,
-
-```bash
-# Install KubeVault community edition
-helm template kubevault -n kubevault appscode/kubevault \
-  --version {{< param "info.version" >}} \
-  --set kubevault-catalog.skipDeprecated=false \
-  --set global.skipCleaner=true \
-  --set-file global.license=/path/to/kubevault-community-license.txt | kubectl apply -f -
-```
-
-</div>
-</div>
 
 ## Updating License
 
@@ -139,9 +67,12 @@ Follow the below instructions to update the license:
 helm ls -A | grep kubevault
 
 # update license key keeping the current version
-helm upgrade kubevault -n kubevault appscode/kubevault --version=<cur_version> \
+helm upgrade kubevault oci://ghcr.io/appscode-charts/kubevault \
+  --version=<cur_version> \
+  --namespace=kubevault --create-namespace \
   --reuse-values \
-  --set-file global.license=/path/to/new/license.txt
+  --set-file global.license=/path/to/new/license.txt \
+  --wait --burst-limit=10000 --debug
 ```
 
 </div>
@@ -149,27 +80,14 @@ helm upgrade kubevault -n kubevault appscode/kubevault --version=<cur_version> \
 
 #### Using YAML (with helm 3)
 
-**Update License of Community Edition:**
-
 ```bash
 # detect current version
 helm ls -A | grep kubevault
 
 # update license key keeping the current version
-helm template kubevault -n kubevault appscode/kubevault --version=<cur_version> \
-  --set global.skipCleaner=true \
-  --show-only appscode/kubevault-operator/templates/license.yaml \
-  --set-file global.license=/path/to/new/license.txt | kubectl apply -f -
-```
-
-**Update License of Enterprise Edition:**
-
-```bash
-# detect current version
-helm ls -A | grep kubevault
-
-# update license key keeping the current version
-helm template kubevault appscode/kubevault -n kubevault --version=<cur_version> \
+helm template kubevault oci://ghcr.io/appscode-charts/kubevault \
+  --version=<cur_version> \
+  --namespace=kubevault --create-namespace \
   --set global.skipCleaner=true \
   --show-only appscode/kubevault-operator/templates/license.yaml \
   --set-file global.license=/path/to/new/license.txt | kubectl apply -f -

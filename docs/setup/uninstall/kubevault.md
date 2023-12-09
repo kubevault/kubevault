@@ -1,10 +1,10 @@
 ---
-title: Uninstall KubeVault Enterprise Edition
-description: Uninstallation guide for KubeVault Enterprise edition
+title: Uninstall KubeVault
+description: Uninstallation guide for KubeVault
 menu:
   docs_{{ .version }}:
     identifier: uninstall-kubevault-enterprise
-    name: Enterprise Edition
+    name: KubeVault
     parent: uninstallation-guide
     weight: 20
 product_name: kubevault
@@ -12,9 +12,9 @@ menu_name: docs_{{ .version }}
 section_menu_id: setup
 ---
 
-# Uninstall KubeVault Enterprise Edition
+# Uninstall KubeVault
 
-To uninstall KubeVault Enterprise edition, run the following command:
+To uninstall KubeVault, run the following command:
 
 <ul class="nav nav-tabs" id="installerTab" role="tablist">
   <li class="nav-item">
@@ -43,7 +43,8 @@ $ helm uninstall kubevault --namespace kubevault
 If you prefer to not use Helm, you can generate YAMLs from KubeVault chart and uninstall using `kubectl`.
 
 ```bash
-$ helm template kubevault appscode/kubevault-operator --namespace kubevault | kubectl delete -f -
+$ helm template kubevault oci://ghcr.io/appscode-charts/kubevault \
+  --namespace kubevault | kubectl delete -f -
 ```
 
 </div>

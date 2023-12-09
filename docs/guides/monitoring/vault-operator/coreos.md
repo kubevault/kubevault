@@ -38,19 +38,9 @@ Here, we are going to enable monitoring for `operator` metrics.
 **Using Helm 3:**
 
 ```bash
-$ helm install vault-operator appscode/vault-operator --version {{< param "info.version" >}} \
-  --namespace kube-system \
-  --set monitoring.agent=prometheus.io/coreos-operator \
-  --set monitoring.operator=true \
-  --set monitoring.prometheus.namespace=monitoring \
-  --set monitoring.serviceMonitor.labels.k8s-app=prometheus
-```
-
-**Using Helm 2:**
-
-```bash
-$ helm install appscode/vault-operator --name vault-operator --version {{< param "info.version" >}} \
-  --namespace kube-system \
+$ helm install kubevault oci://ghcr.io/appscode-charts/kubevault \
+  --version {{< param "info.version" >}} \
+  --namespace kubevault --create-namespace \
   --set monitoring.agent=prometheus.io/coreos-operator \
   --set monitoring.operator=true \
   --set monitoring.prometheus.namespace=monitoring \
@@ -60,8 +50,9 @@ $ helm install appscode/vault-operator --name vault-operator --version {{< param
 **Using YAML (with Helm 3):**
 
 ```bash
-$ helm template vault-operator appscode/vault-operator --version {{< param "info.version" >}} \
-  --namespace kube-system \
+$ helm template kubevault oci://ghcr.io/appscode-charts/kubevault \
+  --version {{< param "info.version" >}} \
+  --namespace kubevault --create-namespace \
   --no-hooks \
   --set monitoring.agent=prometheus.io/coreos-operator \
   --set monitoring.operator=true \
