@@ -14,39 +14,11 @@ section_menu_id: setup
 
 # Install KubeVault
 
-## Get a Free Trial License
+## Get a Free License
 
-In this section, we are going to show you how you can get a **30 days trial** license for KubeVault. You can get a license for your Kubernetes cluster by going through the following steps:
-
-- At first, go to [AppsCode License Server](https://appscode.com/issue-license?p=kubevault) and fill up the form. It will ask for your Name, Email, the product you want to install, and your cluster ID (UID of the `kube-system` namespace).
-- Provide your name and email address. **You must provide your work email address**.
-- Then, select `KubeVault` in the product field.
-- Now, provide your cluster ID. You can get your cluster ID easily by running the following command:
-
-```bash
-kubectl get ns kube-system -o=jsonpath='{.metadata.uid}'
-```
-
-- Then, you have to agree with the terms and conditions. We recommend reading it before checking the box.
-- Now, you can submit the form. After you submit the form, the AppsCode License server will send an email to the provided email address with a link to your license file.
-- Navigate to the provided link and save the license into a file. Here, we save the license to a `license.txt` file.
-
-Here is a screenshot of the license form.
-
-<figure align="center">
-  <img alt="KubeVault Backend Overview" src="/docs/images/setup/enterprise_license_form.png">
-  <figcaption align="center">Fig: KubeVault License Form</figcaption>
-</figure>
-
-You can create licenses for as many clusters as you want. You can upgrade your license any time without re-installing KubeVault by following the upgrading guide from [here](/docs/setup/upgrade/index.md#updating-license).
+Download a FREE license from [AppsCode License Server](https://appscode.com/issue-license?p=kubevault).
 
 > KubeVault licensing process has been designed to work with CI/CD workflow. You can automatically obtain a license from your CI/CD pipeline by following the guide from [here](https://github.com/appscode/offline-license-server#offline-license-server).
-
-## Purchase KubeVault License
-
-If you are interested in purchasing KubeVault license, please contact us via sales@appscode.com for further discussion. You can also set up a meeting via our [calendly link](https://calendly.com/appscode/30min).
-
-If you are willing to purchase KubeVault license but need more time to test in your dev cluster, feel free to contact sales@appscode.com. We will be happy to extend your trial period.
 
 ## Install
 
@@ -115,3 +87,9 @@ $ kubectl get crd -l app.kubernetes.io/name=kubevault
 ```
 
 Now, you are ready to [create your first database](/docs/guides/README.md) using KubeVault.
+
+## Purchase KubeVault License
+
+If you are interested in purchasing KubeVault license, please contact us via sales@appscode.com for further discussion. You can also set up a meeting via our [calendly link](https://calendly.com/appscode/30min).
+
+If you are willing to purchase KubeVault license but need more time to test in your dev cluster, feel free to contact sales@appscode.com. We will be happy to extend your trial period.
