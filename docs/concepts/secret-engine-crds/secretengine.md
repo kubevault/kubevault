@@ -102,6 +102,8 @@ Secret engines are enabled at a "path" in Vault. When a request comes to Vault, 
 
 - `spec.azure`: Specifies azure secret engine configuration
 
+- `spec.pki`: Specifies pki secret engine configuration
+
 - `spec.gcp`: Specifies gcp secret engine configuration
 
 - `spec.postgres`: Specifies database(postgres) secret engine    configuration
@@ -231,6 +233,33 @@ secret engine. [See more](https://www.vaultproject.io/api/secret/gcp/index.html#
 - `ttl` : `Optional`. Specifies default config TTL for long-lived credentials (i.e. service account keys). Default value is 0s.
 
 - `maxTTL` : `Optional`. Specifies the maximum config TTL for long-lived credentials (i.e. service account keys). The default value is 0s.
+
+#### spec.pki
+
+`spec.pki` specifies the configuration required to configure
+PKI secret engine. [See more](https://developer.hashicorp.com/vault/api-docs/secret/pki#generate-root)
+
+```yaml
+spec:
+  pki:
+    isRootCA: false
+    parentCARef:
+      name: pki-root
+      namespace: demo
+    commonName: "kubevault.com"
+    ttl: "87600h"
+    maxLeaseTTL: "487600h"
+```
+
+- `isRootCA` : `Required`. Specifies if the secret engine will be used as a RootCA
+
+- `parentCARef` : `Required`. Specifies the namespace and name of the secret engine which will sign the intermediate CA.
+
+- `commonName` : `Required`. Specifies the requested CN for the certificate. If more than one common_name is desired, specify the alternative names in the `spec.altNames` list.
+
+- `ttl` : `Optional`. Specifies he requested Time To Live (after which the certificate will be expired).
+
+- `maxLeaseTTL` : `Optional`. Specifies maximum lease for the certificates.
 
 #### spec.postgres
 
