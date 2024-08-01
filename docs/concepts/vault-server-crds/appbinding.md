@@ -22,7 +22,7 @@ An `AppBinding` is a Kubernetes `CustomResourceDefinition`(CRD) which points to 
 
 If you deploy a Vault using [KubeVault](https://kubevault.com/docs/latest/welcome/), the `AppBinding` object will be created automatically for it. Otherwise, you have to create an `AppBinding` object manually pointing to your desired Vault.
 
-KubeVault uses [Stash](https://appscode.com/products/stash/) to perform backup/recovery of Vault cluster. Stash needs to know how to connect with a target Vault and the credentials necessary to access it. This is done via an `AppBinding`.
+KubeVault uses [Stash](https://stash.run/) to perform backup/recovery of Vault cluster. Stash needs to know how to connect with a target Vault and the credentials necessary to access it. This is done via an `AppBinding`.
 
 ## AppBinding CRD Specification
 

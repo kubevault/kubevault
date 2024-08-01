@@ -5,6 +5,6 @@ menu:
     identifier: database-crds-concepts
     name: Database
     parent: secret-engine-crds-concepts
-    weight: 50
+    weight: 60
 menu_name: docs_{{ .version }}
 ---

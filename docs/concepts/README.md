@@ -112,6 +112,7 @@ In a `Secret Engine`, a `role` describes an identity with a set of `permissions`
 - [AWSRole](/docs/concepts/secret-engine-crds/aws-secret-engine/awsrole.md)
 - [GCPRole](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md)
 - [AzureRole](/docs/concepts/secret-engine-crds/azure-secret-engine/azurerole.md)
+- [PKIRole](/docs/concepts/secret-engine-crds/pki-secret-engine/pkirole.md)
 - [MongoDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mongodb.md)
 - [MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md)
 - [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md)
