@@ -66,6 +66,7 @@ vault-operator run [flags]
       --cluster-name string                                     Name of cluster used in a multi-cluster setup
       --contention-profiling                                    Enable block profiling, if profiling is enabled
       --debug-socket-path string                                Use an unprotected (no authn/authz) unix-domain socket for profiling with the given path
+      --disable-http2-serving                                   If true, HTTP2 serving will be disabled [default=false]
       --egress-selector-config-file string                      File with apiserver egress selector configuration.
       --enable-mutating-webhook                                 If true, enables mutating webhooks for KubeDB CRDs. (default true)
       --enable-priority-and-fairness                            If true, replace the max-in-flight handler with an enhanced one that queues and dispatches with priority and fairness
@@ -82,6 +83,7 @@ vault-operator run [flags]
       --requestheader-client-ca-file string                     Root certificate bundle to use to verify client certificates on incoming requests before trusting usernames in headers specified by --requestheader-username-headers. WARNING: generally do not depend on authorization being already done for incoming requests.
       --requestheader-extra-headers-prefix strings              List of request header prefixes to inspect. X-Remote-Extra- is suggested. (default [x-remote-extra-])
       --requestheader-group-headers strings                     List of request headers to inspect for groups. X-Remote-Group is suggested. (default [x-remote-group])
+      --requestheader-uid-headers strings                       List of request headers to inspect for UIDs. X-Remote-Uid is suggested. Requires the RemoteRequestHeaderUID feature to be enabled.
       --requestheader-username-headers strings                  List of request headers to inspect for usernames. X-Remote-User is common. (default [x-remote-user])
       --secure-port int                                         The port on which to serve HTTPS with authentication and authorization. If 0, don't serve HTTPS at all. (default 443)
       --tls-cert-file string                                    File containing the default x509 Certificate for HTTPS. (CA cert, if any, concatenated after server cert). If HTTPS serving is enabled, and --tls-cert-file and --tls-private-key-file are not provided, a self-signed certificate and key are generated for the public address and saved to the directory specified by --cert-dir.
