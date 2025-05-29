@@ -366,10 +366,10 @@ token_meta_service_account_uid            dbedd466-2c74-448b-90ee-509d4b812c91
 Export the new Vault token as an environment variable:
 
 ```bash
-export VAULT_TOKEN=s.ZPu4zcyaajjpxtS1t8fnh2LV
+export VAULT_TOKEN=(kubectl vault root-token get vaultserver vault -n demo --value-only)
 ```
 
-Now generate a new certificate using the PKI secret engine:
+Now generate a new certificate using the PKI secret engine.
 
 Enable the PKI secrets engine:
 
