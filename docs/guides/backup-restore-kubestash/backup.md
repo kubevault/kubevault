@@ -1,19 +1,13 @@
 ---
 title: Vault Backup Restore Overview
 menu:
-  docs_v2026.2.27:
-    identifier: backup-backup-restore-guides-kubestash
-    name: Backup
-    parent: backup-restore-guides-kubestash
-    weight: 10
-menu_name: docs_v2026.2.27
+docs_{{ .version }}:
+identifier: backup-backup-restore-guides-kubestash
+name: Backup
+parent: backup-restore-guides-kubestash
+weight: 10
+menu_name: docs_{{ .version }}
 section_menu_id: guides
-info:
-  cli: v0.24.0
-  installer: v2026.2.27
-  operator: v0.24.0
-  unsealer: v0.24.0
-  version: v2026.2.27
 ---
 
 # Backup Vault Cluster using KubeStash
