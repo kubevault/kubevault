@@ -19,7 +19,7 @@ KubeVault uses [KubeStash](https://kubestash.com) to backup and restore database
 The following diagram shows how KubeStash takes backup of a `VaultServer`. Open the image in a new tab to see the enlarged version.
 
 <figure align="center">
-  <img alt="KubeVault Backup Overview" src="/content/docs/v2026.2.27/guides/backup-restore-kubestash/images/backup_overview.svg">
+  <img alt="KubeVault Backup Overview" src="/docs/guides/backup-restore-kubestash/images/backup_overview.svg">
   <figcaption align="center">Fig: KubeVault Backup Overview</figcaption>
 </figure>
 
@@ -62,7 +62,7 @@ The backup process consists of the following steps:
 The following diagram shows how KubeStash restores backed up data into a `VaultServer`. Open the image in a new tab to see the enlarged version.
 
 <figure align="center">
-  <img alt="KubeVault Restore Overview" src="/content/docs/v2026.2.27/guides/backup-restore-kubestash/images/restore_overview.svg">
+  <img alt="KubeVault Restore Overview" src="/docs/guides/backup-restore-kubestash/images/restore_overview.svg">
   <figcaption align="center">Fig: KubeVault Restore Process Overview</figcaption>
 </figure>
 
