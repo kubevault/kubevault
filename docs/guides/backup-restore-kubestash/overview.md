@@ -1,11 +1,11 @@
 ---
-title: Vault Backup Restore Overview
+title: Vault Backup Restore KubeStash Overview
 menu:
-docs_{{ .version }}:
-identifier: overview-backup-restore-guides-kubestash
-name: Overview
-parent: backup-restore-guides-kubestash
-weight: 10
+  docs_{{ .version }}:
+    identifier: overview-backup-restore-guides-kubestash
+    name: Overview
+    parent: backup-restore-guides-kubestash
+    weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
@@ -86,6 +86,5 @@ The restore process consists of the following steps:
 
 ## Next Steps
 
-- Read about step-by-step Backup procedure [here](/docs/v2026.2.27/guides/backup-restore-kubestash/backup)
-- Read about step-by-step Restore procedure [here](/docs/v2026.2.27/guides/backup-restore-kubestash/restore)
-
+- Read about step-by-step Backup procedure [here](/docs/guides/backup-restore-kubestash/backup.md)
+- Read about step-by-step Restore procedure [here](/docs/guides/backup-restore-kubestash/restore.md)

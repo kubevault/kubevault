@@ -1,11 +1,11 @@
 ---
-title: Vault Backup Restore Overview
+title: Vault Backup Restore KubeStash Overview
 menu:
-docs_{{ .version }}:
-identifier: backup-backup-restore-guides-kubestash
-name: Backup
-parent: backup-restore-guides-kubestash
-weight: 10
+  docs_{{ .version }}:
+    identifier: backup-backup-restore-guides-kubestash
+    name: Backup
+    parent: backup-restore-guides-kubestash
+    weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
@@ -17,13 +17,11 @@ This guide will show you how you can take backup of your Vault cluster with Kube
 ## Before You Begin
 
 - At first, you need to have a Kubernetes cluster, and the `kubectl` command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using `Minikube` or `Kind`.
-- Install `KubeDB` in your cluster following the steps [here](/docs/setup/README.md).
-- Install `KubeVault` in your cluster following the steps [here](/docs/v2026.2.27/setup/README).
+- Install `KubeDB` in your cluster following the steps [here](https://kubedb.com//docs/latest/setup/install/kubedb).
+- Install `KubeVault` in your cluster following the steps [here](/docs/setup/README.md).
 - Install `KubeStash` in your cluster following the steps [here](https://kubestash.com/docs/latest/setup/install/kubestash).
 - Install KubeStash `kubectl` plugin following the steps [here](https://kubestash.com/docs/latest/setup/install/kubectl-plugin/).
-- If you are not familiar with how Stash backup and restore Vault cluster, please check the following concept section [here](/docs/v2026.2.27/concepts/backup-restore/overview).
-
-- If you are not familiar with how KubeStash backup and restore ZooKeeper, please check the following guide [here](/docs/guides/zookeeper/backup/kubestash/overview/index.md).
+- If you are not familiar with how KubeStash backup and restore Vault cluster, please check the following concept section [here](/docs/concepts/backup-restore-kubestash/overview.md).
 
 You should be familiar with the following `KubeStash` concepts:
 
@@ -49,7 +47,7 @@ Let's deploy a sample `PostgreSQL` database.
 **Create PostgreSQL CR:**
 
 At first, we will create `user.conf` file containing required configuration settings. You need to set max_connections according to your needs. The default value is 100, but you can increase it if you want to allow more connections to the database.
-To know more about this configuration file, check [here](/docs/guides/postgres/configuration/using-config-file.md)
+To know more about this configuration file, check [here](https://kubedb.com/docs/latest/guides/postgres/configuration/using-config-file/)
 ```ini
 $ cat user.conf
 max_connections=200
@@ -203,7 +201,7 @@ vaultserver.kubevault.com/vault created
 
 `KubeVault` operator will create a `AppBinding` CRD on `VaultServer` deployment, which contains the necessary information
 to take backup of the Vault instances. It'll have the same name & be created on the same namespace as the `Vault`. 
-Read more about `AppBinding` [here](/docs/v2026.2.27/concepts/vault-server-crds/appbinding).
+Read more about `AppBinding` [here](/docs/latest/concepts/vault-server-crds/appbinding.md).
 
 ```bash
 $ kubectl get appbinding -n demo vault -oyaml
@@ -342,7 +340,7 @@ name    appscode
 ### Prepare Backend
 
 We are going to store our backed up data into a S3 bucket. We have to create a Secret with necessary credentials to use this backend. If you want to use a different backend, 
-please read the respective backend configuration doc from [here](https://kubestash.com/docs/v2026.2.26/guides/backends/overview/).
+please read the respective backend configuration doc from [here](https://kubestash.com/docs/latest/guides/backends/overview/).
 
 #### Create Secret
 
@@ -582,7 +580,7 @@ Now, if we navigate to the s3 bucket, we can see backed up data is uploaded succ
 
 <figure align="center">
 
- <img alt="Vault Backup" src="/docs/v2026.2.27/images/guides/backup-restore/s3-ckup.png">
+ <img alt="Vault Backup" src="/docs/latest/guides/backup-restore-kubestash/images/backup-chk.png">
 
   <figcaption align="center">Fig: Vault Backup (KubeStash)</figcaption>
 
@@ -590,4 +588,4 @@ Now, if we navigate to the s3 bucket, we can see backed up data is uploaded succ
 
 
 Up next:
-- Read about step-by-step Restore procedure [here](/docs/v2026.2.27/guides/backup-restore-kubestash/restore)
+- Read about step-by-step Restore procedure [here](/docs/latest/guides/backup-restore-kubestash/restore.md)
