@@ -17,11 +17,11 @@ This guide will show you how you can restore your Vault cluster with KubeStash.
 ## Before You Begin
 
 - At first, you need to have a Kubernetes cluster, and the `kubectl` command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using `Minikube` or `Kind`.
-- Install `KubeDB` in your cluster following the steps [here](https://kubedb.com//docs/latest/setup/install/kubedb).
+- Install `KubeDB` in your cluster following the steps [here](https://kubedb.com/docs/latest/setup/install/kubedb).
 - Install `KubeVault` in your cluster following the steps [here](/docs/setup/README.md).
 - Install `KubeStash` in your cluster following the steps [here](https://kubestash.com/docs/latest/setup/install/kubestash).
 - Install KubeStash `kubectl` plugin following the steps [here](https://kubestash.com/docs/latest/setup/install/kubectl-plugin/).
-- If you are not familiar with how KubeStash backup and restore Vault cluster, please check the following concept section [here](/docs/concepts/backup-restore-kubestash/overview.md).
+- If you are not familiar with how KubeStash backup and restore Vault cluster, please check the following concept section [here](/docs/guides/backup-restore-kubestash/overview.md).
 
 You should be familiar with the following `KubeStash` concepts:
 
@@ -92,7 +92,7 @@ Once the `RestoreSession` is Succeeded, snapshot will be successfully restored i
 
 Follow this guideline, if you want to restore a snapshot into a different Vault cluster.
 
-First, deploy a `PostgreSQL` database with the required tables (`vault_kv_store`, `vault_ha_locks`), set `max_connections` as per your needs, and use it as the backend for a new `VaultServer` — exactly as described in the [Backup guide](/docs/latest/guides/backup-restore-kubestash/backup.md). The new `Vault` must be `Initialized` & `Unsealed`, and will have a completely different set of `unseal keys` & `root token` from the source `Vault`.
+First, deploy a `PostgreSQL` database with the required tables (`vault_kv_store`, `vault_ha_locks`), set `max_connections` as per your needs, and use it as the backend for a new `VaultServer` — exactly as described in the [Backup guide](/docs/guides/backup-restore-kubestash/backup.md). The new `Vault` must be `Initialized` & `Unsealed`, and will have a completely different set of `unseal keys` & `root token` from the source `Vault`.
 
 Once the new `Vault` is `Ready`, create the same storage secret and apply the same `BackupStorage` to sync the snapshot metadata. 
 
@@ -215,4 +215,4 @@ name    appscode
 The restored data matches the original, confirming the restore was successful.
 
 Up next:
-- Read about step-by-step Backup procedure [here](/docs/latest/guides/backup-restore-kubestash/backup.md)
+- Read about step-by-step Backup procedure [here](/docs/guides/backup-restore-kubestash/backup.md)

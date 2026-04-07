@@ -204,7 +204,7 @@ XJRRwl5psqcyp5ZJI1ar5JP1JCGQa3QTArwstw==
 -----END CERTIFICATE-----
 ```
 
-Copy & paste the certificate in any certificates decoding tool like [certlogic](https://certlogik.com/decoder/) & check it's expiry date.
+Copy & paste the certificate in any certificates decoding tool like [certlogic](https://www.sslshopper.com/certificate-decoder.html) & check it's expiry date.
 
 ### Create VaultOpsRequest
 

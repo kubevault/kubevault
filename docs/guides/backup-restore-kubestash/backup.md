@@ -17,11 +17,11 @@ This guide will show you how you can take backup of your Vault cluster with Kube
 ## Before You Begin
 
 - At first, you need to have a Kubernetes cluster, and the `kubectl` command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using `Minikube` or `Kind`.
-- Install `KubeDB` in your cluster following the steps [here](https://kubedb.com//docs/latest/setup/install/kubedb).
+- Install `KubeDB` in your cluster following the steps [here](https://kubedb.com/docs/latest/setup/install/kubedb).
 - Install `KubeVault` in your cluster following the steps [here](/docs/setup/README.md).
 - Install `KubeStash` in your cluster following the steps [here](https://kubestash.com/docs/latest/setup/install/kubestash).
 - Install KubeStash `kubectl` plugin following the steps [here](https://kubestash.com/docs/latest/setup/install/kubectl-plugin/).
-- If you are not familiar with how KubeStash backup and restore Vault cluster, please check the following concept section [here](/docs/concepts/backup-restore-kubestash/overview.md).
+- If you are not familiar with how KubeStash backup and restore Vault cluster, please check the following concept section [here](/docs/guides/backup-restore-kubestash/overview.md).
 
 You should be familiar with the following `KubeStash` concepts:
 
@@ -148,7 +148,7 @@ CREATE TABLE vault_ha_locks (
 );
 ```
 
-**Create Connection Secret**
+**Create Connection Secret:**
 
 ```bash
 export PG_PASS=$(kubectl get secret -n demo postgres-quickstart-auth -o jsonpath='{.data.password}' | base64 -d)
@@ -201,7 +201,7 @@ vaultserver.kubevault.com/vault created
 
 `KubeVault` operator will create a `AppBinding` CRD on `VaultServer` deployment, which contains the necessary information
 to take backup of the Vault instances. It'll have the same name & be created on the same namespace as the `Vault`. 
-Read more about `AppBinding` [here](/docs/latest/concepts/vault-server-crds/appbinding.md).
+Read more about `AppBinding` [here](/docs/concepts/vault-server-crds/appbinding.md).
 
 ```bash
 $ kubectl get appbinding -n demo vault -oyaml
@@ -580,7 +580,7 @@ Now, if we navigate to the s3 bucket, we can see backed up data is uploaded succ
 
 <figure align="center">
 
- <img alt="Vault Backup" src="/docs/latest/guides/backup-restore-kubestash/images/backup-chk.png">
+ <img alt="Vault Backup" src="/docs/guides/backup-restore-kubestash/images/backup-chk.png">
 
   <figcaption align="center">Fig: Vault Backup (KubeStash)</figcaption>
 
@@ -588,4 +588,4 @@ Now, if we navigate to the s3 bucket, we can see backed up data is uploaded succ
 
 
 Up next:
-- Read about step-by-step Restore procedure [here](/docs/latest/guides/backup-restore-kubestash/restore.md)
+- Read about step-by-step Restore procedure [here](/docs/guides/backup-restore-kubestash/restore.md)
