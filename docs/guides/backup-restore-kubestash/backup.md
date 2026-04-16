@@ -50,7 +50,7 @@ At first, we will create `user.conf` file containing required configuration sett
 To know more about this configuration file, check [here](https://kubedb.com/docs/latest/guides/postgres/configuration/using-config-file/)
 ```ini
 $ cat user.conf
-max_connections=200
+max_connections=300
 ```
 
 Now, we will create a secret with this configuration file.
@@ -170,13 +170,9 @@ spec:
   terminationPolicy: WipeOut
   replicas: 3
   version: 1.18.4 
-  serviceTemplates:
-  - alias: vault
-    metadata:
-      annotations:
-        name: vault
-    spec:
-      type: NodePort
+  allowedSecretEngines:
+    namespaces:
+      from: All
   backend:
     postgresql:
       credentialSecretRef:
@@ -575,16 +571,25 @@ NAME                                                                  REPOSITORY
 s3-vault-repo-postgres-quickstart-backup-frequent-backup-1725449400   s3-vault-repo   frequent-backup   2026-03-27T11:35:02Z   Delete            Succeeded   16h
 ```
 
+If you want, you can pause/ resume the KubeStash backup by setting “paused” field of BackupConfiguration to “true” or "false".
 
-Now, if we navigate to the s3 bucket, we can see backed up data is uploaded successfully:
+```bash
+kubectl kubestash pause <backpconfig-name> -n <namespace>
+kubectl kubestash resume <backpconfig-name> -n <namespace>
+```
 
-<figure align="center">
+Now, if we navigate to the s3 bucket, we can see backed up data is uploaded successfully.
 
- <img alt="Vault Backup" src="/docs/guides/backup-restore-kubestash/images/backup-chk.png">
+[//]: # (<figure align="center">)
 
-  <figcaption align="center">Fig: Vault Backup (KubeStash)</figcaption>
+[//]: # ()
+[//]: # ( <img alt="Vault Backup" src="/docs/guides/backup-restore-kubestash/images/backup-chk.png">)
 
-</figure>
+[//]: # ()
+[//]: # (  <figcaption align="center">Fig: Vault Backup &#40;KubeStash&#41;</figcaption>)
+
+[//]: # ()
+[//]: # (</figure>)
 
 
 Up next:

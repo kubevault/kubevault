@@ -103,12 +103,6 @@ kubectl scale deploy <kubevault-operator-deployment-name> -n <ns> --replicas=0
 kubectl scale sts <vaultServer-statefulSet-name> -n <ns> --replicas=0
 ```
 
-Then after restoreSession get successful, scale everything back up.
-
-```bash
-kubectl scale deploy <kubevault-operator-deployment-name> -n <ns> --replicas=3
-kubectl scale sts <vaultServer-statefulSet-name> -n <ns> --replicas=3
-```
 
 `Vault` snapshot carries the signature of `unseal keys`. So, we need to restore the snapshot forcefully & to bypass this, we need to modify the `params` section of `RestoreSession` accordingly.
 
@@ -180,6 +174,13 @@ sample-vault-restore    s3-vault-repo   Succeeded   19s        27s
 ```
 
 Once the RestoreSession is Succeeded, the snapshot will be successfully restored into the new Vault cluster.
+
+Then after restoreSession get successful, scale everything back up.
+
+```bash
+kubectl scale deploy <kubevault-operator-deployment-name> -n <ns> --replicas=1
+kubectl scale sts <vaultServer-statefulSet-name> -n <ns> --replicas=3
+```
 
 To verify whether the Vault data has been successfully restored, export the necessary environment variables and port-forward the `vault-restore` service:
 
