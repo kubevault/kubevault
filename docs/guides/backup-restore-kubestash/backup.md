@@ -574,8 +574,8 @@ s3-vault-repo-postgres-quickstart-backup-frequent-backup-1725449400   s3-vault-r
 If you want, you can pause/ resume the KubeStash backup by setting “paused” field of BackupConfiguration to “true” or "false".
 
 ```bash
-kubectl kubestash pause <backpconfig-name> -n <namespace>
-kubectl kubestash resume <backpconfig-name> -n <namespace>
+kubectl kubestash pause <backupconfiguration-name> -n <namespace>
+kubectl kubestash resume <backupconfiguration-name> -n <namespace>
 ```
 
 Now, if we navigate to the s3 bucket, we can see backed up data is uploaded successfully.
