@@ -5,7 +5,7 @@ menu:
     identifier: backup-backup-restore-guides-kubestash
     name: Backup
     parent: backup-restore-guides-kubestash
-    weight: 10
+    weight: 20
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
