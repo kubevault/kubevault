@@ -34,7 +34,7 @@ You should be familiar with the following `KubeStash` concepts:
 You may restore a Vault snapshot into the same Vault cluster from which snapshot was taken or into a 
 completely new Vault deployment.
 
-### Restore Snapshot for same Vault
+### Restore Snapshot for same Vault Cluster
 
 Follow this guideline, if you want to restore a snapshot into the same Vault cluster. 
 Vault cluster must be `Initialized` & `Unsealed` before trying to restore the snapshot.
@@ -52,7 +52,7 @@ spec:
     apiGroup: appcatalog.appscode.com
     kind: AppBinding
     namespace: demo
-    name: vault
+    name: restore-vault
   dataSource:
     repository: s3-vault-repo
     snapshot: latest
@@ -64,7 +64,7 @@ spec:
     tasks:
       - name: vault-restore
         params:
-          keyPrefix: <vault-appbinding-key-prefix-value>
+          keyPrefix: k8s.4a6d4bda-4c08-49a5-b708-5e6d4b2f10f3.demo.restore-vault
 ```
 
 #### Create RestoreSession
@@ -120,19 +120,68 @@ Let's take a look at some of the more relevant flags that we can set:
 - --old-key-prefix=${oldKeyPrefix:=}
 ```
 
-By default, the --force flag is false, so in order to restore the snapshot into a different Vault cluster, this must be set to true.
-Moreover, once the snapshot is restored, the new Vault will be expecting the older unseal keys to unseal itself & the new unseal keys will not be required/valid anymore. So, we'll also migrate the older unseal keys & root token in place of the new ones.
-Since KubeStash also takes backup of the Vault unseal keys & root token along with the snapshot, we can retrieve the older ones. To correctly get those, we must set the --old-key-prefix flag properly.
+These flags are described in detail below:
+
+1. **`--force`**
+   - Default value: `false`.
+   - Must be set to `true` when restoring a snapshot into a **different** Vault cluster (i.e., a cluster other than the one from which the backup was taken). This is required even when restoring to a separate cluster in a different Kubernetes environment.
+   - Without this flag, the restore process will refuse to overwrite an existing Vault instance.
+
+2. **`--key-prefix`** (i.e., `keyPrefix`)
+   - This is the prefix used for the **restore target cluster's** Vault unseal keys and root token stored in Kubernetes Secrets.
+   - `KubeVault` operator auto-generates this prefix using the format:
+     ```
+     k8s.<cluster-uid>.<vault-namespace>.<vault-name>
+     ```
+     For example: `k8s.c977fff4-e3b5-4232-8e3e-3bb52106e057.demo.restore-vault`
+   - The cluster UID is the UID of the Kubernetes cluster itself (not the VaultServer). For clusters managed by `KubeVault`, this is embedded automatically.
+   - **How to find it:** Inspect the `AppBinding` of the **restore target** Vault cluster:
+     ```bash
+     kubectl get appbinding -n <vault-namespace> <vault-name> -oyaml
+     ```
+     Look under `spec.parameters.stash.addon.restoreTask.params` for the `keyPrefix` value:
+     ```yaml
+     spec:
+       parameters:
+         stash:
+           addon:
+             restoreTask:
+               name: vault-restore-1.10.3
+               params:
+               - name: keyPrefix
+                 value: k8s.c977fff4-e3b5-4232-8e3e-3bb52106e057.demo.restore-vault
+     ```
+
+3. **`--old-key-prefix`** (i.e., `oldKeyPrefix`)
+   - This is the prefix used for the **backup source cluster's** Vault unseal keys and root token.
+   - After a snapshot is restored, the target Vault will unseal itself using the **old** unseal keys (from the source cluster). The `KubeVault` operator uses `--old-key-prefix` to locate and migrate those old unseal keys and root token in place of the new ones.
+   - **How to find it:** Inspect the `AppBinding` of the **backup source** Vault cluster (or the `AppBinding` that was used during the backup):
+     ```bash
+     kubectl get appbinding -n <vault-namespace> <vault-name> -oyaml
+     ```
+     Look under `spec.parameters.stash.addon.backupTask.params` for the `keyPrefix` value:
+     ```yaml
+     spec:
+       parameters:
+         stash:
+           addon:
+             backupTask:
+               name: vault-backup-1.10.3
+               params:
+               - name: keyPrefix
+                 value: k8s.4a6d4bda-4c08-49a5-b708-5e6d4b2f10f3.demo.vault
+     ```
+     This value becomes the `--old-key-prefix` when restoring into the target cluster.
+
+> **Note:** This process works for restoring into a **separate Kubernetes cluster** as well. In that case, the `--old-key-prefix` refers to the key prefix of the source cluster (found in its `AppBinding`), and the `--key-prefix` refers to the key prefix of the new target cluster (found in its own `AppBinding`). Make sure to set `--force=true` in both same-cluster and cross-cluster restore scenarios.
+
+So, the final `params` to set in the `RestoreSession` for a cross-cluster restore would look like:
 
 ```bash
 - --force=${force:=true}
-- --key-prefix=${keyPrefix:=<restore-cluster-key-prefix>}
-- --old-key-prefix=${oldKeyPrefix:=<old-key-prefix>}
+- --key-prefix=${keyPrefix:=k8s.<restore-cluster-uid>.<vault-namespace>.<vault-name>}
+- --old-key-prefix=${oldKeyPrefix:=k8s.<backup-cluster-uid>.<vault-namespace>.<vault-name>}
 ```
-
-KeyPrefix is generated by KubeVault operator using the structure: k8s.{kubevault.com or cluster UID}.{vault-namespace}.{vault-name}. You can check the AppBinding (created with the same name as the VaultServer) to find the correct prefix:
-
-`kubectl get appbinding <vaultServer-name> -n <namespace> -o yaml`
 
 Let's create a secret called `encrypt-secret` with the Restic password,
 
@@ -156,7 +205,7 @@ spec:
     apiGroup: appcatalog.appscode.com
     kind: AppBinding
     namespace: demo
-    name: vault
+    name: restore-vault
   dataSource:
     repository: s3-vault-repo
     snapshot: latest
@@ -168,9 +217,9 @@ spec:
     tasks:
       - name: vault-restore
         params:
-          keyPrefix: "<restore-vault-appbinding-key-prefix-value>"
+          keyPrefix: k8s.c977fff4-e3b5-4232-8e3e-3bb52106e057.demo.restore-vault
           force: "true"
-          oldKeyPrefix: "<backup-vault-appbinding-key-prefix-value>"
+          oldKeyPrefix: k8s.4a6d4bda-4c08-49a5-b708-5e6d4b2f10f3.demo.vault
 ```
 
 Create RestoreSession:

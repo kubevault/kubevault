@@ -451,11 +451,34 @@ secret "encrypt-secret" created
 ```
 
 Below is the YAML for `BackupConfiguration` CR to backup the `vault` vaultServer that we have deployed earlier,
-Get the KeyPrefix value using this command:
+
+**`keyPrefix`** is the prefix used for the Vault unseal keys and root token stored in Kubernetes Secrets. `KubeVault` operator auto-generates this value using the format:
+```
+k8s.<cluster-uid>.<vault-namespace>.<vault-name>
+```
+For example: `k8s.4a6d4bda-4c08-49a5-b708-5e6d4b2f10f3.demo.vault`
+
+**How to find it:** Run the following command against the Vault cluster's `AppBinding`:
 ```bash
 $ kubectl get appbinding -n demo <vaultServer-name> -o jsonpath='{.spec.parameters.stash.addon.backupTask.params[?(@.name=="keyPrefix")].value}'
 ```
-
+Or inspect the full `AppBinding` YAML and look under `spec.parameters.stash.addon.backupTask.params`:
+```bash
+$ kubectl get appbinding -n demo <vaultServer-name> -oyaml
+```
+Look under `spec.parameters.stash.addon.backupTask.params` for the `keyPrefix` value:
+```yaml
+spec:
+  parameters:
+    stash:
+      addon:
+        backupTask:
+          name: vault-backup-1.10.3
+          params:
+          - name: keyPrefix
+            value: k8s.4a6d4bda-4c08-49a5-b708-5e6d4b2f10f3.demo.vault
+```
+Now apply the following `BackupConfiguration` manifest to create a backup configuration for the `vault` vaultServer,
 ```yaml
 apiVersion: core.kubestash.com/v1alpha1
 kind: BackupConfiguration
@@ -494,7 +517,7 @@ spec:
         tasks:
           - name: vault-backup
             params:
-              keyPrefix: <vault-appbinding-key-prefix-value>
+              keyPrefix: k8s.4a6d4bda-4c08-49a5-b708-5e6d4b2f10f3.demo.vault
 ```
 
 Here,
