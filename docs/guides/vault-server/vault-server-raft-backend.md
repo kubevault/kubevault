@@ -1,11 +1,11 @@
 ---
-title: Vault Server
+title: Vault Server Raft Backend
 menu:
   docs_{{ .version }}:
-    identifier: vault-server
-    name: Vault Server
+    identifier: vault-server-raft-backend
+    name: Vault Server Raft Backend
     parent: vault-server-guides
-    weight: 20
+    weight: 22
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---

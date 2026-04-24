@@ -1,11 +1,11 @@
 ---
-title: Vault Server
+title: Vault Server PostgreSQL Backend
 menu:
   docs_{{ .version }}:
-    identifier: vault-server
-    name: Vault Server
+    identifier: vault-server-postgres-backend
+    name: Vault Server PostgreSQL Backend
     parent: vault-server-guides
-    weight: 20
+    weight: 21
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
@@ -250,7 +250,6 @@ vault-0   2/2     Running   0          2m8s
 vault-1   2/2     Running   0          91s
 vault-2   2/2     Running   0          65s
 ```
-
 ```bash
 $ kubectl get vaultserver -n demo
 NAME    REPLICAS   VERSION   STATUS   AGE
@@ -326,13 +325,3 @@ name    appscode
 ```
 
 For more details on how to interact with the vault server, please check the [Vault Server guide](/docs/guides/vault-server/vault-server.md).
-
-
-
-
-
-
-
-
-
-
