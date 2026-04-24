@@ -105,7 +105,7 @@ To perform Kubernetes Authentication using ServiceAccount Token Secret,
 - The type of the specified token secret must be `kubernetes.io/service-account-token`.
 
 - The additional information required for the Kubernetes authentication method can be provided as AppBinding's `spec.parameters`.
-  
+
   ```yaml
     spec:
       parameters:
@@ -129,6 +129,7 @@ metadata:
 spec:
   secret:
     name: sa-token
+    kind: Secret
   parameters:
     apiVersion: config.kubevault.com/v1alpha1
     kind: VaultServerConfiguration
