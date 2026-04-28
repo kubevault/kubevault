@@ -69,7 +69,7 @@ metadata:
   name: postgres-quickstart
   namespace: demo
 spec:
-  version: "16.13"
+  version: "16.4"
   storageType: Durable
   replicas: 3
   configuration:
@@ -97,7 +97,7 @@ Let's check if the database is ready to use,
 ```bash
 $ kubectl get pg -n demo postgres-quickstart
 NAME                  VERSION    STATUS   AGE
-postgres-quickstart   16.13      Ready    5m1s
+postgres-quickstart   16.4      Ready    5m1s
 ```
 
 The database is `Ready`. Verify that KubeDB has created a `Secret` and a `Service` for this database using the following commands,
