@@ -29,7 +29,7 @@ To uninstall KubeVault, run the following command:
 
 ## Using Helm 3
 
-In Helm 3, release names are [scoped to a namespace](https://v3.helm.sh/docs/faq/#release-names-are-now-scoped-to-the-namespace). So, provide the namespace you used to install the operator when installing.
+In Helm 3, release names are [scoped to a namespace](https://helm.sh/docs/faq/changes_since_helm2/#release-names-are-now-scoped-to-the-namespace). So, provide the namespace you used to install the operator when installing.
 
 ```bash
 $ helm uninstall kubevault --namespace kubevault

@@ -63,10 +63,16 @@ jobs:
           kubectl create -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.0/cert-manager.crds.yaml
           # register kubedb crds
           kubectl create -f https://github.com/kubedb/installer/raw/master/crds/kubedb-crds.yaml
+          # register kubedb catalog (postgres versions etc.)
+          helm install kubedb-catalog appscode/kubedb-catalog
+          # register kubevault catalog (vaultserver versions)
+          helm install kubevault-catalog appscode/kubevault-catalog
           # register prometheus crds
           kubectl create -f https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.60.1/stripped-down-crds.yaml
           # register stash crds
           helm install stash-crds appscode/stash-crds
+          # register kubestash crds
+          kubectl create -f https://github.com/kubestash/installer/raw/master/crds/kubestash-crds.yaml
 
       - name: Check codespan schema
         run: |

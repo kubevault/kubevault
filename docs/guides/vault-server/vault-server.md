@@ -1,5 +1,5 @@
 ---
-title: Vault Server
+title: Vault Server 
 menu:
   docs_{{ .version }}:
     identifier: vault-server
