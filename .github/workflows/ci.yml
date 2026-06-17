@@ -36,7 +36,7 @@ jobs:
 
       - name: Check links
         run: |
-          lychee --base $(pwd) --max-concurrency 10 --exclude '^(.*github.com.*|.*api.slack.com.*|.*twitter.com.*|.*k8s.io.*)$' 'docs/**/*.md'
+          lychee --base-url $(pwd) --max-concurrency 10 --exclude '^(.*github.com.*|.*api.slack.com.*|.*twitter.com.*|.*k8s.io.*)$' 'docs/**/*.md'
 
       - name: Create Kubernetes cluster
         id: kind
