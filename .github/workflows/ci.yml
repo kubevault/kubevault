@@ -75,6 +75,9 @@ jobs:
           helm install stash-crds appscode/stash-crds
           # register kubestash crds
           kubectl create -f https://github.com/kubestash/installer/raw/master/crds/kubestash-crds.yaml
+          # register ocm crds
+          kubectl create -f https://github.com/open-cluster-management-io/api/raw/main/cluster/v1beta2/0000_01_clusters.open-cluster-management.io_managedclustersetbindings.crd.yaml
+          kubectl create -f https://github.com/open-cluster-management-io/api/raw/main/cluster/v1beta1/0000_02_clusters.open-cluster-management.io_placements.crd.yaml
 
       - name: Check codespan schema
         run: |
