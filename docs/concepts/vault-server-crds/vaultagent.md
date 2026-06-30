@@ -130,11 +130,15 @@ In hub-managed deployments the operator creates and rotates this Secret automati
 - `caSecret`: Secret with `ca.crt` (the hub's spoke-CA certificate).
 - `certSecret`: Secret with `tls.crt` and `tls.key` (a client certificate whose CN equals `spec.spokeName`, signed by the spoke-CA).
 
-The operator projects these into the agent's credentials directory as `cert.pem`/`key.pem`/`ca.pem` (read-only) and disables in-agent certificate renewal (`-renew-check-every=0`). You rotate the certificate Secrets out-of-band; changing them rolls the Pod.
+Both `caSecret` and `certSecret` are required in this mode — the spoke-CA is needed to verify the hub's server certificate. The operator projects them into the agent's credentials directory as `cert.pem`/`key.pem`/`ca.pem` (read-only) and disables in-agent certificate renewal (`-renew-check-every=0`). You rotate the certificate Secrets out-of-band. Note the Pod template references the Secrets by name: changing a Secret *reference* rolls the Pod, but rotating a Secret's contents in place does **not** — restart the agent Pod for it to pick up the new credentials.
 
 #### spec.reconnect
 
-`spec.reconnect` configures automatic reconnection to the hub (defaults: enabled, 5s initial backoff, 300s max backoff). The operator surfaces these to the agent container as `BAO_AGENT_RECONNECT_ENABLED`, `BAO_AGENT_RECONNECT_BACKOFF_SECONDS`, and `BAO_AGENT_RECONNECT_MAX_BACKOFF_SECONDS` environment variables (the `bao agent run` command has no equivalent CLI flags).
+`spec.reconnect` controls whether the agent reconnects to the hub after the stream drops (defaults: enabled).
+
+`bao agent run` has no internal reconnect loop — it exits when the hub stream drops and relies on the Pod to bring it back. The operator therefore maps `reconnect.enabled` onto the Pod's `restartPolicy`: `Always` when enabled (the kubelet relaunches the agent, which re-dials the hub) and `OnFailure` when disabled (a clean hub disconnect leaves the agent down; genuine crashes still recover).
+
+> **Note:** `backoffSeconds` and `maxBackoffSeconds` are not honored — restart timing is governed by the kubelet's CrashLoopBackoff and cannot be tuned through these fields.
 
 #### spec.podTemplate
 
