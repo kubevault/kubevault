@@ -136,7 +136,10 @@ Both `caSecret` and `certSecret` are required in this mode — the spoke-CA is n
 
 `spec.reconnect` controls whether the agent reconnects to the hub after the stream drops (defaults: enabled).
 
-`bao agent run` has no internal reconnect loop — it exits when the hub stream drops and relies on the Pod to bring it back. The operator therefore maps `reconnect.enabled` onto the Pod's `restartPolicy`: `Always` when enabled (the kubelet relaunches the agent, which re-dials the hub) and `OnFailure` when disabled (a clean hub disconnect leaves the agent down; genuine crashes still recover).
+`bao agent run` has no internal reconnect loop — it exits when the hub stream drops and relies on the Pod to bring it back. The operator therefore maps `reconnect.enabled` onto the Pod's `restartPolicy`:
+
+- **enabled** (default): `restartPolicy: Always` — the kubelet relaunches the agent, which re-dials the hub.
+- **disabled**: `restartPolicy: OnFailure` — a clean hub disconnect leaves the agent stopped (the operator also leaves the completed Pod in place rather than recreating it, and reports `status.phase: Disconnected`); genuine crashes still recover in place.
 
 > **Note:** `backoffSeconds` and `maxBackoffSeconds` are not honored — restart timing is governed by the kubelet's CrashLoopBackoff and cannot be tuned through these fields.
 
