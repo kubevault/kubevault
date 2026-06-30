@@ -164,7 +164,7 @@ status:
 - `podName`: name of the spoke-agent Pod.
 - `appBindingRef`: references the AppBinding for the hub Vault (delivered by the hub `ManifestWork` in hub-managed deployments). Spoke-side consumers (SecretEngine, database role CRDs, KubeDB) use this AppBinding.
 - `lastHeartbeat`: timestamp of the last successful heartbeat to the hub, if reported by the agent.
-- `certExpiry`: expiry of the current spoke client certificate, if known.
+- `certExpiry`: expiry of the spoke client certificate. The operator sets this for **pre-provisioned (`spec.tls`) agents** by reading `certSecret` directly. For **bootstrap agents** the certificate lives only in the pod, so the operator does not set it here — the hub reports it instead on the VaultServer's `status.agentPlacement.clusters[].certExpiry` (sourced from the agent backend's `agent/spokes` endpoint).
 - `conditions`: the latest available observations of the VaultAgent's state.
 
 In hub-managed deployments, `status.phase` is scraped back to the hub through `ManifestWork` status feedback and aggregated into the hub VaultServer's `status.agentPlacement`.

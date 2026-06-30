@@ -397,7 +397,7 @@ status:
 
   - `ready`: The number of clusters whose VaultAgent reports phase `Connected`.
 
-  - `clusters`: Per-cluster detail, each entry carrying `clusterName`, `phase` (the spoke VaultAgent phase, or hub-side values `WorkApplied`, `WorkProgressing`, `WorkDegraded`), and `tokenExpiry` (when the current bootstrap token for that spoke expires).
+  - `clusters`: Per-cluster detail, each entry carrying `clusterName`, `phase` (the spoke VaultAgent phase, or hub-side values `WorkApplied`, `WorkProgressing`, `WorkDegraded`), `tokenExpiry` (when the current bootstrap token for that spoke expires), and `certExpiry` (when the spoke's mTLS client certificate expires, as observed by the hub's `agent/spokes` endpoint; absent until the spoke connects).
 
   ```yaml
   status:
@@ -410,9 +410,11 @@ status:
         - clusterName: cluster-1
           phase: Connected
           tokenExpiry: "2026-06-13T10:00:00Z"
+          certExpiry: "2026-07-12T10:00:00Z"
         - clusterName: cluster-2
           phase: Connected
           tokenExpiry: "2026-06-13T10:00:00Z"
+          certExpiry: "2026-07-12T10:00:00Z"
   ```
 
 - Hub-spoke deployments add the following condition types to `status.conditions`:

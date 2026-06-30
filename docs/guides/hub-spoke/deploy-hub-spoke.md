@@ -159,7 +159,8 @@ $ kubectl get vaultserver vault -n demo -o jsonpath='{.status.agentPlacement}' |
     {
       "clusterName": "cluster-1",
       "phase": "Connected",
-      "tokenExpiry": "2026-06-13T10:00:00Z"
+      "tokenExpiry": "2026-06-13T10:00:00Z",
+      "certExpiry": "2026-07-12T10:00:00Z"
     }
   ]
 }
@@ -179,8 +180,8 @@ And confirm the spoke is connected from inside a Vault pod:
 
 ```bash
 $ kubectl exec -n demo vault-0 -c vault -- bao agent list
-NAME       LAST SEEN  UPTIME  HEALTH
-cluster-1  1s ago     2m      OK
+NAME       LAST SEEN  UPTIME  CERT EXP  HEALTH
+cluster-1  1s ago     2m      29d       OK
 ```
 
 ## Step 4: Verify the spoke side
@@ -246,7 +247,7 @@ Request credentials the usual way with a `SecretAccessRequest`; see the [secret 
 
 - **Adding or removing spokes**: label or relabel managed clusters; the Placement decision changes and the operator converges. Removed clusters get their ManifestWork deleted (the spoke loses the agent, AppBinding, and Secrets), their hub-side ServiceAccount and policies cleaned up, and their bootstrap token revoked.
 - **Bootstrap token rotation**: automatic. Tokens default to a 24h TTL (`spec.agentTemplate.bootstrapTokenTTL`) and are rotated when less than a quarter of the TTL remains, so a restarting spoke Pod can always re-join.
-- **Certificate renewal**: the spoke agent renews its own mTLS client certificate in place at half-life; no operator involvement.
+- **Certificate renewal**: the spoke agent renews its own mTLS client certificate in place at half-life; no operator involvement. The current expiry is visible on `status.agentPlacement.clusters[].certExpiry` (the hub reads it from its `agent/spokes` endpoint, so it tracks renewals) and via `bao agent list`.
 - **LoadBalancer address change**: the operator refreshes the advertised endpoint on the hub and pushes the new address into every ManifestWork. The changed hub address rolls the spoke-agent Pods (pod-template change), so they reconnect to the new endpoint.
 - **VaultServer deletion**: hub-side finalizers tear down every ManifestWork and revoke outstanding bootstrap tokens before the VaultServer itself is removed.
 
