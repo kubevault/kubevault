@@ -26,9 +26,9 @@ This is the spoke half of the KubeVault hub-spoke model:
 A `VaultAgent` can be created two ways:
 
 1. **Hub-managed (recommended)**: set `spec.agentPlacementRef` on the hub `VaultServer`. The KubeVault operator resolves the referenced OCM `Placement` and delivers a fully wired `VaultAgent` (plus its AppBinding and credentials) to every selected managed cluster via `ManifestWork`. See the [hub-spoke deployment guide](/docs/guides/hub-spoke/deploy-hub-spoke.md).
-2. **Standalone**: create the `VaultAgent` by hand in the spoke cluster. You must set `spec.bootstrap` and supply the join Secret it references yourself (see [spec.bootstrap](#specbootstrap)).
+2. **Standalone**: create the `VaultAgent` by hand in the spoke cluster, providing the credential material yourself — either a [`spec.bootstrap`](#specbootstrap) join Secret or pre-provisioned [`spec.tls`](#spectls) certificates.
 
-`spec.bootstrap` is required: the spoke agent obtains its mTLS credentials by running `bao agent join`. When a `VaultAgent` is reconciled, the KubeVault operator in the spoke cluster provisions a ServiceAccount and the spoke-agent Pod. The AppBinding pointing back at the hub VaultServer is **not** authored by this reconciler — in hub-managed deployments it is delivered and owned by the hub's `ManifestWork`.
+When a `VaultAgent` is reconciled, the KubeVault operator in the spoke cluster provisions a ServiceAccount, the spoke-agent Pod, and — for standalone agents — an AppBinding pointing back at the hub VaultServer. In hub-managed deployments the AppBinding is instead delivered and owned by the hub's `ManifestWork`, and the operator defers to that copy.
 
 ## VaultAgent CRD Specification
 
@@ -94,7 +94,7 @@ spec:
 
 #### spec.bootstrap
 
-`spec.bootstrap` configures the automated `bao agent join` trust bootstrap. The spoke-agent Pod runs a join init container that exchanges a hub-issued bootstrap token for mTLS client credentials before the long-running agent starts. Credentials live on an emptyDir; the agent renews its own certificate in place, and a Pod restart simply re-joins with the current token.
+`spec.bootstrap` configures the automated `bao agent join` trust bootstrap. When set, the spoke-agent Pod runs a join init container that exchanges a hub-issued bootstrap token for mTLS client credentials before the long-running agent starts. Credentials live on an emptyDir; the agent renews its own certificate in place, and a Pod restart simply re-joins with the current token.
 
 ```yaml
 spec:
@@ -113,7 +113,7 @@ The referenced Secret must carry:
 
 In hub-managed deployments the operator creates and rotates this Secret automatically (tokens default to a 24h TTL and are rotated when less than a quarter of the TTL remains).
 
-> **Note:** `spec.bootstrap` is currently required. The operator rejects a `VaultAgent` that does not set it, because the spoke agent has no other supported way to obtain its mTLS credentials.
+> **Note:** Set exactly one credential source — `spec.bootstrap` (this join flow) or [`spec.tls`](#spectls) (pre-provisioned certificates). The operator rejects a `VaultAgent` that sets neither or both.
 
 #### spec.image
 
@@ -121,24 +121,20 @@ In hub-managed deployments the operator creates and rotates this Secret automati
 
 #### spec.tokenSecretRef
 
-`spec.tokenSecretRef` is an optional field referencing a Secret with a `token` key holding a Vault token.
-
-> **Note:** Reserved for future use. The current operator does not author the spoke AppBinding (it is delivered by the hub `ManifestWork`), so this field has no effect today.
+`spec.tokenSecretRef` is an optional field referencing a Secret with a `token` key holding a Vault token. For standalone agents — where the operator authors the AppBinding — that AppBinding authenticates to the hub Vault with this token instead of the agent's ServiceAccount. It has no effect in hub-managed deployments, where the AppBinding is delivered by the hub `ManifestWork`.
 
 #### spec.tls
 
-`spec.tls` describes pre-provisioned mTLS credentials as an alternative to the `spec.bootstrap` join flow:
+`spec.tls` provides pre-provisioned mTLS credentials as an alternative to the `spec.bootstrap` join flow. When set (and `spec.bootstrap` is not), the spoke-agent Pod skips `bao agent join` and runs `bao agent run` directly against these credentials:
 
 - `caSecret`: Secret with `ca.crt` (the hub's spoke-CA certificate).
 - `certSecret`: Secret with `tls.crt` and `tls.key` (a client certificate whose CN equals `spec.spokeName`, signed by the spoke-CA).
 
-> **Note:** Not yet implemented. The current operator requires `spec.bootstrap`; pre-provisioned credentials are not consumed yet.
+The operator projects these into the agent's credentials directory as `cert.pem`/`key.pem`/`ca.pem` (read-only) and disables in-agent certificate renewal (`-renew-check-every=0`). You rotate the certificate Secrets out-of-band; changing them rolls the Pod.
 
 #### spec.reconnect
 
-`spec.reconnect` describes automatic reconnection to the hub (defaults: enabled, 5s initial backoff, 300s max backoff).
-
-> **Note:** Reserved. These fields are not yet wired into the spoke-agent Pod; reconnection is handled by the agent's own defaults.
+`spec.reconnect` configures automatic reconnection to the hub (defaults: enabled, 5s initial backoff, 300s max backoff). The operator surfaces these to the agent container as `BAO_AGENT_RECONNECT_ENABLED`, `BAO_AGENT_RECONNECT_BACKOFF_SECONDS`, and `BAO_AGENT_RECONNECT_MAX_BACKOFF_SECONDS` environment variables (the `bao agent run` command has no equivalent CLI flags).
 
 #### spec.podTemplate
 
@@ -171,9 +167,8 @@ In hub-managed deployments, `status.phase` is scraped back to the hub through `M
 For every `VaultAgent`, the spoke-side KubeVault operator provisions:
 
 - a **ServiceAccount** for the agent Pod
-- the **spoke-agent Pod**: an init container runs `bao agent join` (verifying the hub via the bootstrap token's JWS signature plus the SPKI pin) and writes credentials to an emptyDir; the main container runs `bao agent run -server=<hub>:<grpcPort> -credentials-dir=...`. The Pod is replaced when its template changes (image, podTemplate, resources, or the referenced join Secret).
-
-The **AppBinding** for the hub VaultServer is **not** authored by this reconciler. In hub-managed deployments it is delivered and owned by the hub's `ManifestWork` (labeled `app.kubernetes.io/managed-by: kubevault-hub`). Its parameters carry `deploymentMode: RemoteAgent` and `spokeName`, which the secret engine machinery uses to route database mounts through the hub's `remote-<db>-plugin` proxies. See the [AppBinding concept](/docs/concepts/vault-server-crds/appbinding.md).
+- the **spoke-agent Pod**: with `spec.bootstrap`, an init container runs `bao agent join` (verifying the hub via the bootstrap token's JWS signature plus the SPKI pin) and writes credentials to an emptyDir; with `spec.tls`, the pre-provisioned certificates are projected read-only and there is no init container. The main container runs `bao agent run -server=<hub>:<grpcPort> -credentials-dir=...`. The Pod is replaced when its template changes (image, podTemplate, resources, or the referenced Secrets).
+- an **AppBinding** for the hub VaultServer (standalone agents only). Its parameters carry `deploymentMode: RemoteAgent` and `spokeName`, which the secret engine machinery uses to route database mounts through the hub's `remote-<db>-plugin` proxies. In hub-managed deployments this AppBinding is instead delivered and owned by the hub's `ManifestWork` (labeled `app.kubernetes.io/managed-by: kubevault-hub`), and the operator defers to that copy. See the [AppBinding concept](/docs/concepts/vault-server-crds/appbinding.md).
 
 ## Next Steps
 
