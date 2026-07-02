@@ -183,7 +183,8 @@ The plugin mapping when `deploymentMode` is `RemoteAgent`:
 | postgres | `remote-postgres-plugin` |
 | mysql, mariadb | `remote-mysql-plugin` |
 | redis | `remote-redis-plugin` |
-| mongodb, elasticsearch | not supported through the spoke agent; SecretEngine reconcile fails with an error |
+| valkey | `remote-valkey-plugin` |
+| mongodb, elasticsearch | not supported through the spoke agent; the SecretEngine is rejected on apply by the validating webhook (and again at config-write) |
 
 Note: the `vault-type: remote` AppBinding label is a list-filter convenience only. Routing decisions always come from `spec.parameters.deploymentMode`.
 

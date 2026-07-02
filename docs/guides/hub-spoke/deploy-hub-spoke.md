@@ -239,23 +239,23 @@ spec:
 
 Because the AppBinding's `deploymentMode` is `RemoteAgent`, the SecretEngine controller configures the hub mount with `plugin_name: remote-postgres-plugin` and `spoke_name: cluster-1`. The hub proxies every credential operation to the spoke agent, which runs the real `postgresql-database-plugin` in-process against the spoke-local database.
 
-Postgres, MySQL, MariaDB, and Redis are supported through the spoke agent. MongoDB and Elasticsearch are not yet; SecretEngines for those against a `RemoteAgent` AppBinding fail with an explicit error.
+Postgres, MySQL, MariaDB, Redis, and Valkey are supported through the spoke agent. MongoDB and Elasticsearch are not; a SecretEngine for those against a `RemoteAgent` AppBinding is rejected on apply by the validating webhook.
 
 Request credentials the usual way with a `SecretAccessRequest`; see the [secret engine guides](/docs/guides/secret-engines/postgres/overview.md).
 
 ## Day-2 operations
 
-- **Adding or removing spokes**: label or relabel managed clusters; the Placement decision changes and the operator converges. Removed clusters get their ManifestWork deleted (the spoke loses the agent, AppBinding, and Secrets), their hub-side ServiceAccount and policies cleaned up, and their bootstrap token revoked.
+- **Adding or removing spokes**: label or relabel managed clusters; the Placement decision changes and the operator converges. Removed clusters get their ManifestWork deleted (the spoke loses the agent, AppBinding, and Secrets), their hub-side ServiceAccount and policies cleaned up, and their bootstrap token revoked. The spoke **Namespace is left in place** (orphaned) — it may hold non-KubeVault workloads — and the operator emits a `SpokeMountsRetained` warning Event since the hub-side database mounts the spoke configured are also retained.
 - **Bootstrap token rotation**: automatic. Tokens default to a 24h TTL (`spec.agentTemplate.bootstrapTokenTTL`) and are rotated when less than a quarter of the TTL remains, so a restarting spoke Pod can always re-join.
 - **Certificate renewal**: the spoke agent renews its own mTLS client certificate in place at half-life; no operator involvement. The current expiry is visible on `status.agentPlacement.clusters[].certExpiry` (the hub reads it from its `agent/spokes` endpoint, so it tracks renewals) and via `bao agent list`.
 - **LoadBalancer address change**: the operator refreshes the advertised endpoint on the hub and pushes the new address into every ManifestWork. The changed hub address rolls the spoke-agent Pods (pod-template change), so they reconnect to the new endpoint.
-- **VaultServer deletion**: hub-side finalizers tear down every ManifestWork and revoke outstanding bootstrap tokens before the VaultServer itself is removed.
+- **VaultServer deletion**: under `Halt`, `Delete`, or `WipeOut`, hub-side finalizers tear down every ManifestWork (each spoke loses its VaultAgent, AppBinding, and Secrets) and revoke outstanding bootstrap tokens before the VaultServer itself is removed. A `DoNotTerminate` VaultServer cannot be deleted — the validating webhook rejects it, and even if that is bypassed the spoke-agent finalizer is retained and teardown is skipped, so the spokes keep running until the policy is changed.
 
 ## Troubleshooting
 
 | Symptom | Check |
 |---|---|
-| `AgentPlacementResolved=False`, reason `WaitingForLoadBalancer` | the `vault` Service has no LoadBalancer ingress yet, or its type is not `LoadBalancer` |
+| `AgentPlacementResolved=False`, reason `WaitingForLoadBalancer` | the `vault` Service has no LoadBalancer ingress yet, or its type is not `LoadBalancer` — or, for non-cloud fleets, set the `kubevault.com/agent-hub-address` annotation to an external address instead |
 | `AgentPlacementResolved=False`, placement errors | the Placement exists in the VaultServer namespace and a `ManagedClusterSetBinding` binds the cluster set to that namespace |
 | `agentPlacementRef` silently ignored | OCM hub CRDs are not installed; the operator logs this at startup |
 | ManifestWork `Degraded` with forbidden errors | the klusterlet work agent lacks permission for KubeVault CRs; the aggregation ClusterRole shipped in the ManifestWork requires OCM >= v0.12 |
