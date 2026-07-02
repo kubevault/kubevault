@@ -36,6 +36,7 @@ Guides show you how to perform tasks with KubeVault operator and Vault CSI drive
 - To set up monitoring see [here](/docs/guides/monitoring/overview.md).
 - To use KubeVault operator for external Vault see [here](/docs/guides/platforms/external-vault.md).
 - To use KubeVault operator in multiple cluster for same Vault see [here](/docs/guides/platforms/multi-cluster-vault.md).
+- To deploy Vault in a hub-spoke model across OCM managed clusters see [here](/docs/guides/hub-spoke/deploy-hub-spoke.md).
 
 ## Using Vault CSI driver
 

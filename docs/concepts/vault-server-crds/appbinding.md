@@ -160,6 +160,38 @@ unsealer:
   secretThreshold: 3
 ```
 
+### spec.parameters.deploymentMode
+
+`spec.parameters.deploymentMode` indicates how this AppBinding reaches the Vault server. It is an enum with two values:
+
+- `Local` (the default when absent): the Vault server is reachable in-cluster (or directly). Database secret engines configured through this AppBinding use the built-in `<db>-database-plugin` family.
+- `RemoteAgent`: this AppBinding was authored for a spoke cluster that reaches a hub Vault through the OpenBao spoke agent (see the [VaultAgent concept](/docs/concepts/vault-server-crds/vaultagent.md)). Database secret engines configured through this AppBinding use the hub-side `remote-<db>-plugin` proxy family, which brokers plugin calls to the spoke agent over mTLS gRPC.
+
+```yaml
+spec:
+  parameters:
+    apiVersion: config.kubevault.com/v1alpha1
+    kind: VaultServerConfiguration
+    deploymentMode: RemoteAgent
+    spokeName: cluster-1
+```
+
+The plugin mapping when `deploymentMode` is `RemoteAgent`:
+
+| engine | plugin |
+|---|---|
+| postgres | `remote-postgres-plugin` |
+| mysql, mariadb | `remote-mysql-plugin` |
+| redis | `remote-redis-plugin` |
+| valkey | `remote-valkey-plugin` |
+| mongodb, elasticsearch | not supported through the spoke agent; the SecretEngine is rejected on apply by the validating webhook (and again at config-write) |
+
+Note: the `vault-type: remote` AppBinding label is a list-filter convenience only. Routing decisions always come from `spec.parameters.deploymentMode`.
+
+### spec.parameters.spokeName
+
+`spec.parameters.spokeName` is the spoke cluster identity registered with the hub's agent backend. It is required when `deploymentMode` is `RemoteAgent` and is written into database mount configurations as `spoke_name`, telling the hub which connected spoke runs the actual database plugin.
+
 ### spec.clientConfig
 
 `spec.clientConfig` is a required field that specifies the information to make a connection with an app.
