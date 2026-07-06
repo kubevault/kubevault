@@ -53,11 +53,11 @@ A `VaultServer` is a `Kubernetes CustomResourceDefinition (CRD)` which is used t
 
 - [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md)
 
-## Vault Agent
+## Vault Relay
 
-A `VaultAgent` is a `Kubernetes CustomResourceDefinition (CRD)` which deploys an OpenBao spoke agent that connects a spoke cluster to a central hub `VaultServer`, enabling credential management for databases that are only reachable from the spoke cluster.
+A `VaultRelay` is a `Kubernetes CustomResourceDefinition (CRD)` which deploys an OpenBao spoke relay that connects a spoke cluster to a central hub `VaultServer`, enabling credential management for databases that are only reachable from the spoke cluster.
 
-- [VaultAgent](/docs/concepts/vault-server-crds/vaultagent.md)
+- [VaultRelay](/docs/concepts/vault-server-crds/vaultrelay.md)
 
 ### Vault Unsealer Options
 When a `Vault` server is started, it starts in a `sealed` state. In this state, Vault is configured to know where and how to access the physical storage, but doesn't know how to decrypt any of it.

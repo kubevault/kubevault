@@ -21,9 +21,9 @@ This guide shows how to run one central Vault (OpenBao) server on a **hub** clus
 ```
 HUB CLUSTER                                       SPOKE CLUSTER (one of many)
 +--------------------------------------+          +--------------------------------------+
-|  VaultServer (OpenBao, HA)           |          |  VaultAgent (delivered via OCM)      |
-|   - agent/ backend: spoke-CA, tokens |          |   - join init container (bootstrap)  |
-|   - remote-<db>-plugin proxies       |  mTLS    |   - bao agent run daemon             |
+|  VaultServer (OpenBao, HA)           |          |  VaultRelay (delivered via OCM)      |
+|   - relay/ backend: spoke-CA, tokens |          |   - join init container (bootstrap)  |
+|   - remote-<db>-plugin proxies       |  mTLS    |   - bao relay run daemon             |
 |  Service (LoadBalancer)              |<==gRPC===|   - runs db plugins in-process       |
 |   - 8200 Vault API                   |  :50053  |       |                              |
 |   - 50053 spoke gRPC proxy           |<--HTTPS--|       +--> postgres (spoke-local)    |
@@ -34,17 +34,17 @@ HUB CLUSTER                                       SPOKE CLUSTER (one of many)
 
 When you set `spec.agentPlacementRef` on the hub `VaultServer`, the operator:
 
-1. initializes the OpenBao `agent/` backend (spoke-CA, gRPC proxy listener) and advertises the LoadBalancer address,
+1. initializes the OpenBao `relay/` backend (spoke-CA, gRPC proxy listener) and advertises the LoadBalancer address,
 2. resolves the `Placement` through its `PlacementDecision`s to a set of managed clusters,
-3. per cluster: creates a hub ServiceAccount (in the managed cluster's namespace on the hub) with a `VaultPolicy`/`VaultPolicyBinding` scoping its access, mints a rotating bootstrap token, and applies one `ManifestWork` carrying the `VaultAgent`, the AppBinding (with the LoadBalancer address and CA bundle), and the credential Secrets,
+3. per cluster: creates a hub ServiceAccount (in the managed cluster's namespace on the hub) with a `VaultPolicy`/`VaultPolicyBinding` scoping its access, mints a rotating bootstrap token, and applies one `ManifestWork` carrying the `VaultRelay`, the AppBinding (with the LoadBalancer address and CA bundle), and the credential Secrets,
 4. aggregates rollout state back into `status.agentPlacement` using ManifestWork status feedback.
 
-On each spoke, the KubeVault operator reconciles the delivered `VaultAgent`: an init container runs `bao agent join` (verifying the hub with the bootstrap token's JWS signature plus the spoke-CA SPKI pin) and the main container runs `bao agent run`, connecting back to the hub over mTLS.
+On each spoke, the KubeVault operator reconciles the delivered `VaultRelay`: an init container runs `bao relay join` (verifying the hub with the bootstrap token's JWS signature plus the spoke-CA SPKI pin) and the main container runs `bao relay run`, connecting back to the hub over mTLS.
 
 ## Before you begin
 
 - A hub cluster with the [OCM hub components](https://open-cluster-management.io/docs/getting-started/installation/start-the-control-plane/) installed (`clusteradm init`), and one or more managed clusters [registered](https://open-cluster-management.io/docs/getting-started/installation/register-a-cluster/) (`clusteradm join` + accept).
-- The KubeVault operator installed on the hub **and** on every spoke cluster (the spoke operator reconciles the delivered `VaultAgent`). See the [setup guide](/docs/setup/README.md).
+- The KubeVault operator installed on the hub **and** on every spoke cluster (the spoke operator reconciles the delivered `VaultRelay`). See the [setup guide](/docs/setup/README.md).
 - [cert-manager](https://cert-manager.io/docs/installation/) on the hub (the VaultServer must run with TLS).
 - A cloud LoadBalancer (or equivalent) on the hub cluster, reachable from the spokes.
 
@@ -108,7 +108,7 @@ spec:
   terminationPolicy: WipeOut
 ```
 
-The `vault` Service exposes the Vault API on port 8200 and the spoke-agent gRPC proxy on port 50053; both travel through the same LoadBalancer.
+The `vault` Service exposes the Vault API on port 8200 and the spoke-relay gRPC proxy on port 50053; both travel through the same LoadBalancer.
 
 ## Step 2: Select spoke clusters with a Placement
 
@@ -138,7 +138,7 @@ spec:
             purpose: database
 ```
 
-Label the managed clusters that should run a spoke agent:
+Label the managed clusters that should run a spoke relay:
 
 ```bash
 $ kubectl label managedcluster cluster-1 purpose=database
@@ -179,17 +179,17 @@ kv-demo-vault-agent  2m
 And confirm the spoke is connected from inside a Vault pod:
 
 ```bash
-$ kubectl exec -n demo vault-0 -c vault -- bao agent list
+$ kubectl exec -n demo vault-0 -c vault -- bao relay list
 NAME       LAST SEEN  UPTIME  CERT EXP  HEALTH
 cluster-1  1s ago     2m      29d       OK
 ```
 
 ## Step 4: Verify the spoke side
 
-On the spoke cluster, the work agent has applied the payload and the KubeVault operator has started the agent:
+On the spoke cluster, the work agent has applied the payload and the KubeVault operator has started the relay:
 
 ```bash
-$ kubectl get vaultagent -n demo
+$ kubectl get vaultrelay -n demo
 NAME          SPOKE       STATUS      AGE
 vault-agent   cluster-1   Connected   2m
 
@@ -237,19 +237,19 @@ spec:
   defaultTTL: 1h
 ```
 
-Because the AppBinding's `deploymentMode` is `RemoteAgent`, the SecretEngine controller configures the hub mount with `plugin_name: remote-postgres-plugin` and `spoke_name: cluster-1`. The hub proxies every credential operation to the spoke agent, which runs the real `postgresql-database-plugin` in-process against the spoke-local database.
+Because the AppBinding's `deploymentMode` is `RemoteAgent`, the SecretEngine controller configures the hub mount with `plugin_name: remote-postgres-plugin` and `spoke_name: cluster-1`. The hub proxies every credential operation to the spoke relay, which runs the real `postgresql-database-plugin` in-process against the spoke-local database.
 
-Postgres, MySQL, MariaDB, Redis, and Valkey are supported through the spoke agent. MongoDB and Elasticsearch are not; a SecretEngine for those against a `RemoteAgent` AppBinding is rejected on apply by the validating webhook.
+Postgres, MySQL, MariaDB, Redis, and Valkey are supported through the spoke relay. MongoDB and Elasticsearch are not; a SecretEngine for those against a `RemoteAgent` AppBinding is rejected on apply by the validating webhook.
 
 Request credentials the usual way with a `SecretAccessRequest`; see the [secret engine guides](/docs/guides/secret-engines/postgres/overview.md).
 
 ## Day-2 operations
 
-- **Adding or removing spokes**: label or relabel managed clusters; the Placement decision changes and the operator converges. Removed clusters get their ManifestWork deleted (the spoke loses the agent, AppBinding, and Secrets), their hub-side ServiceAccount and policies cleaned up, and their bootstrap token revoked. The spoke **Namespace is left in place** (orphaned) — it may hold non-KubeVault workloads — and the operator emits a `SpokeMountsRetained` warning Event since the hub-side database mounts the spoke configured are also retained.
+- **Adding or removing spokes**: label or relabel managed clusters; the Placement decision changes and the operator converges. Removed clusters get their ManifestWork deleted (the spoke loses the relay, AppBinding, and Secrets), their hub-side ServiceAccount and policies cleaned up, and their bootstrap token revoked. The spoke **Namespace is left in place** (orphaned) — it may hold non-KubeVault workloads — and the operator emits a `SpokeMountsRetained` warning Event since the hub-side database mounts the spoke configured are also retained.
 - **Bootstrap token rotation**: automatic. Tokens default to a 24h TTL (`spec.agentTemplate.bootstrapTokenTTL`) and are rotated when less than a quarter of the TTL remains, so a restarting spoke Pod can always re-join.
-- **Certificate renewal**: the spoke agent renews its own mTLS client certificate in place at half-life; no operator involvement. The current expiry is visible on `status.agentPlacement.clusters[].certExpiry` (the hub reads it from its `agent/spokes` endpoint, so it tracks renewals) and via `bao agent list`.
-- **LoadBalancer address change**: the operator refreshes the advertised endpoint on the hub and pushes the new address into every ManifestWork. The changed hub address rolls the spoke-agent Pods (pod-template change), so they reconnect to the new endpoint.
-- **VaultServer deletion**: under `Halt`, `Delete`, or `WipeOut`, hub-side finalizers tear down every ManifestWork (each spoke loses its VaultAgent, AppBinding, and Secrets) and revoke outstanding bootstrap tokens before the VaultServer itself is removed. A `DoNotTerminate` VaultServer cannot be deleted — the validating webhook rejects it, and even if that is bypassed the spoke-agent finalizer is retained and teardown is skipped, so the spokes keep running until the policy is changed.
+- **Certificate renewal**: the spoke relay renews its own mTLS client certificate in place at half-life; no operator involvement. The current expiry is visible on `status.agentPlacement.clusters[].certExpiry` (the hub reads it from its `relay/spokes` endpoint, so it tracks renewals) and via `bao relay list`.
+- **LoadBalancer address change**: the operator refreshes the advertised endpoint on the hub and pushes the new address into every ManifestWork. The changed hub address rolls the spoke-relay Pods (pod-template change), so they reconnect to the new endpoint.
+- **VaultServer deletion**: under `Halt`, `Delete`, or `WipeOut`, hub-side finalizers tear down every ManifestWork (each spoke loses its VaultRelay, AppBinding, and Secrets) and revoke outstanding bootstrap tokens before the VaultServer itself is removed. A `DoNotTerminate` VaultServer cannot be deleted — the validating webhook rejects it, and even if that is bypassed the spoke-relay finalizer is retained and teardown is skipped, so the spokes keep running until the policy is changed.
 
 ## Troubleshooting
 
@@ -260,7 +260,7 @@ Request credentials the usual way with a `SecretAccessRequest`; see the [secret 
 | `agentPlacementRef` silently ignored | OCM hub CRDs are not installed; the operator logs this at startup |
 | ManifestWork `Degraded` with forbidden errors | the klusterlet work agent lacks permission for KubeVault CRs; the aggregation ClusterRole shipped in the ManifestWork requires OCM >= v0.12 |
 | spoke Pod join init container failing | bootstrap token expired (check `status.agentPlacement.clusters[].tokenExpiry`) or the hub Vault API is unreachable from the spoke |
-| VaultAgent `Connected` but SecretEngine fails | the engine type may not be supported through the spoke agent (MongoDB, Elasticsearch) |
+| VaultRelay `Connected` but SecretEngine fails | the engine type may not be supported through the spoke relay (MongoDB, Elasticsearch) |
 
 ## Cleanup
 
@@ -273,7 +273,7 @@ $ kubectl delete ns demo
 
 ## Next Steps
 
-- [VaultAgent concept](/docs/concepts/vault-server-crds/vaultagent.md)
+- [VaultRelay concept](/docs/concepts/vault-server-crds/vaultrelay.md)
 - [VaultServer concept](/docs/concepts/vault-server-crds/vaultserver.md)
 - [AppBinding concept](/docs/concepts/vault-server-crds/appbinding.md), in particular `spec.parameters.deploymentMode`
 - [Secret engine guides](/docs/guides/secret-engines/postgres/overview.md)
