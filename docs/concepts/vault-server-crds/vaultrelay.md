@@ -25,7 +25,7 @@ This is the spoke half of the KubeVault hub-spoke model:
 
 A `VaultRelay` can be created two ways:
 
-1. **Hub-managed (recommended)**: set `spec.agentPlacementRef` on the hub `VaultServer`. The KubeVault operator resolves the referenced OCM `Placement` and delivers a fully wired `VaultRelay` (plus its AppBinding and credentials) to every selected managed cluster via `ManifestWork`. See the [hub-spoke deployment guide](/docs/guides/hub-spoke/deploy-hub-spoke.md).
+1. **Hub-managed (recommended)**: set `spec.relayPlacementRef` on the hub `VaultServer`. The KubeVault operator resolves the referenced OCM `Placement` and delivers a fully wired `VaultRelay` (plus its AppBinding and credentials) to every selected managed cluster via `ManifestWork`. See the [hub-spoke deployment guide](/docs/guides/hub-spoke/deploy-hub-spoke.md).
 2. **Standalone**: create the `VaultRelay` by hand in the spoke cluster, providing the credential material yourself — either a [`spec.bootstrap`](#specbootstrap) join Secret or pre-provisioned [`spec.tls`](#spectls) certificates.
 
 When a `VaultRelay` is reconciled, the KubeVault operator in the spoke cluster provisions a ServiceAccount, the spoke-relay Pod, and — for standalone relays — an AppBinding pointing back at the hub VaultServer. In hub-managed deployments the AppBinding is instead delivered and owned by the hub's `ManifestWork`, and the operator defers to that copy.
@@ -164,10 +164,10 @@ status:
 - `podName`: name of the spoke-relay Pod.
 - `appBindingRef`: references the AppBinding for the hub Vault (delivered by the hub `ManifestWork` in hub-managed deployments). Spoke-side consumers (SecretEngine, database role CRDs, KubeDB) use this AppBinding.
 - `lastHeartbeat`: timestamp of the last successful heartbeat to the hub, if reported by the relay.
-- `certExpiry`: expiry of the spoke client certificate. The operator sets this for **pre-provisioned (`spec.tls`) relays** by reading `certSecret` directly. For **bootstrap relays** the certificate lives only in the pod, so the operator does not set it here — the hub reports it instead on the VaultServer's `status.agentPlacement.clusters[].certExpiry` (sourced from the relay backend's `relay/spokes` endpoint).
+- `certExpiry`: expiry of the spoke client certificate. The operator sets this for **pre-provisioned (`spec.tls`) relays** by reading `certSecret` directly. For **bootstrap relays** the certificate lives only in the pod, so the operator does not set it here — the hub reports it instead on the VaultServer's `status.relayPlacement.clusters[].certExpiry` (sourced from the relay backend's `relay/spokes` endpoint).
 - `conditions`: the latest available observations of the VaultRelay's state.
 
-In hub-managed deployments, `status.phase` is scraped back to the hub through `ManifestWork` status feedback and aggregated into the hub VaultServer's `status.agentPlacement`.
+In hub-managed deployments, `status.phase` is scraped back to the hub through `ManifestWork` status feedback and aggregated into the hub VaultServer's `status.relayPlacement`.
 
 ## What the operator creates
 
@@ -175,9 +175,9 @@ For every `VaultRelay`, the spoke-side KubeVault operator provisions:
 
 - a **ServiceAccount** for the relay Pod
 - the **spoke-relay Pod**: with `spec.bootstrap`, an init container runs `bao relay join` (verifying the hub via the bootstrap token's JWS signature plus the SPKI pin) and writes credentials to an emptyDir; with `spec.tls`, the pre-provisioned certificates are projected read-only and there is no init container. The main container runs `bao relay run -server=<hub>:<grpcPort> -credentials-dir=...`. The Pod is replaced when its template changes (image, podTemplate, resources, or the referenced Secrets).
-- an **AppBinding** for the hub VaultServer (standalone relays only). Its parameters carry `deploymentMode: RemoteAgent` and `spokeName`, which the secret engine machinery uses to route database mounts through the hub's `remote-<db>-plugin` proxies. In hub-managed deployments this AppBinding is instead delivered and owned by the hub's `ManifestWork` (labeled `app.kubernetes.io/managed-by: kubevault-hub`), and the operator defers to that copy. See the [AppBinding concept](/docs/concepts/vault-server-crds/appbinding.md).
+- an **AppBinding** for the hub VaultServer (standalone relays only). Its parameters carry `deploymentMode: RemoteRelay` and `spokeName`, which the secret engine machinery uses to route database mounts through the hub's `remote-<db>-plugin` proxies. In hub-managed deployments this AppBinding is instead delivered and owned by the hub's `ManifestWork` (labeled `app.kubernetes.io/managed-by: kubevault-hub`), and the operator defers to that copy. See the [AppBinding concept](/docs/concepts/vault-server-crds/appbinding.md).
 
 ## Next Steps
 
 - Deploy the full hub-spoke model with OCM: [guide](/docs/guides/hub-spoke/deploy-hub-spoke.md).
-- Learn about the [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md) CRD and its `spec.agentPlacementRef` field.
+- Learn about the [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md) CRD and its `spec.relayPlacementRef` field.

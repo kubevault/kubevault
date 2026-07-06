@@ -329,31 +329,31 @@ spec:
 
 - `passthroughRequestHeaders`: `Optional`. Specifies a list of headers to whitelist and pass from the request to the backend.
 
-#### spec.agentPlacementRef
+#### spec.relayPlacementRef
 
-`spec.agentPlacementRef` is an optional field that points to an [Open Cluster Management](https://open-cluster-management.io/) `Placement` object in the same namespace as the `VaultServer`. When set, the KubeVault operator deploys a [VaultRelay](/docs/concepts/vault-server-crds/vaultrelay.md) to every managed cluster selected by the Placement, using one `ManifestWork` per cluster. This turns the VaultServer into the hub of a hub-spoke deployment: databases in the selected spoke clusters can be managed through this Vault without being reachable from the hub.
+`spec.relayPlacementRef` is an optional field that points to an [Open Cluster Management](https://open-cluster-management.io/) `Placement` object in the same namespace as the `VaultServer`. When set, the KubeVault operator deploys a [VaultRelay](/docs/concepts/vault-server-crds/vaultrelay.md) to every managed cluster selected by the Placement, using one `ManifestWork` per cluster. This turns the VaultServer into the hub of a hub-spoke deployment: databases in the selected spoke clusters can be managed through this Vault without being reachable from the hub.
 
 ```yaml
 spec:
-  agentPlacementRef:
+  relayPlacementRef:
     name: db-spokes
 ```
 
 Requirements:
 
 - The OCM hub CRDs (`Placement`, `PlacementDecision`, `ManifestWork`) must be installed; the field is ignored with a warning condition otherwise.
-- Spoke clusters must be able to reach the hub Vault API (port 8200) and the spoke-relay gRPC proxy (port 50053) at an externally-resolvable address. By default the `vault` service template must be `type: LoadBalancer`; alternatively, set the `kubevault.com/agent-hub-address` annotation on the VaultServer to an external address (NodePort + external LB, Gateway, …) and the LoadBalancer requirement is waived.
+- Spoke clusters must be able to reach the hub Vault API (port 8200) and the spoke-relay gRPC proxy (port 50053) at an externally-resolvable address. By default the `vault` service template must be `type: LoadBalancer`; alternatively, set the `kubevault.com/relay-hub-address` annotation on the VaultServer to an external address (NodePort + external LB, Gateway, …) and the LoadBalancer requirement is waived.
 - `spec.tls` must be enabled, since spokes connect over that external address.
 
 For each selected cluster the operator creates a ServiceAccount (in the managed cluster's namespace on the hub) whose token the spoke uses for kubernetes auth, a `VaultPolicy` and `VaultPolicyBinding` granting that ServiceAccount the permissions a spoke needs, a rotated bootstrap token for the `bao relay join` trust bootstrap, and a `ManifestWork` carrying the `VaultRelay`, its AppBinding, and the credential Secrets. See the [hub-spoke deployment guide](/docs/guides/hub-spoke/deploy-hub-spoke.md).
 
-#### spec.agentTemplate
+#### spec.relayTemplate
 
-`spec.agentTemplate` is an optional field that customizes the VaultRelays stamped out for clusters selected by `spec.agentPlacementRef`. Per-cluster fields (`spokeName`, `hubVaultRef`, join material) are filled in by the operator.
+`spec.relayTemplate` is an optional field that customizes the VaultRelays stamped out for clusters selected by `spec.relayPlacementRef`. Per-cluster fields (`spokeName`, `hubVaultRef`, join material) are filled in by the operator.
 
 ```yaml
 spec:
-  agentTemplate:
+  relayTemplate:
     namespace: demo                                  # namespace on the managed cluster (defaults to the VaultServer's namespace)
     image: ghcr.io/kubevault/spoke-agent:v0.1.0      # spoke-relay container image
     bootstrapTokenTTL: 24h                           # TTL and rotation period of bootstrap tokens (default 24h, minimum 1h)
@@ -387,7 +387,7 @@ status:
 
   - `reason`: Specifies the reason why failed to enable the auth method.
 
-- `agentPlacement` : Summarizes spoke relay rollout when `spec.agentPlacementRef` is set. It has the following fields:
+- `relayPlacement` : Summarizes spoke relay rollout when `spec.relayPlacementRef` is set. It has the following fields:
 
   - `placement`: The resolved Placement name.
 
@@ -401,7 +401,7 @@ status:
 
   ```yaml
   status:
-    agentPlacement:
+    relayPlacement:
       placement: db-spokes
       selected: 2
       applied: 2
@@ -419,10 +419,10 @@ status:
 
 - Hub-spoke deployments add the following condition types to `status.conditions`:
 
-  - `AgentPlacementResolved`: the Placement exists and its PlacementDecisions were read.
+  - `RelayPlacementResolved`: the Placement exists and its PlacementDecisions were read.
 
-  - `AgentHubInitialized`: the `relay/` backend is mounted, the spoke-CA is initialized, and the advertised endpoint matches the LoadBalancer address.
+  - `RelayHubInitialized`: the `relay/` backend is mounted, the spoke-CA is initialized, and the advertised endpoint matches the LoadBalancer address.
 
-  - `AgentManifestWorksApplied`: every selected cluster has an applied ManifestWork.
+  - `RelayManifestWorksApplied`: every selected cluster has an applied ManifestWork.
 
-  - `AgentsReady`: every selected cluster's VaultRelay reports `Connected`.
+  - `RelaysReady`: every selected cluster's VaultRelay reports `Connected`.
