@@ -355,7 +355,7 @@ For each selected cluster the operator creates a ServiceAccount (in the managed 
 spec:
   relayTemplate:
     namespace: demo                                  # namespace on the managed cluster (defaults to the VaultServer's namespace)
-    image: ghcr.io/kubevault/spoke-agent:v0.1.0      # spoke-relay container image
+    image: ghcr.io/kubevault/spoke-relay:v0.1.0      # spoke-relay container image
     bootstrapTokenTTL: 24h                           # TTL and rotation period of bootstrap tokens (default 24h, minimum 1h)
     podTemplate: {}                                  # pod template for the spoke-relay pods
 ```

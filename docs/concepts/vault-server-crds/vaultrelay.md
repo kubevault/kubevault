@@ -53,7 +53,7 @@ spec:
   bootstrap:
     joinSecretRef:
       name: vault-agent-join
-  image: ghcr.io/kubevault/spoke-agent:v0.1.0
+  image: ghcr.io/kubevault/spoke-relay:v0.1.0
   reconnect:
     enabled: true
     backoffSeconds: 5
