@@ -342,7 +342,7 @@ spec:
 Requirements:
 
 - The OCM hub CRDs (`Placement`, `PlacementDecision`, `ManifestWork`) must be installed; the field is ignored with a warning condition otherwise.
-- Spoke clusters must be able to reach the hub Vault API (port 8200) and the spoke-relay gRPC proxy (port 50053) at an externally-resolvable address. By default the `vault` service template must be `type: LoadBalancer`; alternatively, set the `kubevault.com/relay-hub-address` annotation on the VaultServer to an external address (NodePort + external LB, Gateway, …) and the LoadBalancer requirement is waived.
+- Spoke clusters must be able to reach the hub Vault API (port 8200) and the spoke-relay gRPC proxy (port 50053) at an externally-resolvable address. By default the `vault` service template must be `type: LoadBalancer`; alternatively, set the `kubevault.com/server-address` annotation on the VaultServer to an external address (NodePort + external LB, Gateway, …) and the LoadBalancer requirement is waived.
 - `spec.tls` must be enabled, since spokes connect over that external address.
 
 For each selected cluster the operator creates a ServiceAccount (in the managed cluster's namespace on the hub) whose token the spoke uses for kubernetes auth, a `VaultPolicy` and `VaultPolicyBinding` granting that ServiceAccount the permissions a spoke needs, a rotated bootstrap token for the `bao relay join` trust bootstrap, and a `ManifestWork` carrying the `VaultRelay`, its AppBinding, and the credential Secrets. See the [hub-spoke deployment guide](/docs/guides/hub-spoke/deploy-hub-spoke.md).

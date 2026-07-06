@@ -255,7 +255,7 @@ Request credentials the usual way with a `SecretAccessRequest`; see the [secret 
 
 | Symptom | Check |
 |---|---|
-| `RelayPlacementResolved=False`, reason `WaitingForLoadBalancer` | the `vault` Service has no LoadBalancer ingress yet, or its type is not `LoadBalancer` — or, for non-cloud fleets, set the `kubevault.com/relay-hub-address` annotation to an external address instead |
+| `RelayPlacementResolved=False`, reason `WaitingForLoadBalancer` | the `vault` Service has no LoadBalancer ingress yet, or its type is not `LoadBalancer` — or, for non-cloud fleets, set the `kubevault.com/server-address` annotation to an external address instead |
 | `RelayPlacementResolved=False`, placement errors | the Placement exists in the VaultServer namespace and a `ManagedClusterSetBinding` binds the cluster set to that namespace |
 | `relayPlacementRef` silently ignored | OCM hub CRDs are not installed; the operator logs this at startup |
 | ManifestWork `Degraded` with forbidden errors | the klusterlet work agent lacks permission for KubeVault CRs; the aggregation ClusterRole shipped in the ManifestWork requires OCM >= v0.12 |
