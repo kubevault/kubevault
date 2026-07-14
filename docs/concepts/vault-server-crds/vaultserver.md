@@ -208,7 +208,7 @@ Each entry is keyed by an `alias` that selects which Service it configures:
 - `vault`: the primary client-facing Service (`<vault-name>`), which selects all Vault nodes.
 - `internal`: the headless governing Service used for per-pod DNS.
 - `stats`: the metrics Service (only when monitoring is enabled).
-- `primary`: the active-node-pinned Service (`<vault-name>-primary`), created only when `spec.clientTrafficPolicy` is `PrimaryOnly` (see below). Use this alias to, for example, expose the pinned Service as a `LoadBalancer` while the `vault` Service stays `ClusterIP`.
+- `primary`: the active-node-pinned Service (`<vault-name>-primary`), created only when `spec.exposePrimary` is `true` (see below). Use this alias to, for example, expose the pinned Service as a `LoadBalancer` while the `vault` Service stays `ClusterIP`.
 
 ```yaml
 spec:
@@ -233,24 +233,24 @@ VaultServer allows following fields to be set in `spec.serviceTemplates`:
   - healthCheckNodePort
   - sessionAffinityConfig
 
-#### spec.clientTrafficPolicy
+#### spec.exposePrimary
 
-`spec.clientTrafficPolicy` is an optional field that controls whether the operator exposes an additional client-facing Service pinned to the active (leader) Vault node. It accepts `AllNodes` (the default) or `PrimaryOnly`.
+`spec.exposePrimary` is an optional boolean field that controls whether the operator exposes an additional client-facing Service pinned to the active (leader) Vault node. It defaults to `false`.
 
-OpenBao unseals standby nodes read-only and lets them serve reads, so a client that writes and then immediately reads can be round-robined onto a standby that has not yet applied the write and see stale data. Most clients tolerate this, but some (CSI drivers, CI jobs, anything that treats Vault as a linearizable store) cannot. `clientTrafficPolicy` lets those clients read through the leader alone, where every write already lands, so read-after-write is guaranteed with no client changes.
+OpenBao unseals standby nodes read-only and lets them serve reads, so a client that writes and then immediately reads can be round-robined onto a standby that has not yet applied the write and see stale data. Most clients tolerate this, but some (CSI drivers, CI jobs, anything that treats Vault as a linearizable store) cannot. `exposePrimary` lets those clients read through the leader alone, where every write already lands, so read-after-write is guaranteed with no client changes.
 
-- `AllNodes` (default): the `<vault-name>` Service selects every Vault node. Behaviour is unchanged from earlier releases.
-- `PrimaryOnly`: in addition to the `<vault-name>` Service (which still selects all nodes), the operator creates a `<vault-name>-primary` Service whose selector narrows to the active node. A workload that needs strict read-after-write binds to `<vault-name>-primary`; everything else, including the default AppBinding, keeps using `<vault-name>` and is never affected. Setting the policy back to `AllNodes` deletes the `-primary` Service.
+- `false` (default): only the `<vault-name>` Service exists, and it selects every Vault node. Behaviour is unchanged from earlier releases.
+- `true`: in addition to the `<vault-name>` Service (which still selects all nodes), the operator creates a `<vault-name>-primary` Service whose selector narrows to the active node. A workload that needs strict read-after-write binds to `<vault-name>-primary`; everything else, including the default AppBinding, keeps using `<vault-name>` and is never affected. Setting `exposePrimary` back to `false` deletes the `-primary` Service.
 
 The mechanism uses OpenBao's native `service_registration "kubernetes"`: each Vault process labels its own pod as active or standby, and the operator puts that label on the `-primary` Service selector. Because of this:
 
-- `PrimaryOnly` requires an HA-capable storage backend and a supported distribution (HashiCorp Vault or OpenBao). The admission webhook rejects it otherwise.
+- `exposePrimary` requires an HA-capable storage backend and a supported distribution (HashiCorp Vault or OpenBao). The admission webhook rejects it otherwise.
 - On an existing cluster the pin engages only after the pods are restarted (the StatefulSet uses the `OnDelete` update strategy), for example by a restart `VaultOpsRequest` or the next version upgrade. Until then the `-primary` Service keeps selecting all pods, so it never goes empty; the operator reports `ClientTrafficPinned=False` with reason `NoActiveNodeLabelled` while the pin has not engaged.
 - The `<vault-name>-primary` Service has no endpoints during a leader election (for the brief window in which no node is active). This is the cost of the guarantee; a workload that cannot tolerate that window should use the `<vault-name>` Service instead.
 
 ```yaml
 spec:
-  clientTrafficPolicy: PrimaryOnly
+  exposePrimary: true
 ```
 
 #### spec.podTemplate
