@@ -49,7 +49,7 @@ spec:
     namespace: demo
     address: https://bao.example.com:8200
     grpcPort: 50053
-    caBundle: <base64 PEM bundle>
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCi4uLgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
   bootstrap:
     joinSecretRef:
       name: vault-agent-join
@@ -84,7 +84,7 @@ spec:
     namespace: demo                        # VaultServer namespace on the hub
     address: https://bao.example.com:8200  # hub Vault API URL (LoadBalancer address)
     grpcPort: 50053                        # hub gRPC proxy port (default 50053)
-    caBundle: <base64 PEM>                 # CA bundle to verify the hub Vault API endpoint
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCi4uLgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==  # base64-encoded CA bundle to verify the hub Vault API endpoint
 ```
 
 - `name`, `namespace`: identify the `VaultServer` object on the hub cluster.
