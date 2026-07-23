@@ -175,17 +175,32 @@ engine is actually provisioned in (empty = root). Every `{db}Role` inherits it.
 
 ## Hub-spoke (OCM) deployments
 
-When a spoke's database is served through the OpenBao spoke agent (see
+When a spoke's database is served through the OpenBao spoke relay (see
 [Hub-Spoke Deployment](/docs/guides/hub-spoke/)), tenant isolation extends to the spoke: the
 engine mounts at `<org-id>/k8s.<spoke>.<type>.<ns>.<name>` on the hub while staying confined
 to the spoke's own prefix.
 
 - Enable it by turning on `isolateTenants` on the **hub** `VaultServer` (placement-driven
-  spokes inherit the gate automatically); a standalone `VaultAgent` sets
+  spokes inherit the gate automatically); a standalone `VaultRelay` sets
   `spec.isolateTenants` explicitly.
 - The spoke derives the org from its **own** local namespace labels; the **hub** creates the
   OpenBao namespace (spokes never create hub namespaces). Until the hub creates it, the
   engine reports `TenantNamespacePendingHub` and requeues.
+
+### How the hub learns which namespaces to create
+
+The hub cannot see the spoke's client-org namespaces directly, so each spoke reports the
+OpenBao namespaces it needs through a **`NamespaceSlice`** — a namespaced resource modeled on
+Kubernetes `EndpointSlice`. The spoke operator maintains a slice whose `spec.namespaces[]`
+lists one entry per required namespace (`name` — the effective namespace, i.e. the org-id;
+`externalID` — the org identity; `conditions.ready`), and the hub reads it back over the same
+OCM ManifestWork status-feedback channel it already uses for relay health, then idempotently
+creates each namespace with `sys/namespaces/<org-id>`. As with `EndpointSlice`, a large set
+can shard across several slices, all grouped to their `VaultServer` by the
+`kubevault.com/vaultserver-name` and `kubevault.com/vaultserver-namespace` labels.
+
+`NamespaceSlice` is internal plumbing the operator manages automatically — you never create or
+edit one; it is described here only to explain the hub-spoke flow.
 
 > **Security requirement:** on hub-spoke, per-spoke isolation is enforced by a Vault policy
 > that embeds the cluster name as the literal prefix `k8s.<cluster>.`. This holds **only if
@@ -225,6 +240,13 @@ to the spoke's own prefix.
 - `kubevault.com/migrate-namespace: "true"` — on a SecretEngine; migrate that engine.
 - `kubevault.com/migrate-vault-secrets: '["<ns>/<name>", …]'` — on a client-org Namespace;
   migrate matching engines in bulk.
+
+**NamespaceSlice** (hub-spoke; operator-managed, read-only to users)
+
+- `spec.namespaces[]` — required OpenBao namespaces, each `{name, externalID, conditions.ready}`.
+- `status.namespaceCount` — number of entries (shown as the `NamespaceCount` print column).
+- labels `kubevault.com/vaultserver-name` + `kubevault.com/vaultserver-namespace` — group
+  the slice(s) to their owning `VaultServer`.
 
 ## Next steps
 
