@@ -71,6 +71,13 @@ metadata:
 spec:
   version: "1.20.0-openbao"   # a namespace-capable (OpenBao) distribution
   isolateTenants: true
+  backend:
+    raft:
+      storage:
+        storageClassName: "standard"
+        resources:
+          requests:
+            storage: 1Gi
   # …
 ```
 
