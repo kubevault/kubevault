@@ -128,3 +128,13 @@ rollback a create operation in the event of an error. Not every plugin type will
 - `phase`: Indicates whether the role successfully applied to Vault or not.
 
 - `conditions` : Represent observations of a IgniteRole.
+
+## Namespace inheritance (tenant isolation)
+
+A `IgniteRole` never sets or resolves an OpenBao namespace itself. It always inherits the
+**effective namespace** of the `SecretEngine` it references via `spec.secretEngineRef`
+(`SecretEngine.status.effectiveNamespace`) — empty for root, or the tenant's OpenBao
+namespace once [tenant isolation](/docs/guides/tenant-isolation/overview.md) has placed
+that engine in one. Every credential this role issues, and every revocation
+(`SecretAccessRequest`), is scoped to that same namespace automatically — no
+`IgniteRole`-level configuration is needed.
