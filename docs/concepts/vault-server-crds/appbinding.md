@@ -192,6 +192,10 @@ Note: the `vault-type: remote` AppBinding label is a list-filter convenience onl
 
 `spec.parameters.spokeName` is the spoke cluster identity registered with the hub's relay backend. It is required when `deploymentMode` is `RemoteRelay` and is written into database mount configurations as `spoke_name`, telling the hub which connected spoke runs the actual database plugin.
 
+### spec.parameters.isolateTenants
+
+`spec.parameters.isolateTenants` propagates the hub `VaultServer`'s `spec.isolateTenants` master gate down to a spoke, since the spoke has no hub `VaultServer` object of its own to read it from. The KubeVault operator stamps this automatically for hub-managed (placement-driven) spokes; a standalone [`VaultRelay`](/docs/concepts/vault-server-crds/vaultrelay.md) sets its own `spec.isolateTenants` instead, which is stamped here the same way. See [tenant isolation](/docs/guides/tenant-isolation/overview.md).
+
 ### spec.clientConfig
 
 `spec.clientConfig` is a required field that specifies the information to make a connection with an app.

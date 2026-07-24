@@ -116,6 +116,17 @@ Secret engines are enabled at a "path" in Vault. When a request comes to Vault, 
 
 - `spec.redis`: Specifies database(redis) secret engine configuration
 
+#### spec.namespace
+
+`spec.namespace` is an `optional` field, only applicable on an **OpenBao** distribution, that pins this SecretEngine to an explicit OpenBao namespace, overriding the namespace it would otherwise resolve to from the `VaultServer`. Supports hierarchical namespaces (e.g. `"tenant-1/project-a"`). Leave unset to use the `VaultServer`'s namespace (or root, if it has none).
+
+```yaml
+spec:
+  namespace: "acme-7f3a/project-x"
+```
+
+This field is only honored when the referenced `VaultServer` has [tenant isolation](/docs/guides/tenant-isolation/overview.md) enabled (`spec.isolateTenants: true`); with the gate off, setting it is rejected. See the tenant isolation guide for the full namespace-resolution rule, including automatic org-derived namespaces that don't require this field at all.
+
 #### spec.aws
 
 `spec.aws` specifies the configuration required to configure
@@ -570,5 +581,7 @@ Default plugin name is `mongodb-database-plugin`.
 - `observedGeneration`: Specifies the most recent generation observed for this resource. It corresponds to the resource's generation, which is updated on mutation by the API Server.
 
 - `phase`: Indicates whether the secret engine successfully configured in the Vault or not.
+
+- `effectiveNamespace`: The OpenBao namespace this secret engine is actually provisioned in (empty means root). This is the single source of truth every dependent `{db}Role` inherits, and the sticky anchor that keeps a live mount from being moved automatically when the desired namespace changes — see [tenant isolation](/docs/guides/tenant-isolation/overview.md) for the migration flow.
 
 - `conditions` : Represent observations of a SecretEngine.

@@ -387,6 +387,17 @@ spec:
     podTemplate: {}                                  # pod template for the spoke-relay pods
 ```
 
+#### spec.isolateTenants
+
+`spec.isolateTenants` is an optional boolean field, the master opt-in for [tenant isolation](/docs/guides/tenant-isolation/overview.md), defaulting to `false`. When enabled on an OpenBao (namespace-capable) distribution, a `SecretEngine` whose database lives in a client-org Kubernetes namespace is automatically provisioned in an OpenBao namespace keyed on the org's identity, and every dependent `{db}Role` / `SecretAccessRequest` inherits that namespace.
+
+```yaml
+spec:
+  isolateTenants: true
+```
+
+With the gate off (the default) everything stays in the root namespace, and an explicit `SecretEngine.spec.namespace` is rejected. The admission webhook rejects `isolateTenants: true` on a distribution that does not support namespaces (Vault OSS). Turning it on, or labelling a namespace later, never moves an already-mounted engine — see the tenant isolation guide's migration section.
+
 ### VaultServer Status
 
 VaultServer Status shows the status of a Vault deployment. The status of the Vault is monitored and updated by the KubeVault operator.
@@ -453,3 +464,9 @@ status:
   - `RelayManifestWorksApplied`: every selected cluster has an applied ManifestWork.
 
   - `RelaysReady`: every selected cluster's VaultRelay reports `Connected`.
+
+- Setting `spec.isolateTenants` adds the following condition types to `status.conditions`:
+
+  - `TenantIsolationReady`: the gate is on and the backend supports namespaces.
+
+  - `TenantIsolationUnsupported`: the gate is on but the backend has no namespace support, so isolation stays inert and SecretEngines resolve to root.

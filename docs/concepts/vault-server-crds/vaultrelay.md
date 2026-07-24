@@ -73,6 +73,15 @@ spec:
   spokeName: cluster-1
 ```
 
+#### spec.isolateTenants
+
+`spec.isolateTenants` is an optional boolean field, defaulting to `false`, that opts this spoke into [tenant isolation](/docs/guides/tenant-isolation/overview.md) against the hub. Hub-managed (placement-driven) spokes inherit this automatically from the hub `VaultServer.spec.isolateTenants` and never need to set it; a standalone `VaultRelay` sets it explicitly.
+
+```yaml
+spec:
+  isolateTenants: true
+```
+
 #### spec.hubVaultRef
 
 `spec.hubVaultRef` is a required field that specifies how to reach the hub VaultServer.

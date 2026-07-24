@@ -277,3 +277,4 @@ $ kubectl delete ns demo
 - [VaultServer concept](/docs/concepts/vault-server-crds/vaultserver.md)
 - [AppBinding concept](/docs/concepts/vault-server-crds/appbinding.md), in particular `spec.parameters.deploymentMode`
 - [Secret engine guides](/docs/guides/secret-engines/postgres/overview.md)
+- [Tenant Isolation with OpenBao Namespaces](/docs/guides/tenant-isolation/overview.md) — isolate each spoke's client-org databases into per-org OpenBao namespaces on the hub
