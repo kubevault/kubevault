@@ -2,7 +2,7 @@
 title: PostgresRole | Vault Secret Engine
 menu:
   docs_{{ .version }}:
-    identifier: postgresrole-database-crds
+    identifier: postgres-database-crds
     name: PostgresRole
     parent: database-crds-concepts
     weight: 20

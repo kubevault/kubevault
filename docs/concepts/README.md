@@ -127,7 +127,7 @@ In a `Secret Engine`, a `role` describes an identity with a set of `permissions`
 - [PKIRole](/docs/concepts/secret-engine-crds/pki-secret-engine/pkirole.md)
 - [MongoDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mongodb.md)
 - [MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md)
-- [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md)
+- [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgres.md)
 - [ElasticsearchRole](/docs/concepts/secret-engine-crds/database-secret-engine/elasticsearch.md)
 - [MariaDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mariadb.md)
 - [RedisRole](/docs/concepts/secret-engine-crds/database-secret-engine/redis.md)
