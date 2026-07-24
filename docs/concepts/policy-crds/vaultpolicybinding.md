@@ -147,6 +147,8 @@ token with mentioned policies.
   - `period` : `Optional`. If set indicates that the token generated using this role should never expire. The token should be renewed within the
      duration specified by this value. At each renewal, the token's TTL will be set to the value of this parameter.
 
+  - `noDefaultPolicy` : `Optional`. If `true`, sets `token_no_default_policy` on the Kubernetes auth role, so tokens issued for it carry only the policies explicitly bound here — not Vault's built-in `default` policy. Useful to minimize the token surface for machine identities, such as a hub-spoke relay's ServiceAccount.
+
 ```yaml
 spec:
   subjectRef:
@@ -159,6 +161,7 @@ spec:
       ttl: "1000"
       maxTTL: "2000"
       period: "1000"
+      noDefaultPolicy: true
 ```
 
 ### VaultPolicyBinding Status

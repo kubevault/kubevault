@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md)
+- [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgres.md)
 
 ## Before you begin
 
@@ -133,7 +133,7 @@ Since the status is `Success`, the PostgreSQL secret engine is enabled and succe
 
 ## Create PostgreSQL Role
 
-By using [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgresrole.md), you can create a [role](https://www.vaultproject.io/docs/secrets/databases/postgresql#setup) on the Vault server in Kubernetes native way.
+By using [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgres.md), you can create a [role](https://www.vaultproject.io/docs/secrets/databases/postgresql#setup) on the Vault server in Kubernetes native way.
 
 A sample PostgresRole object is given below:
 
