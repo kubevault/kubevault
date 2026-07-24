@@ -239,7 +239,7 @@ spec:
 
 Because the AppBinding's `deploymentMode` is `RemoteRelay`, the SecretEngine controller configures the hub mount with `plugin_name: remote-postgres-plugin` and `spoke_name: cluster-1`. The hub proxies every credential operation to the spoke relay, which runs the real `postgresql-database-plugin` in-process against the spoke-local database.
 
-Postgres, MySQL, MariaDB, Redis, and Valkey are supported through the spoke relay. MongoDB and Elasticsearch are not; a SecretEngine for those against a `RemoteRelay` AppBinding is rejected on apply by the validating webhook.
+Postgres, MySQL, MariaDB, Redis, Valkey, and Milvus are supported through the spoke relay. MongoDB and Elasticsearch are not; a SecretEngine for those against a `RemoteRelay` AppBinding is rejected on apply by the validating webhook.
 
 Request credentials the usual way with a `SecretAccessRequest`; see the [secret engine guides](/docs/guides/secret-engines/postgres/overview.md).
 
