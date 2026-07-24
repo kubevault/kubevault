@@ -127,3 +127,14 @@ spec:
 - `phase`: Indicates whether the role successfully applied to Vault or not.
 
 - `conditions` : Represent observations of a MariaDBRole.
+
+## Namespace inheritance (tenant isolation)
+
+A `MariaDBRole` never sets or resolves an OpenBao namespace itself. It always inherits the
+**effective namespace** of the `SecretEngine` it references via `spec.secretEngineRef`
+(`SecretEngine.status.effectiveNamespace`) — empty for root, or the tenant's OpenBao
+namespace once [tenant isolation](/docs/guides/tenant-isolation/overview.md) has placed
+that engine in one. Every credential this role issues, and every revocation
+(`SecretAccessRequest`), is scoped to that same namespace automatically — no
+`MariaDBRole`-level configuration is needed.
+

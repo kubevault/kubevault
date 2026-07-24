@@ -59,6 +59,12 @@ A `VaultRelay` is a `Kubernetes CustomResourceDefinition (CRD)` which deploys an
 
 - [VaultRelay](/docs/concepts/vault-server-crds/vaultrelay.md)
 
+## NamespaceSlice
+
+A `NamespaceSlice` is a `Kubernetes CustomResourceDefinition (CRD)` the operator uses internally, modeled on `EndpointSlice`, to report the OpenBao namespaces a hub-spoke spoke needs created on the hub as part of tenant isolation. It is operator-managed only.
+
+- [NamespaceSlice](/docs/concepts/vault-server-crds/namespaceslice.md)
+
 ### Vault Unsealer Options
 When a `Vault` server is started, it starts in a `sealed` state. In this state, Vault is configured to know where and how to access the physical storage, but doesn't know how to decrypt any of it.
 

@@ -207,7 +207,9 @@ can shard across several slices, all grouped to their `VaultServer` by the
 `kubevault.com/vaultserver-name` and `kubevault.com/vaultserver-namespace` labels.
 
 `NamespaceSlice` is internal plumbing the operator manages automatically — you never create or
-edit one; it is described here only to explain the hub-spoke flow.
+edit one; it is described here only to explain the hub-spoke flow. See the
+[NamespaceSlice concept](/docs/concepts/vault-server-crds/namespaceslice.md) for its full CRD
+reference, including the `maxSpokeNamespaces` / `maxNamespaceSliceShards` sharding bounds.
 
 > **Security requirement:** on hub-spoke, per-spoke isolation is enforced by a Vault policy
 > that embeds the cluster name as the literal prefix `k8s.<cluster>.`. This holds **only if
