@@ -77,7 +77,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  version: 1.10.3
+  version: "sigilr-2.6.1.1" # a namespace-capable distribution (Sigilr, an OpenBao derivative)
   replicas: 3
   tls:
     issuerRef:
