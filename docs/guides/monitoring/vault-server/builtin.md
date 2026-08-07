@@ -90,7 +90,7 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: 1.2.0
+  version: "sigilr-2.6.1.1"
   serviceTemplates:
   - alias: vault
     metadata:

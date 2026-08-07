@@ -24,7 +24,7 @@ metadata:
   namespace: default
 spec:
   replicas: 3
-  version: 1.7.3
+  version: "sigilr-2.6.1.1"
   serviceTemplates:
     - alias: vault
       metadata:

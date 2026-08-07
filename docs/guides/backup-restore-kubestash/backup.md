@@ -169,7 +169,7 @@ metadata:
 spec:
   terminationPolicy: WipeOut
   replicas: 3
-  version: 1.18.4 
+  version: "sigilr-2.6.1.1"
   allowedSecretEngines:
     namespaces:
       from: All

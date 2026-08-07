@@ -50,7 +50,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  version: 1.10.3
+  version: "sigilr-2.6.1.1"
   replicas: 3
   allowedSecretEngines:
     namespaces:

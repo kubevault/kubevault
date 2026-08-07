@@ -93,7 +93,7 @@ spec:
       from: All
     secretEngines:
       - mysql
-  version: 1.10.3
+  version: "sigilr-2.6.1.1"
   replicas: 3
   backend:
     raft:
