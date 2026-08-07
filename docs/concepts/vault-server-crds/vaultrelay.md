@@ -53,7 +53,6 @@ spec:
   bootstrap:
     joinSecretRef:
       name: vault-agent-join
-  image: ghcr.io/kubevault/spoke-relay:v0.1.0
   reconnect:
     enabled: true
     backoffSeconds: 5
@@ -124,9 +123,12 @@ In hub-managed deployments the operator creates and rotates this Secret automati
 
 > **Note:** Set exactly one credential source — `spec.bootstrap` (this join flow) or [`spec.tls`](#spectls) (pre-provisioned certificates). The operator rejects a `VaultRelay` that sets neither or both.
 
-#### spec.image
+#### Container image
 
-`spec.image` is an optional field that overrides the spoke-relay container image.
+`VaultRelay` has no `spec.image` field — the spoke-relay container image is always resolved automatically from the [AppBinding](/docs/concepts/vault-server-crds/appbinding.md) fronting the hub Vault (`status.appBindingRef`): the operator reads that AppBinding's `spec.version` and looks up the matching `VaultServerVersion`'s `spec.vault.image`. This guarantees the relay always runs an image that matches the hub Vault it talks to.
+
+- **Hub-managed deployments**: `spec.version` is stamped automatically by the hub onto the AppBinding it delivers, from the hub `VaultServer`'s own `spec.version` — nothing to configure.
+- **Standalone relays**: the operator authors the AppBinding itself but has no source for the hub's `VaultServerVersion` name, so it leaves `spec.version` unset. You must set it by hand (`kubectl edit appbinding <relay-name>-hub-vault`, or via whatever process manages the AppBinding) to the name of a `VaultServerVersion` matching the hub Vault, or the relay Pod is never built — the `VaultRelay` fails its reconcile with an `AppBindingVersionRequired` condition and Event until you do.
 
 #### spec.tokenSecretRef
 
@@ -183,7 +185,7 @@ In hub-managed deployments, `status.phase` is scraped back to the hub through `M
 For every `VaultRelay`, the spoke-side KubeVault operator provisions:
 
 - a **ServiceAccount** for the relay Pod
-- the **spoke-relay Pod**: with `spec.bootstrap`, an init container runs `bao relay join` (verifying the hub via the bootstrap token's JWS signature plus the SPKI pin) and writes credentials to an emptyDir; with `spec.tls`, the pre-provisioned certificates are projected read-only and there is no init container. The main container runs `bao relay run -server=<hub>:<grpcPort> -credentials-dir=...`. The Pod is replaced when its template changes (image, podTemplate, resources, or the referenced Secrets).
+- the **spoke-relay Pod**: with `spec.bootstrap`, an init container runs `bao relay join` (verifying the hub via the bootstrap token's JWS signature plus the SPKI pin) and writes credentials to an emptyDir; with `spec.tls`, the pre-provisioned certificates are projected read-only and there is no init container. The main container runs `bao relay run -server=<hub>:<grpcPort> -credentials-dir=...`, using the [image resolved from the hub AppBinding](#container-image). The Pod is replaced when its template changes (resolved image, podTemplate, resources, or the referenced Secrets).
 - an **AppBinding** for the hub VaultServer (standalone relays only). Its parameters carry `deploymentMode: RemoteRelay` and `spokeName`, which the secret engine machinery uses to route database mounts through the hub's `remote-<db>-plugin` proxies. In hub-managed deployments this AppBinding is instead delivered and owned by the hub's `ManifestWork` (labeled `app.kubernetes.io/managed-by: kubevault-hub`), and the operator defers to that copy. See the [AppBinding concept](/docs/concepts/vault-server-crds/appbinding.md).
 
 ## Next Steps
