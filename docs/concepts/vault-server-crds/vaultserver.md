@@ -382,10 +382,11 @@ For each selected cluster the operator creates a ServiceAccount (in the managed 
 spec:
   relayTemplate:
     namespace: demo                                  # namespace on the managed cluster (defaults to the VaultServer's namespace)
-    image: ghcr.io/kubevault/spoke-relay:v0.1.0      # spoke-relay container image
     bootstrapTokenTTL: 24h                           # TTL and rotation period of bootstrap tokens (default 24h, minimum 1h)
     podTemplate: {}                                  # pod template for the spoke-relay pods
 ```
+
+> **Note:** `relayTemplate` has no `image` field — there is no per-`VaultServer` override for the spoke-relay container image. Every spoke relay's image is resolved automatically from this `VaultServer`'s own `spec.version` (via the `VaultServerVersion` it names), so a spoke relay always tracks the hub Vault version it talks to. See [VaultRelay's container image](/docs/concepts/vault-server-crds/vaultrelay.md#container-image).
 
 #### spec.isolateTenants
 
