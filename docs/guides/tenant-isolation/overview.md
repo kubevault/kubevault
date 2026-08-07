@@ -69,7 +69,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  version: "1.20.0-openbao"   # a namespace-capable (OpenBao) distribution
+  version: "sigilr-2.6.1.1"   # a namespace-capable distribution (Sigilr, an OpenBao derivative)
   isolateTenants: true
   backend:
     raft:
