@@ -63,6 +63,7 @@ spec:
   clientConfig:
     url: oracle://oracle.demo.svc:1521/ORCLPDB1
   secret:
+    kind: Secret
     name: oracle-cred
 ---
 apiVersion: v1
