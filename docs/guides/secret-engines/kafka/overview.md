@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [KafkaRole](/docs/concepts/secret-engine-crds/database-secret-engine/kafkarole.md)
+- [KafkaRole](/docs/concepts/secret-engine-crds/database-secret-engine/kafka.md)
 
 ## Before you begin
 
@@ -114,7 +114,7 @@ Use `kubectl describe secretengine -n demo kafka-engine` to inspect error events
 
 ## Create a KafkaRole
 
-A [`KafkaRole`](/docs/concepts/secret-engine-crds/database-secret-engine/kafkarole.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `{"mechanism":"SCRAM-SHA-256","acls":[]}`. The `mechanism` field overrides the SecretEngine-level default on a per-role basis; the `acls` field is reserved and **must be empty** today — the plugin rejects non-empty `acls`. Provision ACLs separately via `kafka-acls.sh`.
+A [`KafkaRole`](/docs/concepts/secret-engine-crds/database-secret-engine/kafka.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `{"mechanism":"SCRAM-SHA-256","acls":[]}`. The `mechanism` field overrides the SecretEngine-level default on a per-role basis; the `acls` field is reserved and **must be empty** today — the plugin rejects non-empty `acls`. Provision ACLs separately via `kafka-acls.sh`.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
