@@ -24,7 +24,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [OracleRole](/docs/concepts/secret-engine-crds/database-secret-engine/oraclerole.md)
+- [OracleRole](/docs/concepts/secret-engine-crds/database-secret-engine/oracle.md)
 
 ## Before you begin
 
@@ -118,7 +118,7 @@ Use `kubectl describe secretengine -n demo oracle-engine` to inspect error event
 
 ## Create an OracleRole
 
-An [`OracleRole`](/docs/concepts/secret-engine-crds/database-secret-engine/oraclerole.md) describes how the plugin should mint a dynamic credential. Each entry in `creationStatements` is an Oracle DDL/DML statement, executed in sequence with the `{{name}}` and `{{password}}` placeholders substituted at credential-issue time. Note that Oracle identifiers are case-sensitive when double-quoted; the plugin issues the user name in upper-case form by default, so leaving `{{name}}` un-quoted is the simplest approach.
+An [`OracleRole`](/docs/concepts/secret-engine-crds/database-secret-engine/oracle.md) describes how the plugin should mint a dynamic credential. Each entry in `creationStatements` is an Oracle DDL/DML statement, executed in sequence with the `{{name}}` and `{{password}}` placeholders substituted at credential-issue time. Note that Oracle identifiers are case-sensitive when double-quoted; the plugin issues the user name in upper-case form by default, so leaving `{{name}}` un-quoted is the simplest approach.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
