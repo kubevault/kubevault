@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [RabbitMQRole](/docs/concepts/secret-engine-crds/database-secret-engine/rabbitmqrole.md)
+- [RabbitMQRole](/docs/concepts/secret-engine-crds/database-secret-engine/rabbitmq.md)
 
 ## Before you begin
 
@@ -122,7 +122,7 @@ Use `kubectl describe secretengine -n demo rabbitmq-engine` to inspect error eve
 
 ## Create a RabbitMQRole
 
-A [`RabbitMQRole`](/docs/concepts/secret-engine-crds/database-secret-engine/rabbitmqrole.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document with any combination of `tags`, `vhosts`, and `vhost_topics`. **At least one of `tags` or `vhosts` must be set.** The `vhosts` map keys are RabbitMQ vhost names (`/` is the default vhost) and each value is the standard RabbitMQ permission triple (`configure` / `write` / `read` regular expressions). See [Access Control](https://www.rabbitmq.com/access-control.html) for the full RabbitMQ authorization model.
+A [`RabbitMQRole`](/docs/concepts/secret-engine-crds/database-secret-engine/rabbitmq.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document with any combination of `tags`, `vhosts`, and `vhost_topics`. **At least one of `tags` or `vhosts` must be set.** The `vhosts` map keys are RabbitMQ vhost names (`/` is the default vhost) and each value is the standard RabbitMQ permission triple (`configure` / `write` / `read` regular expressions). See [Access Control](https://www.rabbitmq.com/access-control.html) for the full RabbitMQ authorization model.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
