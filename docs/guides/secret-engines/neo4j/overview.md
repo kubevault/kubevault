@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [Neo4jRole](/docs/concepts/secret-engine-crds/database-secret-engine/neo4jrole.md)
+- [Neo4jRole](/docs/concepts/secret-engine-crds/database-secret-engine/neo4j.md)
 
 ## Before you begin
 
@@ -112,7 +112,7 @@ Use `kubectl describe secretengine -n demo neo4j-engine` to inspect error events
 
 ## Create a Neo4jRole
 
-A [`Neo4jRole`](/docs/concepts/secret-engine-crds/database-secret-engine/neo4jrole.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `{"roles":["role1","role2"]}`. The listed roles **must already exist** on the target Neo4j cluster — the plugin only grants, it does not create roles.
+A [`Neo4jRole`](/docs/concepts/secret-engine-crds/database-secret-engine/neo4j.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `{"roles":["role1","role2"]}`. The listed roles **must already exist** on the target Neo4j cluster — the plugin only grants, it does not create roles.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
