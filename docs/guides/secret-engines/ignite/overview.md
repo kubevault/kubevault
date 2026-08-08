@@ -56,6 +56,7 @@ spec:
   clientConfig:
     url: http://ignite.demo.svc:8080
   secret:
+    kind: Secret
     name: ignite-cred
 ---
 apiVersion: v1
