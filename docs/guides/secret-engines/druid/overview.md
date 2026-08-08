@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [DruidRole](/docs/concepts/secret-engine-crds/database-secret-engine/druidrole.md)
+- [DruidRole](/docs/concepts/secret-engine-crds/database-secret-engine/druid.md)
 
 ## Before you begin
 
@@ -114,7 +114,7 @@ Use `kubectl describe secretengine -n demo druid-engine` to inspect error events
 
 ## Create a DruidRole
 
-A [`DruidRole`](/docs/concepts/secret-engine-crds/database-secret-engine/druidrole.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `{"roles":["role1","role2"]}`. The listed roles **must already exist** on the authorizer named in `SecretEngine.spec.druid.authorizer` — the plugin only binds, it does not create roles.
+A [`DruidRole`](/docs/concepts/secret-engine-crds/database-secret-engine/druid.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `{"roles":["role1","role2"]}`. The listed roles **must already exist** on the authorizer named in `SecretEngine.spec.druid.authorizer` — the plugin only binds, it does not create roles.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
