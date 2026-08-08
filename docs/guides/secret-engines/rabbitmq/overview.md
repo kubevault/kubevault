@@ -46,7 +46,7 @@ $ kubectl get appbinding -n demo vault -o yaml
 
 ## AppBinding for RabbitMQ
 
-Create an `AppBinding` pointing at the RabbitMQ **management HTTP API** base URL (e.g. `http://rabbitmq.demo.svc:15672`). Unlike most database engines, the URL here is **not** an AMQP URI — it is the management plugin's HTTP base URL, which `rabbit-hole/v3` uses to call the REST endpoints. The referenced Secret carries HTTP Basic Auth credentials (`username` + `password`) used by the plugin to authenticate against the management API.
+Create an `AppBinding` pointing at the RabbitMQ **management HTTP API** base URL (e.g. `http://rabbitmq.demo.svc:15672`). Unlike most database engines, the URL here is **not** an AMQP URI — it is the management plugin's HTTP base URL, which `rabbit-hole/v3` uses to call the REST endpoints. The referenced Secret carries HTTP Basic Auth credentials (`username` + `password`) used by the plugin to authenticate against the management API. If the management API is served over TLS with a certificate signed by a private CA, set `spec.clientConfig.caBundle` to the PEM-encoded CA certificate — the operator forwards it to the plugin as `tls_ca` for server-certificate verification.
 
 ```yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
@@ -71,7 +71,7 @@ stringData:
   password: admin-password
 ```
 
-> If your RabbitMQ management endpoint uses a self-signed TLS certificate (`https://...:15671`), set `SecretEngine.spec.rabbitmq.insecure: true` below. Drop the knob once you front the management API with a real CA-issued certificate.
+> If your RabbitMQ management endpoint uses a self-signed TLS certificate (`https://...:15671`), either set the `AppBinding`'s `spec.clientConfig.caBundle` to the CA that signed it (preferred — verifies the certificate), or set `SecretEngine.spec.rabbitmq.insecure: true` below to skip verification entirely. Drop `insecure` once you front the management API with a CA-issued (or CA-bundle-verified) certificate. If the management API requires mutual TLS, set `SecretEngine.spec.rabbitmq.clientCert`/`clientKey` to a PEM-encoded client certificate and private key.
 
 ## Enable and Configure RabbitMQ Secret Engine
 
@@ -96,6 +96,14 @@ spec:
     allowedRoles:
       - "*"
     # passwordPolicy: my-policy            # optional; name of a Vault password policy
+    # clientCert: |                        # optional; PEM-encoded client cert for mutual TLS
+    #   -----BEGIN CERTIFICATE-----
+    #   ...
+    #   -----END CERTIFICATE-----
+    # clientKey: |                         # optional; PEM-encoded private key for clientCert
+    #   -----BEGIN PRIVATE KEY-----
+    #   ...
+    #   -----END PRIVATE KEY-----
     insecure: false                        # set true only for self-signed dev clusters
 ```
 
