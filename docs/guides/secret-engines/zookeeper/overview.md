@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Manage Apache ZooKeeper credentials using the KubeVault operator
 
-OpenBao's [`zookeeper-database-plugin`](https://github.com/sigilr/openbao/pull/21) is a **static-credentials-only** database plugin. [Apache ZooKeeper](https://zookeeper.apache.org/doc/current/zookeeperAdmin.html) has no runtime user-management API for SASL/digest principals — they are loaded from server-side `jaas.conf` at startup — so the plugin cannot create or delete users on demand. Instead, it opens a TCP connection to the ZooKeeper endpoint and sends the 4-letter word `ruok`; a healthy node replies `imok`. Note that ZooKeeper 3.5+ requires the `ruok` command to be whitelisted explicitly via `4lw.commands.whitelist=ruok` in `zoo.cfg` (or the env var `ZOO_4LW_COMMANDS_WHITELIST=ruok,stat`); otherwise the healthcheck connect will succeed but the server will close the socket without replying. The plugin returns "dynamic credentials are not supported" for `bao read database/creds/<role>`. KubeVault treats ZooKeeper like a static-credentials engine: you provision the ZooKeeper principal out of band (in the server's `jaas.conf`), then use [`ZooKeeperRole`](/docs/concepts/secret-engine-crds/database-secret-engine/zookeeperrole.md) to attach rotation metadata to that pre-existing principal.
+OpenBao's [`zookeeper-database-plugin`](https://github.com/sigilr/openbao/pull/21) is a **static-credentials-only** database plugin. [Apache ZooKeeper](https://zookeeper.apache.org/doc/current/zookeeperAdmin.html) has no runtime user-management API for SASL/digest principals — they are loaded from server-side `jaas.conf` at startup — so the plugin cannot create or delete users on demand. Instead, it opens a TCP connection to the ZooKeeper endpoint and sends the 4-letter word `ruok`; a healthy node replies `imok`. Note that ZooKeeper 3.5+ requires the `ruok` command to be whitelisted explicitly via `4lw.commands.whitelist=ruok` in `zoo.cfg` (or the env var `ZOO_4LW_COMMANDS_WHITELIST=ruok,stat`); otherwise the healthcheck connect will succeed but the server will close the socket without replying. The plugin returns "dynamic credentials are not supported" for `bao read database/creds/<role>`. KubeVault treats ZooKeeper like a static-credentials engine: you provision the ZooKeeper principal out of band (in the server's `jaas.conf`), then use [`ZooKeeperRole`](/docs/concepts/secret-engine-crds/database-secret-engine/zookeeper.md) to attach rotation metadata to that pre-existing principal.
 
 The same CRD shape is used both for the in-process `zookeeper-database-plugin` and for the hub-spoke `remote-zookeeper-plugin`; the difference is whether the [Vault AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) referenced by `SecretEngine.spec.vaultRef` is marked `deploymentMode: RemoteAgent` (then the SecretEngine controller rewrites `plugin_name` to `remote-zookeeper-plugin` and attaches `spoke_name`).
 
@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [ZooKeeperRole](/docs/concepts/secret-engine-crds/database-secret-engine/zookeeperrole.md)
+- [ZooKeeperRole](/docs/concepts/secret-engine-crds/database-secret-engine/zookeeper.md)
 
 ## Before you begin
 
