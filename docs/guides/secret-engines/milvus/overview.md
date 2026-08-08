@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [MilvusRole](/docs/concepts/secret-engine-crds/database-secret-engine/milvusrole.md)
+- [MilvusRole](/docs/concepts/secret-engine-crds/database-secret-engine/milvus.md)
 
 ## Before you begin
 
@@ -139,7 +139,7 @@ Use `kubectl describe secretengine -n demo milvus-engine` to inspect error event
 
 ## Create a MilvusRole
 
-A [`MilvusRole`](/docs/concepts/secret-engine-crds/database-secret-engine/milvusrole.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `{"roles":["role1","role2"]}`. The listed roles **must already exist** on the target Milvus cluster — the plugin only binds, it does not create roles.
+A [`MilvusRole`](/docs/concepts/secret-engine-crds/database-secret-engine/milvus.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `{"roles":["role1","role2"]}`. The listed roles **must already exist** on the target Milvus cluster — the plugin only binds, it does not create roles.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
