@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Manage Hazelcast credentials using the KubeVault operator
 
-OpenBao's [`hazelcast-database-plugin`](https://github.com/sigilr/openbao/pull/20) is a **static-credentials-only** database plugin. [Hazelcast](https://docs.hazelcast.com/) OSS has no runtime user-management API — authentication is configured in each member's XML configuration at startup — so the plugin cannot create or delete users on demand. Instead, it pings `/hazelcast/health/ready` with Basic Auth to verify reachability and returns "dynamic credentials are not supported" for `bao read database/creds/<role>`. KubeVault treats Hazelcast like a static-credentials engine: you provision the Hazelcast principal out of band (in `hazelcast.xml`), then use [`HazelcastRole`](/docs/concepts/secret-engine-crds/database-secret-engine/hazelcastrole.md) to attach rotation metadata to that pre-existing principal.
+OpenBao's [`hazelcast-database-plugin`](https://github.com/sigilr/openbao/pull/20) is a **static-credentials-only** database plugin. [Hazelcast](https://docs.hazelcast.com/) OSS has no runtime user-management API — authentication is configured in each member's XML configuration at startup — so the plugin cannot create or delete users on demand. Instead, it pings `/hazelcast/health/ready` with Basic Auth to verify reachability and returns "dynamic credentials are not supported" for `bao read database/creds/<role>`. KubeVault treats Hazelcast like a static-credentials engine: you provision the Hazelcast principal out of band (in `hazelcast.xml`), then use [`HazelcastRole`](/docs/concepts/secret-engine-crds/database-secret-engine/hazelcast.md) to attach rotation metadata to that pre-existing principal.
 
 The same CRD shape is used both for the in-process `hazelcast-database-plugin` and for the hub-spoke `remote-hazelcast-plugin`; the difference is whether the [Vault AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) referenced by `SecretEngine.spec.vaultRef` is marked `deploymentMode: RemoteAgent` (then the SecretEngine controller rewrites `plugin_name` to `remote-hazelcast-plugin` and attaches `spoke_name`).
 
@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [HazelcastRole](/docs/concepts/secret-engine-crds/database-secret-engine/hazelcastrole.md)
+- [HazelcastRole](/docs/concepts/secret-engine-crds/database-secret-engine/hazelcast.md)
 
 ## Before you begin
 
