@@ -81,16 +81,9 @@ Introduces to various methods of automatically `Initialization` & `Unsealing` Va
 The `storage backend` represents the location for the durable storage of Vault's information. Each backend has pros, cons, advantages, and trade-offs. For example, some backends support `High Availability - HA` while others provide a more robust backup and restoration process. Introduces to various `Storage Backend` options supported by `KubeVault`.
 
 - [Overview](/docs/concepts/vault-server-crds/storage/overview.md)
-- [Azure](/docs/concepts/vault-server-crds/storage/azure.md)
-- [DynamoDB](/docs/concepts/vault-server-crds/storage/dynamodb.md)
-- [Etcd](/docs/concepts/vault-server-crds/storage/etcd.md)
-- [GCS](/docs/concepts/vault-server-crds/storage/gcs.md)
+- [Filesystem](/docs/concepts/vault-server-crds/storage/filesystem.md)
 - [In Memory](/docs/concepts/vault-server-crds/storage/inmem.md)
-- [MySQL](/docs/concepts/vault-server-crds/storage/mysql.md)
-- [PosgreSQL](/docs/concepts/vault-server-crds/storage/postgresql.md)
-- [AWS S3](/docs/concepts/vault-server-crds/storage/s3.md)
-- [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
-- [Consul](/docs/concepts/vault-server-crds/storage/consul.md)
+- [PostgreSQL](/docs/concepts/vault-server-crds/storage/postgresql.md)
 - [Raft](/docs/concepts/vault-server-crds/storage/raft.md)
 
 ### Authentication Methods for Vault Server
