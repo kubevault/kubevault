@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [SolrRole](/docs/concepts/secret-engine-crds/database-secret-engine/solrrole.md)
+- [SolrRole](/docs/concepts/secret-engine-crds/database-secret-engine/solr.md)
 
 ## Before you begin
 
@@ -112,7 +112,7 @@ Use `kubectl describe secretengine -n demo solr-engine` to inspect error events,
 
 ## Create a SolrRole
 
-A [`SolrRole`](/docs/concepts/secret-engine-crds/database-secret-engine/solrrole.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `'{"roles":["admin","read"]}'`. The listed roles **must already exist** on the Rule-Based Authorization Plugin — the plugin only binds via `set-user-role`, it does not create roles.
+A [`SolrRole`](/docs/concepts/secret-engine-crds/database-secret-engine/solr.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `'{"roles":["admin","read"]}'`. The listed roles **must already exist** on the Rule-Based Authorization Plugin — the plugin only binds via `set-user-role`, it does not create roles.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
