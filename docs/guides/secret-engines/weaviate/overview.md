@@ -57,6 +57,7 @@ spec:
   clientConfig:
     url: http://weaviate.demo.svc:8080
   secret:
+    kind: Secret
     name: weaviate-cred
 ---
 apiVersion: v1
