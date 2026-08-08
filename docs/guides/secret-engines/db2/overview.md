@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Manage IBM Db2 credentials using the KubeVault operator
 
-OpenBao's [`db2-database-plugin`](https://github.com/sigilr/openbao/pull/19) is a **static-credentials-only** database plugin. There is no pure-Go Db2 driver and most production deployments delegate user management to the OS or LDAP, so the plugin does not support dynamic `bao read database/creds/<role>` calls. Instead, KubeVault treats Db2 like a static-credentials engine: you provision the Db2 principal out of band, then use [`DB2Role`](/docs/concepts/secret-engine-crds/database-secret-engine/db2role.md) to attach rotation metadata to that pre-existing principal.
+OpenBao's [`db2-database-plugin`](https://github.com/sigilr/openbao/pull/19) is a **static-credentials-only** database plugin. There is no pure-Go Db2 driver and most production deployments delegate user management to the OS or LDAP, so the plugin does not support dynamic `bao read database/creds/<role>` calls. Instead, KubeVault treats Db2 like a static-credentials engine: you provision the Db2 principal out of band, then use [`DB2Role`](/docs/concepts/secret-engine-crds/database-secret-engine/db2.md) to attach rotation metadata to that pre-existing principal.
 
 The same CRD shape is used both for the in-process `db2-database-plugin` and for the hub-spoke `remote-db2-plugin`; the difference is whether the [Vault AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) referenced by `SecretEngine.spec.vaultRef` is marked `deploymentMode: RemoteAgent` (then the SecretEngine controller rewrites `plugin_name` to `remote-db2-plugin` and attaches `spoke_name`).
 
@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [DB2Role](/docs/concepts/secret-engine-crds/database-secret-engine/db2role.md)
+- [DB2Role](/docs/concepts/secret-engine-crds/database-secret-engine/db2.md)
 
 ## Before you begin
 
