@@ -57,6 +57,7 @@ spec:
   clientConfig:
     url: http://solr.demo.svc:8983
   secret:
+    kind: Secret
     name: solr-cred
 ---
 apiVersion: v1
