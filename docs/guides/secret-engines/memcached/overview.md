@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Manage Memcached credentials using the KubeVault operator
 
-OpenBao's [`memcached-database-plugin`](https://github.com/sigilr/openbao/pull/16) is a **static-credentials-only** database plugin. [Memcached](https://docs.memcached.org/) loads SASL credentials from a static auth file at server startup and exposes no runtime user-management API, so the plugin cannot create or delete users on demand. Instead, it pings the Memcached TCP endpoint (and optionally completes a TLS handshake) to verify reachability and returns "dynamic credentials are not supported" for `bao read database/creds/<role>`. KubeVault treats Memcached like a static-credentials engine: you provision the Memcached principal out of band (in the SASL auth file), then use [`MemcachedRole`](/docs/concepts/secret-engine-crds/database-secret-engine/memcachedrole.md) to attach rotation metadata to that pre-existing principal.
+OpenBao's [`memcached-database-plugin`](https://github.com/sigilr/openbao/pull/16) is a **static-credentials-only** database plugin. [Memcached](https://docs.memcached.org/) loads SASL credentials from a static auth file at server startup and exposes no runtime user-management API, so the plugin cannot create or delete users on demand. Instead, it pings the Memcached TCP endpoint (and optionally completes a TLS handshake) to verify reachability and returns "dynamic credentials are not supported" for `bao read database/creds/<role>`. KubeVault treats Memcached like a static-credentials engine: you provision the Memcached principal out of band (in the SASL auth file), then use [`MemcachedRole`](/docs/concepts/secret-engine-crds/database-secret-engine/memcached.md) to attach rotation metadata to that pre-existing principal.
 
 The same CRD shape is used both for the in-process `memcached-database-plugin` and for the hub-spoke `remote-memcached-plugin`; the difference is whether the [Vault AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) referenced by `SecretEngine.spec.vaultRef` is marked `deploymentMode: RemoteAgent` (then the SecretEngine controller rewrites `plugin_name` to `remote-memcached-plugin` and attaches `spoke_name`).
 
@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [MemcachedRole](/docs/concepts/secret-engine-crds/database-secret-engine/memcachedrole.md)
+- [MemcachedRole](/docs/concepts/secret-engine-crds/database-secret-engine/memcached.md)
 
 ## Before you begin
 
