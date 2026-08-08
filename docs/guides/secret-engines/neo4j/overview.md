@@ -57,6 +57,7 @@ spec:
   clientConfig:
     url: bolt://neo4j.demo.svc:7687
   secret:
+    kind: Secret
     name: neo4j-cred
 ---
 apiVersion: v1
