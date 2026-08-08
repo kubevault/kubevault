@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [MSSQLServerRole](/docs/concepts/secret-engine-crds/database-secret-engine/mssqlserverrole.md)
+- [MSSQLServerRole](/docs/concepts/secret-engine-crds/database-secret-engine/mssqlserver.md)
 
 ## Before you begin
 
@@ -114,7 +114,7 @@ Use `kubectl describe secretengine -n demo mssqlserver-engine` to inspect error 
 
 ## Create a MSSQLServerRole
 
-A [`MSSQLServerRole`](/docs/concepts/secret-engine-crds/database-secret-engine/mssqlserverrole.md) describes how the plugin should mint a dynamic credential. Each entry in `creationStatements` is a T-SQL statement, executed in sequence with the `{{name}}` and `{{password}}` placeholders substituted at credential-issue time.
+A [`MSSQLServerRole`](/docs/concepts/secret-engine-crds/database-secret-engine/mssqlserver.md) describes how the plugin should mint a dynamic credential. Each entry in `creationStatements` is a T-SQL statement, executed in sequence with the `{{name}}` and `{{password}}` placeholders substituted at credential-issue time.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
