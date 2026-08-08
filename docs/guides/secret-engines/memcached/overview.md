@@ -57,6 +57,7 @@ spec:
   clientConfig:
     url: tcp://memcached.demo.svc:11211
   secret:
+    kind: Secret
     name: memcached-cred
 ---
 apiVersion: v1
