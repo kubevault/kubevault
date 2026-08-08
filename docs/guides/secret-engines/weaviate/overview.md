@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Manage Weaviate credentials using the KubeVault operator
 
-OpenBao's [`weaviate-database-plugin`](https://github.com/sigilr/openbao/pull/18) is a **static-credentials-only** database plugin. [Weaviate](https://weaviate.io/developers/weaviate/configuration/authentication) loads its API keys from the `AUTHENTICATION_APIKEY_ALLOWED_KEYS` environment variable at server startup and exposes no runtime user-management API, so the plugin cannot create or delete users on demand. Instead, it probes the Weaviate HTTP `/v1/.well-known/ready` endpoint with the configured key sent as a Bearer token to verify reachability and returns "dynamic credentials are not supported" for `bao read database/creds/<role>`. KubeVault treats Weaviate like a static-credentials engine: you provision the Weaviate API key out of band (via the server environment variable), then use [`WeaviateRole`](/docs/concepts/secret-engine-crds/database-secret-engine/weaviaterole.md) to attach rotation metadata to that pre-existing key.
+OpenBao's [`weaviate-database-plugin`](https://github.com/sigilr/openbao/pull/18) is a **static-credentials-only** database plugin. [Weaviate](https://weaviate.io/developers/weaviate/configuration/authentication) loads its API keys from the `AUTHENTICATION_APIKEY_ALLOWED_KEYS` environment variable at server startup and exposes no runtime user-management API, so the plugin cannot create or delete users on demand. Instead, it probes the Weaviate HTTP `/v1/.well-known/ready` endpoint with the configured key sent as a Bearer token to verify reachability and returns "dynamic credentials are not supported" for `bao read database/creds/<role>`. KubeVault treats Weaviate like a static-credentials engine: you provision the Weaviate API key out of band (via the server environment variable), then use [`WeaviateRole`](/docs/concepts/secret-engine-crds/database-secret-engine/weaviate.md) to attach rotation metadata to that pre-existing key.
 
 The same CRD shape is used both for the in-process `weaviate-database-plugin` and for the hub-spoke `remote-weaviate-plugin`; the difference is whether the [Vault AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) referenced by `SecretEngine.spec.vaultRef` is marked `deploymentMode: RemoteAgent` (then the SecretEngine controller rewrites `plugin_name` to `remote-weaviate-plugin` and attaches `spoke_name`).
 
@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [WeaviateRole](/docs/concepts/secret-engine-crds/database-secret-engine/weaviaterole.md)
+- [WeaviateRole](/docs/concepts/secret-engine-crds/database-secret-engine/weaviate.md)
 
 ## Before you begin
 
