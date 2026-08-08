@@ -56,6 +56,7 @@ spec:
   clientConfig:
     url: hdb://hana.demo.svc:39041
   secret:
+    kind: Secret
     name: hanadb-cred
 ---
 apiVersion: v1
