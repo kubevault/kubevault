@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [HanaDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/hanadbrole.md)
+- [HanaDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/hanadb.md)
 
 ## Before you begin
 
@@ -111,7 +111,7 @@ Use `kubectl describe secretengine -n demo hanadb-engine` to inspect error event
 
 ## Create a HanaDBRole
 
-A [`HanaDBRole`](/docs/concepts/secret-engine-crds/database-secret-engine/hanadbrole.md) describes how the plugin should mint a dynamic credential. Each entry in `creationStatements` is a HANA SQL statement, executed in sequence with the `{{name}}`, `{{password}}`, and `{{expiration}}` placeholders substituted at credential-issue time.
+A [`HanaDBRole`](/docs/concepts/secret-engine-crds/database-secret-engine/hanadb.md) describes how the plugin should mint a dynamic credential. Each entry in `creationStatements` is a HANA SQL statement, executed in sequence with the `{{name}}`, `{{password}}`, and `{{expiration}}` placeholders substituted at credential-issue time.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
