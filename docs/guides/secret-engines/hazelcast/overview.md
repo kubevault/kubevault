@@ -57,6 +57,7 @@ spec:
   clientConfig:
     url: http://hazelcast.demo.svc:5701
   secret:
+    kind: Secret
     name: hazelcast-cred
 ---
 apiVersion: v1
