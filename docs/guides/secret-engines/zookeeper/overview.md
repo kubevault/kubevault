@@ -58,6 +58,7 @@ spec:
   clientConfig:
     url: tcp://zk.demo.svc:2181
   secret:
+    kind: Secret
     name: zookeeper-cred
 ---
 apiVersion: v1
