@@ -99,9 +99,20 @@ With the gate **on**, you may still pin an engine to a specific (possibly hierar
 OpenBao namespace:
 
 ```yaml
+apiVersion: engine.kubevault.com/v1alpha1
 kind: SecretEngine
+metadata:
+  name: postgres-engine
+  namespace: acme-prod
 spec:
+  vaultRef:
+    name: vault
   namespace: "acme-7f3a/project-x"   # must already exist in OpenBao; only honored when isolateTenants is on
+  postgres:
+    databaseRef:
+      name: postgres
+      namespace: acme-prod
+    pluginName: "postgresql-database-plugin"
 ```
 
 An explicit `spec.namespace` overrides org-derivation and must pre-exist in OpenBao.
