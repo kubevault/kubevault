@@ -56,6 +56,7 @@ spec:
   clientConfig:
     url: sqlserver://mssql.demo.svc:1433
   secret:
+    kind: Secret
     name: mssqlserver-cred
 ---
 apiVersion: v1
