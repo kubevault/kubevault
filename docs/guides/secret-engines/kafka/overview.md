@@ -57,6 +57,7 @@ spec:
   clientConfig:
     url: kafka-0.kafka-broker.demo.svc:9092,kafka-1.kafka-broker.demo.svc:9092,kafka-2.kafka-broker.demo.svc:9092
   secret:
+    kind: Secret
     name: kafka-cred
 ---
 apiVersion: v1
