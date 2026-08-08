@@ -57,6 +57,7 @@ spec:
   clientConfig:
     url: http://db2-dbapi.demo.svc:50000
   secret:
+    kind: Secret
     name: db2-cred
 ---
 apiVersion: v1
