@@ -27,7 +27,7 @@ You need to be familiar with the following CRDs:
 ## Before you begin
 
 - Install KubeVault operator in your cluster from [here](/docs/setup/README.md).
-- Provision a Memcached deployment with [SASL authentication enabled](https://docs.memcached.org/features/authentication/) and the SASL auth file populated at server startup. The plugin only uses the TCP endpoint (and an optional TLS handshake) for a reachability check.
+- Provision a Memcached deployment with [SASL authentication enabled](https://github.com/memcached/memcached/wiki/SASLAuthProtocol) and the SASL auth file populated at server startup. The plugin only uses the TCP endpoint (and an optional TLS handshake) for a reachability check.
 - Configure each Memcached principal in the SASL auth file for every role you want to rotate. KubeVault will not create the principal.
 
 ```bash
