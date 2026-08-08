@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [IgniteRole](/docs/concepts/secret-engine-crds/database-secret-engine/igniterole.md)
+- [IgniteRole](/docs/concepts/secret-engine-crds/database-secret-engine/ignite.md)
 
 ## Before you begin
 
@@ -111,7 +111,7 @@ Unlike SQL-driver based engines (Postgres, MySQL, HanaDB), the Ignite configurat
 
 ## Create an IgniteRole
 
-An [`IgniteRole`](/docs/concepts/secret-engine-crds/database-secret-engine/igniterole.md) describes how the plugin should mint a dynamic credential. Each entry in `creationStatements` is an Ignite SQL DDL statement, executed in sequence with the `{{name}}` and `{{password}}` placeholders substituted at credential-issue time.
+An [`IgniteRole`](/docs/concepts/secret-engine-crds/database-secret-engine/ignite.md) describes how the plugin should mint a dynamic credential. Each entry in `creationStatements` is an Ignite SQL DDL statement, executed in sequence with the `{{name}}` and `{{password}}` placeholders substituted at credential-issue time.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
