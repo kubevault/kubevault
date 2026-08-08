@@ -57,6 +57,7 @@ spec:
   clientConfig:
     url: http://qdrant.demo.svc:6333
   secret:
+    kind: Secret
     name: qdrant-cred
 ---
 apiVersion: v1
