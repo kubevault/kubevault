@@ -59,6 +59,7 @@ spec:
   clientConfig:
     url: http://milvus.demo.svc:19530
   secret:
+    kind: Secret
     name: milvus-cred
 ---
 apiVersion: v1
@@ -84,6 +85,7 @@ spec:
   clientConfig:
     url: https://in03-xxxxxxxxxxxxxxx.api.gcp-us-west1.zillizcloud.com
   secret:
+    kind: Secret
     name: milvus-cred
 ---
 apiVersion: v1
