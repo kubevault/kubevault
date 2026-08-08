@@ -24,7 +24,7 @@ metadata:
   namespace: default
 spec:
   replicas: 3
-  version: 1.7.3
+  version: "1.18.4"
   serviceTemplates:
     - alias: vault
       metadata:

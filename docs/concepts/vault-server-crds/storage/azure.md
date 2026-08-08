@@ -24,7 +24,7 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: "1.2.0"
+  version: "1.18.4"
   backend:
     azure:
       accountName: "vault-ac"
