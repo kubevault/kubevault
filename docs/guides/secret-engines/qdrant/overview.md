@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Manage Qdrant credentials using the KubeVault operator
 
-OpenBao's [`qdrant-database-plugin`](https://github.com/sigilr/openbao/pull/17) is a **static-credentials-only** database plugin. [Qdrant](https://qdrant.tech/documentation/guides/security/) loads its API key from the `QDRANT__SERVICE__API_KEY` environment variable at server startup and exposes no runtime user-management API, so the plugin cannot create or delete users on demand. Instead, it probes the Qdrant HTTP `/readyz` endpoint with the configured key sent in the `api-key` header to verify reachability and returns "dynamic credentials are not supported" for `bao read database/creds/<role>`. KubeVault treats Qdrant like a static-credentials engine: you provision the Qdrant API key out of band (via the server environment variable), then use [`QdrantRole`](/docs/concepts/secret-engine-crds/database-secret-engine/qdrantrole.md) to attach rotation metadata to that pre-existing key.
+OpenBao's [`qdrant-database-plugin`](https://github.com/sigilr/openbao/pull/17) is a **static-credentials-only** database plugin. [Qdrant](https://qdrant.tech/documentation/guides/security/) loads its API key from the `QDRANT__SERVICE__API_KEY` environment variable at server startup and exposes no runtime user-management API, so the plugin cannot create or delete users on demand. Instead, it probes the Qdrant HTTP `/readyz` endpoint with the configured key sent in the `api-key` header to verify reachability and returns "dynamic credentials are not supported" for `bao read database/creds/<role>`. KubeVault treats Qdrant like a static-credentials engine: you provision the Qdrant API key out of band (via the server environment variable), then use [`QdrantRole`](/docs/concepts/secret-engine-crds/database-secret-engine/qdrant.md) to attach rotation metadata to that pre-existing key.
 
 The same CRD shape is used both for the in-process `qdrant-database-plugin` and for the hub-spoke `remote-qdrant-plugin`; the difference is whether the [Vault AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) referenced by `SecretEngine.spec.vaultRef` is marked `deploymentMode: RemoteAgent` (then the SecretEngine controller rewrites `plugin_name` to `remote-qdrant-plugin` and attaches `spoke_name`).
 
@@ -22,7 +22,7 @@ You need to be familiar with the following CRDs:
 
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
-- [QdrantRole](/docs/concepts/secret-engine-crds/database-secret-engine/qdrantrole.md)
+- [QdrantRole](/docs/concepts/secret-engine-crds/database-secret-engine/qdrant.md)
 
 ## Before you begin
 
