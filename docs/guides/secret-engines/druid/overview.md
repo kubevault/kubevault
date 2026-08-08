@@ -57,6 +57,7 @@ spec:
   clientConfig:
     url: http://druid-coordinator.demo.svc:8081
   secret:
+    kind: Secret
     name: druid-cred
 ---
 apiVersion: v1
