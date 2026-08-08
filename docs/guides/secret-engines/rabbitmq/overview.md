@@ -58,6 +58,7 @@ spec:
   clientConfig:
     url: http://rabbitmq.demo.svc:15672
   secret:
+    kind: Secret
     name: rabbitmq-cred
 ---
 apiVersion: v1
