@@ -21,7 +21,7 @@ A `WeaviateRole` is a Kubernetes `CustomResourceDefinition` (CRD) which allows a
 When a `WeaviateRole` is created, the KubeVault operator creates a [role](https://www.vaultproject.io/api/secret/databases/index.html#create-role) according to specification.
 If the user deletes the `WeaviateRole` CRD, then the respective role will also be deleted from Vault.
 
-> Note: The `weaviate-database-plugin` shipped in [openbao/openbao#18](https://github.com/openbao/openbao/pull/18) is **static-credentials-only**. It does NOT implement dynamic credential issuance (`NewUser`) — Weaviate loads its API keys from the `AUTHENTICATION_APIKEY_ALLOWED_KEYS` environment variable at server startup and exposes no runtime user-management API. The `WeaviateRole` CRD therefore only attaches role metadata (`db_name`, `default_ttl`, `max_ttl`) to the pre-existing Weaviate API key. Operators wire up key rotation by calling `bao write database/static-roles/<role>` against this metadata; from then on OpenBao rotates the API key on the configured cadence and exposes the current value at `database/static-creds/<role>` under the `password` field.
+Dynamic credentials generated from a `WeaviateRole` create a dynamic user in Weaviate, assign the configured RBAC roles, and return a dynamic API key.
 
 ## WeaviateRole CRD Specification
 
@@ -37,9 +37,16 @@ metadata:
   namespace: demo
 spec:
   secretEngineRef:
-    name: vault-app
+    name: weaviate-engine
   defaultTTL: "1h"
   maxTTL: "24h"
+  creationStatements:
+    - |
+      {
+        "roles": [
+          "viewer"
+        ]
+      }
 status:
   observedGeneration: 1
   phase: Success
@@ -56,9 +63,11 @@ WeaviateRole `spec` contains information that is necessary for creating a databa
 ```yaml
 spec:
   secretEngineRef:
-    name: <vault-appbinding-name>
+    name: <secret-engine-name>
   defaultTTL: <default-ttl>
   maxTTL: <max-ttl>
+  creationStatements:
+    - "statement-0"
 ```
 
 WeaviateRole spec has the following fields:
@@ -71,6 +80,21 @@ WeaviateRole spec has the following fields:
 spec:
   secretEngineRef:
     name: weaviate-secret-engine
+```
+
+#### spec.creationStatements
+
+`spec.creationStatements` is a `required` field that specifies the roles assigned to the dynamically-created user in Weaviate:
+
+```yaml
+spec:
+  creationStatements:
+    - |
+      {
+        "roles": [
+          "viewer"
+        ]
+      }
 ```
 
 #### spec.defaultTTL
@@ -90,7 +114,7 @@ Accepts time suffixed strings ("1h") or an integer number of seconds. Defaults t
 
 ```yaml
 spec:
-  maxTTL: "1h"
+  maxTTL: "24h"
 ```
 
 ### WeaviateRole Status
@@ -102,7 +126,7 @@ spec:
 
 - `phase`: Indicates whether the role successfully applied to Vault or not.
 
-- `conditions` : Represent observations of a WeaviateRole.
+- `conditions`: Represent observations of a WeaviateRole.
 
 ## Namespace inheritance (tenant isolation)
 
