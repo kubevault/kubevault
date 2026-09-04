@@ -37,7 +37,7 @@ spec:
   secretEngineRef:
     name: vault-app
   creationStatements:
-    - '{"roles":["dba","readonly"]}'
+    - '{"roles":["public"]}'
 status:
   observedGeneration: 1
   phase: Success
@@ -80,7 +80,7 @@ spec:
 ```yaml
 spec:
   creationStatements:
-    - '{"roles":["dba","readonly"]}'
+    - '{"roles":["public"]}'
 ```
 
 #### spec.defaultTTL

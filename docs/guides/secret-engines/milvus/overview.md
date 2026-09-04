@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Manage Milvus credentials using the KubeVault operator
 
-OpenBao's [`milvus-database-plugin`](https://github.com/sigilr/openbao/pull/13) is a **dynamic-credentials** database plugin for [Milvus](https://milvus.io/). The plugin provisions credentials by talking to Milvus's [HTTP RESTful API v2 user-management endpoints](https://milvus.io/docs/users_and_roles.md): each issued credential becomes a Milvus user and is bound to one or more pre-existing roles on the target cluster. The plugin **does not create roles**; it only manages users and their role bindings, so every role referenced from `creationStatements` must already exist on the Milvus cluster.
+OpenBao's [`milvus-database-plugin`](https://github.com/sigilr/openbao/pull/13) is a **dynamic-credentials** database plugin for [Milvus](https://milvus.io/). The plugin provisions credentials by connecting to Milvus using the official [Milvus Go SDK (v2) over gRPC](https://milvus.io/docs/users_and_roles.md): each issued credential becomes a Milvus user and is bound to one or more pre-existing roles on the target cluster. The plugin **does not create roles**; it only manages users and their role bindings, so every role referenced from `creationStatements` must already exist on the Milvus cluster.
 
 The same CRD shape is used both for the in-process `milvus-database-plugin` and for the hub-spoke `remote-milvus-plugin`; the difference is whether the [Vault AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) referenced by `SecretEngine.spec.vaultRef` is marked `deploymentMode: RemoteAgent` (then the SecretEngine controller rewrites `plugin_name` to `remote-milvus-plugin` and attaches `spoke_name`).
 
@@ -27,8 +27,8 @@ You need to be familiar with the following CRDs:
 ## Before you begin
 
 - Install KubeVault operator in your cluster from [here](/docs/setup/README.md).
-- Run a Milvus cluster reachable over HTTP. The Milvus [standalone quickstart](https://milvus.io/docs/install_standalone-docker.md) exposes the HTTP endpoint at `19530`; managed Milvus on [Zilliz Cloud](https://zilliz.com/cloud) exposes an `https://...` URL with token-based auth.
-- Pre-create the Milvus roles you want to bind credentials to (e.g. `dba`, `readonly`). The plugin only binds — it does not create roles. See [Users and Roles](https://milvus.io/docs/users_and_roles.md) for the Milvus role model.
+- Run a Milvus cluster reachable over gRPC (default port `19530`); managed Milvus on [Zilliz Cloud](https://zilliz.com/cloud) exposes an `https://...` URL with token-based auth.
+- Pre-create any custom Milvus roles you want to bind credentials to, or use the built-in `public` role. The plugin only binds — it does not create roles. See [Users and Roles](https://milvus.io/docs/users_and_roles.md) for the Milvus role model.
 
 ```bash
 $ kubectl create ns demo
@@ -45,9 +45,9 @@ $ kubectl get appbinding -n demo vault -o yaml
 
 ## AppBinding for Milvus
 
-Create an `AppBinding` pointing at the Milvus HTTP endpoint. Unlike most database engines, the URL here is **not** a JDBC/connection URI — it is the HTTP(S) base URL of Milvus (e.g. `http://milvus.demo.svc:19530`). The referenced Secret carries either HTTP Basic Auth credentials (`username` + `password`) **or** a Bearer token (`token`) for Zilliz Cloud / API-token style auth. When the secret carries a `token` key, the operator forwards it as `token=` to the plugin **instead of** username/password.
+Create an `AppBinding` pointing at the Milvus server endpoint (default port `19530`). Unlike most database engines, the URL here is **not** a JDBC connection URI — it is the Milvus endpoint address (e.g. `http://milvus.demo.svc:19530` or `milvus.demo.svc:19530`). The referenced Secret carries either Basic Auth credentials (`username` + `password`) **or** an API token (`token`) for Zilliz Cloud / API-token style auth. When the secret carries a `token` key, the operator forwards it as `token=` to the plugin **instead of** username/password.
 
-### Self-hosted Milvus (HTTP Basic)
+### Self-hosted Milvus (Basic Auth)
 
 ```yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
@@ -153,7 +153,7 @@ spec:
   secretEngineRef:
     name: milvus-engine
   creationStatements:
-    - '{"roles":["dba","readonly"]}'
+    - '{"roles":["public"]}'
   defaultTTL: 1h
   maxTTL: 24h
 ```
@@ -175,7 +175,7 @@ The role name in Vault follows the format `k8s.{clusterName}.{metadata.namespace
 $ vault read your-database-path/roles/k8s.-.demo.milvus-readonly
 Key                      Value
 ---                      -----
-creation_statements      [{"roles":["dba","readonly"]}]
+creation_statements      [{"roles":["public"]}]
 db_name                  k8s.-.demo.milvus
 default_ttl              1h
 max_ttl                  24h
@@ -210,7 +210,7 @@ $ kubectl vault approve secretaccessrequest milvus-cred-rqst -n demo
 approved
 ```
 
-Once approved, the operator issues the credential, stores it in a `Secret`, and binds the listed subjects via a `Role`/`RoleBinding`. The plugin creates a new Milvus user and grants the listed roles (`dba`, `readonly`) on the target Milvus cluster. The credential lives on the lease until you delete the `SecretAccessRequest` or it expires; on lease revocation the plugin removes the Milvus user.
+Once approved, the operator issues the credential, stores it in a `Secret`, and binds the listed subjects via a `Role`/`RoleBinding`. The plugin creates a new Milvus user and grants the listed roles (`public`) on the target Milvus cluster. The credential lives on the lease until you delete the `SecretAccessRequest` or it expires; on lease revocation the plugin removes the Milvus user.
 
 ```bash
 $ kubectl get secretaccessrequest milvus-cred-rqst -n demo -o json | jq '.status'
@@ -229,10 +229,10 @@ $ kubectl get secret -n demo milvus-cred-rqst-xxxxxx -o jsonpath='{.data.usernam
 v-kubernetes-demo-XXXXXXXX
 
 $ kubectl get secret -n demo milvus-cred-rqst-xxxxxx -o jsonpath='{.data.password}' | base64 -d
-xxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxx
 ```
 
-Use the issued `username` / `password` as HTTP Basic-Auth credentials (or as the `user:password` pair of a Bearer `token=` when talking to Zilliz Cloud) on the Milvus HTTP RESTful API v2. The credential is revoked when the `SecretAccessRequest` is deleted.
+Use the issued `username` / `password` to authenticate against Milvus over gRPC or REST. The credential is revoked when the `SecretAccessRequest` is deleted.
 
 ## Further reading
 
