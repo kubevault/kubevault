@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Manage Qdrant credentials using the KubeVault operator
 
-OpenBao's [`qdrant-database-plugin`](https://github.com/sigilr/openbao/pull/17) is a **static-credentials-only** database plugin. [Qdrant](https://qdrant.tech/documentation/guides/security/) loads its API key from the `QDRANT__SERVICE__API_KEY` environment variable at server startup and exposes no runtime user-management API, so the plugin cannot create or delete users on demand. Instead, it probes the Qdrant HTTP `/readyz` endpoint with the configured key sent in the `api-key` header to verify reachability and returns "dynamic credentials are not supported" for `bao read database/creds/<role>`. KubeVault treats Qdrant like a static-credentials engine: you provision the Qdrant API key out of band (via the server environment variable), then use [`QdrantRole`](/docs/concepts/secret-engine-crds/database-secret-engine/qdrant.md) to attach rotation metadata to that pre-existing key.
+OpenBao's `qdrant-database-plugin` manages dynamic credentials for [Qdrant](https://qdrant.tech/documentation/guides/security/) using Granular Access API Keys (HS256-signed JSON Web Tokens). When a client requests credentials, OpenBao creates a validation point in Qdrant, signs a JWT carrying collection-level RBAC permissions and a `value_exists` validation claim, and returns the token and dynamic username. When the credential lease expires or is revoked, OpenBao removes the validation point from Qdrant, immediately invalidating the token.
 
 The same CRD shape is used both for the in-process `qdrant-database-plugin` and for the hub-spoke `remote-qdrant-plugin`; the difference is whether the [Vault AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) referenced by `SecretEngine.spec.vaultRef` is marked `deploymentMode: RemoteAgent` (then the SecretEngine controller rewrites `plugin_name` to `remote-qdrant-plugin` and attaches `spoke_name`).
 
@@ -23,12 +23,13 @@ You need to be familiar with the following CRDs:
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
 - [QdrantRole](/docs/concepts/secret-engine-crds/database-secret-engine/qdrant.md)
+- [SecretAccessRequest](/docs/concepts/request-crds/secretaccessrequest.md)
 
 ## Before you begin
 
 - Install KubeVault operator in your cluster from [here](/docs/setup/README.md).
-- Provision a Qdrant deployment with [API-key authentication enabled](https://qdrant.tech/documentation/guides/security/) by setting `QDRANT__SERVICE__API_KEY` on the server. The plugin only uses the HTTP endpoint and the `/readyz` probe (key sent in the `api-key` header) for a reachability check.
-- Decide on the API key in advance; KubeVault does not generate or rotate the Qdrant-side key — it only writes the OpenBao-side static-roles metadata for an already-existing key.
+- Provision a Qdrant deployment with API-key authentication and JWT RBAC enabled (`jwtRbac: true` in KubeDB, or `QDRANT__SERVICE__API_KEY` and `QDRANT__SERVICE__JWT_RBAC=true` in container env).
+- Create a namespace for testing:
 
 ```bash
 $ kubectl create ns demo
@@ -45,7 +46,7 @@ $ kubectl get appbinding -n demo vault -o yaml
 
 ## AppBinding for Qdrant
 
-Create an `AppBinding` pointing at the Qdrant HTTP endpoint. The secret's `password` field carries the Qdrant API key — KubeVault forwards it to the plugin as `api_key=`, which the plugin then sends in the `api-key` HTTP header against `/readyz` (Qdrant does not use HTTP Basic Auth).
+Create an `AppBinding` pointing at the Qdrant HTTP endpoint. The secret's `password` or `api-key` field carries the Qdrant master API key — KubeVault forwards it to the plugin as `api_key=`, which the plugin uses for reachability checks against `/readyz` and for signing dynamic JWTs.
 
 ```yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
@@ -55,23 +56,22 @@ metadata:
   namespace: demo
 spec:
   clientConfig:
-    url: http://qdrant.demo.svc:6333
+    url: https://qdrant.demo.svc:6333
   secret:
     kind: Secret
-    name: qdrant-cred
+    name: qdrant-auth
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: qdrant-cred
+  name: qdrant-auth
   namespace: demo
-type: kubernetes.io/basic-auth
+type: Opaque
 stringData:
-  username: bao
-  password: <qdrant-api-key>
+  api-key: <qdrant-admin-api-key>
 ```
 
-> The `username` field is required by the `kubernetes.io/basic-auth` Secret type but is ignored by the Qdrant plugin; only `password` (forwarded as `api_key`) is consumed.
+> Note: If Qdrant runs with mTLS, specify client certificates in the AppBinding or secret.
 
 ## Enable and configure the Qdrant secret engine
 
@@ -98,6 +98,7 @@ Apply and wait for the engine to land:
 ```bash
 $ kubectl apply -f qdrant-secret-engine.yaml
 secretengine.engine.kubevault.com/qdrant-engine created
+
 $ kubectl get secretengines -n demo
 NAME            STATUS    AGE
 qdrant-engine   Success   10s
@@ -108,14 +109,16 @@ Behind the scenes the KubeVault operator writes:
 ```
 bao write database/config/k8s.<cluster>.demo.qdrant \
     plugin_name=qdrant-database-plugin \
-    url=http://qdrant.demo.svc:6333 \
+    url=https://qdrant.demo.svc:6333 \
     api_key=<qdrant-api-key> \
     allowed_roles="*"
 ```
 
-When the referenced AppBinding is `deploymentMode: RemoteAgent`, the operator substitutes `plugin_name=remote-qdrant-plugin` and adds `spoke_name=<spoke>` so the hub forwards the call to the matching `bao agent run` daemon. See the [remote-db-plugin DESIGN](https://github.com/sigilr/openbao/blob/db-plugin-qdrant/plugins/database/remote-db-plugin/DESIGN.md) for the hub-spoke flow.
+When the referenced AppBinding is `deploymentMode: RemoteAgent`, the operator substitutes `plugin_name=remote-qdrant-plugin` and adds `spoke_name=<spoke>` so the hub forwards the call to the matching `bao relay run` daemon.
 
 ## Create a QdrantRole
+
+Define dynamic permissions for the role using `creationStatements`:
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
@@ -128,30 +131,86 @@ spec:
     name: qdrant-engine
   defaultTTL: 24h
   maxTTL: 168h
+  creationStatements:
+    - |
+      {
+        "access": [
+          {
+            "collection": "my_collection",
+            "access": "rw"
+          }
+        ]
+      }
 ```
 
 ```bash
 $ kubectl apply -f qdrant-role.yaml
 qdrantrole.engine.kubevault.com/app created
+
 $ kubectl get qdrantrole -n demo
 NAME   STATUS    AGE
 app    Success   8s
 ```
 
-The KubeVault operator writes the role metadata as `database/roles/k8s.<cluster>.demo.app`. Qdrant's dynamic creds endpoint will still return the documented "dynamic credentials are not supported" error — that's the plugin contract; pair the `QdrantRole` with `bao write database/static-roles/<name>` and a pre-existing Qdrant API key.
+## Generate dynamic credentials via SecretAccessRequest
 
-## Rotate static credentials
+To generate dynamic credentials, create a `SecretAccessRequest`:
 
-Configure the static-roles binding directly against OpenBao (the static-role API is not currently exposed via a KubeVault CRD):
-
-```bash
-$ bao write database/static-roles/k8s.<cluster>.demo.app \
-    db_name=k8s.<cluster>.demo.qdrant \
-    username=APP \
-    rotation_period=24h
+```yaml
+apiVersion: engine.kubevault.com/v1alpha1
+kind: SecretAccessRequest
+metadata:
+  name: qdrant-credentials
+  namespace: demo
+spec:
+  roleRef:
+    kind: QdrantRole
+    name: app
+  ttl: 1h
 ```
 
-`bao read database/static-creds/k8s.<cluster>.demo.app` returns the latest rotated API key. KubeVault revokes the role on `QdrantRole` deletion via the standard finalizer path.
+```bash
+$ kubectl apply -f secret-access-request.yaml
+secretaccessrequest.engine.kubevault.com/qdrant-credentials created
+```
+
+Wait for the request to be approved:
+
+```bash
+$ kubectl get secretaccessrequest -n demo qdrant-credentials
+NAME                 STATUS     SECRET                       AGE
+qdrant-credentials   Approved   qdrant-credentials-xyz123   10s
+```
+
+### Inspect the issued credentials
+
+Extract the generated credentials from the Kubernetes Secret:
+
+```bash
+$ SECRET_NAME=$(kubectl get secretaccessrequest qdrant-credentials -n demo -o jsonpath='{.status.secret.name}')
+
+$ kubectl get secret $SECRET_NAME -n demo -o yaml
+apiVersion: v1
+data:
+  jwt_token: <base64-encoded-jwt>
+  username: <base64-encoded-username>
+kind: Secret
+...
+```
+
+The Secret contains:
+- `username`: Unique dynamic username (e.g. `v-kubernet-k8s...`).
+- `jwt_token`: Signed HS256 JWT encoding the collection permissions, lease expiry, and `value_exists` revocation claim.
+
+Clients pass this token to Qdrant via the `api-key` header or `Authorization: Bearer <jwt_token>`.
+
+## Revocation
+
+When the `SecretAccessRequest` is deleted or the lease TTL expires, KubeVault revokes the lease in OpenBao. OpenBao deletes the validation point from Qdrant, immediately revoking the token across all Qdrant nodes.
+
+```bash
+$ kubectl delete secretaccessrequest -n demo qdrant-credentials
+```
 
 ## Cleanup
 
@@ -159,9 +218,3 @@ $ bao write database/static-roles/k8s.<cluster>.demo.app \
 $ kubectl delete qdrantrole -n demo app
 $ kubectl delete secretengine -n demo qdrant-engine
 ```
-
-## Caveats
-
-- **No dynamic credentials.** `bao read database/creds/<role>` always returns "dynamic credentials are not supported" — Qdrant has no runtime user-management API.
-- **Out-of-band key management.** Qdrant loads its API key from `QDRANT__SERVICE__API_KEY` at server startup; the plugin rotates the key via `bao` audit but cannot apply the new value to the Qdrant server without an environment reload (e.g. restart with the rotated key wired into the Pod env).
-- **Insecure flag.** `spec.qdrant.insecure=true` disables TLS verification when probing the Qdrant HTTP endpoint. Use only in dev.

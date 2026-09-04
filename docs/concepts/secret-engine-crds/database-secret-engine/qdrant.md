@@ -21,7 +21,7 @@ A `QdrantRole` is a Kubernetes `CustomResourceDefinition` (CRD) which allows a u
 When a `QdrantRole` is created, the KubeVault operator creates a [role](https://www.vaultproject.io/api/secret/databases/index.html#create-role) according to specification.
 If the user deletes the `QdrantRole` CRD, then the respective role will also be deleted from Vault.
 
-> Note: The `qdrant-database-plugin` shipped in [openbao/openbao#17](https://github.com/openbao/openbao/pull/17) is **static-credentials-only**. It does NOT implement dynamic credential issuance (`NewUser`) — Qdrant loads its API key from the `QDRANT__SERVICE__API_KEY` environment variable at server startup and exposes no runtime user-management API. The `QdrantRole` CRD therefore only attaches role metadata (`db_name`, `default_ttl`, `max_ttl`) to the pre-existing Qdrant API key. Operators wire up key rotation by calling `bao write database/static-roles/<role>` against this metadata; from then on OpenBao rotates the API key on the configured cadence and exposes the current value at `database/static-creds/<role>` under the `password` field.
+Dynamic credentials generated from a `QdrantRole` are issued as Qdrant Granular Access API Keys (JSON Web Tokens signed with HS256) with stateful token revocation using the `value_exists` validation claim.
 
 ## QdrantRole CRD Specification
 
@@ -37,9 +37,19 @@ metadata:
   namespace: demo
 spec:
   secretEngineRef:
-    name: vault-app
+    name: qdrant-engine
   defaultTTL: "1h"
   maxTTL: "24h"
+  creationStatements:
+    - |
+      {
+        "access": [
+          {
+            "collection": "my_collection",
+            "access": "rw"
+          }
+        ]
+      }
 status:
   observedGeneration: 1
   phase: Success
@@ -56,9 +66,11 @@ QdrantRole `spec` contains information that is necessary for creating a database
 ```yaml
 spec:
   secretEngineRef:
-    name: <vault-appbinding-name>
+    name: <secret-engine-name>
   defaultTTL: <default-ttl>
   maxTTL: <max-ttl>
+  creationStatements:
+    - "statement-0"
 ```
 
 QdrantRole spec has the following fields:
@@ -71,6 +83,29 @@ QdrantRole spec has the following fields:
 spec:
   secretEngineRef:
     name: qdrant-secret-engine
+```
+
+#### spec.creationStatements
+
+`spec.creationStatements` is a `required` field that specifies the permissions encoded into the dynamic Granular Access API Key (JWT).
+You can specify collection-level granular access rules (with `r` for read-only or `rw` for read-write) or global permissions (`r` for read or `m` for manage):
+
+```yaml
+spec:
+  creationStatements:
+    - |
+      {
+        "access": [
+          {
+            "collection": "products",
+            "access": "rw"
+          },
+          {
+            "collection": "logs",
+            "access": "r"
+          }
+        ]
+      }
 ```
 
 #### spec.defaultTTL
@@ -90,7 +125,7 @@ Accepts time suffixed strings ("1h") or an integer number of seconds. Defaults t
 
 ```yaml
 spec:
-  maxTTL: "1h"
+  maxTTL: "24h"
 ```
 
 ### QdrantRole Status
@@ -102,7 +137,7 @@ spec:
 
 - `phase`: Indicates whether the role successfully applied to Vault or not.
 
-- `conditions` : Represent observations of a QdrantRole.
+- `conditions`: Represent observations of a QdrantRole.
 
 ## Namespace inheritance (tenant isolation)
 
