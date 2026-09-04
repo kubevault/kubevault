@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Manage Apache Ignite credentials using the KubeVault operator
 
-OpenBao's [`ignite-database-plugin`](https://github.com/sigilr/openbao/pull/14) is a **dynamic-credentials** database plugin for [Apache Ignite](https://ignite.apache.org/docs/latest/security/authentication). It drives Ignite's REST API (`cmd=qryfldexe`) to execute `CREATE USER` / `ALTER USER` / `DROP USER` SQL DDL statements, so `IgniteRole.spec.creationStatements` is a list of Ignite SQL DDL statements with `{{name}}` and `{{password}}` placeholders, and credentials are issued dynamically through a `SecretAccessRequest`.
+OpenBao's [`ignite-database-plugin`](https://github.com/sigilr/openbao/pull/14) is a **dynamic-credentials** database plugin for [Apache Ignite](https://ignite.apache.org/docs/latest/security/authentication). It connects via Ignite's thin client binary protocol (default port `10800`) to execute `CREATE USER` / `ALTER USER` / `DROP USER` SQL DDL statements, so `IgniteRole.spec.creationStatements` is a list of Ignite SQL DDL statements with `{{name}}` and `{{password}}` placeholders, and credentials are issued dynamically through a `SecretAccessRequest`.
 
 The same CRD shape is used both for the in-process `ignite-database-plugin` and for the hub-spoke `remote-ignite-plugin`; the difference is whether the [Vault AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) referenced by `SecretEngine.spec.vaultRef` is marked `deploymentMode: RemoteAgent` (then the SecretEngine controller rewrites `plugin_name` to `remote-ignite-plugin` and attaches `spoke_name`).
 
@@ -44,7 +44,7 @@ $ kubectl get appbinding -n demo vault -o yaml
 
 ## AppBinding for Apache Ignite
 
-Create an `AppBinding` pointing at the Ignite REST endpoint. The URL is the HTTP(S) base of the Ignite REST API (e.g. `http://ignite.demo.svc:8080`); the referenced Secret carries the username and password the plugin uses to authenticate Basic Auth against the REST endpoint as the rotation principal.
+Create an `AppBinding` pointing at the Ignite thin client endpoint. The URL specifies the thin client binary address (e.g. `tcp://ignite.demo.svc:10800`); the referenced Secret carries the username and password the plugin uses to authenticate against the thin client endpoint as the administrative principal.
 
 ```yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
@@ -54,7 +54,7 @@ metadata:
   namespace: demo
 spec:
   clientConfig:
-    url: http://ignite.demo.svc:8080
+    url: tcp://ignite.demo.svc:10800
   secret:
     kind: Secret
     name: ignite-cred
@@ -206,7 +206,7 @@ $ kubectl get secret -n demo ignite-cred-rqst-xxxxxx -o jsonpath='{.data.passwor
 xxxxxxxxxxxxxxxxxx
 ```
 
-Use the issued `username` / `password` to authenticate to the Ignite cluster (REST API, thin client, or JDBC); the credential is revoked when the `SecretAccessRequest` is deleted (the plugin runs `revocationStatements`, or falls back to a sensible `DROP USER` if you didn't set any).
+Use the issued `username` / `password` to authenticate to the Ignite cluster (via thin client or JDBC); the credential is revoked when the `SecretAccessRequest` is deleted (the plugin runs `revocationStatements`, or falls back to a sensible `DROP USER` if you didn't set any).
 
 ## Further reading
 
