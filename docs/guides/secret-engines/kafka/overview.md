@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Manage Apache Kafka credentials using the KubeVault operator
 
-OpenBao's [`kafka-database-plugin`](https://github.com/sigilr/openbao/pull/15) is a **dynamic-credentials** database plugin for [Apache Kafka](https://kafka.apache.org/). The plugin provisions credentials by writing [SASL/SCRAM](https://kafka.apache.org/documentation/#security_sasl_scram) user records via the franz-go AdminClient: each issued credential becomes a SCRAM-SHA-256 (default) or SCRAM-SHA-512 user on the cluster. ACLs are **not yet implemented** by the plugin — the `acls` field on the role JSON is reserved and must currently be empty; provision ACLs out of band via `kafka-acls.sh`.
+OpenBao's [`kafka-database-plugin`](https://github.com/sigilr/openbao/pull/15) is a **dynamic-credentials** database plugin for [Apache Kafka](https://kafka.apache.org/). The plugin provisions credentials by writing [SASL/SCRAM](https://kafka.apache.org/documentation/#security_sasl_scram) user records via the franz-go AdminClient: each issued credential becomes a SCRAM-SHA-256 (default) or SCRAM-SHA-512 user on the cluster, and dynamically creates any configured ACLs.
 
 The same CRD shape is used both for the in-process `kafka-database-plugin` and for the hub-spoke `remote-kafka-plugin`; the difference is whether the [Vault AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) referenced by `SecretEngine.spec.vaultRef` is marked `deploymentMode: RemoteAgent` (then the SecretEngine controller rewrites `plugin_name` to `remote-kafka-plugin` and attaches `spoke_name`).
 
@@ -27,8 +27,7 @@ You need to be familiar with the following CRDs:
 ## Before you begin
 
 - Install KubeVault operator in your cluster from [here](/docs/setup/README.md).
-- Run an Apache Kafka cluster with SASL/SCRAM enabled. The plugin authenticates to the brokers using a SASL principal that has permission to write SCRAM credential records (typically the broker's super-user). The broker listener must speak `SASL_PLAINTEXT` or `SASL_SSL`.
-- Pre-create any ACLs you want the issued credentials to inherit via `kafka-acls.sh`. The plugin only manages SCRAM user records; ACL management is not yet implemented.
+- Run an Apache Kafka cluster with SASL/SCRAM enabled. The plugin authenticates to the brokers using a SASL principal that has permission to write SCRAM credential records (`AlterUserSCRAMs`) and create/delete ACLs (`CreateACLs`, `DeleteACLs`). The broker listener must speak `SASL_PLAINTEXT` or `SASL_SSL`.
 
 ```bash
 $ kubectl create ns demo
@@ -115,7 +114,7 @@ Use `kubectl describe secretengine -n demo kafka-engine` to inspect error events
 
 ## Create a KafkaRole
 
-A [`KafkaRole`](/docs/concepts/secret-engine-crds/database-secret-engine/kafka.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `{"mechanism":"SCRAM-SHA-256","acls":[]}`. The `mechanism` field overrides the SecretEngine-level default on a per-role basis; the `acls` field is reserved and **must be empty** today — the plugin rejects non-empty `acls`. Provision ACLs separately via `kafka-acls.sh`.
+A [`KafkaRole`](/docs/concepts/secret-engine-crds/database-secret-engine/kafka.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document. The `mechanism` field overrides the SecretEngine-level default on a per-role basis (`SCRAM-SHA-256` or `SCRAM-SHA-512`). The `acls` array defines the permissions to grant to the generated user (e.g. for `TOPIC`, `GROUP`, or `CLUSTER` resources); if left empty, only the SCRAM user is created without any dynamic ACLs.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
@@ -127,7 +126,7 @@ spec:
   secretEngineRef:
     name: kafka-engine
   creationStatements:
-    - '{"mechanism":"SCRAM-SHA-256","acls":[]}'
+    - '{"mechanism":"SCRAM-SHA-256","acls":[{"resource_type":"TOPIC","resource_name":"*","operation":"ALL","permission":"ALLOW"},{"resource_type":"GROUP","resource_name":"*","operation":"ALL","permission":"ALLOW"}]}'
   defaultTTL: 1h
   maxTTL: 24h
 ```
@@ -149,7 +148,7 @@ The role name in Vault follows the format `k8s.{clusterName}.{metadata.namespace
 $ vault read your-database-path/roles/k8s.-.demo.kafka-producer
 Key                      Value
 ---                      -----
-creation_statements      [{"mechanism":"SCRAM-SHA-256","acls":[]}]
+creation_statements      [{"mechanism":"SCRAM-SHA-256","acls":[{"operation":"ALL","permission":"ALLOW","resource_name":"*","resource_type":"TOPIC"},{"operation":"ALL","permission":"ALLOW","resource_name":"*","resource_type":"GROUP"}]}]
 db_name                  k8s.-.demo.kafka
 default_ttl              1h
 max_ttl                  24h
@@ -184,7 +183,7 @@ $ kubectl vault approve secretaccessrequest kafka-cred-rqst -n demo
 approved
 ```
 
-Once approved, the operator issues the credential, stores it in a `Secret`, and binds the listed subjects via a `Role`/`RoleBinding`. The plugin creates a new SCRAM user on the Kafka cluster using the configured `mechanism`. The credential lives on the lease until you delete the `SecretAccessRequest` or it expires; on lease revocation the plugin removes the SCRAM user record.
+Once approved, the operator issues the credential, stores it in a `Secret`, and binds the listed subjects via a `Role`/`RoleBinding`. The plugin creates a new SCRAM user on the Kafka cluster using the configured `mechanism` and provisions the configured ACLs. The credential lives on the lease until you delete the `SecretAccessRequest` or it expires; on lease revocation the plugin removes the SCRAM user record and associated ACLs.
 
 ```bash
 $ kubectl get secretaccessrequest kafka-cred-rqst -n demo -o json | jq '.status'
@@ -203,10 +202,10 @@ $ kubectl get secret -n demo kafka-cred-rqst-xxxxxx -o jsonpath='{.data.username
 v-kubernetes-demo-XXXXXXXX
 
 $ kubectl get secret -n demo kafka-cred-rqst-xxxxxx -o jsonpath='{.data.password}' | base64 -d
-xxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxx
 ```
 
-Use the issued `username` / `password` as your franz-go / sarama / librdkafka client's SASL credentials (`sasl.mechanism=SCRAM-SHA-256`); the credential is revoked when the `SecretAccessRequest` is deleted. ACL bindings for the issued user must already exist on the cluster (see the [Before you begin](#before-you-begin) note about `kafka-acls.sh`).
+Use the issued `username` / `password` as your franz-go / sarama / librdkafka client's SASL credentials (`sasl.mechanism=SCRAM-SHA-256`); the credential and associated ACLs are revoked when the `SecretAccessRequest` is deleted.
 
 ## Further reading
 

@@ -37,7 +37,7 @@ spec:
   secretEngineRef:
     name: vault-app
   creationStatements:
-    - '{"mechanism":"SCRAM-SHA-256","acls":[]}'
+    - '{"mechanism":"SCRAM-SHA-256","acls":[{"resource_type":"TOPIC","resource_name":"*","operation":"ALL","permission":"ALLOW"},{"resource_type":"GROUP","resource_name":"*","operation":"ALL","permission":"ALLOW"}]}'
 status:
   observedGeneration: 1
   phase: Success
@@ -75,12 +75,12 @@ spec:
 
 #### spec.creationStatements
 
-`spec.creationStatements` is a `required` field that specifies a JSON role document used to provision the user. The exact schema depends on the plugin — see the example below.
+`spec.creationStatements` is a `required` field that specifies a JSON role document used to configure the SCRAM authentication mechanism and optional ACL permissions. The exact schema depends on the plugin — see the example below.
 
 ```yaml
 spec:
   creationStatements:
-    - '{"mechanism":"SCRAM-SHA-256","acls":[]}'
+    - '{"mechanism":"SCRAM-SHA-256","acls":[{"resource_type":"TOPIC","resource_name":"*","operation":"ALL","permission":"ALLOW"},{"resource_type":"GROUP","resource_name":"*","operation":"ALL","permission":"ALLOW"}]}'
 ```
 
 #### spec.defaultTTL
