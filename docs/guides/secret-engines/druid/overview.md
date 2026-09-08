@@ -71,7 +71,7 @@ stringData:
   password: change-me
 ```
 
-> If you front the Druid coordinator with a self-signed TLS cert (e.g. the Quick Start with TLS enabled), set `SecretEngine.spec.druid.insecure: true` below. Drop the knob once you front the coordinator with a real CA-issued certificate.
+> If you front the Druid coordinator with a self-signed TLS cert (e.g. the Quick Start with TLS enabled), set `clientConfig.insecureSkipTLSVerify: true` on the AppBinding or provide `clientConfig.caBundle`. Drop the knob once you front the coordinator with a real CA-issued certificate.
 
 ## Enable and Configure Druid Secret Engine
 
@@ -97,7 +97,6 @@ spec:
       - "*"
     authenticator: MyBasicMetadataAuthenticator  # optional; this is the Quick Start default
     authorizer: MyBasicMetadataAuthorizer        # optional; this is the Quick Start default
-    insecure: false                              # set true only for self-signed dev clusters
 ```
 
 Apply it and wait for `STATUS=Success`:

@@ -49,12 +49,12 @@ Here, we are going to describe the various sections of the `DruidRole` crd.
 
 ### DruidRole Spec
 
-DruidRole `spec` contains information that necessary for creating a database role.
+DruidRole `spec` contains information that is necessary for creating a database role.
 
 ```yaml
 spec:
   secretEngineRef:
-    name: <vault-appbinding-name>
+    name: <secret-engine-name>
   defaultTTL: <default-ttl>
   maxTTL: <max-ttl>
   creationStatements:
