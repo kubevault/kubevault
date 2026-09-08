@@ -199,7 +199,7 @@ $ kubectl get secretaccessrequest hanadb-cred-rqst -n demo -o json | jq '.status
 }
 
 $ kubectl get secret -n demo hanadb-cred-rqst-xxxxxx -o jsonpath='{.data.username}' | base64 -d
-v-kubernetes-demo-XXXXXXXX
+V_KUBERNETES_DEMO_XXXXXXXX
 
 $ kubectl get secret -n demo hanadb-cred-rqst-xxxxxx -o jsonpath='{.data.password}' | base64 -d
 xxxxxxxxxxxxxxxxxx
