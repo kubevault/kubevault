@@ -192,7 +192,7 @@ $ SECRET_NAME=$(kubectl get secretaccessrequest qdrant-credentials -n demo -o js
 $ kubectl get secret $SECRET_NAME -n demo -o yaml
 apiVersion: v1
 data:
-  jwt_token: <base64-encoded-jwt>
+  password: <base64-encoded-jwt>
   username: <base64-encoded-username>
 kind: Secret
 ...
@@ -200,9 +200,9 @@ kind: Secret
 
 The Secret contains:
 - `username`: Unique dynamic username (e.g. `v-kubernet-k8s...`).
-- `jwt_token`: Signed HS256 JWT encoding the collection permissions, lease expiry, and `value_exists` revocation claim.
+- `password`: Signed HS256 JWT encoding the collection permissions, lease expiry, and `value_exists` revocation claim.
 
-Clients pass this token to Qdrant via the `api-key` header or `Authorization: Bearer <jwt_token>`.
+Clients pass this token to Qdrant via the `api-key` header or `Authorization: Bearer <token>`.
 
 ## Revocation
 
