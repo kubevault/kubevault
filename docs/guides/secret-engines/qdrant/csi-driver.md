@@ -173,7 +173,7 @@ So, we can create `SecretProviderClass` now. You can read more about `SecretProv
 
 ### Create SecretProviderClass
 
-Create `SecretProviderClass` object with the following content. The `secretPath` points at `database/creds/<role>` and mounts the `jwt_token`:
+Create `SecretProviderClass` object with the following content. The `secretPath` points at `database/creds/<role>` and mounts the JWT from the `password` field as `qdrant-jwt-token`:
 
 ```yaml
 apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
@@ -189,7 +189,7 @@ spec:
     objects: |
       - objectName: "qdrant-jwt-token"
         secretPath: "your-database-path/creds/k8s.-.demo.qdrant-app-role"
-        secretKey: "jwt_token"
+        secretKey: "password"
 ```
 
 ```bash
