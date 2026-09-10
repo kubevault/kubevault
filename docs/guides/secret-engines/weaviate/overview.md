@@ -23,7 +23,7 @@ You need to be familiar with the following CRDs:
 - [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md)
 - [SecretEngine](/docs/concepts/secret-engine-crds/secretengine.md)
 - [WeaviateRole](/docs/concepts/secret-engine-crds/database-secret-engine/weaviate.md)
-- [SecretAccessRequest](/docs/concepts/request-crds/secretaccessrequest.md)
+- [SecretAccessRequest](/docs/concepts/secret-engine-crds/secret-access-request.md)
 
 ## Before you begin
 
