@@ -46,7 +46,7 @@ $ kubectl get appbinding -n demo vault -o yaml
 
 ## AppBinding for Weaviate
 
-Create an `AppBinding` pointing at the Weaviate HTTP endpoint. The secret's `password` or `api-key` field carries the Weaviate admin API key (root user) — KubeVault forwards it to the plugin as `api_key=`, which the plugin uses to authenticate against `/v1/.well-known/ready` and call Weaviate's User Management and RBAC APIs.
+Create an `AppBinding` pointing at the Weaviate HTTP endpoint. The secret's `AUTHENTICATION_APIKEY_ALLOWED_KEYS` field carries the Weaviate admin API key (root user) — KubeVault forwards it to the plugin as `api_key=`, which the plugin uses to authenticate against `/v1/.well-known/ready` and call Weaviate's User Management and RBAC APIs.
 
 ```yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
@@ -68,7 +68,7 @@ metadata:
   namespace: demo
 type: Opaque
 stringData:
-  api-key: <weaviate-admin-api-key>
+  AUTHENTICATION_APIKEY_ALLOWED_KEYS: <weaviate-admin-api-key>
 ```
 
 > Note: If Weaviate runs with mTLS, specify client certificates in the AppBinding or secret.
