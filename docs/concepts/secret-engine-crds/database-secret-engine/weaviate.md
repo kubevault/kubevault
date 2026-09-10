@@ -84,7 +84,7 @@ spec:
 
 #### spec.creationStatements
 
-`spec.creationStatements` is a `required` field that specifies the roles assigned to the dynamically-created user in Weaviate:
+`spec.creationStatements` is a `required` field that specifies the roles assigned to the dynamically-created user in Weaviate. It accepts a JSON object with existing `roles` and/or `custom_roles`:
 
 ```yaml
 spec:
@@ -93,6 +93,19 @@ spec:
       {
         "roles": [
           "viewer"
+        ],
+        "custom_roles": [
+          {
+            "name": "customrole",
+            "permissions": [
+              {
+                "action": "read_data",
+                "collections": {
+                  "collection": "Products"
+                }
+              }
+            ]
+          }
         ]
       }
 ```

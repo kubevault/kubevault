@@ -140,6 +140,31 @@ spec:
       }
 ```
 
+Custom roles can also be defined inline under `custom_roles`:
+
+```yaml
+  creationStatements:
+    - |
+      {
+        "roles": [
+          "viewer"
+        ],
+        "custom_roles": [
+          {
+            "name": "customrole",
+            "permissions": [
+              {
+                "action": "read_data",
+                "collections": {
+                  "collection": "Products"
+                }
+              }
+            ]
+          }
+        ]
+      }
+```
+
 ```bash
 $ kubectl apply -f weaviate-role.yaml
 weaviaterole.engine.kubevault.com/app created
