@@ -75,12 +75,29 @@ spec:
 
 #### spec.creationStatements
 
-`spec.creationStatements` is a `required` field that specifies a JSON role document used to provision the user. The exact schema depends on the plugin — see the example below.
+`spec.creationStatements` is a `required` field that specifies the roles assigned to the dynamically-created user in Milvus. It accepts a JSON object with existing `roles` and/or `custom_roles`:
 
 ```yaml
 spec:
   creationStatements:
-    - '{"roles":["public"]}'
+    - |
+      {
+        "roles": [
+          "public"
+        ],
+        "custom_roles": [
+          {
+            "name": "collection_reader",
+            "privileges": [
+              {
+                "object_type": "Collection",
+                "object_name": "Products",
+                "privilege": "Search"
+              }
+            ]
+          }
+        ]
+      }
 ```
 
 #### spec.defaultTTL

@@ -141,7 +141,7 @@ Use `kubectl describe secretengine -n demo milvus-engine` to inspect error event
 
 ## Create a MilvusRole
 
-A [`MilvusRole`](/docs/concepts/secret-engine-crds/database-secret-engine/milvus.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `{"roles":["role1","role2"]}`. The listed roles **must already exist** on the target Milvus cluster — the plugin only binds, it does not create roles.
+A [`MilvusRole`](/docs/concepts/secret-engine-crds/database-secret-engine/milvus.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a string slice holding a JSON role document specifying pre-existing roles and/or custom role definitions. Pre-existing roles **must already exist** on the target Milvus cluster, while custom roles are created and granted privileges dynamically.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
@@ -156,6 +156,30 @@ spec:
     - '{"roles":["public"]}'
   defaultTTL: 1h
   maxTTL: 24h
+```
+
+Custom roles can also be defined inline under `custom_roles`:
+
+```yaml
+  creationStatements:
+    - |
+      {
+        "roles": [
+          "public"
+        ],
+        "custom_roles": [
+          {
+            "name": "collection_reader",
+            "privileges": [
+              {
+                "object_type": "Collection",
+                "object_name": "Products",
+                "privilege": "Search"
+              }
+            ]
+          }
+        ]
+      }
 ```
 
 Apply and verify:
