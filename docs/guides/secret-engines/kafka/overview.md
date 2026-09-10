@@ -44,7 +44,7 @@ $ kubectl get appbinding -n demo vault -o yaml
 
 ## AppBinding for Apache Kafka
 
-Create an `AppBinding` pointing at the Kafka cluster. Unlike SQL-style engines, the URL here is **not** a JDBC connection string — it is the **broker CSV** that the franz-go client uses directly (e.g. `broker1:9092,broker2:9092,broker3:9092`). The referenced Secret carries the SASL username and password of the SCRAM principal that has permission to manage user records.
+Create an `AppBinding` pointing at the Kafka cluster. Unlike SQL-style engines, the Kafka engine uses **seed broker addresses** (`host:port`). The `AppBinding` can point to the Kafka cluster using either `spec.clientConfig.url` (e.g. a comma-separated list of brokers: `broker1:9092,broker2:9092`) or `spec.clientConfig.service` (referencing a Kubernetes `Service`). Any URI schemes (such as `tcp://` or `kafka://`) are automatically sanitized into clean `host:port` pairs by the operator. The referenced Secret carries the SASL username and password of the SCRAM principal that has permission to manage user records.
 
 ```yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
@@ -70,7 +70,8 @@ stringData:
   password: change-me
 ```
 
-> If the brokers terminate SASL on a TLS listener (`SASL_SSL`), set `SecretEngine.spec.kafka.useTLS: true` below. If the listener cert chains to a private/self-signed CA, also set `insecure: true` to disable verification — drop it once you front the brokers with a real CA-issued certificate.
+> **TLS Configuration via AppBinding:**
+> If the Kafka brokers terminate SASL on a TLS listener (`SASL_SSL`), configure TLS in the Kafka `AppBinding` via `spec.clientConfig.caBundle` or `spec.tlsSecret` (and optionally `spec.clientConfig.insecureSkipTLSVerify` for self-signed certificates). The KubeVault operator automatically detects TLS from the referenced `AppBinding` and configures TLS (`use_tls`, CA certificate, and verification flags) for the Kafka plugin. Do not specify `useTLS` or `insecure` on the `SecretEngine` object.
 
 ## Enable and Configure Kafka Secret Engine
 
@@ -95,8 +96,6 @@ spec:
     allowedRoles:
       - "*"
     mechanism: SCRAM-SHA-256              # optional; default. SCRAM-SHA-512 is also valid. PLAIN is rejected.
-    useTLS: false                         # set true for SASL_SSL listeners
-    insecure: false                       # set true only for self-signed dev clusters
 ```
 
 Apply it and wait for `STATUS=Success`:
