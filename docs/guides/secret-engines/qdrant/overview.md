@@ -166,6 +166,10 @@ spec:
   roleRef:
     kind: QdrantRole
     name: app
+  subjects:
+    - kind: ServiceAccount
+      name: demo-sa
+      namespace: demo
   ttl: 1h
 ```
 
