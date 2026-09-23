@@ -75,12 +75,41 @@ spec:
 
 #### spec.creationStatements
 
-`spec.creationStatements` is a `required` field that specifies a single-element list holding a JSON role document naming pre-existing etcd roles to grant the new user (e.g. via `etcdctl role add`). The plugin only grants roles via `UserGrantRole`; it does not create them.
+`spec.creationStatements` specifies the database statements used to provision the user. It holds a JSON document specifying pre-existing etcd `roles` and/or inline `custom_roles` with permissions to grant. When `custom_roles` are defined, the plugin idempotently creates the roles and grants the specified permissions.
+
+Using pre-existing roles:
 
 ```yaml
 spec:
   creationStatements:
     - '{"roles":["reader","writer"]}'
+```
+
+Using custom inline roles:
+
+```yaml
+spec:
+  creationStatements:
+    - |
+      {
+        "roles": ["reader"],
+        "custom_roles": [
+          {
+            "name": "app_writer",
+            "permissions": [
+              {
+                "permission": "readwrite",
+                "key": "/app/",
+                "prefix": true
+              },
+              {
+                "permission": "read",
+                "key": "/config/sample"
+              }
+            ]
+          }
+        ]
+      }
 ```
 
 #### spec.defaultTTL

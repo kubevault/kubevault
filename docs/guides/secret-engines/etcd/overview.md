@@ -125,7 +125,9 @@ bao write database/config/k8s.<cluster>.demo.etcd \
 
 ## Create an EtcdRole
 
-An [`EtcdRole`](/docs/concepts/secret-engine-crds/database-secret-engine/etcd.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `'{"roles":["reader","writer"]}'`. The listed roles **must already exist** on the etcd cluster — the plugin only grants via `UserGrantRole`, it does not create roles.
+An [`EtcdRole`](/docs/concepts/secret-engine-crds/database-secret-engine/etcd.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document. You can name pre-existing roles under `roles` and/or define inline custom roles under `custom_roles` with specific key permissions. When custom roles are provided, the plugin creates them idempotently on the etcd cluster.
+
+Example with a pre-existing role:
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
@@ -165,7 +167,39 @@ default_ttl              1h
 max_ttl                  24h
 ```
 
-Deleting the `EtcdRole` removes the role from Vault.
+Example with inline `custom_roles`:
+
+```yaml
+apiVersion: engine.kubevault.com/v1alpha1
+kind: EtcdRole
+metadata:
+  name: etcd-app-writer
+  namespace: demo
+spec:
+  secretEngineRef:
+    name: etcd-engine
+  creationStatements:
+    - |
+      {
+        "roles": ["reader"],
+        "custom_roles": [
+          {
+            "name": "app_writer",
+            "permissions": [
+              {
+                "permission": "readwrite",
+                "key": "/app/",
+                "prefix": true
+              }
+            ]
+          }
+        ]
+      }
+  defaultTTL: 1h
+  maxTTL: 24h
+```
+
+Deleting the `EtcdRole` removes the role from Vault. Ephemeral users issued from this role will be revoked without deleting the custom role from the etcd cluster.
 
 ## Issue etcd credentials
 
