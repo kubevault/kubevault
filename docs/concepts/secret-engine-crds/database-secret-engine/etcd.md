@@ -75,7 +75,9 @@ spec:
 
 #### spec.creationStatements
 
-`spec.creationStatements` specifies the database statements used to provision the user. It holds a JSON document specifying pre-existing etcd `roles` and/or inline `custom_roles` with permissions to grant. When `custom_roles` are defined, the plugin idempotently creates the roles and grants the specified permissions.
+`spec.creationStatements` specifies the database statements used to provision the user. It holds a JSON document specifying pre-existing etcd `roles` and/or inline `custom_roles` with permissions to grant. When `custom_roles` are defined, the plugin creates missing roles and grants or updates the specified permissions.
+
+> **Custom roles are additive-only.** Updating `creationStatements` does not revoke permissions omitted from the new definition, and changing a permission's key or range leaves the old range in place. Custom roles are also preserved when credentials or the `EtcdRole` are deleted. To narrow access, revoke obsolete permissions directly in etcd or migrate to a new, uniquely named role and retire the old role after its active credentials are revoked. Avoid sharing a custom-role name between `EtcdRole` objects unless accumulated permissions are intentional.
 
 Using pre-existing roles:
 
