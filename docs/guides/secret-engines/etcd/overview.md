@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Manage etcd credentials using the KubeVault operator
 
-OpenBao's [`etcd-database-plugin`](https://github.com/sigilr/openbao/pull/50) is a **dynamic-credentials** database plugin for [etcd](https://etcd.io/), built on etcd's built-in [v3 Auth API](https://etcd.io/docs/latest/op-guide/authentication/) via the official `go.etcd.io/etcd/client/v3` client. Each issued credential becomes a native etcd user (created via `UserAdd`) and is granted one or more pre-existing roles via `UserGrantRole`. The plugin **does not create roles**; it only manages users and their role grants, so every role referenced from `creationStatements` must already exist on the cluster (e.g. via `etcdctl role add`).
+OpenBao's [`etcd-database-plugin`](https://github.com/sigilr/openbao/pull/50) is a **dynamic-credentials** database plugin for [etcd](https://etcd.io/), built on etcd's built-in [v3 Auth API](https://etcd.io/docs/latest/op-guide/authentication/) via the official `go.etcd.io/etcd/client/v3` client. Each issued credential becomes a native etcd user created via `UserAdd`. The plugin can grant pre-existing roles listed under `roles` and can create inline roles with key permissions defined under `custom_roles` before granting them to the user.
 
 The same CRD shape is used both for the in-process `etcd-database-plugin` and for the hub-spoke `remote-etcd-plugin`; the difference is whether the [Vault AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) referenced by `SecretEngine.spec.vaultRef` is marked `deploymentMode: RemoteAgent` (then the SecretEngine controller rewrites `plugin_name` to `remote-etcd-plugin` and attaches `spoke_name`).
 
@@ -28,8 +28,8 @@ You need to be familiar with the following CRDs:
 ## Before you begin
 
 - Install KubeVault operator in your cluster from [here](/docs/setup/README.md).
-- Run an etcd cluster with [authentication enabled](https://etcd.io/docs/latest/op-guide/authentication/) (`etcdctl auth enable`). The root user configured on the `AppBinding` must have permission to add users and grant roles.
-- Pre-create the etcd roles you want to bind credentials to (e.g. `reader`, `writer` via `etcdctl role add`). The plugin only grants — it does not create roles.
+- Run an etcd cluster with [authentication enabled](https://etcd.io/docs/latest/op-guide/authentication/) (`etcdctl auth enable`). The root user configured on the `AppBinding` must be able to add users, create roles, grant role permissions, and grant roles to users.
+- Pre-create roles referenced under `roles` (for example, `reader` or `writer` via `etcdctl role add`). Roles defined under `custom_roles` do not need to exist beforehand; the plugin creates them if necessary.
 
 ```bash
 $ kubectl create ns demo
@@ -46,7 +46,7 @@ $ kubectl get appbinding -n demo vault -o yaml
 
 ## AppBinding for etcd
 
-Create an `AppBinding` pointing at the etcd client endpoint. The referenced Secret carries the root username and password used to authenticate against etcd's v3 Auth API when the plugin calls `UserAdd`/`UserGrantRole`/`UserChangePassword`/`UserDelete`.
+Create an `AppBinding` pointing at the etcd client endpoint. The referenced Secret carries the root username and password used to authenticate against etcd's v3 Auth API when the plugin manages users, roles, role permissions, and role grants.
 
 ```yaml
 apiVersion: appcatalog.appscode.com/v1alpha1
@@ -125,7 +125,11 @@ bao write database/config/k8s.<cluster>.demo.etcd \
 
 ## Create an EtcdRole
 
-An [`EtcdRole`](/docs/concepts/secret-engine-crds/database-secret-engine/etcd.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document of the form `'{"roles":["reader","writer"]}'`. The listed roles **must already exist** on the etcd cluster — the plugin only grants via `UserGrantRole`, it does not create roles.
+An [`EtcdRole`](/docs/concepts/secret-engine-crds/database-secret-engine/etcd.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document. You can name pre-existing roles under `roles` and/or define inline custom roles under `custom_roles` with specific key permissions. When custom roles are provided, the plugin creates missing roles and grants or updates the listed permissions.
+
+> **Custom roles are additive-only.** Updating `creationStatements` does not revoke permissions omitted from the new definition, and changing a key or range leaves the old range in place. To narrow access, revoke obsolete permissions directly in etcd or migrate to a new, uniquely named role and retire the old role after its active credentials are revoked. Avoid sharing custom-role names between `EtcdRole` objects unless accumulated permissions are intentional.
+
+Example with a pre-existing role:
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1
@@ -165,7 +169,39 @@ default_ttl              1h
 max_ttl                  24h
 ```
 
-Deleting the `EtcdRole` removes the role from Vault.
+Example with inline `custom_roles`:
+
+```yaml
+apiVersion: engine.kubevault.com/v1alpha1
+kind: EtcdRole
+metadata:
+  name: etcd-app-writer
+  namespace: demo
+spec:
+  secretEngineRef:
+    name: etcd-engine
+  creationStatements:
+    - |
+      {
+        "roles": ["reader"],
+        "custom_roles": [
+          {
+            "name": "app_writer",
+            "permissions": [
+              {
+                "permission": "readwrite",
+                "key": "/app/",
+                "prefix": true
+              }
+            ]
+          }
+        ]
+      }
+  defaultTTL: 1h
+  maxTTL: 24h
+```
+
+Deleting the `EtcdRole` removes the role from Vault. Ephemeral users issued from this role will be revoked without deleting the custom role or its accumulated permissions from the etcd cluster.
 
 ## Issue etcd credentials
 
