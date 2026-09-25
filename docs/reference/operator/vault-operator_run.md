@@ -30,6 +30,7 @@ vault-operator run [flags]
                                            DB2=true|false (ALPHA - default=false)
                                            Druid=true|false (ALPHA - default=false)
                                            Elasticsearch=true|false (ALPHA - default=false)
+                                           Etcd=true|false (ALPHA - default=false)
                                            HanaDB=true|false (ALPHA - default=false)
                                            Hazelcast=true|false (ALPHA - default=false)
                                            Ignite=true|false (ALPHA - default=false)
