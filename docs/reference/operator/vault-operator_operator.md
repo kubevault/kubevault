@@ -25,16 +25,14 @@ vault-operator operator [flags]
       --feature-gates mapStringBool                             A set of key=value pairs that describe feature gates for alpha/experimental features. Options are:
                                                                 AllAlpha=true|false (ALPHA - default=false)
                                                                 AllBeta=true|false (BETA - default=false)
-                                                                DB2=true|false (ALPHA - default=false)
                                                                 Druid=true|false (ALPHA - default=false)
                                                                 Elasticsearch=true|false (ALPHA - default=false)
+                                                                Etcd=true|false (ALPHA - default=false)
                                                                 HanaDB=true|false (ALPHA - default=false)
-                                                                Hazelcast=true|false (ALPHA - default=false)
                                                                 Ignite=true|false (ALPHA - default=false)
                                                                 Kafka=true|false (ALPHA - default=false)
                                                                 MSSQLServer=true|false (ALPHA - default=false)
                                                                 MariaDB=true|false (ALPHA - default=false)
-                                                                Memcached=true|false (ALPHA - default=false)
                                                                 Milvus=true|false (ALPHA - default=false)
                                                                 MongoDB=true|false (ALPHA - default=false)
                                                                 Neo4j=true|false (ALPHA - default=false)
@@ -44,7 +42,6 @@ vault-operator operator [flags]
                                                                 Redis=true|false (ALPHA - default=false)
                                                                 Solr=true|false (ALPHA - default=false)
                                                                 Weaviate=true|false (ALPHA - default=false)
-                                                                ZooKeeper=true|false (ALPHA - default=false)
       --gen-rotate-tls-recommendation-before-expiry-day int     Rotate TLS recommendation will be generated before given day of expiration.
       --gen-rotate-tls-recommendation-before-expiry-month int   Rotate TLS recommendation will be generated before given month of expiration. (default 1)
       --gen-rotate-tls-recommendation-before-expiry-year int    Rotate TLS recommendation will be generated before given year of expiration.
