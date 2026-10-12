@@ -32,17 +32,19 @@ namespace/demo created
 
 ## Pick an OpenBao version
 
-The `kubevault-catalog` chart installs a `VaultServerVersion` for every supported OpenBao release. List them:
+The `kubevault-catalog` chart installs a `VaultServerVersion` for every supported OpenBao release, plus the `sigilr-*` versions of Sigilr, an OpenBao derivative. List them:
 
 ```bash
-$ kubectl get vaultserverversions | grep openbao
-NAME            VERSION   VAULT_IMAGE                  DEPRECATED   AGE
-openbao-2.4.3   2.4.3     openbao/openbao:2.4.3                     45h
-openbao-2.6.1   2.6.1     openbao/openbao:2.6.1                     45h
-openbao-2.7.1   2.7.1     openbao/openbao:2.7.1                     45h
+$ kubectl get vaultserverversions | grep -E 'NAME|openbao|sigilr'
+NAME             VERSION   VAULT_IMAGE                             DEPRECATED   AGE
+openbao-2.4.3    2.4.3     docker.io/openbao/openbao:2.4.3                      45h
+openbao-2.6.1    2.6.1     docker.io/openbao/openbao:2.6.1                      45h
+openbao-2.7.1    2.7.1     docker.io/openbao/openbao:2.7.1                      45h
+sigilr-2.6.1.1   2.6.1     ghcr.io/sigilr/openbao:2.6.1-sigilr.1                45h
+sigilr-2.6.1.2   2.6.1     ghcr.io/sigilr/openbao:2.6.1-sigilr.2                45h
 ```
 
-This guide uses `openbao-2.7.1`, the latest at the time of writing.
+This guide uses `sigilr-2.6.1.2`, the latest Sigilr version at the time of writing. The `openbao-*` versions (upstream OpenBao) work the same way — set one as `spec.version`. The [Hub-Spoke guide](/docs/guides/hub-spoke/deploy-hub-spoke.md) uses `sigilr-2.6.1.1`.
 
 ## Deploy a VaultServer
 
@@ -55,7 +57,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  version: openbao-2.7.1
+  version: sigilr-2.6.1.2
   replicas: 1
   backend:
     inmem: {}
@@ -68,7 +70,7 @@ spec:
   terminationPolicy: WipeOut
 ```
 
-The `inmem` backend keeps everything in memory, so data is lost whenever the pod restarts — fine for this quickstart, but switch to the [Raft](/docs/guides/vault-server/vault-server-raft-backend.md) or [PostgreSQL](/docs/guides/vault-server/vault-server-postgres-backend.md) backend for anything you want to keep.
+The `inmem` backend keeps everything in memory, so data is lost whenever the pod restarts — fine for this quickstart, but switch to the [Raft](/docs/guides/vault-server/vault-server-raft-backend.md) or [PostgreSQL](/docs/guides/vault-server/vault-server-postgres-backend.md) backend for anything you want to keep. A restarted pod comes back empty and uninitialized, and the operator will not initialize it again because `vault-keys` still holds the previous unseal keys, so delete and re-create the `VaultServer` if that happens.
 
 Deploy it:
 
@@ -77,19 +79,18 @@ $ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.ve
 vaultserver.kubevault.com/vault created
 ```
 
-Wait for the `STATUS` to become `Running`:
+Wait for the `STATUS` to become `Ready`:
 
 ```bash
 $ kubectl get vaultserver -n demo -w
-NAME    NODES   VERSION         STATUS       AGE
-vault   1       openbao-2.7.1   Processing   8s
-vault   1       openbao-2.7.1   Sealed       32s
-vault   1       openbao-2.7.1   Running      41s
+NAME    REPLICAS   VERSION          STATUS         AGE
+vault   1          sigilr-2.6.1.2   Initializing   8s
+vault   1          sigilr-2.6.1.2   Ready          41s
 ```
 
 Behind the scenes, the KubeVault operator:
 
-- creates a `Deployment` running the OpenBao server,
+- creates a `StatefulSet` running the OpenBao server,
 - creates a `Service` for the OpenBao API (port `8200`) and cluster port (`8201`),
 - creates an [AppBinding](/docs/concepts/vault-server-crds/auth-methods/appbinding.md) carrying the connection info other KubeVault CRDs (`SecretEngine`, `VaultPolicy`, …) use to reach this server,
 - initializes and unseals OpenBao, storing the unseal keys and root token in the `vault-keys` Kubernetes `Secret`,
@@ -100,10 +101,12 @@ $ kubectl get appbinding -n demo
 NAME    AGE
 vault   54s
 
-$ kubectl get secret -n demo
-NAME          TYPE     DATA   AGE
-vault-keys    Opaque   6      54s
+$ kubectl get secret -n demo vault-keys
+NAME         TYPE     DATA   AGE
+vault-keys   Opaque   5      54s
 ```
+
+`vault-keys` holds the four unseal keys and the root token, stored under names like `k8s.<cluster-id>.demo.vault-root-token` and `k8s.<cluster-id>.demo.vault-unseal-key-0`.
 
 ## Talk to OpenBao
 
@@ -117,13 +120,13 @@ vault-0   2/2     Running   0          2m
 $ export VAULT_TOKEN=$(kubectl vault root-token get vaultserver vault -n demo --value-only)
 ```
 
-> No `kubectl vault` plugin? Read the token straight out of the secret instead:
-> `export VAULT_TOKEN=$(kubectl get secret -n demo vault-keys -o jsonpath='{.data.vault-root-token}' | base64 -d)`
+> No `kubectl vault` plugin? Read the token straight out of the secret instead (the key name carries a cluster-specific prefix, so select it by its `-root-token` suffix):
+> `export VAULT_TOKEN=$(kubectl get secret -n demo vault-keys -o json | jq -r '.data | to_entries[] | select(.key | endswith("-root-token")) | .value' | base64 -d)`
 
-The OpenBao container ships the `bao` CLI and is already configured to talk to its own API, so `kubectl exec` is the shortest path in — no port-forwarding or TLS certificate wrangling required:
+The OpenBao container ships the `bao` CLI, so `kubectl exec` is the shortest path in — no port-forwarding required. This server has no TLS configured, so its API listens on plain HTTP, while `bao` defaults to `https://127.0.0.1:8200`. Pass `VAULT_ADDR` into the container with each call:
 
 ```bash
-$ kubectl exec -n demo vault-0 -c vault -- bao status
+$ kubectl exec -n demo vault-0 -c vault -- env VAULT_ADDR=http://127.0.0.1:8200 bao status
 Key             Value
 ---             -----
 Seal Type       shamir
@@ -131,40 +134,41 @@ Initialized     true
 Sealed          false
 Total Shares    4
 Threshold       2
-Version         2.7.1
+Version         2.6.1-sigilr.2
 Storage Type    inmem
+Cluster Name    vault-cluster-4ec2d230
+Cluster ID      6d1c3b8b-59f7-cebe-6374-8047a9ba8238
 HA Enabled      false
 ```
 
 Enable a `KV` secret engine and write a secret, forwarding the root token into the container for this one call:
 
 ```bash
-$ kubectl exec -n demo vault-0 -c vault -- env VAULT_TOKEN=$VAULT_TOKEN bao secrets enable -path=kv kv
+$ kubectl exec -n demo vault-0 -c vault -- env VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=$VAULT_TOKEN bao secrets enable -path=kv kv
 Success! Enabled the kv secrets engine at: kv/
 
-$ kubectl exec -n demo vault-0 -c vault -- env VAULT_TOKEN=$VAULT_TOKEN bao kv put kv/hello message=world
+$ kubectl exec -n demo vault-0 -c vault -- env VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=$VAULT_TOKEN bao kv put kv/hello message=world
 Success! Data written to: kv/hello
 ```
 
 Read it back:
 
 ```bash
-$ kubectl exec -n demo vault-0 -c vault -- env VAULT_TOKEN=$VAULT_TOKEN bao kv get kv/hello
+$ kubectl exec -n demo vault-0 -c vault -- env VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=$VAULT_TOKEN bao kv get kv/hello
 ====== Data ======
 Key        Value
 ---        -----
 message    world
 ```
 
-If you'd rather use the `bao` binary from your own machine, port-forward instead and point it at `https://127.0.0.1:8200` with `VAULT_SKIP_VERIFY=true` (the server's TLS certificate is self-signed by default):
+If you'd rather use the `bao` binary from your own machine, port-forward instead and point it at the plain-HTTP listener on `http://127.0.0.1:8200`:
 
 ```bash
 $ kubectl port-forward -n demo svc/vault 8200
 ```
 
 ```bash
-$ export VAULT_ADDR=https://127.0.0.1:8200
-$ export VAULT_SKIP_VERIFY=true
+$ export VAULT_ADDR=http://127.0.0.1:8200
 $ bao status
 ```
 
@@ -175,7 +179,7 @@ $ kubectl delete ns demo
 namespace "demo" deleted
 ```
 
-Because `terminationPolicy` is `WipeOut`, deleting the `VaultServer` (and this namespace) also removes its underlying storage and secrets.
+Deleting the namespace removes the `VaultServer`, its pod and the `vault-keys` secret. Since this server uses the in-memory backend, there is no external storage to clean up.
 
 ## Next steps
 
