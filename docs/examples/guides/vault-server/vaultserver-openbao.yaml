@@ -1,0 +1,17 @@
+apiVersion: kubevault.com/v1alpha2
+kind: VaultServer
+metadata:
+  name: vault
+  namespace: demo
+spec:
+  version: openbao-2.7.1
+  replicas: 1
+  backend:
+    inmem: {}
+  unsealer:
+    secretShares: 4
+    secretThreshold: 2
+    mode:
+      kubernetesSecret:
+        secretName: vault-keys
+  terminationPolicy: WipeOut
