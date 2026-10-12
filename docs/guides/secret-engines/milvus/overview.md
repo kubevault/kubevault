@@ -98,7 +98,7 @@ stringData:
   token: db_admin:zilliz-api-token-here
 ```
 
-> If you front Milvus with a self-signed TLS cert (e.g. the standalone quickstart with TLS enabled), set `SecretEngine.spec.milvus.insecure: true` below. Drop the knob once you front Milvus with a real CA-issued certificate.
+> If you front Milvus with a self-signed TLS cert (e.g. the standalone quickstart with TLS enabled), set the `AppBinding`'s `spec.clientConfig.caBundle` to the CA that signed it (preferred — verifies the certificate), or `spec.clientConfig.insecureSkipTLSVerify: true` to skip verification entirely. Drop that flag once you front Milvus with a real CA-issued certificate.
 
 ## Enable and Configure Milvus Secret Engine
 
@@ -123,7 +123,6 @@ spec:
     allowedRoles:
       - "*"
     dbName: default                      # optional; forwarded as the `dbName` request header on every API call
-    insecure: false                      # set true only for self-signed dev clusters
 ```
 
 Apply it and wait for `STATUS=Success`:
