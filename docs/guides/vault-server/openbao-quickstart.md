@@ -44,7 +44,7 @@ sigilr-2.6.1.1   2.6.1     ghcr.io/sigilr/openbao:2.6.1-sigilr.1                
 sigilr-2.6.1.2   2.6.1     ghcr.io/sigilr/openbao:2.6.1-sigilr.2                45h
 ```
 
-This guide uses `sigilr-2.6.1.2`, the latest Sigilr version at the time of writing. The `openbao-*` versions (upstream OpenBao) work the same way — set one as `spec.version`. The [Hub-Spoke guide](/docs/guides/hub-spoke/deploy-hub-spoke.md) uses `sigilr-2.6.1.1`.
+This guide uses `sigilr-2.6.1.2`, the latest Sigilr version at the time of writing. To use upstream OpenBao instead, set one of the `openbao-*` versions as `spec.version`.
 
 ## Deploy a VaultServer
 
@@ -70,7 +70,7 @@ spec:
   terminationPolicy: WipeOut
 ```
 
-The `inmem` backend keeps everything in memory, so data is lost whenever the pod restarts — fine for this quickstart, but switch to the [Raft](/docs/guides/vault-server/vault-server-raft-backend.md) or [PostgreSQL](/docs/guides/vault-server/vault-server-postgres-backend.md) backend for anything you want to keep. A restarted pod comes back empty and uninitialized, and the operator will not initialize it again because `vault-keys` still holds the previous unseal keys, so delete and re-create the `VaultServer` if that happens.
+The `inmem` backend keeps everything in memory, so data is lost whenever the pod restarts. That is fine for this quickstart, but switch to the [Raft](/docs/guides/vault-server/vault-server-raft-backend.md) or [PostgreSQL](/docs/guides/vault-server/vault-server-postgres-backend.md) backend for anything you want to keep. A restarted pod comes back empty and uninitialized, and the operator will not initialize it again because `vault-keys` still holds the previous unseal keys, so delete and re-create the `VaultServer` if that happens.
 
 Deploy it:
 
@@ -123,7 +123,7 @@ $ export VAULT_TOKEN=$(kubectl vault root-token get vaultserver vault -n demo --
 > No `kubectl vault` plugin? Read the token straight out of the secret instead (the key name carries a cluster-specific prefix, so select it by its `-root-token` suffix):
 > `export VAULT_TOKEN=$(kubectl get secret -n demo vault-keys -o json | jq -r '.data | to_entries[] | select(.key | endswith("-root-token")) | .value' | base64 -d)`
 
-The OpenBao container ships the `bao` CLI, so `kubectl exec` is the shortest path in — no port-forwarding required. This server has no TLS configured, so its API listens on plain HTTP, while `bao` defaults to `https://127.0.0.1:8200`. Pass `VAULT_ADDR` into the container with each call:
+The OpenBao container ships the `bao` CLI, so `kubectl exec` is the shortest path in, with no port-forwarding required. This server has no TLS configured, so its API listens on plain HTTP, while `bao` defaults to `https://127.0.0.1:8200`. Pass `VAULT_ADDR` into the container with each call:
 
 ```bash
 $ kubectl exec -n demo vault-0 -c vault -- env VAULT_ADDR=http://127.0.0.1:8200 bao status
