@@ -95,7 +95,6 @@ spec:
     pluginName: kafka-database-plugin     # optional; this is the default
     allowedRoles:
       - "*"
-    mechanism: SCRAM-SHA-256              # optional; default. SCRAM-SHA-512 is also valid. PLAIN is rejected.
 ```
 
 Apply it and wait for `STATUS=Success`:
@@ -113,7 +112,7 @@ Use `kubectl describe secretengine -n demo kafka-engine` to inspect error events
 
 ## Create a KafkaRole
 
-A [`KafkaRole`](/docs/concepts/secret-engine-crds/database-secret-engine/kafka.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document. The `mechanism` field overrides the SecretEngine-level default on a per-role basis (`SCRAM-SHA-256` or `SCRAM-SHA-512`). The `acls` array defines the permissions to grant to the generated user (e.g. for `TOPIC`, `GROUP`, or `CLUSTER` resources); if left empty, only the SCRAM user is created without any dynamic ACLs.
+A [`KafkaRole`](/docs/concepts/secret-engine-crds/database-secret-engine/kafka.md) describes how the plugin should mint a dynamic credential. `creationStatements` is a single-element string slice holding a JSON role document. The `mechanism` field (`SCRAM-SHA-256` or `SCRAM-SHA-512`) selects the SASL mechanism for the generated user; defaults to `SCRAM-SHA-256` if omitted. The `acls` array defines the permissions to grant to the generated user (e.g. for `TOPIC`, `GROUP`, or `CLUSTER` resources); if left empty, only the SCRAM user is created without any dynamic ACLs.
 
 ```yaml
 apiVersion: engine.kubevault.com/v1alpha1

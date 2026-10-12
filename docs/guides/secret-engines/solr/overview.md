@@ -71,7 +71,7 @@ stringData:
   password: change-me
 ```
 
-> If you front the Solr endpoint with a self-signed TLS cert, set `SecretEngine.spec.solr.insecure: true` below. Drop the knob once you front Solr with a real CA-issued certificate.
+> If you front the Solr endpoint with a self-signed TLS cert, set the `AppBinding`'s `spec.clientConfig.caBundle` to the CA that signed it (preferred — verifies the certificate), or `spec.clientConfig.insecureSkipTLSVerify: true` to skip verification entirely. Drop that flag once you front Solr with a real CA-issued certificate.
 
 ## Enable and Configure Solr Secret Engine
 
@@ -95,7 +95,6 @@ spec:
     pluginName: solr-database-plugin   # optional; this is the default
     allowedRoles:
       - "*"
-    insecure: false                    # set true only for self-signed dev clusters
 ```
 
 Apply it and wait for `STATUS=Success`:
