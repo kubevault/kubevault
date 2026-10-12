@@ -71,7 +71,7 @@ stringData:
   password: neo4j-password
 ```
 
-> For a single-instance Neo4j use `bolt://...`; for an Aura/Causal-Cluster deployment use `neo4j://...` so the driver can route to leaders for write Cyphers. If you front Neo4j with a self-signed TLS cert (`bolt+ssc://...` style), set `SecretEngine.spec.neo4j.insecure: true` below. Drop the knob once you front Neo4j with a real CA-issued certificate.
+> For a single-instance Neo4j use `bolt://...`; for an Aura/Causal-Cluster deployment use `neo4j://...` so the driver can route to leaders for write Cyphers. If you front Neo4j with a self-signed TLS cert (`bolt+ssc://...` style), set the `AppBinding`'s `spec.clientConfig.caBundle` to the CA that signed it (preferred — verifies the certificate), or `spec.clientConfig.insecureSkipTLSVerify: true` to skip verification entirely. Drop that flag once you front Neo4j with a real CA-issued certificate.
 
 ## Enable and Configure Neo4j Secret Engine
 
@@ -95,7 +95,6 @@ spec:
     pluginName: neo4j-database-plugin   # optional; this is the default
     allowedRoles:
       - "*"
-    insecure: false                     # set true only for self-signed dev clusters
 ```
 
 Apply it and wait for `STATUS=Success`:

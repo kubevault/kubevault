@@ -72,7 +72,7 @@ stringData:
   password: admin-password
 ```
 
-> If your RabbitMQ management endpoint uses a self-signed TLS certificate (`https://...:15671`), either set the `AppBinding`'s `spec.clientConfig.caBundle` to the CA that signed it (preferred — verifies the certificate), or set `SecretEngine.spec.rabbitmq.insecure: true` below to skip verification entirely. Drop `insecure` once you front the management API with a CA-issued (or CA-bundle-verified) certificate. If the management API requires mutual TLS, set `SecretEngine.spec.rabbitmq.clientCert`/`clientKey` to a PEM-encoded client certificate and private key.
+> If your RabbitMQ management endpoint uses a self-signed TLS certificate (`https://...:15671`), either set the `AppBinding`'s `spec.clientConfig.caBundle` to the CA that signed it (preferred — verifies the certificate), or set `spec.clientConfig.insecureSkipTLSVerify: true` to skip verification entirely. Drop that flag once you front the management API with a CA-issued (or CA-bundle-verified) certificate. If the management API requires mutual TLS, reference a `kubernetes.io/tls` secret via the `AppBinding`'s `spec.tlsSecret`.
 
 ## Enable and Configure RabbitMQ Secret Engine
 
@@ -96,16 +96,6 @@ spec:
     pluginName: rabbitmq-database-plugin   # optional; this is the default
     allowedRoles:
       - "*"
-    # passwordPolicy: my-policy            # optional; name of a Vault password policy
-    # clientCert: |                        # optional; PEM-encoded client cert for mutual TLS
-    #   -----BEGIN CERTIFICATE-----
-    #   ...
-    #   -----END CERTIFICATE-----
-    # clientKey: |                         # optional; PEM-encoded private key for clientCert
-    #   -----BEGIN PRIVATE KEY-----
-    #   ...
-    #   -----END PRIVATE KEY-----
-    insecure: false                        # set true only for self-signed dev clusters
 ```
 
 Apply it and wait for `STATUS=Success`:
