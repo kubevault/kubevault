@@ -5,6 +5,6 @@ menu:
     identifier: azure-secret-engines
     name: Azure
     parent: secret-engines-guides
-    weight: 10
+    weight: 20
 menu_name: docs_{{ .version }}
 ---

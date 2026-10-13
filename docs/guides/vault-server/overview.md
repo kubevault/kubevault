@@ -27,9 +27,9 @@ The KubeVault operator makes it easy to deploy, maintain and manage Vault server
   - [AWS Secret Engine](/docs/guides/secret-engines/aws/overview.md)
   - [Azure Secret Engine](/docs/guides/secret-engines/azure/overview.md)
   - Database Secret Engine
-    - [MongoDB Secret Engine](/docs/guides/secret-engines/mongodb/overview.md)
-    - [MySQL Secret Engine](/docs/guides/secret-engines/mysql/overview.md)
-    - [PostgreSQL Secret Engine](/docs/guides/secret-engines/postgres/overview.md)
+    - [MongoDB Secret Engine](/docs/guides/secret-engines/database/mongodb/overview.md)
+    - [MySQL Secret Engine](/docs/guides/secret-engines/database/mysql/overview.md)
+    - [PostgreSQL Secret Engine](/docs/guides/secret-engines/database/postgres/overview.md)
 
 ## Setup Vault Server
 

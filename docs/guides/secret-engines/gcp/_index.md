@@ -5,6 +5,6 @@ menu:
     identifier: gcp-secret-engines
     name: GCP
     parent: secret-engines-guides
-    weight: 10
+    weight: 40
 menu_name: docs_{{ .version }}
 ---
