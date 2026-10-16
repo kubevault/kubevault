@@ -27,76 +27,9 @@ namespace/demo created
 
 ## Deploy VaultServer with Consul Backend
 
-### Deploy Sample Consul
+### Prepare Consul
 
-Let's deploy a sample Consul server. We run the agent in development mode, which keeps its data in memory and needs no setup. Use a proper multi-server Consul cluster for anything other than this tutorial.
-
-Below is the YAML of the `Service` and `Deployment` that we are going to create for this tutorial:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: consul
-  namespace: demo
-  labels:
-    app: consul
-spec:
-  ports:
-  - port: 8500
-    name: http
-  selector:
-    app: consul
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: consul
-  namespace: demo
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: consul
-  template:
-    metadata:
-      labels:
-        app: consul
-    spec:
-      containers:
-      - name: consul
-        image: hashicorp/consul:1.18
-        imagePullPolicy: IfNotPresent
-        args:
-        - agent
-        - -dev
-        - -client=0.0.0.0
-        ports:
-        - containerPort: 8500
-          name: http
-        resources:
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
-          requests:
-            cpu: "100m"
-            memory: "256Mi"
-```
-
-Create the above resources,
-
-```bash
-$ kubectl apply -f consul.yaml
-service/consul created
-deployment.apps/consul created
-```
-
-Let's wait for the Consul pod to be ready,
-
-```bash
-$ kubectl wait -n demo --for=condition=Ready pod -l app=consul --timeout=5m
-pod/consul-5f7c9b6d8-h2v6n condition met
-```
+Use an existing Consul cluster that is reachable from the Vault pods. This example uses `consul.demo.svc:8500`, without ACLs or TLS. Vault stores its data under the key prefix `vault/`.
 
 ## Deploy Vault using KubeVault
 
@@ -287,11 +220,10 @@ To clean up the Kubernetes resources created by this tutorial, run:
 
 ```bash
 $ kubectl delete vaultserver -n demo vault
-$ kubectl delete -f consul.yaml
 $ kubectl delete ns demo
 ```
 
-Delete the `VaultServer` before Consul. With `terminationPolicy: WipeOut`, the operator connects to Consul to remove the data Vault stored there, so Consul has to be reachable until the `VaultServer` is gone.
+With `terminationPolicy: WipeOut`, the operator connects to Consul to remove the data Vault stored there, so Consul has to be reachable until the `VaultServer` is gone.
 
 To see all the fields you can set under `spec.backend.consul`, please check the [Consul storage backend](/docs/concepts/vault-server-crds/storage/consul.md) concept.
 

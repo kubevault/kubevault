@@ -27,73 +27,9 @@ namespace/demo created
 
 ## Deploy VaultServer with DynamoDB Backend
 
-### Deploy Sample DynamoDB
+### Prepare DynamoDB
 
-To keep this tutorial self-contained, we are going to use [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) instead of the AWS service. Vault creates the table if it does not exist.
-
-Below is the YAML of the `Service` and `Deployment` that we are going to create for this tutorial:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: dynamodb
-  namespace: demo
-  labels:
-    app: dynamodb
-spec:
-  ports:
-  - port: 8000
-    name: http
-  selector:
-    app: dynamodb
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dynamodb
-  namespace: demo
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: dynamodb
-  template:
-    metadata:
-      labels:
-        app: dynamodb
-    spec:
-      containers:
-      - name: dynamodb
-        image: amazon/dynamodb-local:latest
-        imagePullPolicy: IfNotPresent
-        command:
-        - "-jar"
-        - "DynamoDBLocal.jar"
-        - "-sharedDb"
-        - "-inMemory"
-        ports:
-        - containerPort: 8000
-          name: http
-        resources:
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
-          requests:
-            cpu: "100m"
-            memory: "256Mi"
-```
-
-Create the above resources,
-
-```bash
-$ kubectl apply -f dynamodb-local.yaml
-service/dynamodb created
-deployment.apps/dynamodb created
-
-$ kubectl wait -n demo --for=condition=Ready pod -l app=dynamodb --timeout=5m
-pod/dynamodb-5c8d7f6b9-p4x7q condition met
-```
+Use DynamoDB, or a DynamoDB-compatible endpoint such as [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html), that is reachable from the Vault pods. This example uses DynamoDB Local at `http://dynamodb.demo.svc:8000`. Vault creates the table if it does not exist.
 
 **Create Credential Secret:**
 
@@ -302,11 +238,10 @@ To clean up the Kubernetes resources created by this tutorial, run:
 ```bash
 $ kubectl delete vaultserver -n demo vault
 $ kubectl delete secret -n demo dynamodb-cred
-$ kubectl delete -f dynamodb-local.yaml
 $ kubectl delete ns demo
 ```
 
-Delete the `VaultServer` before DynamoDB. With `terminationPolicy: WipeOut`, the operator connects to DynamoDB to remove the items Vault stored there, so the endpoint has to be reachable until the `VaultServer` is gone.
+With `terminationPolicy: WipeOut`, the operator connects to DynamoDB to remove the items Vault stored there, so the endpoint has to be reachable until the `VaultServer` is gone.
 
 To see all the fields you can set under `spec.backend.dynamodb`, please check the [DynamoDB storage backend](/docs/concepts/vault-server-crds/storage/dynamodb.md) concept.
 

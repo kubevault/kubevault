@@ -27,93 +27,9 @@ namespace/demo created
 
 ## Deploy VaultServer with CouchDB Backend
 
-### Deploy Sample CouchDB
+### Prepare CouchDB
 
-Let's deploy a sample single-node CouchDB server.
-
-Below is the YAML of the `Service` and `Deployment` that we are going to create for this tutorial:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: couchdb
-  namespace: demo
-  labels:
-    app: couchdb
-spec:
-  ports:
-  - port: 5984
-    name: http
-  selector:
-    app: couchdb
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: couchdb
-  namespace: demo
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: couchdb
-  template:
-    metadata:
-      labels:
-        app: couchdb
-    spec:
-      containers:
-      - name: couchdb
-        image: couchdb:3.3.3
-        imagePullPolicy: IfNotPresent
-        env:
-        - name: COUCHDB_USER
-          value: "admin"
-        - name: COUCHDB_PASSWORD
-          value: "password"
-        ports:
-        - containerPort: 5984
-          name: http
-        readinessProbe:
-          httpGet:
-            path: /_up
-            port: 5984
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        resources:
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
-          requests:
-            cpu: "100m"
-            memory: "256Mi"
-```
-
-Create the above resources,
-
-```bash
-$ kubectl apply -f couchdb.yaml
-service/couchdb created
-deployment.apps/couchdb created
-
-$ kubectl wait -n demo --for=condition=Ready pod -l app=couchdb --timeout=5m
-pod/couchdb-6b8f7c9d5-k8w2s condition met
-```
-
-**Create the Database:**
-
-The CouchDB storage backend does not create the database, so it must exist before Vault starts. Let's create a database called `vault`,
-
-```bash
-$ kubectl exec -n demo deploy/couchdb -- \
-    curl -s -X PUT http://admin:password@127.0.0.1:5984/vault
-{"ok":true}
-
-$ kubectl exec -n demo deploy/couchdb -- \
-    curl -s http://admin:password@127.0.0.1:5984/_all_dbs
-["_users","vault"]
-```
+Use an existing CouchDB that is reachable from the Vault pods. This example uses `http://couchdb.demo.svc:5984` with the user `admin`. The database Vault stores its data in, `vault` here, must already exist: Vault does not create it, and fails with `Vault is not initialized` without it.
 
 **Create Credential Secret:**
 
@@ -310,11 +226,10 @@ To clean up the Kubernetes resources created by this tutorial, run:
 ```bash
 $ kubectl delete vaultserver -n demo vault
 $ kubectl delete secret -n demo couchdb-cred
-$ kubectl delete -f couchdb.yaml
 $ kubectl delete ns demo
 ```
 
-Delete the `VaultServer` before CouchDB. With `terminationPolicy: WipeOut`, the operator connects to CouchDB to remove the documents Vault stored there, so CouchDB has to be reachable until the `VaultServer` is gone.
+With `terminationPolicy: WipeOut`, the operator connects to CouchDB and deletes the `vault` database, so CouchDB has to be reachable until the `VaultServer` is gone. Create the database again before deploying another `VaultServer` on it.
 
 To see all the fields you can set under `spec.backend.couchdb`, please check the [CouchDB storage backend](/docs/concepts/vault-server-crds/storage/couchdb.md) concept.
 

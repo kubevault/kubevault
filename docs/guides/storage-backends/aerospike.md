@@ -27,75 +27,9 @@ namespace/demo created
 
 ## Deploy VaultServer with Aerospike Backend
 
-### Deploy Sample Aerospike
+### Prepare Aerospike
 
-Let's deploy a single-node Aerospike server. The Aerospike image comes with a namespace called `test`. Vault is going to store its data in this Aerospike namespace. The Aerospike storage backend does not create the namespace, so it must already exist on the server.
-
-Below is the YAML of the `Service` and `Deployment` that we are going to create for this tutorial:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: aerospike
-  namespace: demo
-  labels:
-    app: aerospike
-spec:
-  ports:
-  - port: 3000
-    name: service
-  selector:
-    app: aerospike
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: aerospike
-  namespace: demo
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: aerospike
-  template:
-    metadata:
-      labels:
-        app: aerospike
-    spec:
-      containers:
-      - name: aerospike
-        image: aerospike/aerospike-server:latest
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 3000
-          name: service
-        resources:
-          limits:
-            cpu: "1"
-            memory: "1Gi"
-          requests:
-            cpu: "250m"
-            memory: "512Mi"
-```
-
-Create the above resources,
-
-```bash
-$ kubectl apply -f aerospike.yaml
-service/aerospike created
-deployment.apps/aerospike created
-```
-
-Let's wait for the Aerospike pod to be ready and check that the server responds,
-
-```bash
-$ kubectl wait -n demo --for=condition=Ready pod -l app=aerospike --timeout=5m
-pod/aerospike-6c5d8f7b9-x7k2p condition met
-
-$ kubectl exec -n demo deploy/aerospike -- asinfo -v status
-ok
-```
+Use an existing Aerospike server that is reachable from the Vault pods. This example uses `aerospike.demo.svc:3000` and the Aerospike namespace `test`. The namespace must already exist on the server: namespaces are defined in the Aerospike configuration, and Vault does not create them.
 
 ## Deploy Vault using KubeVault
 
@@ -283,11 +217,10 @@ To clean up the Kubernetes resources created by this tutorial, run:
 
 ```bash
 $ kubectl delete vaultserver -n demo vault
-$ kubectl delete -f aerospike.yaml
 $ kubectl delete ns demo
 ```
 
-Delete the `VaultServer` before Aerospike. With `terminationPolicy: WipeOut`, the operator connects to Aerospike to remove the data Vault stored there, so Aerospike has to be reachable until the `VaultServer` is gone.
+With `terminationPolicy: WipeOut`, the operator connects to Aerospike to remove the data Vault stored there, so Aerospike has to be reachable until the `VaultServer` is gone.
 
 To see all the fields you can set under `spec.backend.aerospike`, please check the [Aerospike storage backend](/docs/concepts/vault-server-crds/storage/aerospike.md) concept.
 

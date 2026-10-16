@@ -27,76 +27,9 @@ namespace/demo created
 
 ## Deploy VaultServer with CockroachDB Backend
 
-### Deploy CockroachDB
+### Prepare CockroachDB
 
-Let's deploy a single-node CockroachDB for this tutorial. It runs in insecure mode and keeps its data in an `emptyDir`, so use it only for testing.
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: cockroachdb
-  namespace: demo
-spec:
-  selector:
-    app: cockroachdb
-  ports:
-  - name: sql
-    port: 26257
-    targetPort: 26257
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: cockroachdb
-  namespace: demo
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: cockroachdb
-  template:
-    metadata:
-      labels:
-        app: cockroachdb
-    spec:
-      containers:
-      - name: cockroachdb
-        image: cockroachdb/cockroach:v24.1.0
-        args: ["start-single-node", "--insecure", "--http-port=8080"]
-        ports:
-        - containerPort: 26257
-          name: sql
-        readinessProbe:
-          httpGet:
-            path: /health?ready=1
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        volumeMounts:
-        - name: data
-          mountPath: /cockroach/cockroach-data
-      volumes:
-      - name: data
-        emptyDir: {}
-```
-
-```bash
-$ kubectl apply -f cockroachdb.yaml
-service/cockroachdb created
-deployment.apps/cockroachdb created
-
-$ kubectl wait -n demo --for=condition=Available deployment/cockroachdb --timeout=5m
-deployment.apps/cockroachdb condition met
-```
-
-Vault creates its tables but not the database, so let's create the `vault` database:
-
-```bash
-$ kubectl exec -n demo deploy/cockroachdb -- \
-    ./cockroach sql --insecure -e "CREATE DATABASE IF NOT EXISTS vault;"
-CREATE DATABASE
-```
+Use an existing CockroachDB cluster that is reachable from the Vault pods. This example uses `cockroachdb.demo.svc:26257`, running in insecure mode, with the `root` user. The database `vault` must already exist: Vault creates its tables in it, but not the database itself.
 
 **Create Credential Secret:**
 
@@ -309,7 +242,6 @@ To clean up the Kubernetes resources created by this tutorial, run:
 ```bash
 $ kubectl delete vaultserver -n demo vault
 $ kubectl delete secret -n demo cockroachdb-cred
-$ kubectl delete -f cockroachdb.yaml
 $ kubectl delete ns demo
 ```
 
