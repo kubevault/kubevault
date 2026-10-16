@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Deploy VaultServer with MySQL Backend
 
-You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [MySQL](https://www.mysql.com/) as the storage backend, managed by KubeDB.
+You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [MySQL](https://www.mysql.com/) as the storage backend, managed by KubeDB.
 
 ![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
@@ -27,44 +27,11 @@ namespace/demo created
 
 ## Deploy VaultServer with MySQL Backend
 
-> This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run MySQL, and [cert-manager](https://cert-manager.io/docs/installation/) to issue its TLS certificates. Both must be installed in your cluster.
+> This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run MySQL. The KubeDB operator must be installed in your cluster.
 
-### Deploy Sample MySQL Database
+### Deploy MySQL
 
-**Create a CA and a cert-manager `Issuer`:**
-
-KubeDB asks [cert-manager](https://cert-manager.io/docs/installation/) to issue the MySQL certificates. Let's create a self-signed CA and an `Issuer` backed by it. This CA is only for this tutorial, use your own CA or issuer in production.
-
-```bash
-$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout ca.key -out ca.crt -sha256 \
-    -subj "/CN=mysql-ca" \
-    -addext 'basicConstraints=critical,CA:TRUE' \
-    -addext 'keyUsage=critical,keyCertSign,cRLSign'
-
-$ kubectl create secret tls mysql-ca -n demo --cert=ca.crt --key=ca.key
-secret/mysql-ca created
-```
-
-```yaml
-apiVersion: cert-manager.io/v1
-kind: Issuer
-metadata:
-  name: mysql-ca-issuer
-  namespace: demo
-spec:
-  ca:
-    secretName: mysql-ca
-```
-
-```bash
-$ kubectl apply -f mysql-ca-issuer.yaml
-issuer.cert-manager.io/mysql-ca-issuer created
-```
-
-**Create MySQL CR:**
-
-Below is the YAML of a sample `MySQL` CR that we are going to create for this tutorial. Only TLS connections are accepted (`requireSSL: true`):
+Let's deploy a sample `MySQL` database:
 
 ```yaml
 apiVersion: kubedb.com/v1
@@ -74,12 +41,6 @@ metadata:
   namespace: demo
 spec:
   version: "8.4.8"
-  requireSSL: true
-  tls:
-    issuerRef:
-      apiGroup: cert-manager.io
-      kind: Issuer
-      name: mysql-ca-issuer
   storageType: Durable
   storage:
     accessModes:
@@ -90,25 +51,15 @@ spec:
   deletionPolicy: WipeOut
 ```
 
-Create the above `MySQL` CR,
-
 ```bash
 $ kubectl apply -f mysql.yaml
 mysql.kubedb.com/mysql created
-```
 
-KubeDB will deploy a `MySQL` database according to the above specification. It will also create the necessary `Secrets`, `Services` and an `AppBinding` to access the database. Let's wait until the database is ready to use,
-
-```bash
 $ kubectl wait -n demo --for=condition=Ready mysql/mysql --timeout=5m
 mysql.kubedb.com/mysql condition met
-
-$ kubectl get mysql -n demo mysql
-NAME    VERSION   STATUS   AGE
-mysql   8.4.8     Ready    3m50s
 ```
 
-Vault creates the database (`vault`) and the tables on its own, so we don't need to prepare any schema.
+KubeDB creates an `AppBinding` named `mysql` for the database, which holds its address and the secret with the `username` and `password`. Vault creates the database (`vault`) and the tables on its own, so we don't need to prepare any schema.
 
 ## Deploy Vault using KubeVault
 
@@ -144,7 +95,7 @@ spec:
   terminationPolicy: WipeOut
 ```
 
-The `databaseRef` points to the `AppBinding` that KubeDB created for the database. The operator takes the MySQL host, the credentials and the TLS CA from it, and mounts the CA into the Vault pods, so we don't need to set them here. To use your own certificates instead, set `tlsSecretRef` to a `Secret` that holds `ca.crt`. Note that `haEnabled` is a string for this backend. With `haEnabled: "true"`, Vault keeps its leader lock in the `lockTable`, so the `VaultServer` can run with more than one replica: one pod is the active node and the others are standby.
+The `databaseRef` points to the `AppBinding` that KubeDB created for the database. The operator takes the MySQL host and the credentials from it, so we don't need to set them here. Note that `haEnabled` is a string for this backend. With `haEnabled: "true"`, Vault keeps its leader lock in the `lockTable`, so the `VaultServer` can run with more than one replica: one pod is the active node and the others are standby.
 
 Now, let's deploy the `VaultServer`:
 
@@ -302,8 +253,6 @@ To clean up the Kubernetes resources created by this tutorial, run:
 ```bash
 $ kubectl delete vaultserver -n demo vault
 $ kubectl delete mysql -n demo mysql
-$ kubectl delete issuer -n demo mysql-ca-issuer
-$ kubectl delete secret -n demo mysql-ca
 $ kubectl delete ns demo
 ```
 

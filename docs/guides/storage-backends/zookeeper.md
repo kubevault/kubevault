@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Deploy VaultServer with ZooKeeper Backend
 
-You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Apache ZooKeeper](https://zookeeper.apache.org/) as the storage backend, managed by KubeDB.
+You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Apache ZooKeeper](https://zookeeper.apache.org/) as the storage backend, managed by KubeDB.
 
 ![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
@@ -27,44 +27,11 @@ namespace/demo created
 
 ## Deploy VaultServer with ZooKeeper Backend
 
-> This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run ZooKeeper, and [cert-manager](https://cert-manager.io/docs/installation/) to issue its TLS certificates. Both must be installed in your cluster.
+> This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run ZooKeeper. The KubeDB operator must be installed in your cluster.
 
-### Deploy Sample ZooKeeper
+### Deploy ZooKeeper
 
-**Create a CA and a cert-manager `Issuer`:**
-
-KubeDB asks [cert-manager](https://cert-manager.io/docs/installation/) to issue the ZooKeeper certificates. Let's create a self-signed CA and an `Issuer` backed by it. This CA is only for this tutorial, use your own CA or issuer in production.
-
-```bash
-$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout ca.key -out ca.crt -sha256 \
-    -subj "/CN=zookeeper-ca" \
-    -addext 'basicConstraints=critical,CA:TRUE' \
-    -addext 'keyUsage=critical,keyCertSign,cRLSign'
-
-$ kubectl create secret tls zookeeper-ca -n demo --cert=ca.crt --key=ca.key
-secret/zookeeper-ca created
-```
-
-```yaml
-apiVersion: cert-manager.io/v1
-kind: Issuer
-metadata:
-  name: zookeeper-ca-issuer
-  namespace: demo
-spec:
-  ca:
-    secretName: zookeeper-ca
-```
-
-```bash
-$ kubectl apply -f zookeeper-ca-issuer.yaml
-issuer.cert-manager.io/zookeeper-ca-issuer created
-```
-
-**Create ZooKeeper CR:**
-
-Below is the YAML of a sample `ZooKeeper` CR that we are going to create for this tutorial:
+Let's deploy a sample `ZooKeeper` database:
 
 ```yaml
 apiVersion: kubedb.com/v1alpha2
@@ -75,12 +42,6 @@ metadata:
 spec:
   version: "3.9.1"
   replicas: 1
-  enableSSL: true
-  tls:
-    issuerRef:
-      apiGroup: cert-manager.io
-      kind: Issuer
-      name: zookeeper-ca-issuer
   adminServerPort: 8080
   storage:
     accessModes:
@@ -91,23 +52,15 @@ spec:
   deletionPolicy: WipeOut
 ```
 
-Create the above `ZooKeeper` CR,
-
 ```bash
 $ kubectl apply -f zookeeper.yaml
 zookeeper.kubedb.com/zookeeper created
-```
 
-KubeDB will deploy a `ZooKeeper` database according to the above specification. It will also create the necessary `Secrets`, `Services` and an `AppBinding` to access the database. Let's wait until the database is ready to use,
-
-```bash
 $ kubectl wait -n demo --for=condition=Ready zookeeper/zookeeper --timeout=5m
 zookeeper.kubedb.com/zookeeper condition met
-
-$ kubectl get service -n demo zookeeper
-NAME        TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)             AGE
-zookeeper   ClusterIP   10.43.254.33   <none>        2181/TCP,2182/TCP   3m40s
 ```
+
+KubeDB creates an `AppBinding` named `zookeeper` for the database, which holds its address.
 
 ## Deploy Vault using KubeVault
 
@@ -141,7 +94,7 @@ spec:
   terminationPolicy: WipeOut
 ```
 
-The `databaseRef` points to the `AppBinding` that KubeDB created for the database. The operator takes the ZooKeeper address, the TLS CA and the client certificate from it, and enables TLS for the connection, so we don't need to set them here. The ZooKeeper storage backend supports high availability out of the box, using ephemeral znodes for leader election, so no extra field is needed: with more than one replica, one pod is the active node and the others are standby.
+The `databaseRef` points to the `AppBinding` that KubeDB created for the database. The operator takes the ZooKeeper address from it, so we don't need to set it here. The ZooKeeper storage backend supports high availability out of the box, using ephemeral znodes for leader election, so no extra field is needed: with more than one replica, one pod is the active node and the others are standby.
 
 Now, let's deploy the `VaultServer`:
 
@@ -299,8 +252,6 @@ To clean up the Kubernetes resources created by this tutorial, run:
 ```bash
 $ kubectl delete vaultserver -n demo vault
 $ kubectl delete zookeeper -n demo zookeeper
-$ kubectl delete issuer -n demo zookeeper-ca-issuer
-$ kubectl delete secret -n demo zookeeper-ca
 $ kubectl delete ns demo
 ```
 

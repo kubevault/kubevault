@@ -59,6 +59,7 @@ spec:
         name: <secret_name>
       tlsSkipVerify: <true/false>
       tlsMinVersion: <tls10|tls11|tls12|tls13>
+      tlsServerName: <server_name>
 ```
 
 Here, we are going to describe the various attributes of the `spec.backend.cassandra` field.
@@ -211,4 +212,19 @@ spec:
   backend:
     cassandra:
       tlsMinVersion: "tls12"
+```
+
+### cassandra.tlsServerName
+
+`cassandra.tlsServerName` is an optional field that specifies the name to verify the certificate of every Cassandra node against.
+
+The Cassandra driver connects to every node by IP: the `hosts` are resolved to IPs, and the other nodes are discovered from the cluster by their IPs. By default it checks each node's certificate against that IP, so a certificate that lists only DNS names, like the one KubeDB issues for all the nodes of a Cassandra, fails with `x509: certificate is valid for ..., not <ip>`. With `tlsServerName`, every node is checked against that name instead. The certificate must still be signed by the CA in `tlsSecretRef`.
+
+If `databaseRef` is set and the TLS material comes from the `AppBinding`, it defaults to the host of the `AppBinding` (`<cassandra>.<namespace>.svc`), which the KubeDB certificate covers. It must be a name the certificate covers, not a wildcard.
+
+```yaml
+spec:
+  backend:
+    cassandra:
+      tlsServerName: "cassandra.demo.svc"
 ```

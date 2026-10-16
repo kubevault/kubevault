@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Deploy VaultServer with CockroachDB Backend
 
-You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [CockroachDB](https://www.cockroachlabs.com/) as the storage backend.
+You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [CockroachDB](https://www.cockroachlabs.com/) as the storage backend.
 
 ![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
@@ -27,105 +27,9 @@ namespace/demo created
 
 ## Deploy VaultServer with CockroachDB Backend
 
-> This tutorial uses [cert-manager](https://cert-manager.io/docs/installation/) to issue the CockroachDB certificates. It must be installed in your cluster.
+### Deploy CockroachDB
 
-### Deploy Sample CockroachDB
-
-CockroachDB speaks the PostgreSQL wire protocol. We are going to run a single-node CockroachDB secured with TLS, and let Vault log in as the `root` user with a client certificate.
-
-**Create a CA and a cert-manager `Issuer`:**
-
-KubeDB asks [cert-manager](https://cert-manager.io/docs/installation/) to issue the CockroachDB certificates. Let's create a self-signed CA and an `Issuer` backed by it. This CA is only for this tutorial, use your own CA or issuer in production.
-
-```bash
-$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout ca.key -out ca.crt -sha256 \
-    -subj "/CN=cockroachdb-ca" \
-    -addext 'basicConstraints=critical,CA:TRUE' \
-    -addext 'keyUsage=critical,keyCertSign,cRLSign'
-
-$ kubectl create secret tls cockroachdb-ca -n demo --cert=ca.crt --key=ca.key
-secret/cockroachdb-ca created
-```
-
-```yaml
-apiVersion: cert-manager.io/v1
-kind: Issuer
-metadata:
-  name: cockroachdb-ca-issuer
-  namespace: demo
-spec:
-  ca:
-    secretName: cockroachdb-ca
-```
-
-```bash
-$ kubectl apply -f cockroachdb-ca-issuer.yaml
-issuer.cert-manager.io/cockroachdb-ca-issuer created
-```
-
-**Create the Certificates:**
-
-CockroachDB needs a node certificate. Vault needs a client certificate for the `root` user. Both are issued from the CA above:
-
-```yaml
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: cockroachdb-node
-  namespace: demo
-spec:
-  secretName: cockroachdb-node-tls
-  commonName: node
-  usages:
-    - server auth
-    - client auth
-  dnsNames:
-    - localhost
-    - cockroachdb
-    - cockroachdb.demo
-    - cockroachdb.demo.svc
-    - cockroachdb.demo.svc.cluster.local
-  ipAddresses:
-    - 127.0.0.1
-  privateKey:
-    algorithm: ECDSA
-    rotationPolicy: Always
-    size: 256
-  issuerRef:
-    name: cockroachdb-ca-issuer
-    kind: Issuer
-    group: cert-manager.io
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: cockroachdb-client-root
-  namespace: demo
-spec:
-  secretName: cockroachdb-client-tls
-  commonName: root
-  usages:
-    - client auth
-  privateKey:
-    algorithm: ECDSA
-    rotationPolicy: Always
-    size: 256
-  issuerRef:
-    name: cockroachdb-ca-issuer
-    kind: Issuer
-    group: cert-manager.io
-```
-
-```bash
-$ kubectl apply -f cockroachdb-certificates.yaml
-certificate.cert-manager.io/cockroachdb-node created
-certificate.cert-manager.io/cockroachdb-client-root created
-```
-
-**Create CockroachDB:**
-
-Below is the YAML of the `Service` and `StatefulSet` that we are going to create for this tutorial. The sample does not use a persistent volume, so its data is gone when the pod is deleted.
+Let's deploy a single-node CockroachDB for this tutorial. It runs in insecure mode and keeps its data in an `emptyDir`, so use it only for testing.
 
 ```yaml
 apiVersion: v1
@@ -133,26 +37,20 @@ kind: Service
 metadata:
   name: cockroachdb
   namespace: demo
-  labels:
-    app: cockroachdb
 spec:
-  ports:
-  - port: 26257
-    targetPort: 26257
-    name: sql
-  - port: 8080
-    targetPort: 8080
-    name: http
   selector:
     app: cockroachdb
+  ports:
+  - name: sql
+    port: 26257
+    targetPort: 26257
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: cockroachdb
   namespace: demo
 spec:
-  serviceName: "cockroachdb"
   replicas: 1
   selector:
     matchLabels:
@@ -165,54 +63,44 @@ spec:
       containers:
       - name: cockroachdb
         image: cockroachdb/cockroach:v24.1.0
-        imagePullPolicy: IfNotPresent
-        command:
-        - "/bin/bash"
-        - "-ecx"
-        - "exec /cockroach/cockroach start-single-node --certs-dir=/cockroach/cockroach-certs --http-port=8080 --listen-addr=0.0.0.0:26257"
+        args: ["start-single-node", "--insecure", "--http-port=8080"]
         ports:
         - containerPort: 26257
           name: sql
-        - containerPort: 8080
-          name: http
+        readinessProbe:
+          httpGet:
+            path: /health?ready=1
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
         volumeMounts:
-        - name: certs
-          mountPath: /cockroach/cockroach-certs
-          readOnly: true
-        resources:
-          limits:
-            cpu: "1"
-            memory: "1Gi"
-          requests:
-            cpu: "250m"
-            memory: "512Mi"
+        - name: data
+          mountPath: /cockroach/cockroach-data
       volumes:
-      - name: certs
-        secret:
-          secretName: cockroachdb-node-tls
-          # CockroachDB refuses private keys that are readable by group or others.
-          defaultMode: 0400
-          items:
-          - key: ca.crt
-            path: ca.crt
-          - key: tls.crt
-            path: node.crt
-          - key: tls.key
-            path: node.key
+      - name: data
+        emptyDir: {}
 ```
 
 ```bash
 $ kubectl apply -f cockroachdb.yaml
 service/cockroachdb created
-statefulset.apps/cockroachdb created
+deployment.apps/cockroachdb created
 
-$ kubectl wait -n demo --for=condition=Ready pod/cockroachdb-0 --timeout=5m
-pod/cockroachdb-0 condition met
+$ kubectl wait -n demo --for=condition=Available deployment/cockroachdb --timeout=5m
+deployment.apps/cockroachdb condition met
 ```
 
-**Create Connection Secret:**
+Vault creates its tables but not the database, so let's create the `vault` database:
 
-The `root` user logs in with its certificate, so the password stays empty. The operator adds the CA and the client certificate (`sslrootcert`, `sslcert` and `sslkey`) to the connection URL, so only `sslmode` is set here.
+```bash
+$ kubectl exec -n demo deploy/cockroachdb -- \
+    ./cockroach sql --insecure -e "CREATE DATABASE IF NOT EXISTS vault;"
+CREATE DATABASE
+```
+
+**Create Credential Secret:**
+
+In insecure mode, the `root` user logs in without a password, so the secret only holds the `username`:
 
 ```yaml
 apiVersion: v1
@@ -223,8 +111,6 @@ metadata:
 type: Opaque
 stringData:
   username: "root"
-  password: ""
-  connection_url: "postgresql://root@cockroachdb.demo.svc:26257/defaultdb?sslmode=verify-full"
 ```
 
 ```bash
@@ -251,12 +137,10 @@ spec:
   backend:
     cockroachdb:
       address: "cockroachdb.demo.svc:26257"
+      database: vault
       credentialSecretRef:
         name: cockroachdb-cred
-      sslMode: verify-full
-      # ca.crt, tls.crt and tls.key of the "root" client certificate
-      tlsSecretRef:
-        name: cockroachdb-client-tls
+      sslMode: disable
       haEnabled: true
   unsealer:
     secretShares: 5
@@ -267,7 +151,7 @@ spec:
   terminationPolicy: WipeOut
 ```
 
-Vault creates the data table (`openbao_kv_store`) and, because `haEnabled` is `true`, the lock table (`openbao_ha_locks`) on its own. With `haEnabled`, the `VaultServer` can run with more than one replica: one pod is the active node and the others are standby.
+Vault creates the data table (`openbao_kv_store`) and, because `haEnabled` is `true`, the lock table (`openbao_ha_locks`) inside the existing `vault` database. With `haEnabled`, the `VaultServer` can run with more than one replica: one pod is the active node and the others are standby.
 
 Now, let's deploy the `VaultServer`:
 
@@ -426,13 +310,10 @@ To clean up the Kubernetes resources created by this tutorial, run:
 $ kubectl delete vaultserver -n demo vault
 $ kubectl delete secret -n demo cockroachdb-cred
 $ kubectl delete -f cockroachdb.yaml
-$ kubectl delete -f cockroachdb-certificates.yaml
-$ kubectl delete issuer -n demo cockroachdb-ca-issuer
-$ kubectl delete secret -n demo cockroachdb-ca
 $ kubectl delete ns demo
 ```
 
-Delete the `VaultServer` before CockroachDB. With `terminationPolicy: WipeOut`, the operator connects to CockroachDB to remove the data Vault stored there, so the database has to be reachable until the `VaultServer` is gone.
+With `terminationPolicy: WipeOut`, the operator drops the Vault data and HA lock tables from the `vault` database when the `VaultServer` is deleted. The database itself is kept. Keep CockroachDB reachable until the `VaultServer` is gone, and delete the `VaultServer` before the credential Secret, because the operator uses it during cleanup.
 
 To see all the fields you can set under `spec.backend.cockroachdb`, please check the [CockroachDB storage backend](/docs/concepts/vault-server-crds/storage/cockroachdb.md) concept.
 

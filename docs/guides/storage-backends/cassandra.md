@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Deploy VaultServer with Cassandra Backend
 
-You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Apache Cassandra](https://cassandra.apache.org/) as the storage backend, managed by KubeDB.
+You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Apache Cassandra](https://cassandra.apache.org/) as the storage backend, managed by KubeDB.
 
 ![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
@@ -27,44 +27,11 @@ namespace/demo created
 
 ## Deploy VaultServer with Cassandra Backend
 
-> This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run Cassandra, and [cert-manager](https://cert-manager.io/docs/installation/) to issue its TLS certificates. Both must be installed in your cluster.
+> This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run Cassandra. The KubeDB operator must be installed in your cluster.
 
-### Deploy Sample Cassandra Database
+### Deploy Cassandra
 
-**Create a CA and a cert-manager `Issuer`:**
-
-KubeDB asks [cert-manager](https://cert-manager.io/docs/installation/) to issue the Cassandra certificates. Let's create a self-signed CA and an `Issuer` backed by it. This CA is only for this tutorial, use your own CA or issuer in production.
-
-```bash
-$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout ca.key -out ca.crt -sha256 \
-    -subj "/CN=cassandra-ca" \
-    -addext 'basicConstraints=critical,CA:TRUE' \
-    -addext 'keyUsage=critical,keyCertSign,cRLSign'
-
-$ kubectl create secret tls cassandra-ca -n demo --cert=ca.crt --key=ca.key
-secret/cassandra-ca created
-```
-
-```yaml
-apiVersion: cert-manager.io/v1
-kind: Issuer
-metadata:
-  name: cassandra-ca-issuer
-  namespace: demo
-spec:
-  ca:
-    secretName: cassandra-ca
-```
-
-```bash
-$ kubectl apply -f cassandra-ca-issuer.yaml
-issuer.cert-manager.io/cassandra-ca-issuer created
-```
-
-**Create Cassandra CR:**
-
-Below is the YAML of a sample `Cassandra` CR that we are going to create for this tutorial:
+Let's deploy a sample `Cassandra` database:
 
 ```yaml
 apiVersion: kubedb.com/v1alpha2
@@ -74,12 +41,6 @@ metadata:
   namespace: demo
 spec:
   version: "4.1.8"
-  enableSSL: true
-  tls:
-    issuerRef:
-      apiGroup: cert-manager.io
-      kind: Issuer
-      name: cassandra-ca-issuer
   topology:
     rack:
       - name: r0
@@ -93,23 +54,15 @@ spec:
   deletionPolicy: WipeOut
 ```
 
-Create the above `Cassandra` CR,
-
 ```bash
 $ kubectl apply -f cassandra.yaml
 cassandra.kubedb.com/cassandra created
-```
 
-KubeDB will deploy a `Cassandra` database according to the above specification. It will also create the necessary `Secrets`, `Services` and an `AppBinding` to access the database. Let's wait until the database is ready to use,
-
-```bash
 $ kubectl wait -n demo --for=condition=Ready cassandra/cassandra --timeout=10m
 cassandra.kubedb.com/cassandra condition met
-
-$ kubectl get cassandra -n demo cassandra
-NAME        VERSION   STATUS   AGE
-cassandra   4.1.8     Ready    4m12s
 ```
+
+KubeDB creates an `AppBinding` named `cassandra` for the database, which holds the Cassandra hosts and the `cassandra-auth` secret with the `username` and `password`.
 
 **Create the Keyspace and the Table:**
 
@@ -119,17 +72,17 @@ The Cassandra storage backend does not create the keyspace or the table, so they
 $ CASSANDRA_USER=$(kubectl get secret -n demo cassandra-auth -o jsonpath='{.data.username}' | base64 -d)
 $ CASSANDRA_PASS=$(kubectl get secret -n demo cassandra-auth -o jsonpath='{.data.password}' | base64 -d)
 
-$ kubectl exec -n demo -it cassandra-rack-r0-0 -c cassandra -- \
-    cqlsh --ssl -u "$CASSANDRA_USER" -p "$CASSANDRA_PASS" -e "
-CREATE KEYSPACE IF NOT EXISTS vault WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
-CREATE TABLE IF NOT EXISTS vault.entries (
+$ kubectl exec -n demo -i cassandra-rack-r0-0 -c cassandra -- \
+    cqlsh -u "$CASSANDRA_USER" -p "$CASSANDRA_PASS" -e 'CREATE KEYSPACE IF NOT EXISTS vault WITH replication = {'"'"'class'"'"': '"'"'SimpleStrategy'"'"', '"'"'replication_factor'"'"': 1};
+CREATE TABLE IF NOT EXISTS vault."entries" (
   bucket text,
   key    text,
   value  blob,
   PRIMARY KEY (bucket, key)
-) WITH CLUSTERING ORDER BY (key ASC);
-"
+) WITH CLUSTERING ORDER BY (key ASC);'
 ```
+
+`entries` is a reserved word in CQL, so the table name is quoted (`vault."entries"`). The statements are in single quotes so that the shell keeps those double quotes, which is why the CQL string literals are written as `'"'"'`. The string starts right after `-e '` and ends right after the last `;`, because a line break before the first or after the last statement makes `cqlsh` fail with `no viable alternative at input ';'`.
 
 > `SimpleStrategy` with a replication factor of `1` is enough for this tutorial. For production, use a replication strategy and factor that match your cluster.
 
@@ -167,7 +120,7 @@ spec:
   terminationPolicy: WipeOut
 ```
 
-The `databaseRef` points to the `AppBinding` that KubeDB created for the database. The operator takes the Cassandra hosts, the credentials and the TLS CA from it, so we don't need to set them here. The Cassandra storage backend does not support high availability, so the `VaultServer` runs with a single replica.
+The `databaseRef` points to the `AppBinding` that KubeDB created for the database. The operator takes the Cassandra hosts and the credentials from it, so we don't need to set them here. The Cassandra storage backend does not support high availability, so the `VaultServer` runs with a single replica.
 
 Now, let's deploy the `VaultServer`:
 
@@ -321,8 +274,6 @@ To clean up the Kubernetes resources created by this tutorial, run:
 ```bash
 $ kubectl delete vaultserver -n demo vault
 $ kubectl delete cassandra -n demo cassandra
-$ kubectl delete issuer -n demo cassandra-ca-issuer
-$ kubectl delete secret -n demo cassandra-ca
 $ kubectl delete ns demo
 ```
 

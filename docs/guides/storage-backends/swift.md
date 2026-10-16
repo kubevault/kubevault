@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Deploy VaultServer with Swift Backend
 
-You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [OpenStack Swift](https://docs.openstack.org/swift/latest/) as the storage backend.
+You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [OpenStack Swift](https://docs.openstack.org/swift/latest/) as the storage backend.
 
 ![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
@@ -29,13 +29,14 @@ namespace/demo created
 
 ### Prepare the Swift Container
 
-Vault stores its data in a Swift container. There is no local emulator for this backend, so you need an OpenStack cloud with Swift and the Keystone authentication endpoint (`authURL`) of that cloud. The container must exist before Vault starts. Vault does not create it.
+Vault stores its data as objects in an OpenStack Swift container. There is no local emulator for this backend, so you need an account on an OpenStack cloud with Swift. The container must exist before Vault starts. Vault does not create it.
 
-Let's create the container with the OpenStack CLI,
+This tutorial uses [Infomaniak Swiss Backup](https://www.infomaniak.com/en/swiss-backup), an OpenStack Swift service, with an existing container named `vault-container`. Note these details of your Swift account, which you can find in the OpenStack (`openrc`) credentials of the account:
 
-```bash
-$ openstack container create vault-container
-```
+- The Keystone v3 authentication endpoint (`OS_AUTH_URL`). For Swiss Backup it is `https://swiss-backup02.infomaniak.com/identity/v3`.
+- The project (`OS_PROJECT_NAME`). For Swiss Backup it has the form `sb_project_<account-id>`.
+- The region (`OS_REGION_NAME`), user domain (`OS_USER_DOMAIN_NAME`) and project domain (`OS_PROJECT_DOMAIN_NAME`). For Swiss Backup they are `RegionOne`, `default` and `default`.
+- The username and password of the OpenStack user.
 
 **Create Credential Secret:**
 
@@ -67,11 +68,12 @@ spec:
       from: All
   backend:
     swift:
-      authURL: "https://identity.openstack.example.com:5000/v3"
+      authURL: "https://swiss-backup02.infomaniak.com/identity/v3"
       container: "vault-container"
-      tenant: "<project-name>"
-      domain: "Default"
-      projectDomain: "Default"
+      tenant: "sb_project_<account-id>"
+      region: "RegionOne"
+      domain: "default"
+      projectDomain: "default"
       credentialSecretRef:
         name: swift-cred
   unsealer:
@@ -83,7 +85,7 @@ spec:
   terminationPolicy: WipeOut
 ```
 
-Replace `authURL`, `tenant` (the OpenStack project) and the domains with the values of your cloud. `region`, `tenantID`, `trustID` and `storageURL` are also available, see the [Swift storage backend](/docs/concepts/vault-server-crds/storage/swift.md) concept. The Swift storage backend does not support high availability, so the `VaultServer` runs with a single replica.
+Replace `authURL`, `tenant` (the OpenStack project), `region` and the domains with the values of your Swift account. `tenantID`, `trustID` and `storageURL` are also available, see the [Swift storage backend](/docs/concepts/vault-server-crds/storage/swift.md) concept. The Swift storage backend does not support high availability, so the `VaultServer` runs with a single replica.
 
 Now, let's deploy the `VaultServer`:
 
@@ -187,10 +189,10 @@ Initialized     true
 Sealed          false
 Total Shares    5
 Threshold       3
-Version         2.6.1
+Version         2.6.1-sigilr.2
 Storage Type    swift
-Cluster Name    vault-cluster-3f8a1c92
-Cluster ID      56c3a681-f799-2310-9813-d67877d25450
+Cluster Name    vault-cluster-482e469c
+Cluster ID      af400967-737d-28ef-6d5f-4e0147674aa6
 HA Enabled      false
 ```
 
@@ -198,12 +200,12 @@ We can see the currently enabled list of secret engines.
 
 ```bash
 $ vault secrets list
-Path                                       Type         Accessor              Description
-----                                       ----         --------              -----------
-cubbyhole/                                 cubbyhole    cubbyhole_bb7c56f9    per-token private secret storage
-identity/                                  identity     identity_fa8431fa     identity store
-k8s.kubevault.com.kv.demo.vault-health/    kv           kv_5129d194           n/a
-sys/                                       system       system_c7e0879a       system endpoints used for control, policy and debugging
+Path                                                              Type         Accessor              Description
+----                                                              ----         --------              -----------
+cubbyhole/                                                        cubbyhole    cubbyhole_7f632162    per-token private secret storage
+identity/                                                         identity     identity_0c7e4178     identity store
+k8s.62e86b47-6e7c-4849-89fb-88062a22f451.kv.demo.vault-health/    kv           kv_9a8b45d0           n/a
+sys/                                                              system       system_fd52bf25       system endpoints used for control, policy and debugging
 ```
 
 Let's enable a `KV` type secret engine:
@@ -240,7 +242,7 @@ $ kubectl delete secret -n demo swift-cred
 $ kubectl delete ns demo
 ```
 
-With `terminationPolicy: WipeOut`, the operator removes the objects Vault stored in the container when the `VaultServer` is deleted. The container itself is not deleted.
+With `terminationPolicy: WipeOut`, the operator removes the objects Vault stored in the container when the `VaultServer` is deleted. Delete the `VaultServer` before the credential secret, because the operator uses it to reach the container. The container itself is not deleted, so remove it from your Swift account when you no longer need it.
 
 To see all the fields you can set under `spec.backend.swift`, please check the [Swift storage backend](/docs/concepts/vault-server-crds/storage/swift.md) concept.
 

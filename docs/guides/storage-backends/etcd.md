@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Deploy VaultServer with Etcd Backend
 
-You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [etcd](https://etcd.io/) as the storage backend, managed by KubeDB.
+You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [etcd](https://etcd.io/) as the storage backend, managed by KubeDB.
 
 ![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
@@ -27,142 +27,11 @@ namespace/demo created
 
 ## Deploy VaultServer with Etcd Backend
 
-> This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run etcd, and [cert-manager](https://cert-manager.io/docs/installation/) to issue its TLS certificates. Both must be installed in your cluster.
+> This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run etcd. The KubeDB operator must be installed in your cluster.
 
-### Deploy Sample Etcd Database
+### Deploy Etcd
 
-**Create a CA and a cert-manager `Issuer`:**
-
-KubeDB asks [cert-manager](https://cert-manager.io/docs/installation/) to issue the etcd certificates. Let's create a self-signed CA and an `Issuer` backed by it. This CA is only for this tutorial, use your own CA or issuer in production.
-
-```bash
-$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout ca.key -out ca.crt -sha256 \
-    -subj "/CN=etcd-ca" \
-    -addext 'basicConstraints=critical,CA:TRUE' \
-    -addext 'keyUsage=critical,keyCertSign,cRLSign'
-
-$ kubectl create secret tls etcd-ca -n demo --cert=ca.crt --key=ca.key
-secret/etcd-ca created
-```
-
-```yaml
-apiVersion: cert-manager.io/v1
-kind: Issuer
-metadata:
-  name: etcd-ca-issuer
-  namespace: demo
-spec:
-  ca:
-    secretName: etcd-ca
-```
-
-```bash
-$ kubectl apply -f etcd-ca-issuer.yaml
-issuer.cert-manager.io/etcd-ca-issuer created
-```
-
-**Create the Certificates:**
-
-KubeDB expects the server, peer and client certificates of etcd to exist as `Secrets` in the namespace. Let's issue them from the CA above:
-
-```yaml
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: etcd-server-cert
-  namespace: demo
-spec:
-  secretName: etcd-server-cert
-  commonName: etcd
-  privateKey:
-    rotationPolicy: Always
-  usages:
-    - digital signature
-    - key encipherment
-    - server auth
-    - client auth
-  dnsNames:
-    - etcd
-    - etcd.demo
-    - etcd.demo.svc
-    - etcd.demo.svc.cluster.local
-    - etcd-pods.demo
-    - etcd-pods.demo.svc
-    - etcd-pods.demo.svc.cluster.local
-    - "*.etcd-pods.demo.svc"
-    - "*.etcd-pods.demo.svc.cluster.local"
-    - localhost
-  ipAddresses:
-    - 127.0.0.1
-  issuerRef:
-    name: etcd-ca-issuer
-    kind: Issuer
-    group: cert-manager.io
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: etcd-peer-cert
-  namespace: demo
-spec:
-  secretName: etcd-peer-cert
-  commonName: etcd
-  privateKey:
-    rotationPolicy: Always
-  usages:
-    - digital signature
-    - key encipherment
-    - server auth
-    - client auth
-  dnsNames:
-    - etcd
-    - etcd.demo
-    - etcd.demo.svc
-    - etcd.demo.svc.cluster.local
-    - etcd-pods.demo
-    - etcd-pods.demo.svc
-    - etcd-pods.demo.svc.cluster.local
-    - "*.etcd-pods.demo.svc"
-    - "*.etcd-pods.demo.svc.cluster.local"
-    - localhost
-  ipAddresses:
-    - 127.0.0.1
-  issuerRef:
-    name: etcd-ca-issuer
-    kind: Issuer
-    group: cert-manager.io
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: etcd-client-cert
-  namespace: demo
-spec:
-  secretName: etcd-client-cert
-  commonName: root
-  privateKey:
-    rotationPolicy: Always
-  usages:
-    - digital signature
-    - key encipherment
-    - client auth
-  issuerRef:
-    name: etcd-ca-issuer
-    kind: Issuer
-    group: cert-manager.io
-```
-
-```bash
-$ kubectl apply -f etcd-certificates.yaml
-certificate.cert-manager.io/etcd-server-cert created
-certificate.cert-manager.io/etcd-peer-cert created
-certificate.cert-manager.io/etcd-client-cert created
-```
-
-**Create Etcd CR:**
-
-Below is the YAML of a sample `Etcd` CR that we are going to create for this tutorial:
+Let's deploy a sample `Etcd` database:
 
 ```yaml
 apiVersion: kubedb.com/v1alpha2
@@ -180,31 +49,18 @@ spec:
     resources:
       requests:
         storage: 1Gi
-  tls:
-    issuerRef:
-      apiGroup: cert-manager.io
-      kind: Issuer
-      name: etcd-ca-issuer
   deletionPolicy: WipeOut
 ```
-
-Create the above `Etcd` CR,
 
 ```bash
 $ kubectl apply -f etcd.yaml
 etcd.kubedb.com/etcd created
-```
 
-KubeDB will deploy an `Etcd` database according to the above specification. It will also create the necessary `Secrets`, `Services` and an `AppBinding` to access the database. Let's wait until the database is ready to use,
-
-```bash
 $ kubectl wait -n demo --for=condition=Ready etcd/etcd --timeout=5m
 etcd.kubedb.com/etcd condition met
-
-$ kubectl get appbinding -n demo etcd
-NAME   TYPE               VERSION   AGE
-etcd   kubedb.com/etcd    3.6.4     3m21s
 ```
+
+KubeDB creates an `AppBinding` named `etcd` for the database, which holds its address and credentials.
 
 ## Deploy Vault using KubeVault
 
@@ -239,7 +95,7 @@ spec:
   terminationPolicy: WipeOut
 ```
 
-The `databaseRef` points to the `AppBinding` that KubeDB created for the database. The operator takes the etcd address, the credentials, the TLS CA and the client certificate from it, so we don't need to set them here. With `haEnabled: true`, Vault uses etcd leases for leader election, so the `VaultServer` can run with more than one replica: one pod is the active node and the others are standby.
+The `databaseRef` points to the `AppBinding` that KubeDB created for the database. The operator takes the etcd address and the credentials from it, so we don't need to set them here. With `haEnabled: true`, Vault uses etcd leases for leader election, so the `VaultServer` can run with more than one replica: one pod is the active node and the others are standby.
 
 Now, let's deploy the `VaultServer`:
 
@@ -398,9 +254,6 @@ To clean up the Kubernetes resources created by this tutorial, run:
 ```bash
 $ kubectl delete vaultserver -n demo vault
 $ kubectl delete etcd -n demo etcd
-$ kubectl delete -f etcd-certificates.yaml
-$ kubectl delete issuer -n demo etcd-ca-issuer
-$ kubectl delete secret -n demo etcd-ca
 $ kubectl delete ns demo
 ```
 

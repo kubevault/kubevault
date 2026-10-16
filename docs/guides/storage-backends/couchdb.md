@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Deploy VaultServer with CouchDB Backend
 
-You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Apache CouchDB](https://couchdb.apache.org/) as the storage backend.
+You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Apache CouchDB](https://couchdb.apache.org/) as the storage backend.
 
 ![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 

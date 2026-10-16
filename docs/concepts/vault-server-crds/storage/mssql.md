@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # MSSQL
 
-In the MSSQL storage backend, Vault data will be stored in [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server). This backend was removed from upstream OpenBao and is only available in this fork; Vault documentation for the MSSQL storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/mssql).
+In the MSSQL storage backend, Vault data will be stored in [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server). This backend was removed from upstream OpenBao and is only available in the [sigilr/openbao](https://github.com/sigilr/openbao) fork.
 
 > `spec.backend.mssql` is only available on the `kubevault.com/v1alpha2` `VaultServer` API. MSSQL has no `haEnabled` field and cannot be used to run Vault in high availability mode.
 
@@ -46,6 +46,15 @@ spec:
       port: <port>
       credentialSecretRef:
         name: <secret_name>
+      databaseRef:
+        name: <appbinding_name>
+        namespace: <appbinding_namespace>
+      encrypt: <true|false|strict|disable>
+      tlsSecretRef:
+        name: <secret_name>
+      trustServerCertificate: <true|false>
+      tlsServerName: <server_name>
+      tlsMinVersion: <tls10|tls11|tls12|tls13>
       database: <database_name>
       table: <table_name>
       schema: <schema_name>
@@ -59,7 +68,7 @@ Here, we are going to describe the various attributes of the `spec.backend.mssql
 
 ### mssql.server
 
-`mssql.server` is a required field that specifies the address of the MSSQL host.
+`mssql.server` specifies the address of the MSSQL host. Either `server` or `databaseRef` must be set.
 
 ```yaml
 spec:
@@ -92,6 +101,86 @@ spec:
     mssql:
       credentialSecretRef:
         name: mssql-cred
+```
+
+### mssql.databaseRef
+
+`mssql.databaseRef` is an optional field that points to the `AppBinding` of a KubeDB managed `MSSQLServer`. When it is set, the operator takes the server, port and credentials from the `AppBinding`, so `server`, `port` and `credentialSecretRef` are not needed. If the `AppBinding` has a CA bundle, the operator also uses it to verify the server certificate (see [mssql.tlsSecretRef](#mssqltlssecretref)).
+
+```yaml
+spec:
+  backend:
+    mssql:
+      databaseRef:
+        name: mssql
+        namespace: demo
+```
+
+### mssql.encrypt
+
+`mssql.encrypt` is an optional field that specifies how the connection to SQL Server is encrypted. It is one of:
+
+- `"true"`: encrypt the whole connection, and fail if the server doesn't support encryption.
+- `"false"`: encrypt only the login packet, unless the server forces encryption.
+- `strict`: use TDS 8.0, where TLS is set up before any TDS traffic. Requires SQL Server 2022 or later.
+- `disable`: don't encrypt anything.
+
+Unless it is `disable`, the server certificate is verified, unless `trustServerCertificate` is `true`. When `encrypt` is unset, it is `"true"` if a CA is available (from `tlsSecretRef` or the `databaseRef` `AppBinding`) or any other TLS field is set. Otherwise it is left to the driver, which encrypts only the login packet and does **not** verify the server certificate.
+
+```yaml
+spec:
+  backend:
+    mssql:
+      encrypt: "true"
+```
+
+### mssql.tlsSecretRef
+
+`mssql.tlsSecretRef` is an optional field that specifies the name of the `Secret`, in the same namespace as the `VaultServer`, containing the CA certificate used to verify the SQL Server certificate. The secret contains the following key:
+
+- `ca.crt`
+
+The operator mounts it into the Vault pods and sets `tls_ca_file` in the Vault configuration. If `databaseRef` is set and `tlsSecretRef` is not, the operator copies the CA bundle of the `AppBinding` into a secret named `<vaultserver-name>-mssql-tls` and uses that. It can't be used with `encrypt: disable`. SQL Server has no client certificate authentication, so only a CA is used.
+
+```yaml
+spec:
+  backend:
+    mssql:
+      tlsSecretRef:
+        name: mssql-ca
+```
+
+### mssql.trustServerCertificate
+
+`mssql.trustServerCertificate` is an optional field that specifies whether to skip verifying the server certificate. Not recommended in production. Defaults to `false`.
+
+```yaml
+spec:
+  backend:
+    mssql:
+      trustServerCertificate: true
+```
+
+### mssql.tlsServerName
+
+`mssql.tlsServerName` is an optional field that specifies the name the server certificate must be valid for. Defaults to the server address.
+
+```yaml
+spec:
+  backend:
+    mssql:
+      tlsServerName: "mssql.demo.svc"
+```
+
+### mssql.tlsMinVersion
+
+`mssql.tlsMinVersion` is an optional field that specifies the minimum TLS version to use. It is one of `tls10`, `tls11`, `tls12` and `tls13`.
+
+```yaml
+spec:
+  backend:
+    mssql:
+      tlsMinVersion: tls12
 ```
 
 ### mssql.database

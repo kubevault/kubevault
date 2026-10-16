@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Deploy VaultServer with Alicloud OSS Backend
 
-You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Alibaba Cloud Object Storage Service (OSS)](https://www.alibabacloud.com/product/object-storage-service) as the storage backend.
+You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Alibaba Cloud Object Storage Service (OSS)](https://www.alibabacloud.com/product/object-storage-service) as the storage backend.
 
 ![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
@@ -27,92 +27,24 @@ namespace/demo created
 
 ## Deploy VaultServer with Alicloud OSS Backend
 
-### Deploy Sample OSS-Compatible Storage
+### Prepare the OSS Bucket
 
-Vault stores its data as objects in an OSS bucket. To keep this tutorial self-contained, we are going to use a MinIO server as an in-cluster, OSS-compatible endpoint. The bucket `vault-bucket` is created when the server starts, because the bucket must exist before Vault starts. Vault does not create it.
+Vault stores its data as objects in an Alibaba Cloud OSS bucket. There is no local emulator for this backend, so you need an Alibaba Cloud account with OSS activated. The bucket must exist before Vault starts. Vault does not create it.
 
-Below is the YAML of the `Service` and `Deployment` that we are going to create for this tutorial:
+Let's create a bucket and a RAM user that can use it in the Alibaba Cloud console,
 
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: oss-backend
-  namespace: demo
-  labels:
-    app: oss-backend
-spec:
-  ports:
-  - port: 9000
-    name: s3
-  selector:
-    app: oss-backend
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: oss-backend
-  namespace: demo
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: oss-backend
-  template:
-    metadata:
-      labels:
-        app: oss-backend
-    spec:
-      containers:
-      - name: minio
-        image: cgr.dev/chainguard/minio:latest
-        imagePullPolicy: IfNotPresent
-        command:
-        - /bin/sh
-        - -c
-        - "mkdir -p /data/vault-bucket && minio server /data --console-address :9001"
-        env:
-        - name: MINIO_ROOT_USER
-          value: "alicloud-test-ak"
-        - name: MINIO_ROOT_PASSWORD
-          value: "alicloud-test-sk123"
-        ports:
-        - containerPort: 9000
-          name: s3
-        resources:
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
-          requests:
-            cpu: "100m"
-            memory: "256Mi"
-```
-
-Create the above resources,
-
-```bash
-$ kubectl apply -f oss-backend.yaml
-service/oss-backend created
-deployment.apps/oss-backend created
-```
-
-Let's wait for the pod to be ready,
-
-```bash
-$ kubectl wait -n demo --for=condition=Ready pod -l app=oss-backend --timeout=5m
-pod/oss-backend-7d9c6f5b8-m4t9z condition met
-```
-
-> To use the real Alibaba Cloud OSS, create the bucket in the OSS console and set `endpoint` in the `VaultServer` to the OSS endpoint of the bucket's region, for example `https://oss-cn-hangzhou.aliyuncs.com`.
+- In the OSS console, create a private bucket with Standard storage in a region close to your cluster. Bucket names are unique across all of Alibaba Cloud, so choose your own. This tutorial uses the bucket `kubevault-storage-backend` in the Singapore region (`ap-southeast-1`).
+- In RAM, create a user with permanent AccessKey access and grant it permission to list, read, write and delete the objects in the bucket, for example with the `AliyunOSSFullAccess` system policy or a custom policy limited to this bucket. Save the AccessKey ID and Secret, because the secret is shown only once.
+- Note the public endpoint of the bucket's region. It has the form `https://oss-<region-id>.aliyuncs.com`, for example `https://oss-ap-southeast-1.aliyuncs.com` for Singapore, and it must be the endpoint of the region the bucket is in.
 
 **Create Credential Secret:**
 
-The credential secret holds the access key pair in the keys `access_key` and `secret_key`. Here, we use the MinIO root credentials. For the real OSS, use the AccessKey of a RAM user that can read and write the bucket.
+The credential secret holds the AccessKey pair in the keys `access_key` and `secret_key`.
 
 ```bash
 $ kubectl create secret generic alicloud-cred -n demo \
-    --from-literal=access_key=alicloud-test-ak \
-    --from-literal=secret_key=alicloud-test-sk123
+    --from-literal=access_key=<AccessKey-ID> \
+    --from-literal=secret_key=<AccessKey-Secret>
 secret/alicloud-cred created
 ```
 
@@ -134,8 +66,8 @@ spec:
       from: All
   backend:
     alicloudoss:
-      endpoint: "http://oss-backend.demo.svc:9000"
-      bucket: "vault-bucket"
+      endpoint: "https://oss-ap-southeast-1.aliyuncs.com"
+      bucket: "kubevault-storage-backend"
       credentialSecretRef:
         name: alicloud-cred
   unsealer:
@@ -251,10 +183,10 @@ Initialized     true
 Sealed          false
 Total Shares    5
 Threshold       3
-Version         2.6.1
+Version         2.6.1-sigilr.2
 Storage Type    alicloudoss
-Cluster Name    vault-cluster-3f8a1c92
-Cluster ID      56c3a681-f799-2310-9813-d67877d25450
+Cluster Name    vault-cluster-12850424
+Cluster ID      4e463f1c-3501-e520-41a7-be8979c4d2d4
 HA Enabled      false
 ```
 
@@ -262,12 +194,12 @@ We can see the currently enabled list of secret engines.
 
 ```bash
 $ vault secrets list
-Path                                       Type         Accessor              Description
-----                                       ----         --------              -----------
-cubbyhole/                                 cubbyhole    cubbyhole_bb7c56f9    per-token private secret storage
-identity/                                  identity     identity_fa8431fa     identity store
-k8s.kubevault.com.kv.demo.vault-health/    kv           kv_5129d194           n/a
-sys/                                       system       system_c7e0879a       system endpoints used for control, policy and debugging
+Path                                                              Type         Accessor              Description
+----                                                              ----         --------              -----------
+cubbyhole/                                                        cubbyhole    cubbyhole_614ec5cc    per-token private secret storage
+identity/                                                         identity     identity_efb24c71     identity store
+k8s.62e86b47-6e7c-4849-89fb-88062a22f451.kv.demo.vault-health/    kv           kv_72632299           n/a
+sys/                                                              system       system_08abe22a       system endpoints used for control, policy and debugging
 ```
 
 Let's enable a `KV` type secret engine:
@@ -301,11 +233,10 @@ To clean up the Kubernetes resources created by this tutorial, run:
 ```bash
 $ kubectl delete vaultserver -n demo vault
 $ kubectl delete secret -n demo alicloud-cred
-$ kubectl delete -f oss-backend.yaml
 $ kubectl delete ns demo
 ```
 
-Delete the `VaultServer` before the OSS endpoint. With `terminationPolicy: WipeOut`, the operator connects to the bucket to remove the objects Vault stored there, so the endpoint has to be reachable until the `VaultServer` is gone.
+With `terminationPolicy: WipeOut`, the operator removes the objects Vault stored in the bucket when the `VaultServer` is deleted. Delete the `VaultServer` before the credential secret, because the operator uses it to reach the bucket. The bucket itself and the RAM user's AccessKey are not deleted, so remove them in the Alibaba Cloud console when you no longer need them.
 
 To see all the fields you can set under `spec.backend.alicloudoss`, please check the [Alicloud OSS storage backend](/docs/concepts/vault-server-crds/storage/alicloudoss.md) concept.
 

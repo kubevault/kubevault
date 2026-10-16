@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Deploy VaultServer with MSSQL Backend
 
-You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Microsoft SQL Server](https://www.microsoft.com/sql-server) as the storage backend, managed by KubeDB.
+You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Microsoft SQL Server](https://www.microsoft.com/sql-server) as the storage backend.
 
 ![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
@@ -27,15 +27,11 @@ namespace/demo created
 
 ## Deploy VaultServer with MSSQL Backend
 
+### Deploy SQL Server
+
 > This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run SQL Server. The KubeDB operator must be installed in your cluster.
 
-### Deploy Sample MSSQLServer Database
-
-Let's deploy a sample `MSSQLServer` database.
-
-**Create MSSQLServer CR:**
-
-Below is the YAML of a sample `MSSQLServer` CR that we are going to create for this tutorial. Setting `ACCEPT_EULA` to `Y` means that you accept the end-user license agreement of Microsoft SQL Server.
+Let's deploy a sample `MSSQLServer` database. Setting `ACCEPT_EULA` to `Y` means that you accept the end-user license agreement of Microsoft SQL Server.
 
 ```yaml
 apiVersion: kubedb.com/v1alpha2
@@ -65,34 +61,15 @@ spec:
   deletionPolicy: WipeOut
 ```
 
-Create the above `MSSQLServer` CR,
-
 ```bash
 $ kubectl apply -f mssql.yaml
 mssqlserver.kubedb.com/mssql created
-```
 
-KubeDB will deploy a SQL Server database according to the above specification. It will also create the necessary `Secrets` and `Services` to access the database. Let's wait until the database is ready to use,
-
-```bash
 $ kubectl wait -n demo --for=condition=Ready mssqlserver/mssql --timeout=5m
 mssqlserver.kubedb.com/mssql condition met
 ```
 
-Verify that KubeDB has created a `Secret` and a `Service` for this database using the following commands,
-
-```bash
-$ kubectl get secret -n demo -l=app.kubernetes.io/instance=mssql
-NAME            TYPE                       DATA   AGE
-mssql-auth      kubernetes.io/basic-auth   2      4m20s
-
-$ kubectl get service -n demo -l=app.kubernetes.io/instance=mssql
-NAME        TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
-mssql       ClusterIP   10.96.18.204   <none>        1433/TCP   4m35s
-mssql-pods  ClusterIP   None           <none>        1433/TCP   4m35s
-```
-
-The `mssql-auth` secret holds the `username` and `password` that Vault is going to use. Vault creates the database (`openbao`) and the table on its own, if they do not exist.
+KubeDB creates an `AppBinding` named `mssql` for the database, which holds its address and the `mssql-auth` secret with the `username` and `password`. Vault creates the database (`openbao`) and the table on its own, if they do not exist.
 
 ## Deploy Vault using KubeVault
 
@@ -112,10 +89,9 @@ spec:
       from: All
   backend:
     mssql:
-      server: "mssql.demo.svc"
-      port: "1433"
-      credentialSecretRef:
-        name: mssql-auth
+      databaseRef:
+        name: mssql
+        namespace: demo
       database: "openbao"
       table: "openbao"
       schema: "dbo"
@@ -130,7 +106,7 @@ spec:
   terminationPolicy: WipeOut
 ```
 
-The MSSQL storage backend does not support high availability, so the `VaultServer` runs with a single replica. It has no TLS options either, so the connection to SQL Server is not configured for TLS.
+The `databaseRef` points to the `AppBinding` that KubeDB created for the database. The operator takes the SQL Server address and the credentials from it, so we don't need to set them here. The MSSQL storage backend does not support high availability, so the `VaultServer` runs with a single replica. For TLS to SQL Server, see the `encrypt` and `tlsSecretRef` fields in the [MSSQL storage backend](/docs/concepts/vault-server-crds/storage/mssql.md) concept.
 
 Now, let's deploy the `VaultServer`:
 
@@ -182,12 +158,12 @@ spec:
           name: vault-backup-1.10.3
           params:
             - name: keyPrefix
-              value: k8s.62e86b47-6e7c-4849-89fb-88062a22f451.demo.vault
+              value: k8s.6344c70b-61d7-4e02-a736-f850498d6b20.demo.vault
         restoreTask:
           name: vault-restore-1.10.3
           params:
             - name: keyPrefix
-              value: k8s.62e86b47-6e7c-4849-89fb-88062a22f451.demo.vault
+              value: k8s.6344c70b-61d7-4e02-a736-f850498d6b20.demo.vault
     unsealer:
       mode:
         kubernetesSecret:
@@ -204,13 +180,13 @@ Now, let's wait until all the vault pods come up & `VaultServer` phase becomes `
 ```bash
 $ kubectl get pods -n demo -l app.kubernetes.io/instance=vault
 NAME      READY   STATUS    RESTARTS   AGE
-vault-0   2/2     Running   0          2m8s
+vault-0   2/2     Running   0          3m11s
 ```
 
 ```bash
 $ kubectl get vaultserver -n demo
 NAME    REPLICAS   VERSION          STATUS   AGE
-vault   1          sigilr-2.6.1.2   Ready    2m50s
+vault   1          sigilr-2.6.1.2   Ready    3m45s
 ```
 
 At this stage, we've successfully deployed `Vault` using `KubeVault` operator with MSSQL as the storage backend.
@@ -234,10 +210,10 @@ Initialized     true
 Sealed          false
 Total Shares    5
 Threshold       3
-Version         2.6.1
+Version         2.6.1-sigilr.2
 Storage Type    mssql
-Cluster Name    vault-cluster-3f8a1c92
-Cluster ID      56c3a681-f799-2310-9813-d67877d25450
+Cluster Name    vault-cluster-7211c161
+Cluster ID      a5b837de-622c-38e1-06ce-3be099659e38
 HA Enabled      false
 ```
 
@@ -245,12 +221,12 @@ We can see the currently enabled list of secret engines.
 
 ```bash
 $ vault secrets list
-Path                                       Type         Accessor              Description
-----                                       ----         --------              -----------
-cubbyhole/                                 cubbyhole    cubbyhole_bb7c56f9    per-token private secret storage
-identity/                                  identity     identity_fa8431fa     identity store
-k8s.kubevault.com.kv.demo.vault-health/    kv           kv_5129d194           n/a
-sys/                                       system       system_c7e0879a       system endpoints used for control, policy and debugging
+Path                                                              Type         Accessor              Description
+----                                                              ----         --------              -----------
+cubbyhole/                                                        cubbyhole    cubbyhole_fc4182ef    per-token private secret storage
+identity/                                                         identity     identity_871b9a95     identity store
+k8s.6344c70b-61d7-4e02-a736-f850498d6b20.kv.demo.vault-health/    kv           kv_8ae49eac           n/a
+sys/                                                              system       system_49fba3f8       system endpoints used for control, policy and debugging
 ```
 
 Let's enable a `KV` type secret engine:
