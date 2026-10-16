@@ -241,7 +241,7 @@ Because the AppBinding's `deploymentMode` is `RemoteRelay`, the SecretEngine con
 
 Postgres, MySQL, MariaDB, Redis, Valkey, SQL Server, Oracle, RabbitMQ, Druid, HANA, Ignite, Kafka, Milvus, Neo4j, Qdrant, Solr, Weaviate, and etcd are supported through the spoke relay. MongoDB and Elasticsearch are not; a SecretEngine for those against a `RemoteRelay` AppBinding is rejected on apply by the validating webhook.
 
-Request credentials the usual way with a `SecretAccessRequest`; see the [secret engine guides](/docs/guides/secret-engines/postgres/overview.md).
+Request credentials the usual way with a `SecretAccessRequest`; see the [secret engine guides](/docs/guides/secret-engines/database/postgres/overview.md).
 
 ## Day-2 operations
 
@@ -276,5 +276,5 @@ $ kubectl delete ns demo
 - [VaultRelay concept](/docs/concepts/vault-server-crds/vaultrelay.md)
 - [VaultServer concept](/docs/concepts/vault-server-crds/vaultserver.md)
 - [AppBinding concept](/docs/concepts/vault-server-crds/appbinding.md), in particular `spec.parameters.deploymentMode`
-- [Secret engine guides](/docs/guides/secret-engines/postgres/overview.md)
+- [Secret engine guides](/docs/guides/secret-engines/database/postgres/overview.md)
 - [Tenant Isolation with OpenBao Namespaces](/docs/guides/tenant-isolation/overview.md) — isolate each spoke's client-org databases into per-org OpenBao namespaces on the hub
