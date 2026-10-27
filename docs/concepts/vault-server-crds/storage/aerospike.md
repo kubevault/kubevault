@@ -104,7 +104,7 @@ spec:
 
 ### aerospike.set
 
-`aerospike.set` is an optional field that specifies the Aerospike set to store data in, within `namespace`.
+`aerospike.set` is an optional field that specifies the Aerospike set to store data in, within `namespace`. If it is not set, records are stored in the namespace's null set.
 
 ```yaml
 spec:
@@ -115,7 +115,7 @@ spec:
 
 ### aerospike.credentialSecretRef
 
-`aerospike.credentialSecretRef` is an optional field that specifies the name of the `Secret`, in the same namespace as the `VaultServer`, containing the username and password to authenticate to the Aerospike cluster with, if it has security enabled. The secret contains the following keys:
+`aerospike.credentialSecretRef` is an optional field that specifies the name of the `Secret`, in the same namespace as the `VaultServer`, containing the username and password to authenticate to the Aerospike cluster with, if it has security enabled. Security is an Aerospike Enterprise Edition feature; Community Edition has no access control and needs no credentials. The secret contains the following keys:
 
 - `username`
 - `password`
@@ -130,7 +130,7 @@ spec:
 
 ### aerospike.authMode
 
-`aerospike.authMode` is an optional field that specifies the authentication mode, either `INTERNAL` (Aerospike's own credential store) or `EXTERNAL` (e.g. LDAP). Defaults to `INTERNAL`.
+`aerospike.authMode` is an optional field that specifies the authentication mode, either `INTERNAL` (Aerospike's own credential store) or `EXTERNAL` (e.g. LDAP). Defaults to `INTERNAL`. Aerospike only accepts `EXTERNAL` authentication over TLS, and the Aerospike storage backend has no TLS options, so use `INTERNAL`.
 
 ```yaml
 spec:
