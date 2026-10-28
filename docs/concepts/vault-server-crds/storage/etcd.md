@@ -67,6 +67,15 @@ spec:
       haEnable: true
 ```
 
+> On the `kubevault.com/v1alpha2` `VaultServer` API, this field is named `haEnabled`, the same as on the other storage backends.
+
+```yaml
+spec:
+  backend:
+    etcd:
+      haEnabled: true
+```
+
 ### etcd.etcdApi
 
 `etcd.etcdApi` is an optional field that specifies the version of the API to communicate with etcd. If this field is not specified, then Vault will derive it automatically. If the cluster version is 3.1+ and there has been no data written using the v2 API, the auto-detected default is v3.

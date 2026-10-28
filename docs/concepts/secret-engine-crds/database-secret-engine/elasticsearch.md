@@ -58,7 +58,6 @@ ElasticsearchRole `spec` contains information that necessary for creating a data
 spec:
   secretEngineRef:
     name: <secret-engine-name>
-  path: <secret-engine-path>
   defaultTTL: <default-ttl>
   maxTTL: <max-ttl>
   creationStatements:
@@ -88,7 +87,7 @@ See in [here](https://www.vaultproject.io/api/secret/databases/elasticdb.html#cr
 ```yaml
 spec:
   creationStatements:
-    - "{"elasticsearch_roles": ["superuser"]}"
+    - '{"elasticsearch_roles": ["superuser"]}'
 ```
 
 #### spec.defaultTTL

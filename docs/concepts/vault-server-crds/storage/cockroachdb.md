@@ -44,12 +44,15 @@ spec:
   backend:
     cockroachdb:
       address: <host:port>
+      database: <database_name>
       credentialSecretRef:
         name: <secret_name>
       databaseRef:
         name: <appbinding_name>
         namespace: <appbinding_namespace>
       sslMode: <disable|require|verify-ca|verify-full>
+      tlsSecretRef:
+        name: <secret_name>
       table: <table_name>
       maxParallel: <max_parallel>
       transactionMaxParallel: <transaction_max_parallel>
@@ -62,7 +65,7 @@ Here, we are going to describe the various attributes of the `spec.backend.cockr
 
 ### cockroachdb.address
 
-`cockroachdb.address` specifies the address (`host:port`) of the CockroachDB cluster to connect to. This is required unless `databaseRef` is set, in which case the address is resolved from the referenced `AppBinding` instead.
+`cockroachdb.address` specifies the address (`host:port`) of the CockroachDB cluster to connect to. This is required unless `databaseRef` is set, in which case the address is resolved from the referenced `AppBinding` instead, or the credential secret holds a `connection_url`, which replaces it.
 
 ```yaml
 spec:
@@ -71,13 +74,24 @@ spec:
       address: "cockroachdb-public.demo.svc:26257"
 ```
 
+### cockroachdb.database
+
+`cockroachdb.database` is an optional field that specifies the name of the database in which the tables for Vault data are created. The database must already exist: Vault creates the tables, not the database. Defaults to `vault`.
+
+```yaml
+spec:
+  backend:
+    cockroachdb:
+      database: "vault"
+```
+
 ### cockroachdb.credentialSecretRef
 
 `cockroachdb.credentialSecretRef` is an optional field that specifies the name of the `Secret`, in the same namespace as the `VaultServer`, containing the username and password (and, optionally, a full `connection_url`) used to connect to CockroachDB. The secret contains the following keys:
 
 - `username`
-- `password`
-- `connection_url` (optional; when present, it is used verbatim instead of being built from `address`/`username`/`password`/`sslMode`)
+- `password` (can be left out when logging in with a client certificate, see `tlsSecretRef`)
+- `connection_url` (optional; when present, it is used verbatim instead of being built from `address`/`database`/`username`/`password`/`sslMode`)
 
 ```yaml
 spec:
@@ -109,6 +123,24 @@ spec:
   backend:
     cockroachdb:
       sslMode: verify-full
+```
+
+### cockroachdb.tlsSecretRef
+
+`cockroachdb.tlsSecretRef` is an optional field that specifies the name of the `Secret`, in the same namespace as the `VaultServer`, containing the TLS material used to connect to CockroachDB. The secret contains the following keys:
+
+- `ca.crt`: CA certificate used to verify the server (required)
+- `tls.crt`: client certificate (optional, for mutual TLS; needs `tls.key`)
+- `tls.key`: client private key (optional, for mutual TLS; needs `tls.crt`)
+
+If `databaseRef` is set and this field is empty, the TLS material is taken from the CA bundle and client certificate of the referenced `AppBinding`.
+
+```yaml
+spec:
+  backend:
+    cockroachdb:
+      tlsSecretRef:
+        name: cockroachdb-tls
 ```
 
 ### cockroachdb.table
@@ -157,13 +189,13 @@ spec:
 
 ### cockroachdb.haEnabled
 
-`cockroachdb.haEnabled` is an optional field that specifies whether this backend should be used to run Vault in high availability mode. This field accepts a boolean value (as a string). The default value is `false`.
+`cockroachdb.haEnabled` is an optional field that specifies whether this backend should be used to run Vault in high availability mode. This field accepts a boolean value. The default value is `false`.
 
 ```yaml
 spec:
   backend:
     cockroachdb:
-      haEnabled: "true"
+      haEnabled: true
 ```
 
 ### cockroachdb.haTable

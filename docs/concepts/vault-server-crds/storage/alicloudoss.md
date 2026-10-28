@@ -76,7 +76,7 @@ spec:
 
 ### alicloudoss.credentialSecretRef
 
-`alicloudoss.credentialSecretRef` is an optional field that specifies the name of the `Secret`, in the same namespace as the `VaultServer`, containing the Alicloud access key ID and secret to connect with. The secret contains the following keys:
+`alicloudoss.credentialSecretRef` is a required field that specifies the name of the `Secret`, in the same namespace as the `VaultServer`, containing the Alicloud access key ID and secret to connect with. The secret contains the following keys:
 
 - `access_key`
 - `secret_key`

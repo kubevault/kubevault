@@ -72,7 +72,7 @@ spec:
       trailingLogs: <number_of_log_entries_left>
       snapshotThreshold: <minimum_number_of_commit_entries>
       maxEntrySize: <max_number_of_bytes_for_raft_entry>
-      autoPilotReconcileInterval: <interval_autopilot_needs_to_pick_up_state_chyanges>
+      autopilotReconcileInterval: <interval_autopilot_needs_to_pick_up_state_changes>
 ```
 
 Here, we are going to describe the various attributes of the `spec.backend.raft` field.
@@ -128,12 +128,12 @@ spec:
       maxEntrySize: 1048576
 ```
 
-### raft.autoPilotReconcileInterval
+### raft.autopilotReconcileInterval
 
 This is the interval after which autopilot will pick up any state changes. `default: ""`
 ```yaml
 spec:
   backend:
     raft:
-      autoPilotReconcileInterval: ""
+      autopilotReconcileInterval: ""
 ```

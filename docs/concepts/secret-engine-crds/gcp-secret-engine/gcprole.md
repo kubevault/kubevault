@@ -63,7 +63,6 @@ GCPRole `spec` contains the necessary information required to create a GCP secre
 spec:
   secretEngineRef:
     name: <gcp-secret-engine>
-  path: <gcp-secret-engine-path>
   secretType: <generated-secret-type>
   project: <svc-ac-owner-project>
   bindings: <bindings>

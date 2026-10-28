@@ -60,19 +60,35 @@ spec:
       tlsSkipVerify: <true/false>
       tlsMinVersion: <tls10|tls11|tls12|tls13>
       tlsServerName: <server_name>
+      databaseRef:
+        name: <appbinding_name>
+        namespace: <appbinding_namespace>
 ```
 
 Here, we are going to describe the various attributes of the `spec.backend.cassandra` field.
 
 ### cassandra.hosts
 
-`cassandra.hosts` is a required field that specifies a comma-separated list of Cassandra hosts to connect to. All hosts must listen on the same port; include the port in each host as `<host>:<port>` if it is not the CQL native protocol default.
+`cassandra.hosts` specifies a comma-separated list of Cassandra hosts to connect to. All hosts must listen on the same port; include the port in each host as `<host>:<port>` if it is not the CQL native protocol default. This is required unless `databaseRef` is set, in which case the hosts are resolved from the referenced `AppBinding` instead.
 
 ```yaml
 spec:
   backend:
     cassandra:
       hosts: "cassandra-0.cassandra.demo.svc,cassandra-1.cassandra.demo.svc"
+```
+
+### cassandra.databaseRef
+
+`cassandra.databaseRef` is an optional field that references the `AppBinding` of a KubeDB-managed Cassandra. When set, the hosts and the credentials are taken from the `AppBinding`, and `credentialSecretRef` is ignored. If `tlsSecretRef` is not set and the `AppBinding` carries TLS material, that is used instead and TLS is enabled automatically.
+
+```yaml
+spec:
+  backend:
+    cassandra:
+      databaseRef:
+        name: cassandra-appbinding
+        namespace: demo
 ```
 
 ### cassandra.keyspace
@@ -110,7 +126,7 @@ spec:
 
 ### cassandra.protocolVersion
 
-`cassandra.protocolVersion` is an optional field that specifies the CQL protocol version to use. Set to `3` or higher to use username/password authentication with a protocol version that requires it.
+`cassandra.protocolVersion` is an optional field that specifies the CQL protocol version to use. Defaults to `2`. Username/password authentication (`credentialSecretRef`) needs `2` or higher.
 
 ```yaml
 spec:
@@ -180,7 +196,7 @@ spec:
 
 ### cassandra.tlsSecretRef
 
-`cassandra.tlsSecretRef` is an optional field that specifies the name of the `Secret`, in the same namespace as the `VaultServer`, containing a PEM-encoded certificate bundle (and, optionally, a private key) used for the TLS connection to Cassandra. The secret contains the following key:
+`cassandra.tlsSecretRef` is an optional field that specifies the name of the `Secret`, in the same namespace as the `VaultServer`, containing a PEM-encoded certificate bundle (and, optionally, a private key) used for the TLS connection to Cassandra. Setting this field does not turn TLS on by itself: `tlsEnabled` must also be `true`, or the bundle is mounted but not used. The secret contains the following key:
 
 - `pem_bundle`
 

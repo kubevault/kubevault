@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # MSSQL
 
-In the MSSQL storage backend, Vault data will be stored in [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server). This backend was removed from upstream OpenBao and is only available in the [sigilr/openbao](https://github.com/sigilr/openbao) fork.
+In the MSSQL storage backend, Vault data will be stored in [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server). This backend was removed from upstream OpenBao and is only available in the [sigilr/openbao](https://github.com/sigilr/openbao) fork; Vault documentation for the MSSQL storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/mssql).
 
 > `spec.backend.mssql` is only available on the `kubevault.com/v1alpha2` `VaultServer` API. MSSQL has no `haEnabled` field and cannot be used to run Vault in high availability mode.
 

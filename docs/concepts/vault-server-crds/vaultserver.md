@@ -117,15 +117,14 @@ The server certificate must allow the following wildcard domains:
 
 #### spec.configSecret
 
-`spec.configSecret` is an optional field that allows the user to provide extra configuration for Vault. This field accepts a [VolumeSource](https://github.com/kubernetes/api/blob/release-1.11/core/v1/types.go#L47). You can use any Kubernetes supported volume source such as configMap, secret, azureDisk, etc.
+`spec.configSecret` is an optional field that allows the user to provide extra configuration for Vault. It is a reference to a Secret, in the same namespace as the `VaultServer`, that holds the configuration.
 
-> Please note that the config file name must be `vault.hcl` to work.
+> Please note that the config file name, the key of the Secret, must be `vault.hcl` to work.
 
 ```yaml
 spec:
   configSecret:
-    <type of volume>: # for example `configSecret`
-      name: <name of volume>
+    name: <name of secret>
 ```
 
 ### spec.dataSources
@@ -192,7 +191,7 @@ List of supported backends:
 spec:
   unsealer:
     secretShares: <num_of_secret_shares>
-    secretThresold: <num_of_secret_threshold>
+    secretThreshold: <num_of_secret_threshold>
     retryPeriodSeconds: <retry_period>
     overwriteExisting: <true/false>
     mode:
@@ -289,7 +288,7 @@ VaultServer accepts the following fields to set in `spec.podTemplate:`
 
 You can find the full list of fields [here](https://github.com/kmodules/offshoot-api/blob/kubernetes-1.16.3/api/v1/types.go). Some of the fields of `spec.podTemplate` are described below:
 
-##### spec.podTemplate.spec.imagePullSecret
+##### spec.podTemplate.spec.imagePullSecrets
 
 `spec.podTemplate.spec.imagePullSecrets` is an optional field that points to secrets to be used for pulling docker images if you are using a private docker registry.
 

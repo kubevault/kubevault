@@ -45,6 +45,10 @@ spec:
       endpoint: <database_url>
       credentialSecretRef:
         name: <secret_name>
+      databaseRef:
+        name: <appbinding_name>
+        namespace: <appbinding_namespace>
+      database: <database_name>
       maxParallel: <max_parallel>
 ```
 
@@ -52,13 +56,37 @@ Here, we are going to describe the various attributes of the `spec.backend.couch
 
 ### couchdb.endpoint
 
-`couchdb.endpoint` is a required field that specifies the full URL to the CouchDB database to use, including the database name. The database must already exist; Vault does not create it.
+`couchdb.endpoint` specifies the full URL to the CouchDB database to use, including the database name. The database must already exist; Vault does not create it. This is required unless `databaseRef` is set, in which case the endpoint is generated from the referenced `AppBinding` instead.
 
 ```yaml
 spec:
   backend:
     couchdb:
       endpoint: "https://couchdb.demo.svc:5984/vault"
+```
+
+### couchdb.databaseRef
+
+`couchdb.databaseRef` is an optional field that references the `AppBinding` of a CouchDB database. When set, the endpoint is generated as `<appbinding url>/<database>`, and, if `credentialSecretRef` is not set, the credentials are taken from the `AppBinding`.
+
+```yaml
+spec:
+  backend:
+    couchdb:
+      databaseRef:
+        name: couchdb-appbinding
+        namespace: demo
+```
+
+### couchdb.database
+
+`couchdb.database` is an optional field that specifies the name of the CouchDB database to store data in. It is only used with `databaseRef`. The database must already exist; neither Vault nor the KubeVault operator creates it. Defaults to `vault`.
+
+```yaml
+spec:
+  backend:
+    couchdb:
+      database: "vault"
 ```
 
 ### couchdb.credentialSecretRef

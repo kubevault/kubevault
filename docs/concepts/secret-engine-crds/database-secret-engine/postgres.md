@@ -58,7 +58,6 @@ PostgresRole `spec` contains information that necessary for creating a database 
 spec:
   secretEngineRef:
     name: <vault-appbinding-name>
-  path: <database-secret-engine-path>
   defaultTTL: <default-ttl>
   maxTTL: <max-ttl>
   creationStatements:

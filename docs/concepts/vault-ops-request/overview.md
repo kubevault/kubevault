@@ -141,7 +141,7 @@ A `VaultOpsRequest` object has the following fields in the spec section.
 ### spec.vaultRef
 
 `spec.vaultRef` is a required field that point to the `Vault` object for which the administrative operations will be performed. This field consists of the following sub-field:
-- `spec.databaseRef.name` : specifies the name of the `Vault` object.
+- `spec.vaultRef.name` : specifies the name of the `Vault` object.
 
 ### spec.type
 

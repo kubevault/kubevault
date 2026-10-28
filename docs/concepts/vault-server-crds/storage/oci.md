@@ -103,9 +103,27 @@ spec:
 
 ### oci.credentialSecretRef
 
-`oci.credentialSecretRef` is an optional field that specifies the name of the `Secret`, in the same namespace as the `VaultServer`, containing an OCI API-key configuration file (in the same format as the default `~/.oci/config` file, including the referenced private key). Only consulted when `authTypeAPIKey` is `true`. The secret contains the following key:
+`oci.credentialSecretRef` specifies the name of the `Secret`, in the same namespace as the `VaultServer`, containing an OCI API-key configuration file (in the same format as the default `~/.oci/config` file) and the private key it references. It is required when `authTypeAPIKey` is `true`, and only consulted then. The secret contains the following keys:
 
 - `config`
+- the private key, under any key name, for example `oci_api_key.pem`
+
+Every key of the secret is mounted in `/etc/vault/storage/oci/.oci`, so `key_file` in the config must point there by its full path; `~` is not expanded to that directory.
+
+```ini
+[DEFAULT]
+user=ocid1.user.oc1..<unique_id>
+fingerprint=<key_fingerprint>
+tenancy=ocid1.tenancy.oc1..<unique_id>
+region=us-phoenix-1
+key_file=/etc/vault/storage/oci/.oci/oci_api_key.pem
+```
+
+```bash
+$ kubectl create secret generic oci-cred -n demo \
+    --from-file=config=./config \
+    --from-file=oci_api_key.pem=./oci_api_key.pem
+```
 
 ```yaml
 spec:

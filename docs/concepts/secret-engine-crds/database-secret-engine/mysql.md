@@ -59,7 +59,6 @@ MySQLRole `spec` contains information that necessary for creating a database rol
 spec:
   secretEngineRef:
     name: <secret-engine-name>
-  path: <database-secret-engine-path>
   defaultTTL: <default-ttl>
   maxTTL: <max-ttl>
   creationStatements:

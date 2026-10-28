@@ -58,7 +58,6 @@ MongoDBRole `spec` contains information that necessary for creating a database r
 spec:
   secretEngineRef:
     name: <secret-engine-name>
-  path: <secret-engine-path>
   defaultTTL: <default-ttl>
   maxTTL: <max-ttl>
   creationStatements:

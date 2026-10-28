@@ -66,7 +66,14 @@ spec:
 
 ### spanner.table
 
-`spanner.table` is an optional field that specifies the name of the table to use for Vault data. Defaults to `Vault`.
+`spanner.table` is an optional field that specifies the name of the table to use for Vault data. Defaults to `Vault`. Vault does not create the table; it must already exist, with the schema below:
+
+```sql
+CREATE TABLE Vault (
+  Key   STRING(MAX) NOT NULL,
+  Value BYTES(MAX),
+) PRIMARY KEY (Key);
+```
 
 ```yaml
 spec:
@@ -77,18 +84,27 @@ spec:
 
 ### spanner.haEnabled
 
-`spanner.haEnabled` is an optional field that specifies whether this backend should be used to run Vault in high availability mode. This field accepts a boolean value (as a string). The default value is `false`.
+`spanner.haEnabled` is an optional field that specifies whether this backend should be used to run Vault in high availability mode. This field accepts a boolean value. The default value is `false`.
 
 ```yaml
 spec:
   backend:
     spanner:
-      haEnabled: "true"
+      haEnabled: true
 ```
 
 ### spanner.haTable
 
-`spanner.haTable` is an optional field that specifies the name of the table used for HA leader election. Defaults to the value of `table` suffixed with `HA`.
+`spanner.haTable` is an optional field that specifies the name of the table used for HA leader election. Defaults to the value of `table` suffixed with `HA`. When `haEnabled` is `true`, this table must also already exist, with the schema below:
+
+```sql
+CREATE TABLE VaultHA (
+  Key       STRING(MAX) NOT NULL,
+  Value     STRING(MAX),
+  Identity  STRING(MAX),
+  Timestamp TIMESTAMP,
+) PRIMARY KEY (Key);
+```
 
 ```yaml
 spec:

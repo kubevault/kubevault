@@ -52,19 +52,35 @@ spec:
       tlsSkipVerify: <true/false>
       tlsVerifyIP: <true/false>
       tlsMinVersion: <tls10|tls11|tls12|tls13>
+      databaseRef:
+        name: <appbinding_name>
+        namespace: <appbinding_namespace>
 ```
 
 Here, we are going to describe the various attributes of the `spec.backend.zookeeper` field.
 
 ### zookeeper.address
 
-`zookeeper.address` is an optional field that specifies the addresses of the ZooKeeper instances as a comma-separated list. Defaults to `localhost:2181`.
+`zookeeper.address` is an optional field that specifies the addresses of the ZooKeeper instances as a comma-separated list. Defaults to `localhost:2181`. If `databaseRef` is set, the address is resolved from the referenced `AppBinding` instead.
 
 ```yaml
 spec:
   backend:
     zookeeper:
       address: "zookeeper-0.zookeeper.demo.svc:2181,zookeeper-1.zookeeper.demo.svc:2181"
+```
+
+### zookeeper.databaseRef
+
+`zookeeper.databaseRef` is an optional field that references the `AppBinding` of a KubeDB-managed ZooKeeper. When set, the address is taken from the `AppBinding`. If `tlsSecretRef` is not set and the `AppBinding` carries TLS material, that is used instead and TLS is enabled automatically.
+
+```yaml
+spec:
+  backend:
+    zookeeper:
+      databaseRef:
+        name: zookeeper-appbinding
+        namespace: demo
 ```
 
 ### zookeeper.path
@@ -116,7 +132,7 @@ spec:
 
 ### zookeeper.tlsSecretRef
 
-`zookeeper.tlsSecretRef` is an optional field that specifies the name of the `Secret`, in the same namespace as the `VaultServer`, that contains `ca.crt`, `tls.crt`, and `tls.key` for ZooKeeper communication. The secret contains the following keys:
+`zookeeper.tlsSecretRef` is an optional field that specifies the name of the `Secret`, in the same namespace as the `VaultServer`, that contains `ca.crt`, `tls.crt`, and `tls.key` for ZooKeeper communication. Setting this field does not turn TLS on by itself: `tlsEnabled` must also be `true`, or the files are mounted but not used. The secret contains the following keys:
 
 - `ca.crt`
 - `tls.crt`

@@ -44,7 +44,7 @@ spec:
         secretName: vault-keys
 ```
 
-If you need to disable the server from executing the `mlock` syscall, you can provide [disable_mlock](https://www.vaultproject.io/docs/configuration/#disable_mlock) in a ConfigMap and mention the name in `spec.configSource.configMap.name`.
+If you need to disable the server from executing the `mlock` syscall, you can provide [disable_mlock](https://www.vaultproject.io/docs/configuration/#disable_mlock) in the `vault.hcl` key of a Secret and mention the name of the Secret in `spec.configSecret.name`.
 
 ```yaml
 apiVersion: v1
