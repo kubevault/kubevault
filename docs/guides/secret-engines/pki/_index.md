@@ -5,6 +5,6 @@ menu:
     identifier: pki-secret-engines
     name: PKI
     parent: secret-engines-guides
-    weight: 50
+    weight: 60
 menu_name: docs_{{ .version }}
 ---

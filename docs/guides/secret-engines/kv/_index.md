@@ -5,6 +5,6 @@ menu:
     identifier: kv-secret-engines
     name: Key/Value
     parent: secret-engines-guides
-    weight: 20
+    weight: 50
 menu_name: docs_{{ .version }}
 ---

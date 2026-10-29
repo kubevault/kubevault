@@ -5,7 +5,7 @@ menu:
     identifier: rabbitmqrole-database-crds
     name: RabbitMQRole
     parent: database-crds-concepts
-    weight: 20
+    weight: 160
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

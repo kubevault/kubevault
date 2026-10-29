@@ -85,19 +85,19 @@ spec:
         aadClientSecret: "azure-aad-client-cred"
 ```
 
-## azureKeyVault.useManageIdentity
+## azureKeyVault.useManagedIdentity
 
-`azureKeyVault.useManageIdentity` is an optional field that specifies to use managed service identity for the virtual machine.
+`azureKeyVault.useManagedIdentity` is an optional field that specifies to use managed service identity for the virtual machine.
 
 ```yaml
 spec:
   unsealer:
     mode:
       azureKeyVault:
-        useManageIdentity: true
+        useManagedIdentity: true
 ```
 
-> Note: One of `azureKeyVault.clientCertSecret` or `azureKeyVault.aadClientSecret` or `azureKeyVault.useManageIdentity` has to be specified.
+> Note: One of `azureKeyVault.clientCertSecret` or `azureKeyVault.aadClientSecret` or `azureKeyVault.useManagedIdentity` has to be specified.
 
 ## azureKeyVault.cloud
 

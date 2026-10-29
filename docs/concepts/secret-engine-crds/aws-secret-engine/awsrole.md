@@ -67,7 +67,6 @@ AWSRole `spec` contains root IAM credentials configuration and role information.
 spec:
   secretEngineRef:
     name: <secret-engine-name>
-  path: <aws-secret-engine-path>
   credentialType: <credential-type>
   roleARNs:
     - "ARN1"

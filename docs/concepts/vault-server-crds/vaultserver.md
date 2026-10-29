@@ -117,15 +117,14 @@ The server certificate must allow the following wildcard domains:
 
 #### spec.configSecret
 
-`spec.configSecret` is an optional field that allows the user to provide extra configuration for Vault. This field accepts a [VolumeSource](https://github.com/kubernetes/api/blob/release-1.11/core/v1/types.go#L47). You can use any Kubernetes supported volume source such as configMap, secret, azureDisk, etc.
+`spec.configSecret` is an optional field that allows the user to provide extra configuration for Vault. It is a reference to a Secret, in the same namespace as the `VaultServer`, that holds the configuration.
 
-> Please note that the config file name must be `vault.hcl` to work.
+> Please note that the config file name, the key of the Secret, must be `vault.hcl` to work.
 
 ```yaml
 spec:
   configSecret:
-    <type of volume>: # for example `configSecret`
-      name: <name of volume>
+    name: <name of secret>
 ```
 
 ### spec.dataSources
@@ -171,18 +170,27 @@ spec:
 ```
 List of supported backends:
 
-- [Azure](/docs/concepts/vault-server-crds/storage/azure.md)
+- [Aerospike](/docs/concepts/vault-server-crds/storage/aerospike.md)
+- [Alibaba Cloud OSS](/docs/concepts/vault-server-crds/storage/alicloudoss.md)
+- [Amazon DynamoDB](/docs/concepts/vault-server-crds/storage/dynamodb.md)
+- [Amazon S3](/docs/concepts/vault-server-crds/storage/s3.md)
+- [Azure Blob Storage](/docs/concepts/vault-server-crds/storage/azure.md)
+- [Cassandra](/docs/concepts/vault-server-crds/storage/cassandra.md)
+- [CockroachDB](/docs/concepts/vault-server-crds/storage/cockroachdb.md)
 - [Consul](/docs/concepts/vault-server-crds/storage/consul.md)
-- [DynamoDB](/docs/concepts/vault-server-crds/storage/dynamodb.md)
-- [Etcd](/docs/concepts/vault-server-crds/storage/etcd.md)
-- [GCS](/docs/concepts/vault-server-crds/storage/gcs.md)
-- [In Memory](/docs/concepts/vault-server-crds/storage/inmem.md)
-- [MySQL](/docs/concepts/vault-server-crds/storage/mysql.md)
-- [PosgreSQL](/docs/concepts/vault-server-crds/storage/postgresql.md)
-- [AWS S3](/docs/concepts/vault-server-crds/storage/s3.md)
-- [Swift](/docs/concepts/vault-server-crds/storage/swift.md)
+- [CouchDB](/docs/concepts/vault-server-crds/storage/couchdb.md)
+- [etcd](/docs/concepts/vault-server-crds/storage/etcd.md)
 - [Filesystem](/docs/concepts/vault-server-crds/storage/filesystem.md)
+- [Google Cloud Spanner](/docs/concepts/vault-server-crds/storage/spanner.md)
+- [Google Cloud Storage](/docs/concepts/vault-server-crds/storage/gcs.md)
+- [In-Memory](/docs/concepts/vault-server-crds/storage/inmem.md)
+- [Microsoft SQL Server](/docs/concepts/vault-server-crds/storage/mssql.md)
+- [MySQL](/docs/concepts/vault-server-crds/storage/mysql.md)
+- [OCI Object Storage](/docs/concepts/vault-server-crds/storage/oci.md)
+- [OpenStack Swift](/docs/concepts/vault-server-crds/storage/swift.md)
+- [PostgreSQL](/docs/concepts/vault-server-crds/storage/postgresql.md)
 - [Raft](/docs/concepts/vault-server-crds/storage/raft.md)
+- [ZooKeeper](/docs/concepts/vault-server-crds/storage/zookeeper.md)
 
 #### spec.unsealer
 
@@ -192,7 +200,7 @@ List of supported backends:
 spec:
   unsealer:
     secretShares: <num_of_secret_shares>
-    secretThresold: <num_of_secret_threshold>
+    secretThreshold: <num_of_secret_threshold>
     retryPeriodSeconds: <retry_period>
     overwriteExisting: <true/false>
     mode:
@@ -289,7 +297,7 @@ VaultServer accepts the following fields to set in `spec.podTemplate:`
 
 You can find the full list of fields [here](https://github.com/kmodules/offshoot-api/blob/kubernetes-1.16.3/api/v1/types.go). Some of the fields of `spec.podTemplate` are described below:
 
-##### spec.podTemplate.spec.imagePullSecret
+##### spec.podTemplate.spec.imagePullSecrets
 
 `spec.podTemplate.spec.imagePullSecrets` is an optional field that points to secrets to be used for pulling docker images if you are using a private docker registry.
 

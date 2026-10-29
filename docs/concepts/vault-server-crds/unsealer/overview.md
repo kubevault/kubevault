@@ -24,7 +24,7 @@ To use Unsealer, configure `spec.unsealer` field in [VaultServer](/docs/concepts
 spec:
   unsealer:
     secretShares: <num_of_secret_shares>
-    secretThresold: <num_of_secret_threshold>
+    secretThreshold: <num_of_secret_threshold>
     retryPeriodSeconds: <retry_period>
     overwriteExisting: <true/false>
     mode:

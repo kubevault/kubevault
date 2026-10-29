@@ -92,29 +92,59 @@ spec:
     name: vault
 ```
 
-#### spec.path
+#### Secret engine path
 
-`spec.path` will be set by the KubeVault operator.
+`SecretEngine` has no `spec.path`. The KubeVault operator chooses the path the secret engine is enabled at, in the form `k8s.<cluster-name>.<engine-type>.<namespace>.<name>` (with the spoke name in place of the cluster name for an engine on a remote spoke), and records it in `status.path`, which can't be changed. Roles refer to the `SecretEngine` with `spec.secretEngineRef` and use that path.
 
 Secret engines are enabled at a "path" in Vault. When a request comes to Vault, the router automatically routes anything with the route prefix to the secret engine. Since operator configures a secret engine to a specified path with SecretEngine resource, you can provide **only one secret engine configuration** out of the following ones:
 
-- `spec.aws` : Specifies aws secret engine configuration
+- `spec.aws`: Specifies the AWS secret engine configuration
 
-- `spec.azure`: Specifies azure secret engine configuration
+- `spec.azure`: Specifies the Azure secret engine configuration
 
-- `spec.pki`: Specifies pki secret engine configuration
+- `spec.druid`: Specifies the database (Druid) secret engine configuration
 
-- `spec.gcp`: Specifies gcp secret engine configuration
+- `spec.elasticsearch`: Specifies the database (Elasticsearch) secret engine configuration
 
-- `spec.postgres`: Specifies database(postgres) secret engine    configuration
+- `spec.etcd`: Specifies the database (etcd) secret engine configuration
 
-- `spec.mongodb`: Specifies database(mongodb) secret engine      configuration
+- `spec.gcp`: Specifies the GCP secret engine configuration
 
-- `spec.mysql`: Specifies database(mysql) secret engine configuration
+- `spec.hanadb`: Specifies the database (SAP HanaDB) secret engine configuration
 
-- `spec.elasticsearch`: Specifies database(elasticsearch) secret engine configuration
+- `spec.ignite`: Specifies the database (Ignite) secret engine configuration
 
-- `spec.redis`: Specifies database(redis) secret engine configuration
+- `spec.kafka`: Specifies the database (Kafka) secret engine configuration
+
+- `spec.kv`: Specifies the Key/Value secret engine configuration
+
+- `spec.mariadb`: Specifies the database (MariaDB) secret engine configuration
+
+- `spec.milvus`: Specifies the database (Milvus) secret engine configuration
+
+- `spec.mongodb`: Specifies the database (MongoDB) secret engine configuration
+
+- `spec.mssqlserver`: Specifies the database (Microsoft SQL Server) secret engine configuration
+
+- `spec.mysql`: Specifies the database (MySQL) secret engine configuration
+
+- `spec.neo`: Specifies the database (Neo4j) secret engine configuration
+
+- `spec.oracle`: Specifies the database (Oracle) secret engine configuration
+
+- `spec.pki`: Specifies the PKI secret engine configuration
+
+- `spec.postgres`: Specifies the database (PostgreSQL) secret engine configuration
+
+- `spec.qdrant`: Specifies the database (Qdrant) secret engine configuration
+
+- `spec.rabbitmq`: Specifies the database (RabbitMQ) secret engine configuration
+
+- `spec.redis`: Specifies the database (Redis) secret engine configuration
+
+- `spec.solr`: Specifies the database (Solr) secret engine configuration
+
+- `spec.weaviate`: Specifies the database (Weaviate) secret engine configuration
 
 #### spec.namespace
 
@@ -154,7 +184,7 @@ spec:
   
   ```yaml
     data:
-      access_kay: <access key>
+      access_key: <access key>
       secret_key: <secret key>
   ```
 
@@ -164,7 +194,7 @@ spec:
 
 - `aws.stsEndpoint` : `Optional`. Specifies a custom HTTP STS endpoint to use.
 
-- `config.maxRetries` : `Optional`. Specifies the number of max retries the client should use for recoverable errors.
+- `aws.maxRetries` : `Optional`. Specifies the number of max retries the client should use for recoverable errors.
 
 - `aws.leaseConfig` : `Optional`. Specifies the lease configuration.
 
@@ -252,6 +282,7 @@ PKI secret engine. [See more](https://developer.hashicorp.com/vault/api-docs/sec
 
 ```yaml
 spec:
+  maxLeaseTTL: "487600h"
   pki:
     isRootCA: false
     parentCARef:
@@ -259,18 +290,17 @@ spec:
       namespace: demo
     commonName: "kubevault.com"
     ttl: "87600h"
-    maxLeaseTTL: "487600h"
 ```
 
 - `isRootCA` : `Required`. Specifies if the secret engine will be used as a RootCA
 
 - `parentCARef` : `Required`. Specifies the namespace and name of the secret engine which will sign the intermediate CA.
 
-- `commonName` : `Required`. Specifies the requested CN for the certificate. If more than one common_name is desired, specify the alternative names in the `spec.altNames` list.
+- `commonName` : `Required`. Specifies the requested CN for the certificate. If more than one common_name is desired, specify the alternative names in the `spec.pki.altNames` list.
 
 - `ttl` : `Optional`. Specifies he requested Time To Live (after which the certificate will be expired).
 
-- `maxLeaseTTL` : `Optional`. Specifies maximum lease for the certificates.
+- `spec.maxLeaseTTL` : `Optional`. Specifies maximum lease for the certificates. It is a field of `spec` itself, not of `spec.pki`.
 
 #### spec.postgres
 
@@ -400,7 +430,7 @@ Default plugin name is `mongodb-database-plugin`.
 
   ```yaml
     mongodb:
-      writeConcern: `{ \"wmode\": \"majority\", \"wtimeout\": 5000 }`
+      writeConcern: '{ "wmode": "majority", "wtimeout": 5000 }'
   ```
 
 #### spec.mysql
