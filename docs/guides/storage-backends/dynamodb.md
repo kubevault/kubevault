@@ -43,6 +43,8 @@ $ kubectl create secret generic dynamodb-cred -n demo \
 secret/dynamodb-cred created
 ```
 
+> **Demo only:** The `test` values only work with DynamoDB Local. Use your own AWS credentials with the AWS service, as described below.
+
 > To use the AWS service, remove `endpoint` from the `VaultServer`, set `region` to your region and put your own credentials in the secret. `session_token` is the session token of temporary credentials. The `VaultServer` reads this key from the secret, so it must be present in it. The IAM identity needs permission to read and write the table, and to create it if the table does not exist yet.
 
 ## Deploy Vault using KubeVault

@@ -98,23 +98,53 @@ spec:
 
 Secret engines are enabled at a "path" in Vault. When a request comes to Vault, the router automatically routes anything with the route prefix to the secret engine. Since operator configures a secret engine to a specified path with SecretEngine resource, you can provide **only one secret engine configuration** out of the following ones:
 
-- `spec.aws` : Specifies aws secret engine configuration
+- `spec.aws`: Specifies the AWS secret engine configuration
 
-- `spec.azure`: Specifies azure secret engine configuration
+- `spec.azure`: Specifies the Azure secret engine configuration
 
-- `spec.pki`: Specifies pki secret engine configuration
+- `spec.druid`: Specifies the database (Druid) secret engine configuration
 
-- `spec.gcp`: Specifies gcp secret engine configuration
+- `spec.elasticsearch`: Specifies the database (Elasticsearch) secret engine configuration
 
-- `spec.postgres`: Specifies database(postgres) secret engine    configuration
+- `spec.etcd`: Specifies the database (etcd) secret engine configuration
 
-- `spec.mongodb`: Specifies database(mongodb) secret engine      configuration
+- `spec.gcp`: Specifies the GCP secret engine configuration
 
-- `spec.mysql`: Specifies database(mysql) secret engine configuration
+- `spec.hanadb`: Specifies the database (SAP HanaDB) secret engine configuration
 
-- `spec.elasticsearch`: Specifies database(elasticsearch) secret engine configuration
+- `spec.ignite`: Specifies the database (Ignite) secret engine configuration
 
-- `spec.redis`: Specifies database(redis) secret engine configuration
+- `spec.kafka`: Specifies the database (Kafka) secret engine configuration
+
+- `spec.kv`: Specifies the Key/Value secret engine configuration
+
+- `spec.mariadb`: Specifies the database (MariaDB) secret engine configuration
+
+- `spec.milvus`: Specifies the database (Milvus) secret engine configuration
+
+- `spec.mongodb`: Specifies the database (MongoDB) secret engine configuration
+
+- `spec.mssqlserver`: Specifies the database (Microsoft SQL Server) secret engine configuration
+
+- `spec.mysql`: Specifies the database (MySQL) secret engine configuration
+
+- `spec.neo`: Specifies the database (Neo4j) secret engine configuration
+
+- `spec.oracle`: Specifies the database (Oracle) secret engine configuration
+
+- `spec.pki`: Specifies the PKI secret engine configuration
+
+- `spec.postgres`: Specifies the database (PostgreSQL) secret engine configuration
+
+- `spec.qdrant`: Specifies the database (Qdrant) secret engine configuration
+
+- `spec.rabbitmq`: Specifies the database (RabbitMQ) secret engine configuration
+
+- `spec.redis`: Specifies the database (Redis) secret engine configuration
+
+- `spec.solr`: Specifies the database (Solr) secret engine configuration
+
+- `spec.weaviate`: Specifies the database (Weaviate) secret engine configuration
 
 #### spec.namespace
 

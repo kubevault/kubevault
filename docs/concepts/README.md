@@ -59,7 +59,7 @@ A `VaultRelay` is a `Kubernetes CustomResourceDefinition (CRD)` which deploys an
 
 - [VaultRelay](/docs/concepts/vault-server-crds/vaultrelay.md)
 
-## NamespaceSlice
+## Namespace Slice
 
 A `NamespaceSlice` is a `Kubernetes CustomResourceDefinition (CRD)` the operator uses internally, modeled on `EndpointSlice`, to report the OpenBao namespaces a hub-spoke spoke needs created on the hub as part of tenant isolation. It is operator-managed only.
 
@@ -132,15 +132,28 @@ Introduces to various `Authentication methods` supported by `KubeVault`.
 In a `Secret Engine`, a `role` describes an identity with a set of `permissions`, `groups`, or `policies` you want to attach a user of the Secret Engine. Introduces to various roles supported by `KubeVault`.
 
 - [AWSRole](/docs/concepts/secret-engine-crds/aws-secret-engine/awsrole.md)
-- [GCPRole](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md)
 - [AzureRole](/docs/concepts/secret-engine-crds/azure-secret-engine/azurerole.md)
-- [PKIRole](/docs/concepts/secret-engine-crds/pki-secret-engine/pkirole.md)
-- [MongoDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mongodb.md)
-- [MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md)
-- [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgres.md)
+- [DruidRole](/docs/concepts/secret-engine-crds/database-secret-engine/druid.md)
 - [ElasticsearchRole](/docs/concepts/secret-engine-crds/database-secret-engine/elasticsearch.md)
+- [EtcdRole](/docs/concepts/secret-engine-crds/database-secret-engine/etcd.md)
+- [GCPRole](/docs/concepts/secret-engine-crds/gcp-secret-engine/gcprole.md)
+- [HanaDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/hanadb.md)
+- [IgniteRole](/docs/concepts/secret-engine-crds/database-secret-engine/ignite.md)
+- [KafkaRole](/docs/concepts/secret-engine-crds/database-secret-engine/kafka.md)
 - [MariaDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mariadb.md)
+- [MilvusRole](/docs/concepts/secret-engine-crds/database-secret-engine/milvus.md)
+- [MongoDBRole](/docs/concepts/secret-engine-crds/database-secret-engine/mongodb.md)
+- [MSSQLServerRole](/docs/concepts/secret-engine-crds/database-secret-engine/mssqlserver.md)
+- [MySQLRole](/docs/concepts/secret-engine-crds/database-secret-engine/mysql.md)
+- [Neo4jRole](/docs/concepts/secret-engine-crds/database-secret-engine/neo4j.md)
+- [OracleRole](/docs/concepts/secret-engine-crds/database-secret-engine/oracle.md)
+- [PKIRole](/docs/concepts/secret-engine-crds/pki-secret-engine/pkirole.md)
+- [PostgresRole](/docs/concepts/secret-engine-crds/database-secret-engine/postgres.md)
+- [QdrantRole](/docs/concepts/secret-engine-crds/database-secret-engine/qdrant.md)
+- [RabbitMQRole](/docs/concepts/secret-engine-crds/database-secret-engine/rabbitmq.md)
 - [RedisRole](/docs/concepts/secret-engine-crds/database-secret-engine/redis.md)
+- [SolrRole](/docs/concepts/secret-engine-crds/database-secret-engine/solr.md)
+- [WeaviateRole](/docs/concepts/secret-engine-crds/database-secret-engine/weaviate.md)
   
 ### Secret Access Request
 A `SecretAccessRequest` is a `Kubernetes CustomResourceDefinition (CRD)` which allows a user to request a Vault server for `credentials` in a Kubernetes native way. A `SecretAccessRequest` can be created under various roleRef e.g: `AWSRole`, `GCPRole`, `ElasticsearchRole`, `MongoDBRole`, etc. Introduces to `SecretAccessRequest` CRD, fields & it's various use cases.

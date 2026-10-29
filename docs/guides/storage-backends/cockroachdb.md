@@ -51,6 +51,8 @@ $ kubectl apply -f cockroachdb-cred.yaml
 secret/cockroachdb-cred created
 ```
 
+> **Demo only:** An insecure CockroachDB cluster with the passwordless `root` user is only meant for trying this out. In production, run CockroachDB in secure mode, create a dedicated user with a password for Vault, and connect over TLS.
+
 ## Deploy Vault using KubeVault
 
 We're going to use Kubernetes secret to store the unseal-keys & root-token. A sample `VaultServer` with CockroachDB backend manifest file may look like this:

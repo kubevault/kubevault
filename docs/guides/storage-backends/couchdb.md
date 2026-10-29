@@ -42,6 +42,8 @@ $ kubectl create secret generic couchdb-cred -n demo \
 secret/couchdb-cred created
 ```
 
+> **Demo only:** `admin`/`password` are example values. In production, use a strong password and a CouchDB user that only has access to the Vault database.
+
 ## Deploy Vault using KubeVault
 
 We're going to use Kubernetes secret to store the unseal-keys & root-token. A sample `VaultServer` with CouchDB backend manifest file may look like this:
