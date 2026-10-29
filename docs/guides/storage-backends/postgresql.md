@@ -5,18 +5,16 @@ menu:
     identifier: vault-server-postgres-backend
     name: PostgreSQL
     parent: storage-backends-guides
-    weight: 170
+    weight: 190
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Vault Server
+# Deploy VaultServer with PostgreSQL Backend
 
 You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator.
-
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -26,6 +24,8 @@ namespace/demo created
 ```
 
 ## Deploy VaultServer with PostgreSQL Backend
+
+> **Create beforehand:** The database, the `vault_kv_store` table with its index, and the `vault_ha_locks` table. Vault does not create them. This guide creates them below.
 
 ### Deploy Sample PostgreSQL Database
 

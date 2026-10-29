@@ -5,7 +5,7 @@ menu:
     identifier: druidrole-database-crds
     name: DruidRole
     parent: database-crds-concepts
-    weight: 20
+    weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

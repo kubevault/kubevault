@@ -5,7 +5,7 @@ menu:
     identifier: consul-storage
     name: Consul
     parent: storage-vault-server-crds
-    weight: 10
+    weight: 80
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

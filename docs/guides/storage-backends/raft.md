@@ -5,7 +5,7 @@ menu:
     identifier: vault-server-raft-backend
     name: Raft
     parent: storage-backends-guides
-    weight: 180
+    weight: 200
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
@@ -16,14 +16,14 @@ section_menu_id: guides
 
 You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator.
 
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
-
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
 ```bash
 $ kubectl create ns demo
 namespace/demo created
 ```
+
+> **Create beforehand:** Nothing. KubeVault creates a `PersistentVolumeClaim` for each Vault pod.
 
 ### Deploy Vault using KubeVault
 

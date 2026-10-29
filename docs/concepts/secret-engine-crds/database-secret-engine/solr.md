@@ -5,7 +5,7 @@ menu:
     identifier: solrrole-database-crds
     name: SolrRole
     parent: database-crds-concepts
-    weight: 20
+    weight: 180
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

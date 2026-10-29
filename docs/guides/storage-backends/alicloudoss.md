@@ -1,9 +1,9 @@
 ---
-title: Vault Server Alicloud OSS Backend
+title: Vault Server Alibaba Cloud OSS Backend
 menu:
   docs_{{ .version }}:
     identifier: vault-server-alicloudoss-backend
-    name: Alicloud OSS
+    name: Alibaba Cloud OSS
     parent: storage-backends-guides
     weight: 20
 menu_name: docs_{{ .version }}
@@ -12,11 +12,9 @@ section_menu_id: guides
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Deploy VaultServer with Alicloud OSS Backend
+# Deploy VaultServer with Alibaba Cloud OSS Backend
 
 You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Alibaba Cloud Object Storage Service (OSS)](https://www.alibabacloud.com/product/object-storage-service) as the storage backend.
-
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -25,17 +23,19 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-## Deploy VaultServer with Alicloud OSS Backend
+## Deploy VaultServer with Alibaba Cloud OSS Backend
+
+> **Create beforehand:** The OSS bucket. Vault does not create it.
 
 ### Prepare the OSS Bucket
 
-Vault stores its data as objects in an Alibaba Cloud OSS bucket. There is no local emulator for this backend, so you need an Alibaba Cloud account with OSS activated. The bucket must exist before Vault starts. Vault does not create it.
+Use an existing Alibaba Cloud OSS bucket and the AccessKey pair of a RAM user that can list, read, write and delete the objects in it. This example uses the bucket `kubevault-storage-backend` in the Singapore region, with the endpoint `https://oss-ap-southeast-1.aliyuncs.com`. The endpoint must be the one of the region the bucket is in. The bucket must exist before Vault starts. Vault does not create it.
 
-Let's create a bucket and a RAM user that can use it in the Alibaba Cloud console,
+Let's create the AccessKey pair Vault uses, in the Alibaba Cloud RAM console,
 
-- In the OSS console, create a private bucket with Standard storage in a region close to your cluster. Bucket names are unique across all of Alibaba Cloud, so choose your own. This tutorial uses the bucket `kubevault-storage-backend` in the Singapore region (`ap-southeast-1`).
-- In RAM, create a user with permanent AccessKey access and grant it permission to list, read, write and delete the objects in the bucket, for example with the `AliyunOSSFullAccess` system policy or a custom policy limited to this bucket. Save the AccessKey ID and Secret, because the secret is shown only once.
-- Note the public endpoint of the bucket's region. It has the form `https://oss-<region-id>.aliyuncs.com`, for example `https://oss-ap-southeast-1.aliyuncs.com` for Singapore, and it must be the endpoint of the region the bucket is in.
+- Create a RAM user with permanent AccessKey access.
+- Grant it permission to list, read, write and delete the objects in the bucket, for example with the `AliyunOSSFullAccess` system policy or a custom policy limited to this bucket.
+- Save the AccessKey ID and Secret, because the secret is shown only once.
 
 **Create Credential Secret:**
 
@@ -236,7 +236,7 @@ $ kubectl delete secret -n demo alicloud-cred
 $ kubectl delete ns demo
 ```
 
-With `terminationPolicy: WipeOut`, the operator removes the objects Vault stored in the bucket when the `VaultServer` is deleted. Delete the `VaultServer` before the credential secret, because the operator uses it to reach the bucket. The bucket itself and the RAM user's AccessKey are not deleted, so remove them in the Alibaba Cloud console when you no longer need them.
+With `terminationPolicy: WipeOut`, the operator removes the objects Vault stored in the bucket when the `VaultServer` is deleted. Delete the `VaultServer` before the credential secret, because the operator uses it to reach the bucket. The bucket itself is not deleted.
 
 To see all the fields you can set under `spec.backend.alicloudoss`, please check the [Alicloud OSS storage backend](/docs/concepts/vault-server-crds/storage/alicloudoss.md) concept.
 

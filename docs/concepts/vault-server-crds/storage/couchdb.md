@@ -5,7 +5,7 @@ menu:
     identifier: couchdb-storage
     name: CouchDB
     parent: storage-vault-server-crds
-    weight: 70
+    weight: 90
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # CouchDB
 
-In the CouchDB storage backend, Vault data will be stored in [Apache CouchDB](https://couchdb.apache.org/). This backend was removed from upstream OpenBao and is only available in this fork; Vault documentation for the CouchDB storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/couchdb).
+In the CouchDB storage backend, Vault data will be stored in [Apache CouchDB](https://couchdb.apache.org/). Vault documentation for the CouchDB storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/couchdb).
 
 > `spec.backend.couchdb` is only available on the `kubevault.com/v1alpha2` `VaultServer` API. CouchDB has no `haEnabled` field and cannot be used to run Vault in high availability mode.
 

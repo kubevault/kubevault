@@ -1,20 +1,20 @@
 ---
-title: Alicloud OSS | Vault Server Storage
+title: Alibaba Cloud OSS | Vault Server Storage
 menu:
   docs_{{ .version }}:
     identifier: alicloudoss-storage
-    name: Alicloud OSS
+    name: Alibaba Cloud OSS
     parent: storage-vault-server-crds
-    weight: 95
+    weight: 20
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Alicloud OSS
+# Alibaba Cloud OSS
 
-In the Alicloud OSS storage backend, Vault data will be stored in an [Alibaba Cloud Object Storage Service](https://www.alibabacloud.com/product/object-storage-service) bucket. This backend was removed from upstream OpenBao and is only available in this fork; Vault documentation for the Alicloud OSS storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/alicloudoss).
+In the Alicloud OSS storage backend, Vault data will be stored in an [Alibaba Cloud Object Storage Service](https://www.alibabacloud.com/product/object-storage-service) bucket. Vault documentation for the Alicloud OSS storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/alicloudoss).
 
 > `spec.backend.alicloudoss` is only available on the `kubevault.com/v1alpha2` `VaultServer` API. Alicloud OSS has no `haEnabled` field and cannot be used to run Vault in high availability mode.
 

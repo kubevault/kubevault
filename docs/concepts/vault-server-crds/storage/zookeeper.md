@@ -5,7 +5,7 @@ menu:
     identifier: zookeeper-storage
     name: ZooKeeper
     parent: storage-vault-server-crds
-    weight: 65
+    weight: 210
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # ZooKeeper
 
-In the ZooKeeper storage backend, Vault data will be stored in [Apache ZooKeeper](https://zookeeper.apache.org/). This backend was removed from upstream OpenBao and is only available in this fork; Vault documentation for the ZooKeeper storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/zookeeper).
+In the ZooKeeper storage backend, Vault data will be stored in [Apache ZooKeeper](https://zookeeper.apache.org/). Vault documentation for the ZooKeeper storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/zookeeper).
 
 > `spec.backend.zookeeper` is only available on the `kubevault.com/v1alpha2` `VaultServer` API. Unlike most other database-backed backends, ZooKeeper has no `haEnabled` toggle: it is unconditionally usable in Vault's high availability mode, the same as `raft`/`consul`.
 

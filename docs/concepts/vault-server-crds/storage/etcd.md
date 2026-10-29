@@ -1,20 +1,20 @@
 ---
-title: Etcd | Vault Server Storage
+title: etcd | Vault Server Storage
 menu:
   docs_{{ .version }}:
     identifier: etcd-storage
-    name: Etcd
+    name: etcd
     parent: storage-vault-server-crds
-    weight: 20
+    weight: 100
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Etcd
+# etcd
 
-In Etcd storage backend, Vault data will be stored in [Etcd](https://etcd.io/). Vault documentation for Etcd storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html).
+In etcd storage backend, Vault data will be stored in [etcd](https://etcd.io/). Vault documentation for etcd storage can be found in [here](https://www.vaultproject.io/docs/configuration/storage/etcd.html).
 
 ```yaml
 apiVersion: kubevault.com/v1alpha1
@@ -33,7 +33,7 @@ spec:
 
 ## spec.backend.etcd
 
-To use Etcd as storage backend in Vault specify `spec.backend.etcd` in [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md) CRD.
+To use etcd as storage backend in Vault specify `spec.backend.etcd` in [VaultServer](/docs/concepts/vault-server-crds/vaultserver.md) CRD.
 
 ```yaml
 spec:

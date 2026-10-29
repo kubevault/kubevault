@@ -5,7 +5,7 @@ menu:
     identifier: vault-server-mysql-backend
     name: MySQL
     parent: storage-backends-guides
-    weight: 150
+    weight: 160
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
@@ -16,8 +16,6 @@ section_menu_id: guides
 
 You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [MySQL](https://www.mysql.com/) as the storage backend, managed by KubeDB.
 
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
-
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
 ```bash
@@ -26,6 +24,8 @@ namespace/demo created
 ```
 
 ## Deploy VaultServer with MySQL Backend
+
+> **Create beforehand:** Nothing. Vault creates the database and the tables on its own.
 
 > This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run MySQL. The KubeDB operator must be installed in your cluster.
 

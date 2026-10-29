@@ -1,22 +1,20 @@
 ---
-title: Vault Server Azure Backend
+title: Vault Server Azure Blob Storage Backend
 menu:
   docs_{{ .version }}:
     identifier: vault-server-azure-backend
-    name: Azure
+    name: Azure Blob Storage
     parent: storage-backends-guides
-    weight: 30
+    weight: 50
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Deploy VaultServer with Azure Backend
+# Deploy VaultServer with Azure Blob Storage Backend
 
 You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Azure Blob Storage](https://azure.microsoft.com/products/storage/blobs) as the storage backend.
-
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -25,7 +23,9 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-## Deploy VaultServer with Azure Backend
+## Deploy VaultServer with Azure Blob Storage Backend
+
+> **Create beforehand:** The Azure storage account. Vault creates the container in it if the container does not exist.
 
 ### Prepare the Azure Storage Account
 

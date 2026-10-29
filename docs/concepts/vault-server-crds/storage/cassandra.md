@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # Cassandra
 
-In the Cassandra storage backend, Vault data will be stored in [Apache Cassandra](https://cassandra.apache.org/). This backend was removed from upstream OpenBao and is only available in this fork; Vault documentation for the Cassandra storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/cassandra).
+In the Cassandra storage backend, Vault data will be stored in [Apache Cassandra](https://cassandra.apache.org/). Vault documentation for the Cassandra storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/cassandra).
 
 > `spec.backend.cassandra` is only available on the `kubevault.com/v1alpha2` `VaultServer` API.
 

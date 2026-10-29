@@ -16,8 +16,6 @@ section_menu_id: guides
 
 You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Apache ZooKeeper](https://zookeeper.apache.org/) as the storage backend, managed by KubeDB.
 
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
-
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
 ```bash
@@ -26,6 +24,8 @@ namespace/demo created
 ```
 
 ## Deploy VaultServer with ZooKeeper Backend
+
+> **Create beforehand:** Nothing. Vault stores its data under a path prefix in ZooKeeper.
 
 > This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run ZooKeeper. The KubeDB operator must be installed in your cluster.
 

@@ -5,7 +5,7 @@ menu:
     identifier: aerospike-storage
     name: Aerospike
     parent: storage-vault-server-crds
-    weight: 85
+    weight: 10
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # Aerospike
 
-In the Aerospike storage backend, Vault data will be stored in [Aerospike](https://aerospike.com/). This backend was removed from upstream OpenBao and is only available in this fork; Vault documentation for the Aerospike storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/aerospike).
+In the Aerospike storage backend, Vault data will be stored in [Aerospike](https://aerospike.com/). Vault documentation for the Aerospike storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/aerospike).
 
 > `spec.backend.aerospike` is only available on the `kubevault.com/v1alpha2` `VaultServer` API. Aerospike has no `haEnabled` field and cannot be used to run Vault in high availability mode.
 

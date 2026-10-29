@@ -1,22 +1,20 @@
 ---
-title: Vault Server DynamoDB Backend
+title: Vault Server Amazon DynamoDB Backend
 menu:
   docs_{{ .version }}:
     identifier: vault-server-dynamodb-backend
-    name: DynamoDB
+    name: Amazon DynamoDB
     parent: storage-backends-guides
-    weight: 80
+    weight: 30
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Deploy VaultServer with DynamoDB Backend
+# Deploy VaultServer with Amazon DynamoDB Backend
 
 You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) as the storage backend.
-
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -25,7 +23,9 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-## Deploy VaultServer with DynamoDB Backend
+## Deploy VaultServer with Amazon DynamoDB Backend
+
+> **Create beforehand:** Nothing. Vault creates the table if it does not exist.
 
 ### Prepare DynamoDB
 

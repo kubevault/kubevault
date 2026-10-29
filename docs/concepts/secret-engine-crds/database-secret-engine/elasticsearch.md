@@ -5,7 +5,7 @@ menu:
     identifier: elasticsearch-database-crds
     name: ElasticsearchRole
     parent: database-crds-concepts
-    weight: 10
+    weight: 20
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

@@ -5,7 +5,7 @@ menu:
     identifier: vault-server-cassandra-backend
     name: Cassandra
     parent: storage-backends-guides
-    weight: 40
+    weight: 60
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
@@ -16,8 +16,6 @@ section_menu_id: guides
 
 You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Apache Cassandra](https://cassandra.apache.org/) as the storage backend, managed by KubeDB.
 
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
-
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
 ```bash
@@ -26,6 +24,8 @@ namespace/demo created
 ```
 
 ## Deploy VaultServer with Cassandra Backend
+
+> **Create beforehand:** The keyspace and the table. Vault does not create them. This guide creates them below.
 
 > This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run Cassandra. The KubeDB operator must be installed in your cluster.
 

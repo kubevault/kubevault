@@ -5,7 +5,7 @@ menu:
     identifier: vault-server-consul-backend
     name: Consul
     parent: storage-backends-guides
-    weight: 60
+    weight: 80
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
@@ -16,8 +16,6 @@ section_menu_id: guides
 
 You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Consul](https://www.consul.io/) as the storage backend.
 
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
-
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
 ```bash
@@ -26,6 +24,8 @@ namespace/demo created
 ```
 
 ## Deploy VaultServer with Consul Backend
+
+> **Create beforehand:** Nothing. Vault stores its data under a key prefix in Consul.
 
 ### Prepare Consul
 

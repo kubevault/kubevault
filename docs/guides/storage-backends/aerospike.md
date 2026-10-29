@@ -16,8 +16,6 @@ section_menu_id: guides
 
 You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Aerospike](https://aerospike.com/) as the storage backend.
 
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
-
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
 ```bash
@@ -26,6 +24,8 @@ namespace/demo created
 ```
 
 ## Deploy VaultServer with Aerospike Backend
+
+> **Create beforehand:** The Aerospike namespace (`test` here). Namespaces are defined in the Aerospike server configuration, and Vault does not create them.
 
 ### Prepare Aerospike
 

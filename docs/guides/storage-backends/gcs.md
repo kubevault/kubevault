@@ -1,22 +1,20 @@
 ---
-title: Vault Server GCS Backend
+title: Vault Server Google Cloud Storage Backend
 menu:
   docs_{{ .version }}:
     identifier: vault-server-gcs-backend
-    name: GCS
+    name: Google Cloud Storage
     parent: storage-backends-guides
-    weight: 110
+    weight: 130
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Deploy VaultServer with GCS Backend
+# Deploy VaultServer with Google Cloud Storage Backend
 
 You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Google Cloud Storage (GCS)](https://cloud.google.com/storage) as the storage backend.
-
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -25,17 +23,17 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-## Deploy VaultServer with GCS Backend
+## Deploy VaultServer with Google Cloud Storage Backend
+
+> **Create beforehand:** The GCS bucket. Vault does not create it.
 
 ### Prepare the GCS Bucket
 
-Vault stores its data as objects in a GCS bucket. There is no local emulator for this backend, so you need a Google Cloud project. The bucket must exist before Vault starts. Vault does not create it.
+Use an existing GCS bucket and the key of a service account that can read and write the objects in it, for example with the `roles/storage.objectAdmin` role on the bucket. The bucket must exist before Vault starts. Vault does not create it.
 
-Let's create a bucket and a service account that can read and write the objects in it,
+Let's create a service account that can read and write the objects in the bucket, and a key for it,
 
 ```bash
-$ gcloud storage buckets create gs://<bucket-name> --location=<location>
-
 $ gcloud iam service-accounts create kubevault-storage
 
 $ gcloud storage buckets add-iam-policy-binding gs://<bucket-name> \
@@ -247,7 +245,7 @@ $ kubectl delete secret -n demo gcs-cred
 $ kubectl delete ns demo
 ```
 
-With `terminationPolicy: WipeOut`, the operator removes the objects Vault stored in the bucket when the `VaultServer` is deleted. The bucket and the service account are not deleted, remove them with `gcloud` if you no longer need them.
+With `terminationPolicy: WipeOut`, the operator removes the objects Vault stored in the bucket when the `VaultServer` is deleted. The bucket and the service account are not deleted.
 
 To see all the fields you can set under `spec.backend.gcs`, please check the [GCS storage backend](/docs/concepts/vault-server-crds/storage/gcs.md) concept.
 

@@ -5,7 +5,7 @@ menu:
     identifier: cockroachdb-storage
     name: CockroachDB
     parent: storage-vault-server-crds
-    weight: 55
+    weight: 70
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # CockroachDB
 
-In the CockroachDB storage backend, Vault data will be stored in [CockroachDB](https://www.cockroachlabs.com/). CockroachDB speaks the PostgreSQL wire protocol, so this backend is configured the same way as `postgresql`. This backend was removed from upstream OpenBao and is only available in this fork; Vault documentation for the CockroachDB storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/cockroachdb).
+In the CockroachDB storage backend, Vault data will be stored in [CockroachDB](https://www.cockroachlabs.com/). CockroachDB speaks the PostgreSQL wire protocol, so this backend is configured the same way as `postgresql`. Vault documentation for the CockroachDB storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/cockroachdb).
 
 > `spec.backend.cockroachdb` is only available on the `kubevault.com/v1alpha2` `VaultServer` API.
 

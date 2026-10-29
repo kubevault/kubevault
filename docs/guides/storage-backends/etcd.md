@@ -1,22 +1,20 @@
 ---
-title: Vault Server Etcd Backend
+title: Vault Server etcd Backend
 menu:
   docs_{{ .version }}:
     identifier: vault-server-etcd-backend
-    name: Etcd
+    name: etcd
     parent: storage-backends-guides
-    weight: 90
+    weight: 100
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Deploy VaultServer with Etcd Backend
+# Deploy VaultServer with etcd Backend
 
 You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [etcd](https://etcd.io/) as the storage backend, managed by KubeDB.
-
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -25,11 +23,13 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-## Deploy VaultServer with Etcd Backend
+## Deploy VaultServer with etcd Backend
+
+> **Create beforehand:** Nothing. Vault stores its data under a key prefix in etcd.
 
 > This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run etcd. The KubeDB operator must be installed in your cluster.
 
-### Deploy Etcd
+### Deploy etcd
 
 Let's deploy a sample `Etcd` database:
 
@@ -64,7 +64,7 @@ KubeDB creates an `AppBinding` named `etcd` for the database, which holds its ad
 
 ## Deploy Vault using KubeVault
 
-We're going to use Kubernetes secret to store the unseal-keys & root-token. A sample `VaultServer` with Etcd backend manifest file may look like this:
+We're going to use Kubernetes secret to store the unseal-keys & root-token. A sample `VaultServer` with etcd backend manifest file may look like this:
 
 ```yaml
 apiVersion: kubevault.com/v1alpha2
@@ -180,7 +180,7 @@ NAME    REPLICAS   VERSION          STATUS   AGE
 vault   3          sigilr-2.6.1.2   Ready    2m50s
 ```
 
-At this stage, we've successfully deployed `Vault` using `KubeVault` operator with Etcd as the storage backend.
+At this stage, we've successfully deployed `Vault` using `KubeVault` operator with etcd as the storage backend.
 
 Let's write some data in a `KV` secret engine. Let's export the necessary environment variables & port-forward from `vault` service
 or exec into the vault pod in order to interact with it.
@@ -259,6 +259,6 @@ $ kubectl delete ns demo
 
 Delete the `VaultServer` before the `Etcd` database. With `terminationPolicy: WipeOut`, the operator connects to etcd to remove the keys Vault stored there, so the database has to be reachable until the `VaultServer` is gone.
 
-To see all the fields you can set under `spec.backend.etcd`, please check the [Etcd storage backend](/docs/concepts/vault-server-crds/storage/etcd.md) concept.
+To see all the fields you can set under `spec.backend.etcd`, please check the [etcd storage backend](/docs/concepts/vault-server-crds/storage/etcd.md) concept.
 
 For more details on how to interact with the vault server, please check the [Vault Server guide](/docs/guides/vault-server/vault-server.md).

@@ -1,22 +1,20 @@
 ---
-title: Vault Server Swift Backend
+title: Vault Server OpenStack Swift Backend
 menu:
   docs_{{ .version }}:
     identifier: vault-server-swift-backend
-    name: Swift
+    name: OpenStack Swift
     parent: storage-backends-guides
-    weight: 200
+    weight: 180
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Deploy VaultServer with Swift Backend
+# Deploy VaultServer with OpenStack Swift Backend
 
 You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [OpenStack Swift](https://docs.openstack.org/swift/latest/) as the storage backend.
-
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -25,18 +23,13 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-## Deploy VaultServer with Swift Backend
+## Deploy VaultServer with OpenStack Swift Backend
+
+> **Create beforehand:** The Swift container. Vault does not create it.
 
 ### Prepare the Swift Container
 
-Vault stores its data as objects in an OpenStack Swift container. There is no local emulator for this backend, so you need an account on an OpenStack cloud with Swift. The container must exist before Vault starts. Vault does not create it.
-
-This tutorial uses [Infomaniak Swiss Backup](https://www.infomaniak.com/en/swiss-backup), an OpenStack Swift service, with an existing container named `vault-container`. Note these details of your Swift account, which you can find in the OpenStack (`openrc`) credentials of the account:
-
-- The Keystone v3 authentication endpoint (`OS_AUTH_URL`). For Swiss Backup it is `https://swiss-backup02.infomaniak.com/identity/v3`.
-- The project (`OS_PROJECT_NAME`). For Swiss Backup it has the form `sb_project_<account-id>`.
-- The region (`OS_REGION_NAME`), user domain (`OS_USER_DOMAIN_NAME`) and project domain (`OS_PROJECT_DOMAIN_NAME`). For Swiss Backup they are `RegionOne`, `default` and `default`.
-- The username and password of the OpenStack user.
+Use an existing OpenStack Swift container and the credentials of an OpenStack user that can use it. This example uses the container `vault-container`. The container must exist before Vault starts. Vault does not create it. You need the Keystone v3 authentication endpoint (`OS_AUTH_URL`), the project (`OS_PROJECT_NAME`), the region (`OS_REGION_NAME`) and the user and project domains of your account, which you can find in its OpenStack (`openrc`) credentials.
 
 **Create Credential Secret:**
 
@@ -68,9 +61,9 @@ spec:
       from: All
   backend:
     swift:
-      authURL: "https://swiss-backup02.infomaniak.com/identity/v3"
+      authURL: "https://<keystone-host>/identity/v3"
       container: "vault-container"
-      tenant: "sb_project_<account-id>"
+      tenant: "<project-name>"
       region: "RegionOne"
       domain: "default"
       projectDomain: "default"

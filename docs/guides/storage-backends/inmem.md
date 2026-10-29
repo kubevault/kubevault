@@ -1,22 +1,20 @@
 ---
-title: Vault Server Inmem Backend
+title: Vault Server In-Memory Backend
 menu:
   docs_{{ .version }}:
     identifier: vault-server-inmem-backend
-    name: Inmem
+    name: In-Memory
     parent: storage-backends-guides
-    weight: 130
+    weight: 140
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
 
 > New to KubeVault? Please start [here](/docs/concepts/README.md).
 
-# Deploy VaultServer with Inmem Backend
+# Deploy VaultServer with In-Memory Backend
 
 You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with the in-memory storage backend.
-
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
 
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -25,7 +23,9 @@ $ kubectl create ns demo
 namespace/demo created
 ```
 
-## Deploy VaultServer with Inmem Backend
+## Deploy VaultServer with In-Memory Backend
+
+> **Create beforehand:** Nothing.
 
 In the Inmem backend, Vault keeps its data in the memory of the Vault pod. Nothing is written to disk and nothing else needs to be deployed. **If the pod restarts, all the data is lost**, so this backend is only meant for development and experimentation, and its use in production is highly discouraged.
 

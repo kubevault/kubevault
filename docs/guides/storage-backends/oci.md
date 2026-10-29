@@ -5,7 +5,7 @@ menu:
     identifier: vault-server-oci-backend
     name: OCI Object Storage
     parent: storage-backends-guides
-    weight: 160
+    weight: 170
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
@@ -16,8 +16,6 @@ section_menu_id: guides
 
 You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Oracle Cloud Infrastructure (OCI) Object Storage](https://www.oracle.com/cloud/storage/object-storage/) as the storage backend.
 
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
-
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
 ```bash
@@ -27,20 +25,22 @@ namespace/demo created
 
 ## Deploy VaultServer with OCI Object Storage Backend
 
+> **Create beforehand:** The data bucket and the lock bucket. Vault does not create them.
+
 ### Prepare the OCI Buckets
 
-Vault stores its data as objects in an OCI Object Storage bucket. There is no local emulator for this backend, so you need an OCI tenancy. You need:
+Use an existing OCI Object Storage setup. You need:
 
-- the Object Storage namespace of your tenancy (shown under *Tenancy details*),
-- a bucket for the Vault data and a second bucket for the HA lock objects. Both must exist before Vault starts. Vault does not create them.
+- the Object Storage namespace of your tenancy,
+- a bucket for the Vault data and a second bucket for the HA lock objects. This example uses `vault-bucket` and `vault-lock-bucket`. Both must exist before Vault starts. Vault does not create them.
 - an API signing key for a user that can read and write objects in both buckets.
 
-Let's create the two buckets,
+Let's create the API signing key Vault uses, in the OCI console,
 
-```bash
-$ oci os bucket create --namespace-name <tenancy-namespace> --compartment-id <compartment-ocid> --name vault-bucket
-$ oci os bucket create --namespace-name <tenancy-namespace> --compartment-id <compartment-ocid> --name vault-lock-bucket
-```
+- Open the user that Vault should act as, go to *API keys* and click *Add API key*.
+- Generate a key pair and download the private key.
+- Click *Add*. The console shows a configuration snippet with the `user`, `fingerprint`, `tenancy` and `region` values. Keep it for the secret below.
+- Give the user, through a group policy, permission to manage the objects in both buckets.
 
 **Create Credential Secret:**
 
@@ -266,7 +266,7 @@ $ kubectl delete secret -n demo oci-cred
 $ kubectl delete ns demo
 ```
 
-With `terminationPolicy: WipeOut`, the operator removes the objects Vault stored in the buckets when the `VaultServer` is deleted. The buckets themselves are not deleted, remove them with the OCI console or CLI if you no longer need them.
+With `terminationPolicy: WipeOut`, the operator removes the objects Vault stored in the buckets when the `VaultServer` is deleted. The buckets themselves are not deleted.
 
 To see all the fields you can set under `spec.backend.oci`, please check the [OCI Object Storage storage backend](/docs/concepts/vault-server-crds/storage/oci.md) concept.
 

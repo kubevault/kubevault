@@ -5,7 +5,7 @@ menu:
     identifier: spanner-storage
     name: Google Cloud Spanner
     parent: storage-vault-server-crds
-    weight: 80
+    weight: 120
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # Google Cloud Spanner
 
-In the Spanner storage backend, Vault data will be stored in [Google Cloud Spanner](https://cloud.google.com/spanner). This backend was removed from upstream OpenBao and is only available in this fork; Vault documentation for the Spanner storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/google-cloud-spanner).
+In the Spanner storage backend, Vault data will be stored in [Google Cloud Spanner](https://cloud.google.com/spanner). Vault documentation for the Spanner storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/google-cloud-spanner).
 
 > `spec.backend.spanner` is only available on the `kubevault.com/v1alpha2` `VaultServer` API.
 

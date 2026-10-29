@@ -16,8 +16,6 @@ section_menu_id: guides
 
 You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [Google Cloud Spanner](https://cloud.google.com/spanner) as the storage backend.
 
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
-
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
 ```bash
@@ -27,11 +25,13 @@ namespace/demo created
 
 ## Deploy VaultServer with Google Cloud Spanner Backend
 
+> **Create beforehand:** The Spanner database, the `Vault` table and, with `haEnabled`, the `VaultHA` table. Vault does not create them.
+
 ### Prepare the Spanner Database
 
-Vault stores its data in a Spanner database. You need a Google Cloud project with a Spanner instance. Vault does not create the database or the tables, so they must exist before Vault starts.
+Use an existing Spanner database and the key of a service account that can use it, for example with the `roles/spanner.databaseUser` role. This example uses the database `vault`.
 
-Let's save the schema in a file. The `Vault` table holds the data and the `VaultHA` table is used for leader election when `haEnabled` is `true`,
+Vault does not create the database or its tables. Create the `Vault` table, and the `VaultHA` table that is used for leader election when `haEnabled` is `true`, with this schema,
 
 ```sql
 CREATE TABLE Vault (
@@ -47,11 +47,9 @@ CREATE TABLE VaultHA (
 ) PRIMARY KEY (Key);
 ```
 
-Now create the database with this schema, and a service account that can use it,
+Let's create a service account that can use the database, and a key for it,
 
 ```bash
-$ gcloud spanner databases create vault --instance=<instance-name> --ddl-file=schema.sql
-
 $ gcloud iam service-accounts create kubevault-storage
 
 $ gcloud spanner databases add-iam-policy-binding vault --instance=<instance-name> \
@@ -265,7 +263,7 @@ $ kubectl delete secret -n demo spanner-cred
 $ kubectl delete ns demo
 ```
 
-With `terminationPolicy: WipeOut`, the operator removes the rows Vault stored in the tables when the `VaultServer` is deleted. The Spanner database, the tables and the service account are not deleted, remove them with `gcloud` if you no longer need them.
+With `terminationPolicy: WipeOut`, the operator removes the rows Vault stored in the tables when the `VaultServer` is deleted. The Spanner database, the tables and the service account are not deleted.
 
 To see all the fields you can set under `spec.backend.spanner`, please check the [Google Cloud Spanner storage backend](/docs/concepts/vault-server-crds/storage/spanner.md) concept.
 

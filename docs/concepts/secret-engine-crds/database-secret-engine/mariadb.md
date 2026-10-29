@@ -5,7 +5,7 @@ menu:
     identifier: mariadb-database-crds
     name: MariaDBRole
     parent: database-crds-concepts
-    weight: 15
+    weight: 70
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

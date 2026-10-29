@@ -1,11 +1,11 @@
 ---
-title: In Memory | Vault Server Storage
+title: In-Memory | Vault Server Storage
 menu:
   docs_{{ .version }}:
     identifier: inmem-storage
-    name: In Memory
+    name: In-Memory
     parent: storage-vault-server-crds
-    weight: 30
+    weight: 140
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

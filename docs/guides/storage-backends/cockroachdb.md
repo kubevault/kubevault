@@ -5,7 +5,7 @@ menu:
     identifier: vault-server-cockroachdb-backend
     name: CockroachDB
     parent: storage-backends-guides
-    weight: 50
+    weight: 70
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
@@ -16,8 +16,6 @@ section_menu_id: guides
 
 You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with [CockroachDB](https://www.cockroachlabs.com/) as the storage backend.
 
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
-
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
 ```bash
@@ -26,6 +24,8 @@ namespace/demo created
 ```
 
 ## Deploy VaultServer with CockroachDB Backend
+
+> **Create beforehand:** The database (`vault` here). Vault creates the tables in it on its own.
 
 ### Prepare CockroachDB
 

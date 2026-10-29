@@ -5,7 +5,7 @@ menu:
     identifier: vault-server-filesystem-backend
     name: Filesystem
     parent: storage-backends-guides
-    weight: 100
+    weight: 110
 menu_name: docs_{{ .version }}
 section_menu_id: guides
 ---
@@ -16,8 +16,6 @@ section_menu_id: guides
 
 You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with the filesystem as the storage backend. The data is kept on a `PersistentVolume`.
 
-![Vault Server](/docs/images/guides/vault-server/vault_server_guide.svg)
-
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
 ```bash
@@ -26,6 +24,8 @@ namespace/demo created
 ```
 
 ## Deploy VaultServer with Filesystem Backend
+
+> **Create beforehand:** Nothing. KubeVault creates the `PersistentVolumeClaim` from `volumeClaimTemplate`.
 
 The Filesystem backend stores Vault data in a directory on a volume mounted into the Vault pod. KubeVault creates (or reuses, if it already exists) a `PersistentVolumeClaim` from the `volumeClaimTemplate` that you give in the `VaultServer`, so no other resource is needed. Make sure your cluster has a default `StorageClass`, or set `storageClassName` in the template.
 

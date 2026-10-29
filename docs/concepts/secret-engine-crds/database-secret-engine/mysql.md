@@ -5,7 +5,7 @@ menu:
     identifier: mysql-database-crds
     name: MySQLRole
     parent: database-crds-concepts
-    weight: 15
+    weight: 110
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

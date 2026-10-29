@@ -5,7 +5,7 @@ menu:
     identifier: oci-storage
     name: OCI Object Storage
     parent: storage-vault-server-crds
-    weight: 90
+    weight: 170
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
@@ -14,7 +14,7 @@ section_menu_id: concepts
 
 # OCI Object Storage
 
-In the OCI storage backend, Vault data will be stored in an [Oracle Cloud Infrastructure Object Storage](https://www.oracle.com/cloud/storage/object-storage/) bucket. This backend was removed from upstream OpenBao and is only available in this fork; Vault documentation for the OCI storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/oci-object-storage).
+In the OCI storage backend, Vault data will be stored in an [Oracle Cloud Infrastructure Object Storage](https://www.oracle.com/cloud/storage/object-storage/) bucket. Vault documentation for the OCI storage backend can be found [here](https://developer.hashicorp.com/vault/docs/configuration/storage/oci-object-storage).
 
 > `spec.backend.oci` is only available on the `kubevault.com/v1alpha2` `VaultServer` API.
 
