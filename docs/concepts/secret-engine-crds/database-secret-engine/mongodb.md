@@ -5,7 +5,7 @@ menu:
     identifier: mongodb-database-crds
     name: MongoDBRole
     parent: database-crds-concepts
-    weight: 10
+    weight: 90
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
@@ -58,7 +58,6 @@ MongoDBRole `spec` contains information that necessary for creating a database r
 spec:
   secretEngineRef:
     name: <secret-engine-name>
-  path: <secret-engine-path>
   defaultTTL: <default-ttl>
   maxTTL: <max-ttl>
   creationStatements:

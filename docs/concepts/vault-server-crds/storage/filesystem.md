@@ -5,7 +5,7 @@ menu:
     identifier: filesystem-storage
     name: Filesystem
     parent: storage-vault-server-crds
-    weight: 20
+    weight: 110
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

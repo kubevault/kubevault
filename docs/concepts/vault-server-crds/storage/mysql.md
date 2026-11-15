@@ -5,7 +5,7 @@ menu:
     identifier: mysql-storage
     name: MySQL
     parent: storage-vault-server-crds
-    weight: 35
+    weight: 160
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

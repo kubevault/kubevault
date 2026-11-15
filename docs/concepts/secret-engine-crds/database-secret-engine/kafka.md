@@ -5,7 +5,7 @@ menu:
     identifier: kafkarole-database-crds
     name: KafkaRole
     parent: database-crds-concepts
-    weight: 20
+    weight: 60
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

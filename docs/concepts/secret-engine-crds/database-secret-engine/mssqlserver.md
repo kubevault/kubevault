@@ -5,7 +5,7 @@ menu:
     identifier: mssqlserverrole-database-crds
     name: MSSQLServerRole
     parent: database-crds-concepts
-    weight: 20
+    weight: 100
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

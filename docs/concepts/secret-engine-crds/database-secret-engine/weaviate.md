@@ -5,7 +5,7 @@ menu:
     identifier: weaviaterole-database-crds
     name: WeaviateRole
     parent: database-crds-concepts
-    weight: 20
+    weight: 190
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

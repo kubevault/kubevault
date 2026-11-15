@@ -5,7 +5,7 @@ menu:
     identifier: postgresql-storage
     name: PostgreSQL
     parent: storage-vault-server-crds
-    weight: 40
+    weight: 190
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

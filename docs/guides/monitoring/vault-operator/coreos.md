@@ -64,8 +64,11 @@ This will create a `ServiceMonitor` crd with name `vault-operator-servicemonitor
 
 Let's check the ServiceMonitor crd using following command,
 
-```yaml
+```bash
 $ kubectl get servicemonitors -n monitoring vault-operator-servicemonitor -o yaml
+```
+
+```yaml
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:

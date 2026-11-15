@@ -60,7 +60,7 @@ spec:
     name: <secret-engine-name>
   allowedDomains: <allowed domain names>
   allowSubdomains: <true>
-  defaultTTL: <default-TTL>
+  ttl: <TTL>
   maxTTL: <max-TTL>
   additionalPayload:
     "key": "value"
@@ -97,9 +97,9 @@ spec:
   allowSubdomains: true
 ```
 
-#### spec.defaultTTL
+#### spec.ttl
 
-`spec.defaultTTL` is an `optional` field that specifies the default TTL for certificates.
+`spec.ttl` is an `optional` field that specifies the default TTL for certificates.
 
 ```yaml
 spec:

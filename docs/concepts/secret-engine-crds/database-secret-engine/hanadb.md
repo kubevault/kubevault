@@ -5,7 +5,7 @@ menu:
     identifier: hanadbrole-database-crds
     name: HanaDBRole
     parent: database-crds-concepts
-    weight: 20
+    weight: 40
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

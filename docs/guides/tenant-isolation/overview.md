@@ -54,8 +54,8 @@ feature is **opt-in and off by default**, and is safe to enable on a running ser
   OpenBao namespace. Every `{db}Role` and `SecretAccessRequest` for that engine inherits the
   same namespace.
 
-Supported engines: the database engines that have the org→DB linkage — **MySQL, MariaDB,
-Postgres, MongoDB, Redis, Elasticsearch**. AWS/GCP/Azure/PKI/KV are not namespaced by this
+Supported engines: the database engines that have the org→DB linkage — **Elasticsearch, MariaDB,
+MongoDB, MySQL, PostgreSQL, Redis**. AWS/Azure/GCP/KV/PKI are not namespaced by this
 feature.
 
 ## Enable it

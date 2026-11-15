@@ -5,7 +5,7 @@ menu:
     identifier: redis-database-crds
     name: RedisRole
     parent: database-crds-concepts
-    weight: 10
+    weight: 170
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

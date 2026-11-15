@@ -5,7 +5,7 @@ menu:
     identifier: etcdrole-database-crds
     name: EtcdRole
     parent: database-crds-concepts
-    weight: 20
+    weight: 30
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---

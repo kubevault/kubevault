@@ -58,8 +58,11 @@ $ helm template kubevault oci://ghcr.io/appscode-charts/kubevault \
 
 This will add necessary annotations to `vault-operator` service. Prometheus server will scrap metrics using those annotations. Let's check which annotations are added to the service,
 
-```yaml
+```bash
 $ kubectl get svc vault-operator -n kube-system -o yaml
+```
+
+```yaml
 apiVersion: v1
 kind: Service
 metadata:

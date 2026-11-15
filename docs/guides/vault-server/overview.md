@@ -23,13 +23,31 @@ The KubeVault operator makes it easy to deploy, maintain and manage Vault server
 
 - **Vault Secret Engine Management**: Provides a Kubernetes native way to manage Vault secret engines.
 
-  - [GCP Secret Engine](/docs/guides/secret-engines/gcp/overview.md)
   - [AWS Secret Engine](/docs/guides/secret-engines/aws/overview.md)
   - [Azure Secret Engine](/docs/guides/secret-engines/azure/overview.md)
   - Database Secret Engine
-    - [MongoDB Secret Engine](/docs/guides/secret-engines/mongodb/overview.md)
-    - [MySQL Secret Engine](/docs/guides/secret-engines/mysql/overview.md)
-    - [PostgreSQL Secret Engine](/docs/guides/secret-engines/postgres/overview.md)
+    - [Druid Secret Engine](/docs/guides/secret-engines/database/druid/overview.md)
+    - [Elasticsearch Secret Engine](/docs/guides/secret-engines/database/elasticsearch/overview.md)
+    - [etcd Secret Engine](/docs/guides/secret-engines/database/etcd/overview.md)
+    - [Ignite Secret Engine](/docs/guides/secret-engines/database/ignite/overview.md)
+    - [Kafka Secret Engine](/docs/guides/secret-engines/database/kafka/overview.md)
+    - [MariaDB Secret Engine](/docs/guides/secret-engines/database/mariadb/overview.md)
+    - [Microsoft SQL Server Secret Engine](/docs/guides/secret-engines/database/mssqlserver/overview.md)
+    - [Milvus Secret Engine](/docs/guides/secret-engines/database/milvus/overview.md)
+    - [MongoDB Secret Engine](/docs/guides/secret-engines/database/mongodb/overview.md)
+    - [MySQL Secret Engine](/docs/guides/secret-engines/database/mysql/overview.md)
+    - [Neo4j Secret Engine](/docs/guides/secret-engines/database/neo4j/overview.md)
+    - [Oracle Secret Engine](/docs/guides/secret-engines/database/oracle/overview.md)
+    - [PostgreSQL Secret Engine](/docs/guides/secret-engines/database/postgres/overview.md)
+    - [Qdrant Secret Engine](/docs/guides/secret-engines/database/qdrant/overview.md)
+    - [RabbitMQ Secret Engine](/docs/guides/secret-engines/database/rabbitmq/overview.md)
+    - [Redis Secret Engine](/docs/guides/secret-engines/database/redis/overview.md)
+    - [SAP HanaDB Secret Engine](/docs/guides/secret-engines/database/hanadb/overview.md)
+    - [Solr Secret Engine](/docs/guides/secret-engines/database/solr/overview.md)
+    - [Weaviate Secret Engine](/docs/guides/secret-engines/database/weaviate/overview.md)
+  - [GCP Secret Engine](/docs/guides/secret-engines/gcp/overview.md)
+  - [Key/Value Secret Engine](/docs/guides/secret-engines/kv/overview.md)
+  - [PKI Secret Engine](/docs/guides/secret-engines/pki/overview.md)
 
 ## Setup Vault Server
 

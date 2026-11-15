@@ -5,7 +5,7 @@ menu:
     identifier: mariadb-database-crds
     name: MariaDBRole
     parent: database-crds-concepts
-    weight: 15
+    weight: 70
 menu_name: docs_{{ .version }}
 section_menu_id: concepts
 ---
@@ -59,7 +59,6 @@ MariaDBRole `spec` contains information that necessary for creating a database r
 spec:
   secretEngineRef:
     name: <secret-engine-name>
-  path: <database-secret-engine-path>
   defaultTTL: <default-ttl>
   maxTTL: <max-ttl>
   creationStatements:

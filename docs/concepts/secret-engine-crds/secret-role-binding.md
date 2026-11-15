@@ -67,11 +67,11 @@ spec:
 
 It has the following fields:
 
-- `roleRef.apiGroup` : `Optional`. Specifies the APIGroup of the resource being referenced.
+- `roles[].apiGroup` : `Optional`. Specifies the APIGroup of the resource being referenced.
 
-- `roleRef.kind` : `Required`. Specifies the kind of the resource being referenced.
+- `roles[].kind` : `Required`. Specifies the kind of the resource being referenced.
 
-- `roleRef.name` : `Required`. Specifies the name of the object being referenced.
+- `roles[].name` : `Required`. Specifies the name of the object being referenced.
 
 
 ```yaml

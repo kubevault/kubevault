@@ -39,12 +39,13 @@ metadata:
 spec:
   secretEngineRef:
     name: azure-secret-engine
-  azureRoles: `[
-              {
-                "role_name": "Contributor",
-                "scope":  "/subscriptions/<uuid>/resourceGroups/Website"
-            }
-          ]`
+  azureRoles: |
+    [
+      {
+        "role_name": "Contributor",
+        "scope":  "/subscriptions/<uuid>/resourceGroups/Website"
+      }
+    ]
   applicationObjectID: c1cb042d-96d7-423a-8dba-243c2e5010d3
 status:
   observedGeneration: 1
@@ -63,7 +64,6 @@ AzureRole `spec` contains either new service principal configuration or existing
 spec:
   secretEngineRef:
     name: <azure-secret-engine>
-  path: <azure-secret-engine-path>
   applicationObjectID: <existing-application-object-id>
   azureRoles: <list-of-azure-roles>
   ttl: <default-ttl>
@@ -88,12 +88,13 @@ spec:
 
 ```yaml
 spec:
-  azureRoles: `[
-                 {
-                    "role_name": "Contributor",
-                    "scope":  "/subscriptions/<uuid>/resourceGroups/Website"
-                }
-              ]`
+  azureRoles: |
+    [
+      {
+        "role_name": "Contributor",
+        "scope":  "/subscriptions/<uuid>/resourceGroups/Website"
+      }
+    ]
 ```
 
 #### spec.applicationObjectID
