@@ -90,7 +90,7 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: "1.18.4"
+  version: "sigilr-2.6.5.1"
   serviceTemplates:
   - alias: vault
     metadata:
@@ -135,8 +135,8 @@ KubeVault operator will configure its service once the Vault server is successfu
 
 ```bash
 $ kubectl get vs -n demo
-NAME      NODES     VERSION   STATUS    AGE
-example   1         0.11.1    Running   3h
+NAME      NODES     VERSION          STATUS    AGE
+example   1         sigilr-2.6.5.1   Running   3h
 ```
 
 Let's describe Service `example-stats`

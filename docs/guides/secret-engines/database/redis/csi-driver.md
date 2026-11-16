@@ -52,7 +52,7 @@ namespace/demo created
 
 ## Vault Server
 
-If you don't have a Vault Server, you can deploy it by using the KubeVault operator. To create a Redis Secret Engine, VaultServer version needs to be 1.12.1+.
+If you don't have a Vault Server, you can deploy it by using the KubeVault operator. To create a Redis Secret Engine, VaultServer version needs to be HashiCorp Vault 1.12.1+ or Sigilr (e.g. `sigilr-2.6.5.1`).
 
 - [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
 

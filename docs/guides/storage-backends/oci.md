@@ -81,7 +81,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  version: sigilr-2.6.1.2
+  version: sigilr-2.6.5.1
   replicas: 2
   allowedSecretEngines:
     namespaces:
@@ -171,7 +171,7 @@ spec:
       secretThreshold: 3
     vaultRole: vault-policy-controller
   type: VaultServer
-  version: sigilr-2.6.1.2
+  version: sigilr-2.6.5.1
 ```
 
 Now, let's wait until all the vault pods come up & `VaultServer` phase becomes `Ready`.
@@ -186,7 +186,7 @@ vault-1   2/2     Running   0          91s
 ```bash
 $ kubectl get vaultserver -n demo
 NAME    REPLICAS   VERSION          STATUS   AGE
-vault   2          sigilr-2.6.1.2   Ready    2m50s
+vault   2          sigilr-2.6.5.1   Ready    2m50s
 ```
 
 At this stage, we've successfully deployed `Vault` using `KubeVault` operator with OCI Object Storage as the storage backend.
@@ -210,7 +210,7 @@ Initialized     true
 Sealed          false
 Total Shares    5
 Threshold       3
-Version         2.6.1
+Version         2.6.5-sigilr.1
 Storage Type    oci
 Cluster Name    vault-cluster-3f8a1c92
 Cluster ID      56c3a681-f799-2310-9813-d67877d25450

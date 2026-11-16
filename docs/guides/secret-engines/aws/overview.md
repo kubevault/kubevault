@@ -43,6 +43,8 @@ If you don't have a Vault Server, you can deploy it by using the KubeVault opera
 
 - [Deploy Vault Server](/docs/guides/vault-server/vault-server.md)
 
+> **Note:** The AWS secret engine is part of HashiCorp Vault and is not included in Sigilr (`sigilr-*`) images. When you follow the guide above, set `spec.version` of the `VaultServer` to a HashiCorp Vault version such as `1.18.4`.
+
 The KubeVault operator can manage policies and secret engines of Vault servers which are not provisioned by the KubeVault operator. You need to configure both the Vault server and the cluster so that the KubeVault operator can communicate with your Vault server.
 
 - [Configure cluster and Vault server](/docs/guides/vault-server/external-vault-sever.md#configuration)

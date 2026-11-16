@@ -48,7 +48,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  version: 1.10.3
+  version: "sigilr-2.6.5.1"
   replicas: 3
   allowedSecretEngines:
     namespaces:
@@ -89,8 +89,8 @@ Now, wait until `VaultServer` has status `Ready`. i.e,
 
 ```bash
 $ kubectl get vs -n demo
-NAME    REPLICAS   VERSION   STATUS   AGE
-vault   3          1.12.1    Ready    128m
+NAME    REPLICAS   VERSION          STATUS   AGE
+vault   3          sigilr-2.6.5.1   Ready    128m
 ```
 
 ### Create Issuer/ ClusterIssuer

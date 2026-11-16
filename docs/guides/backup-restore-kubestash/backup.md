@@ -169,7 +169,7 @@ metadata:
 spec:
   terminationPolicy: WipeOut
   replicas: 3
-  version: 1.18.4 
+  version: "sigilr-2.6.5.1"
   allowedSecretEngines:
     namespaces:
       from: All
@@ -266,7 +266,7 @@ spec:
       secretThreshold: 3
     vaultRole: vault-policy-controller
   type: VaultServer
-  version: 1.18.4
+  version: "sigilr-2.6.5.1"
 
 ```
 
@@ -282,8 +282,8 @@ vault-2   2/2     Running   0          65s
 
 ```bash
 $ kubectl get vaultserver -n demo
-NAME    REPLICAS   VERSION   STATUS   AGE
-vault   3          1.18.4    Ready    2m50s
+NAME    REPLICAS   VERSION          STATUS   AGE
+vault   3          sigilr-2.6.5.1   Ready    2m50s
 ```
 
 At this stage, we've successfully deployed `Vault` using `KubeVault` operator & ready for taking `Backup`.

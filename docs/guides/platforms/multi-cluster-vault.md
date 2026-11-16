@@ -39,20 +39,20 @@ vault-operator-5fc7666575-8v6ft                            1/1     Running   0  
 We are going to deploy Vault in `demo-cluster-1` using KubeVault operator. Guides to deploy Vault in GKE can be found [here](/docs/guides/platforms/gke.md).
 
 ```bash
-$ kubectl get vaultserverversions/1.2.0 -o yaml
+$ kubectl get vaultserverversions/sigilr-2.6.5.1 -o yaml
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: 1.2.0
+  name: sigilr-2.6.5.1
 spec:
-  version: 1.2.0
-  deprecated: false
-  vault:
-    image: vault:1.2.0
-  unsealer:
-    image: kubevault/vault-unsealer:v0.3.0
+  distribution: Sigilr
   exporter:
-    image: kubevault/vault-exporter:0.1.0
+    image: ghcr.io/kubevault/vault-exporter:v0.1.1
+  unsealer:
+    image: ghcr.io/kubevault/vault-unsealer:v0.27.0
+  vault:
+    image: ghcr.io/sigilr/openbao:2.6.5-sigilr.1
+  version: 2.6.5
 
 $ cat examples/guides/provider/multi-cluster/my-vault.yaml
 cat examples/guides/provider/multi-cluster/my-vault.yaml
@@ -63,7 +63,7 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: "1.2.0"
+  version: "sigilr-2.6.5.1"
   backend:
     gcs:
       bucket: "demo-vault"
@@ -91,8 +91,8 @@ $ kubectl apply -f docs/examples/guides/provider/multi-cluster/my-vault.yaml
 vaultserver.kubevault.com/my-vault created
 
 $ kubectl get vaultserver my-vault -n demo
-NAME       NODES   VERSION   STATUS    AGE
-my-vault   1       1.2.0     Running   1m
+NAME       NODES   VERSION          STATUS    AGE
+my-vault   1       sigilr-2.6.5.1   Running   1m
 
 $ kubectl get services -n demo
 NAME       TYPE           CLUSTER-IP     EXTERNAL-IP       PORT(S)                                        AGE

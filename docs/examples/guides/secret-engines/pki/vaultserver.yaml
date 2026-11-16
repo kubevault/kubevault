@@ -4,7 +4,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  version: "1.18.4"
+  version: "sigilr-2.6.5.1"
   replicas: 3
   backend:
     raft:

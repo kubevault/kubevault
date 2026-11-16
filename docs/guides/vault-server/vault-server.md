@@ -40,24 +40,14 @@ To start with this tutorial, you need to be familiar with the following CRDs:
 ### Deploy VaultServerVersion
 
 By installing KubeVault operator, you have already deployed some VaultServerVersion crds named after
-the Vault image tag its using. You can list them by using the following command:
+the distribution and version they run (for example, `1.18.4` for HashiCorp Vault and `sigilr-2.6.5.1` for Sigilr). You can list them by using the following command:
 
 ```bash
 $ kubectl get vaultserverversions
-NAME    VERSION   VAULT_IMAGE     DEPRECATED     AGE
-0.11.5   0.11.5    vault:0.11.5                20h
-1.10.3   1.10.3    vault:1.10.3                20h
-1.11.5   1.11.5    vault:1.11.5                20h
-1.12.1   1.12.1    vault:1.12.1                20h
-1.2.0    1.2.0     vault:1.2.0                 20h
-1.2.2    1.2.2     vault:1.2.2                 20h
-1.2.3    1.2.3     vault:1.2.3                 20h
-1.5.9    1.5.9     vault:1.5.9                 20h
-1.6.5    1.6.5     vault:1.6.5                 20h
-1.7.2    1.7.2     vault:1.7.2                 20h
-1.7.3    1.7.3     vault:1.7.3                 20h
-1.8.2    1.8.2     vault:1.8.2                 20h
-1.9.2    1.9.2     vault:1.9.2                 20h
+NAME             VERSION   VAULT_IMAGE                             DEPRECATED   AGE
+1.18.4           1.18.4    ghcr.io/appscode-images/vault:1.18.4                 20h
+openbao-2.7.1    2.7.1     docker.io/openbao/openbao:2.7.1                      20h
+sigilr-2.6.5.1   2.6.5     ghcr.io/sigilr/openbao:2.6.5-sigilr.1                20h
 ```
 
 Now you can use them or deploy your own version by yourself:
@@ -66,22 +56,31 @@ Now you can use them or deploy your own version by yourself:
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: 1.10.3
+  name: sigilr-2.6.5.1
 spec:
+  distribution: Sigilr
   exporter:
-    image: kubevault/vault-exporter:v0.1.1
+    image: ghcr.io/kubevault/vault-exporter:v0.1.1
+  initContainer:
+    image: docker.io/library/busybox
+  stash:
+    addon:
+      backupTask:
+        name: vault-backup-1.10.3
+      restoreTask:
+        name: vault-restore-1.10.3
   unsealer:
-    image: kubevault/vault-unsealer:v0.8.0
+    image: ghcr.io/kubevault/vault-unsealer:v0.27.0
   vault:
-    image: vault:1.10.3
-  version: 1.10.3
+    image: ghcr.io/sigilr/openbao:2.6.5-sigilr.1
+  version: 2.6.5
 ```
 
-Deploy VaultServerVersion `1.10.3`:
+Deploy VaultServerVersion `sigilr-2.6.5.1`:
 
 ```bash
 $ kubectl apply -f https://github.com/kubevault/kubevault/raw/{{< param "info.version" >}}/docs/examples/guides/vault-server/vaultserverversion.yaml
-vaultserverversion.catalog.kubevault.com/1.10.3 created
+vaultserverversion.catalog.kubevault.com/sigilr-2.6.5.1 created
 ```
 
 ### Deploy VaultServer
@@ -96,7 +95,7 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: 1.10.3
+  version: sigilr-2.6.5.1
   serviceTemplates:
   - alias: vault
     metadata:
@@ -127,14 +126,14 @@ Check VaultServer status:
 
 ```bash
 $ kubectl get vaultserver -n demo
-NAME    NODES   VERSION   STATUS       AGE
-vault   1       1.10.3     Processing   47s
+NAME    NODES   VERSION          STATUS       AGE
+vault   1       sigilr-2.6.5.1   Processing   47s
 $ kubectl get vaultserver -n demo
-NAME    NODES   VERSION   STATUS   AGE
-vault   1       1.10.3     Sealed   54s
+NAME    NODES   VERSION          STATUS   AGE
+vault   1       sigilr-2.6.5.1   Sealed   54s
 $ kubectl get vaultserver -n demo
-NAME    NODES   VERSION   STATUS    AGE
-vault   1       1.10.3     Running   68s
+NAME    NODES   VERSION          STATUS    AGE
+vault   1       sigilr-2.6.5.1   Running   68s
 ```
 
 Since the status is `Running` that means you have deployed the Vault server successfully. Now, you are ready to use with this Vault server.
