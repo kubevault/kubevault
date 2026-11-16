@@ -25,7 +25,7 @@ metadata:
   name: vault-with-couchdb
   namespace: demo
 spec:
-  version: "2.0.0"
+  version: "sigilr-2.6.5.1"
   replicas: 1
   backend:
     couchdb:

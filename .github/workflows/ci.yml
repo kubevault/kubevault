@@ -85,7 +85,13 @@ jobs:
           cd installer
           git checkout $(git describe --tags --abbrev=0 2>/dev/null || echo master)
           cd ..
+          # The checker binary embeds a snapshot of the KubeDB catalog, which lags
+          # behind newly added database versions. Use the latest released catalog.
+          git clone https://github.com/kubedb/installer.git kubedb-installer
+          cd kubedb-installer
+          git checkout $(git describe --tags --abbrev=0 2>/dev/null || echo master)
+          cd ..
           git clone https://github.com/kmodules/resource-metadata.git
           mv resource-metadata/hub /tmp
           rm -rf resource-metadata
-          codespan-schema-checker --kubevault-catalog-dir=./installer/catalog --content=./docs
+          codespan-schema-checker --kubevault-catalog-dir=./installer/catalog --kubedb-catalog-dir=./kubedb-installer/catalog/kubedb --content=./docs

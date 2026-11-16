@@ -29,9 +29,33 @@ namespace/demo created
 
 ### Deploy SQL Server
 
-> This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run SQL Server. The KubeDB operator must be installed in your cluster.
+> This tutorial uses [KubeDB](https://kubedb.com/docs/latest/setup/) to run SQL Server. The KubeDB operator must be installed in your cluster. KubeDB uses [cert-manager](https://cert-manager.io/docs/installation/kubernetes/) to issue the certificates that `MSSQLServer` requires, so make sure `cert-manager` is installed too.
 
-Let's deploy a sample `MSSQLServer` database. Setting `ACCEPT_EULA` to `Y` means that you accept the end-user license agreement of Microsoft SQL Server.
+First, create an `Issuer` that KubeDB will use to issue those certificates. Generate a CA certificate and store it in a secret:
+
+```bash
+$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./ca.key -out ./ca.crt -subj "/CN=MSSQLServer/O=kubedb"
+$ kubectl create secret tls mssqlserver-ca --cert=ca.crt --key=ca.key --namespace=demo
+secret/mssqlserver-ca created
+```
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: mssqlserver-ca-issuer
+  namespace: demo
+spec:
+  ca:
+    secretName: mssqlserver-ca
+```
+
+```bash
+$ kubectl apply -f mssqlserver-ca-issuer.yaml
+issuer.cert-manager.io/mssqlserver-ca-issuer created
+```
+
+Now let's deploy a sample `MSSQLServer` database. `spec.tls.clientTLS: false` keeps the connection from Vault to SQL Server unencrypted, while the `Issuer` is still used by KubeDB to secure the SQL Server backup proxy. Setting `ACCEPT_EULA` to `Y` means that you accept the end-user license agreement of Microsoft SQL Server.
 
 ```yaml
 apiVersion: kubedb.com/v1alpha2
@@ -43,6 +67,12 @@ spec:
   version: "2022-cu12"
   replicas: 1
   storageType: Durable
+  tls:
+    issuerRef:
+      name: mssqlserver-ca-issuer
+      kind: Issuer
+      apiGroup: "cert-manager.io"
+    clientTLS: false
   podTemplate:
     spec:
       containers:

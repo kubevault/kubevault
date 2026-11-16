@@ -74,7 +74,7 @@ metadata:
   creationTimestamp: "2018-12-26T06:12:51Z"
   labels:
     app: vault-operator
-    chart: vault-operator-{{< param "info.version" >}}
+    chart: vault-operator-v2026.11.15
     heritage: Tiller
     release: vault-operator
   name: vault-operator
