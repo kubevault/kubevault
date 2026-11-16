@@ -112,7 +112,7 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: "1.18.4"
+  version: "sigilr-2.6.5.1"
   backend:
     gcs:
       bucket: "demo-vault"
@@ -133,24 +133,24 @@ spec:
 Here, `spec.version` specifies the name of the [VaultServerVersion](/docs/concepts/vault-server-crds/vaultserverversion.md) CRD. If that does not exist, then create one.
 
 ```bash
-$ kubectl get vaultserverversions
-NAME     VERSION   VAULT_IMAGE    DEPRECATED   AGE
-1.2.0    1.2.0     vault:1.2.0    false        1m
+$ kubectl get vaultserverversions sigilr-2.6.5.1
+NAME             VERSION   VAULT_IMAGE                             DEPRECATED   AGE
+sigilr-2.6.5.1   2.6.5     ghcr.io/sigilr/openbao:2.6.5-sigilr.1                12m
 
-$ kubectl get vaultserverversions/1.2.0 -o yaml
+$ kubectl get vaultserverversions/sigilr-2.6.5.1 -o yaml
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: 1.2.0
+  name: sigilr-2.6.5.1
 spec:
-  version: 1.2.0
-  deprecated: false
-  vault:
-    image: vault:1.2.0
-  unsealer:
-    image: kubevault/vault-unsealer:v0.3.0
+  distribution: Sigilr
   exporter:
-    image: kubevault/vault-exporter:0.1.0
+    image: ghcr.io/kubevault/vault-exporter:v0.1.1
+  unsealer:
+    image: ghcr.io/kubevault/vault-unsealer:v0.27.0
+  vault:
+    image: ghcr.io/sigilr/openbao:2.6.5-sigilr.1
+  version: 2.6.5
 ```
 
 `spec.backend.gcs.credentialSecret` and `spec.unsealer.mode.googleKmsGcs.credentialSecret` specifies the name of the Kubernetes secret containing `vault-sa@ackube.iam.gserviceaccount.com` credential.
@@ -179,7 +179,7 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: "1.2.0"
+  version: "sigilr-2.6.5.1"
   backend:
     gcs:
       bucket: "demo-vault"
@@ -204,8 +204,8 @@ Check the `my-vault` status. It may take some time to reach `Running` stage.
 
 ```bash
 $ kubectl get vaultserver/my-vault -n demo
-NAME       NODES   VERSION   STATUS    AGE
-my-vault   1       1.2.0     Running   2m
+NAME       NODES   VERSION          STATUS    AGE
+my-vault   1       sigilr-2.6.5.1   Running   2m
 ```
 
 `status` field in `my-vault` will show more detail information.
@@ -321,7 +321,7 @@ Seal Type       shamir
 Sealed          false
 Total Shares    4
 Threshold       2
-Version         1.2.0
+Version         2.6.5-sigilr.1
 Cluster Name    vault-cluster-84d6b1b0
 Cluster ID      bb6487bb-0deb-9e95-144e-e85c9ebd07eb
 HA Enabled      false

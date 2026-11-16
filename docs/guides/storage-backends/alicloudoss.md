@@ -59,7 +59,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  version: sigilr-2.6.1.2
+  version: sigilr-2.6.5.1
   replicas: 1
   allowedSecretEngines:
     namespaces:
@@ -145,7 +145,7 @@ spec:
       secretThreshold: 3
     vaultRole: vault-policy-controller
   type: VaultServer
-  version: sigilr-2.6.1.2
+  version: sigilr-2.6.5.1
 ```
 
 Now, let's wait until all the vault pods come up & `VaultServer` phase becomes `Ready`.
@@ -159,7 +159,7 @@ vault-0   2/2     Running   0          2m8s
 ```bash
 $ kubectl get vaultserver -n demo
 NAME    REPLICAS   VERSION          STATUS   AGE
-vault   1          sigilr-2.6.1.2   Ready    2m50s
+vault   1          sigilr-2.6.5.1   Ready    2m50s
 ```
 
 At this stage, we've successfully deployed `Vault` using `KubeVault` operator with Alicloud OSS as the storage backend.
@@ -183,7 +183,7 @@ Initialized     true
 Sealed          false
 Total Shares    5
 Threshold       3
-Version         2.6.1-sigilr.2
+Version         2.6.5-sigilr.1
 Storage Type    alicloudoss
 Cluster Name    vault-cluster-12850424
 Cluster ID      4e463f1c-3501-e520-41a7-be8979c4d2d4

@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Deploy VaultServer with Raft Backend
 
-You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator.
+You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator.
 
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -36,7 +36,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  version: 1.10.3
+  version: sigilr-2.6.5.1
   replicas: 3
   allowedSecretEngines:
     namespaces:
@@ -133,8 +133,8 @@ vault-2   2/2     Running   0          65s
 
 ```bash
 $ kubectl get vaultserver -n demo
-NAME    REPLICAS   VERSION   STATUS   AGE
-vault   3          1.18.4    Ready    2m50s
+NAME    REPLICAS   VERSION          STATUS   AGE
+vault   3          sigilr-2.6.5.1   Ready    2m50s
 ```
 
 At this stage, we've successfully deployed `Vault` using `KubeVault` operator & ready for taking `Backup`.
@@ -158,7 +158,7 @@ Initialized     true
 Sealed          false
 Total Shares    5
 Threshold       3
-Version         1.2.3
+Version         2.6.5-sigilr.1
 Cluster Name    vault-cluster-bb64ffd2
 Cluster ID      94fcaedb-0e10-8600-21f5-97339509c60b
 HA Enabled      false

@@ -24,7 +24,7 @@ metadata:
   namespace: demo
 spec:
   replicas: 1
-  version: "1.18.4"
+  version: "sigilr-2.6.5.1"
   backend:
     mysql:
       address: "my.mysql.com:3306"

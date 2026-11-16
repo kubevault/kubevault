@@ -50,7 +50,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  version: 1.10.3
+  version: "sigilr-2.6.5.1"
   replicas: 3
   allowedSecretEngines:
     namespaces:
@@ -152,8 +152,8 @@ vault-2   2/2     Running   0          65s
 
 ```bash
 $ kubectl get vaultserver -n demo
-NAME    REPLICAS   VERSION   STATUS   AGE
-vault   3          1.10.3    Ready    2m50s
+NAME    REPLICAS   VERSION          STATUS   AGE
+vault   3          sigilr-2.6.5.1   Ready    2m50s
 ```
 
 At this stage, we've successfully deployed `Vault` using `KubeVault` operator & ready for taking `Backup`.

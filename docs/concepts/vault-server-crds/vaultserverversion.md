@@ -24,15 +24,15 @@ Using a separate CRD for specifying respective docker images allows us to modify
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: '1.10.3'
+  name: 'sigilr-2.6.5.1'
 spec:
-  version: 1.10.3
+  version: 2.6.5
   exporter:
-    image: kubevault/vault-exporter:v0.1.1
+    image: ghcr.io/kubevault/vault-exporter:v0.1.1
   unsealer:
-    image: kubevault/vault-unsealer:v0.8.0
+    image: ghcr.io/kubevault/vault-unsealer:v0.27.0
   vault:
-    image: vault:1.10.3
+    image: ghcr.io/sigilr/openbao:2.6.5-sigilr.1
 ```
 
 ### VaultServerVersion Spec
@@ -43,22 +43,22 @@ VaultServerVersion `.spec` contains image information.
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: '1.10.3'
+  name: 'sigilr-2.6.5.1'
 spec:
-  version: 1.10.3
+  version: 2.6.5
   exporter:
-    image: kubevault/vault-exporter:v0.1.1
+    image: ghcr.io/kubevault/vault-exporter:v0.1.1
   unsealer:
-    image: kubevault/vault-unsealer:v0.8.0
+    image: ghcr.io/kubevault/vault-unsealer:v0.27.0
   vault:
-    image: vault:1.10.3
+    image: ghcr.io/sigilr/openbao:2.6.5-sigilr.1
 ```
 
 `.spec` contains following fields:
 
 #### spec.version
 
-`spec.version` is a required field that specifies the original version of Vault that has been used to build the docker image specified in `spec.vault.image` field.
+`spec.version` is a required field that specifies the original version of Vault (or OpenBao, for the OpenBao and Sigilr distributions) that has been used to build the docker image specified in `spec.vault.image` field.
 
 #### spec.deprecated
 
@@ -71,7 +71,7 @@ spec:
 ```yaml
 spec:
   vault:
-    image: vault:1.10.3
+    image: ghcr.io/sigilr/openbao:2.6.5-sigilr.1
 ```
 
 #### spec.unsealer.image
@@ -81,7 +81,7 @@ spec:
 ```yaml
 spec:
   unsealer:
-    image: kubevault/vault-unsealer:0.8.0
+    image: ghcr.io/kubevault/vault-unsealer:v0.27.0
 ```
 
 #### spec.exporter.image
@@ -91,5 +91,5 @@ spec:
 ```yaml
 spec:
   exporter:
-    image: kubevault/vault-exporter:0.1.1
+    image: ghcr.io/kubevault/vault-exporter:v0.1.1
 ```

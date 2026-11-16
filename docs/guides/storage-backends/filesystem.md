@@ -14,7 +14,7 @@ section_menu_id: guides
 
 # Deploy VaultServer with Filesystem Backend
 
-You can easily deploy and manage [HashiCorp Vault](https://www.vaultproject.io/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with the filesystem as the storage backend. The data is kept on a `PersistentVolume`.
+You can easily deploy and manage [OpenBao](https://openbao.org/) in the Kubernetes cluster using KubeVault operator. In this tutorial, we are going to deploy Vault on the Kubernetes cluster using KubeVault operator, with the filesystem as the storage backend. The data is kept on a `PersistentVolume`.
 
 To keep everything isolated, we are going to use a separate namespace called `demo` throughout this tutorial.
 
@@ -40,7 +40,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  version: 1.18.4
+  version: sigilr-2.6.5.1
   replicas: 1
   allowedSecretEngines:
     namespaces:
@@ -137,7 +137,7 @@ spec:
       secretThreshold: 3
     vaultRole: vault-policy-controller
   type: VaultServer
-  version: 1.18.4
+  version: sigilr-2.6.5.1
 ```
 
 Now, let's wait until all the vault pods come up & `VaultServer` phase becomes `Ready`.
@@ -150,8 +150,8 @@ vault-0   2/2     Running   0          2m8s
 
 ```bash
 $ kubectl get vaultserver -n demo
-NAME    REPLICAS   VERSION   STATUS   AGE
-vault   1          1.18.4    Ready    2m50s
+NAME    REPLICAS   VERSION          STATUS   AGE
+vault   1          sigilr-2.6.5.1   Ready    2m50s
 ```
 
 At this stage, we've successfully deployed `Vault` using `KubeVault` operator with Filesystem as the storage backend.
@@ -175,8 +175,7 @@ Initialized     true
 Sealed          false
 Total Shares    5
 Threshold       3
-Version         1.18.4
-Build Date      2025-01-29T13:57:54Z
+Version         2.6.5-sigilr.1
 Storage Type    file
 Cluster Name    vault-cluster-3f8a1c92
 Cluster ID      56c3a681-f799-2310-9813-d67877d25450

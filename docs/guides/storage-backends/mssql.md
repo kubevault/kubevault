@@ -82,7 +82,7 @@ metadata:
   name: vault
   namespace: demo
 spec:
-  version: sigilr-2.6.1.2
+  version: sigilr-2.6.5.1
   replicas: 1
   allowedSecretEngines:
     namespaces:
@@ -172,7 +172,7 @@ spec:
       secretThreshold: 3
     vaultRole: vault-policy-controller
   type: VaultServer
-  version: sigilr-2.6.1.2
+  version: sigilr-2.6.5.1
 ```
 
 Now, let's wait until all the vault pods come up & `VaultServer` phase becomes `Ready`.
@@ -186,7 +186,7 @@ vault-0   2/2     Running   0          3m11s
 ```bash
 $ kubectl get vaultserver -n demo
 NAME    REPLICAS   VERSION          STATUS   AGE
-vault   1          sigilr-2.6.1.2   Ready    3m45s
+vault   1          sigilr-2.6.5.1   Ready    3m45s
 ```
 
 At this stage, we've successfully deployed `Vault` using `KubeVault` operator with MSSQL as the storage backend.
@@ -210,7 +210,7 @@ Initialized     true
 Sealed          false
 Total Shares    5
 Threshold       3
-Version         2.6.1-sigilr.2
+Version         2.6.5-sigilr.1
 Storage Type    mssql
 Cluster Name    vault-cluster-7211c161
 Cluster ID      a5b837de-622c-38e1-06ce-3be099659e38

@@ -1,13 +1,21 @@
 apiVersion: catalog.kubevault.com/v1alpha1
 kind: VaultServerVersion
 metadata:
-  name: '1.18.4'
+  name: sigilr-2.6.5.1
 spec:
-  distribution: Vault
+  distribution: Sigilr
   exporter:
     image: ghcr.io/kubevault/vault-exporter:v0.1.1
+  initContainer:
+    image: docker.io/library/busybox
+  stash:
+    addon:
+      backupTask:
+        name: vault-backup-1.10.3
+      restoreTask:
+        name: vault-restore-1.10.3
   unsealer:
-    image: ghcr.io/kubevault/vault-unsealer:v0.25.0
+    image: ghcr.io/kubevault/vault-unsealer:v0.27.0
   vault:
-    image: ghcr.io/appscode-images/vault:1.18.4
-  version: 1.18.4
+    image: ghcr.io/sigilr/openbao:2.6.5-sigilr.1
+  version: 2.6.5
